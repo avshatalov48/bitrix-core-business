@@ -1,0 +1,36 @@
+<?
+$MESS["SALE_DH_CPCR_NAME"] = "SPSR";
+$MESS["SALE_DH_CPCR_DESCRIPTION"] = "Eilversand";
+$MESS["SALE_DH_CPCR_DESCRIPTION_INNER"] = "SPSR-Handler. Funktioniert auf der Basis  <a href=\"http://www.cpcr.ru/calculator.html\" target=\"_blank\">SPSR-tarifcalculator</a> . Die Adresse des E-Shops muss angegeben werden in <a href=\"/bitrix/admin/settings.php?mid=sale&lang=ru\">Moduleinstellungen</a>. <br />Einschränkungen: nur innerhalb von Russland.";
+$MESS["SALE_DH_CPCR_SIMPLE_TITLE"] = "Eilversand";
+$MESS["SALE_DH_CPCR_SIMPLE_DESCRIPTION"] = "Frachtlieferung  bis max. 35 kg mit einem festgelegten Anlieferungstermin.";
+$MESS["SALE_DH_CPCR_ECONOM_TITLE"] = "SPSR - Econom";
+$MESS["SALE_DH_CPCR_ECONOM_DESCRIPTION"] = "Eine preisgünstige Lösung für die Lieferung schwerer Fracht innerhalb von Russland.";
+$MESS["SALE_DH_CPCR_CONFIG_TITLE"] = "Parameter";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY"] = "Frachtkategorie";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_1"] = "Dokumente";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_2"] = "Mobiltelefone";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_3"] = "Bürotechnik";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_4"] = "Wertpapiere";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_5"] = "Schmuck";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_6"] = "Kosmetik";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_7"] = "Textilien";
+$MESS["SALE_DH_CPCR_CONFIG_CATEGORY_8"] = "andere";
+$MESS["SALE_DH_CPCR_ERROR_CONNECT"] = "Die Versandkosten können nicht berechnet werden: Verbindungsfehler";
+$MESS["SALE_DH_CPCR_ERROR_RESPONSE"] = "Die Versandkosten können nicht berechnet werden: Falsche Serverantwort";
+$MESS["SALE_DH_CPCR_NEXT_STEP"] = "Standorte bearbeiten";
+$MESS["SALE_DH_CPCR_SIMPLE13_TITLE"] = "Schnell-Lieferung 13.00 Uhr";
+$MESS["SALE_DH_CPCR_SIMPLE13_DESCRIPTION"] = "Die bestellte Ware wird Ihnen schon am nächsten Werktag bis 13.00 Uhr geliefert.";
+$MESS["SALE_DH_CPCR_SIMPLE18_TITLE"] = "Schnell-Lieferung 18.00 Uhr";
+$MESS["SALE_DH_CPCR_SIMPLE18_DESCRIPTION"] = "Die bestellte Ware wird Ihnen schon am nächsten Werktag bis 18.00 Uhr geliefert.";
+$MESS["SALE_DH_CPCR_BIZON_TITLE"] = "BISON-CARGO";
+$MESS["SALE_DH_CPCR_BIZON_DESCRIPTION"] = "Lieferung von Frachtgütern bis zu 68 kg innerhalb möglichst kürzester Zeit.";
+$MESS["SALE_DH_CPCR_COLIBRI_TITLE"] = "KOLIBRI-DOKUMENT";
+$MESS["SALE_DH_CPCR_COLIBRI_DESCRIPTION"] = "Lieferung von Päckchen bis zu 0,4 kg in einem Briefumschlag von Tür zu Tür.";
+$MESS["SALE_DH_CPCR_PELICAN_TITLE"] = "PELIKAN-ONLINE";
+$MESS["SALE_DH_CPCR_PELICAN_DESCRIPTION"] = "Lieferung von Frachtgütern von 1 bis 31,5 kg per Straßen- und Eisenbahntransport bzw. Lufttransport.";
+$MESS["SALE_DH_CPCR_FRAXT_TITLE"] = "FRACHT";
+$MESS["SALE_DH_CPCR_FRAXT_DESCRIPTION"] = "Lieferung von schweren oder sperrigen Gütern bis zu 68 kg innerhalb von Zeitrahmen, die mit Kunden extra abgestimmt werden.";
+$MESS["SALE_DH_CPCR_DAYS"] = "Tage";
+$MESS["SALE_DH_DEPRECATED_MESSAGE"] = "Dieser Lieferservice ist veraltet und wird nicht mehr unterstützt. Nutzen Sie bitte den #A1#neuen SPSR-Handler#A2#";
+?>

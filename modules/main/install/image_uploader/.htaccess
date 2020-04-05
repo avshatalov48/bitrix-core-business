@@ -1,0 +1,4 @@
+<IfModule mod_mime.c>
+	AddType application/binary .jar
+	AddType application/binary .cab
+</IfModule>

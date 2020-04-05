@@ -1,0 +1,138 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px; *
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+ 	padding:8px; 
+}
+
+table.sonet-user-profile-friend-box
+{
+	margin: 0 0 10px 0;
+}
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none;
+	padding:6px 5px; 
+	background:transparent;
+}
+
+.sonet_online
+{
+	color:#c30808;
+	font-weight:bold;
+	font-size:11px;
+}
+
+table.sonet-user-profile-friend-user tbody td, table.sonet-user-profile-friend-user  td
+{
+	vertical-align: top;
+	padding: 0px!important;
+}
+
+table.sonet-user-profile-friend-user tbody td.checkbox-cell, table.sonet-user-profile-friend-user td.checkbox-cell
+{
+	width: 20px;
+}
+
+table.sonet-user-profile-friend-box tbody td div.user-div, table.sonet-user-profile-friend-box  td div.user-div
+{
+	padding: 0px 0 10px 0px;
+}
+
+div.bx-links-container {
+	width: 100%;
+	height: 20px;
+	text-align: right;
+}
+div.bx-links-container a {
+	padding-left: 22px;
+	padding-right: 10px;	
+	padding-top: 3px;
+	padding-bottom: 2px;
+	margin-left: 10px;
+	line-height: 22px;
+	background-repeat: no-repeat;
+}
+
+a.bx-owner-link {background-image: url(/bitrix/components/bitrix/socialnetwork.group_users/templates/.default/images/set_owner.gif);}
+a.bx-owner-link span {padding-right: 8px; background-image: url(/bitrix/components/bitrix/socialnetwork.group_users/templates/.default/images/arrow.gif); background-position: right 7px; background-repeat: no-repeat;}
+
+td.popupmenu div.popupitem .checked1 {
+	background-image:url(images/checkbox.gif);
+}
+
+.sonet-add-user-button 
+{
+	padding: 10px 0px 10px 0px;
+}
+
+.sonet-add-user-button-left 
+{ 
+	background: url(images/add_user_button_left.gif) no-repeat; 
+	display: block; 
+	float: left; 
+	width: 26px;
+	height: 27px;
+}
+
+.sonet-add-user-button-fill 
+{ 
+	background: url(images/add_user_button_fill.gif) center left repeat-x; 
+	display: block; 
+	float: left; 
+	height: 27px;
+	text-align: left;
+	padding: 0px 10px 0px 2px;
+}
+
+.sonet-add-user-button-fill-text 
+{ 
+	line-height: 24px;
+	text-decoration: none;
+	color: #000000;
+	font-weight: bold;
+}
+
+
+.sonet-add-user-button-right 
+{ 
+	background: url(images/add_user_button_right.gif) no-repeat; 
+	display: block; 
+	float: left; 
+	width: 4px;
+	height: 27px;
+}
+
+.sonet-add-user-button-clear
+{ 
+	clear: both; 
+}
+
+/* Popup menu */
+td.popupmenu {border:1px solid #B6B6B6; padding:1px; background-color:#FCFCFC; background-image:url(images/menu_gutter.gif); background-repeat:repeat-y;}
+td.popupmenu div.popupitem {margin:1px; cursor:default;}
+td.popupmenu div.popupitemover {margin:0px; border:1px solid #AEB6C2; background-color:#CEDAEE;}
+td.popupmenu div.popupitem td.gutter {width:20px;}
+td.popupmenu div.popupitem td.arrow {width:10px; background-image:url(images/menu_arrow.gif); background-repeat:no-repeat; background-position:2px center;}
+td.popupmenu div.popupitem td.item {padding:3px 5px 3px 9px; font-size:100%; white-space:nowrap; color:black;}
+td.popupmenu div.popupitem td.default {font-weight:bold;}
+td.popupmenu div.popupitem td.disabled {color:#939393;}
+td.popupmenu div.popupseparator {margin:1px 0px 1px 30px; background-color:#B6B6B6; height:1px; overflow:hidden;}

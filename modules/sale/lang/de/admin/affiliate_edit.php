@@ -1,0 +1,32 @@
+<?
+$MESS["SAE_NO_SITE_PLAN"] = "Die Seite der Umsatzplanung wurde nicht angegeben";
+$MESS["SAE_NO_PLAN"] = "Die Umsatzplanung wurde nicht angegeben";
+$MESS["SAE_NO_DATE_CREATE"] = "Das Erstellungsdatum wurde nicht angegeben";
+$MESS["SAE_AFFILIATE_ALREADY_EXISTS"] = "Der Affiliate des Nutzers #Nutzer_ID# ist bereits auf der Seite #SITE_ID# vorhanden";
+$MESS["SAE_ERROR_SAVE_AFF"] = "Beim Speichern der Affiliate ist ein Fehler aufgetreten";
+$MESS["SAE_TITLE_UPDATE_AFF"] = "Affiliate Nr. #ID# bearbeiten";
+$MESS["SAE_TITLE_ADD_AFF"] = "Neuer Affiliate";
+$MESS["SAE_AFF_LIST"] = "Affiliate";
+$MESS["SAE_AFF_ADD"] = "Affiliate hinzufügen";
+$MESS["SAE_AFF_DELETE"] = "Affiliate löschen";
+$MESS["SAE_AFF_DELETE_CONF"] = "Sind Sie sicher, dass  Sie diesen Affiliaten  löschen wollen?";
+$MESS["SAE_AFF_TAB"] = "Affiliate";
+$MESS["SAE_AFF_TAB_TITLE"] = "Affiliate-Parameter";
+$MESS["SAE_DATE_UPDATE"] = "Letzte Änderung:";
+$MESS["SAE_SITE"] = "Seite:";
+$MESS["SAE_PROFILE"] = "Nutzerprofil";
+$MESS["SAE_AFFILIATE_REG"] = "Registriert durch den Affiliaten";
+$MESS["SAE_NO_AFFILIATE"] = "Der Affiliate wurde nicht gefunden";
+$MESS["SAE_WAIT"] = "warten";
+$MESS["SAE_PLAN"] = "Umsatzplanung:";
+$MESS["SAE_ACTIVE"] = "Aktiv:";
+$MESS["SAE_DATE_REG"] = "Registrierungsdatum";
+$MESS["SAE_PAYED_SUM"] = "Ausbezahlter Betrag:";
+$MESS["SAE_PENDING_SUM"] = "Berechneter Betrag:";
+$MESS["SAE_LAST_CALC"] = "Letzte Berechnung";
+$MESS["SAE_FIX_PLAN"] = "Umsatzplanung fixieren";
+$MESS["SAE_AFF_SITE"] = "Affiliate-Seite";
+$MESS["SAE_AFF_DESCRIPTION"] = "Affiliate-Beschreibung";
+$MESS["SAE_NO_USER"] = "Nutzer wurde nicht angegeben";
+$MESS["SAE_USER"] = "Nutzer:";
+?>

@@ -1,0 +1,22 @@
+<?
+$MESS ['LEARNING_RESUME'] = "Resume";
+$MESS ['LEARNING_PUBLIC_PROFILE'] = "Allow public access to student's profile";
+$MESS ['LEARNING_EDIT_PROFILE'] = "Profile settings";
+$MESS ['LEARNING_SAVE'] = "Save";
+$MESS ['LEARNING_TRANSCRIPT'] = "Link to the certification page";
+$MESS ['LEARNING_PERSONAL_DATA'] = "Personal data";
+$MESS ['LEARNING_USER_NAME'] = "First Name";
+$MESS ['LEARNING_COUNTRY_NONE'] = "(undefined)";
+$MESS ['LEARNING_USER_LAST_NAME'] = "Last Name";
+$MESS ['LEARNING_USER_EMAIL'] = "E-mail";
+$MESS ['LEARNING_USER_PERSONAL_WWW'] = "Website";
+$MESS ['LEARNING_USER_PERSONAL_ICQ'] = "ICQ";
+$MESS ['LEARNING_USER_ADDRESS'] = "Postal address";
+$MESS ['LEARNING_USER_PERSONAL_COUNTRY'] = "Country";
+$MESS ['LEARNING_USER_PERSONAL_STATE'] = "State";
+$MESS ['LEARNING_USER_PERSONAL_CITY'] = "City";
+$MESS ['LEARNING_USER_PERSONAL_ZIP'] = "Zip code";
+$MESS ['LEARNING_USER_PERSONAL_STREET'] = "Street";
+$MESS ['LEARNING_USER_PHOTO'] = "Photo";
+$MESS ['LEARNING_DELETE_FILE'] = "Delete file";
+?>

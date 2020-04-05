@@ -1,0 +1,33 @@
+<?
+$MESS["BPC_PATH_TO_BLOG"] = "Conversations page path template";
+$MESS["BPC_PATH_TO_USER"] = "User profile path template";
+$MESS["BPC_PATH_TO_SMILE"] = "Smileys folder path (relative to the site root)";
+$MESS["BPC_USER_VAR"] = "User ID variable name";
+$MESS["BPC_POST_VAR"] = "Conversation ID variable name";
+$MESS["BPC_PAGE_VAR"] = "Page variable name";
+$MESS["BPC_ID"] = "Conversation ID";
+$MESS["B_VARIABLE_ALIASES"] = "Variable aliases";
+$MESS["BC_DATE_TIME_FORMAT"] = "Date and time format";
+$MESS["BPC_COMMENT_ID_VAR"] = "Comment ID variable name";
+$MESS["SHOW_RATING"] = "Enable rating";
+$MESS["SHOW_RATING_CONFIG"] = "default";
+$MESS["RATING_TYPE"] = "Rating buttons design";
+$MESS["RATING_TYPE_CONFIG"] = "default";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Like/Unlike (text)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Like/Unlike (image)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Like (text)";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Like (image)";
+$MESS["BPC_IMAGE_MAX_WIDTH"] = "Max. image width";
+$MESS["BPC_IMAGE_MAX_HEIGHT"] = "Max. image height";
+$MESS["BPC_ALLOW_VIDEO"] = "Allow video embedding";
+$MESS["BPC_SHOW_SPAM"] = "Make \"User's comments / Spam\" link available to administrators";
+$MESS["BPC_NO_URL_IN_COMMENTS"] = "Disable links in comments";
+$MESS["BPC_NO_URL_IN_COMMENTS_N"] = "Nobody";
+$MESS["BPC_NO_URL_IN_COMMENTS_A"] = "Anonymous";
+$MESS["BPC_NO_URL_IN_COMMENTS_L"] = "All";
+$MESS["BPC_NO_URL_IN_COMMENTS_AUTHORITY"] = "Minimum authority required for using links";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD"] = "Allow to upload images for";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_A"] = "All";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_R"] = "Registered users";
+$MESS["BPC_ALLOW_IMAGE_UPLOAD_N"] = "Nobody";
+?>

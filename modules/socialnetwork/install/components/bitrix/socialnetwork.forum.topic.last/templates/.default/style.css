@@ -1,0 +1,34 @@
+.sonet-forum-line {
+	height:1px; 
+	width:100%; 
+	overflow:hidden; 
+	background-color:#C7D2D5; 
+	margin-top:8px; 
+	margin-bottom:8px;
+}
+.sonet-forum-post-date{
+color:#8A8A8A;
+font-size:95%;
+}
+
+.sonet-forum-post-info{
+font-size:95%;
+}
+
+.sonet-forum-clock , .sonet-forum-eye, .sonet-forum-comment-num{
+	height:12px; 
+	background-position:left top;	
+	padding-left:14px;
+	text-decoration:none;
+	background-repeat:no-repeat; 
+
+}
+.sonet-forum-clock {
+	background-image: url(images/clock.gif); 
+}
+.sonet-forum-eye {
+	background-image: url(images/eye.gif); 
+}
+.sonet-forum-comment-num {
+	background-image: url(images/comment.gif); 
+}

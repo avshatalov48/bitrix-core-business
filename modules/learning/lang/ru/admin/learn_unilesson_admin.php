@@ -1,0 +1,20 @@
+<?php
+$MESS['LEARNING_COURSE_ADM_PUBLISH_PROHIBITED']             = 'Запрет публикации';
+$MESS['LEARNING_COURSE_ADM_CARDINALITY_DEPTH']              = 'Вложенность';
+$MESS['LEARNING_COURSE_ADM_CARDINALITY_CHAPTERS']           = 'Всего глав';
+$MESS['LEARNING_COURSE_ADM_CARDINALITY_LESSONS']            = 'Всего уроков';
+$MESS['LEARNING_COURSE_ADM_CARDINALITY_QUESTIONS']          = 'Вопросов';
+$MESS['LEARNING_COURSE_ADM_CARDINALITY_TESTS']              = 'Тестов';
+$MESS['LEARNING_ADMIN_MENU_DELETE_RECURSIVE']               = 'Удалить';
+$MESS['LEARNING_ADMIN_MENU_DISBAND']                        = 'Расформировать';
+$MESS['LEARNING_ADMIN_MENU_DISBAND_TITLE']                  = 'Удалить выбранный элемент, оставив его потомков';
+$MESS['LEARNING_ADMIN_MENU_DISBAND_QUESTION']               = 'Расформирование элемента приведет к его удалению, но все включенные в него курсы/главы/уроки останутся и будут доступны в разделе "Список всех уроков". Продолжить?';
+$MESS['LEARNING_CONFIRM_DISBAND_LESSON_WITH_PARENT_PATHES'] = 'Данный элемент входит в один или более (#CNT#) других элементов. Он будет удален отовсюду. Продолжить?';
+$MESS['LEARNING_FILTER_TYPE_OF_UNILESSON']                  = 'Тип элемента';
+$MESS['LEARNING_FILTER_TYPE_COURSE']                        = 'Курс';
+$MESS['LEARNING_FILTER_TYPE_LESSON_WO_CHILDS']              = 'Урок';
+$MESS['LEARNING_FILTER_TYPE_LESSON_WITH_CHILDS']            = 'Глава';
+$MESS['LEARNING_INCLUDED_IN']                               = 'Включен в';
+$MESS['LEARNING_CONSIST_FROM']                              = 'Включает в себя';
+$MESS['LEARNING_ADMIN_TITLE']                               = "Список уроков";
+$MESS['LEARNING_QUESTION_ADD']                              = 'Добавить вопрос';

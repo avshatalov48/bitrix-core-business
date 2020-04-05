@@ -1,0 +1,12 @@
+
+
+/* Web-forms :: admin css */
+
+.anstext {color:#008400;}
+.ansvalue {color:#FF0000;}
+.tline {border-bottom:1pt solid #D1D1D1}
+.statusred {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#FF0000;}
+.statusblue {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#0000FF;}
+.statusgreen {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#1C7729;}
+.statusgrey {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#7E7E7E;}
+.statusblack {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#000000;}

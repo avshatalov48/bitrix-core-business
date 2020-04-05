@@ -1,0 +1,24 @@
+<?
+$MESS["GD_SONET_USER_LINKS_ONLINE"] = "Online";
+$MESS["GD_SONET_USER_LINKS_BIRTHDAY"] = "Birthday";
+$MESS["GD_SONET_USER_LINKS_HONOURED"] = "Honored";
+$MESS["GD_SONET_USER_LINKS_ABSENT"] = "Out of Office";
+$MESS["GD_SONET_USER_LINKS_SEND_MESSAGE"] = "Send Message";
+$MESS["GD_SONET_USER_LINKS_SHOW_MESSAGES"] = "Show Message Log";
+$MESS["GD_SONET_USER_LINKS_FR_DEL"] = "Unfriend";
+$MESS["GD_SONET_USER_LINKS_FR_ADD"] = "Add to Friends";
+$MESS["GD_SONET_USER_LINKS_INV_GROUP"] = "Invite to Group";
+$MESS["GD_SONET_USER_LINKS_EDIT_PROFILE"] = "Edit Profile";
+$MESS["GD_SONET_USER_LINKS_EDIT_SETTINGS"] = "Edit Privacy Settings";
+$MESS["GD_SONET_USER_LINKS_EDIT_FEATURES"] = "Edit Settings";
+$MESS["GD_SONET_USER_LINKS_EDIT_EXTMAIL"] = "E-mail integration options";
+$MESS["GD_SONET_USER_LINKS_SUBSCR"] = "Subscription";
+$MESS["GD_SONET_USER_LINKS_SUBSCR1"] = "My Subscription";
+$MESS["GD_SONET_USER_VIDEOCALL"] = "Video call";
+$MESS["GD_SONET_USER_SONET_ADMIN_ON"] = "Admin mode";
+$MESS["GD_SONET_USER_LINKS_EDIT_REQUESTS"] = "Invites and requests";
+$MESS["GD_SONET_USER_LINKS_SECURITY"] = "Security";
+$MESS["GD_SONET_USER_LINKS_PASSWORDS"] = "Application passwords";
+$MESS["GD_SONET_USER_LINKS_SYNCHRONIZE"] = "Synchronization";
+$MESS["GD_SONET_USER_LINKS_CODES"] = "Recovery codes";
+?>

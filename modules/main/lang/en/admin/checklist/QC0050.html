@@ -1,0 +1,56 @@
+<p>When implementing cache support in custom components, the following rules
+should be observed by a developer.</p>
+
+<ol>
+<li>In cached mode, a component must not perform database API calls or request
+  data from database in any other way. Unfortunately, a developer may
+  unwillingly make coding mistakes which allow database API calls to bleed
+  through even in cached mode.</li>
+<li>When a component cannot find cached data for requested parameters, it has to
+  create such data and put it to the cache. When creating new data, the
+  component's database API calls must be painstakingly optimized. Sometimes
+  coding errors may cause excessive database load performing enormous amount of
+  SQL queries. </li> 
+</ol>
+
+<p>It is recommended that you carefully analyze all database queries a component
+performs and optimize the code by using filters, proper sort modes and reducing the
+number of properties to fetch. </p>
+
+<p>To analyze the SQL queries, the EXPLAIN command will come in handy for you.
+Make sure your SQL selections use database indexes. This can be of great
+importance for Components 2.0 because they can create indexes for columns of the
+information block element properties table.</p>
+
+<p>This approach should also be applied to database API calls in the service and
+initialization scripts. Even if an optimized component is robust, fast and uses
+caching, it may interact with an initialization script that executes an outburst
+of numerous SQL queries which will kill all your optimization efforts.</p>
+
+<p>To streamline your database optimization work, create and use an <i>optimization
+status table</i>:</p>
+
+<ul>
+<li>Column 1: Web page address.</li>
+<li>Column 2: SQL query count, cache disabled.</li> 
+<li>Column 3: SQL query count, cache enabled.</li> 
+<li>Column 4: SQL queries optimized. <i>(using the approach described above)</i></li>
+</ul>
+
+<p>Check all the website pages and fill the table with performance data. Your
+aim is to get the numbers in (3) as small as possible (zero SQL queries is the
+ideal value; the Web Analytics module, if used, may produce some surplus which
+is normal); the number of SQL queries in (2) must be reduced to a bare minimum.
+Once you have optimized a page, make a note in column (4). </p>
+
+<p>You can use this table for your custom components if you like.</p>
+
+<ol>
+<li>Create and populate an optimization status table. If time presses, measure
+  performance of the most visited pages only. Minimize database load by
+  optimizing and adding cache functionality to unacceptably aggressive
+  components.</li>
+<li>Ensure that all the service and initialization scripts are also optimized
+  and that they use only the Bitrix Framework API calls to execute database
+  queries. Direct database queries are not allowed.</li> 
+</ol>

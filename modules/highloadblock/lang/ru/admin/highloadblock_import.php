@@ -1,0 +1,27 @@
+<?php
+$MESS['ADMIN_TOOLS_ACCESS_DENIED'] = 'Доступ запрещен';
+$MESS['ADMIN_TOOLS_TITLE_IMPORT'] = 'Импорт Highload-блока';
+$MESS['ADMIN_TOOLS_TAB_IMPORT'] = 'Импорт Highload-блока';
+$MESS['ADMIN_TOOLS_TAB_IMPORT_TITLE'] = 'Импорт Highload-блока (настроек, полей, данных)';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_FILE'] = 'Файл для импорта';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_HL'] = 'Highload-блок';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_HL_NEW'] = '- создать новый -';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_XML_ID'] = 'Поле внешнего ключа';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_HLS'] = 'Импортировать структуру';
+$MESS['ADMIN_TOOLS_FIELD_IMPORT_DATA'] = 'Импортировать данные';
+$MESS['ADMIN_TOOLS_FIELD_SAVE_REFERENCE'] = 'Сохранять связи со сторонними сущностями';
+$MESS['ADMIN_TOOLS_START_IMPORT'] = 'Импортировать';
+$MESS['ADMIN_TOOLS_STOP_IMPORT'] = 'Остановить импорт';
+$MESS['ADMIN_TOOLS_SELECT_HL'] = 'Выберите Highload-блок.';
+$MESS['ADMIN_TOOLS_NOTE_IMPORT_XML_ID'] = 'В параметре указывается поле, по значениям которого будет выполняться поиск записей файла в highload-блоке. Если запись найдена, то ее поля будут обновлены в соответствии со значениями в файле. Если запись отсутствует, то она будет добавлена в highload-блок. Если в параметре поле не выбрано, то все записи из файла будут добавлены в highload-блок как новые (даже если они полностью дублируются).';
+$MESS['ADMIN_TOOLS_NOTE_SAVE_REFERENCE'] = 'При снятии галочки будет происходить сброс связанных сущностей: сотрудник, Highload-блок, CRM, разделы и элементы инфоблоков.';
+$MESS['ADMIN_TOOLS_ERROR_IMPORT'] = 'При импорте возникли ошибки';
+$MESS['ADMIN_TOOLS_ERROR_IMPORT_ITEM'] = 'При сохранении элемента ##ID#:';
+$MESS['ADMIN_TOOLS_ERROR_IMPORT_ITEM_UNKNOWN'] = 'Неизвестное поле #CODE#.';
+$MESS['ADMIN_TOOLS_ERROR_HB_NOT_CREATE'] = 'Невозможно создать Highload-блок, отсутствует информация в файле импорта.';
+$MESS['ADMIN_TOOLS_ERROR_HB_NOT_FOUND'] = 'Не указан Highload-блок для добавления данных.';
+$MESS['ADMIN_TOOLS_PROCESS_IMPORT'] = 'Процесс импорта';
+$MESS['ADMIN_TOOLS_PROCESS_PERCENT'] = 'Импортировано #percent#% (импортировано элементов: #count#).';
+$MESS['ADMIN_TOOLS_PROCESS_FINISH_DELETE'] = 'Не забудьте удалить импортированные файлы.';
+$MESS['ADMIN_TOOLS_PROCESS_FINAL'] = 'Импорт завершен.';
+$MESS['XML_FILE_NOT_ACCESSIBLE'] = 'Файл для импорта не найден, или его не удалось прочитать.';

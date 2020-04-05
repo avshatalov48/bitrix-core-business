@@ -1,0 +1,24 @@
+<?
+$MESS["JS_CORE_VIEWER_DOWNLOAD"] = "Download";
+$MESS["JS_CORE_VIEWER_EDIT"] = "Edit";
+$MESS["JS_CORE_VIEWER_DESCR_AUTHOR"] = "Author";
+$MESS["JS_CORE_VIEWER_DESCR_LAST_MODIFY"] = "Last modified";
+$MESS["JS_CORE_VIEWER_TOO_BIG_FOR_VIEW"] = "This file is too large to be previewed.";
+$MESS["JS_CORE_VIEWER_OPEN_WITH_GVIEWER"] = "View file in Google Viewer";
+$MESS["JS_CORE_VIEWER_IFRAME_DESCR_ERROR"] = "Cannot open file because your Google session has expired. Please open the file in Google Viewer and sign in.";
+$MESS["JS_CORE_VIEWER_IFRAME_PROCESS_SAVE_DOC"] = "Save document";
+$MESS["JS_CORE_VIEWER_IFRAME_UPLOAD_DOC_TO_GOOGLE"] = "Upload document";
+$MESS["JS_CORE_VIEWER_IFRAME_CONVERT_ACCEPT"] = "Convert";
+$MESS["JS_CORE_VIEWER_IFRAME_CONVERT_DECLINE"] = "Cancel";
+$MESS["JS_CORE_VIEWER_IFRAME_CONVERT_TO_NEW_FORMAT"] = "The document will be converted to a new format (DOCX, XLSX or PPTX).";
+$MESS["JS_CORE_VIEWER_IFRAME_DESCR_SAVE_DOC"] = "Save the document?";
+$MESS["JS_CORE_VIEWER_IFRAME_SAVE_DOC"] = "Save";
+$MESS["JS_CORE_VIEWER_IFRAME_DISCARD_DOC"] = "Cancel changes";
+$MESS["JS_CORE_VIEWER_IFRAME_CHOICE_SERVICE_EDIT"] = "Edit with";
+$MESS["JS_CORE_VIEWER_IFRAME_SET_DEFAULT_SERVICE_EDIT"] = "Use for all files";
+$MESS["JS_CORE_VIEWER_IFRAME_CHOICE_SERVICE_EDIT_ACCEPT"] = "Apply";
+$MESS["JS_CORE_VIEWER_IFRAME_CHOICE_SERVICE_EDIT_DECLINE"] = "Cancel";
+$MESS["JS_CORE_VIEWER_IFRAME_UPLOAD_NEW_VERSION_IN_COMMENT"] = "uploaded a new file version";
+$MESS["JS_CORE_VIEWER_SERVICE_GOOGLE_DRIVE"] = "Google Docs";
+$MESS["JS_CORE_VIEWER_SERVICE_SKYDRIVE"] = "SkyDrive";
+?>

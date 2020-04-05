@@ -1,0 +1,28 @@
+
+div#wiki-post {
+	margin-bottom: 10px;
+}
+
+div.wiki-errors {
+	border: 1px solid #FFD482;
+	margin: 1.117em;
+	padding: 0.4em 1.117em;
+	color:red;
+	background-color:#FFFEEB;
+}
+
+div#wiki-post a.wiki_red {
+	color: red;
+}
+
+#wiki-post-content pre {
+	background-color: #F3F3F3;
+	font-family: monospace,Courier !important;
+	border-color: #C3C3C3;
+	border-style: solid;
+	border-width: 1px;
+	line-height: 1.5em;
+	padding: 5px;
+	font-size: 1em;
+	margin: 15px 5px 5px 0px;
+}

@@ -1,0 +1,50 @@
+<p>Once interested parties has come to an agreement on the web project
+design, the layout stage comes into action. After that, the prepared layout is
+integrated with the Bitrix templates.</p>
+
+<p>Check the template parameters: "Settings &gt; System Settings &gt; Websites &gt;
+Templates", open the template you need to check. This will require some
+basic knowledge of HTML and PHP.</p>
+
+<ol>
+<li>A website template must have a clear, comprehensive and distinctive name.
+  "Template 1" is what you should not call your templates.</li>
+<li>The template must <a href="http://en.wikipedia.org/wiki/Document_Type_Declaration" target="_blank">specify the HTML version</a> at the beginning of the template file in "&lt;!DOCTYPE&gt;".
+  This element is extremely important because it affects how a client browser
+  renders the website.</li> 
+
+<li>The &quot;&lt;HTML&gt;&quot; tag must specify the template language. Use the
+  website language settings, for example:
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xml:lang=&quot;&lt;?=LANGUAGE_ID?&gt;&quot; lang=&quot;&lt;?=LANGUAGE_ID?&gt;&quot;&gt;</li> 
+
+<li>Check if the web page title is set correctly. Use automatic page titles
+  because it will allow you to manage the title via the Control Panel interface.
+  Example:
+&lt;title&gt;&lt;?$APPLICATION-&gt;ShowTitle()?&gt;&lt;/title&gt;?></li>
+
+<li>Check if the meta tags are set correctly (keywords, description, content-type,
+  robots) as well as styles and scripts. Example:
+&lt;?$APPLICATION-&gt;ShowHead();?&gt;</li> 
+
+<li>Check if the website favorite icon is set:
+&lt;link rel=&quot;shortcut icon&quot; type=&quot;image/x-icon&quot; href=&quot;&lt;?=SITE_TEMPLATE_PATH?&gt;/favicon.ico&quot; /&gt;</li>
+
+<li>Check if the Control Panel toolbar is activated for authorized users. Use
+  the "ShowPanel()" method. Example:
+&lt;body&gt;…&lt;div id=&quot;panel&quot;&gt;&lt;?$APPLICATION-&gt;ShowPanel();?&gt;&lt;/div&gt;</li>
+
+<li>The elements that are usually displayed in the webpage footer (phone number,
+  copyrights, privacy policy link) and other include areas should be editable by
+  common users using the standard system functions without web developer's
+  assistance.</li> 
+
+<li>The website template should contain advertising areas that can be edited by
+  common users without web developer's assistance.</li>
+
+<li>All the complex or dynamic layout should be moved to the webpage header and
+  footer. The main area (WORK_AREA) should contain only simple HTML flow that
+  cannot be broken if a webpage is edited in the visual editor.</li>
+
+<li>The website and template styles must be thoroughly formatted and documented
+  (commented).</li> 
+ </ol>

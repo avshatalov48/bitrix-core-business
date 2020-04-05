@@ -1,0 +1,32 @@
+var owner_id = "%OWNER_ID%";
+var offset = %OFFSET%;
+var step = %STEP%;
+var res = [];
+var end = 25;
+var i = 0;
+var end_products = false;
+
+while(!end_products) {
+
+    var res_curr = API.market.get({"owner_id": owner_id, "offset": offset, "count": step, "extended": 0});
+    res_curr.shift();
+    offset = offset + step;
+    var items_ids = res_curr.items@.id;
+
+    if(items_ids) {
+        res = res + items_ids;
+    } else {
+        end_products = true;
+        res.end_products = true;
+    }
+
+    i = i+1;
+    if(i >= end) {
+        end_products = true;
+    }
+}
+
+
+return res;
+
+

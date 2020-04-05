@@ -1,0 +1,101 @@
+.maincontent_component{padding:2px 0}
+.main_catalog{
+    background:#fff;
+    border-top:1px solid #c9c3c3;
+    padding:12px 7px;
+}
+.main_catalog_item{
+    padding:0 5px 37px;
+    float:left;
+    box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    border-width:6px 6px 8px;
+    -webkit-border-image:url("images/item_bg.png") 12 12 16 repeat;
+    border-image:url("images/item_bg.png") 12 12 16 fill repeat;
+    margin-bottom:5px;
+    position: relative;
+}
+
+@media (min-width:1100px){
+    .main_catalog_item{width:16%}
+    .main_catalog_item{margin-right:0.8%}
+    .main_catalog_item:nth-child(6n){margin-right:0}
+}
+@media (min-width:769px) and (max-width:1099px){
+    .main_catalog_item{width:19%}
+    .main_catalog_item{margin-right:1.25%}
+    .main_catalog_item:nth-child(5n){margin-right:0}
+}
+@media (min-width:641px) and (max-width:768px){
+    .main_catalog_item{width:24.25%}
+    .main_catalog_item{margin-right:1%}
+    .main_catalog_item:nth-child(4n){margin-right:0}
+}
+@media (min-width:481px) and (max-width:640px){
+    .main_catalog_item{width:33%}
+    .main_catalog_item{margin-right:0.5%}
+    .main_catalog_item:nth-child(3n){margin-right:0}
+}
+@media (min-width:280px) and (max-width:480px){
+    .main_catalog_item{width:50%}
+    /*.main_catalog_item{margin-right:2%}*/
+    .main_catalog_item:nth-child(2n){margin-right:0}
+}
+
+.main_catalog_item_img{
+    display:block;
+    overflow:hidden;
+    border-radius:8px;
+    height:65px;
+    width:65px;
+    margin:5px auto;
+    position:relative;
+    border:1px solid #f2f2f2;
+}
+.main_catalog_item>a>span{
+    display:block;
+    text-align:center;
+    width:500px;
+    left:50%;
+    position:absolute;
+    margin-left:-250px;
+}
+.main_catalog_item img{
+    /*max-width:80%;*/
+    max-height:65px;
+    display:block;
+    margin:0 auto;
+    height:auto;
+    padding:0;
+}
+.main_catalog_item h2{
+    overflow:hidden;
+    height:37px;
+    line-height:12px;
+}
+.main_catalog_item h2 a{
+    color:#000;
+    font-size:11px;
+    line-height:11px;
+    text-decoration:none;
+    font-weight:bold;
+}
+.main_catalog_item_price{
+    position: absolute;
+    width: 94%;
+    height: 30px;
+    bottom: 0;
+}
+
+.main_item_buy{
+    position:absolute;
+    right:0px;
+    bottom: 4px;
+}
+.page_title{
+    color:#071c27;
+    font-weight:bold;
+    font-size:18px;
+    text-align:center;
+    text-shadow:0 1px 0 #fff;
+}

@@ -1,0 +1,13 @@
+.fields.money
+{
+	display: block;
+	white-space: nowrap;
+}
+
+.fields.money .separator
+{
+	display: block;
+	margin: 0;
+	border: none;
+}
+

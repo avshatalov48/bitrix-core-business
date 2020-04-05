@@ -1,0 +1,63 @@
+
+div#wiki-post {
+	margin-bottom: 10px;
+}
+
+div.wiki-errors {
+	border: 1px solid #FFD482;
+	margin: 1.117em;
+	padding: 0.4em 1.117em;
+	color:red;
+	background-color:#FFFEEB;
+}
+
+div#wiki-post div#wiki-post-content {
+
+}
+
+#wiki-post-content pre,
+.wiki-prereview-post-text pre {
+	background-color: #F9F9F9;
+	font-family: monospace,Courier;
+	border: 1px dashed #2F6FAB;
+}
+
+
+div#wiki-post a.wiki_red {
+	color: red;
+}
+
+div#wiki-post div#wiki-sub-post_content {
+	color:#7D7D7D;
+	font-size:84%;
+	line-height:1.2em;
+	margin:0 0 1.4em 1em;
+	width:auto;
+}
+
+div#wiki-post div#wiki_category {
+	padding: 2px;
+	border: 1px solid #AAAAAA;
+	background-color:#F9F9F9;
+	margin-top: 10px;
+}
+
+div#wiki-post div.wiki-post-header {
+	background-color:#E7E7E7;
+	font-size:1em;
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+	border:1px solid #E1E1E1;
+	line-height:1.5em;
+	margin-bottom: 5px;
+}
+
+div#wiki-post-content h1 span {
+	font-size:0.7em;
+}
+
+div.wiki-post-link {
+	padding-top: 10px;
+	text-align: right;
+	vertical-align: middle;
+}

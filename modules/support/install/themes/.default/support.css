@@ -1,0 +1,72 @@
+/*Icons*/
+#support_menu_icon {background-image:url(icons/support/mnu_support.gif);}
+#support_page_icon {background-image:url(icons/support/title.gif);}
+
+/* Support :: admin css */
+.supportrequired {color:#F00;}
+.hiddenborder {border:#98DEBD 1px solid}
+.logborder {border:#EACB6B 1px solid}
+.overdueborder {border:#DC9898 1px solid}
+.defaultborder {border:#ACAAA7 1px solid}
+
+/*Online*/
+body.support-online-body{margin:0;padding:0;background-color:#F8F9FC;}
+table.support-online {width:100%; }
+table.support-online td {font-size:70%;padding:4px;}
+
+.quotetable, .codetable {width:90%;}
+.quotetable .tdquotehead, 
+.quotetable .tdquote, 
+.quotetable .tdhiddenquotehead, 
+.quotetable .tdhiddenquote,
+.codetable  .tdcodehead,
+.codetable  .tdcodebody,
+.codetable  .tdhiddencodehead,
+.codetable  .tdhiddencodebody, 
+.codetextarea,
+.codehiddentextarea {padding: 2px; font-family: Arial; font-size:12px;}
+
+.quotetable .tdquotehead, 
+.quotetable .tdhiddenquotehead, 
+.codetable  .tdcodehead,
+.codetable  .tdhiddencodehead {font-weight:bold}
+
+.quotetable .tdquote, 
+.quotetable .tdhiddenquote, 
+.codetable  .tdcodebody, 
+.codetable  .tdhiddencodebody {border: 1px solid Black}
+
+.quotetable .tdquotehead, 
+.quotetable .tdquote, 
+.codetable  .tdcodehead,
+.codetable  .tdcodebody,
+.codetextarea {background-color:#FFF;}
+
+.quotetable .tdhiddenquotehead, 
+.quotetable .tdhiddenquote, 
+.codetable  .tdhiddencodehead,
+.codetable  .tdhiddencodebody,
+.codehiddentextarea {background-color:#F1F8F5;}
+
+.codetextarea, .codehiddentextarea {
+  border: transparent solid 0px; 
+  width: 100%;
+  overflow: auto;
+  scrollbar-shadow-color:   #000000; 
+  scrollbar-arrow-color:    #000000; 
+  scrollbar-base-color:   #000000}
+
+.codetextarea {
+  scrollbar-face-color:   #FFFFFF; 
+  scrollbar-highlight-color:  #FFFFFF; 
+  scrollbar-track-color:    #FFFFFF; 
+  scrollbar-darkshadow-color: #FFFFFF}
+
+.codehiddentextarea {
+  scrollbar-face-color:   #F1F8F5; 
+  scrollbar-highlight-color:  #F1F8F5; 
+  scrollbar-track-color:    #F1F8F5; 
+  scrollbar-darkshadow-color: #F1F8F5}
+
+.wd-ticket-message li {
+  margin-left: 10px;}

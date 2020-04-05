@@ -1,0 +1,14 @@
+
+    var res_curr = API.photos.saveMarketAlbumPhoto({
+        "group_id": "%GROUP_ID%",
+        "photo": "%PHOTO%",
+        "server": "%SERVER%",
+        "hash": "%HASH%",
+    });
+
+return res_curr;
+
+
+
+
+

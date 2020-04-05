@@ -1,0 +1,22 @@
+form.comments-form {
+	padding : 0;
+	margin : 0;
+}
+form.comments-form .feed-add-post-buttons {
+	display : block!important;
+}
+.feed-com-block-outer .feed-com-block-menu{
+	display: none;
+}
+.feed-com-block-outer:hover .feed-com-block-menu{
+	display: block!important;
+}
+form.comments-form .feed-add-post-micro {
+	display : none !important;
+}
+div.comments-post-hidden {
+	border: 1px solid red;
+}
+.feed-com-block-outer {
+	position: relative;
+}

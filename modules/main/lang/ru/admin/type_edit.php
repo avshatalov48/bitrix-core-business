@@ -1,0 +1,32 @@
+<?
+$MESS ['EDIT_TITLE'] = "Редактирование события #TYPE#";
+$MESS ['NEW_TITLE'] = "Добавление нового события";
+$MESS ['EVENT_NAME'] = "Тип почтового события";
+$MESS ['LANG_PARAMS'] = "Языкозависимые параметры";
+$MESS ['EVENT_NAME_TITLE'] = "Тип события";
+$MESS ['EVENT_NAME_DESCR'] = "Тип почтового события";
+$MESS ['TEMPLATES_TITLE'] = "Шаблоны";
+$MESS ['TEMPLATES_DESCR'] = "Почтовые шаблоны";
+$MESS ['EVENT_NAME_LANG'] = "Название";
+$MESS ['EVENT_SORT_LANG'] = "Сортировка";
+$MESS ['EVENT_DESCR_LANG'] = "Описание";
+$MESS ['RECORD_LIST'] = "Список типов";
+$MESS ['RECORD_LIST_TITLE'] = "Перейти в список почтовых событий";
+$MESS ['MAIN_NEW_RECORD'] = "Добавить тип";
+$MESS ['MAIN_NEW_RECORD_TITLE'] = "Добавить новый тип почтового события";
+$MESS ['MAIN_DELETE_RECORD'] = "Удалить тип";
+$MESS ['MAIN_DELETE_RECORD_TITLE'] = "Удалить тип, включая шаблоны";
+$MESS ['MAIN_DELETE_RECORD_CONF'] = "Вы уверены, что хотите удалить текущий тип, включая шаблоны?";
+$MESS ['MAIN_NEW_TEMPLATE'] = "Добавить шаблон";
+$MESS ['MAIN_NEW_TEMPLATE_TITLE'] = "Добавить новый шаблон этого типа событий";
+$MESS ['TEMPLATE_LIST'] = "Список шаблонов";
+$MESS ['TEMPLATE_LIST_TITLE'] = "Перейти в список шаблонов";
+$MESS ['LANGUAGE_PARAMS'] = "Языкозависимые параметры";
+$MESS ['SAVE'] = "Сохранить изменения";
+$MESS ['ADD'] = "Добавить почтовый шаблон";
+$MESS ['RESET'] = "Сбросить";
+$MESS ['MAIN_ERROR_SAVING'] = "Ошибка сохранения";
+$MESS ['ERROR_LANG_EMPTY'] = "Не указан ни один языковой параметр";
+$MESS ['LANG_FIELDS'] = "Должно быть заполнено хотя бы одно языковое поле";
+$MESS["type_edit_add_message_template"] = "Добавить шаблон сообщения";
+?>

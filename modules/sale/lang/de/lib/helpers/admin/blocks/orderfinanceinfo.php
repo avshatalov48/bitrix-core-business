@@ -1,0 +1,8 @@
+<?
+$MESS["SALE_ORDER_FINANCEINFO_USE_INNER_BUDGET"] = "Internes Konto benutzen";
+$MESS["SALE_ORDER_FINANCEINFO_SUM_PAID"] = "Bezahlt";
+$MESS["SALE_ORDER_FINANCEINFO_PAYABLE"] = "Zu bezahlender Restbetrag";
+$MESS["SALE_ORDER_FINANCEINFO_OVER_PAID"] = "Überbezahlung";
+$MESS["SALE_ORDER_FINANCEINFO_BALANCE_INNER_BUDGET"] = "Guthaben auf dem Kundenkonto";
+$MESS["SALE_ORDER_FINANCEINFO_FOR_PAYMENT"] = "Zu bezahlen";
+?>

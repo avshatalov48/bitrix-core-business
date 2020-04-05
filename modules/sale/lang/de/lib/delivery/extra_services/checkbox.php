@@ -1,0 +1,4 @@
+<?
+$MESS["DELIVERY_EXTRA_SERVICE_CHECKBOX_TITLE"] = "Extra Service einmal";
+$MESS["DELIVERY_EXTRA_SERVICE_CHECKBOX_PRICE"] = "Servicepreis";
+?>

@@ -1,0 +1,17 @@
+.bx-blue .btn.btn-default {
+	outline: none;
+	background-color: #1485CE;
+	border-color: #1485CE;
+	color: #FFF;
+}
+.bx-blue .btn.btn-default:hover {
+	outline: none;
+	background-color: #53A4D8;
+	border-color: #53A4D8;
+	color: #FFF;
+}
+.bx-blue .btn.btn-default:active {
+	outline: none;
+	-webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+			box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+}

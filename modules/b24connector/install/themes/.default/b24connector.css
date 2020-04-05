@@ -1,0 +1,13 @@
+/*Menu icon*/
+.adm-b24connector .adm-main-menu-item-icon {background-image:url(icons/b24connector/icons.png); background-position: center -269px; height:47px;}
+.adm-b24connector:hover .adm-main-menu-item-icon {background-image:url(icons/b24connector/icons.png); background-position: center -345px; height:47px;}
+.adm-main-menu-item-active.adm-b24connector .adm-main-menu-item-icon {background-image:url(icons/b24connector/icons.png); background-position: center -345px; height:47px;}
+
+.b24connector_menu_icon {background-image:url(icons/b24connector/icons.png); background-position: center -38px;}
+.b24connector_menu_icon_chat {background-image:url(icons/b24connector/icons.png); background-position: center -68px;}
+.b24connector_menu_icon_ol {background-image:url(icons/b24connector/icons.png); background-position: center -96px;}
+.b24connector_menu_icon_recall {background-image:url(icons/b24connector/icons.png); background-position: center -123px;}
+.b24connector_menu_icon_cform {background-image:url(icons/b24connector/icons.png); background-position: center -148px;}
+.b24connector_menu_icon_telephony {background-image:url(icons/b24connector/icons.png); background-position: center -176px;}
+.b24connector_menu_icon_crm {background-image:url(icons/b24connector/icons.png); background-position: center -203px;}
+.b24connector_menu_icon_butt {background-image:url(icons/b24connector/icons.png); background-position: center -229px;}

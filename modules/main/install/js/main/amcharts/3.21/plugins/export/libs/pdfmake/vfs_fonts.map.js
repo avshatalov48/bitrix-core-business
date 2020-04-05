@@ -1,0 +1,1 @@
+{"version":3,"file":"vfs_fonts.min.js","sources":["vfs_fonts.js"],"names":["window","pdfMake","vfs","LICENSE.txt","Roboto-Italic.ttf","Roboto-Medium.ttf","Roboto-Regular.ttf","sampleImage.jpg"],"mappings":"AAAAA,OAAOC,QAAUD,OAAOC,WAAeD,QAAOC,QAAQC,KAAOC,cAAc,2jeAA2jeC,oBAAoB;AAA+l0JC,oBAAoB;AAA2hwJC,qBAAqB;AAA2trJC,kBAAkB"}

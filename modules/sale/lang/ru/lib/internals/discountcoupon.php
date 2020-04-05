@@ -1,0 +1,32 @@
+<?
+$MESS["DISCOUNT_COUPON_ENTITY_ID_FIELD"] = "Идентификатор купона";
+$MESS["DISCOUNT_COUPON_ENTITY_DISCOUNT_ID_FIELD"] = "Правило корзины купона";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_FIELD"] = "Активность";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_FROM_FIELD"] = "Дата начала активности";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_TO_FIELD"] = "Дата окончания активности";
+$MESS["DISCOUNT_COUPON_ENTITY_COUPON_FIELD"] = "Купон";
+$MESS["DISCOUNT_COUPON_ENTITY_TYPE_FIELD"] = "Тип купона";
+$MESS["DISCOUNT_COUPON_ENTITY_MAX_USE_FIELD"] = "Максимальное количество использований";
+$MESS["DISCOUNT_COUPON_ENTITY_USE_COUNT_FIELD"] = "Сколько раз был применен";
+$MESS["DISCOUNT_COUPON_ENTITY_USER_ID_FIELD"] = "Владелец купона";
+$MESS["DISCOUNT_COUPON_ENTITY_DATE_APPLY_FIELD"] = "Дата последнего применения";
+$MESS["DISCOUNT_COUPON_ENTITY_TIMESTAMP_X_FIELD"] = "Дата изменения";
+$MESS["DISCOUNT_COUPON_ENTITY_MODIFIED_BY_FIELD"] = "Кем изменен";
+$MESS["DISCOUNT_COUPON_ENTITY_DATE_CREATE_FIELD"] = "Дата создания";
+$MESS["DISCOUNT_COUPON_ENTITY_CREATED_BY_FIELD"] = "Кем создан";
+$MESS["DISCOUNT_COUPON_ENTITY_DESCRIPTION_FIELD"] = "Комментарий";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_BASKET_ROW"] = "на одну позицию заказа";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_ONE_ORDER"] = "на один заказ";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_MULTI_ORDER"] = "многоразовый";
+$MESS["DISCOUNT_COUPON_VALIDATOR_DISCOUNT_ID"] = "Неверный идентификатор правила корзины";
+$MESS["DISCOUNT_COUPON_VALIDATOR_TYPE"] = "Неверный тип купона";
+$MESS["DISCOUNT_COUPON_VALIDATOR_COUPON_EMPTY"] = "Купон не указан";
+$MESS["DISCOUNT_COUPON_VALIDATOR_COUPON_EXIST"] = "Такой купон уже существует";
+$MESS["DISCOUNT_COUPON_VALIDATOR_PERIOD"] = "Неверный период активности купона";
+$MESS["DISCOUNT_COUPON_PACKET_COUNT_ERR"] = "Не задано количество купонов";
+$MESS["DISCOUNT_COUPON_PACKET_DISCOUNT_ERR"] = "Не найдено правило, для которого создаются купоны";
+$MESS["DISCOUNT_COUPON_PACKET_NEW_GENERATE_COUPON_ZERO_ERR"] = "Не удалось создать купоны. Рекомендуется немедленно деактивировать правило, после чего повторить попытку создания купонов";
+$MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_ZERO_ERR"] = "Не удалось создать купоны";
+$MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_COUNT_ERR"] = "Удалось создать #RESULT# купонов из #COUNT# за #ALL# попыток";
+$MESS["DISCOUNT_COUPON_PACKET_EMPTY"] = "Отсутствует информация о параметрах создаваемых купонов";
+?>

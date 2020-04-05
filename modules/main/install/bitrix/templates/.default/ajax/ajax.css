@@ -1,0 +1,3 @@
+iframe.waitwindowlocal {position:absolute; border:0px; z-index:9999;}
+div.waitwindowlocal {position:absolute; width:25px; height: 25px; padding:0px; z-index:10000; background-color:#FCF7D1; border:1px solid #E1B52D; background-image:url(images/wait.gif); background-position:center center; background-repeat:no-repeat;}
+div.waitwindowlocalshadow {position:absolute; z-index:9998; background-image:url(images/shadow.gif); border:1px solid #808080;}

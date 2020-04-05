@@ -1,0 +1,31 @@
+<?
+$MESS["VOTE_SORTING"] = "Sort index:";
+$MESS["VOTE_SITE"] = "Sites:";
+$MESS["VOTE_EDIT_RECORD"] = "Poll channel settings # #ID#";
+$MESS["VOTE_NEW_RECORD"] = "New poll channel";
+$MESS["VOTE_RECORDS_LIST"] = "Channel list";
+$MESS["VOTE_TIMESTAMP"] = "Modified:";
+$MESS["VOTE_ACTIVE"] = "Active:";
+$MESS["VOTE_HIDDEN"] = "Hide:";
+$MESS["VOTE_VOTE_SINGLE"] = "Allow Only One Current Poll in Group:";
+$MESS["VOTE_SYMBOLIC_NAME"] = "Mnemonic code:";
+$MESS["VOTE_TITLE"] = "Title:";
+$MESS["VOTE_VOTES"] = "Polls:";
+$MESS["VOTE_RIGHTS"] = "Permissions of the user groups";
+$MESS["VOTE_VOTE_ADD"] = "Add poll";
+$MESS["VOTE_CREATE_NEW_RECORD"] = "Create new channel";
+$MESS["VOTE_DELETE_RECORD"] = "Delete channel";
+$MESS["VOTE_DELETE_RECORD_CONFIRM"] = "Are you sure you want to delete both the poll channel and the included polls?";
+$MESS["VOTE_PROP"] = "Properties";
+$MESS["VOTE_ACCESS"] = "Access";
+$MESS["VOTE_GRP_PROP"] = "Channel properties";
+$MESS["VOTE_SITE_EDIT"] = "Edit site";
+$MESS["VOTE_GOT_ERROR"] = "Error saving a channel";
+$MESS["VOTE_VOTES_TITLE"] = "Polls list for the current channel";
+$MESS["VOTE_CREATE_VOTE"] = "Create a poll";
+$MESS["VOTE_CREATE"] = "Create";
+$MESS["VOTE_LIST"] = "List";
+$MESS["VOTE_DELETE"] = "Delete";
+$MESS["VOTE_USE_CAPTCHA"] = "Use CAPTCHA";
+$MESS["VOTE_CHANNEL_IS_NOT_EXISTS"] = "Poll group ##ID# was not found.";
+?>

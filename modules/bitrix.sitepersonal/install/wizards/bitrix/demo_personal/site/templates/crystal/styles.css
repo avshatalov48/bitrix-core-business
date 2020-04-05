@@ -1,0 +1,32 @@
+img {border:0 none;}
+
+h1, h2, h3, h4, h5, h6
+{
+	font-family:georgia,serif; 
+	margin:1.3em 0 0.2em;
+	font-weight:normal;
+	line-height:1.2;
+}
+
+h1 { font-size:200%; margin:0 0 0.7em; }
+h2 { font-size:180%; }
+h3 { font-size:160%; }
+h4 { font-size:140%; }
+h5 { font-size:120%; }
+h6 { font-size:100%; }
+
+hr, .hr 
+{
+	border-top:1px solid;
+	display:block;
+	font-size:1px;
+	height:1px;
+	line-height:1px;
+	margin:12px 0;
+	overflow:hidden;
+	padding:0;
+}
+
+#work-area ol li, #work-area ul li { margin: 0.6em 0;}
+#workarea .photo-page-detail-list li{ margin:0;}
+.blog-comment-content, .blog-comment-cont {height:auto;}

@@ -1,0 +1,358 @@
+div.condition-border
+{
+	padding: 10px 8px 5px 70px;
+
+	box-shadow: 0 1px 0 #eeeeee;
+	-webkit-box-shadow: 0 1px 0 #eeeeee;
+	border: 1px solid #caced7;
+	border-radius: 4px;
+	background-color: #fdfefe;
+
+	font-weight: bold;
+	font-size: 13px;
+	line-height: 16px;
+	position: relative;
+}
+
+div.condition-border a,
+div.condition-border a:link,
+div.condition-border a:visited,
+div.condition-container a,
+div.condition-container a:link,
+div.condition-container a:visited
+{
+	color: #113c7d;
+	text-decoration: none;
+	cursor: pointer;
+	border-bottom: 1px dashed #113c7d;
+	padding: 1px 0 1px 0;
+	line-height: 20px;
+}
+
+div.condition-border a:hover,
+div.condition-container a:hover
+{
+	color: #113c7d;
+	text-decoration: none;
+	cursor: pointer;
+	border-bottom: 1px solid transparent;
+}
+
+div.condition-border a:active,
+div.condition-container a:active
+{
+	color: #113c7d;
+	text-decoration: none;
+	cursor: pointer;
+	border-bottom: 1px solid transparent;
+}
+
+div.condition-container
+{
+	padding: 10px 18px 5px 70px;
+
+	box-shadow: 0 1px 0 #eceded;
+	-webkit-box-shadow: 0 1px 0 #eceded;
+	border: 1px solid #c9cdd6;
+	border-radius: 4px;
+	background-color: #edf5f6;
+
+	margin-top: 10px;
+	position: relative;
+}
+
+div.condition-container div.condition-container
+{
+	box-shadow: 0 1px 0 #dde5e6;
+	-webkit-box-shadow: 0 1px 0 #dde5e6;
+	border: 1px solid #bcc6d0;
+	border-radius: 4px;
+	background-color: #ddeaec;
+
+	margin-top: 10px;
+	position: relative;
+}
+
+div.condition-container div.condition-container div.condition-container
+{
+	box-shadow: 0 1px 0 #eeeeee;
+	-webkit-box-shadow: 0 1px 0 #eeeeee;
+	border: 1px solid #caced7;
+	border-radius: 4px;
+	background-color: #fdfefe;
+
+	margin-top: 10px;
+	position: relative;
+}
+
+div.condition-border span.control-prefix,
+div.condition-container span.control-prefix,
+div.condition-border span.control-string,
+div.condition-container span.control-string
+{
+	white-space: nowrap;
+	line-height: 16px;
+}
+
+.condition-list-wrap {
+	display: inline-block;
+	vertical-align: top;
+	padding-top: 2px;
+}
+
+.condition-item {
+	display: block;
+	height: 25px;
+	line-height: 25px;
+	position: relative;
+	font-size: 0;
+}
+
+.condition-item:first-child {
+	margin-top: -2px;
+}
+
+.condition-item-text {
+	border-bottom: 1px dashed #000;
+	cursor: pointer;
+	display: inline-block;
+	line-height: 17px;
+	vertical-align: middle;
+	font-size: 13px;
+}
+
+.condition-item-del {
+	cursor: pointer;
+	display: inline-block;
+	height: 20px;
+	line-height: 21px;
+	vertical-align: middle;
+	opacity: 0;
+	text-align: center;
+	width: 20px;
+}
+
+.condition-item-del:before {
+	background: url("images/cond-delete.png") no-repeat left top;
+	content: '';
+	display: inline-block;
+	height: 7px;
+	vertical-align: middle;
+	width: 7px;
+}
+
+.condition-item:hover .condition-item-del {
+	opacity: 0.7;
+}
+
+.condition-item-del:hover:before {
+	background: url("images/cond-delete.png") no-repeat left bottom;
+}
+
+.condition-dots {
+	cursor: pointer;
+	display: block;
+	width: 20px;
+}
+
+.condition-dots:first-child {
+	margin-top: 3px;
+}
+
+div.condition-border div.condition-simple-control
+{
+	padding: 5px 8px 5px 12px;
+
+	box-shadow: inset 0 1px 0 #eceded;
+	-webkit-box-shadow: inset 0 1px 0 #eceded;
+	border: 1px solid #d8d8d8;
+	border-radius: 4px;
+	background-color: #f7f9fa;
+	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -moz-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
+
+	font-weight: bold;
+
+	margin-top: 10px;
+	position: relative;
+}
+
+div.condition-container div.condition-simple-control
+{
+	padding: 5px 8px 5px 12px;
+
+	box-shadow: inset 0 1px 0 #dde5e6;
+	-webkit-box-shadow: inset 0 1px 0 #dde5e6;
+	border: 1px solid #bec4c5;
+	border-radius: 4px;
+	background-color: #f7f9fa;
+	background-image: -webkit-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -moz-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: -o-linear-gradient(top, #fafbfc, #f8f9fa);
+	background-image: linear-gradient(top, #fafbfc, #f8f9fa);
+
+	font-weight: bold;
+
+	margin-top: 10px;
+	position: relative;
+}
+
+div.condition-container div.condition-container div.condition-simple-control
+{
+	box-shadow: inset 0 1px 0 #cedadc;
+	-webkit-box-shadow: inset 0 1px 0 #cedadc;
+	border: 1px solid #b1bcbd;
+}
+
+div.condition-container div.condition-container div.condition-simple-control
+{
+	box-shadow: inset 0 1px 0 #eceded;
+	-webkit-box-shadow: inset 0 1px 0 #eceded;
+	border: 1px solid #d8d8d8;
+}
+
+div.condition-simple-control a,
+div.condition-simple-control a:link,
+div.condition-simple-control a:visited,
+div.condition-simple-control a,
+div.condition-simple-control a:link,
+div.condition-simple-control a:visited
+{
+	color: #000000; text-decoration: none; cursor: pointer; border-bottom: 1px dashed #000000;
+}
+
+div.condition-simple-control a:hover,
+div.condition-simple-control a:active,
+.condition-item-text:hover,
+.condition-item-text:active
+{
+	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
+}
+
+div.condition-simple-control span.control-prefix
+{
+	display: inline-block;
+	padding: 4px 8px 4px 8px;
+	box-shadow: inset 0 1px 0 #f3f6e4;
+	-webkit-box-shadow: inset 0 1px 0 #f3f6e4;
+	border: 1px solid #b4bd98;
+	border-radius: 2px;
+	background-color: #dfe8bc;
+	background-image: -webkit-linear-gradient(top, #e6ecc9, #d6e1a9);
+	background-image: -moz-linear-gradient(top, #e6ecc9, #d6e1a9);
+	background-image: -o-linear-gradient(top, #e6ecc9, #d6e1a9);
+	background-image: linear-gradient(top, #e6ecc9, #d6e1a9);
+}
+
+div.condition-add
+{
+	text-align: left;
+	color: #113c7d;
+	padding: 5px 5px 5px 0;
+	font-weight: bold;
+}
+div.condition-add a,
+div.condition-add a:link,
+div.condition-add a:visited
+{
+	color: #113c7d; text-decoration: none; cursor: pointer; border-bottom: 1px dashed #113c7d;
+}
+
+div.condition-add a:hover
+{
+	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
+}
+
+div.condition-add a:active
+{
+	color: #2c4b90; text-decoration: none; cursor: pointer; border-bottom: 1px solid transparent;
+}
+
+div.condition-delete
+{
+	float: right;
+	width: 7px;
+	height: 7px;
+	background: transparent url("images/cond-delete.png") no-repeat scroll left top;
+	cursor: pointer;
+	display: none;
+	margin: 5px -10px 0 0;
+	padding: 0;
+	font-size: 0.1em !important;
+	line-height: 0.1em !important;
+}
+
+div.condition-delete:hover
+{
+	background: transparent url("images/cond-delete.png") no-repeat scroll left bottom;
+}
+
+div.condition-border div.condition-simple-control div.condition-delete
+{
+	margin: 5px 0 0 0;
+}
+
+div.condition-group-sep
+{
+	margin: 0 0 10px 0;
+	font-size: 0.1em;
+	line-height: 0.1em;
+}
+
+div.condition-logic
+{
+	position: absolute;
+	left: -60px;
+	bottom: -20px;
+	width: 55px;
+	height: 30px;
+	border-radius: 4px;
+	color: #fff !important;
+	font-weight: bold !important;
+	border: 0 none transparent;
+	line-height: 30px !important;
+	white-space: nowrap !important;
+	padding: 0 10px 0 5px;
+	cursor: pointer;
+	text-align: center !important;
+}
+
+div.condition-logic-and
+{
+	background-color: #9cbd6d;
+}
+
+div.condition-logic-or
+{
+	background-color: #88abc2;
+}
+div.condition-wrapper
+{
+	position: relative;
+	margin: 0;
+	padding: 0;
+	border: 0 none transparent;
+}
+
+span.condition-separator
+{
+	font-style: italic;
+}
+
+span.condition-alert,
+span.list-alert
+{
+	display: inline-block;
+	width: 26px;
+	height: 17px;
+	background: transparent url("images/cond-alert.png") no-repeat scroll left top;
+	margin: auto 0 auto 0; vertical-align: middle;
+	padding: 0; border: 0 none transparent;
+}
+
+span.condition-space
+{
+	margin-right: 10px;
+}

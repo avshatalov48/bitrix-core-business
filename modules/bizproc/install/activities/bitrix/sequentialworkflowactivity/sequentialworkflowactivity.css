@@ -1,0 +1,26 @@
+div.swftoolbox {overflow-y: auto; background-color: #FFFFFF; z-index: 900;}
+
+
+div.swftoolbox .imarr {width: 7px; height: 7px; margin-top: 4px; position: absolute;}
+
+div.swftoolbox .swftoolboxgrheadtext {overflow: hidden; width: 170px; padding-left: 10px; }
+
+div.swftoolbox .tl {background: url(/bitrix/images/bizproc/toolbox_lt.gif) top left no-repeat; height: 14px; padding: 6px; white-space: nowrap; font-weight: bold; font-size: 12px; cursor: pointer; position: relative;}
+div.swftoolbox .tr {background: url(/bitrix/images/bizproc/toolbox_rt.gif) top right no-repeat;}
+
+div.swftoolbox .t {background: url(/bitrix/images/bizproc/toolbox_t.gif); }
+
+div.swftoolboxgroupopened {margin-bottom: 5px}
+div.swftoolboxgroupopened .imarr {background: url(/bitrix/images/bizproc/toolbox_opened.gif) no-repeat;}
+
+div.swftoolboxgroupclosed {border-bottom: 1px #a5a5a5 solid; margin-bottom: 5px}
+div.swftoolboxgroupclosed .imarr {background: url(/bitrix/images/bizproc/toolbox_closed.gif) no-repeat;}
+
+div.swftoolboxgroupclosed .swftoolboxgrouplist {display: none;}
+div.swftoolboxgroupopened .swftoolboxgrouplist {display: block;}
+
+div.swftoolboxgrouplist {border-left: 1px #d4d4d4 solid; border-right: 1px #b8b8b8 solid; border-bottom: 1px #b8b8b8 solid; font-size: 12px;}
+
+div.swfworkspace {overflow: auto;}
+.swfworkspace div {font-size: 11px;}
+div.swfdivdiv {float:right;}

@@ -1,0 +1,6 @@
+.bx-idea-cloud-tag-header {border-bottom:1px solid #c4c4c4; font-size:13px; color:#000; padding-bottom:12px;}
+.bx-idea-cloud-tag-link {text-align:justify; font-size:150%; padding-top:6px; word-spacing:3px; word-wrap: break-word; overflow: hidden;}
+.bx-idea-cloud-tag-link a,
+.bx-idea-cloud-tag-link a:link,
+.bx-idea-cloud-tag-link a:visited {color:#000; text-decoration:none; }
+.bx-idea-cloud-tag-link a:hover {color:#000; text-decoration:underline;}

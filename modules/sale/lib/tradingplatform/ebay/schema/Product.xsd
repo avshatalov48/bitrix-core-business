@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by Sumit Garg (private) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" elementFormDefault="qualified" attributeFormDefault="unqualified" vc:minVersion="1.1">
+	<xs:complexType name="ConditionInfoType">
+		<xs:sequence>
+			<xs:element name="Condition">
+				<xs:annotation>
+					<xs:documentation>Condition of the product  New/Used/etc</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="New"/>
+						<xs:enumeration value="New other"/>
+						<xs:enumeration value="New with defects"/>
+						<xs:enumeration value="Manufacturer refurbished"/>
+						<xs:enumeration value="Seller refurbished"/>
+						<xs:enumeration value="Used"/>
+						<xs:enumeration value="Very Good"/>
+						<xs:enumeration value="Good"/>
+						<xs:enumeration value="Acceptable"/>
+						<xs:enumeration value="For parts or not working"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ConditionDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Description of the product condition if it is not New.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ConditionPictures" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Any pictures that show the condition of the product if the product is not New.  </xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PictureUrl" type="xs:anyURI" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DescriptionType">
+		<xs:sequence>
+			<xs:element name="Template" type="xs:string" minOccurs="0"/>
+			<xs:element name="ProductDescription" type="xs:string"/>
+			<xs:element name="AdditionalInfo" type="xs:string" minOccurs="0"/>
+			<xs:element name="CustomField" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="Name" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="VariationVectorType">
+		<xs:sequence>
+			<xs:element name="Name" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:attribute name="DimensionUnit"/>
+	<xs:complexType name="ProductVariationGroupType">
+		<xs:sequence>
+			<xs:element name="GroupId" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>For a multi-SKU listing, identifier for the group.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VariationVector" type="VariationVectorType">
+				<xs:annotation>
+					<xs:documentation>List of attributes on which the products in the group vary on. Example: {Color, Size}</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Categories">
+				<xs:annotation>
+					<xs:documentation>Category of the multi-SKU listing. All member products must be in the same category</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="CategoriesType"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SharedProductInformation" type="SharedProductInformationType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProductIDsType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="ProductID">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute ref="ProductIdType"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CategoriesType">
+		<xs:sequence>
+			<xs:element name="Category" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="Type">
+								<xs:annotation>
+									<xs:documentation>eBayLeafCategory/eBayMeta/etc</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="eBayLeafCategory"/>
+										<xs:enumeration value="eBayMeta"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProductType">
+		<xs:sequence>
+			<xs:element name="SKU">
+				<xs:annotation>
+					<xs:documentation>Seller's identifier for the product.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="VariantOf" type="xs:string" use="optional">
+								<xs:annotation>
+									<xs:documentation>The GroupId of group this product belongs to. Left empty if not a variant.</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ProductInformation" type="ProductInformationType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SharedProductInformationType">
+		<xs:sequence>
+			<xs:element name="Title" type="xs:string" minOccurs="0"/>
+			<xs:element name="SubTitle" type="xs:string" minOccurs="0"/>
+			<xs:element name="Description" type="DescriptionType" minOccurs="0"/>
+			<xs:element name="Attributes" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="Attribute">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="Name" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ShippingDetails" type="ShippingDetailsType" minOccurs="0"/>
+			<xs:element name="PictureUrls" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PictureUrl" type="xs:anyURI" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ProductIDs" type="ProductIDsType" minOccurs="0"/>
+			<xs:element name="ConditionInfo" type="ConditionInfoType" minOccurs="0"/>
+			<xs:element name="Compatibilities" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>List of parts compatibility information specified as name value pairs</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Compatibility" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Notes" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Notes pertaiining to the compatibility being specified</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="Value" minOccurs="0" maxOccurs="unbounded">
+										<xs:annotation>
+											<xs:documentation>Allowed name and values are specific to the primary category or site in which the item is listed. For Parts and Accessories category, YearMakeModel or KTypes  may be specified.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="Name" use="required"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="LocaleType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="en_us"/>
+			<xs:enumeration value="en_ca"/>
+			<xs:enumeration value="fr_ca"/>
+			<xs:enumeration value="de_de"/>
+			<xs:enumeration value="de_ch"/>
+			<xs:enumeration value="en_gb"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attribute name="ProductIdType">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="UPC"/>
+				<xs:enumeration value="ISBN"/>
+				<xs:enumeration value="EAN"/>
+				<xs:enumeration value="GTIN"/>
+				<xs:enumeration value="BrandMPN"/>
+				<xs:enumeration value="ePID"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:simpleType name="WeightUnitType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="g"/>
+			<xs:enumeration value="kg"/>
+			<xs:enumeration value="lb"/>
+			<xs:enumeration value="oz"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MeasurementSystemType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="English"/>
+			<xs:enumeration value="Metric"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ShippingDetailsType">
+		<xs:sequence>
+			<xs:element name="WeightMajor" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:integer"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="WeightMinor" minOccurs="0">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:integer"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Length" type="xs:double" minOccurs="0"/>
+			<xs:element name="Width" type="xs:double" minOccurs="0"/>
+			<xs:element name="Height" type="xs:double" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="MeasurementSystem" type="MeasurementSystemType" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="ProductInformationType">
+		<xs:sequence>
+			<xs:element name="Title" type="xs:string" minOccurs="0"/>
+			<xs:element name="SubTitle" type="xs:string" minOccurs="0"/>
+			<xs:element name="Description" type="DescriptionType" minOccurs="0"/>
+			<xs:element name="Attributes" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name:Value pairs providing information about the product. For a Variant, this only specifies the attributes on which variants differ.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="Attribute">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="Name" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ShippingDetails" type="ShippingDetailsType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Shipping package information. This can be used to compute calculated shipping charges.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PictureUrls" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Url of pictures to be associated with the product</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PictureUrl" type="xs:anyURI" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ProductIDs" type="ProductIDsType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Any of the standard product identifiers such as UPC/ISBN/etc</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Categories" type="CategoriesType" minOccurs="0"/>
+			<xs:element name="ConditionInfo" type="ConditionInfoType" minOccurs="0"/>
+			<xs:element name="Compatibilities" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>List of parts compatibility information specified as name value pairs</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Compatibility" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Notes" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Notes pertaiining to the compatibility being specified</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="Value" minOccurs="0" maxOccurs="unbounded">
+										<xs:annotation>
+											<xs:documentation>Allowed name and values are specific to the primary category or site in which the item is listed. For Parts and Accessories category, YearMakeModel or KTypes  may be specified.</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="Name" use="required"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ListingDetailsType">
+		<xs:sequence>
+			<xs:element name="ShippingPolicy" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the shipping policy to be associated with this listing.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShippingCostOverrides" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Overrides for the shipping policy. Note that all specified services in the Shipping Policy need to be overridden,</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ShippingCost" type="xs:decimal"/>
+						<xs:element name="AdditionalCost" type="xs:decimal" minOccurs="0"/>
+						<xs:element name="Surcharge" type="xs:decimal" minOccurs="0"/>
+						<xs:element name="Priority" type="xs:integer">
+							<xs:annotation>
+								<xs:documentation>Service priority as identified by the display order in the shipping policy display.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ServiceType">
+							<xs:annotation>
+								<xs:documentation>Domestic or International</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="Domestic"/>
+									<xs:enumeration value="International"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="MaxQuantityPerBuyer" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Any quantity restriction for a buyer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PaymentPolicy" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the payment policy to be associated with this listing.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ReturnPolicy" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the return policy to be associated with this listing.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PricingDetails" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="StrikeThroughPrice" type="xs:decimal" minOccurs="0"/>
+						<xs:element name="MinimumAdvertisedPriceHandling" type="xs:string" minOccurs="0"/>
+						<xs:element name="MinimumAdvertisedPrice" type="xs:decimal" minOccurs="0"/>
+						<xs:element name="SoldOneBay" type="xs:boolean" minOccurs="0"/>
+						<xs:element name="SoldOffeBay" type="xs:boolean" minOccurs="0"/>
+						<xs:element name="VATPercent" type="xs:decimal" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="StoreCategory1" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Category ID of the eBay Store</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StoreCategory2" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Category ID of the eBay Store</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="eBayNowEligible" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="EligibleForPickupInStore" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="ApplyTax" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="LocationName" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ListingArray">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Listing" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:choice>
+								<xs:element name="Product" type="ProductType"/>
+								<xs:element name="ProductVariationGroup" type="ProductVariationGroupType"/>
+							</xs:choice>
+							<xs:element name="ListingDetails" type="ListingDetailsType">
+								<xs:annotation>
+									<xs:documentation>Specification of how the product is to be listed on the site.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

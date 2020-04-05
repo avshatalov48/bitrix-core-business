@@ -1,0 +1,92 @@
+/* Text */
+a:link {color:#006BC6;}
+a:visited {color:#006BC6;}
+a:hover {color:#EA0000;}
+a:active {color:#006BC6;}
+
+h1 { color:#414141; }
+h2, h3, h4, h5, h6 { color:#414141; }
+
+hr, .hr { border-color: #E9E9E9;}
+
+/* Layout */
+body { background-color: #FFF; color: #000;}
+td#slogan { color: #999999; }
+
+#search div.search-box { border-color: #DEDEDE; }
+#search div.search-box input { border-color: white;}
+#search-button {border-color: #E7E7E7 #D5D5D5 #D1D1D1 #E3E3E3; background: #DEDEDE;}
+#search-button input { 	 color: #9B9B9B; }
+
+#top-menu a { border-color: #EDEDED; color: #000; }
+#top-menu a:hover { border-color: #FFCC00; }
+#top-menu li.selected a { color: #000; background: #FFCC00; border-color: #FFCC00; }
+#top-menu li.selected b { background: #FFCC00;}
+#top-menu li.selected .r1 { border-color: #FFE57B;}
+#top-menu li.selected .r0 { border-color: #FFE478;}
+
+#breadcrumb { background-color:#F0F0F0; color: #7A7A7A;	 }
+#breadcrumb a, #breadcrumb span { color: #7A7A7A; }
+#breadcrumb b { border-color: #FBFBFB;}
+
+/* Root items*/
+ul.left-menu a { color: #414141; }
+ul.left-menu a:hover {  color: #EA0000;}
+ul.left-menu .selected, ul.left-menu a.selected, ul.left-menu a.selected:hover { color: #197ACC;}
+ul.left-menu ul a.selected, ul.left-menu ul a.selected:hover { color: #727272;}
+
+/* Subitems */
+ul.left-menu ul a { color: #006BC6; }
+ul.left-menu ul a:hover { color: #EA0000; }
+
+/* Current item */
+ul.left-menu .selected i.selected { background: #FFCC00 url(images/left-menu-arrow-selected.gif) no-repeat 5px 4px; color: #000;}
+ul.left-menu .current b { background: #FFCC00; border-color:#FFF2C0;}	
+
+#banner { background: #FFCC00; }
+#banner-text { color: #000; background: url(images/overlay-right-corners.gif) no-repeat right top;}
+#banner-text a { color: #000;}
+#banner-overlay { background:  url(images/overlay.png) no-repeat; }
+
+#footer { background: #EDEDED; }
+#copyright { color: #5F5F5F; }
+
+/* Ask a question */
+#support-question { background: url(images/question.png) no-repeat; }
+#support-text { background: #F2F2F2; }
+#support-text a { color: #484848 !important; }
+#support b { border-color: #FCFCFC; background: #F2F2F2; }
+
+/* Telephone*/
+#telephone  { color: #4C4C4C; background: url(images/phone.gif) no-repeat left center; }
+#schedule { color: #7F7F7F; }
+
+/* Information Box*/
+div.information-box b { background: #EDEDED; }
+div.information-box .r1 { border-color:#F6F6F6;}
+div.information-box .r0 { border-color:#F5F5F5;}
+div.information-box-content { background: #EDEDED; color: #474747; }
+
+/* News List */
+div.news-date { color: #919191;}
+
+/* Paging */
+span.nav-current-page { background-color:#e8e9ec; }
+div.navigation span.disabled, div.navigation span.arrow, div.navigation span.ctrl   { color:#7E7E7E;}
+
+/*Common Elements */
+div.content-form div.field-error div.form-input input, 
+div.content-form div.field-error div.form-input textarea, 
+div.content-form div.field-error div.form-input select
+{
+	color: red;
+	background:	#fff8d3;
+}
+
+/* Search results*/
+div.search-item { border-color: #E9E9E9;}
+div.search-page input.search-query { background: #F8F7F7; border-color: #D9D9D9; }
+
+/*Error & OK messages*/
+.errortext, .starrequired { color: red;}  
+.errortext, .notetext { background:#FFFEEB; border-color: #FFD482;} 

@@ -1,0 +1,37 @@
+<?
+$MESS["SUP_CL_TITLE"] = "Список купонов";
+$MESS["SUP_CL_FLT_COUPON"] = "Купон";
+$MESS["SUP_CL_EXACT_MATCH"] = "Искать точное совпадение";
+$MESS["SUP_CL_COUPON"] = "Купон";
+$MESS["SUP_CL_COUNT_TICKETS"] = "Количество использований";
+$MESS["SUP_CL_DELETE"] = "Удалить";
+$MESS["SUP_CL_DELETE_CONFIRMATION"] = "Точно удалить?";
+$MESS["SUP_CL_TIMESTAMP_X"] = "Дата изменения";
+$MESS["SUP_CL_DATE_CREATE"] = "Дата создания";
+$MESS["SUP_CL_CREATED_USER_ID"] = "ID создавшего пользователя";
+$MESS["SUP_CL_CREATED_LOGIN"] = "Login создавшего пользователя";
+$MESS["SUP_CL_CREATED_FIRST_NAME"] = "Имя создавшего пользователя";
+$MESS["SUP_CL_CREATED_LAST_NAME"] = "Фамилия создавшего пользователя";
+$MESS["SUP_CL_UPDATED_USER_ID"] = "ID обновившего пользователя";
+$MESS["SUP_CL_UPDATED_LOGIN"] = "Login обновившего пользователя";
+$MESS["SUP_CL_UPDATED_FIRST_NAME"] = "Имя обновившего пользователя";
+$MESS["SUP_CL_UPDATED_LAST_NAME"] = "Фамилия обновившего пользователя";
+$MESS["SUP_CL_ADD"] = "Добавить купон";
+$MESS["SUP_CL_GENERATE_MESS_OK"] = "Сгенерирован новый купон: %COUPON%";
+$MESS["SUP_CL_GENERATE_ERROR"] = "Ошибка генерации купона";
+$MESS["SUP_CL_GENERATE_CONFIRM"] = "Вы уже генерили в этой сессии купон. Хотите еще?";
+$MESS["SUP_CL_ACTIVE"] = "Активность";
+$MESS["SUP_CL_ACTIVE_FROM"] = "Активен с";
+$MESS["SUP_CL_ACTIVE_TO"] = "Активен по";
+$MESS["SUP_CL_EDIT"] = "Редактировать купон";
+$MESS["SUP_CL_ADD_TITLE"] = "Сгенерировать новый купон";
+$MESS["SUP_CL_SLA_ID"] = "ID уровня поддержки";
+$MESS["SUP_CL_SLA_NAME"] = "Уровень поддержки";
+$MESS["SUP_CL_LOG"] = "Журнал использования";
+$MESS["SUP_CL_PAGES"] = "Купоны";
+$MESS["SUP_CL_COUNT_USED"] = "Использован, раз";
+$MESS["SUP_GL_PAGES"] = "Купоны";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Выбрано:";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Отмечено:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
+?>

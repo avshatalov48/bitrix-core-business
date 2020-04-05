@@ -1,0 +1,33 @@
+<p>The caching subsystem is one of the key elements to guarantee maximum website
+performance.</p>
+
+<p>The website pages use special building blocks commonly known as components,
+for example: "Sitemap", "News", "Catalog Page" etc. The components
+interact with a website visitor (or perform other useful work) by drawing
+information from the database. It is obvious that a highly popular website will
+produce an enormous number of database queries.</p> 
+
+<p>The simplest way to decrease database load is to use caching in all the
+components of your website. </p>
+
+<p>The standard Bitrix components makes extensive use of the caching technology
+which makes them extremely efficient. This is one of the reasons that you have
+to keep close watch on the custom components in your web project: make sure that
+all of them use caching. </p>
+
+<p>A special button exists in Control Panel to enable or disable caching in all
+components at once. </p>
+ 
+<p><img height="135" border="0" width="372" src="/bitrix/images/main/checklist/en/QP0030_1.png" /></p>
+ 
+<p>How to perform the test?</p>
+
+<p>Open "Settings > System Settings > Cache settings". Ensure that the component
+cache is enabled. </p>
+
+<p>Also verify that all the components in your web project are set to use "Auto+Managed"
+or "Auto" cache mode. It is not infrequent for a developer to set the
+cache mode to "Cache" или "Don't cache" for debugging purposes and then
+forget to revert back to normal mode:</p>
+
+<p><img height="94" border="0" width="491" src="/bitrix/images/main/checklist/en/QP0030_2.png" /></p>

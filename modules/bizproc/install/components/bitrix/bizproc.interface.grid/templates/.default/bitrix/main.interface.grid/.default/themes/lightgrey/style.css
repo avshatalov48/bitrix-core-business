@@ -1,0 +1,78 @@
+/*Grid*/
+table.bx-interface-grid { border:1px solid #e0e0e0;}
+table.bx-interface-grid > tbody > tr > td { border:none; border-bottom: 1px solid #ededed;}
+table.bx-interface-grid td.bx-left {border: none; border-bottom: 1px solid #ededed}
+table.bx-interface-grid tr.bx-bottom td {border-bottom: 1px solid #ededed; }
+
+table.bx-interface-grid tr.bx-grid-gutter > td {background:#f0f0f0; border:none; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-gutter td.bx-sorted {background:#e2e2e2; border:none; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-gutter td.bx-over {background:#e8e8e8; border-top:none;}
+table.bx-interface-grid tr.bx-grid-gutter td.bx-over-sorted {background:#e8e8e8; border-top:none;}
+table.bx-interface-grid tr.bx-grid-gutter td.bx-left {border:none; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-gutter td.bx-right {border:none;}
+
+table.bx-interface-grid tr.bx-grid-head td {color:#484848; border:none; border-right:1px solid #dddddd; border-bottom: 1px solid #dfdfdf; background:#f0f0f0; font-weight:normal; white-space: nowrap; }
+table.bx-interface-grid tr.bx-grid-head td.bx-over { background-color: #e8e8e8;}
+table.bx-interface-grid tr.bx-grid-head td.bx-sorted {background:#e2e2e2; border:none; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-head td.bx-over-sorted {background:#e8e8e8; border:none; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-head td.bx-left {border:none; border-bottom: 1px solid #dfdfdf; border-right:1px solid #dddddd;}
+table.bx-interface-grid tr.bx-grid-head td.bx-right {border:none; border-bottom: 1px solid #dfdfdf;}
+table.bx-interface-grid tr.bx-grid-head div.bx-action {background-image:url(images/action_head.gif);}
+
+table.bx-interface-grid tr.bx-grid-head td.bx-checkbox-col input { opacity:1; -moz-opacity:1; filter:alpha(opacity=100); }
+table.bx-interface-grid td.bx-checkbox-col input { opacity: 0.4; -moz-opacity:0.4; filter:alpha(opacity=40); /*visibility:hidden;*/}
+table.bx-interface-grid tr.bx-over td.bx-checkbox-col input, table.bx-interface-grid tr.bx-selected td.bx-checkbox-col input { opacity:1; -moz-opacity:1; filter:alpha(opacity=100); /*visibility:visible;*/}
+
+table.bx-interface-grid tr.bx-even > td, table.bx-interface-grid tr.bx-even td.bx-sorted { background-color: #f7f7f7; }
+table.bx-interface-grid tr.bx-odd > td, table.bx-interface-grid tr.bx-odd > td.bx-sorted { background-color: white; }
+
+table.bx-interface-grid tr.bx-selected > td {border-bottom: 1px solid #ededed; background-color: #fff8a8;}
+table.bx-interface-grid tr.bx-selected td.bx-sorted {background-color:#fff8a8;}
+table.bx-interface-grid tr.bx-active > td {background-color:#FFF46A;}
+table.bx-interface-grid tr.bx-active td.bx-sorted {background-color:#FFF46A;}
+table.bx-interface-grid tr.bx-over > td { background-color: #fffbd3;}
+table.bx-interface-grid tr.bx-over td.bx-sorted {background-color: #fffbd3;}
+
+table.bx-interface-grid tr.bx-grid-footer td,
+tr.bx-grid-footer table.bx-grid-footer { color: #747474;}
+tr.bx-grid-footer table.bx-grid-footer span { color : #747474;}
+tr.bx-grid-footer table.bx-grid-footer span.modern-page-title { color : #747474; }
+table.bx-interface-grid tr.bx-grid-footer td { background-color:#e8e8e8; padding: 2px 6px 2px 6px; border: none;}
+tr.bx-grid-footer table.bx-grid-footer div.modern-page-navigation a {color:#747474; text-decoration:underline;}
+
+table.bx-interface-grid a.bx-action { margin:1px; display:inline-block; outline:none;}
+table.bx-interface-grid a.bx-action:hover {margin:0; border:1px solid #ddd; background-color:transparent;}
+table.bx-interface-grid a.bx-action div {cursor:pointer; width:26px; height:18px; background-image:url(images/action.gif); background-repeat:no-repeat; background-position:0px 0px;}
+table.bx-interface-grid a.bx-action:hover div, table.bx-interface-grid tr.bx-over a.bx-action div {background-image:url(images/action_hover.gif);}
+table.bx-interface-grid a.pressed {margin:0; border:1px solid #ddd; background-color:transparent;}
+table.bx-interface-grid a.pressed div {background-image:url(images/action_hover.gif);}
+
+table.bx-interface-grid tr.bx-grid-head a.bx-action { width: auto; margin: 0; border: none;}
+table.bx-interface-grid tr.bx-grid-head a.bx-action div {background-image:url(images/action.gif);  background-position:1px 0px;}
+table.bx-interface-grid tr.bx-grid-head a.bx-action:hover div {background-image:url(images/action_hover.gif);}
+table.bx-interface-grid tr.bx-grid-head a.bx-action:hover {border:none; margin:0; background-color:transparent;}
+table.bx-interface-grid tr.bx-grid-head a.pressed {border:none; background-color:transparent;}
+table.bx-interface-grid tr.bx-grid-head a.pressed div {background-image:url(images/action_hover.gif);}
+
+/*Sorting*/
+table.bx-interface-grid table.bx-grid-sorting td {width:100%; padding:0; border:0; background-image:none; background-color:transparent;}
+table.bx-interface-grid table.bx-grid-sorting td.bx-sort-sign {background-image:url(images/sort_no.gif);}
+table.bx-interface-grid table.bx-grid-sorting td.bx-sort-up {background-image:url(images/sort_up.gif);}
+table.bx-interface-grid table.bx-grid-sorting td.bx-sort-down {background-image:url(images/sort_down.gif);}
+
+/* Drag-n-Drop*/
+div.bx-drag-object {border:1px solid #484848; color:#484848; background:#e2e2e2; font-weight:normal; }
+
+/* Filter */
+table.bx-interface-filter tr.bx-filter-header td {background:#dadada; border: 1px solid #cfcfcf;}
+
+a.bx-filter-show { background-image:url(images/filter/arrow-down.gif);}
+a.bx-filter-hide { background-image:url(images/filter/arrow-up.gif);}
+a.bx-filter-menu { background-image:url(images/filter/menu.gif);}
+a.bx-filter-min { background-image:url(images/filter/hide.gif);}
+a.bx-filter-max { background-image:url(images/filter/show.gif);}
+a.bx-filter-show:hover, a.bx-filter-hide:hover, a.bx-filter-menu:hover, a.bx-filter-min:hover, a.bx-filter-max:hover {background-color:#c9c9c9;}
+div.bx-filter-sep {background-color:#cdcdcd;}
+div.bx-filter-off {background-image:url(images/filter/check-off.gif);}
+div.bx-filter-on {background-image:url(images/filter/check-on.gif);}
+div.bx-filter-text { color:#000000; }

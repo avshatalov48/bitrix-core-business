@@ -1,0 +1,111 @@
+----Константы----
+
+WIZARD_SITE_ID - идентификатор сайта
+
+WIZARD_TEMPLATE_ID - идентификатор выбранного шаблона
+WIZARD_TEMPLATE_RELATIVE_PATH - путь к выбранному шаблону в мастере относительно корня сайта
+WIZARD_TEMPLATE_ABSOLUTE_PATH - полный путь к выбранному шаблону в мастере
+
+WIZARD_THEME_ID - идентификатор выбранной темы
+WIZARD_THEME_RELATIVE_PATH - путь к выбранной цветовой схеме в мастере относительно корня сайта
+WIZARD_THEME_ABSOLUTE_PATH - полный путь к выбранной цветовой схеме в мастере
+
+WIZARD_ABSOLUTE_PATH - полный путь к мастеру
+WIZARD_RELATIVE_PATH - путь к мастеру относительно корня сайта
+
+WIZARD_SERVICE_ABSOLUTE_PATH - полный путь к директории, где находится установщик сервиса
+WIZARD_SERVICE_RELATIVE_PATH - путь к директории установщика сервиса относительно корня сайта
+
+WIZARD_SITE_PATH - абсолютный путь к корню сайта
+WIZARD_SITE_LOGO
+WIZARD_IS_RERUN - повторный запуск мастера? (true/false)
+WIZARD_INSTALL_DEMO_DATA - устанавливать демо-данные? (true/false)
+
+
+IDшники групп пользователей
+
+WIZARD_EMPLOYEES_GROUP
+WIZARD_PERSONNEL_DEPARTMENT_GROUP
+WIZARD_DIRECTION_GROUP
+WIZARD_PORTAL_ADMINISTRATION_GROUP
+WIZARD_ADMIN_SECTION_GROUP
+WIZARD_CREATE_GROUPS_GROUP
+WIZARD_MARKETING_AND_SALES_GROUP
+WIZARD_SUPPORT_GROUP
+
+
+----Переводы----
+
+Для файла ./portal/site/services/.services.php => ./portal/lang/[ru|en]/site/services/.services.php
+
+Для установщика сервиса (подключается автоматически):
+./portal/site/services/папка_сервиса/установщик.php => ./portal/site/services/папка_сервиса/lang/[ru|en]/установщик.php
+
+WizardServices::IncludeServiceLang($relativePath, $lang = false, $bReturnArray = false) - подключить произвольный языковой файл сервиса
+
+
+----Дополнительно----
+1. Во всех исполняемых файлах первая строка должна выглядеть так:
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+
+2. Мастер портала можно будет запустить повторно. Поэтому в установочных скриптах необходимо проверять на существование создаваемую сущность. Если сущность уже установлена – пропускать установку. В установочных файлах можно делать return.
+Пример:
+<?
+if (!CModule::IncludeModule("iblock"))
+ return;
+
+$typeResult = CIBlockType::GetByID("news");
+if ($typeResult->Fetch()) //Установлен тип Новости? Пропускаем установку
+  return;
+
+//Создание типа инфоблока
+?>
+
+Внимание! В следующей версии корпортала будет возможность установить мастер для конкретного сайта, поэтому, к уникальности сущности добавляйте идентификатор сайта (WIZARD_SITE_ID).
+
+4. В установочных файлах можно пользоваться глобальными объектами $DB, $DBType, $APPLICATION, $USER;
+
+5. Пользователь, запускающий мастер, будет авторизован как администратор (ID=1).
+
+
+----Полезные методы:-----
+
+WizardServices::SetFilePermission($path, $permissions) - по сигнатуре эквивалентен $APPLICATION->SetFileAccessPermission($path, $permissions), но с более правильной логикой добавления прав доступа (не затирает существующие права).
+
+WizardServices::AddMenuItem($menuFile, $menuItem,  $siteID) - добавление пункта меню
+
+
+ImportIBlockFromXML($xmlFile, $iblockXmlID, $iblockType, $siteID, $permissions = Array()) - импорт инфоблока
+
+
+Если метод используется более чем в одном месте выносите его в класс 
+WizardServices.
+
+
+/*
+Настройки инфоблока
+
+$iblockID = 2;
+
+$result = CUserOptions::GetOption("form", "form_element_".$iblockID);
+var_export($result);
+
+echo "<br><br>";
+
+CModule::IncludeModule("iblock");
+$arFields = CIBlock::getarraybyid($iblockID);
+
+foreach ($arFields["FIELDS"] as $id => $arField)
+ unset($arFields["FIELDS"][$id]["NAME"]);
+
+var_export($arFields["FIELDS"]);
+
+*/
+
+
+
+
+
+
+

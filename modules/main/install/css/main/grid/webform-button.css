@@ -1,0 +1,648 @@
+/* Webforms buttons */
+.webform-buttons {
+	margin: 15px 0 0 0;
+	text-align: center;
+}
+
+.webform-button,
+.webform-small-button,
+.webform-button-upload {
+	background: #ecedef;
+	-webkit-box-shadow: 0 0 0 1px #c6cdd3 inset;
+	box-shadow: 0 0 0 1px #c6cdd3 inset;
+	border-radius: 2px;
+	cursor: pointer;
+	color: #7a818a;
+	display: inline-block;
+	height: 47px;
+	line-height: 47px;
+	margin: 0 16px 0 0;
+	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	outline: none;
+	padding: 0 18px;
+	vertical-align: middle;
+	text-decoration: none;
+	text-transform: uppercase;
+	text-shadow: none;
+	white-space: nowrap;
+	-webkit-font-smoothing: antialiased;
+
+	-webkit-transition: background-color 0.2s linear, color 0.2s linear;
+	transition: background-color 0.2s linear, color 0.2s linear;
+
+	border: none;
+}
+
+.webform-button:link,
+.webform-button:visited,
+.webform-small-button:link,
+.webform-small-button:visited,
+.webform-button-upload:link,
+.webform-button-upload:visited {
+	color: #7a818a;
+}
+
+.webform-small-button,
+.webform-button.webform-button-upload,
+.webform-small-button.webform-button-upload,
+.webform-field-upload {
+	height: 39px;
+	line-height: 39px;
+	margin: 0 12px 0 0;
+}
+
+
+.webform-button-text,
+.webform-small-button-text,
+.webform-button-upload .webform-button-text {
+	background: none !important;
+	border: none;
+	color: #7a818a;
+	display: inline;
+	height: auto;
+	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 47px;
+	text-shadow: none !important;
+	text-transform: uppercase;
+	padding: 0;
+
+	-webkit-transition: color 0.25s linear;
+	transition: color 0.25s linear;
+}
+
+.webform-small-button-icon {
+	display: inline-block;
+	height: 20px;
+	line-height: 39px;
+	position: relative;
+	cursor:pointer;
+	vertical-align: top;
+	outline:none;
+	text-decoration:none !important;
+	background: none;
+	border: none;
+}
+
+.webform-small-button.webform-small-button-dropdown .webform-small-button-icon {
+	margin: -2px -5px 0 5px;
+	width: 12px;
+	height: 8px;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+	-webkit-transition: background-image 0.25s linear;
+	transition: background-image 0.25s linear;
+}
+
+.webform-small-button.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-small-button:active.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-button-active.webform-small-button.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-button-disable.webform-small-button.webform-small-button-dropdown .webform-small-button-icon {
+	opacity: .3;
+	cursor: default;
+}
+
+.webform-small-button-transparent.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+
+.webform-small-button-accept.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-small-button-accept:active.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-button-active.webform-small-button-accept.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+
+.webform-small-button-decline.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+
+.webform-small-button-blue.webform-small-button-dropdown .webform-small-button-icon {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%208%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6.656%2C5.235%20L2.413%2C0.992%20L0.999%2C2.406%20L5.949%2C7.356%20L6.656%2C8.063%20L12.313%2C2.406%20L10.899%2C0.992%20L6.656%2C5.235%20Z%22%20transform%3D%22translate%28-1%20-1%29%22/%3E%0A%3C/svg%3E%0A');
+}
+.webform-button-disable.webform-small-button-blue .webform-small-button-text {
+	color: #95e3fa!important;
+}
+
+.webform-button-text,
+.webform-small-button-text,
+.webform-button-upload .webform-button-text {
+	background: none !important;
+	border: none;
+	color: #7a818a;
+	display: inline;
+	height: auto;
+	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 47px;
+	text-shadow: none !important;
+	text-transform: uppercase;
+	padding: 0;
+
+	-webkit-transition: color 0.25s linear;
+	transition: color 0.25s linear;
+	vertical-align: top !important;
+	cursor: pointer;
+	text-decoration: none !important;
+	outline: none;
+}
+
+.webform-small-button-text {
+	line-height: 39px;
+	height: auto;
+}
+
+.webform-button-upload .webform-button-text {
+	display: inline-block;
+	height: auto;
+	line-height: 39px;
+	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+	cursor: pointer;
+	vertical-align: top;
+}
+
+.webform-button-upload {
+
+}
+
+.webform-button:hover,
+.webform-button:hover .webform-button-text,
+.webform-small-button:hover,
+.webform-small-button:hover .webform-small-button-text,
+.webform-button-upload:hover,
+.webform-field-upload:hover .webform-button-upload {
+	background: #cfd4d8;
+	color: #535c69;
+}
+
+.webform-button:active,
+.webform-button-active,
+.webform-button-active:link,
+.webform-button-active:visited,
+.webform-button-active:active,
+.webform-button-active:hover,
+
+.webform-small-button:active,
+.webform-small-button-active,
+.webform-small-button-active:link,
+.webform-small-button-active:visited,
+.webform-small-button-active:active,
+.webform-small-button-active:hover,
+.webform-small-button-active:hover .webform-button-text,
+.webform-small-button-active:hover .webform-small-button-text,
+
+.webform-button-active:hover .webform-small-button-text,
+.webform-button-active:hover .webform-button-text,
+
+.webform-button-transparent.webform-button-active,
+.webform-small-button-transparent.webform-button-active,
+.webform-small-button-transparent.webform-small-button-active,
+
+.webform-field-upload:active .webform-button-upload,
+.webform-field-upload:active .webform-button-text {
+	background: #868d95;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	color: #fff;
+}
+
+
+.webform-button:active .webform-button-text,
+.webform-button-active .webform-button-text,
+.webform-button-active .webform-small-button-text,
+.webform-small-button:active .webform-small-button-text,
+.webform-small-button-active .webform-small-button-text,
+.webform-field-upload:active .webform-small-button-text {
+	color: #fff;
+}
+
+.webform-button-accept,
+.webform-button-accept:link,
+.webform-button-accept:visited,
+.webform-button-accept .webform-button-text,
+.webform-button-create,
+.webform-button-create:link,
+.webform-button-create:visited,
+.webform-button-create .webform-button-text,
+.webform-button-blue,
+.webform-button-blue:link,
+.webform-button-blue:visited,
+.webform-button-blue .webform-button-text,
+.webform-small-button-accept,
+.webform-small-button-accept:link,
+.webform-small-button-accept:visited,
+.webform-small-button-accept .webform-small-button-text,
+.webform-small-button-create,
+.webform-small-button-create:link,
+.webform-small-button-create:visited,
+.webform-small-button-create .webform-small-button-text {
+	background: #bbed21;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	color: #535c69;
+}
+
+.webform-button-accept:hover,
+.webform-button-create:hover,
+.webform-small-button-accept:hover,
+.webform-small-button-create:hover {
+	background: #d2f95f;
+	color: #535c69;
+}
+
+
+.webform-button-accept:active,
+.webform-button-create:active,
+
+.webform-small-button-accept:active,
+.webform-small-button-create:active,
+
+.webform-button-accept.webform-button-active,
+.webform-button-create.webform-button-active,
+
+.webform-small-button-accept.webform-button-active,
+.webform-small-button-accept.webform-small-button-active,
+
+.webform-small-button-create.webform-button-active,
+.webform-small-button-create.webform-small-button-active {
+	background: #b2e233 !important;
+	color: #535c69;
+}
+
+
+.webform-button-accept:active .webform-button-text,
+.webform-button-create:active .webform-button-text,
+.webform-button-accept.webform-button-active .webform-button-text,
+.webform-button-create.webform-button-active .webform-button-text,
+.webform-small-button-accept:active .webform-small-button-text,
+.webform-small-button-create:active .webform-small-button-text,
+.webform-small-button-accept.webform-button-active .webform-small-button-text,
+.webform-small-button-accept.webform-small-button-active .webform-small-button-text {
+	color: #535c69;
+}
+
+
+.webform-button-decline,
+.webform-button-decline:link,
+.webform-button-decline:visited,
+.webform-button-decline .webform-button-text,
+.webform-small-button-decline,
+.webform-small-button-decline:link,
+.webform-small-button-decline:visited,
+.webform-small-button-decline .webform-small-button-text {
+	background: #f1361b;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	color: #fff;
+}
+
+
+.webform-button-decline:hover,
+.webform-button-decline:hover .webform-button-text,
+.webform-small-button-decline:hover,
+.webform-small-button-decline:hover .webform-small-button-text {
+	background: #cc1a00;
+	color: #fff;
+}
+
+.webform-button-decline:active,
+.webform-button-decline.webform-button-active,
+.webform-small-button-decline:active,
+.webform-small-button-decline.webform-button-active,
+.webform-small-button-decline.webform-small-button-active {
+	background: #d24430 !important;
+	color: #fff;
+}
+
+.webform-button-blue,
+.webform-button-blue:link,
+.webform-button-blue:visited,
+.webform-button-blue .webform-button-text,
+.webform-small-button-blue,
+.webform-small-button-blue:link,
+.webform-small-button-blue:visited,
+.webform-small-button-blue .webform-small-button-text {
+	background: #3bc8f5;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	color: #fff;
+}
+
+.webform-button-blue:hover,
+.webform-button-blue:hover .webform-button-text,
+.webform-small-button-blue:hover,
+.webform-small-button-blue:hover .webform-small-button-text {
+	background: #3fddff;
+	color: #fff;
+}
+
+.webform-button-blue:active,
+.webform-button-blue.webform-button-active,
+.webform-small-button-blue:active,
+.webform-small-button-blue.webform-button-active,
+.webform-small-button-blue.webform-small-button-active {
+	background: #13b1e3!important;
+	color: #fff;
+}
+
+.webform-button-transparent,
+.webform-small-button-transparent {
+	-webkit-box-shadow: inset 0 0 0 1px #a1a6ac;
+	box-shadow: inset 0 0 0 1px #a1a6ac;
+	background: none;
+	color: #535c69;
+}
+
+.webform-button-disable,
+.webform-button-disable .webform-button-text,
+.webform-button-disable .webform-small-button-text,
+.webform-small-button-disable,
+.webform-small-button-disable .webform-small-button-text {
+	color: #b6c1cf!important;
+	cursor: default;
+}
+
+.webform-button-disable,
+.webform-small-button-disable {
+	background: #ecedef !important;
+	-webkit-box-shadow: 0 0 0 1px #c6cdd3 inset !important;
+	box-shadow: 0 0 0 1px #c6cdd3 inset !important;
+}
+
+.webform-button-create.webform-button-disable,
+.webform-button-create.webform-button-disable .webform-button-text,
+.webform-button-accept.webform-button-disable,
+.webform-button-accept.webform-button-disable .webform-button-text,
+
+.webform-small-button-create.webform-button-disable,
+.webform-small-button-accept.webform-button-disable,
+.webform-small-button-create.webform-button-disable .webform-small-button-text,
+.webform-small-button-accept.webform-button-disable .webform-small-button-text,
+
+.webform-small-button-create.webform-small-button-disable,
+.webform-small-button-accept.webform-small-button-disable,
+.webform-small-button-create.webform-small-button-disable .webform-small-button-text,
+.webform-small-button-accept.webform-small-button-disable .webform-small-button-text {
+	background: #bbed21 !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	color: #a0c83c !important;
+}
+
+.webform-button-decline.webform-button-disable,
+.webform-button-decline.webform-button-disable .webform-button-text,
+
+.webform-small-button-decline.webform-button-disable,
+.webform-small-button-decline.webform-small-button-disable,
+.webform-small-button-decline.webform-small-button-disable .webform-small-button-text,
+.webform-small-button-decline.webform-button-disable .webform-small-button-text {
+	background: #f1361b !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	color: #f8a498 !important;
+}
+
+
+.webform-button-blue.webform-button-disable,
+.webform-small-button-blue.webform-button-disable,
+.webform-small-button-blue.webform-small-button-disable {
+	background: #3bc8f5 !important;
+	-webkit-box-shadow: none!important;
+	box-shadow: none!important;
+	color: #95e3fa!important;
+}
+
+.webform-button-link {
+	display: inline-block;
+	cursor: pointer;
+	margin: 8px 15px 0 0;
+	border-bottom: 1px solid transparent;
+	font: normal normal normal 14px/normal "Helvetica Neue", Helvetica, Arial, sans-serif;
+	-webkit-transition: border-bottom-color 0.25s linear;
+	transition: border-bottom-color 0.25s linear;
+	text-decoration: none !important;
+}
+
+
+.webform-button-link:hover {
+	border-bottom: 1px solid;
+}
+
+.webform-button-link-cancel {
+	color: #d20000 !important;
+}
+
+.webform-small-button-link {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 15px 0 0;
+	text-decoration: underline !important;
+}
+
+.webform-small-button-separate-wrap {
+	display: inline-block;
+	height: 39px;
+	vertical-align: middle;
+	border-radius: 0;
+	box-shadow: none;
+	padding-right: 0;
+	font-size: 0;
+	position: relative;
+	margin-right: 12px;
+}
+
+.webform-small-button-separate-wrap .webform-small-button {
+	margin: 0;
+	box-shadow: 0 0 0 1px #c6cdd3 inset;
+	border-radius: 0;
+	padding-right: 44px;
+	vertical-align: top;
+}
+
+.webform-small-button-right-part {
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%224%22%20viewBox%3D%220%200%208%204%22%3E%3Cpath%20fill%3D%22%23535c68%22%20d%3D%22M4%2C4L0%2C0.015H8Z%22/%3E%3C/svg%3E%0A') no-repeat center center;
+	cursor: pointer;
+	display: block;
+	height: 37px;
+	vertical-align: top;
+	width: 30px;
+
+	-webkit-transition: background-color 0.3s linear;
+	transition: background-color 0.25s linear;
+	border-radius: 0;
+	position: absolute;
+	right: 1px;
+	top: 1px;
+	margin: 0;
+}
+
+.webform-small-button-right-part:before,
+.webform-small-button-accept + .webform-small-button-right-part:before {
+	background: rgba(83, 92, 104, 0.2);
+	content: '';
+	display: block;
+	height: 26px;
+	margin-top: 6px;
+	width: 1px;
+}
+
+.webform-small-button-accept + .webform-small-button-right-part:before,
+.webform-small-button-decline + .webform-small-button-right-part:before {
+	margin-top: 7px;
+}
+
+.webform-small-button-right-part:after {
+	display: none;
+}
+
+.webform-small-button-right-part:hover {
+	background-color: #cfd4d8;
+}
+
+.webform-small-button-separate-wrap .webform-small-button-accept,
+.webform-small-button-separate-wrap .webform-small-button-blue,
+.webform-small-button-separate-wrap .webform-small-button-decline {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.webform-small-button-blue + .webform-small-button-right-part,
+.webform-small-button-decline + .webform-small-button-right-part {
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%224%22%20viewBox%3D%220%200%208%204%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M4%2C4L0%2C0.015H8Z%22/%3E%3C/svg%3E%0A') no-repeat center center #ecedef;
+	height: 39px;
+	width: 31px;
+	top: 0;
+	right: 0;
+}
+
+.webform-small-button-accept + .webform-small-button-right-part {
+	background-color: #bbed21;
+}
+
+.webform-small-button-accept + .webform-small-button-right-part:hover {
+	background-color: #d2f95f;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%224%22%20viewBox%3D%220%200%208%204%22%3E%3Cpath%20fill%3D%22%23535c68%22%20d%3D%22M4%2C4L0%2C0.015H8Z%22/%3E%3C/svg%3E%0A');
+}
+
+.webform-small-button-decline + .webform-small-button-right-part,
+.webform-small-button-decline + .webform-small-button-right-part:hover,
+.webform-small-button-blue + .webform-small-button-right-part,
+.webform-small-button-blue + .webform-small-button-right-part:hover {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%224%22%20viewBox%3D%220%200%208%204%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M4%2C4L0%2C0.015H8Z%22/%3E%3C/svg%3E%0A');
+}
+
+.webform-small-button-decline + .webform-small-button-right-part:before,
+.webform-small-button-blue + .webform-small-button-right-part:before {
+	background-color: rgba(255, 255, 255, 0.8);
+}
+
+.webform-small-button-decline + .webform-small-button-right-part {
+	background-color: #f1361b;
+}
+
+.webform-small-button-decline + .webform-small-button-right-part:hover {
+	background-color: #cc1a00;
+}
+
+.webform-small-button-blue + .webform-small-button-right-part {
+	background-color: #3bc8f5;
+}
+
+.webform-small-button-blue + .webform-small-button-right-part:hover {
+	background-color: #3fddff;
+}
+
+.webform-small-button-blue + .webform-small-button-right-part:active {
+	background-color: #13b1e3;
+}
+
+.webform-rounded-cogwheel.webform-small-button {
+	position: relative;
+	padding: 0 10px 0 7px;
+	margin: 0;
+	width: 20px;
+	font-size: 0;
+	-webkit-border-radius: 30px;
+	border-radius: 30px;
+	text-align: center;
+	box-shadow: none;
+}
+.webform-rounded-cogwheel.webform-small-button:hover {
+	background: transparent;
+	box-shadow: none;
+}
+
+.webform-small-button.webform-cogwheel {
+	padding: 0 10px !important;
+	height: 39px;
+	line-height: 0;
+	box-sizing: border-box;
+	border: 1px solid #c8d1d6;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition: .3s;
+	transition: .3s;
+}
+
+.webform-small-button.webform-cogwheel.webform-button-disable {
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+}
+
+.webform-small-button.webform-cogwheel.webform-button-disable .webform-button-icon {
+	opacity: .45 !important;
+}
+
+.webform-small-button.webform-cogwheel:before {
+	content: '';
+	display: inline-block;
+	vertical-align: middle;
+	width: 1px;
+	height: calc(100% - 2px);
+	margin: 0 0 0 -3px;
+}
+
+.webform-rounded-cogwheel .webform-button-icon,
+.webform-cogwheel .webform-button-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 16px;
+	height: 16px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%3Cpath%20fill%3D%22%23828993%22%20d%3D%22M10.9549333%2C8.65814133%20C10.7131867%2C9.79457067%209.81950667%2C10.6882747%208.68312%2C10.9299507%20C6.51653333%2C11.39074%204.63442667%2C9.508024%205.09529333%2C7.34183467%20C5.31324%2C6.317524%206.34252%2C5.28813733%207.3668%2C5.07014133%20C9.53297333%2C4.60907333%2011.4158133%2C6.49137067%2010.9549333%2C8.65814133%20M15.4145333%2C6.83496533%20L13.8296133%2C6.57054%20L13.8296133%2C6.57054%20C13.7170133%2C6.11019333%2013.554%2C5.66968667%2013.3424133%2C5.25791333%20C13.33352%2C5.24058933%2013.3355867%2C5.219748%2013.3478133%2C5.20459067%20L14.3423333%2C3.97143467%20C14.5581333%2C3.70554267%2014.5483333%2C3.322992%2014.3208267%2C3.06639067%20L13.6904667%2C2.35694%20C13.4619733%2C2.10059467%2013.0830667%2C2.04638667%2012.79404%2C2.228988%20L11.4386133%2C3.08106%20L11.4386133%2C3.08106%20C10.8510133%2C2.67052%2010.18652%2C2.365788%209.47001333%2C2.18623733%20C9.45101333%2C2.181464%209.4366%2C2.165956%209.43336%2C2.14660533%20L9.17350667%2C0.584968%20C9.11785333%2C0.247566667%208.82588%2C0%208.48314667%2C0%20L7.53321333%2C0%20C7.19117333%2C0%206.8982%2C0.247566667%206.84378667%2C0.584968%20L6.58249333%2C2.147188%20C6.57925333%2C2.16649067%206.56486667%2C2.181952%206.54589333%2C2.18670267%20C5.96604%2C2.33202533%205.4214%2C2.56138267%204.92248%2C2.861248%20C4.90566667%2C2.87135467%204.88454667%2C2.87060933%204.86857333%2C2.8592%20L3.60581333%2C1.957996%20C3.32801333%2C1.75951467%202.94642667%2C1.79055333%202.70398667%2C2.03248533%20L2.03289333%2C2.70407467%20C1.79096%2C2.94651867%201.75992%2C3.32811467%201.95893333%2C3.60592933%20L2.86225333%2C4.87121733%20C2.87364%2C4.887168%202.87442667%2C4.90828667%202.86434667%2C4.92509867%20C2.5674%2C5.420164%202.34042667%2C5.96156533%202.19525333%2C6.536148%20C2.19045333%2C6.55512533%202.175%2C6.56946933%202.15572%2C6.57268267%20L0.584933333%2C6.83498933%20C0.248053333%2C6.89061733%200%2C7.18263467%200%2C7.525392%20L0%2C8.474608%20C0%2C8.81734133%200.248053333%2C9.10938267%200.584933333%2C9.16501067%20L2.15566667%2C9.42729467%20C2.17497333%2C9.43053067%202.19045333%2C9.44489867%202.19522667%2C9.46389867%20C2.31332%2C9.933%202.48153333%2C10.3817267%202.70266667%2C10.7994387%20C2.71188%2C10.816856%202.70993333%2C10.8380213%202.69754667%2C10.8533667%20L1.70793333%2C12.0790467%20C1.49288%2C12.344684%201.50190667%2C12.7274907%201.72942667%2C12.9838587%20L2.35929333%2C13.693332%20C2.5878%2C13.950144%202.96692%2C14.0033733%203.25597333%2C13.8212373%20L4.60374667%2C12.974568%20C4.62026667%2C12.9641827%204.64132%2C12.9646027%204.65748%2C12.9755467%20C5.23272%2C13.3642907%205.88164%2C13.6505573%206.57718667%2C13.8212373%20L6.57718667%2C13.8212373%20L6.84381333%2C15.4149853%20C6.89822667%2C15.7524093%207.19117333%2C16%207.53321333%2C16%20L8.48314667%2C16%20C8.82589333%2C16%209.11785333%2C15.7524333%209.17350667%2C15.4150093%20L9.4338%2C13.853068%20C9.43704%2C13.8337413%209.45145333%2C13.8182573%209.47045333%2C13.8135067%20C10.0428133%2C13.6701867%2010.5803733%2C13.44488%2011.0745867%2C13.1503013%20C11.0914%2C13.140288%2011.11244%2C13.14108%2011.1283467%2C13.1524427%20L12.44492%2C14.0927653%20C12.72224%2C14.2919693%2013.1040933%2C14.26072%2013.34628%2C14.01802%20L14.0176667%2C13.3466413%20C14.2593067%2C13.1049413%2014.2920267%2C12.7235547%2014.09136%2C12.445228%20L13.15412%2C11.1311347%20C13.1427333%2C11.115184%2013.14196%2C11.094088%2013.15204%2C11.0772987%20C13.4498667%2C10.5805587%2013.6780533%2C10.0381093%2013.8224267%2C9.46094133%20C13.8271733%2C9.44194133%2013.8426533%2C9.427528%2013.86196%2C9.42429067%20L15.4150667%2C9.16496533%20C15.7529467%2C9.10931333%2016%2C8.81729467%2016%2C8.47456133%20L16%2C7.52534533%20C15.9994933%2C7.18263467%2015.75244%2C6.89061733%2015.4145333%2C6.83496533%22/%3E%0A%3C/svg%3E%0A') center center no-repeat;
+	background-size: cover;
+}
+
+.webform-rounded-cogwheel .webform-button-icon {
+	vertical-align: top;
+	margin: 11px 0 0 0;
+}
+
+.webform-small-button.webform-cogwheel:active,
+.webform-small-button.webform-cogwheel:hover {
+	background: #cfd4d8;
+}
+
+.sonet-filter-menu-settings-icon.webform-rounded-cogwheel {
+	opacity: .45;
+	-webkit-transition: .3s;
+	transition: .3s;
+}
+
+.sonet-filter-menu-settings-icon.webform-rounded-cogwheel:hover {
+	opacity: 1;
+}

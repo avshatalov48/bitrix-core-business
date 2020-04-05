@@ -1,0 +1,22 @@
+/*Table*/
+table.sale_basket_small
+{
+	width:245;
+	border-collapse:collapse;
+	font-size:12px;
+	border:1px solid #ADC3D5;
+}
+
+/*Table head*/
+table.sale_basket_small th
+{
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.sale_basket_small th, table.sale_basket_small td
+{
+	padding: 3px 5px;
+	vertical-align:top;
+}

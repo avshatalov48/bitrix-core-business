@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<skin version="1.1" name="Stijl" author="LongTail Video">
+
+	<settings>
+		<setting name="backcolor" value="0xFFFFFF" />
+		<setting name="frontcolor" value="0x000000" />
+		<setting name="lightcolor" value="0x000000" />
+		<setting name="screencolor" value="0x000000" />
+	</settings>
+
+	<components>
+		<component name="controlbar">
+			<settings>
+				<setting name="margin" value="0" />
+				<setting name="fontsize" value="11" />
+				<setting name="fontcolor" value="0x333333" />
+				<setting name="buttoncolor" value="0x333333" />
+			</settings>
+
+			<layout>
+				<group position="left">
+					<button name="play" />
+				</group>
+				<group position="center">
+					<slider name="time" />
+				</group>
+				<group position="right">
+					<button name="mute" />
+					<button name="blank" />
+					<button name="fullscreen" />
+				</group>
+			</layout>
+
+			<elements>
+				<element name="background" src="back.png" />
+				<element name="blankButton" src="blank.png" />
+				<element name="capLeft" src="divider.png" />
+				<element name="capRight" src="divider.png" />
+				<element name="divider" src="divider.png" />
+				<element name="fullscreenButton" src="fullscreen.png" />
+				<element name="fullscreenButtonOver" src="fullscreenOver.png" />
+				<element name="muteButton" src="mute.png" />
+				<element name="muteButtonOver" src="muteOver.png" />
+				<element name="pauseButton" src="pause.png" />
+				<element name="pauseButtonOver" src="pauseOver.png" />
+				<element name="playButton" src="play.png" />
+				<element name="playButtonOver" src="playOver.png" />
+				<element name="timeSliderBuffer" src="timeBuffer.png" />
+				<element name="timeSliderProgress" src="timeProgress.png" />
+				<element name="timeSliderRail" src="timeRail.png" />
+				<element name="timeSliderThumb" src="timeThumb.png" />
+				<element name="normalscreenButton" src="normalscreen.png" />
+				<element name="normalscreenButtonOver" src="normalscreenOver.png" />
+				<element name="unmuteButton" src="unmute.png" />
+				<element name="unmuteButtonOver" src="unmuteOver.png" />
+				<element name="volumeSliderRail" src="divider.png" />
+				<element name="volumeSliderProgress" src="divider.png" />
+			</elements>
+		</component>
+		
+		<component name="display">
+			<settings>
+				<setting name="bufferinterval" value="50" />
+				<setting name="bufferrotation" value="15" />
+				<setting name="backgroundcolor" value="0x333333" />
+			</settings>
+			<elements>
+				<element name="background" src="back.png" />
+				<element name="playIcon" src="play.png" />
+				<element name="muteIcon" src="mute.png" />
+				<element name="bufferIcon" src="buffer.png" />
+				<element name="errorIcon" src="buffer.png" />
+			</elements>
+		</component>
+		
+		<component name="dock">
+			<settings>
+				<setting name="fontcolor" value="0x333333" />
+			</settings>
+			<elements>
+				<element name="button" src="button.png" />
+			</elements>
+		</component>
+		
+		<component name="playlist">
+			<settings>
+				<setting name="fontcolor" value="0x333333" />
+				<setting name="overcolor" value="0x88CC00" />
+				<setting name="backgroundcolor" value="0xE5E5E5" />
+			</settings>
+			<elements>
+				<element name="item" src="itemBack.png" />
+				<element name="itemActive" src="itemActive.png" />
+				<element name="itemImage" src="itemImage.png" />
+				<element name="sliderCapBottom" src="sliderCap.png" />
+				<element name="sliderCapTop" src="sliderCap.png" />
+				<element name="sliderRail" src="sliderRail.png" />
+				<element name="sliderThumb" src="sliderThumb.png" />
+			</elements>
+		</component>
+
+		<component name="sharing">
+			<elements>
+				<element name="embedIcon" src="embedIcon.png" />
+				<element name="embedScreen" src="embedScreen.png" />
+				<element name="shareIcon" src="shareIcon.png" />
+				<element name="shareScreen" src="shareScreen.png" />
+			</elements>
+		</component>
+
+		<component name="captions">
+			<elements>
+				<element name="dockIcon" src="dockIcon.png" />
+				<element name="controlbarButton" src="controlbarButton.png" />
+			</elements>
+		</component>
+
+	</components>
+
+</skin>

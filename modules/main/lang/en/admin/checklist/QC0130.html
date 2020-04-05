@@ -1,0 +1,21 @@
+<p>If your project contains a considerable size of code devoted to a particular
+task, it would be reasonable to shape it as a Bitrix Framework module. This will
+impart good structure to the code, decrease its complexity and improve maintainability.
+Another useful implication of this approach is the ability to distribute module
+updates via Marketplace.</p>
+
+<p>It is recommended to use OOP (encapsulation, polymorphism, inheritance etc.)
+and design templates (not to be confused with website templates here) if the
+module code is massive and complicated.</p>
+
+<p>Sometimes developers place all the code they create for a website in
+initialization files like init.php. Over time, these files become rather large
+which deteriorates web project manageability, increase development errors and brings down
+performance. The latter will likely degrade even more if such ini-files
+intensively call the Bitrix Framework API's database functions.</p>
+
+
+<ul>
+  <li>Ensure that the custom code is shaped as a Bitrix Framework module rather
+    than scattered across the initialization files (init.php etc.).</li>
+</ul>

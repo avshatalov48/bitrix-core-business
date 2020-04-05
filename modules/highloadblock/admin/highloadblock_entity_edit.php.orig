@@ -1,0 +1,212 @@
+<?php
+
+// admin initialization
+define("ADMIN_MODULE_NAME", "highloadblock");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+
+IncludeModuleLangFile(__FILE__);
+
+if (!$USER->IsAdmin())
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+if (!CModule::IncludeModule(ADMIN_MODULE_NAME))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+
+if ($_REQUEST["mode"] == "list")
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+}
+else
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+}
+
+// form
+$aTabs = array(
+	array("DIV" => "edit1", "TAB" => "Entity", "ICON"=>"ad_contract_edit", "TITLE"=> "Ent1ty")
+);
+$tabControl = new CAdminTabControl("tabControl", $aTabs);
+
+
+$is_create_form = true;
+$is_update_form = false;
+
+use Bitrix\Highloadblock as HL;
+
+// get highloadblock data
+if (isset($_REQUEST['ID']) && $_REQUEST['ID'] > 0)
+{
+	$hlblock = HL\HighloadBlock::getById($_REQUEST['ID'])->Fetch();
+
+	if (!empty($hlblock))
+	{
+		$is_update_form = true;
+		$is_create_form = false;
+	}
+}
+
+if ($is_create_form)
+{
+	// default values for create form
+	$hlblock = array_fill_keys(array('ID', 'NAME', 'TABLE_NAME'), '');
+}
+
+
+$isEditMode = true;
+
+// delete action
+if ($is_update_form && isset($_REQUEST['action']) && $_REQUEST['action'] === 'delete' && check_bitrix_sessid())
+{
+	HL\HighloadBlock::delete($hlblock['ID']);
+
+	$fields = HL\HighloadBlockField::getList(array('select' => array('ID'), 'filter' => array('=ENTITY_ID' => $hlblock['ID'])));
+
+	while ($field = $fields->Fetch())
+	{
+		HL\HighloadBlockField::delete($field['ID']);
+	}
+
+	LocalRedirect("highloadblock_index.php?lang=".LANGUAGE_ID);
+}
+
+
+// save action
+if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && check_bitrix_sessid())
+{
+	$data = array(
+		'NAME' => $_REQUEST['NAME'],
+		'TABLE_NAME' => $_REQUEST['TABLE_NAME']
+	);
+
+	$errors = HL\HighloadBlock::checkFields($data);
+
+	if ($is_update_form)
+	{
+		$errors = array_merge_recursive($errors, HL\HighloadBlock::checkFieldsBeforeUpdate($data));
+
+		if (empty($errors))
+		{
+			HL\HighloadBlock::update($data, $_REQUEST['ID']);
+			$ID = intval($_REQUEST['ID']);
+		}
+	}
+	else
+	{
+		$errors = array_merge_recursive($errors, HL\HighloadBlock::checkFieldsBeforeAdd($data));
+
+		if (empty($errors))
+		{
+			// create
+			$ID = HL\HighloadBlock::add($data);
+
+			// add ID
+			$primaryData = array('ENTITY_ID' => $ID, 'NAME' => 'ID', 'DATA_TYPE' => 'integer', 'IS_PRIMARY' => 1);
+			HL\HighloadBlockField::add($primaryData);
+		}
+	}
+
+	//if (strlen($strError)<=0)
+	if (empty($errors))
+	{
+		if (strlen($save)>0)
+		{
+			LocalRedirect("highloadblock_index.php?lang=".LANGUAGE_ID);
+		}
+		else
+		{
+			LocalRedirect("highloadblock_entity_edit.php?ID=".$ID."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
+		}
+	}
+
+	// rewrite original value by form value to restore form
+	foreach ($data as $k => $v)
+	{
+		$hlblock[$k] = $v;
+	}
+}
+
+
+// menu
+$aMenu = array(
+	array(
+		"TEXT"	=> 'List',
+		"TITLE"	=> 'List',
+		"LINK"	=> "highloadblock_index.php?lang=".LANGUAGE_ID,
+		"ICON"	=> "btn_list",
+	)
+);
+
+$context = new CAdminContextMenu($aMenu);
+$context->Show();
+
+
+?>
+<?
+if (!empty($errors['all']))
+{
+	CAdminMessage::ShowMessage(join("\n", $errors['all']));
+}
+?>
+<form name="form1" method="POST" action="<?=$APPLICATION->GetCurPage()?>">
+<?=bitrix_sessid_post()?>
+<input type="hidden" name="ID" value="<?=htmlspecialcharsbx($hlblock['ID'])?>">
+<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
+<?
+$tabControl->Begin();
+
+$tabControl->BeginNextTab();
+
+?>
+<tr valign="top">
+	<td width="40%">Name</td>
+	<td><?
+		if (!$isEditMode):
+			?><?=htmlspecialcharsEx($hlblock['NAME'])?><?
+		else :
+			?><input type="text" name="NAME" size="30" value="<?=htmlspecialcharsbx($hlblock['NAME'])?>"><?
+		endif;
+	?></td>
+</tr>
+<tr valign="top">
+	<td>Table name</td>
+	<td><?
+		if (!$isEditMode):
+			?><?=htmlspecialcharsEx($hlblock['TABLE_NAME'])?><?
+		else :
+			?><input type="text" name="TABLE_NAME" size="30" value="<?=htmlspecialcharsbx(strtolower($hlblock['TABLE_NAME']))?>"><?
+		endif;
+		?></td>
+</tr>
+
+<? if ($is_update_form): ?>
+	<tr valign="top">
+		<td>Entity fields</td>
+		<td><a href="highloadblock_entity_fields_list.php?ENTITY_ID=<?=intval($hlblock['ID'])?>">[<?=intval($hlblock['FIELDS_COUNT'])?>]</a></td>
+	</tr>
+<? endif; ?>
+
+<?
+$disable = true;
+if($isEditMode)
+	$disable = false;
+
+$tabControl->Buttons(array("disabled" => $disable, "back_url"=>"highloadblock_index.php?lang=".LANGUAGE_ID));
+$tabControl->End();
+?>
+</form>
+<?
+
+
+if ($_REQUEST["mode"] == "list")
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+}
+else
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+}

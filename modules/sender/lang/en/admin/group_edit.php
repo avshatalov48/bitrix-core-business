@@ -1,0 +1,30 @@
+<?
+$MESS["sender_group_adm_tab_grp"] = "Group";
+$MESS["sender_group_adm_tab_grp_title"] = "Common group parameters";
+$MESS["sender_group_adm_tab_param"] = "Parameters";
+$MESS["sender_group_adm_tab_param_title"] = "Recipient parameters ";
+$MESS["sender_group_title_add"] = "Create recipient group";
+$MESS["sender_group_title_edit"] = "Edit recipient group #";
+$MESS["sender_group_list"] = "View groups";
+$MESS["sender_group_list_title"] = "Back to recipient groups";
+$MESS["sender_group_add"] = "Add";
+$MESS["sender_group_add_title"] = "Add group";
+$MESS["sender_group_del"] = "Delete";
+$MESS["sender_group_del_title"] = "Delete group";
+$MESS["sender_group_del_confirm"] = "Are you sure you want to delete this group?";
+$MESS["sender_group_field_active"] = "Active:";
+$MESS["sender_group_field_name"] = "Group name:";
+$MESS["sender_group_field_sort"] = "Sort order:";
+$MESS["sender_group_field_desc"] = "Description (2000 characters max.):";
+$MESS["sender_group_conn_title"] = "Pick recipients for this group";
+$MESS["sender_group_conn_desc"] = "Group various recipients in one mailing list. Use the filters to find and select only the persons whom you want to receive the messages.";
+$MESS["sender_group_conn_desc_example"] = "For example, you can announce an upcoming sale event to only the frequent buyers, or to anyone who shopped at your store at least once.";
+$MESS["sender_group_conn_add"] = "Add filter";
+$MESS["group_edit_connector"] = "Recipient types:";
+$MESS["group_edit_connector_add"] = "Add type:";
+$MESS["group_edit_connector_add_button"] = "Add";
+$MESS["sender_group_conn_not_availabe"] = "No recipient source available.";
+$MESS["sender_group_conn_cnt"] = "Selected";
+$MESS["sender_group_conn_cnt_all"] = "Total recipients selected";
+$MESS["sender_group_conn_not_selected"] = "There are no filters. Please create a filter.";
+?>

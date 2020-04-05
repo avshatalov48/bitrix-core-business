@@ -1,0 +1,6 @@
+<?
+$sSectionName = "Map";
+$arDirProperties = Array(
+
+);
+?>

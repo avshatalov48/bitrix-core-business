@@ -1,0 +1,406 @@
+div.bx-core-window, div.bx-core-window table {letter-spacing:normal !important; font-variant:normal !important; font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; font-family:Verdana,Arial,sans-serif !important; font-size:11px !important; color:black; line-height:normal !important; font-weight:normal !important; text-align: left;}
+
+/*div.bx-core-dialog div.dialog-center div.content-inner table.bx-width100 {width: auto !important;}*/
+
+div.bx-core-dialog-overlay {top:0; left:0; width:100%; height:100%; position: absolute; background-color: #333; opacity: 0.5; -moz-opacity: 0.5; -khtml-opacity: 0.5; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50);}
+
+.bx-core-dialog .bx-core-dialog-content {
+	background-color: white;
+	overflow: auto;
+	overflow-x: hidden;
+	position: relative;
+}
+
+.bx-core-dialog .dialog-center {
+	position: relative;
+	margin: 39px 0px 49px 0px;
+	padding: 4px 10px 4px 15px;
+	background-image: url(/bitrix/js/main/core/images/dialog_borders_c.png);
+	background-repeat: repeat-y;
+	background-position: right top;
+}
+
+.bx-core-dialog .dialog-center.dialog-center-notify
+{
+	margin: 55px 0px 49px 0px;
+}
+
+.bx-core-dialog .dialog-head {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+}
+.bx-core-dialog .dialog-head div {
+	background-image: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png);
+	height: 39px;
+}
+.bx-core-dialog .dialog-head div.l {
+	background-position: top left;
+	background-repeat: no-repeat;
+}
+.bx-core-dialog .dialog-head div.r {
+	background-position: top right;
+	background-repeat: no-repeat;
+}
+
+.bx-core-dialog .dialog-head div.c {
+	overflow: hidden;
+	margin-right: 15px; margin-left: 15px;
+	background-position: left -39px;
+	background-repeat: repeat-x;
+}
+
+.bx-core-dialog .dialog-head div.c span {line-height: 39px; white-space: nowrap; font-family: Verdana; font-size: 13px; font-weight: bold; display: inline-block; width: 100%; overflow: hidden;}
+
+
+.bx-core-dialog  .dialog-foot {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+}
+.bx-core-dialog  .dialog-foot div {
+	background-image: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png);
+	height: 49px;
+}
+.bx-core-dialog  .dialog-foot div.l {
+	background-position: left -78px;
+	background-repeat: no-repeat;
+}
+.bx-core-dialog  .dialog-foot div.r {
+	background-position: right -127px;
+	background-repeat: no-repeat;
+}
+
+.bx-core-dialog  .dialog-foot div.c {
+	overflow: hidden;
+	margin-left: 15px; margin-right: 15px;
+	background-position: left -176px;
+	background-repeat: repeat-x;
+}
+
+.bx-core-dialog  .dialog-foot div.c {text-align: center;}
+.bx-core-dialog  .dialog-foot div.c span {display: block; position: relative; top: 8px;}
+.bx-core-dialog  .dialog-foot div.c button, .bx-core-dialog  .dialog-foot div.c input {margin: 0 3px; font-size: 14px !important;}
+
+.dialog-foot a.context-button {display:inline-block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat; background-position:3px 3px; height:18px; width:18px; border:0px; margin:1px; position: relative; top: -2px;}
+
+.dialog-foot a.context-button:hover {width:20px; height:20px; margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+
+.bx-core-dialog  .dialog-head-icons {
+	position: absolute;
+	height: 39px;
+	top: 0px;
+	right: 10px;
+	padding: 0 4px;
+	background-image: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png);
+	background-repeat: no-repeat;
+	background-position: top center;
+}
+
+.bx-core-dialog .dialog-head-icons   a {
+	display: inline-block;
+	background-image: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png);
+	background-repeat: no-repeat;
+	height: 15px; width: 15px;
+	position: relative; top: 10px; margin: 2px;
+	cursor: pointer;
+}
+
+.bx-core-dialog  a.bx-icon-close {background-position: -20px -233px;}
+.bx-core-dialog  a.bx-icon-expand {background-position: left -233px;}
+.bx-core-dialog  a.bx-icon-narrow {background-position: -40px -233px;}
+.bx-core-dialog .content-inner {padding-right: 11px;}
+.bx-core-dialog-head {
+	position: relative; margin: 7px 12px 14px 0px;
+}
+
+div.bx-core-dialog-head .bx-core-dialog-head-content {padding: 6px 30px 9px 0; background-repeat: no-repeat; background-position: top right; font-size: 12px; border-bottom: 1px solid #CCC;}
+div.bx-core-dialog-head .bx-core-dialog-head-content p.title {margin: 0px 0px 5px 0px !important; font-weight: bold; font-size: 14px;}
+div.bx-core-dialog-head .bx-core-dialog-head-content p {margin: 0px !important;}
+
+div.bx-core-admin-dialog-head {margin: 5px 0px 4px 0px;}
+div.bx-core-admin-dialog-head span.tabs {display: inline; display: inline-block; list-style: none outside none; margin: 0px; padding: 0px; background-image: url(/bitrix/js/main/core/images/line.png); background-position: right bottom; background-repeat: no-repeat; padding-left: 5px; padding-right: 50px;}
+div.bx-core-admin-dialog-head a.tab-container, div.bx-core-admin-dialog-head a.tab-container-selected {height: 30px;display: inline; display: inline-block; margin-right: 5px; cursor: pointer;}
+
+div.bx-core-admin-dialog-head a, div.bx-core-admin-dialog-head a:hover {color: black !important; text-decoration: none !important; outline: none;}
+
+div.bx-core-admin-dialog-head a.tab-container span, div.bx-core-admin-dialog-head a.tab-container-selected span {height: 30px; background-image: url(/bitrix/js/main/core/images/tabs.png); background-repeat: no-repeat; display: inline-block !important; }
+
+div.bx-core-admin-dialog-head span.tab-right {padding: 0px 25px 0px 20px; line-height: 28px;}
+
+div.bx-core-admin-dialog-head span.tab-left {background-position: left -31px;}
+div.bx-core-admin-dialog-head a.tab-container-selected span.tab-left {background-position: left top ;}
+div.bx-core-admin-dialog-head a.tab-container:hover span.tab-left {background-position: left bottom ;}
+div.bx-core-admin-dialog-head span.tab-right {background-position: right -31px; margin-left: 5px;}
+div.bx-core-admin-dialog-head a.tab-container-selected span.tab-right {background-position: right top;}
+div.bx-core-admin-dialog-head a.tab-container:hover span.tab-right {background-position: right bottom;}
+
+
+div.bx-core-admin-dialog-head .bx-core-dialog-head-content {padding: 0;}
+
+div.bx-core-resizer {background: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png) no-repeat right -225px; position: absolute; z-index: 6; bottom: 3px; right: 2px; height: 20px; width: 20px;}
+
+
+
+/* additional admin panel styles */
+div.bx-core-dialog-content p {text-align:left !important;}
+div.bx-core-dialog-content form {margin:0px !important; padding:0px !important;}
+div.bx-core-dialog-content td {font-size:12px !important; padding:5px 3px 10px 0 !important; line-height:normal !important; font-weight:normal !important;}
+div.bx-core-dialog-content td {background-image:url(/bitrix/themes/.default/public/dot_hor.gif) /*!important*/; background-position:left bottom /*!important*/; background-repeat:repeat-x /*!important*/;}
+div#bx_admin_form td {background-image:none;}
+div.bx-core-dialog-content tr.empty td {background-image:none !important; padding:1px !important;}
+div.bx-core-dialog-content tr.section td {background-image:none !important; background-color:#ededed !important;padding:3px !important;}
+div.bx-core-dialog-content tr.section table td {padding:0px !important;}
+div.bx-core-dialog-content input, div.bx-core-dialog-content select {font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:12px !important; margin:0 !important; padding:1px !important;}
+div.bx-core-dialog-content td.bx-popup-label {text-align:right !important;}
+div.bx-core-dialog-content td.bx-core-dialog-padding {padding-left: 3px; background-image:none;}
+
+
+.bx-width30 {width:30% !important;}
+.bx-width50 {width:50% !important;}
+.bx-width100 {width:100% !important;}
+.bx-width0 {width:0% !important;}
+
+/* hint */
+div.bxhint {font-size:11px; font-family: Tahoma, Arial, Verdana, Sans-Serif; color:black; padding:5px; background-color: #ffffce; border:1px solid black; overflow: visible; line-height:normal; font-weight:normal; letter-spacing:normal !important; font-variant:normal !important; font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; text-align:left !important;}
+div.bxhint td {font-size:11px; font-family: Tahoma, Arial, Verdana, Sans-Serif; color:black; padding:2px;}
+div.bxhint td.bx-grey {color:#747474;}
+div.bxhinticon {width:0%;height:0%;}
+
+/* admin dialog */
+div.bx-core-dialog table.edit-tabs td.tab-left-selected, div.bx-core-dialog table.edit-tabs td.tab-selected, div.bx-core-dialog table.edit-tabs td.tab-right-selected, div.bx-core-dialog table.edit-tabs td.tab-right-last-selected {border:medium none !important;}
+
+div.bx-core-dialog table.edit-tabs td {font-size:11px !important; font-weight:bold !important; color:#555556 !important;white-space:nowrap !important; border-bottom: solid 1px #B8C1DD !important; padding:0px !important;}
+
+div.bx-core-dialog table.edit-tabs td.tab-container {border:none !important; cursor:pointer !important; cursor: hand !important;}
+div.bx-core-dialog table.edit-tabs td.tab-container-selected, table.edit-tabs td.tab-container-disabled {border:none !important; cursor:default !important;}
+div.bx-core-dialog table.edit-tabs td.tab-container-disabled table {color:#A2A09F !important;}
+div.bx-core-dialog table.edit-tabs td.tab-indent div.empty {width:6px !important; height:21px !important;}
+div.bx-core-dialog table.edit-tabs td.tab-left div.empty {width:2px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_l.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-right div.empty {width:8px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_r.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-right-last div.empty {width:10px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_last.gif);}
+div.bx-core-dialog table.edit-tabs td.tab {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:21px !important; background-image:url(/bitrix/themes/.default/images/edit/tab_bg.gif) !important;}
+div.bx-core-dialog table.edit-tabs td.tab-left-selected, table.edit-tabs td.tab-selected, table.edit-tabs td.tab-right-selected, table.edit-tabs td.tab-right-last-selected {border:none !important;}
+div.bx-core-dialog table.edit-tabs td.tab-left-selected div.empty {width:2px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_l_sel.gif);  background-position: top left; background-repeat: repeat-x;}
+div.bx-core-dialog table.edit-tabs td.tab-right-selected div.empty {width:8px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_sel.gif); background-position: top left; background-repeat: repeat-x;}
+div.bx-core-dialog table.edit-tabs td.tab-right-last-selected div.empty {width:10px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_last_sel.gif); background-position: top left; background-repeat: repeat-x;}
+div.bx-core-dialog table.edit-tabs td.tab-selected {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:22px !important; background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_bg_sel.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-left-hover div.empty {width:2px; height:21px;  background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_l_hov.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-right-hover div.empty {width:8px; height:21px;  background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_r_hov.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-right-last-hover div.empty {width:10px; height:21px;  background-position: top left; background-repeat: repeat-x;  background-image:url(/bitrix/themes/.default/images/edit/tab_r_last_hov.gif);}
+div.bx-core-dialog table.edit-tabs td.tab-hover {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:21px !important; background-position: top left !important; background-repeat: repeat-x !important; background-image:url(/bitrix/themes/.default/images/edit/tab_bg_hov.gif) !important;}
+div.bx-core-dialog table.edit-tabs a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; background-repeat:no-repeat; background-position:3px 3px; height:18px; width:18px; border:0px; margin:1px;}
+div.bx-core-dialog table.edit-tabs a.context-button:hover {width:20px; height:20px; margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+
+div.bx-core-dialog-content .edit-field, div.bx-core-admin-dialog-content .edit-field {background-image:url(/bitrix/themes/.default/public/popup/pencil.gif);}
+div.bx-core-dialog-content .edit-field-active, div.bx-core-admin-dialog-content .edit-field-active {border-color: #434B50 #ADC0CF #ADC0CF #434B50 !important;}
+
+
+/* Tab inside edit form */
+div.bx-core-dialog div.bx-core-admin-dialog-content table.edit-tab {border-width: 0px !important; border: none !important; width:100% !important;}
+div.bx-core-dialog table.edit-tab td {background-color:#F8F9FC !important; padding:0px !important;}
+div.bx-core-dialog div.bx-core-admin-dialog-content table.edit-tab td div.edit-tab-inner {width: 100% !important; padding: 0px;}
+
+div.bx-core-dialog div#bx_admin_form table.edit-tab {border: none !important; width:100% !important;}
+div.bx-core-dialog div#bx_admin_form table.edit-tab td div.edit-tab-inner {height: auto; overflow: visible;}
+
+
+/* Edit table */
+div.bx-core-dialog div#bx_admin_form  table.edit-table {width:100% !important;}
+div.bx-core-admin-dialog-content table.edit-table td {font-size:11px !important; padding:4px !important;}
+div.bx-core-admin-dialog-content table.edit-table td.field-name {color:#646465 !important; text-align:right !important;}
+div.bx-core-admin-dialog-content table.edit-table tr.heading td {color:#525355 !important; text-align:center !important; font-weight:bold !important; background-color:#E0E4F1 !important;}
+div.bx-core-admin-dialog-content table.edit-table table td {padding:0px !important; border:none !important;}
+div.bx-core-admin-dialog-content table.edit-table table.edit-table td {padding:4px !important;}
+div.bx-core-admin-dialog-content table.edit-table div {font-size:100%;}
+
+div.bx-core-admin-dialog-content div.edit-form {margin: 0px;}
+div.bx-core-admin-dialog-content div.edit-form td.content {padding: 0px;}
+
+div.bx-core-admin-dialog-content span.required {color:red !important;}
+
+/* A table inside edit table */
+div.bx-core-admin-dialog-content table.edit-table table.internal {border-collapse:collapse !important;}
+div.bx-core-admin-dialog-content table.edit-table table.internal td, table.edit-table table.internal table.in_internal td{padding:3px !important; border:1px solid #CFD6E9 !important; font-size:11px !important;}
+div.bx-core-admin-dialog-content table.edit-table table.internal tr.heading td {text-align:center !important; background-color:#E7EAF5 !important; font-weight:normal !important; color:#525355 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.internal td.heading {color:#525355 !important; background-color:#E7EAF5 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.internal table td {padding:0px !important; border:none !important;}
+
+/* Edit tab title*/
+div.bx-core-dialog div#bx_admin_form table.edit-tab-title {width:auto !important;}
+div.bx-core-admin-dialog-content table.edit-tab-title td.icon {padding:5px 5px 5px 0px !important; width:32px !important; height:32px !important;}
+div.bx-core-admin-dialog-content table.edit-tab-title td.title {width:100% !important; padding:5px 0px 5px 0px !important; font-size:16px !important; color:#494949 !important; font-weight:bold !important; font-family:Arial,helvetica,sans-serif !important;}
+div.bx-core-admin-dialog-content table.edit-tab-title td.delimiter {padding:0px !important; height:5px !important; background-image:url(/bitrix/themes/.default/images/edit/title_dot.gif) !important; background-position:left top !important; background-repeat:repeat-x !important;}
+div.bx-core-admin-dialog-content table.edit-tab-title td.delimiter-top {background-position:left bottom !important;}
+
+/*View tabs*/
+div.bx-core-admin-dialog-content div.view-tab-container {}
+div.bx-core-admin-dialog-content div.view-tab-container table.edit-tab-title {margin-bottom:5px !important;}
+div.bx-core-admin-dialog-content div.view-tab-content {border:1px solid #ABB6D7; padding:5px; background-color:#F9FAFD; font-size:11px;}
+div.bx-core-admin-dialog-content div.view-tab {height:23px; float:left; bottom:-1px; position:relative; padding:5px; color:#555556; font-size:11px; font-weight:bold; white-space:nowrap; box-sizing:border-box; -moz-box-sizing:border-box;}
+div.bx-core-admin-dialog-content div.view-tab-active {border:1px solid #ABB6D7; border-bottom:none; border-top-color:#8B94BA; background-color:#F9FAFD; padding:4px 4px 5px 4px; background-image:url(/bitrix/themes/.default/images/tabs/active_bg.gif); background-position:left top; background-repeat:repeat-x;}
+div.bx-core-admin-dialog-content div.view-tab-delimiter{overflow:hidden; float:left; width:2px; height:13px; background-color:#ABB6D7; margin:6px 0px 4px 0px;}
+div.bx-core-admin-dialog-content div.view-tab-hide-delimiter{background-color:transparent;}
+div.bx-core-admin-dialog-content div.view-tab a, div.view-tab a:visited {color:#555556; text-decoration:none;}
+div.bx-core-admin-dialog-content div.view-tab a:hover {color:#555556; text-decoration:underline;}
+div.bx-core-admin-dialog-content div.view-tab-container br.tab-break {clear:both;}
+div.bx-core-admin-dialog-content div.view-tab-content h2 {font-size:110% !important;}
+
+/* Notes */
+div.bx-core-admin-dialog-content div.notes {margin-top:16px; margin-bottom:16px;}
+div.bx-core-admin-dialog-content div.edit-form div.notes {margin:4px 0px 4px 0px;}
+div.bx-core-admin-dialog-content table.notes td {padding:0px !important; background-color:#FEFDEA !important; font-size:11px !important; color:#333333 !important;}
+div.bx-core-admin-dialog-content table.notes tr.top td {border-top:1px solid #D7D6BA !important;}
+div.bx-core-admin-dialog-content table.notes td.left {border-left:1px solid #D7D6BA !important;}
+div.bx-core-admin-dialog-content table.notes td.right {border-right:1px solid #D7D6BA !important;}
+div.bx-core-admin-dialog-content table.notes tr.top td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/lt.gif) !important; height:2px !important; width:2px !important;}
+div.bx-core-admin-dialog-content table.notes tr.top td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/rt.gif) !important; height:2px !important; width:2px !important;}
+div.bx-core-admin-dialog-content table.notes tr.bottom td {border-bottom:1px solid #D7D6BA !important;}
+div.bx-core-admin-dialog-content table.notes tr.bottom td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/lb.gif) !important; height:2px !important; width:2px !important;}
+div.bx-core-admin-dialog-content table.notes tr.bottom td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/rb.gif) !important; height:2px !important; width:2px !important;}
+div.bx-core-admin-dialog-content table.notes td.content {padding:7px !important;}
+div.bx-core-admin-dialog-content div.notes div.ruler {border-top:1px solid #D7D6BA; margin-top:8px;}
+div.bx-core-admin-dialog-content div.notes p {font-size:100% !important; margin:12px 0px 12px 0px;}
+div.bx-core-admin-dialog-content div.notes a.control {text-decoration:none; color:black;}
+div.bx-core-admin-dialog-content div.notes a.control:hover {text-decoration:underline;}
+
+div.bx-core-dialog a.bx-popup-sign {display:block; width:11px; height:11px; overflow:hidden; margin-right:3px; background-repeat:no-repeat; background-position:top left;}
+div.bx-core-dialog a.bx-popup-minus {background-image:url(/bitrix/js/main/core/images/components/minus.gif);}
+div.bx-core-dialog a.bx-popup-plus {background-image:url(/bitrix/js/main/core/images/components/plus.gif);}
+
+
+
+
+
+
+
+/* Popup menu */
+div.bx-popup-menu td, div.bx-popup-menu table, div.bx-popup-menu tr, div.bx-popup-menu tbody {color:black !important; border:none !important; border-spacing:0 !important; background:transparent !important; width:auto !important; font-weight:normal !important; letter-spacing:normal !important; font-variant:normal !important;font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; vertical-align:middle !important; white-space:normal !important; letter-spacing:0 !important;text-decoration: none !important;table-layout:auto !important; text-align:left !important; padding:0px !important; margin:0px !important; height:auto !important; line-height:normal !important; font-size:medium !important;}
+
+div.bx-popup-menu table.bx-popup-menu-wrapper { background: scroll #FFF url(../images/menu/menu_gutter.gif) repeat-y 1px 0 !important;}
+div.bx-popup-menu table.bx-popup-menu-layout { background: scroll transparent none repeat-x 0 0 !important; border-bottom: 1px solid #f9f9f9 ! important;}
+div.bx-popup-menu td.bx-popup-menu table table { border: none ! important;}
+
+
+div.bx-popup-menu td.bx-popup-menu {border:1px solid #B6B6B6 !important; padding:1px 1px 0 1px !important; background: scroll transparent url(../images/menu/menu_gutter_gradient.gif) no-repeat  1px 0 !important; width:100% !important;}
+
+
+td.bx-popup-menu div.bx-popup-item table{width:100% !important; }
+td.bx-popup-menu div.bx-popup-item {margin:1px !important; cursor:default;}
+td.bx-popup-menu div.bx-popup-item-over, td.bx-popup-menu div.bx-pressed {margin:0 !important; border:1px solid #AEB6C2; background-color:#CEDAEE !important;}
+
+
+td.bx-popup-menu div.bx-popup-item td.gutter {width:22px !important;}
+td.bx-popup-menu div.bx-popup-item td.arrow {width:10px !important; background:transparent url(../images/menu/menu_arrow.gif) 2px center no-repeat !important;}
+td.bx-popup-menu div.bx-popup-item td.item {padding:3px 7px 3px 9px !important; font-family:Verdana,Arial,sans-serif; font-size:11px !important; white-space:nowrap !important; color:black !important; line-height:normal !important; font-weight:normal !important;}
+td.bx-popup-menu div.bx-popup-item td.default {font-weight:bold !important; line-height:normal !important;}
+td.bx-popup-menu div.bx-popup-item td.disabled {color:#939393 !important;}
+td.bx-popup-menu div.bx-popup-menu-separator {margin:1px 4px 1px 30px; background-color:#EAEAEA; overflow:hidden; line-height: 1px; font-size: 1px; height: 1px;}
+td.bx-popup-menu div.bx-popup-item div.icon {width:22px; height:20px; background-position:center; background-repeat:no-repeat;}
+
+/*menu icons*/
+td.bx-popup-menu div.bx-popup-item .checked {background-image:url(../images/menu/checkbox.gif);}
+
+/*
+td.bx-popup-menu div.bx-popup-item .favorites {background-image:url(start_menu/main/favorite.gif);}
+td.bx-popup-menu div.bx-popup-item-over .favorites {background-image:url(start_menu/main/favorite_over.gif);}
+td.bx-popup-menu div.bx-popup-item .loading {background-image:url(start_menu/main/loading.gif);}
+td.bx-popup-menu div.bx-popup-item-over .loading {background-image:url(start_menu/main/loading_over.gif);}
+
+td.bx-popup-menu div.bx-popup-item .button_content {background-image:url(start_menu/main/content.gif);}
+td.bx-popup-menu div.bx-popup-item-over .button_content {background-image:url(start_menu/main/content_over.gif);}
+td.bx-popup-menu div.bx-popup-item .button_services {background-image:url(start_menu/main/services.gif);}
+td.bx-popup-menu div.bx-popup-item-over .button_services {background-image:url(start_menu/main/services_over.gif);}
+td.bx-popup-menu div.bx-popup-item .button_store {background-image:url(start_menu/main/store.gif);}
+td.bx-popup-menu div.bx-popup-item-over .button_store {background-image:url(start_menu/main/store_over.gif);}
+td.bx-popup-menu div.bx-popup-item .button_statistics {background-image:url(start_menu/main/statistics.gif);}
+td.bx-popup-menu div.bx-popup-item-over .button_statistics {background-image:url(start_menu/main/statistics_over.gif);}
+td.bx-popup-menu div.bx-popup-item .button_settings {background-image:url(start_menu/main/settings.gif);}
+td.bx-popup-menu div.bx-popup-item-over .button_settings {background-image:url(start_menu/main/settings_over.gif);}
+
+td.bx-popup-menu div.bx-popup-item .user_menu_icon {background-image:url(start_menu/main/user.gif);}
+td.bx-popup-menu div.bx-popup-item-over .user_menu_icon {background-image:url(start_menu/main/user_over.gif);}
+td.bx-popup-menu div.bx-popup-item .sys_menu_icon {background-image:url(start_menu/main/sys.gif);}
+td.bx-popup-menu div.bx-popup-item-over .sys_menu_icon {background-image:url(start_menu/main/sys_over.gif);}
+td.bx-popup-menu div.bx-popup-item .util_menu_icon {background-image:url(start_menu/main/tools.gif);}
+td.bx-popup-menu div.bx-popup-item-over .util_menu_icon {background-image:url(start_menu/main/tools_over.gif);}
+td.bx-popup-menu div.bx-popup-item .update_menu_icon {background-image:url(start_menu/main/update.gif);}
+td.bx-popup-menu div.bx-popup-item .update_menu_icon_partner {background-image:url(start_menu/main/update_partner.gif);}
+td.bx-popup-menu div.bx-popup-item-over .update_menu_icon {background-image:url(start_menu/main/update_over.gif);}
+td.bx-popup-menu div.bx-popup-item-over .update_menu_icon_partner {background-image:url(start_menu/main/update_over_partner.gif);}
+td.bx-popup-menu div.bx-popup-item .fav_menu_icon {background-image:url(start_menu/main/favorite.gif);}
+td.bx-popup-menu div.bx-popup-item-over .fav_menu_icon {background-image:url(start_menu/main/favorite_over.gif);}
+*/
+
+/*component menu icons */
+td.bx-popup-menu div.bx-popup-item .parameters {background-image:url(/bitrix/themes/.default/public/components/buttons/parameters.gif);}
+td.bx-popup-menu div.bx-popup-item .edit {background-image:url(/bitrix/themes/.default/public/components/buttons/edit.gif);}
+td.bx-popup-menu div.bx-popup-item .copy {background-image:url(/bitrix/themes/.default/public/components/buttons/copy.gif);}
+td.bx-popup-menu div.bx-popup-item .edit-common {background-image:url(/bitrix/themes/.default/public/components/buttons/edit_common.gif);}
+td.bx-popup-menu div.bx-popup-item .edit-wf {background-image:url(/bitrix/themes/.default/public/components/buttons/edit_wf.gif);}
+td.bx-popup-menu div.bx-popup-item .menu-edit {background-image:url(/bitrix/themes/.default/public/components/buttons/menu_edit.gif);}
+td.bx-popup-menu div.bx-popup-item .menu-add {background-image:url(/bitrix/themes/.default/public/components/buttons/menu_add.gif);}
+td.bx-popup-menu div.bx-popup-item .menu-delete {background-image:url(/bitrix/themes/.default/public/components/buttons/menu_delete.gif);}
+td.bx-popup-menu div.bx-popup-item .menu-template {background-image:url(/bitrix/themes/.default/public/components/buttons/menu_templ.gif);}
+td.bx-popup-menu div.bx-popup-item .nav-template {background-image:url(/bitrix/themes/.default/public/components/buttons/nav_templ.gif);}
+td.bx-popup-menu div.bx-popup-item .parameters-2 {background-image:url(/bitrix/themes/.default/public/components/buttons2/parameters.gif);}
+td.bx-popup-menu div.bx-popup-item .edit-2 {background-image:url(/bitrix/themes/.default/public/components/buttons2/edit.gif);}
+td.bx-popup-menu div.bx-popup-item .edit-css {background-image:url(/bitrix/themes/.default/public/components/buttons2/edit_css.gif);}
+td.bx-popup-menu div.bx-popup-item .copy-2 {background-image:url(/bitrix/themes/.default/public/components/buttons2/copy.gif);}
+td.bx-popup-menu div.bx-popup-item .del-cache {background-image:url(/bitrix/themes/.default/public/components/buttons2/delcache.gif);}
+
+/*panel menu icons */
+td.bx-popup-menu div.bx-popup-item .panel-new-file {background-image:url(/bitrix/themes/.default/public/panel_new/menus/new_file.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-new-file-template {background-image:url(/bitrix/themes/.default/public/panel_new/menus/create_template.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-new-folder {background-image:url(/bitrix/themes/.default/public/panel_new/menus/new_folder.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-new-folder-template {background-image:url(/bitrix/themes/.default/public/panel_new/menus/create_folder_template.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-edit-visual {background-image:url(/bitrix/themes/.default/public/panel_new/menus/edit_html.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-edit-text {background-image:url(/bitrix/themes/.default/public/panel_new/menus/edit_text.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-edit-php {background-image:url(/bitrix/themes/.default/public/panel_new/menus/edit_php.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-file-props {background-image:url(/bitrix/themes/.default/public/panel_new/menus/file_props.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-folder-props {background-image:url(/bitrix/themes/.default/public/panel_new/menus/folder_props.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-file-access {background-image:url(/bitrix/themes/.default/public/panel_new/menus/file_access.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-folder-access {background-image:url(/bitrix/themes/.default/public/panel_new/menus/folder_access.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-file-delete {background-image:url(/bitrix/themes/.default/public/panel_new/menus/delete_file.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-folder-delete {background-image:url(/bitrix/themes/.default/public/panel_new/menus/delete_folder.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-page-cache {background-image:url(/bitrix/themes/.default/public/panel_new/menus/page_cache.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-comp-cache {background-image:url(/bitrix/themes/.default/public/panel_new/menus/comp_cache.gif);}
+td.bx-popup-menu div.bx-popup-item .icon-delete {background-image:url(/bitrix/themes/.default/public/panel_new/buttons/delete.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-key {background-image:url(/bitrix/themes/.default/public/panel_new/menus/key.gif);}
+td.bx-popup-menu div.bx-popup-item .panel-user {background-image:url(/bitrix/themes/.default/public/panel_new/menus/user.gif);}
+
+
+
+
+.bx-tooltip-simple{font-size:11px; font-family: Tahoma, Arial, Verdana, Sans-Serif; color:black; padding:5px; background-color: #ffffce;
+border:1px solid black; overflow: visible; line-height:normal; font-weight:normal; letter-spacing:normal !important; font-variant:normal !important; font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; text-align:left !important; z-index: 5000; position: absolute;}
+.bx-tooltip-simple p {display: inline!important;}
+
+
+.bx-dialog-notify-outer {position: absolute; top: 39px; left: 0pt; z-index: 1; width: 100%; margin-right: 0px;}
+.bx-dialog-notify {background:scroll #FFEB8D url(../images/panel/sprite04.png) repeat-x 0 -1178px !important; position:relative !important; margin:0 6px 0 0 !important; padding:0 !important;}
+.bx-dialog-notify-text { text-align:center !important; padding: 3px 20px 5px  !important; margin:0 !important; color: #000 !important;}
+.bx-dialog-notify-text, #bx-panel .bx-dialog-notify-text a {font: normal normal normal 12px/normal Tahoma, sans-serif !important; }
+.bx-dialog-notify-close { position:absolute !important; display:block !important; top:5px !important; right: 5px !important; width: 12px !important; height:12px !important; margin:0 !important; padding:0 !important;}
+.bx-dialog-notify-close a { background: scroll transparent url(../images/panel/sprite04.png) no-repeat -268px -243px !important; width:12px !important; height:12px !important; display: block !important; }
+.bx-dialog-notify-text a, #bx-panel .bx-dialog-notify-text a:hover { color: #0041d2 !important; text-decoration: underline !important;}
+
+.bx-dialog-notify-outer.bx-dialog-notify-hidden {display: none !important}
+
+/* Popup With Border */
+
+.bx-core-dialog-border .dialog-head div.l{background-position:left -254px;}
+.bx-core-dialog-border .dialog-head div.r {background-position:right -254px;}
+.bx-core-dialog-border .dialog-head div.c {background-position:0 -296px;}
+.bx-core-dialog-border .dialog-foot div.l {background-position:0 -337px;}
+.bx-core-dialog-border .dialog-foot div.r {background-position:right -387px;}
+.bx-core-dialog-border .dialog-foot div.c {background-position:0 -439px;}
+.bx-core-dialog-border .dialog-foot div.c img {left:3px !important;}
+.bx-core-dialog-border .dialog-head-icons {background-position:0 -296px;}
+.bx-core-dialog-border .dialog-center {background-image:url("/bitrix/js/main/core/images/dialog_borders_b.png"); border-left:1px solid #d9d9d7;}
+
+
+div.bx-core-window table td.number {text-align:right;}
+div.bx-core-dialog-content td.number p {text-align:right !important;}

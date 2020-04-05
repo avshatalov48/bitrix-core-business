@@ -1,0 +1,39 @@
+div.forum-attach { font-size:11px; }
+
+span.forum-attach .forum-file {padding-left:18px; }
+span.forum-attach .forum-file-name {max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+span.forum-attach .forum-file-size {}
+
+span.forum-attach .forum-file {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-txt {background:url(images/files-sprite.png) no-repeat 0 -192px !important;}
+span.forum-attach .forum-file-bmp {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-css {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-csv {background:url(images/files-sprite.png) no-repeat 0 -224px !important;}
+span.forum-attach .forum-file-dib {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-doc {background:url(images/files-sprite.png) no-repeat 0 -288px !important;}
+span.forum-attach .forum-file-docp {background:url(images/files-sprite.png) no-repeat 0 -288px !important;}
+span.forum-attach .forum-file-docx {background:url(images/files-sprite.png) no-repeat 0 -288px !important;}
+span.forum-attach .forum-file-gif {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-htm {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-html {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-jfif {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-jpe {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-jpeg {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-jpg {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-js {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-pdf {background:url(images/files-sprite.png) no-repeat 0 -415px !important;}
+span.forum-attach .forum-file-php {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-png {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-ppt {background:url(images/files-sprite.png) no-repeat 0 -256px !important;}
+span.forum-attach .forum-file-pptp {background:url(images/files-sprite.png) no-repeat 0 -256px !important;}
+span.forum-attach .forum-file-pptx {background:url(images/files-sprite.png) no-repeat 0 -256px !important;}
+span.forum-attach .forum-file-rar {background:url(images/files-sprite.png) no-repeat 0 -96px !important;}
+span.forum-attach .forum-file-rtf {background:url(images/files-sprite.png) no-repeat 0 -288px !important;}
+span.forum-attach .forum-file-swf {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-tif {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-tiff {background:url(images/files-sprite.png) no-repeat 0 -128px !important;}
+span.forum-attach .forum-file-xls {background:url(images/files-sprite.png) no-repeat 0 -224px !important;}
+span.forum-attach .forum-file-xlsp {background:url(images/files-sprite.png) no-repeat 0 -224px !important;}
+span.forum-attach .forum-file-xlsx {background:url(images/files-sprite.png) no-repeat 0 -224px !important;}
+span.forum-attach .forum-file-xml {background:url(images/files-sprite.png) no-repeat 0 -32px !important;}
+span.forum-attach .forum-file-zip {background:url(images/files-sprite.png) no-repeat 0 -96px !important;}

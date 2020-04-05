@@ -1,0 +1,105 @@
+/*colorpicker*/
+div.bx-colpic-cont {
+	position: absolute;
+	display: none;
+	top: -1000px;
+	left: -1000px;
+	background-color: #ffffff;
+	padding: 9px;
+	border: 1px solid #f0f0f0;
+	border-radius: 3px;
+	box-shadow: 1px 5px 8px 0px rgba(0, 0, 0, 0.1);
+}
+
+table.bx-colpic-tbl {
+	border-collapse: collapse !important;
+	padding: 3px !important;
+}
+
+table.bx-colpic-tbl td.bx-colpic-col-cell {
+	width: 16px !important;;
+	height: 15px !important;;
+	font-size: 5px !important;
+}
+
+table.bx-colpic-tbl td.bx-colpic-cell-over {
+	border: 1px solid #FFC678 !important;
+}
+
+td.bx-color-inp-cell {
+	height: 25px;
+	padding: 0px 2px 5px 4px;
+}
+
+td.bx-color-inp-cell-default-button {
+	padding: 0px 4px 7px 2px;
+}
+
+span.bx-colpic-def-but {
+	background-color: #E4E2DC;
+	border: 1px solid #808080;
+	display: block;
+	margin: 1px;
+	font-size: 12px !important;
+	padding: 3px;
+	text-align: center !important;
+	vertical-align: middle !important;
+}
+
+span.bx-colpic-def-but-over {
+	background-color: #FFC678;
+	border: 1px solid #4B4B6F;
+	cursor: pointer;
+}
+
+.bx-colpic-button {
+	width: 20px;
+	height: 20px;
+	background-image: url(/bitrix/components/bitrix/main.colorpicker/templates/.default/images/lhe_iconkit.gif);
+}
+
+.bx-colpic-button-normal {
+	border: 1px solid #E4E2DC;
+}
+
+.bx-colpic-button-over {
+	border: 1px solid #4B4B6F;
+	background-color: #FFC678;
+}
+
+.bx-colpic-button-checked {
+	border: 1px solid #4B4B6F;
+	background-color: #FFC678;
+}
+
+.bx-colpic-button-cont {
+	width: 23px;
+	height: 25px;
+	background-image: url(/bitrix/components/bitrix/main.colorpicker/templates/.default/images/toolbarbg.gif);
+	float: left;
+}
+
+.bx-colpic-button-cont img {
+	margin: 1px 0px 0px 1px;
+}
+
+.bx-color-row {
+	height: 9px;
+
+}
+
+.bx-inner-color-cell {
+	display: block;
+	padding: 3px;
+	height: 23px;
+	box-shadow: inset 0px 0px 3px 1px rgba(0, 0, 0, .11), 0 0 0px rgba(0, 0, 0, .3), inset 0 0 #fff, inset 0 0 0 rgba(255, 255, 255, .5);
+	border-radius: 3px;
+}
+
+.bx-inner-color-box {
+	display: block;
+	border: 1px solid #dedede;
+	height: 14px;
+	width: 14px;
+	border-radius: 2px;
+}

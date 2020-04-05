@@ -1,0 +1,32 @@
+<?
+$MESS["EDIT_TITLE"] = "Edit event #TYPE#";
+$MESS["NEW_TITLE"] = "Add a new event";
+$MESS["EVENT_NAME"] = "Email event type";
+$MESS["LANG_PARAMS"] = "Language-depended parameters";
+$MESS["EVENT_NAME_TITLE"] = "Event type";
+$MESS["EVENT_NAME_DESCR"] = "Email event type";
+$MESS["TEMPLATES_TITLE"] = "Templates";
+$MESS["TEMPLATES_DESCR"] = "Email templates";
+$MESS["EVENT_NAME_LANG"] = "Name";
+$MESS["EVENT_SORT_LANG"] = "Sorting";
+$MESS["EVENT_DESCR_LANG"] = "Description";
+$MESS["RECORD_LIST"] = "Type list";
+$MESS["RECORD_LIST_TITLE"] = "Go to the email events list  ";
+$MESS["MAIN_NEW_RECORD"] = "Add a type";
+$MESS["MAIN_NEW_RECORD_TITLE"] = "Add a new email event type";
+$MESS["MAIN_DELETE_RECORD"] = "Delete a type";
+$MESS["MAIN_DELETE_RECORD_TITLE"] = "Delete a type including templates";
+$MESS["MAIN_DELETE_RECORD_CONF"] = "Are you sure you want to delete the current type including templates?";
+$MESS["MAIN_NEW_TEMPLATE"] = "Add a template";
+$MESS["MAIN_NEW_TEMPLATE_TITLE"] = "Add a new template for this event type";
+$MESS["TEMPLATE_LIST"] = "Templates list";
+$MESS["TEMPLATE_LIST_TITLE"] = "Go to the templates list";
+$MESS["LANGUAGE_PARAMS"] = "Language-depended parameters";
+$MESS["SAVE"] = "Save changes";
+$MESS["ADD"] = "Add email template";
+$MESS["RESET"] = "Reset";
+$MESS["MAIN_ERROR_SAVING"] = "Save error";
+$MESS["ERROR_LANG_EMPTY"] = "No language parameters specified";
+$MESS["LANG_FIELDS"] = "You must fill in at least one language field";
+$MESS["type_edit_add_message_template"] = "Add message template";
+?>

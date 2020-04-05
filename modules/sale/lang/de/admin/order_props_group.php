@@ -1,0 +1,29 @@
+<?
+$MESS["SALE_ALL"] = "alle";
+$MESS["PERS_TYPE_DEL_CONF"] = "Alle Feldergruppen werden gelöscht. Wollen Sie fortfahren?";
+$MESS["ERROR_UPDATE_REC"] = "Beim Aktualisieren des Datensatzes ist ein Fehler aufgetreten";
+$MESS["SOPGAN_DELETE_ERROR"] = "Beim Löschen des Eintrags ist ein Fehler aufgetreten";
+$MESS["ERROR_ADD_REC"] = "Beim Speichern eines Datensatzes ist ein Fehler aufgetreten";
+$MESS["ERROR_NAME_REC"] = "Das Feld \"Bezeichnung\" ist leer";
+$MESS["ERROR_PERSON_TYPE_ID_REC"] = "Das Feld \"Kundengruppe\" ist leer";
+$MESS["SALE_PROPS"] = "Felder";
+$MESS["SOPGAN_PROPS"] = "Felder";
+$MESS["PROPS_TYPE_TITLE"] = "Feldergruppen";
+$MESS["PERS_TYPE_NAV"] = "Feldergruppen";
+$MESS["LANG_FILTER_BTN"] = "Filter festlegen";
+$MESS["SALE_F_FILTER"] = "Filter ";
+$MESS["SALE_F_DEL"] = "Filter zurücksetzen";
+$MESS["SOPGAN_EDIT_PROMT"] = "Gruppe bearbeiten";
+$MESS["SOPGAN_DELETE_PROMT"] = "Gruppe löschen";
+$MESS["PERS_TYPE_ID"] = "ID";
+$MESS["SOPGAN_ADD_NEW_ALT"] = "Klicken Sie hier, um eine neue Feldergruppe hinzuzufügen";
+$MESS["PT_FILTER_NAME"] = "Kundengruppe";
+$MESS["PERS_TYPE_TYPE"] = "Kundengruppe";
+$MESS["PERS_TYPE_DEL"] = "Löschen";
+$MESS["PERS_TYPE_NAME"] = "Name";
+$MESS["SOPGAN_ADD_NEW"] = "Neue Gruppe";
+$MESS["PERS_TYPE_SORT"] = "Sort.";
+$MESS["PERS_TYPE_UPD"] = "Speichern";
+$MESS["SOPGAN_DELETE_PROMT_CONF"] = "Sind Sie sicher, dass  Sie diese Feldergruppe löschen wollen?";
+$MESS["PERS_TYPE_RESET"] = "Zurücksetzen";
+?>

@@ -1,0 +1,11 @@
+.popupmenu .popupitem .sale_menu_icon {background-image:url(sale.gif);}
+.popupmenu .popupitemover .sale_menu_icon {background-image:url(sale_over.gif);}
+
+.popupmenu .popupitem .sale_menu_icon_orders {background-image:url(orders.gif);}
+.popupmenu .popupitemover .sale_menu_icon_orders {background-image:url(orders_over.gif);}
+
+.popupmenu .popupitem .sale_menu_icon_recurring {background-image:url(recurring.gif);}
+.popupmenu .popupitemover .sale_menu_icon_recurring {background-image:url(recurring_over.gif);}
+
+.popupmenu .popupitem .sale_menu_icon_buyers {background-image:url(buyers.gif);}
+.popupmenu .popupitemover .sale_menu_icon_buyers {background-image:url(buyers_over.gif);}

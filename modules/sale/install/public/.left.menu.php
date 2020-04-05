@@ -1,0 +1,46 @@
+<?
+$aMenuLinks = Array(
+	Array(
+		"Orders", 
+		"index.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Basket", 
+		"basket.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Subscribe", 
+		"subscribe.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Profiles", 
+		"profile.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Account", 
+		"account.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Credit Cards", 
+		"cc.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+);
+?>

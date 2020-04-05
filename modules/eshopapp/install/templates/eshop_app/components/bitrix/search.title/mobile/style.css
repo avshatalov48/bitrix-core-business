@@ -1,0 +1,32 @@
+.item_list_search_component{padding:5px}
+.item_list_search_component_input_container{overflow:hidden}
+.item_list_search_input_container{
+    display:block;
+    /*margin-right:100px;*/
+    position:relative;
+    border-radius:15px;
+    padding-left:40px;
+    border:1px solid #979797;
+    background:#fff;
+    -webkit-box-shadow:inset 0 2px 5px 0 rgba(0,0,0,.3), 0 1px 1px 0 #fff;
+    box-shadow:inset 0 2px 5px 0 rgba(0,0,0,.3), 0 1px 1px 0 #fff;
+}
+.item_list_search_input_container input[type=submit]{
+    position:absolute;
+    border:none;
+    height:30px;
+    background:url(images/lupe_search.png) no-repeat center;
+    -webkit-background-size:15px 14px;
+    background-size:14px 15px;
+    left:0;
+    width:40px;
+}
+.item_list_search_input_container input[type=text]{
+    line-height:30px;
+    border:none;
+    border-radius:14px;
+    display:block;
+    background:transparent;
+    width:100%;
+
+}

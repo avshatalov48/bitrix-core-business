@@ -1,0 +1,154 @@
+.site-speed-page {
+	background: #FFF;
+	border: 1px solid #ccc;
+	margin: 0 auto;
+	min-height: 600px;
+	padding: 30px;
+}
+
+.site-speed-indicator-block {
+
+}
+
+.site-speed-histogram-block {
+	margin-top: 40px;
+}
+
+.site-speed-graph-block {
+	display: none;
+}
+
+.site-speed-domains {
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+	border-bottom: 1px solid #eee;
+	color: #777;
+}
+
+.site-speed-loading {
+	display: inline-block;
+	width: 29px;
+	height: 29px;
+	background: url("../main/images/waiter-white.gif") no-repeat;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+.site-speed-error {
+	margin-top: 8px;
+	color: #ee0000;
+	display: block;
+}
+
+.site-speed-domains-label {
+	font-size: 14px;
+	padding-right: 15px;
+}
+
+.site-speed-domains-select {
+	max-width:250px;
+}
+
+.site-speed-indicator {
+	height: 130px;
+	margin: 15px 0;
+	display: none;
+}
+
+.site-speed-histogram {
+	height: 550px;
+	margin: 0 0 30px 0;
+	display: none;
+}
+
+.site-speed-graph {
+	height: 650px;
+	display: none;
+	margin: 0 0 10px 0;
+}
+
+.site-speed-explanation {
+	font-size: 13px;
+	color: #333;
+	margin: 10px 0 10px;
+}
+
+.site-speed-perf {
+	margin: 10px 0 40px;
+	font-size: 14px;
+}
+
+.site-speed-perf-label {
+
+}
+.site-speed-perf-value {
+	font-weight: bold;
+	padding: 0 20px 0 5px;
+}
+
+.site-speed-index {
+}
+
+.site-speed-index-label {
+	font-size: 26px;
+}
+.site-speed-index-value {
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.site-speed-stat {
+	background: #FDFAE8;
+	border: 1px solid #DCD5B2;
+	border-radius: 3px;
+	display: inline-block;
+	font-size: 12px;
+	padding: 7px 10px;
+	margin: 0 0 10px 0;
+}
+
+.site-speed-stat-item {
+	display: inline-block;
+	padding-right: 20px;
+	margin-right: 20px;
+	border-right: 1px solid #DCD5B2;
+}
+
+.site-speed-stat-item:last-child {
+	border: none;
+	padding-right: 0;
+	margin-right: 0;
+}
+
+.site-speed-stat-label {
+	padding-right: 3px;
+	color: #555;
+}
+
+.site-speed-stat-value {
+	font-weight: bold;
+}
+
+.site-speed-analytics {
+	display: none;
+}
+
+.site-speed-hits-table {
+	margin-top: 10px;
+}
+
+.site-speed-page-column {
+	vertical-align: top;
+	word-wrap: break-word;
+	max-width:400px;
+	font-weight: bold;
+}
+
+.site-speed-interactive-column,
+.site-speed-response-column,
+.site-speed-processing-column,
+.site-speed-composite-column {
+	width: 40px;
+	padding-left: 15px;
+	vertical-align: top;
+}

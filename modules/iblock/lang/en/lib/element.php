@@ -1,0 +1,37 @@
+<?
+$MESS["ELEMENT_ENTITY_ID_FIELD"] = "ID";
+$MESS["ELEMENT_ENTITY_NAME_FIELD"] = "Name";
+$MESS["ELEMENT_ENTITY_TIMESTAMP_X_FIELD"] = "Modified on";
+$MESS["ELEMENT_ENTITY_MODIFIED_BY_FIELD"] = "Modified by";
+$MESS["ELEMENT_ENTITY_DATE_CREATE_FIELD"] = "Created on";
+$MESS["ELEMENT_ENTITY_CREATED_BY_FIELD"] = "Created by";
+$MESS["ELEMENT_ENTITY_IBLOCK_ID_FIELD"] = "Information block ID";
+$MESS["ELEMENT_ENTITY_IBLOCK_SECTION_ID_FIELD"] = "Main section";
+$MESS["ELEMENT_ENTITY_ACTIVE_FIELD"] = "Active";
+$MESS["ELEMENT_ENTITY_ACTIVE_FROM_FIELD"] = "Active from";
+$MESS["ELEMENT_ENTITY_ACTIVE_TO_FIELD"] = "Active until";
+$MESS["ELEMENT_ENTITY_SORT_FIELD"] = "Sort index";
+$MESS["ELEMENT_ENTITY_PREVIEW_PICTURE_FIELD"] = "Preview image";
+$MESS["ELEMENT_ENTITY_PREVIEW_TEXT_FIELD"] = "Preview text";
+$MESS["ELEMENT_ENTITY_PREVIEW_TEXT_TYPE_FIELD"] = "Preview text type";
+$MESS["ELEMENT_ENTITY_DETAIL_PICTURE_FIELD"] = "Full image";
+$MESS["ELEMENT_ENTITY_DETAIL_TEXT_FIELD"] = "Detailed description";
+$MESS["ELEMENT_ENTITY_DETAIL_TEXT_TYPE_FIELD"] = "Detailed description type";
+$MESS["ELEMENT_ENTITY_SEARCHABLE_CONTENT_FIELD"] = "Search index";
+$MESS["ELEMENT_ENTITY_WF_STATUS_ID_FIELD"] = "Workflow status";
+$MESS["ELEMENT_ENTITY_WF_PARENT_ELEMENT_ID_FIELD"] = "Parent element";
+$MESS["ELEMENT_ENTITY_WF_NEW_FIELD"] = "\"Draft published\" flag";
+$MESS["ELEMENT_ENTITY_WF_LOCKED_BY_FIELD"] = "Locked by";
+$MESS["ELEMENT_ENTITY_WF_DATE_LOCK_FIELD"] = "Locked on";
+$MESS["ELEMENT_ENTITY_WF_COMMENTS_FIELD"] = "Workflow comment";
+$MESS["ELEMENT_ENTITY_IN_SECTIONS_FIELD"] = "Included in information block sections";
+$MESS["ELEMENT_ENTITY_XML_ID_FIELD"] = "External ID";
+$MESS["ELEMENT_ENTITY_CODE_FIELD"] = "Symbolic code";
+$MESS["ELEMENT_ENTITY_TAGS_FIELD"] = "Tags";
+$MESS["ELEMENT_ENTITY_TMP_ID_FIELD"] = "Temporary ID";
+$MESS["ELEMENT_ENTITY_SHOW_COUNTER_FIELD"] = "Impressions";
+$MESS["ELEMENT_ENTITY_SHOW_COUNTER_START_FIELD"] = "First impression date";
+$MESS["ELEMENT_ENTITY_MESS_ADD_BLOCKED"] = "Call CIBlockElement::Add() to add information block items";
+$MESS["ELEMENT_ENTITY_MESS_UPDATE_BLOCKED"] = "Call CIBlockElement::Update() to change an information block item";
+$MESS["ELEMENT_ENTITY_MESS_DELETE_BLOCKED"] = "Call CIBlockElement::Delete() to delete an information block item";
+?>

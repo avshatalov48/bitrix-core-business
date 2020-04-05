@@ -1,0 +1,36 @@
+<?
+$MESS ['P_UP'] = "Up";
+$MESS ['P_UP_TITLE'] = "One level up";
+$MESS ['P_PHOTO_SORT_ID'] = "New";
+$MESS ['P_PHOTO_SORT_ID_TITLE'] = "by creation date";
+$MESS ['P_PHOTO_SORT_SHOWS'] = "Most viewed";
+$MESS ['P_PHOTO_SORT_SHOWS_TITLE'] = "by view count";
+$MESS ['P_PHOTO_SORT_RATING'] = "Best";
+$MESS ['P_PHOTO_SORT_RATING_TITLE'] = "by vote count";
+$MESS ['P_PHOTO_SORT_COMMENTS'] = "Most commented";
+$MESS ['P_PHOTO_SORT_COMMENTS_TITLE'] = "by count vote";
+$MESS ['P_FILTER_SHOW'] = "Show";
+$MESS ['P_FILTER_RESET'] = "Reset";
+$MESS ['P_PHOTO_ORDER_BY_DATE_CREATE'] = "New photos";
+$MESS ['P_PHOTO_ORDER_BY_SHOWS'] = "Popular photos";
+$MESS ['P_PHOTO_ORDER_BY_RATING'] = "Best photos";
+$MESS ['P_PHOTO_ORDER_BY_COMMENTS'] = "Most commented photos";
+$MESS ['P_SELECT_PHOTO_FROM_PERIOD'] = "Show photos added during";
+$MESS ['P_GROUP_BY_DATE_CREATE'] = "Group photos by creation date";
+$MESS ['P_OPEN_FILTER'] = "Show	";
+$MESS ['P_CLOSE_FILTER'] = "Hide";
+$MESS ['P_NO_PHOTO'] = "No photos has been found.";
+$MESS ['P_DELETE_CONFIRM'] = "Are sure you want to delete photos irreversibly?";
+$MESS ['P_SHOW_FILTER'] = "Editor Filter";
+$MESS ['P_SHOW_ONLY_NOT_ACTIVE'] = "unapproved photos";
+$MESS ['P_SHOW_ONLY_NOT_ACTIVE_TILTE'] = "Unapproved photos are the ones that are still being unmoderated. They are invisible to anyone except the owner and the moderator.";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC'] = "unpublished photos";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC_TITLE'] = "Unpublished photos are the ones that will be placed on the index page and in the lists but are still being unapproved.";
+$MESS ['P_SHOW_ONLY_NOT_PUBLIC_TITLE1'] = "Unpublished photos are the ones that will be placed on the index page and in the lists but are still being unapproved. ";
+$MESS ['P_SHOW_SIMPLE'] = "published and approved photos";
+$MESS ['P_SHOW_SIMPLE_TITLE'] = "Shows all photos that are visible to a common visitor.";
+$MESS ['P_PUBLIC'] = "Publish";
+$MESS ['P_NOT_PUBLIC'] = "Don't publish";
+$MESS ['P_SHOW'] = "Show";
+$MESS ['P_DELETE'] = "Delete";
+?>

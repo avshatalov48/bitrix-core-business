@@ -1,0 +1,24 @@
+.bxhtmled-surrogate{
+	background-color: #f7f9fb !important;
+	color: #000 !important;
+	border: 2px solid #9a9fa8 !important;
+	border-radius: 3px;
+	padding: 4px;
+	font-size: 12px;
+	font-weight: bold;
+	font-family: sans-serif;
+	white-space: nowrap;
+}
+
+/* BLOCK COMPONENT */
+.bx-component{
+	min-height: 50px !important;;
+	background-color: #BCB2F7 !important;
+	padding-top: 9px;
+	padding-right: 18px;
+	padding-bottom: 9px;
+	padding-left: 18px;
+	text-align: left !important;
+	color: #4D4D4D !important;
+	border: solid 1px #9180F5 !important;;
+}

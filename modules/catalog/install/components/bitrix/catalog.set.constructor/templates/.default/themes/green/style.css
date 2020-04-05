@@ -1,0 +1,19 @@
+.bx-modal-container.bx-green .btn-buy,
+.bx-modal-container.bx-green .btn-add {
+	color: #FFF;
+	text-decoration: none;
+	background-color: #33B111;
+	border-color: #33B111;
+}
+.bx-modal-container.bx-green .btn-buy:hover,
+.bx-modal-container.bx-green .btn-add:hover{
+	color: #FFF;
+	text-decoration: none;
+	background-color: #76E359;
+	border-color: #76E359;
+}
+
+.bx-constructor-result-price{
+	border-color: #33B111;
+	color: #33B111;
+}

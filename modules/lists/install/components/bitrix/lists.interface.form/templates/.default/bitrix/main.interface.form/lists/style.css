@@ -1,0 +1,180 @@
+span.required {color:red;}
+
+/* NEW STYLE !!! */
+
+div.bx-lists-interface-form {margin:16px 0px 16px 0px;}
+div.bx-lists-tabs-block {border-bottom: 1px solid #c6cdd3; min-height: 42px;}
+span.bx-lists-tab {
+	background-color: #eef2f4;
+	border-radius: 2px 2px 0 0;
+	color: #535c69;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 42px;
+	height: 42px;
+	margin-right: 0px;
+	padding: 0 18px;
+	vertical-align: top;
+
+	-webkit-transition: background-color 0.2s linear;
+	transition: background-color 0.2s linear;
+}
+span.bx-lists-tab:hover {
+	background-color: #d6f1fb;
+}
+
+span.bx-lists-tab-active,
+span.bx-lists-tab:active {
+	background-color: #fff !important;
+	border: 1px solid #c6cdd3;
+	border-bottom-color: #fff;
+	height: 41px;
+	margin-bottom: -1px;
+	line-height: 40px;
+	padding: 0 17px;
+}
+div.bx-lists-tab-contents {
+	margin-top: 20px;
+}
+div.bx-lists-tab-content {
+	display: none;
+}
+div.bx-lists-tab-content.active {
+	display: block;
+}
+div.bx-lists-buttons-block
+{
+	text-align: center;
+	margin-top: 20px;
+}
+a.bx-lists-cancel-button
+{
+	color: #000;
+	cursor: pointer;
+	font-size: 14px;
+	text-decoration: none;
+}
+a.bx-lists-cancel-button:hover
+{
+	color: #000;
+	border-bottom: 1px solid;
+}
+
+.bx-lists-table-content
+{
+	width: 100%;
+	margin: auto;
+	padding: 0 20px 0 30px;
+}
+.bx-lists-table-content tr td:first-child {
+	font-size: 14px;
+	line-height: 22px;
+	font-weight: bold;
+	color: #000;
+	text-align: right;
+	padding-right: 30px;
+}
+.bx-lists-table-content tr td {
+	padding: 6px 0px;
+}
+.bx-lists-table-content input[type="text"], .bx-lists-table-content textarea {
+	padding: 0 8px;
+	line-height: 18px;
+	border: 1px solid #c6cdd3;
+	margin: 0;
+	color: #535c69;
+	outline: none;
+	width: 349px;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	height: 36px;
+}
+.bx-lists-table-content textarea {
+	max-width: 492px;
+	color: #80868e;
+	line-height: 18px;
+	min-height: 125px;
+}
+.bx-lists-table-content input[type="text"].bx-lists-input-calendar {
+	width: 160px;
+}
+.bx-lists-table-content select {
+	position: relative;
+	padding: 0 8px;
+	line-height: 36px;
+	border: 1px solid #c6cdd3;
+	margin: 0;
+	color: #535c69;
+	outline: none;
+	width: 366px;
+	height: 38px;
+	padding-right: 37px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	z-index: 2;
+	background: transparent;
+	font-size: 14px;
+}
+
+.bx-lists-table-content select:-ms-expand {
+	display: none;
+}
+
+.bx-lists-table-content select.bx-lists-select-linking {
+	height: auto;
+	width: 366px;
+	padding-right: 0;
+}
+
+.bx-lists-table-content select option {
+	padding: 8px 10px;
+}
+
+.bx-lists-table-content select.bx-lists-select-linking option:checked {
+	background: #e9edf0;
+	color: #535c69;
+}
+.bx-lists-select {
+	position: relative;
+	display: inline-block;
+}
+.bx-lists-select:after, .bx-lists-select:before {
+	position: absolute;
+	content: '';
+	border: 6px solid transparent;
+	border-top: 7px solid #535c6a;
+	border-bottom: none;
+	right: 6px;
+	top: 0px;
+	bottom: 0px;
+	margin: auto;
+	height: 0;
+	z-index: 1;
+}
+.bx-lists-select:after {
+	border-top: 7px solid #fff;
+	top: 14px;
+	bottom: auto;
+}
+
+.bx-lists-table-content .diskuf-selectdialog {
+	max-width: 800px;
+}
+.bx-lists-table-content.bx-lists-calendar-icon:hover {
+	opacity: 0.8;
+}
+.bx-lists-table-content .bx-lists-calendar-icon {
+	width: 20px;
+	height: 18px;
+	background: url(images/sprite.png) no-repeat -30px -408px;
+	cursor: pointer;
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: -28px;
+}
+.bx-lists-table-content .bx-lists-calendar-icon:hover {
+	opacity: 0.8;
+}

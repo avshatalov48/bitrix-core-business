@@ -1,0 +1,37 @@
+<?
+$MESS["TRANS_TITLE"] = "Collect Strings";
+$MESS["TRANS_TITLE_TITLE"] = "Collect Strings";
+$MESS["TRANS_DOWNLOAD"] = "Import Localization";
+$MESS["TRANS_DOWNLOAD_TITLE"] = "Import Localization";
+$MESS["TRANS_UPLOAD"] = "Collect And Export Strings";
+$MESS["TRANS_UPLOAD_TITLE"] = "Collect And Export Strings";
+$MESS["TR_SELECT_LANGUAGE"] = "Select Language";
+$MESS["TR_SELECT_LANGUAGE_DESCRIPTION"] = "(if you cannot find the required language, you have to <a href=\"lang_edit.php?lang=en\">add it</a> first)";
+$MESS["TR_COLLECT_DATE"] = "Localization Version Date (YYYYMMDD)";
+$MESS["TR_COLLECT_LOADING"] = "Building...";
+$MESS["TR_PACK_FILES"] = "Pack Files (tar.gz)";
+$MESS["TR_COLLECT_LANGUAGE"] = "Build Localization";
+$MESS["TR_DOWNLOAD_LANGUAGE"] = "Import Localization";
+$MESS["TR_CONVERT_UTF8"] = "Convert To UTF-8";
+$MESS["TR_CONVERT_FROM_UTF8"] = "Convert From UTF-8";
+$MESS["TR_CONVERT_NATIONAL"] = "Convert To National Encoding";
+$MESS["TR_CONVERT_FROM_NATIONAL"] = "Convert From National Encoding";
+$MESS["TR_CONVERT_ENCODING"] = "Select Encoding";
+$MESS["TR_ERROR_LANGUAGE_DATE"] = "The localization date is required.";
+$MESS["TR_ERROR_CREATE_TARGET_FOLDER"] = "The destination directory \"%PATH%\" cannot be created.";
+$MESS["TR_ERROR_DELETE_TARGET_FOLDER"] = "The destination directory \"%PATH%\" cannot be deleted.";
+$MESS["TR_ERROR_CREATE_TEMP_FOLDER"] = "Cannot create temporary directory.";
+$MESS["TR_ERROR_DELETE_TEMP_FOLDER"] = "Cannot delete temporary directory \"%PATH%\".";
+$MESS["TR_ERROR_SELECT_LANGUAGE"] = "The localization language is required.";
+$MESS["TR_ERROR_TARFILE"] = "No localization file specified.";
+$MESS["TR_ERROR_ENCODING"] = "The encoding is invalid or not specified.";
+$MESS["TR_ERROR_OPEN_FILE"] = "Cannot open the file \"%FILE%\".";
+$MESS["TR_ERROR_ARCHIVE"] = "Archive error";
+$MESS["TR_LANGUAGE_COLLECTED_ARCHIVE"] = "The localization \"%LANG%\" has been compiled to archive file \"%FILE_PATH%\". <br> Download: %LINK%";
+$MESS["TR_LANGUAGE_COLLECTED_FOLDER"] = "The localization \"%LANG%\" has been compiled to folder \"%PATH%\".";
+$MESS["TR_UPLOAD_FILE"] = "Localization File (tar.gz)";
+$MESS["TR_LANGUAGE_DOWNLOADED"] = "Localization has been loaded";
+$MESS["TR_ERROR_LANGUAGE_ID"] = "Selected language was not found";
+$MESS["TR_ERROR_LANGUAGE_CHARSET_NON_UTF"] = "Selected language encoding is not UTF-8. Please disable national character encoding conversion.";
+$MESS["TR_ERROR_TARFILE_EXTENTION"] = "Invalid file type";
+?>

@@ -1,0 +1,342 @@
+div.reviews-info-box
+{
+	padding:0.5em 1.117em;
+	border-width: 1px;
+	border-style: solid;
+	line-height: 1.5em;
+	margin-bottom:1em;
+	zoom: 1;
+}
+/* Header */
+div.reviews-header-box
+{
+	font-size:1em; 
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+}
+/* Link to forum */
+div.reviews-link-box
+{
+	font-size:1em; 
+	padding:0.462em;
+	vertical-align:middle;
+	margin-bottom: 1em;
+}
+/* Page navigation */
+div.reviews-navigation-box
+{
+	padding:0 1.117em;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+	line-height:1.5em;
+	overflow: hidden;
+	zoom:1;
+}
+div.reviews-navigation-top { 
+	border-bottom-style: none;	}
+div.reviews-navigation-bottom { 
+	margin-bottom: 1em; }
+ 
+/* Topic posts table */
+table.reviews-post-table
+{
+	width: 100%;
+	line-height:1.5em;
+	border-top: 1px solid #dadada;
+	margin-bottom: 2.5em;
+}
+table.reviews-post-table thead td
+{
+	color: #7e7e7e; 
+}
+
+table.reviews-post-table thead td, table.reviews-post-table tbody td 
+{
+	padding-top: 0.78em;
+}
+/* First Post Table */
+table.reviews-post-first {}
+
+/* Odd Post Table */
+table.reviews-post-odd {}
+
+/* Even Post Table */
+table.reviews-post-even {}
+
+/* Last Post Table */
+table.reviews-post-last {}
+
+/* Post Table Cell */
+table.reviews-post-table td { padding: 0; vertical-align: top; }
+
+/* Post Table: Post and Actions Cell */
+table.reviews-post-table td.reviews-cell-post, table.reviews-post-table td.reviews-cell-actions { border-right-width: 1px; border-right-style: solid; }
+
+/* Post Table: User Contacts and Actions Cell */
+table.reviews-post-table td.reviews-cell-contact, table.reviews-post-table td.reviews-cell-actions { border-top-width: 1px; border-top-style: dashed; height: 1.5em; }
+
+div.reviews-post-date, div.reviews-post-entry { padding:0.5em 1em 0.5em 1em; font-size:1em; font-weight:normal; }
+
+div.reviews-post-date { border-bottom-width:1px; border-bottom-style: dashed; }
+
+div.reviews-post-text { padding:0.5em 0; }
+/* Post Table: Quote and Author Name Links*/
+div.reviews-post-reply-buttons { float:right; }
+div.reviews-post-reply-buttons a { margin-left: 1.5em; float: right;}
+/* Post Attachments */
+div.reviews-post-attachments { margin:1.5em 0;}
+div.reviews-post-attachments label { font-weight: bold; padding-bottom:0.5em;}
+div.reviews-post-attachment { padding-left: 0.5em;}
+
+div.reviews-post-lastedit { padding:0.5em 0; font-style: italic;}
+span.reviews-post-lastedit-user { font-weight: bold;}
+
+div.reviews-user-info { padding:0.5em 1em 1.5em 1em; }
+
+div.reviews-user-avatar { margin: 0.5em 0; }
+
+div.reviews-user-status { margin-bottom: 0.5em; }
+
+div.reviews-user-name span { font-size:1em; font-weight:bold; line-height:1.1em;}
+
+span.reviews-vote-user a { text-decoration: none; vertical-align: top; font-size:1.1em;}
+
+div.reviews-contact-links { padding:0.5em 1em 0.5em 1.5em; }
+
+div.reviews-action-links { padding:0.5em 1.5em 0.5em 1em; text-align:right; }
+div.reviews-action-links span {white-space: nowrap;}
+
+div.reviews-post-entry { font-size:1em; padding-bottom:1em; height:100%;}
+
+
+/*BBCode: List*/
+div.reviews-post-entry ul, div.reviews-post-entry ol { padding:0.5em 0 0.5em 2em; }
+
+/*BBCode: Quote and Code*/
+table.reviews-quote, table.reviews-code
+{
+	font-size:1em;
+	margin:0.5em 0 1em;
+	width:100%;
+	border-width:1px;
+	border-style: solid;
+	border-collapse: collapse;
+}
+
+table.reviews-quote table.reviews-quote, table.reviews-code table.reviews-code { width: 95%; margin: 0.5em 0 0;}
+
+
+table.reviews-quote th, table.reviews-code th {font-weight:bold; padding: 0.25em 1em; text-align:left;}
+table.reviews-quote td, table.reviews-code td { padding:0.9em 1em; }
+
+div.reviews-code-box
+{
+	font-family: "Consolas", "Monaco", "Courier New", Courier, monospace;
+	font-size: 1em;
+	width: 100%;
+	overflow: auto;
+	border-width:1px;
+	border-style: solid;
+	margin:0.5em 0;
+}
+
+div.reviews-code-box ol, div.reviews-code-box ol li, div.reviews-code-box ol li span { margin: 0; padding: 0; border: none; }
+
+div.reviews-code-box ol { list-style: decimal; margin-left: 3em; padding:0.5em 0;}
+
+div.reviews-code-box ol li
+{
+	list-style: decimal-leading-zero;
+	list-style-position: outside !important;
+	padding: 0 0.5em 0 1.5em !important;
+	margin: 0;
+	line-height: 1.5em;
+}
+
+/* Reply Form*/
+div.reviews-reply-form
+{
+	border-style:solid;
+	border-width:1px;
+	line-height:1.5em;
+	margin-bottom:1em;
+}
+
+div.reviews-reply-header
+{
+	font-size:1em; 
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+}
+
+div.reviews-note-box {border-width:1px; border-style: solid; margin: 1.117em 0; padding: 0.4em 1.117em;}
+div.reviews-reply-form div.reviews-note-box { margin: 1.117em;}
+div.reviews-note-box ul {padding:0.3em 0 0.3em 2em; margin:0;}
+div.reviews-note-box ul li {margin:0; padding:0;}
+
+div.reviews-reply-fields { padding:0 1.117em 0.8em; }
+
+div.reviews-reply-field { padding-bottom: 0.462em; margin-top: 0.462em; }
+
+div.reviews-reply-field-title input, div.reviews-reply-field-desc input { width: 80%;}
+
+div.reviews-reply-field-title label, div.reviews-reply-field-desc label, div.reviews-reply-field-tags label, div.reviews-reply-field-captcha-label label,
+div.reviews-reply-field-lastedit-reason label {display: block;}
+
+div.reviews-reply-field-user {width: 100%; /*IE Fix or zoom:1 */}
+
+div.reviews-reply-field-author, div.reviews-reply-field-email { float:left; width:39%; }
+
+div.reviews-reply-field-user-sep { width:2%; float: left;}
+
+div.reviews-reply-field-author input, div.reviews-reply-field-email input { width:100%; }
+
+div.reviews-reply-field-bbcode { line-height: 1.7em; zoom:1;}
+
+
+div.reviews-bbcode-line { margin-right: 2em; float: left;}
+div.reviews-smiles-line { white-space: nowrap; float: left; }
+div.reviews-bbcode-line img, div.reviews-smiles-line img { border: 0;}
+div.reviews-bbcode-line a, div.reviews-smiles-line a {vertical-align: middle;}
+
+div.reviews-bbcode-line a
+{
+	width: 20px;
+	height: 20px;
+	float: left;
+	margin-right: 0.2em;
+	background-position: center center; 
+	background-repeat:no-repeat;
+	display: block;
+}
+div.reviews-bbcode-line a, div.reviews-bbcode-line img, div.reviews-smiles-line a, div.reviews-smiles-line img { outline: none; }
+div.reviews-bbcode-line select { float: left; margin-left:3px; padding:0px; height:20px;} 
+
+/*BBCode Icons*/
+a.reviews-bbcode-bold {background-image: url(images/bbcode/font_bold.gif);}
+a.reviews-bbcode-italic {background-image: url(images/bbcode/font_italic.gif);}
+a.reviews-bbcode-color {background-image: url(images/bbcode/font_color.gif);}
+a.reviews-bbcode-underline{background-image: url(images/bbcode/font_underline.gif);}
+a.reviews-bbcode-strike{background-image: url(images/bbcode/font_strike.gif);}
+a.reviews-bbcode-url{background-image: url(images/bbcode/font_link.gif);}
+a.reviews-bbcode-img{background-image: url(images/bbcode/font_image.gif);}
+a.reviews-bbcode-video{background-image: url(images/bbcode/font_video.gif);}
+a.reviews-bbcode-code{background-image: url(images/bbcode/font_code.gif);}
+a.reviews-bbcode-quote{background-image: url(images/bbcode/font_quote.gif);}
+a.reviews-bbcode-video{background-image: url(images/bbcode/font_video.gif);}
+a.reviews-bbcode-list{background-image: url(images/bbcode/font_list.gif);}
+a.reviews-bbcode-translit{background-image: url(images/bbcode/font_translit.gif);}
+
+div.reviews-reply-field-text textarea { width: 95%; }
+
+div.reviews-reply-field-tags { display: none; }
+div.reviews-reply-field-tags input { width:80%; }
+
+div.reviews-reply-field-lastedit-reason input { width: 80%;}
+
+div.reviews-reply-field-captcha input { width: 180px;}
+
+div.reviews-reply-field-settings input, div.reviews-uploaded-file input, div.reviews-reply-field-lastedit-view input { width:1.55em; height:1.55em; margin:0 0 0 -0.25em; vertical-align: middle; font-size:1em; }
+div.reviews-reply-field-settings label, div.reviews-uploaded-file a, div.reviews-reply-field-lastedit label { vertical-align: middle; }
+
+div.reviews-reply-field-upload a { outline: none;}
+div.reviews-upload-file-hint { display: none;}
+div.reviews-upload-file-hint span { font-weight: bold;}
+div.reviews-upload-file {display: none; margin-top: 0.262em;}
+div.reviews-upload-file input {font-size:1.184em; }
+
+div.reviews-reply-buttons { margin-top: 1em;}
+div.reviews-reply-buttons input { padding:0 0.5em; font-size:1.184em; overflow: visible; /*IE paddings*/}
+
+/* Utils */
+div.reviews-clear-float { clear: both; }
+
+
+/* Table Header, Reply Form Header, BBCode Icons Highlighting */
+div.reviews-reply-header, div.reviews-bbcode-line a:hover, div.reviews-bbcode-line a:hover img { background-color: #e7e7e7; }
+
+/* Table Cell Border */
+div.reviews-info-box, div.reviews-reply-form { border-color: #e1e1e1;}
+
+/* Table Cell, Info Box, Reply Form */
+div.reviews-info-box, div.reviews-reply-form { background:#fbfbfb; }
+
+div.reviews-post-date { background: #eaeaea; border-bottom: none; }
+
+/* ---------------------------------------------------Text Color-------------------------------------------------- */
+
+/* Header Box Right Links*/
+div.reviews-header-box a:link, 
+div.reviews-header-box a:visited, 
+div.reviews-header-box a:active, 
+div.reviews-header-box a:hover { color: #fff; }
+
+.reviews-required-field { color: red; }
+
+/* --------------------------------------------------Special Elements---------------------------------------------- */
+
+div.reviews-header-box { color: #fff; background:#6c6c6c; border-color: #7a7a7a;}
+
+/* Page navigation */
+div.reviews-navigation-box { background:#fff; border-color: #e1e1e1; }
+
+/*BBCode: Quote and Code*/
+table.reviews-quote, table.reviews-code, div.reviews-code-box {  border-color: #c3c3c3; }
+table.reviews-quote td, table.reviews-code td, div.reviews-code-box ol {background:#fff !important; color:#696969;}
+table.reviews-quote th, table.reviews-code th, div.reviews-code-box {background:#e6e6e6 !important; color:#616161;}
+
+div.reviews-note-box {border-color: #ffc85e; background: #fffdc7; }
+/* --------------------------------------------------Icons---------------------------------------------- */
+table.palette{border:1px solid gray; background-color:gray; border-collapse:collapse;}
+table.palette td{border:1px solid gray; width:10px; height:10px; padding:0px; margin:0;}
+table.palette td img{width:10px; height:10px; border:none; padding:0px; margin:0;}
+/* Popups */
+div.reviews-popup-postform {
+	width:502px;
+	padding:0px; 
+	margin:0;
+	overflow:hidden; 
+	color:black;}
+div.reviews-popup-postform table.reviews-popup {
+	border:1px solid gray;
+	width:500px;
+	background-color:white; 
+	font-size:1em;
+	cursor:default;}
+div.reviews-popup-postform table.reviews-popup td {
+	font-size:1em;
+	border:none;
+	background-color:white; 
+	font-size:1em;}
+div.reviews-popup-postform table.reviews-popup thead td {
+	font-weight:bold;
+	padding:0.5em 0.5em 0.1em 0.8em;
+	font-size:1.1em;
+	text-align:left;}
+div.reviews-popup-postform table.reviews-popup thead td div.close{
+	cursor:pointer;
+	cursor:hand;
+	background-image: url('images/close.gif');
+	background-position: center center;
+	background-repeat:no-repeat;
+	overflow:hidden;
+	width:13px;
+	height:13px;
+	float:right;}
+div.reviews-popup-postform table.reviews-popup tbody td {padding:1em;}
+div.reviews-popup-postform table.reviews-popup tbody td div.reviews-field{width:100%;}
+div.reviews-popup-postform table.reviews-popup tbody td div.reviews-field span.title{width:100%; display:block;}
+div.reviews-popup-postform table.reviews-popup tbody td div.reviews-field input {width:95%;}
+div.reviews-popup-postform table.reviews-popup tfoot td {padding:0.3em; text-align:center;}
+/*/Popups */
+
+div.reviews-smiles-line, div.reviews-smiles-line a, div.reviews-reply-field-bbcode div.reviews-reply-field-showsmiles{float:left;}
+div.reviews-smiles-line span.reviews-smiles-item{display:block;float:left;border:none;margin:0;padding:0;overflow:hidden;}
+div.reviews-smiles-line span.reviews-smiles-item a{text-decoration:none;border:none;float:left;margin-right:5px;}
+div.reviews-smiles-line div.reviews-smiles-item{float:left;}
+div.reviews-smiles-corrected{overflow:hidden;}
+
+body.reviews-popup-body{padding:1.51em; font-size:0.75em;}
+form.reviews-form{padding:0;margin:0;}
+
+.reviews-post-reply-buttons .bx-rating span, .reviews-post-reply-buttons  .bx-rating a { color: #929292; font-size: 11px;}

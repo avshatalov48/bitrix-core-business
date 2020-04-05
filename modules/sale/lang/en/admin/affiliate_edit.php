@@ -1,0 +1,32 @@
+<?
+$MESS["SAE_NO_SITE_PLAN"] = "The plan site is not specified";
+$MESS["SAE_NO_USER"] = "User is not specified";
+$MESS["SAE_NO_PLAN"] = "Plan is not specified";
+$MESS["SAE_NO_DATE_CREATE"] = "The creation date is not specified";
+$MESS["SAE_AFFILIATE_ALREADY_EXISTS"] = "An affiliate for user #USER_ID# already exists on the site #SITE_ID#";
+$MESS["SAE_ERROR_SAVE_AFF"] = "An error occurred while saving the affiliate";
+$MESS["SAE_TITLE_UPDATE_AFF"] = "Edit affiliate #ID#";
+$MESS["SAE_TITLE_ADD_AFF"] = "New affiliate";
+$MESS["SAE_AFF_LIST"] = "Affiliates";
+$MESS["SAE_AFF_ADD"] = "Add affiliate";
+$MESS["SAE_AFF_DELETE"] = "Delete affiliate";
+$MESS["SAE_AFF_DELETE_CONF"] = "Are you sure you want to delete this affiliate?";
+$MESS["SAE_AFF_TAB"] = "Affiliate";
+$MESS["SAE_AFF_TAB_TITLE"] = "Affiliate parameters";
+$MESS["SAE_DATE_UPDATE"] = "Last modification date:";
+$MESS["SAE_SITE"] = "Site:";
+$MESS["SAE_USER"] = "User:";
+$MESS["SAE_PROFILE"] = "User profile";
+$MESS["SAE_AFFILIATE_REG"] = "Registered via affiliate:";
+$MESS["SAE_NO_AFFILIATE"] = "Affiliate was not found";
+$MESS["SAE_WAIT"] = "wait";
+$MESS["SAE_PLAN"] = "Plan:";
+$MESS["SAE_ACTIVE"] = "Active:";
+$MESS["SAE_DATE_REG"] = "Registration date";
+$MESS["SAE_PAYED_SUM"] = "Paid amount:";
+$MESS["SAE_PENDING_SUM"] = "Pending amount:";
+$MESS["SAE_LAST_CALC"] = "Last calculation date";
+$MESS["SAE_FIX_PLAN"] = "Fix plan";
+$MESS["SAE_AFF_SITE"] = "Affiliate site";
+$MESS["SAE_AFF_DESCRIPTION"] = "Affiliate description";
+?>

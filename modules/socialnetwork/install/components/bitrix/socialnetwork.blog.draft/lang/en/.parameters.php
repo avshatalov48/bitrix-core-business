@@ -1,0 +1,31 @@
+<?
+$MESS["BB_MESSAGE_COUNT"] = "Conversations per page";
+$MESS["BB_PATH_TO_BLOG"] = "Conversations page path template";
+$MESS["BB_PATH_TO_BLOG_CATEGORY"] = "Tag-filtered conversations page path template";
+$MESS["BB_PATH_TO_POST"] = "Conversation view page path template";
+$MESS["BB_PATH_TO_POST_EDIT"] = "Conversation edit page path template";
+$MESS["BB_PATH_TO_USER"] = "User profile path template";
+$MESS["BB_PATH_TO_GROUP"] = "Group page path template";
+$MESS["BB_PATH_TO_SMILE"] = "Smileys folder path (relative to the site root)";
+$MESS["BB_POST_VAR"] = "Conversation ID variable name";
+$MESS["BB_USER_VAR"] = "User ID variable name";
+$MESS["BB_PAGE_VAR"] = "Page variable name";
+$MESS["BB_CACHE_TIME_LONG"] = "Cache lifetime for other pages";
+$MESS["BB_CATEGORY_ID"] = "Filter tag ID";
+$MESS["BB_SET_NAV_CHAIN"] = "Add item to breadcrumbs";
+$MESS["POST_PROPERTY_LIST"] = "Show conversation properties";
+$MESS["BB_FILTER_NAME_IN"] = "Name of array with conversation filter values";
+$MESS["B_VARIABLE_ALIASES"] = "Variable aliases";
+$MESS["BC_DATE_TIME_FORMAT"] = "Date and time format";
+$MESS["BB_NAV_TEMPLATE"] = "Breadcrumbs navigation template";
+$MESS["SHOW_RATING"] = "Enable rating";
+$MESS["SHOW_RATING_CONFIG"] = "default";
+$MESS["RATING_TYPE"] = "Rating buttons design";
+$MESS["RATING_TYPE_CONFIG"] = "default";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Like/Unlike (text)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Like/Unlike (image)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Like (text)";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Like (image)";
+$MESS["BPC_IMAGE_MAX_WIDTH"] = "Max. image width";
+$MESS["BPC_IMAGE_MAX_HEIGHT"] = "Max. image height";
+?>

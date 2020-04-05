@@ -1,0 +1,13 @@
+/*Menu icon*/
+#form_menu_icon {background-image:url(icons/form/mnu_form.gif);}
+#form_page_icon {background-image:url(icons/form/title.gif);}
+
+/*buttons*/
+div#btn_delete {background-image:url(images/buttons/delete.gif);}
+div#btn_new {background-image:url(images/buttons/new.gif);}
+
+/*Site edit mode buttons*/
+.form_edit_tpl {width:17px; height:17px; background-repeat:no-repeat; background-image: url(/bitrix/images/form/edit_templ_icon.gif)}
+.form_edit_default_tpl {width:17px; height:17px; background-repeat:no-repeat; background-image: url(/bitrix/images/form/edit_def_templ_icon.gif)}
+
+table.contextmenu #btn_current {background-color:#DBE3F2; border:1px solid #AEB6C2; height:22px; margin:0px 0px 0px 4px; font-weight: bold; padding-left: 2px;}

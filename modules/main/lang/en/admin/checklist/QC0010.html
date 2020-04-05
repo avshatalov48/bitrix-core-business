@@ -1,0 +1,49 @@
+<p>A typical web project rarely goes beyond the creation of custom templates for
+the system components and website templates. However, there may be tasks
+sometimes that simply cannot be solved using the standard components, which
+requires that a developer create custom Components 2.0 from scratch.</p>
+
+<p>Consider the following development stages when implementing your custom
+Components 2.0.</p>
+<ul>
+<li>Discern all custom components that are potentially possible in the web
+  project and describe them in the project technical specification.</li>
+<li>Define a namespace for the new components. Use the project name for that
+  purpose; for example: "<i>trustbank:</i>". The name of the Bitrix Framework
+  component namespace is "<i>bitrix:</i>" and cannot be changed.</li> 
+<li>Find any standard component that most closely resembles features of the
+  custom component you need to create. A standard component in itself is a good
+  example of standard compliant API calls and programming techniques; it is
+  recommended to create custom components using a standard component as a
+  foundation.</li> 
+<li>Devise proper interface for each of the custom components by picking the
+  parameters to be placed in the properties bar. For example, a weather
+  component could use properties "Weather web service URL" and "Web service
+  connection timeout".</li>
+<li>Define the branch of the visual editor's component tree to which the new
+  component(s) will be added.</li> 
+<li>Implement the component. Pay special attention to autocache and performance.
+  Profile your component to ensure it does not perform any database queries if
+  the cached data is up-to-date; performs minimum queries on outdated
+  cache data; caches only really required data; keeps RAM usage to minimum (doesn't
+  sort arrays of hundreds of megabytes, or anything like that).</li>
+ </ul>
+
+<p>Use your custom components as a basis for new components, or reuse them in
+other projects. A good idea is to keep the reusable components is a separate
+namespace, for example "<i>library:</i>". </p>
+
+<ol>
+<li>The "/bitrix/components/" folder may only contain additional subfolders
+  whose names match the namespaces in use, for example "<i>myproject</i>"
+  and "<i>library</i>". In the process, developers sometimes create
+  helper namespaces named like "<i>dummy</i>" or "<i>test</i>"
+  and forget to remove them even after release. Delete such folders.</li>
+<li>In the visual editor, ensure the Components 2.0 tree include custom
+  components in a separate branch.</li> 
+<li>Ensure that all custom components have configurable parameters (if any)
+  visible in the public section. All such parameters must be thoroughly tested
+  and documented. All service, non-user friendly settings (anything like "Registry
+  object array nesting level") should not be present in the public section.</li> 
+ </ol>
+	

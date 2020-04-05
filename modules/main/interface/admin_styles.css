@@ -1,0 +1,142 @@
+/* Main :: admin css */
+body {margin:0; padding:0;}
+a:hover {color:red;}
+.navchain {font-family:Arial; font-size:12px; color:#1F5887;}
+hr.tinygrey {color: #DEDEDE; height: 1px}
+
+.leftmenu, .leftmenuact, .leftmenusep {font-family:Arial; font-size:9pt; font-weight:normal; text-decoration:none;}
+.leftmenu {color:#556877;}
+.leftmenuact {color:#F8270A;}
+.leftmenusep {color:#436287;}
+.leftmenusepbg {background-color:#DBE9F3}
+.leftmenusepdelim {background-color:#B9D3E6}
+.leftmenubg {background-color:#F3F3F3}
+.hiddenmenu {font-family:Tahoma, Arial,sans-serif; color:#556877; font-size:12px; padding-top:8px; cursor:pointer; line-height:11px;}
+.floatmenu {border: solid 1px #82B0D2; background-color:#F3F3F3; padding:5px; line-height: 18px;}
+a.leftmenu:hover {text-decoration:underline; color:#556877;}
+a.leftmenuact:hover {text-decoration:underline; color:#F8270A;}
+a.leftmenusep:hover {color:#436287;}
+
+.tablehead, .tablehead1, .tablehead2, .tablehead3, .tablehead4, .tablehead5, .tableheadbottom, .tableheadtop {background-color:#C2DBED; padding:3px;}
+.tablehead1, .tablehead2, .tablehead3 {border-top: 1px solid #A8C2D7; border-bottom: 1px solid #A8C2D7;}
+.tablehead1, .tableheadleft {border-left: 1px solid #A8C2D7;}
+.tablehead3, .tableheadright {border-right: 1px solid #A8C2D7;}
+.tablehead4, .tablehead5 {border-bottom: 1px solid #A8C2D7; border-left: 1px solid #A8C2D7; border-right: 1px solid #A8C2D7}
+.tablehead5, .tableheadtop {border-top: 1px solid #A8C2D7;}
+.tableheadbottom {border-bottom: 1px solid #A8C2D7}
+
+.tablebody, .tablebody1, .tablebody2, .tablebody3, .tablebody4, .tablebody5, .tablebodyleft, .tablebodyright, .tablebodytop, .tablebodybottom {background-color:#F1F1F1; padding:3px;}
+.tablebody1 {border-left:#CED6DB solid 1px; border-bottom:#CED6DB solid 1px; }
+.tablebody2, .tablebodybottom {border-bottom:#CED6DB solid 1px;}
+.tablebody3 {border-right:#CED6DB solid 1px; border-bottom:#CED6DB solid 1px;}
+.tablebody4, .tablebody5 {border-right:#CED6DB solid 1px; border-left:#CED6DB solid 1px; border-bottom:#CED6DB solid 1px;}
+.tablebody5, .tablebodytop {border-top:#CED6DB solid 1px; }
+.tablebodyleft {border-left:#CED6DB solid 1px;}
+.tablebodyright {border-right:#CED6DB solid 1px;}
+
+.selectedbody {background-color:#E0EBF1;}
+.tablenullbody {background-color:#FFFFFF;}
+
+.edittable {border:#A9C9E0 1px solid;}
+.edittable td {background-color:#F1F1F1; padding:4px;}
+.edittable .tablehead {background-color:#E4EDF3; padding:4px;}
+.edittable .selectedbody {background-color:#E9E9E9;}
+.edittable .tableheadtext {color:#365069;}
+.smallpadding td{padding:1px;}
+.nopadding td{padding:0px;}
+
+.tableborder {background-color:#8BB6D6;}
+.border {border:#A9C9E0 1px solid;}
+
+.filter {border: 1px solid #C2DBED; border-top:none;}
+.tablefilterhead {background-color:#C2DBED; padding:3px;}
+table.filter .tablebody {background-color:#F3F3F3; padding:3px;}
+
+.tablebodytext, .tableheadtext, .tablefieldtext, .tabletitletext {font-family:Arial; font-size:12px;}
+.tableheadtext, .tablebodytext, .tabletitletext {color:#000000}
+.tablefieldtext {color:#365069;}
+
+.actions {line-height:14px;}
+.notesmall, .note, .attention, .attentionsmall {font-family:Arial; font-weight:normal;}
+.notesmall {font-size:11px; color:#000000;}
+.note {font-size:12px; color:#000000;}
+.attention {font-size:12px; color:red;}
+.attentionsmall {font-size:11px; color:red;}
+
+.tablehead .notesmall, .tablehead1 .notesmall, .tablehead2 .notesmall, .tablehead3 .notesmall, .tablehead4 .notesmall, .tableheadbottom .notesmall, .tableheadtop .notesmall, .tableheadleft .notesmall, .tableheadright .notesmall, .selectedbody .notesmall, {color:green;}
+.tablebody .note, .tablebody1 .note, .tablebody2 .note, .tablebody3 .note, .tablebody4  .note{color:green;}
+
+a.txttohtmllink {text-decoration:none;}
+a.txttohtmllink:hover {text-decoration:underline; color:red;}
+a.tablebodylink {font-family:Arial; font-size:12px; text-decoration:none; color:#0167CD;}
+.tablehead a.tablebodylink {color:#295576}
+a.tablebodylink:hover {text-decoration:underline; color:red;}
+
+.text, .smalltext, .smalltextlink {font-family:Arial; font-weight:normal;}
+.text {font-size:12px; color:#000000;}
+.smalltext {font-size:11px; color:#000000;}
+.smalltextlink {font-size:11px; text-decoration:none}
+a.smalltextlink:hover {text-decoration:underline;}
+a.smalltext:hover {color:#000000;}
+
+.notetable {background-color:#FFFFEC;}
+.legendtext {font-family:Arial; font-size:11px; color:#000000; font-weight:normal;}
+.star, .starrequired {font-family:Verdana; font-size:8pt;}
+.starrequired {color: #FF0000}
+
+.submenutable {background-color:#FFFFEC;}
+.submenutext {font-family:Arial; font-size:9pt; font-weight:normal; color:#4D5F6C; text-decoration:none;}
+a.submenutext:hover {text-decoration:underline; color:#4D5F6C;}
+
+.justify {text-align:justify;}
+.linktext {font-family:Verdana; font-size:10pt; color:#000000; font-weight:normal;}
+.textmain {font-family:Verdana; font-size:12px; line-height: 15px; text-decoration:none;}
+.textb {font-family:Arial; font-size:10pt; color:#000000; font-weight:bold;}
+.subtitletext {font-family:Arial; color:#000000; font-size:11pt; font-weight:bold;}
+
+.smalltxt, .smalltxtw, .smalltxtws {font-family:Verdana; text-decoration:none}
+.smalltxt {font-size:11px; line-height: 13px;}
+.smalltxtw {font-size:10px; line-height: 12px; color:#696C72;}
+.smalltxtws {font-size:10px; line-height: 12px; color:#FF7979;}
+a.smalltxtw:hover {text-decoration:underline;}
+a.smalltxtws:hover {text-decoration:underline;}
+.tableheads {background-color:#E4E6DB;}
+.tableborders {background-color:#9C9A9C;}
+
+.errortext, .oktext, .notetext {font-family:Arial; font-size:10pt; font-weight:bold;}
+.errortext {color:red;}
+.oktext {color:#005000;}
+.notetext {color:green;}
+
+.required {color:red;}
+.pointed {color:green;}
+.pointed2 {color:blue;}
+
+/* form fields */
+form {margin-top: 16px; margin-bottom: 16px;}
+.filter form {margin: 0px;}
+INPUT.typeinput, INPUT.typefile, TEXTAREA.typearea, SELECT.typeselect {background-color:#FFFFFF; font-size:12px; font-family:Arial;}
+INPUT.button {
+	padding:2px;
+	font-family:Tahoma; font-size:12px;
+	color:#FFFFFF; background-color:#6AA2CA;
+	border: 2px solid #4083B5;
+	cursor: pointer;
+}
+.tablebodybutton {font-size:12px; font-family: Arial;}
+.textareawidth{width:90%}
+
+/*toolbar selectboxes*/
+.titlemenu {font-family:Arial, sans-serif; font-size:12px;}
+.titlemenuselected {color:#9B1704;}
+
+/*main heading*/
+.pagetitle {background-color:#FFFFFF; border-bottom: 1px solid #BECEEE; padding:3px; padding-left:0px; padding-right:0px;}
+.titletext {font-family:Arial; color:#000000; font-weight:bold; font-size:17px;}
+
+/*subheading*/
+.pagesubtitle {background-color:#EBEBEB; padding:3px; margin-top: 32px; margin-bottom: 16px;}
+.h2 {font-family:Tahoma; font-size:13px; font-weight: bold; color:#000000;}
+
+.pagebottom {background-color:#EEEEEE; border-top: 1px solid #DBDBDB; padding:5px;}
+.pagebottomtext {font-family:Tahoma; font-size:11px; color:black;}

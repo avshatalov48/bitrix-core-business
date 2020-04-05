@@ -1,0 +1,36 @@
+<?
+$MESS ['admin_index_product_name_1c_bitrix'] = "1С-Битрикс: Управление сайтом";
+$MESS ['admin_index_product_name_1c_bitrix_portal'] = "1С-Битрикс: Корпоративный портал";
+$MESS ['admin_index_product_name_1c_bitrix_eduportal'] = "1С-Битрикс: Внутренний портал учебного заведения";
+$MESS ['admin_index_product_name_1c_bitrix_gosportal'] = "1С-Битрикс: Внутренний портал органа власти";
+$MESS ['admin_index_product_name_1c_bitrix_gossite'] = "1С-Битрикс: Официальный сайт органа власти";
+$MESS ['admin_index_menu'] = "Меню";
+$MESS ['admin_index_project'] = "Добро пожаловать в административный раздел проекта";
+$MESS ['admin_index_product'] = "Проект работает на основе";
+$MESS ['admin_index_title'] = "Панель управления";
+$MESS ['admin_index_product_name_bitrix'] = " ";
+$MESS ['admin_index_product_name_bitrix_portal'] = " ";
+$MESS ['admin_index_sec'] = "Проактивная защита";
+$MESS ['admin_index_sec_on'] = "Включено";
+$MESS ['admin_index_sec_check'] = "Проверьте параметры";
+$MESS ['admin_index_sec_off'] = "Выключено";
+$MESS ['admin_index_sec_filter_on'] = "Проактивный фильтр (Web Application Firewall) включен.";
+$MESS ['admin_index_sec_filter_off'] = "Проактивный фильтр (Web Application Firewall) выключен.";
+$MESS ['admin_index_sec_filter_desc'] = "Проактивный фильтр обеспечивает защиту от большинства известных атак на веб-приложения. В потоке внешних запросов пользователей фильтр распознает большинство опасных угроз и блокирует вторжения на сайт. Рекомендуется включить проактивный фильтр.";
+$MESS ['admin_index_sec_filter_turn_on'] = "Включить";
+$MESS ['admin_index_sec_module'] = "Модуль проактивной защиты не установлен.";
+$MESS ['admin_index_sec_module_desc'] = "Модуль обеспечивает защиту от большинства известных атак на веб-приложения. Для максимальной защиты вашего проекта рекомендуется установить модуль проактивной защиты.";
+$MESS ['admin_index_sec_module_install'] = "Установить";
+$MESS ['admin_index_sec_level'] = "Вы можете проверить текущий уровень безопасности в <a href=\"security_panel.php?lang=#LANGUAGE_ID#\">Панели безопасности</a> модуля.";
+$MESS ['admin_index_perf_level'] = "Вы можете протестировать текущий уровень производительности в <a href=\"perfmon_panel.php?lang=#LANGUAGE_ID#\">Панели производительности</a> модуля.";
+$MESS ['admin_index_perf'] = "Монитор производительности";
+$MESS ['admin_index_perf_installed'] = "Установлен";
+$MESS ['admin_index_perf_check'] = "Проверьте";
+$MESS ['admin_index_perf_not_installed'] = "Не установлен";
+$MESS ['admin_index_perf_current'] = "Текущая оценка производительности:";
+$MESS ['admin_index_perf_no_result'] = "Оценка производительности не проводилась.";
+$MESS ['admin_index_perf_no_result_desc'] = "Модуль анализирует и тестирует производительность вашей системы. Для максимального контроля производительности вашего проекта рекомендуется провести тестирование.";
+$MESS ['admin_index_perf_test'] = "Протестировать";
+$MESS ['admin_index_perf_module_inst'] = "Модуль монитора производительности не установлен.";
+$MESS ['admin_index_perf_module_inst_desc'] = "Модуль анализирует и тестирует производительность вашей системы. Для максимального контроля производительности вашего проекта рекомендуется установить модуль.";
+?>

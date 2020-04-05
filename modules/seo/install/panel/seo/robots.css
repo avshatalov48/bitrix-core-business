@@ -1,0 +1,56 @@
+.seo-robots-content {
+	border: 1px solid #C5CECF;
+	font-size: 12px;
+	padding: 10px;
+	margin: 0;
+}
+
+.seo-robots-action
+{
+	padding-bottom: 5px;
+}
+
+.seo-robots-action-button {
+	width: 300px;
+}
+
+.seo-robots-settings
+{
+	max-height: 400px;
+	width: 320px;
+	overflow: auto;
+}
+
+.seo-robots-settings-row
+{
+	white-space: nowrap;
+	min-height: 20px;
+}
+
+.seo-robots-settings-input
+{
+	width: 250px;
+	margin-top: 10px;
+}
+
+.seo-robots-delete
+{
+	background: url("../main/images/bx-admin-sprite-small-1.png") no-repeat scroll 1px -1597px transparent;
+	cursor: pointer;
+	height: 11px;
+	width: 11px;
+	margin-left: 5px;
+	display: none;
+	position: relative;
+	top: 1px;
+}
+
+.seo-robots-delete:hover
+{
+	background-position: 1px -2451px;
+}
+
+.seo-robots-entry:hover .seo-robots-delete
+{
+	display: inline-block;
+}

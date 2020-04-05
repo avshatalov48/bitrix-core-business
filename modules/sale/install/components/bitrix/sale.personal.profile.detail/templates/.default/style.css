@@ -1,0 +1,126 @@
+.sale-profile-detail-link-list{
+	margin-bottom: 20px;
+}
+.req{color:red;}
+
+.bx-slst .dropdown-block.bx-ui-slst-input-block{
+	border: 1px solid #CCD5DB;
+}
+
+.sale-profile-detail-form .form-control:hover, .sale-profile-detail-form .location-block-wrapper:focus, .location-block-wrapper .dropdown-block.bx-ui-slst-input-block:hover{
+	border-color: #66afe9;
+	outline: 0;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+.sale-personal-profile-detail-form-title-row h4{
+	padding-top: 10px;
+}
+
+.sale-personal-profile-detail-input-file{
+	display: none !important;
+}
+
+.sale-personal-profile-detail-load-file-info{
+	margin-left: 5px;
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 1.42857143;
+	cursor: pointer;
+}
+
+.sale-personal-profile-detail-load-file-cancel{
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background: url(/bitrix/components/bitrix/sale.personal.profile.detail/templates/.default/images/sale-profile-detail-sprite.svg) 1px 1px no-repeat;
+	-webkit-transition: opacity .3s ease;
+	-moz-transition: opacity .3s ease;
+	transition: opacity .3s ease;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.sale-personal-profile-hide{
+	display: none;
+}
+
+.sale-personal-profile-detail-load-file-cancel:hover{
+	opacity: 0.5;
+}
+
+.sale-personal-profile-btn-block{
+	padding-bottom: 100px;
+}
+.sale-personal-profile-detail-form-file{
+	padding-top: 15px;
+}
+.sale-personal-profile-detail-prop-img img{
+	max-width:100px;
+	max-height:100px;
+}
+@media (min-width: 992px)
+{
+	.text-md-right{
+		text-align: right;
+	}
+
+	.sale-profile-detail-form .form-group{
+		display: table;
+		width: 100%;
+	}
+
+	.sale-personal-profile-detail-form-label, .sale-profile-detail-form input[class*="col-"] {
+		float: none !important;
+		display: table-cell;
+		vertical-align: middle;
+	}
+}
+
+.sale-personal-profile-detail-form-label.vertical-align-top{
+	vertical-align: top;
+}
+
+.sale-profile-detail-form .dropdown-block.bx-ui-sls-input-block {
+	display: block;
+	width: 100%;
+	height: 34px;
+	margin: 6px 0;
+	font-size: 14px;
+	line-height: 1.42857143;
+	color: #555;
+	background-color: #fff;
+	background-image: none;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.location-block-wrapper-delimeter{
+	border-bottom: 2px solid #aeb1b3;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+}
+.sale-profile-detail-form .bx-sls .dropdown-fade2white
+{
+	height:30px;
+}
+.sale-profile-detail-form .input-add-multiple{
+	margin-top:10px;
+}
+.sale-personal-profile-detail-property-radio .radio input[type="radio"]{
+	position: relative;
+	margin-left: 0;
+}
+@media (max-width: 992px)
+{
+	.sale-personal-profile-detail-form-title-row h4
+	{
+		border-bottom: 1px solid #CCD5DB;
+		padding: 20px 0 10px;
+	}
+}

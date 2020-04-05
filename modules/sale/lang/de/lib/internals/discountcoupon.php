@@ -1,0 +1,32 @@
+<?
+$MESS["DISCOUNT_COUPON_ENTITY_ID_FIELD"] = "Gutschein-ID";
+$MESS["DISCOUNT_COUPON_ENTITY_DISCOUNT_ID_FIELD"] = "Regel des Gutscheinwarenkorbs";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_FIELD"] = "Aktiv";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_FROM_FIELD"] = "Aktiv von";
+$MESS["DISCOUNT_COUPON_ENTITY_ACTIVE_TO_FIELD"] = "Aktiv bis";
+$MESS["DISCOUNT_COUPON_ENTITY_COUPON_FIELD"] = "Gutschein";
+$MESS["DISCOUNT_COUPON_ENTITY_TYPE_FIELD"] = "Gutscheintyp";
+$MESS["DISCOUNT_COUPON_ENTITY_MAX_USE_FIELD"] = "Maximale Nutzungszahl";
+$MESS["DISCOUNT_COUPON_ENTITY_USE_COUNT_FIELD"] = "Wie viel Mal genutzt";
+$MESS["DISCOUNT_COUPON_ENTITY_USER_ID_FIELD"] = "Gutscheinbesitzer";
+$MESS["DISCOUNT_COUPON_ENTITY_DATE_APPLY_FIELD"] = "Zuletzt genutzt am";
+$MESS["DISCOUNT_COUPON_ENTITY_TIMESTAMP_X_FIELD"] = "Geändert am";
+$MESS["DISCOUNT_COUPON_ENTITY_MODIFIED_BY_FIELD"] = "Geändert von";
+$MESS["DISCOUNT_COUPON_ENTITY_DATE_CREATE_FIELD"] = "Erstellt am";
+$MESS["DISCOUNT_COUPON_ENTITY_CREATED_BY_FIELD"] = "Erstellt von";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_BASKET_ROW"] = "Für eine einzige Bestellposition";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_ONE_ORDER"] = "Einmal benutzen";
+$MESS["DISCOUNT_COUPON_TABLE_TYPE_MULTI_ORDER"] = "Mehrfach benutzen";
+$MESS["DISCOUNT_COUPON_VALIDATOR_DISCOUNT_ID"] = "Nicht korrekte ID der Warenkorbregel (weniger als oder gleich Null)";
+$MESS["DISCOUNT_COUPON_VALIDATOR_TYPE"] = "Ungültiger Gutscheintyp";
+$MESS["DISCOUNT_COUPON_ENTITY_DESCRIPTION_FIELD"] = "Kommentar";
+$MESS["DISCOUNT_COUPON_VALIDATOR_COUPON_EMPTY"] = "Gutschein ist nicht angegeben";
+$MESS["DISCOUNT_COUPON_VALIDATOR_COUPON_EXIST"] = "Dieser Gutschein existiert bereits";
+$MESS["DISCOUNT_COUPON_VALIDATOR_PERIOD"] = "Die aktive Zeit des Gutscheins ist nicht korrekt.";
+$MESS["DISCOUNT_COUPON_PACKET_COUNT_ERR"] = "Die Anzahl der Gutscheine ist nicht angegeben.";
+$MESS["DISCOUNT_COUPON_PACKET_DISCOUNT_ERR"] = "Die Regel, mit welcher die neuen Gutscheine verknüpft werden sollen, wurde nicht gefunden.";
+$MESS["DISCOUNT_COUPON_PACKET_NEW_GENERATE_COUPON_ZERO_ERR"] = "Gutscheine konnten nicht erstellt werden. Es wird empfohlen, die Regel zu deaktivieren und erneut zu versuchen.";
+$MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_ZERO_ERR"] = "Gutscheine konnten nicht erstellt werden";
+$MESS["DISCOUNT_COUPON_PACKET_GENERATE_COUPON_COUNT_ERR"] = "Erstellt wurden #RESULT# Gutscheine von #COUNT# bei #ALL# Versuch(en).";
+$MESS["DISCOUNT_COUPON_PACKET_EMPTY"] = "Es wurden keine Parameter für neue Gutscheine angegeben.";
+?>

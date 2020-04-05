@@ -1,0 +1,35 @@
+<?
+$MESS["SCA_ERROR_DELETE"] = "Beim Löschen der Kreditkarte Nr. #ID# ist ein Fehler aufgetreten";
+$MESS["SCA_ERROR_UPDATE"] = "Beim Aktualisieren des Kreditkarten-Parameters Nr. #ID# ist ein Fehler aufgetreten";
+$MESS["SCA_TITLE"] = "Kreditkarten";
+$MESS["SCA_ACTIVE"] = "Aktiv";
+$MESS["SCA_ALL"] = "alle";
+$MESS["SCA_YES"] = "Ja";
+$MESS["SCA_NO"] = "Nein";
+$MESS["SCA_SET"] = "Filter";
+$MESS["SCA_UNSET"] = "Zurücksetzen";
+$MESS["SCA_ADD_NEW"] = "Hinzufügen &gt;&gt;";
+$MESS["SCA_NAV"] = "Karten";
+$MESS["SCA_ACT"] = "Aktiv";
+$MESS["SCA_SORT"] = "Sort.";
+$MESS["SCA_CURRENCY"] = "Währung";
+$MESS["SCA_TYPE"] = "Typ";
+$MESS["SCA_ACTIONS"] = "Aktionen";
+$MESS["SCA_DELETE_ALT"] = "Konto löschen";
+$MESS["SCA_DELETE"] = "Löschen";
+$MESS["SCA_UPDATE_ALT"] = "Kreditkartenparameter bearbeiten";
+$MESS["SCA_UPDATE"] = "Bearbeiten";
+$MESS["SCA_DELETE_ALT1"] = "Kreditkarte löschen";
+$MESS["SCA_DELETE_ALL_ALT"] = "Kreditkarte zum Löschen auswählen";
+$MESS["SCA_AVTIVE_ALL_ALT"] = "Aktivität der Kreditkarten ändern";
+$MESS["SCA_DELETE_ALL_ALT1"] = "Kreditkarten zum Löschen auswählen/abwählen";
+$MESS["SCA_SAVE"] = "Speichern";
+$MESS["SCA_DELETE_CONF"] = "Sind Sie sicher, dass  Sie diese Kreditkarte  löschen wollen?";
+$MESS["SCA_NO_VALID_PASSWORD"] = "Geben Sie das Passwort für die Kodierung der Kreditkartennummern auf der Verwaltungsseite des Moduls \"Onlineshop\" an.";
+$MESS["SCAN_ADD_NEW"] = "Neue Kreditkarte";
+$MESS["SCAN_ADD_NEW_ALT"] = "Klicken Sie hier, um eine neue Kreditkarte hinzuzufügen";
+$MESS["SCA_ATTENTION"] = "Achtung!";
+$MESS["SCA_USER_ID"] = "Nutzer-ID";
+$MESS["SCA_USER_LOGIN"] = "Nutzerlogin";
+$MESS["SCA_USER"] = "Nutzer";
+?>

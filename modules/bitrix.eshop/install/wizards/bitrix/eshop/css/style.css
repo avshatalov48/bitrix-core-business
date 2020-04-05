@@ -1,0 +1,25 @@
+.eshop-wizard-info-note-wrap{
+	overflow:hidden;
+}
+
+.eshop-wizard-info-note {
+	background:#e6e5be;
+	background:-webkit-linear-gradient(top, rgba(244,233,141,.3), rgba(232,209,62,.3), rgba(225,194,40,.3));
+	background:-moz-linear-gradient(top, rgba(244,233,141,.3), rgba(232,209,62,.3), rgba(225,194,40,.3));
+	background:-ms-linear-gradient(top, rgba(244,233,141,.3), rgba(232,209,62,.3), rgba(225,194,40,.3));
+	background:-o-linear-gradient(top, rgba(244,233,141,.3), rgba(232,209,62,.3), rgba(225,194,40,.3));
+	background:linear-gradient(top, rgba(244,233,141,.3), rgba(232,209,62,.3), rgba(225,194,40,.3));
+	border-radius:5px;
+	border:1px solid;
+	border-color:#d3c6a3 #cabc90 #c1b37f #c9bc8f;
+	-webkit-box-shadow:inset 0 1px 0 #fff;
+	box-shadow:inset 0 1px 0 #fff;
+	color:#716536;
+	display:inline-block;
+	margin:16px 0;
+	font-size:13px;
+	line-height:18px;
+	text-shadow:0 1px 0 rgba(255,255,255, 0.7);
+	padding:15px 30px 15px 18px;
+	position:relative;
+}

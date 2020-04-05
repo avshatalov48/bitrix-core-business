@@ -1,0 +1,1 @@
+{"version":3,"file":"script.min.js","sources":[],"names":[],"mappings":""}

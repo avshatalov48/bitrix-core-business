@@ -1,0 +1,33 @@
+<?
+$MESS ['customrank_of'] = "из";
+$MESS ['customrank_continue'] = "Продолжить";
+$MESS ['customrank_site'] = "Сайт";
+$MESS ['customrank_all'] = "(все)";
+$MESS ['customrank_module'] = "Модуль";
+$MESS ['customrank_param1'] = "Параметр 1";
+$MESS ['customrank_add'] = "Добавить";
+$MESS ['customrank_param2'] = "Параметр 2";
+$MESS ['customrank_param3'] = "Параметр 3";
+$MESS ['customrank_edit'] = "Изменить";
+$MESS ['customrank_delete'] = "Удалить";
+$MESS ['customrank_id'] = "ID";
+$MESS ['customrank_title'] = "Список правил сортировки";
+$MESS ['customrank_applied'] = "Обработано";
+$MESS ['customrank_saved'] = "Правила сохранены.";
+$MESS ['customrank_rules'] = "Правила";
+$MESS ['customrank_sort'] = "Вес";
+$MESS ['customrank_update'] = "Обновить";
+$MESS ['customrank_step2'] = "Шаг 2. Обновление поискового индекса";
+$MESS ['customrank_step1'] = "Шаг 1. Управление правилами сортировки";
+$MESS ['customrank_save_note'] = "После изменения или удаления правил нужно нажать кнопку \"Обновить\" для того чтобы изменения вступили в силу.";
+$MESS ['customrank_no'] = "(нет)";
+$MESS ['customrank_edit_error'] = "Ошибка изменения записи:";
+$MESS ['customrank_no_rule'] = "правило не найдено";
+$MESS ['customrank_add_title'] = "Нажмите для добавления нового правила сортировки";
+$MESS ['customrank_find'] = "Найти";
+$MESS ['customrank_find_title'] = "Введите строку для поиска";
+$MESS ['customrank_stop'] = "Остановить";
+$MESS ['customrank_error_delete'] = "Ошибка удаления правила.";
+$MESS ['customrank_delete_confirm'] = "Вы уверены, что хотите удалить данное правило?";
+$MESS ['customrank_progress'] = "Обновление поискового индекса.";
+?>

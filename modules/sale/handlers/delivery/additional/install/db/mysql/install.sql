@@ -1,0 +1,13 @@
+create table if not exists b_sale_hdale(
+	CODE varchar(100) NOT NULL,
+	ID INT NOT NULL,
+	NAME varchar(100) NOT NULL,
+	PCITY varchar(100) NULL,
+	PSUBREGION varchar(100) NULL,
+	PREGION varchar(100) NULL,
+	PCOUNTRY varchar(100) NULL,
+	LOCATION_ID INT NULL,
+	LOCATION_EXT_ID INT NULL,
+	PRIMARY KEY (CODE),
+	INDEX IX_BSHDALE_LOCATION_ID(LOCATION_ID)
+);

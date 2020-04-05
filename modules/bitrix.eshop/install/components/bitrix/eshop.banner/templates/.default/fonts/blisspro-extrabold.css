@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'BlissProExtraBold';
+    src: url('blisspro-extrabold.eot');
+    src: url('blisspro-extrabold.eot') format('embedded-opentype'),
+         url('blisspro-extrabold.woff') format('woff'),
+         url('blisspro-extrabold.ttf') format('truetype'),
+         url('blisspro-extrabold.svg#BlissProExtraBold') format('svg');
+}

@@ -1,0 +1,97 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none !important;
+	padding:6px 5px;
+	background:transparent;
+}
+
+.sonet_online
+{
+	color:#c30808;
+	font-weight:bold;
+	font-size:11px;
+}
+
+div#sonet_events_ms_message {
+	overflow:auto; 
+	overflow-y:visible;
+}
+
+div#sonet_events_div 
+{
+	position: absolute; 
+	z-index: 500;
+/*
+	right: 300px; 
+	top: 100px;
+*/	
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background: #FFFFFF;
+}
+
+td#sonet_events_message_td
+{
+	border: none;
+}
+
+a#sonet_events_ms_ban_link
+{
+	font-size:11px;
+}
+
+div#sonet_events_ms_date, div#sonet_events_gr_date, div#sonet_events_fr_date
+{
+	padding-top: 5px;
+}
+
+.sonet-events-blur
+{
+	background: transparent url(images/shadow1.png);
+	color: inherit;
+	margin-left: 4px;
+	margin-top: 4px;
+}
+
+.sonet-events-shadow, .sonet-events-content {
+	position: relative;
+	bottom: 2px;
+	right: 2px;
+}
+
+.sonet-events-shadow
+{
+	background: transparent url(images/shadow2.png);
+	color: inherit;
+}
+
+
+.sonet-events-content {
+	background-color: #fff; 
+}

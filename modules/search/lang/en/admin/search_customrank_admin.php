@@ -1,0 +1,33 @@
+<?
+$MESS["customrank_of"] = "of";
+$MESS["customrank_continue"] = "Continue";
+$MESS["customrank_site"] = "Site";
+$MESS["customrank_all"] = "(all)";
+$MESS["customrank_module"] = "Module";
+$MESS["customrank_param1"] = "Parameter 1";
+$MESS["customrank_add"] = "Add";
+$MESS["customrank_param2"] = "Parameter 2";
+$MESS["customrank_param3"] = "Parameter 3";
+$MESS["customrank_edit"] = "Modify";
+$MESS["customrank_delete"] = "Delete";
+$MESS["customrank_id"] = "ID";
+$MESS["customrank_title"] = "Sorting rules list";
+$MESS["customrank_applied"] = "Processed";
+$MESS["customrank_saved"] = "Rules saved.";
+$MESS["customrank_rules"] = "Rules";
+$MESS["customrank_sort"] = "Rank";
+$MESS["customrank_update"] = "Update";
+$MESS["customrank_step2"] = "Step 2. Search index update.";
+$MESS["customrank_step1"] = "Step 1. Ranking rules management.";
+$MESS["customrank_save_note"] = "After modifying or deleting rules, click the \"Update\" button for the changes to take effect.";
+$MESS["customrank_no"] = "(no)";
+$MESS["customrank_edit_error"] = "Error modifying a record:";
+$MESS["customrank_no_rule"] = "rule not found";
+$MESS["customrank_add_title"] = "Click to add a new rank rule";
+$MESS["customrank_find"] = "Find";
+$MESS["customrank_find_title"] = "Enter a search query";
+$MESS["customrank_stop"] = "Stop";
+$MESS["customrank_error_delete"] = "Error deleting rule.";
+$MESS["customrank_delete_confirm"] = "Are you sure you want to delete this rule?";
+$MESS["customrank_progress"] = "Refresh search index.";
+?>

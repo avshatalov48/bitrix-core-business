@@ -1,0 +1,1 @@
+{"version":3,"file":"fr.min.js","sources":["fr.js"],"names":["AmCharts","translations","dataLoader","fr","Error loading the file","Error parsing JSON file","Unsupported data format","Loading data..."],"mappings":"AAAAA,SAASC,aAAaC,WAAWC,IAC/BC,yBAA0B,uCAC1BC,0BAA2B,2CAC3BC,0BAA2B,2CAC3BC,kBAAmB"}

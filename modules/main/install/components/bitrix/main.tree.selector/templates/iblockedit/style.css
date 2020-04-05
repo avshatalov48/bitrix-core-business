@@ -1,0 +1,175 @@
+div.settings-float-form {
+	background-color:#F8F9FC;
+	border:1px solid #ABB7D8;
+	width:510px;
+	z-index: 100000;
+}
+
+div.settings-float-form div.content {
+	margin:0px;
+	padding:5px;
+	background-color:white;
+}
+
+div.settings-float-form div.content td {
+	font-size:70%;
+	padding:2px;
+}
+
+div.settings-float-form div.buttons {
+	text-align:center;
+	margin:10px;
+}
+
+div.settings-float-form h2 {
+	margin:8px 0px 8px 0px;
+	font-size:75%;
+}
+
+div.settings-float-form .button {
+	margin:2px 0px 2px 0px;
+	width:80px;
+}
+
+div.settings-float-form div.title {
+	background-color:#23468A;
+	background-image:url(images/title_bg.gif);
+	background-repeat:repeat-x;
+	background-position:left top;
+}
+
+div.settings-float-form div.title td.title-text {
+	font-size:11px;
+	font-weight:bold;
+	color:#EEF1F7;
+	padding:3px;
+	cursor:move;
+	vertical-align:top;
+	text-align: left;
+}
+
+div.settings-float-form a.close {
+	display:block;
+	width:13px;
+	height:13px;
+	background-image:url(images/close.gif);
+	overflow:hidden;
+	margin:3px;
+	background-repeat:no-repeat;
+	background-position:top left;
+}
+
+div.mts-section-list {
+	background-color:white;
+	overflow: auto;
+	height: 375px;
+}
+
+div.mts-section {
+	height: 21px;
+	white-space: nowrap;
+	overflow: hidden;
+	margin: 1px;
+	cursor: pointer;
+	background-position: left center;
+	background-repeat: repeat-x;
+	background-image: url(images/subgroup_bg.gif);
+	text-align: left;
+}
+
+div.mts-section-first {
+	height: 21px;
+	white-space: nowrap;
+	overflow: hidden;
+	margin: 1px;
+	cursor: pointer;
+	background-position: left center;
+	background-repeat: repeat-x;
+	background-image: url(images/group_bg_active.gif);
+	color: white;
+	text-align: left;
+}
+
+div.mts-section-name {
+	height: 21px;
+	padding-left: 25px;
+	white-space: nowrap;
+	overflow: hidden;
+	margin-bottom: 1px;
+	cursor: pointer;
+	background-repeat: no-repeat;
+	font-size: 12px;
+	line-height: 18px;
+}
+
+div.mts-section div.mts-section-name {
+	color: black;
+}
+
+div.mts-section div.mts-closed {
+	background-image: url(images/arrow_right.gif);
+	background-position: 10px 7px;
+}
+
+div.mts-section-first div.mts-closed {
+	background-image: url(images/arrow_right_white.gif);
+	background-position: 10px 7px;
+}
+
+div.mts-section-first div.mts-section-name {
+	color: white;
+}
+
+div.mts-section div.mts-opened {
+	background-image: url(images/arrow_down.gif);
+	background-position: 10px 8px;
+}
+
+div.mts-section-first div.mts-opened {
+	background-image: url(images/arrow_down_white.gif);
+	background-position: 10px 8px;
+}
+
+div.mts-list {
+	font-size: 11px;
+	text-align: left;
+}
+
+div.mts-row {
+	cursor: pointer;
+	margin-bottom: 2px;
+	clear: both;
+}
+
+div.mts-row input {
+	float: left;
+	margin-left: 5px;
+}
+
+div.mts-selected {
+	background-color: #f3f3e3;
+}
+
+input.bx-search-control-empty {
+	font-style: italic;
+	color: #CACACA;
+}
+
+div.mts-search-result {
+	background-color: white;
+	border: solid 1px #ABB7D8;
+	position: absolute;
+	width: 494px;
+	padding: 1px;
+	font-size: 12px;
+}
+
+div.mts-search-result-row {
+	padding: 2px;
+	margin: 1px;
+	cursor: pointer;
+}
+
+div.mts-search-result-row:hover, div.mts-search-result-row-selected {
+	background-color: #f3f3e3;
+}

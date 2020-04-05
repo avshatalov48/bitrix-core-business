@@ -1,0 +1,20 @@
+<?
+$MESS["CONVERSION_CALC_TITLE"] = "Модель окупаемости интернет-магазина";
+$MESS["CONVERSION_CALC_TITLE2"] = "Рентабельность магазина";
+$MESS["CONVERSION_CALC_INDICATORS"] = "Показатели рентабельности";
+$MESS["CONVERSION_CALC_GROSS_INCOME"] = "Валовый доход";
+$MESS["CONVERSION_CALC_ADVERT_BUDGET"] = "Рекламный бюджет";
+$MESS["CONVERSION_CALC_OTHER_EXPENSES"] = "Прочие расходы";
+$MESS["CONVERSION_CALC_PROFIT"] = "Итого";
+$MESS["CONVERSION_CALC_CONVERSION"] = "Конверсия";
+$MESS["CONVERSION_CALC_FUNNEL"] = "Воронка";
+$MESS["CONVERSION_CALC_CLICK_PRICE"] = "Цена за переход";
+$MESS["CONVERSION_CALC_NUMERATOR"] = "Кол-во заказов";
+$MESS["CONVERSION_CALC_DENOMINATOR"] = "Переходов";
+$MESS["CONVERSION_CALC_AVERAGE_BILL"] = "Средний чек";
+$MESS["CONVERSION_CALC_CPA"] = "Цена заказа (CPA)";
+$MESS["CONVERSION_CALC_MARGIN"] = "Наценка";
+$MESS["CONVERSION_CALC_ROI"] = "Окупаемость (ROI)";
+$MESS["CONVERSION_CALC_COST"] = "Себестоимость";
+$MESS["CONVERSION_CALC_PROFITABILITY"] = "Модель рентабельности";
+$MESS["CONVERSION_CALC_FORECAST"] = "Прогноз";

@@ -1,0 +1,33 @@
+<?
+$MESS["SUP_M_SUPPORT"] = "Helpdesk";
+$MESS["SUP_M_TICKETS"] = "Trouble tickets";
+$MESS["SUP_M_TICKETS_ALT"] = "Visitor trouble tickets";
+$MESS["SUP_M_REPORT_TABLE_ALT"] = "Tables of tickets distribution by various parameters";
+$MESS["SUP_M_REPORT_GRAPH"] = "Diagrams";
+$MESS["SUP_M_REPORT_GRAPH_ALT"] = "Graphic report of techsupport statistic parameters";
+$MESS["SUP_M_CATEGORY"] = "Category";
+$MESS["SUP_M_CRITICALITY"] = "Priority";
+$MESS["SUP_M_STATUS"] = "Status";
+$MESS["SUP_M_MARK"] = "Answer rates";
+$MESS["SUP_M_FUA"] = "Frequently used answers";
+$MESS["SUP_M_SOURCE"] = "Source";
+$MESS["SUP_M_DIFFICULTY"] = "Difficulty";
+$MESS["SUP_M_SLA"] = "Support levels";
+$MESS["SUP_M_DICT"] = "Reference book";
+$MESS["SUP_M_SUPPORT_TITLE"] = "Technical support management";
+$MESS["SUP_M_DICT_TITLE"] = "Reference book setting";
+$MESS["SUP_M_DIFFICULTY_TITLE"] = "Difficulty level";
+$MESS["SUP_M_GROUPS"] = "Groups";
+$MESS["SUP_M_GROUPS_TITLE"] = "Edit groups";
+$MESS["SUP_M_USER_IN_GROUPS"] = "Users in groups";
+$MESS["SUP_M_USER_IN_GROUPS_TITLE"] = "Users in groups";
+$MESS["SUP_M_COUPONS"] = "VIP Coupons";
+$MESS["SUP_M_COUPONS_TITLE"] = "Create and edit VIP coupons";
+$MESS["SUP_M_COUPONS_LOG"] = "Coupon usage log";
+$MESS["SUP_M_COUPONS_LOG_TITLE"] = "Coupon usage log";
+$MESS["SUP_M_REPORT_TABLE"] = "Techsupport Desktop";
+$MESS["SUP_M_TIMETABLE"] = "Schedules";
+$MESS["SUP_M_HOLIDAYS"] = "Exceptions";
+$MESS["SUP_M_SHEDULE"] = "Schedules";
+$MESS["SUP_M_SHEDULE_TITLE"] = "Schedules";
+?>

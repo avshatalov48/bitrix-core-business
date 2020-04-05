@@ -1,0 +1,29 @@
+<p>According to the "Model-View-Controller" methodology, custom
+component templates must not generate anything except for the HTML layout code.</p>
+
+
+<p>A <i>Controller</i> is the subject for implementation by the component core.
+The controller's main task is to process the input parameters, call the model
+methods, process information and pass it over to the view.</p>
+
+<p>A <i>Model</i> is the Bitrix Framework API classes, methods and functions.
+The controllers call the model to store, retrieve and search data.</p>
+
+<p>A <i>View</i> is the component template. It renders information to a viewer
+(a website visitor) by creating a valid HTML layout.</p>
+
+<p>A component template should passively receive information from the
+controller; it must not call the model or use any other active resources. The
+component template code should be clear and understandable for an HTML designer,
+not only for the developer who creates it. </p>
+
+<p>The presence of any logic that pertains to the controller or model will
+result in unreasonably complex component architecture, and may incur development
+errors and increase maintenance cost. </p>
+
+
+<ul>
+  <li>Check that all of the custom component templates has understandable logic
+    and clear code and does not do anything except for the creation of HTML
+    layout.</li>
+</ul>

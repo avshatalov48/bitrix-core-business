@@ -1,0 +1,29 @@
+<?
+$MESS ['FM_FLT_SEARCH_TITLE'] = "Введите строку для поиска";
+$MESS ['FM_FLT_SEARCH'] = "Найти";
+$MESS ['FM_FLT_FORUM'] = "Форум";
+$MESS ['FM_FLT_TOPIC'] = "Тема";
+$MESS ['FM_FLT_START_DATE'] = "Дата начала подписки";
+$MESS ['FM_FLT_START_DATE_ALT'] = "Дата начала подписки";
+$MESS ['FM_FLT_SUBSCR_TYPE'] = "Вид подписки";
+$MESS ['FM_FLT_SUBSCR_TYPE_ALT'] = "Вид подписки";
+$MESS ['FM_LIST_USER'] = "Список пользователей";
+$MESS ['FM_ACT_DELETE'] = "Удалить";
+$MESS ['FM_TITLE'] = "Подписки пользователя ";
+$MESS ['FM_TITLE_PAGE'] = "Подписки пользователя";
+$MESS ['FM_HEAD_ID'] = "ID";
+$MESS ['FM_HEAD_FORUM'] = "Форум";
+$MESS ['FM_HEAD_TOPIC'] = "Тема";
+$MESS ['FM_HEAD_START_DATE'] = "Начало подписки";
+$MESS ['FM_HEAD_LAST_SEND'] = "Последнее сообщение";
+$MESS ['FM_NEW_TOPIC_ONLY'] = "Только новые темы";
+$MESS ['FM_ALL_MESSAGE'] = "Все сообщения форума";
+$MESS ['FM_TYPICAL'] = "Новые сообщения темы";
+$MESS ['FM_WRONG_DATE_FROM'] = "Введите в фильтре правильную \"Дату создания\" \"c\"";
+$MESS ['FM_WRONG_DATE_TO'] = "Введите в фильтре правильную \"Дату создания\" \"по\"";
+$MESS ['FM_WRONG_PERIOD'] = "Не правильно указан период";
+$MESS ['FM_WRONG_USER_ID'] = "Нет ID пользователя";
+$MESS ['FSUBSC_NO_SPERMS'] = "Не достаточно прав для изменения подписки.";
+$MESS ['FM_ACT_DEL_CONFIRM'] = "Вы действительно хoтите удалить подписку?";
+$MESS ['FM_SPACE'] = "Не выбрано";
+?>

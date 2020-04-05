@@ -1,0 +1,30 @@
+<?
+$MESS ['FLOW_DOCUMENT_LIST'] = "Список документов";
+$MESS ['FLOW_RECORD_NOT_FOUND'] = "Неверный ID записи, либо запись не найдена";
+$MESS ['FLOW_PAGE_TITLE'] = "Запись # #ID#";
+$MESS ['FLOW_PAGE_DIFF_TITLE'] = "Сравнение документов # #ID# и # #PREV_ID#";
+$MESS ['FLOW_HISTORY'] = "История";
+$MESS ['FLOW_STATUS'] = "Статус:";
+$MESS ['FLOW_FILENAME'] = "Имя файла:";
+$MESS ['FLOW_TITLE'] = "Заголовок:";
+$MESS ['FLOW_TEXT'] = "Текст";
+$MESS ['FLOW_DOCUMENT_ID'] = "ID документа:";
+$MESS ['FLOW_DOCUMENT_FILENAME'] = "Имя файла:";
+$MESS ['FLOW_DOCUMENT_TITLE'] = "Заголовок:";
+$MESS ['FLOW_DOCUMENT_DATE_ENTER'] = "Создан:";
+$MESS ['FLOW_DOCUMENT_DATE_MODIFY'] = "Изменен:";
+$MESS ['FLOW_DOCUMENT_DATE_LOCK'] = "Блокирован:";
+$MESS ['FLOW_DOCUMENT_STATUS'] = "Статус:";
+$MESS ['FLOW_CURRENT_SETTINGS'] = "Текущие параметры";
+$MESS ['FLOW_RECORD_SETTINGS'] = "Документ";
+$MESS ['FLOW_TIMESTAMP'] = "Изменен:";
+$MESS ['FLOW_COMMENTS'] = "Комментарий:";
+$MESS ['FLOW_HIST_VIEW_SITE'] = "Сайт:";
+$MESS ['FLOW_PAGE_PARAM_TITLE'] = "Текущие параметры документа";
+$MESS ['FLOW_BACK'] = "Вернуться в список";
+$MESS ['FLOW_USER_ALT'] = "Просмотреть информацию о пользователе";
+$MESS ['FLOW_STATUS_ALT'] = "Просмотреть информацию о статусе";
+$MESS ['FLOW_VIEW_DOC_ALT'] = "Просмотреть исходный документ";
+$MESS ['FLOW_VIEW_FILE_ALT'] = "Просмотреть файл";
+$MESS ['FLOW_SITE_ALT'] = "Просмотреть информацию о сайте";
+?>

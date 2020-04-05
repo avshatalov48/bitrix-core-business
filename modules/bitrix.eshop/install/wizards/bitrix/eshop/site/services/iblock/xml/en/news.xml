@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<CommerceInformation SchemaVersion="2.021" CreationDate="2010-08-10T13:42:45">
+	<Metadata>
+		<Id>furniture_news</Id>
+		<Title>News</Title>
+		<Properties>
+			<Property>
+				<Id>CML2_ACTIVE</Id>
+				<Title>BitrixActive</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_CODE</Id>
+				<Title>Code</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_SORT</Id>
+				<Title>Sort</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_FROM</Id>
+				<Title>Start time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_TO</Id>
+				<Title>End time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_TEXT</Id>
+				<Title>Anons</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_PICTURE</Id>
+				<Title>Preview picture</Title>
+				<Multiple>false</Multiple>
+			</Property>
+		</Properties>
+		<Sections>
+		</Sections>
+	</Metadata>
+	<Catalog>
+		<Id>furniture_news</Id>
+		<MetadataId>furniture_news</MetadataId>
+		<Title>News</Title>
+		<BitrixCode>furniture_news</BitrixCode>
+		<BitrixSort>500</BitrixSort>
+		<BitrixListURL>#SITE_DIR#/news/</BitrixListURL>
+		<BitrixDetailURL>#SITE_DIR#/news/#ELEMENT_CODE#/</BitrixDetailURL>
+		<BitrixSectionURL></BitrixSectionURL>
+		<BitrixPicture></BitrixPicture>
+		<BitrixIndexElements>true</BitrixIndexElements>
+		<BitrixIndexSections>false</BitrixIndexSections>
+		<BitrixWorkflow>false</BitrixWorkflow>
+		<BitrixLabels>
+			<BitrixLabel>
+				<Id>ELEMENT_NAME</Id>
+				<Value>News</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENTS_NAME</Id>
+				<Value>News</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_ADD</Id>
+				<Value>Add News</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_EDIT</Id>
+				<Value>Edit News</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_DELETE</Id>
+				<Value>Delete News</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_NAME</Id>
+				<Value>Section</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTIONS_NAME</Id>
+				<Value>Sections</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_ADD</Id>
+				<Value>Add new section</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_EDIT</Id>
+				<Value>Edit section</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_DELETE</Id>
+				<Value>Delete section</Value>
+			</BitrixLabel>
+		</BitrixLabels>
+		<Elements>
+			<Element>
+				<Id>1</Id>
+				<Title>North Sea Furniture Forum</Title>
+				<BitrixTags></BitrixTags>
+				<Description>&lt;p&gt;From the 20th to the 24th of September, 2012, the &lt;strong&gt;North Sea Furniture Forum&lt;/strong&gt; will be held in the Trondheim, Norway. More than 160 companies from Norway, the Netherlands, Denmark, the UK, and Germany will be present.  Four pavilions will hold expositions with the themes of &lt;em&gt;Scandinavian Home&lt;/em&gt;, &lt;em&gt;Office Comfort&lt;/em&gt;, &lt;em&gt;Kitchen&lt;/em&gt;, and &lt;em&gt;Household Technology&lt;/em&gt;. Both furniture and furniture production technology will be on display.  &lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;Ready-made furniture will include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;upholstered furniture;&lt;/li&gt;
+&lt;li&gt;children’s furniture;&lt;/li&gt;
+&lt;li&gt;interior d&amp;#233;cor and accessories;&lt;/li&gt;
+&lt;li&gt;kitchen furnishings;&lt;/li&gt;
+&lt;li&gt;office furniture and accessories.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Besides the large assortment of exhibited furniture, the Forum will include several presentations, key-note speeches, seminars, panel discussions and master classes. Several prizes will be given out various categories.  Among these, the prestigious Market Changer prize already has several strong nominees – be sure to put your favorite innovation on the list!  &lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;The North Sea Furniture Forum is one of the most influential annual events in the furniture industry.   Without fail, the most recognized names and up-and-coming producers gather each year at the Forum to take the measure of and to shape the current trends.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Registration is open until August 24, 2012.&lt;/em&gt;&lt;/p&gt;</Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value>north_sea_furniture_forum</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value>2012-10-25 00:00:00</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value>From the 20th to the 24th of September, 2012, the &lt;strong&gt;North Sea Furniture Forum&lt;/strong&gt; will be held in the Trondheim, Norway.  </Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+			<Element>
+				<Id>8</Id>
+				<Title>SALON DEL MOBILE 2012</Title>
+				<BitrixTags></BitrixTags>
+				<Description>The 2012 version of Salon del Mobile promises to be the best ever. Home, office, hotel, and VIP-class business furniture and accessories from 38 countries and delegates from over 1500 companies will be present. Over the course of the show, over 300,000 visitors will be present.&lt;br /&gt;
+The total exhibition area is almost 150 000 square meters.&lt;br /&gt;
+This truly magnificent event will celebrate its tenth anniversary in grand fashion.</Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value>salon_del_mobile_2012</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value>2012-10-26 00:00:00</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value>Furniture Exposition October 30, 2012&lt;br /&gt;
+The 2012 version of Salon del Mobile promises to be the best ever.</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+			<Element>
+				<Id>9</Id>
+				<Title>Durable, water-resistant connection developed</Title>
+				<BitrixTags></BitrixTags>
+				<Description>&lt;b&gt;Inventors&lt;/b&gt;: Finn Classen and Emily Palmer&lt;br /&gt;
+              Patent of the European Union number EU2277566&lt;br /&gt;
+              &lt;h3&gt;Description&lt;/h3&gt;
+              &lt;p&gt;The invention is an adhesive compound which can be used in the lumber, furniture and construction industries. The invention is applied in a hot-press and contains several hardening agents.  The innovative ingredient is a carbamide-formaldehyde resin with a co-polymer of acryllonitrile and N-vinylaprolactam and a hardening agent.  The ideal hardener for most applications is ammonium chloride or acrylate.&lt;/p&gt;
+
+              &lt;p&gt;The invention forms a water-resistant and durable connection.  The properties of the connection are obtained because the glue contain a synthetic resin and hardener with an added modifying agent of carbamide-formaldehyde resin.  The composition by mass is:
+              &lt;/p&gt;
+              &lt;table cellspacing=&quot;10&quot;&gt;
+              &lt;tr&gt;
+              &lt;td&gt;Carbamide-formaldehyde resin&lt;/td&gt;&lt;td&gt;64,5-79,2&lt;/td&gt;
+              &lt;/tr&gt;	
+              &lt;tr&gt;
+              &lt;td&gt;10% picric acid solution&lt;/td&gt;&lt;td&gt;4,4-20,5&lt;/td&gt;
+
+              &lt;/tr&gt;
+              &lt;tr&gt;
+              &lt;td&gt;Hardener  &lt;/td&gt;&lt;td&gt;0,6-2,0&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+              &lt;td&gt;Resin 2542&lt;/td&gt;&lt;td&gt;13,0-15,8&lt;/td&gt;
+
+              &lt;/tr&gt;	
+              &lt;/table&gt;
+</Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value>durable_water_resistant_connection_developed</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value>2012-10-27 00:00:00</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value>Durable, waterproof connection developed.</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+		</Elements>
+	</Catalog>
+</CommerceInformation>

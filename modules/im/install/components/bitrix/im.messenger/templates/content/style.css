@@ -1,0 +1,9 @@
+.im-desktop-content #workarea { height: auto; }
+.im-desktop-content .bx-messenger-box { margin: 0; border-top: 0; width: auto;}
+.im-desktop-content .bx-messenger-history { margin: 0; width: auto; }
+.im-desktop-content .bx-notifier-indicator:hover { background: none; }
+.im-desktop-content .bx-notifier-hide { display: inline-block}
+.im-desktop-content .bx-desktop-content-overflow { overflow:auto; height: 450px; background-color: #fff; }
+.im-desktop-content .placeholder-lf { padding-top: 20px;}
+.im-desktop-content #header {  min-width: 660px;  overflow: hidden;  }
+table.bx-layout-inner-inner-table td.bx-layout-inner-inner-cont { padding-right: 20px!important; }

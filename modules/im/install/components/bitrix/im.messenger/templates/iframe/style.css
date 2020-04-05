@@ -1,0 +1,5 @@
+.bx-im-fullscreen { background: #000; overflow: hidden; width: 100%; height: 100%; position: absolute; }
+.bx-im-fullscreen .bx-desktop-placeholder { display: inline-block;  width: 100%; overflow: hidden;  text-align: left; position: relative; }
+.bx-im-fullscreen .bx-desktop-appearance-menu { }
+.bx-im-fullscreen .bx-messenger-box-contact { box-shadow: none; }
+.bx-im-fullscreen .bx-desktop-appearance-content { box-shadow: none;  }

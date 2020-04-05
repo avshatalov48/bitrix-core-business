@@ -1,0 +1,33 @@
+<?
+$MESS["SONET_I_IBLOCK_TYPE_NAME"] = "Auto Catalog";
+$MESS["SONET_I_IBLOCK_NAME"] = "Auto Catalog";
+$MESS["SONET_I_USER_PROP_EFL"] = "Car Model";
+$MESS["SONET_I_USER_PROP_LCL"] = "Car Model";
+$MESS["SONET_I_USER_PROP_LFL"] = "Car Model";
+$MESS["SONET_GROUP_SUBJECT_0"] = "Models";
+$MESS["SONET_GROUP_SUBJECT_1"] = "Interests";
+$MESS["SONET_GROUP_SUBJECT_2"] = "Service";
+$MESS["SONET_GROUP_NAME_0"] = "Auto Service";
+$MESS["SONET_GROUP_NAME_1"] = "VOLKSWAGEN Club";
+$MESS["SONET_GROUP_NAME_2"] = "Auto Sport";
+$MESS["SONET_GROUP_NAME_3"] = "Car Tuning";
+$MESS["SONET_GROUP_NAME_4"] = "4x4";
+$MESS["SONET_GROUP_DESCRIPTION_0"] = "Car defects, simple and easy ways of their detection and elimination in field conditions.";
+$MESS["SONET_GROUP_DESCRIPTION_1"] = "VOLKSWAGEN car lovers, unite!";
+$MESS["SONET_GROUP_DESCRIPTION_2"] = "Cars and sport.";
+$MESS["SONET_GROUP_DESCRIPTION_3"] = "All about car tuning.";
+$MESS["SONET_GROUP_DESCRIPTION_4"] = "All about off-road vehicles.";
+$MESS["SONET_GROUP_KEYWORDS_0"] = "repair, service, car, auto";
+$MESS["SONET_GROUP_KEYWORDS_1"] = "volkswagen, golf";
+$MESS["SONET_GROUP_KEYWORDS_2"] = "sport, driving, race, auto";
+$MESS["SONET_GROUP_KEYWORDS_3"] = "service, auto, tuning";
+$MESS["SONET_GROUP_KEYWORDS_4"] = "off-roadster, jeep, car";
+$MESS["SONET_I_FORUM_NAME"] = "Social Network Forum";
+$MESS["SONET_I_BLOG_NAME"] = "Social Network Blogs";
+$MESS["SONET_I_PHOTO_IBLOCK_TYPE_NAME"] = "Gallery";
+$MESS["SONET_I_IBLOCK_PHOTO_USER_NAME"] = "Social Network User's Galleries";
+$MESS["SONET_I_IBLOCK_PHOTO_GROUP_NAME"] = "Social Network Group Galleries";
+$MESS["SONET_I_FEATURE_FORUM"] = "Forum";
+$MESS["SONET_I_FEATURE_BLOG"] = "Blog";
+$MESS["SONET_I_VOTE_NAME"] = "Social Network Forum Polls";
+?>

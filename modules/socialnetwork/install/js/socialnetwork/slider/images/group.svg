@@ -1,0 +1,48 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" class="defs-only" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect width="100%" height="1200" fill="#EBF1F4"/>
+        <rect fill="#FFFFFF" width="100%" height="445" x="20" y="78"/>
+        <rect fill="#F8F9FA" width="100%" height="196" x="35" y="255"/>
+
+    </svg>
+
+    <svg height="1200">
+        <defs>
+            <g id="a2">
+                <rect x="50" y="34"  width="50%" height="12"/>
+                <rect x="54" y="106" width="33%" height="8"/>
+                <rect x="54" y="282" width="33%" height="8"/>
+                <rect x="54" y="346" width="33%" height="8"/>
+                <rect x="54" y="410" width="33%" height="8"/>
+                <rect x="54" y="478" width="45%" height="8"/>
+                <line x1="35" y1="144" x2="2000" y2="144" stroke-width="1" stroke="#9EA6AD"/>
+                <line x1="35" y1="248" x2="2000" y2="248" stroke-width="1" stroke="#9EA6AD"/>
+                <line x1="52" y1="316" x2="2000" y2="316" stroke-width="1" stroke="#9EA6AD"/>
+                <line x1="52" y1="380" x2="2000" y2="380" stroke-width="1" stroke="#9EA6AD"/>
+            </g>
+        </defs>
+        <use xlink:href="#a2" fill="#9EA6AD" opacity="0.2" x="0" y="0"  preserveAspectRatio="none"/>
+    </svg>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#c1)" height="1200"/>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <mask id="c1" fill="white">
+        <use xlink:href="#a2" x="0" y="0"  preserveAspectRatio="none"/>
+    </mask>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+    <svg viewBox="0 0 100% 1200" height="1200px">
+        <rect fill="#EBF1F4" width="20"   height="1200" x="100%" y="0"   transform="translate(-20, 0)"/>
+        <rect fill="#FFFFFF" width="15"   height="445"  x="20"   y="78"/>
+        <rect fill="#FFFFFF" width="15"   height="445"  x="100%" y="78"  transform="translate(-35, 0)"/>
+        <rect fill="#F8F9FA" width="15"   height="196"  x="100%" y="255" transform="translate(-50, 0)"/>
+    </svg>
+
+</svg>

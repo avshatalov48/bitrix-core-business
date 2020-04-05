@@ -1,0 +1,52 @@
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings-cont
+{
+	display: inline-block;
+	float: right;
+	position: relative;
+	width: 40px;
+	height: 34px;
+}
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings
+{
+	background: transparent url("../main/images/bx-admin-sprite-small-1.png") no-repeat scroll 2px -855px;
+	display: inline-block;
+	font-size:11px;
+	height:15px;
+	right:10px;
+	top:10px;
+	position:absolute;
+	float: right;
+	width:20px;
+	cursor: pointer;
+}
+
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings-active
+{
+	background-position:2px -4138px;
+}
+
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings-arrow
+{
+	padding-right:10px;
+}
+
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings-arrow:after
+{
+	background: transparent url("../main/images/bx-admin-sprite-small-1.png") no-repeat scroll 0 -3313px;
+	content:"";
+	height:3px;
+	right:0;
+	top:7px;
+	position:absolute;
+	width:5px;
+}
+
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings:hover
+{
+	background-position: 4px -1683px;
+}
+
+.bx-core-adm-dialog .bx-core-adm-dialog-tabs .adm-detail-subsettings-arrow:hover:after
+{
+	background-position:0 -3323px;
+}

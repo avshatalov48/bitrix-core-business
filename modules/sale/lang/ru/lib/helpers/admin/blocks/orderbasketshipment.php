@@ -1,0 +1,27 @@
+<?
+$MESS["SALE_ORDER_SHIPMENT_BASKET_COMPOSITION"] = "Состав отгрузки";
+$MESS["SALE_ORDER_BASKET_ROW_SETTINGS"] = "Настроить колонки";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ALL_PRODUCTS_DEL"] = "Вы действительно хотите удалить все товары из отгрузки?";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_SELECTED_PRODUCTS_DEL"] = "Вы действительно хотите удалить выбранные товары из отгрузки?";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ADD"] = "Добавить";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ADD_NEW_STORE"] = "Добавить склад";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_CLOSE"] = "Закрыть";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_NO_PRODUCTS"] = "Доступных товаров для отгрузки нет";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE"] = "Штрихкод";
+$MESS["SALE_ORDER_SHIPMENT_VIEW_BASKET_NO_PRODUCTS"] = "Отгрузка пуста";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE_ALREADY_USED"] = "Данный штрихкод уже введен";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_FIND_BY_BARCODE"] = "Найти по штрихкоду";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_FIND"] = "Найти";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_GOODS_ALL"] = "Всего товаров";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_GOODS_SELECTED"] = "Выделено";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_PAGE"] = "Страница #CURRENT_PAGE# из #COUNT_PAGE#";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_APPLY"] = "Применить действие для всех записей в списке";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_APPLY_FOR_ALL"] = "Для всех";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_DELETE_ITEMS"] = "Удалить записи";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE"] = "Штрихкоды";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE_CLOSE"] = "Закрыть";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE_ENTER"] = "Введите штрихкоды";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_ALREADY_SHIPPED"] = "Отгрузка отгружена. Работа с корзиной невозможна";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_NOT_FOUND"] = "Товар с данным штрихкодом не найден";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_QUANTITY"] = "#BASKET_ITEM#: указано некорректное количество";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE_EMPTY"] = "Штрихкоды не введены";

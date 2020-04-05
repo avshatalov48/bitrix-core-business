@@ -1,0 +1,34 @@
+<?
+$MESS ['IBEL_BIZPROC_STOP'] = "остановить";
+$MESS ['IBEL_BIZPROC_DEL'] = "удалить";
+$MESS ['IBEL_BIZPROC_LOG'] = "журнал";
+$MESS ['IBEL_BIZPROC_DATE'] = "Дата текущего состояния";
+$MESS ['IBEL_BIZPROC_STATE'] = "Текущий статус";
+$MESS ['IBEL_BIZPROC_RUN_CMD'] = "Выполнить команду";
+$MESS ['IBEL_BIZPROC_RUN_CMD_NO'] = "Не выполнять";
+$MESS ['IBEL_BIZPROC_TASKS'] = "Задачи по бизнес-процессу";
+$MESS ['IBEL_BIZPROC_NEW'] = "Новый бизнес-процесс";
+$MESS ['IBEL_BIZPROC_START'] = "Запустить новый бизнес-процесс";
+$MESS ['IBEL_BIZPROC_SAVE'] = "Сохранить";
+$MESS ['IBEL_BIZPROC_APPLY'] = "Применить";
+$MESS ['IBEL_BIZPROC_CANCEL'] = "Отменить";
+$MESS ['IBEL_BIZPROC_MODIFICATION'] = "Последние изменения";
+$MESS ['BPABL_TYPE_1'] = "Запущено действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_2'] = "Завершено действие '#ACTIVITY#' со статусом '#STATUS#' и результатом '#RESULT#'#NOTE#";
+$MESS ['BPABL_TYPE_3'] = "Отменено действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_4'] = "Ошибка действия '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_5'] = "Действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_6'] = "Что-то сделали с действием '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_STATUS_1'] = "Инициализировано";
+$MESS ['BPABL_STATUS_2'] = "Выполняется";
+$MESS ['BPABL_STATUS_3'] = "Отменяется";
+$MESS ['BPABL_STATUS_4'] = "Завершено";
+$MESS ['BPABL_STATUS_5'] = "Ошибка";
+$MESS ['BPABL_STATUS_6'] = "Не определено";
+$MESS ['BPABL_RES_1'] = "Нет";
+$MESS ['BPABL_RES_2'] = "Успешно";
+$MESS ['BPABL_RES_3'] = "Отменено";
+$MESS ['BPABL_RES_4'] = "Ошибка";
+$MESS ['BPABL_RES_5'] = "Не инициализировано";
+$MESS ['BPABL_RES_6'] = "Не определено";
+?>

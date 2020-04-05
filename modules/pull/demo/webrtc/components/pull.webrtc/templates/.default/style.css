@@ -1,0 +1,106 @@
+.ycp-webrtc {
+	border: 1px solid #baced3;
+	border-radius: 3px;
+	padding: 11px;
+	padding-bottom: 6px;
+	display: inline-block;
+	box-shadow: 0 0 4px rgba(0,0,0,.2);
+}
+
+.ycp-webrtc-video {
+	background: #000; width: 320px; height: 240px;
+	box-shadow: inset 0 1px 2px #fff, inset 0 -1px 2px #fff, inset -1px 0 2px #fff, inset 1px 0 2px #fff;
+}
+
+.ycp-webrtc-video-self {
+	position: absolute;
+	margin-top: 137px;
+	margin-left: 186px;
+	background: #000; width: 120px; height: 90px;
+	border: 2px solid #fff;
+	box-shadow: inset 0 1px 2px #fff, inset 0 -1px 2px #fff, inset -1px 0 2px #fff, inset 1px 0 2px #fff;
+	opacity: 0;
+	transition: opacity 1s;
+}
+.ycp-webrtc-video-self-show {
+	opacity: 1;
+}
+
+.ycp-webrtc-controls {
+	padding-top: 6px;
+	text-align: center;
+}
+
+.ycp-webrtc-controls-input {
+	padding:2px;
+	color: #5b5b5b;
+	border: 1px solid #b9bcbe;
+	border-radius:2px;
+	box-shadow:0 1px 2px rgba(0, 0, 0, 0.14) inset;
+	line-height: 19px;
+	width: 104px;
+	padding-left: 12px;
+	margin-right: 3px;
+	vertical-align: top;
+	height: 19px;
+}
+
+.ycp-webrtc-controls-btn {
+	background-color: #a3c21e;
+	background-image: -webkit-linear-gradient(top, #bbd222, #a0c01d, #79a715);
+	background-image:    -moz-linear-gradient(top, #bbd222, #a0c01d, #79a715);
+	background-image:     -ms-linear-gradient(top, #bbd222, #a0c01d, #79a715);
+	background-image:      -o-linear-gradient(top, #bbd222, #a0c01d, #79a715);
+	background-image:         linear-gradient(to bottom, #bbd222, #a0c01d, #79a715);
+	box-shadow: inset 0 1px 0 #a3c926, inset 0 2px 0 #cedf2b, inset 0 -1px 0 #749913;
+	display: inline-block;
+	border-radius: 3px;
+	color: #fff;
+	cursor: pointer;
+	font-size: 12px;
+	height: 25px;
+	line-height: 26px;
+	padding: 0 14px;
+	margin-left: 3px;
+	margin-right: 3px;
+}
+.ycp-webrtc-controls-btn:hover {
+	background-image: -webkit-linear-gradient(top, #c4dd50, #91be47);
+	background-image:    -moz-linear-gradient(top, #c4dd50, #91be47);
+	background-image:     -ms-linear-gradient(top, #c4dd50, #91be47);
+	background-image:      -o-linear-gradient(top, #c4dd50, #91be47);
+	background-image:         linear-gradient(to bottom, #c4dd50, #91be47);
+}
+.ycp-webrtc-controls-btn:active {
+	box-shadow: inset 0 1px 0 #5b7416, inset 0 2px 0 #617e12, inset 0 -1px 0 #6f920d;
+	background-image: -webkit-linear-gradient(top, #6f920d, #779c09);
+	background-image:    -moz-linear-gradient(top, #6f920d, #779c09);
+	background-image:     -ms-linear-gradient(top, #6f920d, #779c09);
+	background-image:      -o-linear-gradient(top, #6f920d, #779c09);
+	background-image:         linear-gradient(to bottom, #6f920d, #779c09);
+}
+
+.ycp-webrtc-controls-btn-red {
+	background-color: #da4b49;
+	background-image: -webkit-linear-gradient(top, #e35957, #da4b49, #cb3936);
+	background-image:    -moz-linear-gradient(top, #e35957, #da4b49, #cb3936);
+	background-image:     -ms-linear-gradient(top, #e35957, #da4b49, #cb3936);
+	background-image:      -o-linear-gradient(top, #e35957, #da4b49, #cb3936);
+	background-image:         linear-gradient(to bottom, #e35957, #da4b49, #cb3936);
+	box-shadow: inset 0 1px 0 #d55250, inset 0 2px 0 #f28785, inset 0 -1px 0 #b70700;
+}
+.ycp-webrtc-controls-btn-red:hover {
+	background-image: -webkit-linear-gradient(top, #e84442, #cb2c29);
+	background-image:    -moz-linear-gradient(top, #e84442, #cb2c29);
+	background-image:     -ms-linear-gradient(top, #e84442, #cb2c29);
+	background-image:      -o-linear-gradient(top, #e84442, #cb2c29);
+	background-image:         linear-gradient(to bottom, #e84442, #cb2c29);
+}
+.ycp-webrtc-controls-btn-red:active {
+	box-shadow: inset 0 1px 0 #d55250, inset 0 2px 0 #864f4e, inset 0 -1px 0 #b70700;
+	background-image: -webkit-linear-gradient(top, #6f920d, #779c09);
+	background-image:    -moz-linear-gradient(top, #6f920d, #779c09);
+	background-image:     -ms-linear-gradient(top, #6f920d, #779c09);
+	background-image:      -o-linear-gradient(top, #6f920d, #779c09);
+	background-image:         linear-gradient(to bottom, #cb3936, #e35957);
+}

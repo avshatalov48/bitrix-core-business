@@ -1,0 +1,7 @@
+<?
+$MESS['FORM_VALIDATOR_VAL_TEXT_LEN_DESCRIPTION'] = "Длина строки";
+$MESS['FORM_VALIDATOR_VAL_TEXT_LEN_SETTINGS_LENGTH_FROM'] = "Минимальная длина";
+$MESS['FORM_VALIDATOR_VAL_TEXT_LEN_SETTINGS_LENGTH_TO'] = "Максимальная длина";
+$MESS['FORM_VALIDATOR_VAL_TEXT_LEN_ERROR_LESS'] = "#FIELD_NAME#: слишком короткое значение";
+$MESS['FORM_VALIDATOR_VAL_TEXT_LEN_ERROR_MORE'] = "#FIELD_NAME#: слишком длинное значение";
+?>

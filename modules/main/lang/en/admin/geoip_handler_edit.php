@@ -1,0 +1,35 @@
+<?
+$MESS["GEOIP_EDIT_TITLE"] = "Geolocation Handler Settings";
+$MESS["GEOIP_EDIT_LIST"] = "List";
+$MESS["GEOIP_EDIT_LIST_T"] = "Geolocation handlers";
+$MESS["GEOIP_EDIT_DELETE"] = "Delete";
+$MESS["GEOIP_EDIT_DELETE_T"] = "Delete geolocation handler";
+$MESS["GEOIP_EDIT_DELETE_CONFIRM"] = "Are you sure you want to delete handler settings?";
+$MESS["GEOIP_EDIT_MAIN_SETTINGS"] = "Common";
+$MESS["GEOIP_EDIT_MAIN_SETTINGS_T"] = "Settings common to all handlers";
+$MESS["GEOIP_EDIT_SPECIFIC_SETTINGS"] = "Additional";
+$MESS["GEOIP_EDIT_SPECIFIC_SETTINGS_T"] = "Handler specific settings";
+$MESS["GEOIP_EDIT_SPECIFIC_ABSENT"] = "None";
+$MESS["GEOIP_EDIT_F_ID"] = "ID";
+$MESS["GEOIP_EDIT_F_TITLE"] = "Name";
+$MESS["GEOIP_EDIT_F_DESCRIPTION"] = "Description";
+$MESS["GEOIP_EDIT_F_ACTIVE"] = "Active";
+$MESS["GEOIP_EDIT_F_IS_INSTALLED"] = "Installed";
+$MESS["GEOIP_EDIT_F_SORT"] = "Sort";
+$MESS["GEOIP_EDIT_F_LANG"] = "Languages";
+$MESS["GEOIP_EDIT_F_CLASS"] = "Class";
+$MESS["GEOIP_EDIT_PROVIDING_INFO"] = "Information provided";
+$MESS["GEOIP_EDIT_PI_ASN"] = "Autonomous system number (ASN)";
+$MESS["GEOIP_EDIT_PI_COUNTRY_CODE"] = "Country code";
+$MESS["GEOIP_EDIT_PI_COUNTRY_NAME"] = "Country name";
+$MESS["GEOIP_EDIT_PI_REGION_NAME"] = "Region name";
+$MESS["GEOIP_EDIT_PI_REGION_CODE"] = "Region code";
+$MESS["GEOIP_EDIT_PI_SUBREGION_NAME"] = "Area name";
+$MESS["GEOIP_EDIT_PI_CITY_NAME"] = "City";
+$MESS["GEOIP_EDIT_PI_ZIP"] = "Zip code";
+$MESS["GEOIP_EDIT_PI_LAT"] = "Latitude";
+$MESS["GEOIP_EDIT_PI_LON"] = "Longitude";
+$MESS["GEOIP_EDIT_PI_TIMEZONE"] = "Time zone";
+$MESS["GEOIP_EDIT_PI_ISP"] = "ISP";
+$MESS["GEOIP_EDIT_PI_ORG"] = "Organization";
+?>

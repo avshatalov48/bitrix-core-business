@@ -1,0 +1,6 @@
+<?
+$MESS["LEARNING_TEST_SELF_NAME"]="Self test";
+$MESS["LEARNING_TEST_SELF_DESC"]="Self test";
+$MESS["LEARNING_SERVICE"]="e-Learning";
+$MESS["LEARNING_TEST_SERVICE"]="Tests";
+?>

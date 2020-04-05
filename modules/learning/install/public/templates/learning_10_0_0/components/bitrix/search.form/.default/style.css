@@ -1,0 +1,57 @@
+/* Search */
+#search { position:absolute; right:46px; top: 4px; width: 210px; overflow: hidden;}
+
+#search form { padding:0; margin:0;}
+
+.search-box
+{
+	display: block;
+	width:140px;
+	border: 1px solid #d6d6d6; 
+	overflow:hidden;
+	vertical-align: middle;
+	margin-right: 4px;
+	background: #fff;
+	font-size:1px;
+	
+}
+
+.search-box input
+{
+	border:none;
+	border:0;
+	width: 135px;
+	height: 23px;
+	padding:0;
+	margin:0;
+	vertical-align: middle;
+	font-size: 16px;
+}
+
+* html .search-box input { height: 21px; }
+
+.search-button { display: block; float: right; width: 64px; vertical-align: middle; margin-top: 1px;}
+
+.search-button input 
+{
+	display: inline-block;
+	border:none;
+	width:64px;
+	padding:0;
+	margin:0;
+	font-family: Georgia, serif;
+	font-size: 12px;
+	height: 23px;
+	cursor: pointer;
+	cursor: hand;
+	outline: none;	
+	vertical-align: top;
+	background: #61839e url(images/search-button.png) no-repeat;
+	color: #fff;
+}
+
+#search input::-moz-focus-inner /*Remove button padding in FF*/
+{ 
+    border: 0;
+    padding: 0;
+}

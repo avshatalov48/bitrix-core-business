@@ -1,0 +1,37 @@
+<?
+$MESS ['PERSON_TYPE_TITLE'] = "Тип плательщика";
+$MESS ['ERROR_ADD_REC'] = "Ошибка добавления записи ";
+$MESS ['ERROR_NAME_REC'] = "Поле \"Название\" не установлено в записи ";
+$MESS ['ERROR_LID_REC'] = "Поле \"Сайт\" не установлено в записи ";
+$MESS ['ERROR_UPDATE_REC'] = "Ошибка изменения записи ";
+$MESS ['SALE_F_FILTER'] = "Фильтр";
+$MESS ['LANG_FILTER_NAME'] = "Сайт";
+$MESS ['LANG_FILTER_BTN'] = "Установить";
+$MESS ['SALE_F_DEL'] = "Сбросить";
+$MESS ['LANG_ALL'] = "(Все)";
+$MESS ['PERS_TYPE_NAV'] = "Типы плательщика";
+$MESS ['PERS_TYPE_NAME'] = "Название";
+$MESS ['PERS_TYPE_LID'] = "Сайт";
+$MESS ['PERS_TYPE_SORT'] = "Сорт.";
+$MESS ['PERS_TYPE_DEL'] = "Удалить";
+$MESS ['PERS_TYPE_UPD'] = "Сохранить";
+$MESS ['PERS_TYPE_RESET'] = "Сбросить";
+$MESS ['PERS_TYPE_ID'] = "ID";
+$MESS ['PERS_TYPE_DEL_CONF'] = "Удаление типа плательщика приведет к удалению всех связаных свойств и настроек. Если у этого типа плательщика есть заказы, то он не будет удален.";
+$MESS ['SALE_PROPS'] = "Свойства";
+$MESS ['SPT_ALL'] = "(все)";
+$MESS ['SPT_UNSET'] = "Сбросить";
+$MESS ['SPTAN_ERROR_UPDATE'] = "Ошибка изменения записи";
+$MESS ['SPTAN_ERROR_DELETE'] = "Ошибка удаления записи";
+$MESS ['PERS_PROPS'] = "Свойства";
+$MESS ['SPTAN_UPDATE_ALT'] = "Изменить";
+$MESS ['SPTAN_DELETE_ALT1'] = "Удалить";
+$MESS ['SPTAN_ADD_NEW'] = "Добавить тип";
+$MESS ['SPTAN_ADD_NEW_ALT'] = "Нажмите для добавления нового типа плательщика";
+$MESS ['SPTAN_VIEW_PROPS'] = "Просмотреть список свойств";
+$MESS ['PERS_ACTIVE'] = "Активность";
+$MESS ['SALE_YES'] = "Да";
+$MESS ['SALE_NO'] = "Нет";
+$MESS ['SALE_FIELD_ACTIVE'] = "Активность";
+$MESS ['SALE_ALL'] = "все";
+?>

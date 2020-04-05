@@ -1,0 +1,3 @@
+<?
+$MESS["BOOKMARK_HANDLER_GOOGLE_PLUS"] = "Google+";
+?>

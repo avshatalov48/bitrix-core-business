@@ -1,0 +1,33 @@
+<?
+$MESS["SONET_GCE_ERR_SPAM_PERMS"] = "Permissions for sending messages to workgroup are not set";
+$MESS["SONET_MODULE_NOT_INSTALL"] = "The Social Network module is not installed.";
+$MESS["SONET_GCE_ERR_NAME"] = "The group name is not specified.";
+$MESS["SONET_GCE_ERR_SUBJECT"] = "The group topic is not specified.";
+$MESS["SONET_GCE_ERR_PERMS"] = "Invitation permission is not specified.";
+$MESS["SONET_GCE_ERR_SECURITY"] = "You do not have permission to edit group parameters.";
+$MESS["SONET_GCE_IP_OWNER"] = "Group owner only";
+$MESS["SONET_GCE_IP_MOD"] = "Group owner and moderators";
+$MESS["SONET_GCE_IP_USER"] = "All group members";
+$MESS["SONET_GCE_IP_ALL"] = "All users";
+$MESS["SONET_GCE_ERR_CANT_CREATE"] = "You do not have permission to create new groups.";
+$MESS["SONET_GCE_CANNOT_USER_ADD"] = "The user with e-mail \"#EMAIL#\" was not added:";
+$MESS["SONET_GCE_NO_USERS"] = "The invitation recipients are not specified.";
+$MESS["SONET_GCE_CANNOT_EMAIL_ADD"] = "This e-mail address (#EMAIL#) is already in use by another user.";
+$MESS["SONET_GCE_CANNOT_EMAILS_ADD"] = "The addresses #EMAIL# are already in use by other users.";
+$MESS["SONET_GCE_USER_BANNED_IN_GROUP"] = "A user with e-mail #EMAIL# is banned from this group.";
+$MESS["SONET_GCE_USER_REQUEST_SENT"] = "Invite has already been sent to a user with e-mail #EMAIL#.";
+$MESS["SONET_GCE_USER_IN_GROUP"] = "A user with e-mail #EMAIL# is already a group member.";
+$MESS["SONET_GCE_ERR_NAME_PROJECT"] = "The project name is not specified";
+$MESS["SONET_GCE_ERR_SUBJECT_PROJECT"] = "The project subject is not specified";
+$MESS["SONET_GCE_ERR_PERMS_PROJECT"] = "Project invitation permissions are not assigned";
+$MESS["SONET_GCE_IP_OWNER_PROJECT"] = "Project owner only";
+$MESS["SONET_GCE_IP_MOD_PROJECT"] = "Project owner and moderators";
+$MESS["SONET_GCE_IP_USER_PROJECT"] = "All project participants";
+$MESS["SONET_GCE_USER_IN_GROUP_PROJECT"] = "A user with email #EMAIL# is already a member of the project";
+$MESS["SONET_GCE_TITLE_CREATE"] = "Create workgroup or project";
+$MESS["SONET_GCE_TITLE_EDIT"] = "Edit workgroup";
+$MESS["SONET_GCE_TITLE_EDIT_PROJECT"] = "Edit project";
+$MESS["SONET_GCE_TITLE_INVITE"] = "Invite to workgroup";
+$MESS["SONET_GCE_TITLE_INVITE_PROJECT"] = "Invite to project";
+$MESS["SONET_GCE_INVITE_MESSAGE_TEXT"] = "Please join me in our new intranet. This is a place where everyone can collaborate on projects, coordinate tasks and schedules, and build our knowledge base, but it's easy to use, too.";
+?>

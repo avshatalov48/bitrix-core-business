@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" elementFormDefault="qualified" attributeFormDefault="unqualified" vc:minVersion="1.1">
+	<xs:element name="InventoryArray">
+		<xs:annotation>
+			<xs:documentation>Inventory Elements</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Inventory" type="InventoryType" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="InventoryType">
+		<xs:sequence>
+			<xs:element name="SKU" type="xs:string"/>
+			<xs:element name="Price" type="xs:decimal"/>
+			<xs:element name="Quantity" type="xs:int"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

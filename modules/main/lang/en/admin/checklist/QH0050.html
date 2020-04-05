@@ -1,0 +1,46 @@
+<p>Bitrix Environment, and consequently a web project on which it is built,
+stores information:</p>
+<ul>
+<li>in files;</li>
+<li>in database.</li> 
+ </ul>
+
+
+<p>To create a copy of the web project, use the form "Settings &gt; Tools &gt; Backup".</p>
+
+<p>However, it is strongly recommended that you set up your system to create
+automated regular backups to protect your project against software or hardware
+failure. Use <a href="http://www.bitrixsoft.com/products/cms/features/web_cluster.php">web
+cluster</a> technology to reach even higher level of robustness and availability
+of your data.</p>
+
+<ol>
+<li>Ensure that your system is configured to create regular backups. Or, at
+  least, always remember to create manual backups.<p>For example, if you create
+  backups manually, the page "Settings &gt; Tools &gt; Backup" must contain
+  backup copies for a certain period of time (for example, a week), and the most
+  recent backup copy must be created one day ago.</p>
+
+  <p>If your system is configured for automated backups, using either the system
+  tools or by hosting company, you must ensure that such backups really take
+  place. Ask your hosting company to show you the backups. You should control
+  the backup on a regular basis.</p></li>
+<li>Ensure that the backup copy data:
+	<ul>
+		<li>is accessible;</li>
+		<li>it can be used for recovery. </li> 
+</ul>
+  <p>The problem is that, while the backup copiess are really created, they do
+  not contain all data required for successful recovery, or data may be damaged.
+  To prevent such situations, attempt to recover the web project from the backup
+  copy to a temporary location on a regular basis.</p></li> 
+<li>Keep in mind that even if your system is backed up daily, an unexpected
+  failure will bury all data that the system has collected after the most recent
+  backup. If your project deals with sensitive information like financial
+  transactions or orders, use database replication.<p>If
+  your project is sensitive to loss of files, configure the system for more
+  frequent backups or, if the total file size is too large, use the file system
+  snapshot technology (LVM, special storages, cloud storages etc.)</p>
+
+</li> 
+ </ol>

@@ -1,0 +1,135 @@
+div.learn-test-tabs
+{
+	line-height:220%;
+	margin:2px 0 10px 0;
+}
+
+div.learn-test-tabs a
+{
+	font-size: 100%;
+	line-height:220%;
+	text-decoration: none;
+	color: #000;
+	border-width:1px;
+	border-style: solid;
+	border-color: #CED6E4 #9CADC9 #9CADC9 #CED6E4;
+	padding:3px 3px;
+	margin:0 3px 0 0;
+}
+
+div.learn-test-tabs a.selected
+{
+	background-color:#FFFCC1;
+	border-color: #E8BE8B #D07C17 #D07C17 #E8BE8B;
+}
+
+div.learn-test-tabs a.answered
+{
+	background-color:#E6F6E3;
+	border-color: #C1D8B7 #83B16E #83B16E #C1D8B7;
+}
+
+div.learn-test-tabs a.disabled
+{
+	background-color:#EDEDED;
+	border-color: #E3E3E3 #C6C6C6 #C6C6C6 #E3E3E3;
+	color: #A1A1A1;
+}
+
+
+div.learn-test-tabs a.previous, div.learn-test-tabs a.next
+{
+	color: #A1A1A1;
+	font-weight:bold;
+}
+
+div.learn-test-tabs a.last, div.learn-test-tabs a.first
+{
+	background-color:#E6F6E3;
+	color: #A1A1A1;
+	font-weight:bold;
+}
+
+
+div.learn-question-cloud
+{
+	border:1px solid #D9D9D9; 
+	min-height:50px;
+	font-size:100%;
+	-moz-border-radius: 6px;
+}
+
+div.learn-question-number
+{
+	float:left; 
+	border-right:1px solid #DADAC1; 
+	border-bottom:1px solid #DADAC1; 
+	background-color:#FAFADE;
+	margin-right:15px;
+	padding:3px 5px;
+	-moz-border-radius-bottomright: 3px;
+}
+
+div.learn-question-name
+{
+	padding:17px;
+	position:relative;
+}
+
+div#learn-test-timer
+{
+	line-height:normal;
+	display:inline;
+	border-style: solid;
+	border-width:1px;
+	border-color: #CED6E4 #9CADC9 #9CADC9 #CED6E4;
+	padding:3px 3px;
+	color: #A1A1A1;
+}
+
+div#learn-test-message
+{
+	border: 1px solid #ff0000;
+	background-color: #fafade;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
+/*Table*/
+table.learn-result-table
+{
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+}
+
+/*Table head*/
+table.learn-result-table th
+{
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.learn-result-table th, table.learn-result-table td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+/* Only table cells*/
+table.learn-result-table td
+{
+}
+
+/* Sorting*/
+div.sorting
+{
+	padding: 4px 0px;
+}
+
+div.sorting select
+{
+	width: 300px;
+}

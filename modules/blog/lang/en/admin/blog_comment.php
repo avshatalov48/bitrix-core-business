@@ -1,0 +1,36 @@
+<?
+$MESS["BLB_GROUP_NAV"] = "Comments";
+$MESS["BLB_DATE_CREATE"] = "Created On";
+$MESS["BLB_AUTHOR_ID"] = "Author";
+$MESS["BLB_TITLE"] = "Comments";
+$MESS["BLB_F_ALL"] = "(All)";
+$MESS["BLB_YES"] = "Yes";
+$MESS["BLB_NO"] = "No";
+$MESS["BLB_DELETE_ALT"] = "Delete";
+$MESS["BLB_DELETE_CONF"] = "Are you sure you want to delete this comment?";
+$MESS["BLB_HIDE_ALT"] = "Hide";
+$MESS["BLB_SHOW_ALT"] = "Show";
+$MESS["BLB_DELETE_ERROR"] = "Error deleting the comment.";
+$MESS["BLB_HIDE_ERROR"] = "Error hiding the comment.";
+$MESS["BLB_SHOW_ERROR"] = "Error showing the comment.";
+$MESS["BLB_VIEW_ALT"] = "View comment at website";
+$MESS["BLB_AUTHOR_NAME"] = "Author Name";
+$MESS["BLB_AUTHOR_EMAIL"] = "Author E-mail";
+$MESS["BLB_AUTHOR_IP"] = "Author IP";
+$MESS["BLB_AUTHOR_IP1"] = "Author IP1";
+$MESS["BLB_PUBLISH_STATUS"] = "Published";
+$MESS["BLB_POST_TEXT"] = "Comment Text";
+$MESS["BLB_BLOG_ID"] = "Blog";
+$MESS["BLB_POST_ID"] = "Message";
+$MESS["BLB_BLOG_OWNER_ID"] = "Blog Owner";
+$MESS["BLB_BLOG_SOCNET_GROUP_ID"] = "Blog Group Owner";
+$MESS["BLB_BLOG_ACTIVE"] = "The blog is active";
+$MESS["BLB_BLOG_GROUP_ID"] = "Blog Group";
+$MESS["BLB_BLOG_GROUP_SITE_ID"] = "Site";
+$MESS["BLB_COMMENT"] = "Comment";
+$MESS["BLB_AUTHOR_ANONYM"] = "Anonimous";
+$MESS["BLB_STOP_LIST"] = "stop list";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Selected:";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
+?>

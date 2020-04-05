@@ -1,0 +1,31 @@
+<?
+$MESS["IBLOCK_ENTITY_ID_FIELD"] = "Идентификатор";
+$MESS["IBLOCK_ENTITY_TIMESTAMP_X_FIELD"] = "Дата изменения";
+$MESS["IBLOCK_ENTITY_IBLOCK_TYPE_ID_FIELD"] = "Тип информационного блока";
+$MESS["IBLOCK_ENTITY_CODE_FIELD"] = "Символьный код";
+$MESS["IBLOCK_ENTITY_NAME_FIELD"] = "Название";
+$MESS["IBLOCK_ENTITY_ACTIVE_FIELD"] = "Активность";
+$MESS["IBLOCK_ENTITY_SORT_FIELD"] = "Сортировка";
+$MESS["IBLOCK_ENTITY_LIST_PAGE_URL_FIELD"] = "URL страницы информационного блока";
+$MESS["IBLOCK_ENTITY_DETAIL_PAGE_URL_FIELD"] = "URL страницы детального просмотра";
+$MESS["IBLOCK_ENTITY_SECTION_PAGE_URL_FIELD"] = "URL страницы раздела";
+$MESS["IBLOCK_ENTITY_CANONICAL_PAGE_URL_FIELD"] = "Канонический URL элемента";
+$MESS["IBLOCK_ENTITY_PICTURE_FIELD"] = "Изображение";
+$MESS["IBLOCK_ENTITY_DESCRIPTION_FIELD"] = "Описание";
+$MESS["IBLOCK_ENTITY_DESCRIPTION_TYPE_FIELD"] = "Тип описания";
+$MESS["IBLOCK_ENTITY_XML_ID_FIELD"] = "Внешний код";
+$MESS["IBLOCK_ENTITY_TMP_ID_FIELD"] = "Временный идентификатор";
+$MESS["IBLOCK_ENTITY_INDEX_ELEMENT_FIELD"] = "Индексировать элементы для модуля поиска";
+$MESS["IBLOCK_ENTITY_INDEX_SECTION_FIELD"] = "Индексировать разделы для модуля поиска";
+$MESS["IBLOCK_ENTITY_WORKFLOW_FIELD"] = "Участвует в документообороте";
+$MESS["IBLOCK_ENTITY_BIZPROC_FIELD"] = "Участвует в бизнес процессах";
+$MESS["IBLOCK_ENTITY_SECTION_CHOOSER_FIELD"] = "Интерфейс привязки элемента к разделам";
+$MESS["IBLOCK_ENTITY_LIST_MODE_FIELD"] = "Режим просмотра разделов и элементов";
+$MESS["IBLOCK_ENTITY_RIGHTS_MODE_FIELD"] = "Режим прав доступа";
+$MESS["IBLOCK_ENTITY_SECTION_PROPERTY_FIELD"] = "Используется привязка свойств к разделам";
+$MESS["IBLOCK_ENTITY_VERSION_FIELD"] = "Настройка хранения свойств";
+$MESS["IBLOCK_ENTITY_LAST_CONV_ELEMENT_FIELD"] = "Последний сконвертированный элемент";
+$MESS["IBLOCK_ENTITY_SOCNET_GROUP_ID_FIELD"] = "Группа социальной сети";
+$MESS["IBLOCK_ENTITY_EDIT_FILE_BEFORE_FIELD"] = "Файл для редактирования элемента, позволяющий модифицировать поля перед сохранением";
+$MESS["IBLOCK_ENTITY_EDIT_FILE_AFTER_FIELD"] = "Файл с формой редактирования элемента";
+?>

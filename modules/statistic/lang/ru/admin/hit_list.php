@@ -1,0 +1,37 @@
+<?
+$MESS["STAT_F_LOGIC"] = "Логика между полями";
+$MESS["STAT_GUEST_ID"] = "ID посетителя";
+$MESS["STAT_EDIT_USER"] = "Профайл пользователя";
+$MESS["STAT_VIEW_SESSION_LIST"] = "Сессии данного посетителя";
+$MESS["STAT_NEW_GUEST_1"] = "впервые";
+$MESS["STAT_OLD_GUEST_1"] = "вернулся";
+$MESS["STAT_RECORDS_LIST"] = "Хиты посетителей за последние #STATISTIC_DAYS# дней";
+$MESS["STAT_F_ID"] = "ID хита";
+$MESS["STAT_F_SESSION"] = "ID сессии";
+$MESS["STAT_F_AUTH"] = "Зарегистрирован";
+$MESS["STAT_F_LOGIN"] = "ID, логин, имя, фамилия";
+$MESS["STAT_F_GUEST_ID"] = "ID посетителя";
+$MESS["STAT_F_NEW_GUEST"] = "Впервые/вернулся";
+$MESS["STAT_F_IP"] = "IP адрес";
+$MESS["STAT_F_PAGE"] = "Страница";
+$MESS["STAT_HIT_PAGES"] = "Хиты";
+$MESS["STAT_NOT_REGISTERED"] = "не зарегистрированный";
+$MESS["STAT_DETAIL"] = "подробно";
+$MESS["STAT_SESSION"] = "Сессия";
+$MESS["STAT_DATE"] = "Дата";
+$MESS["STAT_USER"] = "Посетитель";
+$MESS["STAT_IP"] = "IP адрес";
+$MESS["STAT_PAGE"] = "Страница";
+$MESS["STAT_NOT_AUTH"] = "(не авторизован)";
+$MESS["STAT_F_USER_AGENT"] = "UserAgent";
+$MESS["STAT_F_STOP_LIST_ID"] = "ID записи стоп-листа";
+$MESS["STAT_F_STOP"] = "Попал в стоп-лист";
+$MESS["STAT_COUNTRY"] = "Страна";
+$MESS["STAT_CITY"] = "Город";
+$MESS["STAT_F_COUNTRY"] = "Страна";
+$MESS["STAT_F_REGION"] = "Регион";
+$MESS["STAT_F_CITY"] = "Город";
+$MESS["STAT_F_COOKIE"] = "Cookie";
+$MESS["STAT_REGION"] = "Регион";
+$MESS["STAT_SITE"] = "Сайт";
+?>

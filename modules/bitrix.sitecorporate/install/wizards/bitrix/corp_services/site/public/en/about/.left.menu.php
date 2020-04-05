@@ -1,0 +1,39 @@
+<?
+$aMenuLinks = Array(
+	Array(
+		"About J&V", 
+		"index.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"History", 
+		"history.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Mission and Purpose", 
+		"mission.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Governance", 
+		"management/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Careers", 
+		"vacancies.php", 
+		Array(), 
+		Array(), 
+		"" 
+	)
+);
+?>

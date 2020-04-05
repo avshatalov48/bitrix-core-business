@@ -1,0 +1,25 @@
+.sonet-forum-line {
+	height:1px; 
+	width:100%; 
+	overflow:hidden; 
+	background-color:#C7D2D5; 
+	margin-top:8px; 
+	margin-bottom:8px;
+}
+.sonet-forum-post-date{
+color:#8A8A8A;
+font-size:95%;
+}
+
+.sonet-forum-post-info{
+	font-size:0.89em;
+	line-height:1.4em;
+	margin:0;
+	padding:0.4em 0 0;
+}
+
+.sonet-forum-clock , .sonet-forum-eye, .sonet-forum-comment-num{
+	height:12px; 
+	text-decoration:none;
+	color:#8A8A8A;
+}

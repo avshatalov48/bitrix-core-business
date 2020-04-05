@@ -1,0 +1,26 @@
+<?php
+global $MESS;
+$MESS["SALE_QWH_ERROR_CODE_0"] = "Успех";
+$MESS["SALE_QWH_ERROR_CODE_5"] = "Неверные данные в параметрах запроса";
+$MESS["SALE_QWH_ERROR_CODE_13"] = "Сервер занят, повторите запрос позже";
+$MESS["SALE_QWH_ERROR_CODE_78"] = "Недопустимая операция";
+$MESS["SALE_QWH_ERROR_CODE_150"] = "Ошибка авторизации";
+$MESS["SALE_QWH_ERROR_CODE_152"] = "Не подключен или отключен протокол";
+$MESS["SALE_QWH_ERROR_CODE_210"] = "Счет не найден";
+$MESS["SALE_QWH_ERROR_CODE_215"] = "Счет с таким bill_id уже существует";
+$MESS["SALE_QWH_ERROR_CODE_241"] = "Сумма слишком мала";
+$MESS["SALE_QWH_ERROR_CODE_242"] = "Сумма слишком велика";
+$MESS["SALE_QWH_ERROR_CODE_298"] = "Кошелек с таким номером не зарегистрирован";
+$MESS["SALE_QWH_ERROR_CODE_300"] = "Техническая ошибка";
+$MESS["SALE_QWH_ERROR_CODE_303"] = "Неверный номер телефона";
+$MESS["SALE_QWH_ERROR_CODE_316"] = "Попытка авторизации заблокированным провайдером";
+$MESS["SALE_QWH_ERROR_CODE_319"] = "Нет прав на данную операцию";
+$MESS["SALE_QWH_ERROR_CODE_341"] = "Обязательный параметр указан неверно или отсутствует в запросе";
+$MESS["SALE_QWH_ERROR_CODE_1001"] = "Запрещенная валюта для провайдера";
+$MESS["SALE_QWH_ERROR_CODE_1003"] = "Не удалось получить курс конвертации для данной пары валют";
+$MESS["SALE_QWH_ERROR_CODE_1019"] = "Не удалось определить сотового оператора для мобильной коммерции";
+$MESS["SALE_QWH_STATUS_MESSAGE_WAITING"] = "Счет выставлен, ожидает оплаты.";
+$MESS["SALE_QWH_STATUS_MESSAGE_PAID"] = "Счет оплачен.";
+$MESS["SALE_QWH_STATUS_MESSAGE_REJECTED"] = "Счет отклонен.";
+$MESS["SALE_QWH_STATUS_MESSAGE_UNPAID"] = "Ошибка при проведении оплаты. Счет не оплачен.";
+$MESS["SALE_QWH_STATUS_MESSAGE_EXPIRED"] = "Время жизни счета истекло. Счет не оплачен.";

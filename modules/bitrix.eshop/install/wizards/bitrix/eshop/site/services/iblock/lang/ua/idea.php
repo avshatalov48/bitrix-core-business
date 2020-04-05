@@ -1,0 +1,8 @@
+<?
+$MESS["IDEA_CATEGORY_EDIT_FORM_TAB_TITLE"] = "Розділ";
+$MESS["IDEA_CATEGORY_EDIT_FORM_P_ACTIVE"] = "Розділ активний";
+$MESS["IDEA_CATEGORY_EDIT_FORM_P_NAME"] = "* Назва";
+$MESS["IDEA_CATEGORY_EDIT_FORM_P_CODE"] = "* Символьний код";
+$MESS["IDEA_CATEGORY_EDIT_FORM_P_IBLOCK_SECTION_ID"] = "Батьківський розділ";
+$MESS["IDEA_CATEGORY_EDIT_FORM_P_SORT"] = "Сортування";
+?>

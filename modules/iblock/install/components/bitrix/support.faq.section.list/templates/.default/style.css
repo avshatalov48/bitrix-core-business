@@ -1,0 +1,4 @@
+.selected-faq-item {font-weight:bold}
+.unselected-faq-item {}
+.unselected-arrow-faq{background: url(images/unselected_faq.gif) no-repeat; height:13px; width:17px; dislay:block; float:left;}
+.selected-arrow-faq{background: url(images/selected_faq.gif) no-repeat; height:13px; width:17px; dislay:block; float:left;}

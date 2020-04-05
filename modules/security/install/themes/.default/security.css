@@ -1,0 +1,88 @@
+/*Menu icon*/
+#security_menu_icon {background-image:url(icons/security/mnu_security.gif);}
+#security_page_icon {background-image:url(icons/security/title.gif);}
+
+.otp-popup .otp-description li {
+    padding: 4px 0;
+}
+
+.otp-popup .otp-connect .input-type {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.otp-popup .input-type .current {
+    font-weight: bold;
+}
+
+.otp-popup .input-type .separator {
+    color: #808080;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.otp-connect .input-wrapper {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 220px;
+    border: 2px solid #e0e3e5;
+    border-radius: 2px;
+    background-color: white;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.otp-connect #connect-by-qr .input-wrapper {
+    width: 220px;
+}
+
+.otp-connect #connect-by-manual-input .input-wrapper {
+    width: 420px;
+}
+
+.otp-popup .type-title {
+    font-weight: bold;
+    line-height: 25px;
+}
+
+.otp-popup .error-wrapper {
+    text-align: center;
+    margin-bottom: 10px;
+    min-height: 20px;
+}
+
+.otp-popup .error-wrapper div {
+    color: red;
+}
+
+.otp-recovery-codes .input-wrapper {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    min-height: 180px;
+    border: 2px solid #e0e3e5;
+    border-radius: 2px;
+    background-color: white;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px
+}
+
+.otp-recovery-codes .codes-container li.active {
+
+}
+
+.otp-recovery-codes .codes-container li.used {
+
+}
+
+.otp-recovery-codes .codes-container li.used span:nth-child(1) {
+    text-decoration: line-through;
+}
+
+.otp-link-button {
+    margin-left: 20px;
+    cursor: pointer;
+    text-decoration: underline;
+}

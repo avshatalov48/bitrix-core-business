@@ -1,0 +1,2 @@
+function ShowShareDialog(e){var n=document.getElementById("share-dialog"+e);if(!n)return;if(n.style.display=="block"){n.style.display="none"}else{n.style.display="block"}return false}function CloseShareDialog(e){var n=document.getElementById("share-dialog"+e);if(!n)return;n.style.display="none";return false}function __function_exists(e){if(typeof e=="string"){return typeof window[e]=="function"}else{return e instanceof Function}}
+//# sourceMappingURL=script.map.js

@@ -1,0 +1,18 @@
+div.news-list img.preview-picture
+{
+	float:left;
+	margin:0 4px 6px 0;
+}
+
+p.news-item
+{
+	margin:0;
+	margin-bottom:15px;
+}
+
+.news-date-time
+{
+	font-size:95%;
+	display:block;
+	color:#82929a;
+}

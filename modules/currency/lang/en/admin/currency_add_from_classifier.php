@@ -1,0 +1,32 @@
+<?
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TITLE"] = "Add currency from code registry";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS"] = "Search and settings";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS_TITLE"] = "Currency settings and search preferences";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_LANGUAGE_SETTINGS"] = "Language settings";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_LANGUAGE_SETTINGS_TITLE"] = "Language dependent settings for the currency";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_SECTION_SEARCH_AND_CHOICE"] = "Search and select currency";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_SECTION_MAIN_SETTINGS"] = "Currency settings";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH"] = "Find currency";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH_PLACEHOLDER"] = "Start typing...";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_CHOICE"] = "Select currency";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_NUM_CODE"] = "Numeric code";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SYM_CODE"] = "Symbolic code";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_EXCHANGE_RATE"] = "Exchange rate (default)";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SORT_INDEX"] = "Sort index";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FULL_NAME"] = "Name";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FULL_NAME_TITLE"] = "Currency full name";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FORMAT_STRING"] = "Currency format";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_DEC_POINT"] = "Decimal point";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_THOUSANDS_SEPARATOR"] = "Thousands separator";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_DECIMALS"] = "Number of decimal places";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_HIDE_ZERO"] = "Trim trailing zeros from fractional prices (in the public area)";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_NOMINAL_ERROR"] = "The \"Exchange rate\" field specifies incorrect or too large a denomination.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_EXCHANGE_RATE_ERROR"] = "Exchange rate is incorrect or too large.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_SORT_INDEX_ERROR"] = "Sort index is incorrect or too large.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_ISO_STANDART"] = "Refer to <a target=\"_blank\" href=\"#ISO_LINK#\">ISO 4217</a> standard for possible currency codes.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_EXCHANGE_RATE"] = "The Currency module uses the <b>direct quotes</b> of currencies against the base currency. Provide the price of a currency unit (1, or 10, 100, 1000 if so required by the currency face value) in the base currency. The face value and the default rate of the base currency must be 1 (one).";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_DECIMALS_NUMBER"] = "The number of decimal places option affects the <b>display</b> only. Calculations are always made using raw unrounded numbers. This may cause the prices look as if calculated or converted incorrectly. For example, if a product items costs 98.01 USD, and the number of decimal places is set to zero, the price for 1 item will show as 98 USD. However, the price of 100 items in the shopping cart will be a correct 9801 USD.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_HIDE_ZERO"] = "Specifies to hide insignificant zeros when showing a price. For example, for a product item costing 55.00&nbsp;USD this option will show 55&nbsp;USD, and for an item worth 45.50&nbsp;USD the visible price will be 45.50&nbsp;USD.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_ADD"] = "Unknown error adding a currency.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_UPDATE"] = "Unknown error editing a currency.";
+?>

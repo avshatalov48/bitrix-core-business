@@ -1,0 +1,29 @@
+<?
+$MESS["LDAP_FIELD_ACTIVE"] = "Активность";
+$MESS["LDAP_FIELD_EMAIIL"] = "E-Mail адрес";
+$MESS["LDAP_FIELD_NAME"] = "Имя";
+$MESS["LDAP_FIELD_LAST_NAME"] = "Фамилия";
+$MESS["LDAP_FIELD_SECOND_NAME"] = "Отчество";
+$MESS["LDAP_FIELD_GENDER"] = "Пол";
+$MESS["LDAP_FIELD_BIRTHDAY"] = "Дата рождения";
+$MESS["LDAP_FIELD_PROF"] = "Профессия";
+$MESS["LDAP_FIELD_WWW"] = "WWW-страница";
+$MESS["LDAP_FIELD_PHONE"] = "Телефон";
+$MESS["LDAP_FIELD_FAX"] = "Факс";
+$MESS["LDAP_FIELD_MOB"] = "Мобильный";
+$MESS["LDAP_FIELD_PAGER"] = "Пейджер";
+$MESS["LDAP_FIELD_STREET"] = "Улица, дом";
+$MESS["LDAP_FIELD_MAILBOX"] = "Почтовый ящик";
+$MESS["LDAP_FIELD_CITY"] = "Город";
+$MESS["LDAP_FIELD_STATE"] = "Область / край";
+$MESS["LDAP_FIELD_ZIP"] = "Почтовый индекс";
+$MESS["LDAP_FIELD_COUNTRY"] = "Страна";
+$MESS["LDAP_FIELD_COMPANY"] = "Наименование компании";
+$MESS["LDAP_FIELD_DEP"] = "Департамент / Отдел";
+$MESS["LDAP_FIELD_POS"] = "Должность";
+$MESS["LDAP_FIELD_WORK_PHONE"] = "Рабочий телефон";
+$MESS["LDAP_FIELD_WORK_FAX"] = "Рабочий факс";
+$MESS["LDAP_FIELD_WORK_PAGER"] = "Рабочий пейджер";
+$MESS["LDAP_FIELD_ADMIN_NOTES"] = "Заметки администратора";
+$MESS["LDAP_FIELD_PHOTO"] = "Фотография";
+?>

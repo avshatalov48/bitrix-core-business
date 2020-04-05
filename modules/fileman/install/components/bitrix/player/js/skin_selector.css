@@ -1,0 +1,11 @@
+div.bx-skin-select-div {margin-bottom:2px!important; padding:2px 25px 2px 3px !important; background: #FFFFFF url(../images/arrow_down.gif) center right no-repeat!important; float: left; font-size: 11px !important; border: 1px solid #6E8C9B!important;}
+div.bx-skin-popup {width: 510px!important; height: 260px!important; position: absolute; padding: 5px 0 0 5px !important; border: 1px solid #ABB7D8; background: #FFFFFF;}
+div.bx-skin-popup-inner {width: 500px!important;height: 250px; padding: 2px!important; border: 1px solid #ABB7D8!important; overflow: auto!important;background: #EDEDED!important;}
+div.bx-skin-popup div.bx-preview-pic{float: left; width: 150px!important; height: 150px; margin: 3px!important; border: 1px solid #ABB7D8; position: relative; overflow: hidden;  background: #ffffff; padding: 0!important;}
+div.bx-skin-popup div.bx-preview-pic img{width: 150px;}
+div.bx-skin-popup div.bx-preview-pic div.bx-skin-prev-title{position: absolute; width: 150px; text-align: center; font-weight: bold; color: #ffffff;  margin-top: 3px; overflow: hidden;}
+div.bx-skin-popup div.bx-preview-pic div.bx-skin-no-preview{position: absolute; text-align: center; color: #7181B4; margin-top: 60px; width: 145px;}
+div.bx-no-preview{color: #000 !important;}
+div.bx-preview-pic-over{border: 1px solid #f4dd35 !important;}
+div.bx-preview-pic-over div.bx-skin-prev-title{color: #f4dd35 !important;}
+div.bx-skin-sel-mask{position: absolute; width: 150px; height: 150px; background: url(../images/checkbox.gif) 5px 5px no-repeat; top: 0px; left: 0px;}

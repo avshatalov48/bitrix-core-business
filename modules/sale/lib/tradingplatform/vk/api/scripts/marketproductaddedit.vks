@@ -1,0 +1,52 @@
+var owner_id = "%OWNER_ID%";
+var count =%COUNT%;
+var data =%DATA%;
+var res = [];
+
+var i = 0;
+while (i < count) {
+
+    var res_curr = [];
+    var FLAG_EDIT = data[i].FLAG_EDIT;
+    var params = {
+        "owner_id": owner_id,
+        "name": data[i].NAME,
+        "description": data[i].description,
+        "category_id": data[i].CATEGORY_VK,
+        "price": data[i].PRICE,
+        "deleted": data[i].deleted,
+        "main_photo_id": data[i].PHOTO_MAIN_VK_ID,
+        "photo_ids": data[i].PHOTOS,
+    };
+
+
+
+    if(FLAG_EDIT == true)
+    {
+        params.item_id = data[i].VK_ID;
+        var res_edit = API.market.edit(params);
+        if(res_edit){
+            res_curr.FLAG_PRODUCT_EDIT_RESULT = true;
+        } else {
+            res_curr.FLAG_PRODUCT_EDIT_RESULT = false;
+        }
+    }
+
+    else
+    {
+        var res_add = API.market.add(params);
+        if(res_add) {
+            res_curr.VK_ID = res_add.market_item_id;
+            res_curr.FLAG_PRODUCT_ADD_RESULT = true;
+        } else {
+            res_curr.FLAG_PRODUCT_ADD_RESULT = false;
+        }
+
+    }
+
+    res_curr.BX_ID = data[i].BX_ID;
+    res = res + [res_curr];
+    i = i + 1;
+}
+
+return res;

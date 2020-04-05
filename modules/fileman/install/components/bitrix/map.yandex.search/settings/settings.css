@@ -1,0 +1,71 @@
+div#bx_yandex_map_control a {text-decoration: none; color: black;}
+div.bx-yandex-map-controls-group {margin-bottom: 15px;}
+
+div #bx_yandex_map_contol textarea {height: 80px; width: 200px;}
+
+#bx_yandex_position {
+	display: block; list-style-image: none; list-style-position: outside; list-style-type: none; margin: 0 0 10px 0; padding: 0px;
+}
+#bx_yandex_position li {
+	font-size: 11px;
+	display: block;
+	overflow: hidden;
+	height: 18px;
+	margin: 0px 0px 0px 15px;
+	padding: 0px;
+	white-space: nowrap;
+}
+
+div#bx_yandex_map_address_search {
+	position: absolute; margin-top: 390px; text-align: right; width: 500px;
+	padding: 4px 0px;
+}
+
+ul.bx-yandex-address-search-results {
+	font-size: 12px;
+	display: block;
+	position: absolute;
+	border: solid 1px #BDBDBD;
+	z-index: 2005;
+	width: 400px;
+	color: black;
+	background-color: white;
+	padding: 4px 8px;
+}
+
+ul.bx-yandex-address-search-results li {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	padding: 0px;
+	border-top: solid 1px #D2D2D2;
+	height: 26px;
+}
+
+ul.bx-yandex-address-search-results li.bx-yandex-first {
+	border-top: none;
+}
+
+ul.bx-yandex-address-search-results li.bx-yandex-notfound {
+	border-top: none;
+	padding-top: 5px;
+}
+
+ul.bx-yandex-address-search-results li a {
+	display: block;
+	text-decoration: none;
+	padding-top: 6px;
+	height: 26px;
+}
+
+ul.bx-yandex-address-search-results li a span {padding-left: 13px; display: block; color: black;}
+
+ul.bx-yandex-address-search-results li a:hover {
+	background-image: url(/bitrix/components/bitrix/map.yandex.search/images/gradient.gif);
+}
+
+ul.bx-yandex-address-search-results li a:hover span {
+	background-image: url(/bitrix/components/bitrix/map.yandex.search/images/arrow.gif);
+	background-position: left center;
+	background-repeat: no-repeat;
+}

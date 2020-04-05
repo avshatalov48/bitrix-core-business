@@ -1,0 +1,5 @@
+<?
+$MESS["SALE_CONVERSION_RATE_CART_TITLE"] = "Added to cart";
+$MESS["SALE_CONVERSION_RATE_ORDER_TITLE"] = "Orders created";
+$MESS["SALE_CONVERSION_RATE_PAYMENT_TITLE"] = "Orders paid";
+?>

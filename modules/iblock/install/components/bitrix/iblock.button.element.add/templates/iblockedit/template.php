@@ -1,0 +1,4 @@
+<?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+
+?><div class="mea-cont"><input class="mea-button" type="button" value="<?php echo ('' != $arParams['BUTTON_CAPTION'] ? $arParams['BUTTON_CAPTION'] : GetMessage('BT_COMP_MEA_TPL_MESS_ADD_ELEMENT')); ?>" title="<?php echo ('' != $arParams['BUTTON_TITLE'] ? $arParams['BUTTON_TITLE'] : '');?>" onClick="jsUtils.OpenWindow('/bitrix/admin/iblock_element_edit.php?WF=Y&amp;lang=<?php echo $arParams['LANG']; ?>&amp;type=<?php echo urlencode($arResult['IBLOCK_TYPE']);?>&amp;IBLOCK_ID=<?php echo $arParams["IBLOCK_ID"]; ?>&amp;IBLOCK_SECTION_ID=-1&find_section_section=-1&amp;lookup=<?php echo urlencode($arParams['ONSELECT']); ?>', 800, 500);"></div>

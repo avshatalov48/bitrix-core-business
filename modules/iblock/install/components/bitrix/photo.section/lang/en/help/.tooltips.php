@@ -1,0 +1,35 @@
+<?
+$MESS ['IBLOCK_TYPE_TIP'] = "Select one of existing information block types in the list and click <b>OK</b>. This will load information blocks of the selected type.";
+$MESS ['IBLOCK_ID_TIP'] = "Select one of information blocks of the chosen type. If you select <b>(other)-&gt;</b>, specify the information block ID in the field beside.";
+$MESS ['SECTION_ID_TIP'] = "This field contains an expression that evaluates to the section ID. By default, the expression is <b>={\$_REQUEST[\"SECTION_ID\"]}</b>.";
+$MESS ['SECTION_CODE_TIP'] = "Specify here the section mnemonic code. You can leave the field empty if <b>section ID</i> is specified.";
+$MESS ['ELEMENT_SORT_FIELD_TIP'] = "The fields by which photos are to be sorted within a section.";
+$MESS ['ELEMENT_SORT_ORDER_TIP'] = "The fields by which photos are to be sorted.";
+$MESS ['FILTER_NAME_TIP'] = "The name of a variable in which the filter settings will be passed. You can leave the field empty to use the default name.";
+$MESS ['FIELD_CODE_TIP'] = "Select here the fields that you want to be shown in the list. If you select <i><b>none</b></i> and do not define field expressions below, the default fields will be shown.";
+$MESS ['PROPERTY_CODE_TIP'] = "Select information block properties that you want to display in an element list. Selecting <i>none</i> and not specifying property codes below will cause properties to be not displayed.";
+$MESS ['SECTION_URL_TIP'] = "Specify here the URL of a page displaying the section contents.";
+$MESS ['DETAIL_URL_TIP'] = "Specify here the path to an information block element details page.";
+$MESS ['PAGE_ELEMENT_COUNT_TIP'] = "Defines the number of elements per page. Other elements will be available via the breadcrumb navigation.";
+$MESS ['LINE_ELEMENT_COUNT_TIP'] = "Specifies the number of photos per table row.";
+$MESS ['DISPLAY_PANEL_TIP'] = "If checked, the tool buttons will be shown on the administration toolbar and the component edit area toolbar in the site edit mode.";
+$MESS ['SET_TITLE_TIP'] = "If checked, the page title will be set to the current section name.";
+$MESS ['ADD_SECTIONS_CHAIN_TIP'] = "Adds the section name to the navigation chain.";
+$MESS ['CACHE_TYPE_TIP'] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cache</i>: no caching is performed.";
+$MESS ['CACHE_TIME_TIP'] = "Specify here the period of time during which the cache is valid.";
+$MESS ['CACHE_FILTER_TIP'] = "Activating this option will cause all filter results to be cached.";
+$MESS ['DISPLAY_TOP_PAGER_TIP'] = "If checked, the breadcrumb navigation links will be displayed at the page top.";
+$MESS ['DISPLAY_BOTTOM_PAGER_TIP'] = "If checked, the breadcrumb navigation links will be displayed at the page bottom.";
+$MESS ['PAGER_TITLE_TIP'] = "The name of an item unit for navigation. For example: photo, image etc.";
+$MESS ['PAGER_SHOW_ALWAYS_TIP'] = "If checked, the breadcrumb navigation controls will be shown even if all elements fit on a page.";
+$MESS ['PAGER_TEMPLATE_TIP'] = "The name of the breadcrumb navigation template. You can leave the field empty to use the default template (<b><i>.default</i></b>). (The system provides an alternative template: <i>orange</i>.)";
+$MESS ['PAGER_DESC_NUMBERING_TIP'] = "Use this option if you want new elements to be placed on top. Thus, only one page in the breadcrumb navigation structure is modified. All other pages can be cached for a considerably long time.";
+$MESS ['PAGER_DESC_NUMBERING_CACHE_TIME_TIP'] = "Time to cache first pages, in seconds, for backward navigation.";
+$MESS ['META_KEYWORDS_TIP'] = "Copy page keywords from property";
+$MESS ['META_DESCRIPTION_TIP'] = "Sets the page description to the property value.";
+$MESS ['AJAX_MODE_TIP'] = "Enables AJAX in the component.";
+$MESS ['AJAX_OPTION_SHADOW_TIP'] = "Specifies to shade modifiable area on AJAX transition.";
+$MESS ['AJAX_OPTION_JUMP_TIP'] = "Specifies to scroll to component when AJAX transition completes.";
+$MESS ['AJAX_OPTION_STYLE_TIP'] = "Specifies to download and process CSS styles of component on AJAX transition.";
+$MESS ['AJAX_OPTION_HISTORY_TIP'] = "Allows \"Back\" and \"Forward\" browser buttons for AJAX transitions.";
+?>

@@ -1,0 +1,150 @@
+div.bpwiz-menu{}
+table.bpwiz-menu{
+	border:none;
+	background-color:#D8E3E8;
+	width:100%;
+	padding:0px;
+	margin:0px;}
+table.bpwiz-menu td {
+	font-size:100%;
+	padding:0px;
+	margin:0px;
+	border:none;}
+table.bpwiz-menu thead, table.bpwiz-menu tfoot, 
+table.bpwiz-menu tbody td.right, table.bpwiz-menu tbody td.left,
+table.bpwiz-menu-inner div.section-separator{
+	display:none;}
+table.bpwiz-menu tbody td.center{
+	width:100%;
+	padding:4px;}
+table.bpwiz-menu div.separator {
+	width:1px; 
+	height:21px; 
+	border-left:1px solid #98B7C5; 
+	margin:0px 3px 0px 3px;}
+table.bpwiz-menu-inner td{
+	vertical-align:bottom;}
+table.bpwiz-menu-inner div.controls a{
+	background-position:2px center;
+	background-repeat:no-repeat;
+border:medium none;
+display:block;
+margin:0;
+padding:3px 3px 5px 23px;
+text-decoration:none;
+vertical-align:bottom;
+white-space:nowrap;
+	border:1px solid #D8E3E8; 
+	color:#072838;}
+table.bpwiz-menu-inner div.controls a:hover {
+	border:1px solid #6290A6; 
+	background-color:#F0F5F7;}
+table.bpwiz-menu-inner div.controls a, 
+table.bpwiz-menu-inner div.controls a:visited, 
+table.bpwiz-menu-inner div.controls a:active {
+	color:#072838;}
+table.bpwiz-menu-inner{}
+/* Top Menu icons*/
+table.bpwiz-menu-inner div.sections a, table.bpwiz-menu-inner div.sections span{
+	background-image: url('images/icons/sections.gif');}
+table.bpwiz-menu-inner div.sections_add a{
+	background-image: url('images/icons/folder_new.gif');}
+table.bpwiz-menu-inner div.tasks_add a{
+	background-image: url('images/icons/task_new.gif');}
+table.bpwiz-menu-inner div.create_view a{ 
+	background-image: url('images/icons/appear_new.gif');}
+table.bpwiz-menu-inner div.edit_view a{ 
+	background-image: url('images/icons/appear_edit.gif');}
+table.bpwiz-menu-inner div.delete_view a{ 
+	background-image: url('images/icons/appear_delete.gif');}
+table.bpwiz-menu-inner div.outlook a{ 
+	background-image: url('images/icons/import_outlook.gif');}
+
+table.bpwiz-menu-inner div.up a{ 
+	background-image: url('images/icons/element_upload.gif');}
+table.bpwiz-menu-inner div.maping a{ 
+	background-image: url('images/icons/maping.gif');}
+div.bpwiz-breadcrumb-navigation{
+	padding-top:10px;}
+div.bpwiz-breadcrumb-navigation span{
+	padding:10px 0;
+	font-size:11px;
+	color:#7f7f7f;}
+div.bpwiz-breadcrumb-navigation a{
+	text-decoration:none;
+	color:#7f7f7f;}
+
+div.empty-clear{
+	clear:both; 
+	width:100%; 
+	overflow:hidden; 
+	height:1px!important;}
+
+table.bpwiz1
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.bpwiz1 td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.bpwiz1 thead td, table.bpwiz1 th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+table.bpwiz1-view-form  
+{
+	width: 100%;
+	border: 1px solid #ABC4D0;
+	border-collapse:collapse;
+	padding: 0px;
+
+}
+table.bpwiz1-view-form td, table.bpwiz1-view-form tbody td
+{
+	font-weight:normal;
+	font-size:11px;
+	border:none;
+	padding:7px;
+}
+
+table.bpwiz1-view-form th
+{
+	font-weight:normal;
+	font-size:12px;
+	background-color:#F0F5F7;
+	padding: 7px;
+	border:none;	
+}
+
+table.bpwiz1-view-form th.bpwiz1-view-form-small
+{
+	font-size:11px;
+}
+
+table.bpwiz1-view-form-smile tbody td, table.bpwiz1-view-form-smile td
+{
+	border:none;
+	padding:3px;
+}
+
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}
+
+.nopadding{padding:0px;}
+.nopadding td{padding:0px;}

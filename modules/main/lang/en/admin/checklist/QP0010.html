@@ -1,0 +1,46 @@
+<p>To achieve best performance of your Bitrix Framework powered web project, you have to configure the server software.
+Unfortunately, the default settings of server software (web server, database
+etc.) are not optimized for extreme working load or high concurrency.</p>
+
+<p>For faster configuration of server software, use one of the following options:</p>
+
+<ul>
+<li>use Bitrix Environment (for Windows or Linux); the installation wizard will
+  set the software parameters for best or optimum performance automatically; </li>
+<li>use Bitrix Virtual Appliance which comes preconfigured for best performance. </li> 
+ </ul>
+ 
+<p>After a thorough examination of one of these products, a skilled system
+administrator will be able to configure the server software manually. It is
+essential to have a good understanding of the meaning and implications that a
+particular parameter may have.</p>
+
+
+<ol>
+<li>Ensure the web server is configured for best performance.</li>
+<li>Ensure the caching proxy server (nginx or similar) is configured for maximum
+  performance for static content. A properly configured caching proxy server
+  significantly improves response time and stability.</li> 
+<li>Ensure that, at a peak load level, the web and proxy servers will be
+  enqueuing requests properly rather than hanging other server software (for the
+  Apache server, the maximum available connection slots must be set according to
+  the average process and RAM size). It is recommended to use a two-tier
+  configuration: front-end (nginx or similar) and back-end (apache, FastCGI etc.).</li> 
+<li>Ensure the database is configured for optimum performance. For MySQL:
+<ul>
+<li>use InnoDB table format for high load websites;</li>
+<li>ensure the innodb buffer pool is sufficient for the current size of the
+  website content and the server RAM;</li> 
+<li>ensure that other buffers and parameters follow the Bitrix Framework
+  recommendations; the disk subsystem is configured for maximum performance or
+  the value of "innodb_flush_log_at_trx_commit" is biased towards higher speed;</li> 
+<li>open "Desktop/Settings/Performance/Database server" and ensure that there is
+  no red notifications;</li> 
+<li>ensure the server still has enough free RAM (Global buffers + Connection
+  buffers * Connections) even if all available database connections are in use.</li> 
+</ul>
+</li>
+</ol>
+
+<p>These tests are optional if Bitrix Environment or Bitrix Virtual Appliance
+was used for server setup.</p>

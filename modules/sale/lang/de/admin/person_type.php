@@ -1,0 +1,37 @@
+<?
+$MESS["SPT_ALL"] = "(alle)";
+$MESS["LANG_ALL"] = "Alle Seiten";
+$MESS["SPTAN_UPDATE_ALT"] = "Bearbeiten";
+$MESS["SPTAN_ERROR_UPDATE"] = "Beim Ändern des Datensatzes ist ein Fehler aufgetreten";
+$MESS["ERROR_UPDATE_REC"] = "Beim Ändern des Datensatzes ist ein Fehler aufgetreten";
+$MESS["SPTAN_ERROR_DELETE"] = "Beim Löschen des Eintrags ist ein Fehler aufgetreten";
+$MESS["ERROR_ADD_REC"] = "Beim Speichern eines Datensatzes ist ein Fehler aufgetreten";
+$MESS["ERROR_NAME_REC"] = "Das Feld \"Bezeichnung\" ist nicht im Datensatz angegeben";
+$MESS["ERROR_LID_REC"] = "Das Feld \"Seite\" ist nicht im Datensatz angegeben";
+$MESS["PERS_TYPE_DEL_CONF"] = "Das Löschen der Kundengruppe zieht das Löschen aller damit verbunden Eigenschaften und Einstellungen nach sich. Wenn diese Kundengruppe Bestellungen besitzt, kann sie nicht gelöscht werden.";
+$MESS["SALE_PROPS"] = "Eigenschaften";
+$MESS["PERS_PROPS"] = "Eigenschaften";
+$MESS["SPTAN_VIEW_PROPS"] = "Eigenschaften anzeigen";
+$MESS["SALE_F_FILTER"] = "Filter";
+$MESS["LANG_FILTER_BTN"] = "Filter festlegen";
+$MESS["SALE_F_DEL"] = "Filter zurücksetzen";
+$MESS["PERS_TYPE_ID"] = "ID";
+$MESS["SPTAN_ADD_NEW_ALT"] = "Klicken Sie hier, um eine neue Kundengruppe hinzuzufügen";
+$MESS["PERSON_TYPE_TITLE"] = "Kundengruppe";
+$MESS["PERS_TYPE_NAV"] = "Kundengruppe";
+$MESS["SPTAN_DELETE_ALT1"] = "Kundengruppe löschen";
+$MESS["PERS_TYPE_DEL"] = "Löschen";
+$MESS["PERS_TYPE_NAME"] = "Name";
+$MESS["SPTAN_ADD_NEW"] = "Neue Kundengruppe";
+$MESS["LANG_FILTER_NAME"] = "Website";
+$MESS["PERS_TYPE_LID"] = "Website";
+$MESS["PERS_TYPE_SORT"] = "Sort.";
+$MESS["PERS_TYPE_UPD"] = "Speichern";
+$MESS["PERS_TYPE_RESET"] = "Zurücksetzen";
+$MESS["SPT_UNSET"] = "Zurücksetzen";
+$MESS["PERS_ACTIVE"] = "Aktiv";
+$MESS["SALE_YES"] = "Ja";
+$MESS["SALE_NO"] = "Nein";
+$MESS["SALE_FIELD_ACTIVE"] = "Aktiv";
+$MESS["SALE_ALL"] = "Alle";
+?>

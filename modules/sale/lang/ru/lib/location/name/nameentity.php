@@ -1,0 +1,5 @@
+<?
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_ADD_NAMES_EXCEPTION"] = "Ошибка добавления имени сущности";
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_UPDATE_NAMES_EXCEPTION"] = "Ошибка изменения имени сущности";
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_DELETE_NAMES_EXCEPTION"] = "Ошибка удаления имени сущности";
+?>

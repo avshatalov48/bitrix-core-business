@@ -1,0 +1,4 @@
+<?
+$MESS["SALE_PS_RESTRICTIONS_BY_CURRENCY"] = "by currency";
+$MESS["SALE_PS_RESTRICTIONS_BY_CURRENCY_NAME"] = "Currency";
+?>

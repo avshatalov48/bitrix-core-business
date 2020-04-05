@@ -1,0 +1,32 @@
+<?
+$MESS["CURRENCY_SETTINGS"] = "General settings";
+$MESS["CURRENCY_SETTINGS_TITLE"] = "Basic parameters for the module";
+$MESS["BASE_CURRENCY"] = "Base currency:";
+$MESS["CO_TAB_RIGHTS"] = "Access";
+$MESS["CO_TAB_RIGHTS_TITLE"] = "Module access permissions";
+$MESS["COP_SYS_ROU"] = "Service operations";
+$MESS["CUR_OPTIONS_BTN_SAVE"] = "Save";
+$MESS["CUR_OPTIONS_BTN_RESET"] = "Reset";
+$MESS["CUR_OPTIONS_BTN_RESTORE_DEFAULT"] = "Default";
+$MESS["CUR_OPTIONS_BTN_HINT_RESTORE_DEFAULT"] = "Set default values";
+$MESS["CUR_OPTIONS_BTN_HINT_RESTORE_DEFAULT_WARNING"] = "Attention! All the parameters will be reset to their default values. Do you want to proceed?";
+$MESS["CURRENCY_PROCEDURES"] = "Service operations";
+$MESS["CURRENCY_BASE_RATE"] = "Current base rates";
+$MESS["CURRENCY_BASE_RATE_TITLE"] = "Actual exchange rates to the base currency";
+$MESS["CUR_PROCEDURES_BTN_RECALC"] = "Recalculate";
+$MESS["CURRENCY_AGENTS"] = "Agents";
+$MESS["CURRENCY_AGENTS_TITLE"] = "Information on module agents";
+$MESS["CURRENCY_BASE_RATE_AGENT"] = "Currency-to-base exchange rate calculation agent";
+$MESS["CURRENCY_BASE_RATE_AGENT_ACTIVE"] = "Active";
+$MESS["CURRENCY_AGENTS_ACTIVE_YES"] = "yes";
+$MESS["CURRENCY_AGENTS_ACTIVE_NO"] = "no";
+$MESS["CURRENCY_AGENTS_LAST_EXEC"] = "Last run";
+$MESS["CURRENCY_AGENTS_NEXT_EXEC"] = "Next run";
+$MESS["CURRENCY_AGENTS_PLANNED_NEXT_EXEC"] = "First scheduled run";
+$MESS["CURRENCY_AGENTS_ACTIVATE"] = "Activate agent";
+$MESS["CURRENCY_AGENTS_DEACTIVATE"] = "Deactivate agent";
+$MESS["CURRENCY_BASE_RATE_AGENT_ABSENT"] = "Attention! Currency-to-base exchange rate calculation agent is missing!";
+$MESS["CURRENCY_AGENTS_CREATE_AGENT"] = "Create agent";
+$MESS["CUR_OPTIONS_BTN_SAVE_TITLE"] = "Save changes";
+$MESS["CUR_OPTIONS_BTN_RESET_TITLE"] = "Undo all unsaved changes";
+?>

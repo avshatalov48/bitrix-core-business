@@ -1,0 +1,1 @@
+<?php require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/tools/conversion/ajax_counter.php');

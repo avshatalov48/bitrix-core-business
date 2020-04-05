@@ -1,0 +1,24 @@
+<?
+$MESS["LEARNING_MENU_LEARNING"] = "e-Learning";
+$MESS["LEARNING_MENU_COURSES"] = "Courses";
+$MESS["LEARNING_MENU_COURSES_ALT"] = "Courses list";
+$MESS["LEARNING_MENU_COURSES_OTHER"] = "Other";
+$MESS["LEARNING_CHAPTERS_LIST"] = "List of chapters";
+$MESS["LEARNING_LESSONS_LIST"] = "All lessons list";
+$MESS["LEARNING_QUESTION_LIST"] = "All questions list";
+$MESS["LEARNING_MENU_STUDENTS"] = "Students";
+$MESS["LEARNING_MENU_STUDENTS_ALT"] = "List of students";
+$MESS["LEARNING_MENU_GRADEBOOK"] = "Grade book";
+$MESS["LEARNING_MENU_GRADEBOOK_ALT"] = "Grade book";
+$MESS["LEARNING_MENU_ATTEMPT"] = "Attempts";
+$MESS["LEARNING_MENU_ATTEMPT_ALT"] = "Attempts";
+$MESS["LEARNING_MENU_IMPORT"] = "Import";
+$MESS["LEARNING_MENU_IMPORT_ALT"] = "Course import";
+$MESS["LEARNING_MENU_EXPORT"] = "Export";
+$MESS["LEARNING_MENU_EXPORT_ALT"] = "Course export";
+$MESS["LEARNING_MENU_LEARNING_TITLE"] = "e-Learning control panel";
+$MESS["LEARNING_MENU_CERTIFICATION"] = "Certification";
+$MESS["LEARNING_MENU_CERTIFICATION_ALT"] = "Certification";
+$MESS["LEARNING_MENU_GROUPS"] = "Classes";
+$MESS["LEARNING_MENU_GROUPS_ALT"] = "Manage classes";
+?>

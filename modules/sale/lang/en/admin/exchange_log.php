@@ -1,0 +1,29 @@
+<?
+$MESS["LOG_ID"] = "ID";
+$MESS["LOG_ENTITY_ID"] = "Entity ID";
+$MESS["LOG_ENTITY_TYPE_ID"] = "Entity type";
+$MESS["LOG_PARENT_ID"] = "Container ID";
+$MESS["LOG_OWNER_ENTITY_ID"] = "Parent entity ID";
+$MESS["LOG_ENTITY_DATE_UPDATE"] = "Entity last updated on";
+$MESS["LOG_XML_ID"] = "External ID";
+$MESS["LOG_MARKED"] = "Marked";
+$MESS["LOG_MARKED_Y"] = "Yes";
+$MESS["LOG_MESSAGE"] = "Full query/response text";
+$MESS["LOG_DATE_INSERT"] = "Created on";
+$MESS["group_admin_nav"] = "Entities";
+$MESS["LOG_TITLE"] = "Entity exchange log";
+$MESS["LOG_NOTES1"] = "The log includes entities created while exporting or importing";
+$MESS["LOG_REPORT_TYPES"] = "Entity type";
+$MESS["LOG_REPORT_DATE_INSERT"] = "Created on";
+$MESS["LOG_REPORT_ENTITY_ID"] = "Entity ID";
+$MESS["LOG_REPORT_PARENT_ENTITY_ID"] = "Container ID";
+$MESS["LOG_REPORT_DIRECTION_ID"] = "Direction";
+$MESS["LOG_REPORT_DIRECTION_EXPORT"] = "Export";
+$MESS["LOG_REPORT_DIRECTION_IMPORT"] = "Import";
+$MESS["LOG_REPORT_XML_ID"] = "External ID";
+$MESS["LOG_REPORT_FROM"] = "from";
+$MESS["LOG_REPORT_TO"] = "to";
+$MESS["REPORT_ALL"] = "all";
+$MESS["REPORT_SHOW_SET"] = "Expand";
+$MESS["REPORT_HIDE_SET"] = "Hide";
+?>

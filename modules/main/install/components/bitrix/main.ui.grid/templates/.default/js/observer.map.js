@@ -1,0 +1,1 @@
+{"version":3,"file":"observer.min.js","sources":["observer.js"],"names":["BX","namespace","Grid","observer","handlers","add","node","event","handler","context","bind","proxy"],"mappings":"CAAC,WACA,YAEAA,IAAGC,UAAU,UAEbD,IAAGE,KAAKC,UACPC,YACAC,IAAK,SAASC,EAAMC,EAAOC,EAASC,GAEnCT,GAAGU,KAAKJ,EAAMC,EAAOE,EAAUT,GAAGW,MAAMH,EAASC,GAAWD"}

@@ -1,0 +1,59 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none;
+	padding:6px 5px;
+	background:transparent;
+}
+div.bx-group-control {
+	padding: 0px 0px 0px 10px;
+	margin: 14px 0px 14px 0px;
+	border-left:1px solid #C4C4C4;
+	border-bottom:1px solid white;
+}
+
+div.bx-group-control ul {list-style-image: none; list-style-position: outside; list-style-type:none; margin:0; padding:0;}
+div.bx-group-control li {
+	padding: 3px 0px 2px 22px;
+	margin-top: 1px;
+	display: block;
+	background-repeat: no-repeat;
+}
+
+div.bx-group-control .bx-icon-edit{background-image:url(images/edit.gif);}
+div.bx-group-control .bx-icon-settings{background-image:url(images/settings.gif);}
+div.bx-group-control .bx-icon-del{background-image:url(images/del.gif);}
+
+div.bx-group-control .bx-icon-mod-edit{background-image:url(images/mod_edit.gif);}
+div.bx-group-control .bx-icon-mod-view{background-image:url(images/mod_view.gif);}
+div.bx-group-control .bx-icon-memb-edit{background-image:url(images/memb_edit.gif);}
+div.bx-group-control .bx-icon-blacklist{background-image:url(images/blacklist.gif);}
+div.bx-group-control .bx-icon-memb-view{background-image:url(images/memb_view.gif);}
+div.bx-group-control .bx-icon-invite{background-image:url(images/invite.gif);}
+div.bx-group-control .bx-icon-requests{background-image:url(images/request.gif);}
+div.bx-group-control .bx-icon-join{background-image:url(images/join.gif);}
+div.bx-group-control .bx-icon-leave{background-image:url(images/leave.gif);}
+div.bx-group-control li.bx-icon-message{background-image:url(images/message.gif);}

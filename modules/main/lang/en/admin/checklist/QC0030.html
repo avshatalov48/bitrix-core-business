@@ -1,0 +1,40 @@
+<p>The components 2.0 you create for your projects should be made easy to use
+and configure without having to call third-party specialists or the original
+developers. Consider an example: thirty components 2.0 were created for use in a
+project internally titled as "myproject". Among these thirty components, there
+is one titled "Registered Users" dubbed in the namespace as "myproject:members.list".
+What parameters a component like this may possibly have? It is a question of the
+nature of the project and possible use. Normally, such components have the
+following parameters:</p>
+<ul>
+<li>Number of users per page;</li>
+<li>User name format: short or full;</li>
+<li>Maximum number of words in description (the remainder of which is replaced
+  with ellipsis when printed on the screen);</li>
+<li>Scramble e-mail address (for antispam purposes);</li>
+<li>Sort list by: (followed by a combobox with the available columns);</li>
+<li>other possibly useful parameters.</li>
+</ul>
+<p>It is most possible that a project administrator will need to edit these
+settings to fit the component to the project requirements.</p>
+<p>However, consider the following parameters. They are more than confusing and
+generally well understood only by the component developers:</p>
+<ul>
+<li>Data caching algorithm;</li>
+<li>JSON request format;</li>
+<li>User groups allowed to view lists;</li>
+<li>other possibly useful but very obscure parameters.</li>
+</ul>
+<p>If you feel these parameters will be of use in the future, isolate them into
+a special control group and provide a good documentation, including possible
+values, for each of the parameters.</p>
+<p>If you create a &quot;standard&quot;, multipurpose component which will be
+reused in many projects, make every (reasonably) possible parameter configurable
+and describe each of them in the help section. If you don't intend a component
+for future use, there is no need to go to such lengths.</p>
+<p>Examine the parameters of each of the custom component 2.0 in the public
+section. Make sure each of the parameters has a clear, unambiguous name and is
+properly described. A project administrator must have a good understanding of
+the purpose, possible values and data types of each of the parameters. It is
+recommended to verify that each of the parameters intended for administrative
+use works as intended.</p>

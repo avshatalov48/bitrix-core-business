@@ -1,0 +1,13 @@
+truncate table b_form;
+truncate table b_form_2_mail_template;
+truncate table b_form_2_site;
+truncate table b_form_answer;
+truncate table b_form_field;
+truncate table b_form_field_filter;
+truncate table b_form_field_validator;
+truncate table b_form_menu;
+truncate table b_form_result;
+truncate table b_form_result_answer;
+truncate table b_form_2_group;
+truncate table b_form_status_2_group;
+truncate table b_form_status;

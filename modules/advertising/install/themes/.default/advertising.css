@@ -1,0 +1,88 @@
+/*Menu icon*/
+#advertising_menu_icon {background-image:url(icons/advertising/mnu_advertising.gif);}
+#advertising_page_icon {background-image:url(icons/advertising/title.gif);}
+
+/*Toolbar icons*/
+#btn_adv_graph {background-image:url(icons/advertising/graph.gif);}
+#btn_adv_diagram {background-image:url(icons/advertising/diagram.gif);}
+#btn_adv_edit {background-image:url(icons/advertising/edit.gif);}
+#btn_adv_view {background-image:url(icons/advertising/view.gif);}
+
+/*Common actions icons */
+div.popupitem div.adv_graph {background-image:url(icons/advertising/graph.gif);}
+div.popupitem div.adv_diagram {background-image:url(icons/advertising/diagram.gif);}
+
+
+.input_hidden {
+    position: absolute;
+    left: -9999px;
+}
+.selected_radio {
+    background-color: #5ca6e4;
+}
+.selected_radio:hover {
+    background-color: #5ca6e4!important;
+}
+label.preset{
+    display: inline-block;
+    cursor: pointer;
+}
+label.preset:hover {
+    background-color: #ccc;
+}
+.advdrag.adv-template-banner-container{
+    background: none;
+    border-style: dashed;
+    border-color: rgb(171, 178, 189);
+    border-width: 2px;
+    margin-left: 5px;
+    background-color: rgb(230, 235, 237);
+    margin-bottom: 37px;
+}
+.advdrag.adv-template-banner-container-head{
+    visibility: hidden;
+}
+.adv-banner-show-button:after {
+    content: '';
+    position: relative;
+    top: 10px;
+    bottom: 0;
+    right: -3px;
+    margin: auto;
+    height: 0;
+    border: 4px solid transparent;
+    border-top: 4px solid #475056;
+    border-bottom: none;
+}
+.adv-banner-show-button.adv-banner-hide-button:after {
+    content: '';
+    position: relative;
+    top: -10px;
+    bottom: 0;
+    right: -3px;
+    margin: auto;
+    height: 0;
+    border: 4px solid transparent;
+    border-bottom: 4px solid #475056;
+    border-top: none;
+}
+.adv-rename-dialog {
+    padding: 10px 0px;
+    display: none;
+}
+.bxcompprop-info-btn {
+    background: url(icons/advertising/tooltip-sprite.png) no-repeat center 1px;
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    margin: 0 0 2px 4px;
+    vertical-align: middle;
+    visibility: hidden;
+    width: 20px;
+}
+.adv-banner-tbody tr:hover .bxcompprop-info-btn {
+    visibility: visible;
+}
+.bxcompprop-info-btn:hover {
+    background-position: center -29px;
+}

@@ -1,0 +1,17 @@
+DROP TABLE if exists b_sender_list;
+DROP TABLE if exists b_sender_contact;
+DROP TABLE if exists b_sender_contact_list;
+DROP TABLE if exists b_sender_group;
+DROP TABLE if exists b_sender_group_connector;
+DROP TABLE if exists b_sender_mailing;
+DROP TABLE if exists b_sender_mailing_chain;
+DROP TABLE if exists b_sender_mailing_group;
+DROP TABLE if exists b_sender_mailing_subscription;
+DROP TABLE if exists b_sender_posting;
+DROP TABLE if exists b_sender_posting_recipient;
+DROP TABLE if exists b_sender_posting_read;
+DROP TABLE if exists b_sender_posting_click;
+DROP TABLE if exists b_sender_posting_unsub;
+DROP TABLE if exists b_sender_preset_template;
+DROP TABLE if exists b_sender_mailing_attachment;
+DROP TABLE if exists b_sender_mailing_trigger;

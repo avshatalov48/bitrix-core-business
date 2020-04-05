@@ -1,0 +1,28 @@
+var owner_id = "%OWNER_ID%";
+var count =%COUNT%;
+var data =%DATA%;
+var res = [];
+
+var i = 0;
+while (i < count) {
+
+    var res_curr = [];
+    var params = {
+        "owner_id": owner_id,
+        "item_id": data[i].VK_ID,
+        "album_ids": data[i].ALBUM_VK_ID,
+    };
+
+    var res_add = API.market.addToAlbum(params);
+    if(res_add){
+        res_curr.flag_addtoalbum_result = true;
+    } else {
+        res_curr.flag_addtoalbum_result = false;
+    }
+
+    res_curr.BX_ID = data[i].BX_ID;
+    res = res + [res_curr];
+    i = i + 1;
+}
+
+return res;

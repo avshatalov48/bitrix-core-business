@@ -1,0 +1,24 @@
+<?
+$MESS["MAIN_COMPOSITE_LOG_MESSAGE"] = "Сообщение";
+$MESS["MAIN_COMPOSITE_LOG_BUFFER_RESTART"] = "Вызов RestartBuffer";
+$MESS["MAIN_COMPOSITE_LOG_CACHE_REWRITING"] = "Перезапись кеша";
+$MESS["MAIN_COMPOSITE_LOG_COMPONENT_VOTING"] = "Голосование компонента \"Против\"";
+$MESS["MAIN_COMPOSITE_LOG_AJAX_REQUEST"] = "Ajax-запрос";
+$MESS["MAIN_COMPOSITE_LOG_NCC_PARAMETER"] = "Параметр ncc";
+$MESS["MAIN_COMPOSITE_LOG_BITRIX_FOLDER"] = "Директория /bitrix/";
+$MESS["MAIN_COMPOSITE_LOG_CONTROLLER_FILE"] = "Файл index_controller.php";
+$MESS["MAIN_COMPOSITE_LOG_GET_METHOD_ONLY"] = "Не GET-запрос";
+$MESS["MAIN_COMPOSITE_LOG_SESSID_PARAMETER"] = "Параметр sessid";
+$MESS["MAIN_COMPOSITE_LOG_NCC_COOKIE"] = "Cookie NCC";
+$MESS["MAIN_COMPOSITE_LOG_CC_COOKIE_NOT_FOUND"] = "Cookie CC не найдена";
+$MESS["MAIN_COMPOSITE_LOG_EXCLUDE_MASK"] = "Маска исключения";
+$MESS["MAIN_COMPOSITE_LOG_EXCLUDE_PARAMETER"] = "Параметр-исключение";
+$MESS["MAIN_COMPOSITE_LOG_INCLUDE_MASK"] = "Маска включения";
+$MESS["MAIN_COMPOSITE_LOG_INVALID_HOST"] = "Неверный домен";
+$MESS["MAIN_COMPOSITE_LOG_INVALID_QUERY_STRING"] = "Неверный параметр запроса";
+$MESS["MAIN_COMPOSITE_LOG_ADMIN_PANEL"] = "Административная панель";
+$MESS["MAIN_COMPOSITE_LOG_LOCAL_REDIRECT"] = "Локальный редирект (LocalRedirect)";
+$MESS["MAIN_COMPOSITE_LOG_PHP_SHUTDOWN"] = "Аварийное завершение PHP (die)";
+$MESS["MAIN_COMPOSITE_LOG_COMPOSITE_NOT_INJECTED"] = "Композитный Javascript не внедрен";
+$MESS["MAIN_COMPOSITE_LOG_PAGE_NOT_CACHEABLE"] = "Страница против кеширования (markNonCacheable)";
+$MESS["MAIN_COMPOSITE_LOG_CACHE_RESET"] = "Сброс кеша";

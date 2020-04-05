@@ -1,0 +1,86 @@
+/*  ******** clock css  ******** */
+.bxc-iconkit-c{background-image: url(/bitrix/images/main/clock/clock_iconkit.gif);}
+.bxc-iconkit-a{background-image: url(/bitrix/images/main/clock/arrows_iconkit.gif);}
+
+img.bx-clock-icon{width: 18px; height: 19px; background-position: 0px -95px; border-width: 0px; margin: 1px 1px 1px 6px; vertical-align: top;}
+/* a.bxc-icon-hover img.bx-clock-icon{background-color:#DBE3F2; border:1px solid #AEB6C2; margin:1px 0 0 1px;}  */
+
+div.bx-clock-label, div.bx-clock-label-over{border-width: 1px; border-style: solid; border-color: #FFFFFF; width: 40px; margin-right: 2px; height: 17px; float: left; padding: 2px 1px 0px 2px;}
+div.bx-clock-label-over{border-color:#78787A #DBDBDB #DBDBDB #78787A;}
+
+img.bxc-close{width: 14px; height: 14px; background-position: -31px -97px; position: absolute; top: -122px; right: 5px; cursor: pointer;}
+div.bxc-title {width: 85px; position: absolute; top: -122px; left: 5px; color: #FFFFFF; font-weight: bold; text-align: left; font-size: 12px; cursor: move !important;}
+
+div.bx-clock-div {width: 117px; height: 185px; border: 1px solid #AEB3B6; position: absolute; background: url(/bitrix/images/main/clock/title_bg.gif) repeat-x #FFFFFF; z-index: 150; display: none;}
+
+div.bx-clock-div-inline {background-image: none; height: 134px;}
+div.bx-clock-div-inline_am_pm {background-image: none; height: 145px;}
+div.bx-clock-div-inline .bxc-clock-cont {margin-top: 7px;}
+div.bx-clock-div-inline_am_pm .bxc-clock-cont {margin-top: 7px;}
+div.bx-clock-div-inline .bxc-controls-cont {height: 27px;}
+div.bx-clock-div-inline_am_pm .bxc-controls-cont {height: 27px;}
+div.bx-clock-div-inline div.bxc-mouse-control-cont{top: -15px; left: -15px; width: 120px; height: 150px; z-index: 155;}
+div.bx-clock-div-inline_am_pm div.bxc-mouse-control-cont{top: -15px; left: -15px; width: 120px; height: 150px; z-index: 155;}
+
+div.bxc-clock-cont {width: 95px; height: 95px; background-position: -0px -0px; margin: 23px 6px 5px 11px;}
+
+div.bxc-arrows-cont{position: relative; width: 95px; height: 95px;}
+div.bxc-mouse-control-cont{position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; z-index: 155; background-image: url(/bitrix/images/1.gif); cursor: default;}
+
+/* minute arrow */
+img.bxc-min-arr-cont{position: absolute; width: 38px; height: 38px; z-index: 145;}
+.m0 img.bxc-min-arr-cont{background-position: -96px -50px; top: 12px; left: 39px;}
+.m5 img.bxc-min-arr-cont{background-position: -131px -50px; top: 12px; left: 39px;}
+.m10 img.bxc-min-arr-cont{background-position: -171px -50px; top: 12px; left: 39px;}
+.m15 img.bxc-min-arr-cont{background-position: -217px -82px; top: 44px; left: 43px;}
+.m20 img.bxc-min-arr-cont{background-position: -261px -82px; top: 44px; left: 43px;}
+.m25 img.bxc-min-arr-cont{background-position: -303px -82px; top: 44px; left: 43px;}
+.m30 img.bxc-min-arr-cont{background-position: -325px -80px; top: 42px; left: 18px;}
+.m35 img.bxc-min-arr-cont{background-position: -366px -80px; top: 42px; left: 18px;}
+.m40 img.bxc-min-arr-cont{background-position: -407px -80px; top: 42px; left: 18px;}
+.m45 img.bxc-min-arr-cont{background-position: -443px -50px; top: 12px; left: 11px;}
+.m50 img.bxc-min-arr-cont{background-position: -487px -50px; top: 12px; left: 11px;}
+.m55 img.bxc-min-arr-cont{background-position: -530px -50px; top: 12px; left: 11px;}
+
+/* hour arrow */
+img.bxc-hour-arr-cont{position: absolute; width: 31px; height: 31px; z-index: 140;}
+.h0 img.bxc-hour-arr-cont{background-position: -98px -0px; top: 21px; left: 41px;}
+.h1 img.bxc-hour-arr-cont{background-position: -128px -0px; top: 21px; left: 41px;}
+.h2 img.bxc-hour-arr-cont{background-position: -158px -0px; top: 21px; left: 41px;}
+.h3 img.bxc-hour-arr-cont{background-position: -193px -19px; top: 40px; left: 43px;}
+.h4 img.bxc-hour-arr-cont{background-position: -228px -19px; top: 40px; left: 43px;}
+.h5 img.bxc-hour-arr-cont{background-position: -257px -19px; top: 40px; left: 40px;}
+.h6 img.bxc-hour-arr-cont{background-position: -288px -21px; top: 42px; left: 42px;}
+.h7 img.bxc-hour-arr-cont{background-position: -307px -21px; top: 42px; left: 21px;}
+.h8 img.bxc-hour-arr-cont{background-position: -343px -21px; top: 42px; left: 21px;}
+.h9 img.bxc-hour-arr-cont{background-position: -378px -0px; top: 21px; left: 21px;}
+.h10 img.bxc-hour-arr-cont{background-position: -412px -0px; top: 21px; left: 21px;}
+.h11 img.bxc-hour-arr-cont{background-position: -445px -0px; top: 21px; left: 22px;}
+
+/* double arrow */
+.hideh img.bxc-hour-arr-cont{display: none;}
+.hm0 img.bxc-min-arr-cont{background-position: -96px -117px; top: 12px; left: 39px;}
+.hm1 img.bxc-min-arr-cont{background-position: -131px -117px; top: 12px; left: 39px;}
+.hm2 img.bxc-min-arr-cont{background-position: -172px -117px; top: 12px; left: 39px;}
+.hm3 img.bxc-min-arr-cont{background-position: -218px -149px; top: 44px; left: 43px;}
+.hm4 img.bxc-min-arr-cont{background-position: -260px -149px; top: 44px; left: 43px;}
+.hm5 img.bxc-min-arr-cont{background-position: -303px -149px; top: 44px; left: 43px;}
+.hm6 img.bxc-min-arr-cont{background-position: -325px -147px; top: 42px; left: 18px;}
+.hm7 img.bxc-min-arr-cont{background-position: -366px -147px; top: 42px; left: 18px;}
+.hm8 img.bxc-min-arr-cont{background-position: -407px -147px; top: 42px; left: 18px;}
+.hm9 img.bxc-min-arr-cont{background-position: -443px -117px; top: 12px; left: 11px;}
+.hm10 img.bxc-min-arr-cont{background-position: -489px -117px; top: 12px; left: 11px;}
+.hm11 img.bxc-min-arr-cont{background-position: -534px -117px; top: 12px; left: 11px;}
+
+div.bxc-controls-cont{width: 120px; height: 65px; position: relative; z-index: 156; text-align: center;}
+div.bxc-controls-cont input {font-size: 11px; color: #000000; width: 95px; margin: 0px;}
+input.bxc-cus-sel{width: 22px !important; border: 1px solid #AEB3B6 !important; margin: 0px !important;}
+table.bxc-cus-sel-tbl {border-collapse: collapse; margin:2px; float: left; border: 1px solid #FFF;}
+span.double-dot {display:block; float:left; vertical-align:top; width:5px; margin: 2px;}
+table.bxc-cus-sel-tbl td{padding: 0px;}
+table.bxc-cus-sel-tbl td.bxc-pointer{cursor: pointer;line-height: 1px;}
+
+img.bxc-slide-up{width: 9px; height: 7px; background-position: -17px -98px;}
+img.bxc-slide-down{width: 9px; height: 7px; background-position: -17px -105px;}
+
+.bxc-am-pm {color:#959697; cursor:pointer; font-size:12px; line-height:14px; font-family:Arial, sans-serif; text-align:right; top:3px; right:8px; text-transform:uppercase; position:absolute; width:25px;}

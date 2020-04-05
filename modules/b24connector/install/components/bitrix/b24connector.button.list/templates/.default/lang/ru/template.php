@@ -1,0 +1,31 @@
+<?
+$MESS["B24C_BL_LIST_ITEM_DATE_CREATE"] = "Дата создания";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_ON"] = "вкл";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_OFF"] = "выкл";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_ON_NOW"] = "активировал сейчас";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_OFF_NOW"] = "деактивировал сейчас";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_ACTIVATED"] = "активировал";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_DEACTIVATED"] = "деактивировал";
+$MESS["B24C_BL_LIST_ITEM_ACTIVE_ACT_ON"] = "в";
+$MESS["B24C_BL_LIST_ERROR_ACTION"] = "Произошла ошибка. Действие отменено.";
+$MESS["B24C_BL_LIST_DELETE_CONFIRM"] = "Удалить эту форму?";
+$MESS["B24C_BL_LIST_CLOSE"] = "Закрыть";
+$MESS["B24C_BL_LIST_APPLY"] = "Выполнить";
+$MESS["B24C_BL_LIST_CANCEL"] = "Отменить";
+$MESS["B24C_BL_OL_U"] = "Виджет объединяет все цифровые каналы коммуникаций с клиентами в вашем Битрикс24.";
+$MESS["B24C_BL_ALL_C"] = "Все способы коммуникаций с вашей компанией в одном виджете на сайт.";
+$MESS["B24C_BL_AC_C"] = "Онлайн-чат, обратный звонок, CRM-форма - весь необходимый функционал для связи вашей компании с вашими клиентами.";
+$MESS["B24C_BL_AC_C2"] = "Виджет поможет повысить конверсию сайта и увеличить продуктивность отдела продаж.";
+$MESS["B24C_BL_AC_C3"] = "Одним нажатием вы установите виджет на свой сайт.";
+$MESS["B24C_BL_AC_C4"] = "На сайте появляется \"кнопка\".";
+$MESS["B24C_BL_AC_C5"] = "Посетители заходят на ваш сайт, нажимают на кнопку и выбирают удобный способ связи с компанией: чат, звонок или форму.";
+$MESS["B24C_BL_SITE_BUTTONS"] = "Список виджетов";
+$MESS["B24C_BL_NOT_CHOSEN"] = "Не выбрано";
+$MESS["B24C_BL_LOCATION"] = "Положение на странице";
+$MESS["B24C_BL_BUT_ACTIVE"] = "Виджет активен";
+$MESS["B24C_BL_BUT_NOT_ACTIVE"] = "Виджет неактивен";
+$MESS["B24C_BL_LIST_VIEW"] = "Настройки отображения";
+$MESS["B24C_BL_WIDGET_EDIT"] = "Перейти к редактированию виджета в Битрикс24";
+$MESS["B24C_BL_WIDGETS"] = "Виджеты";
+$MESS["B24C_BL_CREATE_B24"] = "Создать новый Битрикс24";
+

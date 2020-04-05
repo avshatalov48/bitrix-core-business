@@ -1,0 +1,157 @@
+.sonet-slider-frame-popup .socialnetwork-group-content {
+	padding: 15px 15px 20px;
+	position: relative;
+}
+
+.socialnetwork-group-box {
+	display: flex;
+	align-items: center;
+	padding: 10px 0;
+	min-height: 61px;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	box-sizing: border-box;
+}
+
+.socialnetwork-group-box:last-child {
+	border: 0;
+}
+
+.socialnetwork-group-title {
+	display: inline-block;
+	margin: 20px 0;
+	font: 19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #3B3B3B;
+}
+
+.socialnetwork-group-desc {
+	margin: 10px 0 31px 0;
+	font: 14px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #8F959D;
+}
+
+.socialnetwork-group-link {
+	display: inline-block;
+	border-bottom: 1px dashed rgba(82,92,105,.58);
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	transition: border-bottom .3s;
+	cursor: pointer;
+}
+
+.socialnetwork-group-link:hover {
+	border-bottom: 1px dashed transparent;
+	color: #525C69;
+}
+
+.socialnetwork-group-left {
+	flex: 0 1 130px;
+	margin: 0 19px 0 0;
+	font: 14px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828B95;
+}
+
+.socialnetwork-group-right {
+	flex: 1;
+	color: #525C69;
+}
+
+.socialnetwork-group-user-box {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 312px;
+}
+
+.socialnetwork-group-user {
+	display: inline-block;
+	margin: 0 10px 15px 0;
+	width: 24px;
+	height: 24px;
+	border-radius: 100%;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3Euserpic%3C/title%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585-1.734-.483-3.383-1.233-4.887-2.223-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04.388-2.625.388-5.293%200-7.918-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217c.024.58-.023%201.162-.14%201.732-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	background-size: cover;
+	cursor: pointer;
+}
+
+.socialnetwork-group-user-more {
+	display: inline-block;
+	align-self: center;
+	height: 32px;
+	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828B95;
+	transition: opacity .3s;
+	cursor: pointer;
+}
+
+.socialnetwork-group-user-more:hover {
+	opacity: .6;
+}
+
+.socialnetwork-group-tag-box {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.socialnetwork-group-tag {
+	display: inline-block;
+	border-bottom: 1px solid transparent;
+	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #1069C3;
+	transition: border-bottom .3s;
+	cursor: pointer;
+}
+
+.socialnetwork-group-tag:after {
+	content: ',';
+	margin: 0 5px 0 0;
+}
+.socialnetwork-group-tag:last-child:after {
+	content: '';
+	margin: 0;
+}
+
+
+.socialnetwork-group-tag:hover {
+	border-bottom: 1px solid #1069C3;
+}
+
+.socialnetwork-group-fav-switch,
+.socialnetwork-group-fav-switch:before,
+.socialnetwork-group-fav-switch:after {
+	background: url("images/sprite.png?1") no-repeat 37px -1027px;
+	cursor: pointer;
+	height: 65px;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 65px;
+	z-index: 10;
+}
+
+.socialnetwork-group-fav-switch:before,
+.socialnetwork-group-fav-switch:after {
+	background-position: -26px -1025px;
+	content: '';
+	opacity: 0;
+
+	-webkit-transition: opacity 0.2s linear;
+	transition: opacity 0.2s linear;
+}
+
+.socialnetwork-group-fav-switch:hover:before {
+	opacity: 1;
+}
+
+.socialnetwork-group-fav-switch-active:after {
+	background-position: -91px -1025px;
+	opacity: 1;
+}
+
+.socialnetwork-group-fav-switch-active:hover:before {
+	opacity: 0;
+}
+
+
+.socialnetwork-group-wait-cont { height: 31px; }
+.socialnetwork-group-wait-icon { height: 31px; width: 31px; background: url('images/wait.gif') no-repeat 0 0; display: inline-block; position: relative; left: 1px; top: 1px; }
+.socialnetwork-group-wait-text { height: 31px; display: inline-block; position: relative; padding: 0 10px 0 5px; left: 1px; top: -11px; color: #7F7F7F; }

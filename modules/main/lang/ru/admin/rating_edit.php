@@ -1,0 +1,33 @@
+<?
+$MESS["MAIN_RATING_EDIT_RECORD"] = "Редактирование рейтинга # #ID#";
+$MESS["MAIN_RATING_NEW_RECORD"] = "Создание рейтинга";
+$MESS["RATING_LIST"] = "Список рейтингов";
+$MESS["RATING_LIST_TITLE"] = "Перейти в списку рейтингов";
+$MESS["RATING_EDIT_ADD"] = "Добавить";
+$MESS["RATING_EDIT_ADD_TITLE"] = "Добавить новый рейтинг";
+$MESS["RATING_EDIT_DEL"] = "Удалить";
+$MESS["RATING_EDIT_DEL_TITLE"] = "Удалить данную запись";
+$MESS["RATING_EDIT_DEL_CONF"] = "Вы уверены, что хотите удалить запись из рейтингов?";
+$MESS["RATING_EDIT_TAB_MAIN"] = "Основные параметры";
+$MESS["RATING_EDIT_TAB_MAIN_TITLE"] = "Именование, оцениваемый объект и критерии рейтингования";
+$MESS["RATING_EDIT_FRM_ACTIVE"] = "Активность:";
+$MESS["RATING_EDIT_FRM_NAME"] = "Название:";
+$MESS["RATING_EDIT_FRM_TYPE_ID"] = "Оцениваемый объект:";
+$MESS["RATING_EDIT_FRM_CUR_VAL"] = "Доп. поле для текущего значения:";
+$MESS["RATING_EDIT_FRM_PREV_VAL"] = "Доп. поле для предыдущего значения:";
+$MESS["RATING_EDIT_FRM_CALC_METHOD"] = "Способ подсчёта:";
+$MESS["RATING_EDIT_CALC_METHOD_SUM"] = "Сумма";
+$MESS["RATING_EDIT_CALC_METHOD_AVG"] = "Среднее";
+$MESS["RATING_EDIT_SUCCESS"] = "Запись успешно сохранена.";
+$MESS["RATING_EDIT_ERROR"] = "Ошибка при сохранении";
+$MESS["RATING_DEF_NAME"] = "Рейтинг пользователя";
+$MESS["RATING_FIELDS_DEF_NAME"] = "Коэффициент:";
+$MESS["RATING_FIELDS_DEF_DESC"] = "Оценка основывается на итогах голосования.";
+$MESS["RATING_FIELDS_DEF_FORMULA"] = "Total * K";
+$MESS["RATING_FIELDS_DEF_FORMULA_DESC"] = "Total - итог голосования; K - коэффициент для итогов голосования, определяемый пользователем.";
+$MESS["RATING_EDIT_FRM_POSITION"] = "Рассчитывать место в рейтинге:";
+$MESS["RATING_EDIT_FRM_AUTHORITY"] = "Использовать этот рейтинг для расчёта авторитета:";
+$MESS["RATING_EDIT_FRM_NEW_CALC"] = "Обнулить предыдущие результаты рейтинга после сохранения:";
+$MESS["RATING_EDIT_CAT_RATING_COMPONENT"] = "Критерии рейтингования";
+$MESS["RATING_EDIT_CAT_WHAT_NEW_CALC"] = "Результаты рейтинга";
+?>

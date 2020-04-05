@@ -1,0 +1,36 @@
+<?
+$MESS["BLB_GROUP_NAV"] = "Комментарии";
+$MESS["BLB_DATE_CREATE"] = "Дата создания";
+$MESS["BLB_AUTHOR_ID"] = "Автор";
+$MESS["BLB_TITLE"] = "Комментарии";
+$MESS["BLB_F_ALL"] = "(Все)";
+$MESS["BLB_YES"] = "Да";
+$MESS["BLB_NO"] = "Нет";
+$MESS["BLB_DELETE_ALT"] = "Удалить";
+$MESS["BLB_DELETE_CONF"] = "Вы уверены, что хотите удалить этот комментарий?";
+$MESS["BLB_HIDE_ALT"] = "Скрыть";
+$MESS["BLB_SHOW_ALT"] = "Показать";
+$MESS["BLB_DELETE_ERROR"] = "Ошибка удаления комментария";
+$MESS["BLB_HIDE_ERROR"] = "Ошибка при скрытии комментария";
+$MESS["BLB_SHOW_ERROR"] = "Ошибка при показе комментария";
+$MESS["BLB_VIEW_ALT"] = "Просмотреть комментарий на сайте";
+$MESS["BLB_AUTHOR_NAME"] = "Имя автора";
+$MESS["BLB_AUTHOR_EMAIL"] = "Email автора";
+$MESS["BLB_AUTHOR_IP"] = "IP автора";
+$MESS["BLB_AUTHOR_IP1"] = "IP1 автора";
+$MESS["BLB_PUBLISH_STATUS"] = "Опубликован";
+$MESS["BLB_POST_TEXT"] = "Текст комментария";
+$MESS["BLB_BLOG_ID"] = "Блог";
+$MESS["BLB_POST_ID"] = "Сообщение";
+$MESS["BLB_BLOG_OWNER_ID"] = "Владелец блога";
+$MESS["BLB_BLOG_SOCNET_GROUP_ID"] = "Группа-владелец блога";
+$MESS["BLB_BLOG_ACTIVE"] = "Блог активен";
+$MESS["BLB_BLOG_GROUP_ID"] = "Группа блогов";
+$MESS["BLB_BLOG_GROUP_SITE_ID"] = "Сайт";
+$MESS["BLB_COMMENT"] = "Комментарий";
+$MESS["BLB_AUTHOR_ANONYM"] = "Анонимный автор";
+$MESS["BLB_STOP_LIST"] = "стоп-лист";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Выбрано:";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Отмечено:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
+?>

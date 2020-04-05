@@ -1,0 +1,50 @@
+<p>Once the development of a custom component has been completed, it is
+recommended to perform the stress test using
+  real-life amount of test data. This will make the whole web project more
+robust and prevent performance deterioration.</p>
+
+<p>To optimize memory consumption by a component, use the PHP functions "memory_get_usage"
+and "memory_get_peak_usage". The crucial point is to determine the
+maximum memory your component may allocate. If the component happens to allocate
+all of the memory available to the website, the client page request will inevitably
+fail.</p> 
+
+<p>The following coding and algorithmic errors are the most frequent reasons for
+excessive memory consumption.</p>
+
+<ul>
+<li>The component stores database query results in PHP arrays. As the database
+  contains more and more data, the PHP arrays may also get larger over time
+  which eventually lead to memory exception when the component attempts to
+  allocate enough memory to save the database selection result. Restrict memory
+  allocation size by changing the query parameters (which is better) or by using
+  temporary tables or files if no other solution can be applied.</li>
+
+<li>The component merges numerous API call results. In fact, this is similar to
+  sending the JOIN query to the database - but the component attempts to do the
+  same in memory. Instead, use the built-in information block methods for
+  joining the database selections. For even better flexibility, you can create
+  and use custom database tables using  Bitrix Framework API.</li> 
+
+<li>The component tries to load a huge file in memory. Instead, always read
+  files in chunks.</li> 
+
+<li>The component performs massive complex math calculations which increases CPU
+  usage. It is recommended to use a separate thread for such calculations or
+  cache the calculation results.</li>
+ </ul>
+
+<p>Unfortunately, it is customary for developers to ignore these issues: they
+just increase the maximum memory limit to 512 MB or even more, which undermines
+the website robustness and decreases performance. The best practice is just the
+opposite: decrease the memory limit to 64 MB (according to Bitrix Framework requirements)
+and do your best to make your code work.</p> 
+
+<ol>
+<li>Ensure these recommendations have been put into practice when developing
+  custom components for the website.</li>
+
+<li>Look through the PHP error log with the website's administrator - once after
+  performing the stress test and then on a weekly basis until you find and
+  eliminate all errors.</li> 
+ </ol>

@@ -1,0 +1,29 @@
+<?
+$MESS["SALE_DH_UP_NAME"] = "Новая почта";
+$MESS["SALE_DH_UP_DESCR1"] = "Обработчик доставки \"Новая почта\"";
+$MESS["SALE_DH_UP_DESCR2"] = "Вес до 100 кг.";
+$MESS["SALE_DH_UP_WARE_TITLE"] = "Доставка до отделения почты";
+$MESS["SALE_DH_UP_WARE_DESCR"] = "Заказ будет доставлен до ближайшего отделения почты";
+$MESS["SALE_DH_UP_DOOR_TITLE"] = "Доставка до дома";
+$MESS["SALE_DH_UP_DOOR_DESCR"] = "Заказ будет доставлен до указанного адреса";
+$MESS["SALE_DH_UP_GROUPS_COMMON"] = "Общие тарифы";
+$MESS["SALE_DH_UP_GROUPS_WARE"] = "Доставка до отделения почты";
+$MESS["SALE_DH_UP_GROUPS_DOOR"] = "Доставка до дверей клиента";
+$MESS["SALE_DH_UP_DTP"] = "Способ доставки заказов на почту";
+$MESS["SALE_DH_UP_DTP_WARE"] = "Самостоятельная доставка заказов до почты (\"Склад-Склад\",\"Склад-Дверь\")";
+$MESS["SALE_DH_UP_DTP_DOOR"] = "Заказы забирает курьер почты (\"Дверь-Склад\",\"Дверь-Дверь\")";
+$MESS["SALE_DH_UP_TARIF_WW"] = "Тариф на услугу доставки по технологии \"Склад-Склад\"";
+$MESS["SALE_DH_UP_TARIF_REG"] = "Стоимость оформления";
+$MESS["SALE_DH_UP_TARIF_T1"] = "Цена за 1 кг";
+$MESS["SALE_DH_UP_TARIF_WD"] = "Доплата к услуге \"Склад-Склад\" за услугу \"Склад-Дверь\" или \"Дверь-Склад\"";
+$MESS["SALE_DH_UP_KG"] = "кг";
+$MESS["SALE_DH_UP_TARIF_DD"] = "Тариф на услугу доставки \"Дверь-Дверь\"";
+$MESS["SALE_DH_UP_TARIF_DV"] = "Комиссия за объявленную ценность";
+$MESS["SALE_DH_UP_TARIF_DV_VALUE"] = "Размер комиссии";
+$MESS["SALE_DH_UP_TARIF_DV_MIN"] = "Минимальная сумма комиссии";
+$MESS["SALE_DH_UP_OVERLOAD"] = "Недопустимо большой вес товара или отсутствуют коробки нужного размера";
+$MESS["SALE_DH_UP_STNRD_BOX"] = "Размер коробки мм.";
+$MESS["SALE_DH_UP_SHIPPING_HANDLING"] = "Способ работы с отправлением";
+$MESS["SALE_DH_UP_FEATURE_VALUE"] = "Посылка с объявленной ценностью";
+$MESS["SALE_DH_UP_FEATURE_ENABLED"] = "включена";
+?>

@@ -1,0 +1,34 @@
+<?
+$MESS ['STAT_ERROR'] = "Ошибка при сохранении записи";
+$MESS ['STAT_PARAMS'] = "Параметры";
+$MESS ['STAT_PARAMS_S'] = "Параметры записи";
+$MESS ['STAT_REDIRECT'] = "Перенаправить по адресу (URL):";
+$MESS ['STAT_GREEN_LAMP'] = "активна";
+$MESS ['STAT_RED_LAMP'] = "не активна";
+$MESS ['STAT_START_DATE'] = "Дата начала";
+$MESS ['STAT_END_DATE'] = "Дата окончания";
+$MESS ['STAT_DEFAULT_MESSAGE'] = "Доступ заблокирован администратором сайта";
+$MESS ['STAT_EDIT_RECORD'] = "Параметры записи стоп-листа # #ID#";
+$MESS ['STAT_NEW_RECORD'] = "Новая запись стоп-листа";
+$MESS ['STAT_RECORDS_LIST'] = "Стоп-лист";
+$MESS ['STAT_TIMESTAMP'] = "Дата изменения:";
+$MESS ['STAT_ACTIVE'] = "Флаг активности:";
+$MESS ['STAT_IP'] = "IP адрес сети:";
+$MESS ['STAT_MASK'] = "Маска сети:";
+$MESS ['STAT_USER_AGENT'] = "UserAgent:";
+$MESS ['STAT_URL_FROM'] = "Откуда пришел:";
+$MESS ['STAT_URL_TO'] = "Куда пришел:";
+$MESS ['STAT_MESSAGE'] = "Показать сообщение:";
+$MESS ['STAT_COMMENT_S'] = "Комментарий";
+$MESS ['STAT_SAVE_STATISTIC'] = "Сохранить статистику:";
+$MESS ['STAT_MESSAGE_LID'] = "В кодировке языка:";
+$MESS ['STAT_EMPTY'] = "пуст";
+$MESS ['STAT_ACTIVITY'] = "Активность записи";
+$MESS ['STAT_CONDITIONS'] = "По каким признакам фильтровать посетителей (логика - \"и\")";
+$MESS ['STAT_WHAT_TO_DO'] = "Что необходимо сделать";
+$MESS ['STAT_ACTIONS'] = "Действия";
+$MESS ['STAT_COMMENT'] = "Комментарий администратора";
+$MESS ['STAT_NEW_STOPLIST'] = "Новая запись стоп-листа";
+$MESS ['STAT_DELETE_STOPLIST'] = "Удалить запись стоп-листа";
+$MESS ['STAT_DELETE_STOPLIST_CONFIRM'] = "Вы уверены что хотите удалить запись стоп-листа?";
+?>

@@ -1,0 +1,29 @@
+<?
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE"] = "Warning";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT"] = "Your workgroup membership request has been submitted. You will see the workgroup in your projects and workgroups list once the administration has approved your request.";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT"] = "Your project membership request has been submitted. You will see the project in your projects and workgroups list once the administration has approved your request.";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON"] = "Revoke workgroup membership request";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_PROJECT"] = "Revoke project membership request";
+$MESS["SONET_EXT_COMMON_AJAX_ERROR"] = "Error processing request.";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_FAVORITES_ADD"] = "Add to favorites";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_FAVORITES_REMOVE"] = "Remove from favorites";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_REQU"] = "Invite to Workgroup";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_REQU_PROJECT"] = "Invite to Project";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_EDIT"] = "Edit Workgroup";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_EDIT_PROJECT"] = "Edit Project";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_DELETE"] = "Delete Workgroup";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_DELETE_PROJECT"] = "Delete Project";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_MEMBERS_EDIT"] = "Edit Members";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_MEMBERS_VIEW"] = "Members";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_REQ_IN"] = "Membership Requests";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_REQ_OUT"] = "Workgroup Invitations";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_REQ_OUT_PROJECT"] = "Project Invitations";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN"] = "Join Workgroup";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN_PROJECT"] = "Join Project";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT"] = "Leave Workgroup";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT_PROJECT"] = "Leave Project";
+$MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE"] = "Get more options for your Bitrix24";
+$MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT"] = "<p>Access permissions provide an easy and convenient way to streamline workflow in a workgroup. You will be able to select the tools your employees can or cannot access.<p>Access permissions are available on major plans only.";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_FEAT"] = "Access permissions";
+$MESS["SONET_EXT_COMMON_WAIT"] = "Please wait&hellip;";
+?>

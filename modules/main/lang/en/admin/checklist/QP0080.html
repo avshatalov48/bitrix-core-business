@@ -1,0 +1,76 @@
+<p>For information blocks containing quite a lot of elements, it would be appropriate
+to use a separate table storage mode (the "Information Blocks 2.0"
+technology). Notice that such change will not require any modification of the
+source code: all you have to do is to switch to another storage mode.</p>
+
+<p>This technology reduces database load, makes SQL queries less complex and
+verbose, decreases table merge operations. In fact, each information block with
+a unique set of properties has an individual SQL table.</p>
+
+<p>If you expect a high frequency of queries with known properties to some
+information blocks, you can make queries to such information blocks even more
+fast by adding indexes for the respective properties.</p>
+
+<p>Even with all the possible improvements, you should not forget about routine
+manual optimization which will also add to the overall database performance. To
+optimize the database tables and indexes, use the form "Settings > Tools >
+Optimize Database".</p>
+
+<p>How to perform the test?</p>
+<ol>
+<li>When designing the system, pick out the information blocks that will use a
+  separate table storage mode.</li>
+
+<li>Gather the statistics and determine the properties that are most frequently
+  used in the database queries.<p>Now check the information block property
+  storage table for the presence of property indexes. Open "Content >
+  Information Blocks > Information Block Types", select a required information
+  block and click the "Properties" tab. Find the binding property ID.
+  Then, click the "Information Block" tab and find the information
+  block ID. Now find ("<i>show create table </i>") a database table
+  that keeps the property values; the tables have names in format "b_iblock_element_prop_s#<i>information_block_ID</i>#",
+  for example "b_iblock_element_prop_<b>s</b>1" (the "<b>s</b>"
+  tables keep scalar values; the "<b>m</b>" tables keep multiple
+  values).</p>
+
+  <p>Now check that an index exist for each of intended properties. Execute the
+  following query in "Settings > Tools > SQL Qiery" (MySQL example):</p>
+
+<p><i>show create table b_iblock_element_prop_s1</i></p>
+
+  <p>This will return a table structure, for example: <br /><br /><i>
+CREATE TABLE `b_iblock_element_prop_s1` (
+  `IBLOCK_ELEMENT_ID` int(11) NOT NULL,
+  `PROPERTY_11` text collate utf8_unicode_ci,
+  `DESCRIPTION_11` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_12` decimal(18,4) default NULL,
+  `DESCRIPTION_12` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_13` int(11) default NULL,
+  `DESCRIPTION_13` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_14` int(11) default NULL,
+  `DESCRIPTION_14` varchar(255) collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`IBLOCK_ELEMENT_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci</i></p>
+
+  <p>In this case, the binding property is in the "<i>PROPERTY_13</i>"
+  column. As you can see, there is only one key so far: <br>"<i>PRIMARY KEY
+  (`IBLOCK_ELEMENT_ID`)</i>".</p>
+
+  <p>Add a column index:<br>
+  <i>
+alter table b_iblock_element_prop_s1 add index ix_prop13 (PROPERTY_13)</i></p>
+
+  <p>Now execute "<i>show create table b_iblock_element_prop_s1</i>".
+  You will see the new index added:
+<br>
+KEY `ix_prop13` (`PROPERTY_13`)</p>
+
+<p>To get the table index details, execute "<i>show indexes in
+b_iblock_element_prop_s1</i>".</p>
+  Indexes for the multiple property tables can be created in a similar way.
+  Check that indexes exist for all heavily used properties.</li> 
+<li>Ensure that the database tables are optimized manually using the form "Settings >
+  Tools > Optimize Database", or automatically using any system administration
+  software. The frequency of optimization depends on the size and volatility of
+  data.</li> 
+ </ol>

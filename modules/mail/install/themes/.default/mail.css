@@ -1,0 +1,39 @@
+/*Mail icons*/
+div.mail-message,
+div.mail-message-notspam,
+div.mail-message-spam,
+div.mail-message-unread,
+div.mail-message-unread-notspam,
+div.mail-message-unread-spam {
+	background:url(icons/mail/mail_sprite.png) no-repeat 100px 100px;
+	height:17px;
+	float:left;
+	width:17px;
+}
+
+div.mail-message {background-position:0 -133px;}
+div.mail-message-notspam {background-position:0 -104px;}
+div.mail-message-spam {background-position:0 -79px;}
+div.mail-message-unread {background-position:0 -51px;}
+div.mail-message-unread-notspam {background-position:0 -24px;}
+div.mail-message-unread-spam {background-position:0 2px;}
+
+.adm-mail-table {margin:-6px -6px -7px;}
+
+.adm-mail-cell-right {padding:3px 0 2px 5px;}
+
+.mail-message-spam-right-cell,
+.mail-message-notspam-cell,
+.mail-message-cell {padding:2px 0 3px}
+
+.mail-message-unread-spam-right-cell,
+.mail-message-unread-notspam-cell,
+.mail-message-unread-cell {padding:4px 0 1px}
+
+.adm-list-mail-icon {margin-right:5px;}
+
+.mail-message-unread.adm-list-mail-icon {margin-top:-1px}
+
+.mail-message-spam.adm-list-mail-icon,
+.mail-message-notspam.adm-list-mail-icon {margin-top:-2px;}
+

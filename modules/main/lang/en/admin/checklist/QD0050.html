@@ -1,0 +1,25 @@
+<p>Modern websites use breadcrumb, a popular navigation element allowing
+visitors to keep track of their locations.</p>
+ 
+<p>Generally, the website content mirrors the web server structure in which
+folders and files are the breadcrumb sections and items. Therefore, a page
+existing in a certain web server folder has predefined position in breadcrumbs.
+The website content tree may include virtual dynamic sections and items whose
+URL is comprised of the file system path portion (e.g. the path to a PHP script)
+and virtual portion (e.g. information block parameters).</p>
+<p>It is recommended that you use the standard component
+"bitrix:breadcrumb" for navigation in your website. </p>
+ 
+<ol>
+<li>Create sections of several hierarchy levels and add web pages to them. The
+  breadcrumb component should create a correct and valid URL for each of the
+  breadcrumb item.</li>
+<li>Create sections and elements in any information block whose structure is set
+  to be reflected in the website structure: for example, use a catalog
+  information block. The breadcrumb component should create a correct and valid
+  URL for each information block element.</li> 
+<li>Ensure that no developer assistance is required to edit the breadcrumb item
+  titles.</li> 
+<li>Ensure the breadcrumb items are enabled or disabled correctly depending on
+  the availability of the target object.</li> 
+ </ol>

@@ -1,0 +1,19 @@
+<?
+$MESS["CALENDAR_FILTER_CREATED_BY"] = "Организатор";
+$MESS["CALENDAR_FILTER_ATTENDEES"] = "Участники";
+$MESS["CALENDAR_FILTER_DATE"] = "Дата";
+$MESS["CALENDAR_FILTER_LOCATION"] = "Место проведения";
+$MESS["CALENDAR_FILTER_MEETING_STATUS"] = "Статус участия";
+$MESS["CALENDAR_FILTER_MEETING_STATUS_H"] = "Организатор";
+$MESS["CALENDAR_FILTER_MEETING_STATUS_Q"] = "Приглашен";
+$MESS["CALENDAR_FILTER_MEETING_STATUS_Y"] = "Участвую";
+$MESS["CALENDAR_FILTER_MEETING_STATUS_N"] = "Отказался";
+$MESS["CALENDAR_FILTER_MEETING_STATUS_I"] = "Возможно";
+$MESS["CALENDAR_FILTER_IS_MEETING"] = "Событие с участниками";
+$MESS["CALENDAR_FILTER_IS_RECURSIVE"] = "Повторяемое событие";
+
+
+$MESS["CALENDAR_PRESET_MEETING_STATUS_Q"] = "Приглашения";
+$MESS["CALENDAR_PRESET_I_AM_HOST"] = "Я организатор";
+$MESS["CALENDAR_PRESET_I_AM_ATTENDEE"] = "Я участник";
+?>

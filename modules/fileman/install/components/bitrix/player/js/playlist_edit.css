@@ -1,0 +1,26 @@
+td div.va_playlist, td div.va_playlist_fd_over{padding: 1px 0px 1px 2px !important; display: block; cursor: text; -moz-box-sizing: border-box; /* background-image:  none !important;  */}
+td div.va_playlist_fd_over div.playlist_text {overflow: hidden !important; width: 85%; white-space: nowrap !important; float: left;}
+td div.va_playlist div.playlist_text {width: 100%; white-space: nowrap !important; overflow: hidden !important;}
+
+td div.va_playlist span.fd_icon{display: none;}
+td div.va_playlist_fd_over span.fd_icon {width: 15px; height: 15px; float: right;}
+
+#bx_playlist_layout table.playlist-table tr td{vertical-align: top !important; height: 28px !important; }
+table.edit-form td, table.edit-form tr, table.edit-form table, table.edit-form tbody{font-size:11px !important; vertical-align: top !important;}
+table.edit-tab td {padding:0px !important;}
+#bx_popup_overlay_playlist{z-index:1020;}
+table.playlist-table {border-collapse: collapse;}
+table.playlist-table td{padding: 2px;}
+div.bx-playlist-edit div.bx-menu-current-row {background-color: #EAF8DF !important;}
+div.bx-playlist-edit div.view-area {white-space: nowrap; overflow: hidden; width: 220px; padding: 2px 15px 2px 2px !important; display: block; cursor: text; -moz-box-sizing: border-box; -webkit-box-sizing:border-box; background-position: right center; background-repeat: no-repeat; border: 1px solid white;}
+div.bx-playlist-edit div.bx-menu-current-row div.edit-field {border: 1px solid #EAF8DF !important; background-color: #EAF8DF !important;}
+div.bx-playlist-edit div.bx-menu-current-row div.edit-field-active {border-color: #434B50 #ADC0CF #ADC0CF #434B50 !important; background-color: white !important;}
+div.bx-playlist-edit .edit-field{background-image:url(/bitrix/themes/.default/public/popup/pencil.gif);}
+div.bx-playlist-edit .edit-field-active{border-color: #434B50 #ADC0CF #ADC0CF #434B50 !important;}
+div.bx-playlist-edit table.internal .rowcontrol{margin-top: 3px !important;background-position: left center !important;}
+div.bx-playlist-edit table.internal td div.va_playlist_fd_over{background-image: none!important; padding: 2px !important;}
+div.bx-playlist-edit td div.va_playlist_fd_over .rowcontrol{margin-top: 0px !important;}
+.playlist-table .up { background-image: url(/bitrix/themes/.default/images/menu/up.gif); }
+.playlist-table .down{ background-image: url(/bitrix/themes/.default/images/menu/down.gif); }
+.playlist-table .delete{ background-image: url(/bitrix/themes/.default/images/menu/delete.gif); }
+.playlist-table .rowcontrol { display: block; width: 16px; height: 16px; overflow: hidden; margin-right: 3px; margin-top: 11px; background-repeat: no-repeat;}

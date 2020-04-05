@@ -1,0 +1,32 @@
+<?
+$MESS["OP_NAME_CATALOG_READ"] = "Read module settings";
+$MESS["OP_NAME_CATALOG_SETTINGS"] = "Edit module settings";
+$MESS["OP_NAME_CATALOG_PRICE"] = "Manage product prices";
+$MESS["OP_NAME_CATALOG_GROUP"] = "Manage price types";
+$MESS["OP_NAME_CATALOG_DISCOUNT"] = "Manage discounts";
+$MESS["OP_NAME_CATALOG_VAT"] = "Manage tax rates";
+$MESS["OP_NAME_CATALOG_STORE"] = "Manage warehouse stocks";
+$MESS["OP_NAME_CATALOG_EXPORT_EDIT"] = "Edit export parameters";
+$MESS["OP_NAME_CATALOG_EXPORT_EXEC"] = "Initiate export";
+$MESS["OP_NAME_CATALOG_IMPORT_EDIT"] = "Edit import parameters";
+$MESS["OP_NAME_CATALOG_IMPORT_EXEC"] = "Initiate import";
+$MESS["OP_NAME_CATALOG_PURCHAS_INFO"] = "Show purchase price";
+$MESS["OP_DESC_CATALOG_READ"] = "User can read (view) the module parameters";
+$MESS["OP_DESC_CATALOG_SETTINGS"] = "User can manage the module parameters";
+$MESS["OP_DESC_CATALOG_GROUP"] = "User can manage price types";
+$MESS["OP_DESC_CATALOG_DISCOUNT"] = "User can manage discounts";
+$MESS["OP_DESC_CATALOG_VAT"] = "User can manage tax rates";
+$MESS["OP_DESC_CATALOG_EXPORT_EDIT"] = "User can edit export parameters";
+$MESS["OP_DESC_CATALOG_EXPORT_EXEC"] = "User can initiate export";
+$MESS["OP_DESC_CATALOG_IMPORT_EDIT"] = "User can edit import parameters";
+$MESS["OP_DESC_CATALOG_IMPORT_EXEC"] = "User can initiate import";
+$MESS["OP_DESC_CATALOG_PURCHAS_INFO"] = "A customer can view the product purchase price.";
+$MESS["OP_NAME_CATALOG_EXTRA"] = "Manage mark-ups";
+$MESS["OP_NAME_CATALOG_MEASURE"] = "Manage units of measurement";
+$MESS["OP_DESC_CATALOG_PRICE"] = "User can manage product prices";
+$MESS["OP_DESC_CATALOG_EXTRA"] = "User can edit mark-up values";
+$MESS["OP_DESC_CATALOG_STORE"] = "User can handle warehouse stock control documents";
+$MESS["OP_DESC_CATALOG_MEASURE"] = "User can manage units of management";
+$MESS["OP_NAME_CATALOG_VIEW"] = "View products";
+$MESS["OP_DESC_CATALOG_VIEW"] = "Shows a sales manager oriented view of products";
+?>

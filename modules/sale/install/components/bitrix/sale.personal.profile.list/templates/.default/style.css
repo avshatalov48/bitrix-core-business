@@ -1,0 +1,79 @@
+/*Table*/
+table.sale_personal_profile_list
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:12px;
+}
+
+/*Table head*/
+table.sale_personal_profile_list th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.sale_personal_profile_list th, table.sale_personal_profile_list td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+.sale-personal-profile-list-arrow-up,
+.sale-personal-profile-list-arrow-down {
+	color: #d8d8d8;
+	-webkit-transition: color .3s ease;
+	-moz-transition: color .3s ease;
+	transition: color .3s ease;
+}
+
+.sale-personal-profile-list-arrow-up:hover,
+.sale-personal-profile-list-arrow-down:hover {
+	color: #337ab7;
+}
+
+.sale-personal-profile-list-actions {
+	min-width: 120px;
+}
+
+.sale-personal-profile-list-close-button {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	font-size: 0;
+	background: url(images/sale-personal-profile-list-close.svg) 4px 4px no-repeat;
+	-webkit-transition: opacity .3s ease;
+	-moz-transition: opacity .3s ease;
+	transition: opacity .3s ease;
+	opacity: 1;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.sale-personal-profile-list-close-button:hover {
+	opacity: .5;
+}
+
+.sale-personal-profile-list-change-button {
+	display: inline-block;
+	border-bottom: 1px solid #337ab7;
+	vertical-align: middle;
+	transition: border-bottom .3s ease;
+}
+
+.sale-personal-profile-list-change-button:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.sale-personal-profile-list-border {
+	display: inline-block;
+	margin: 0 5px;
+	height: 23px;
+	border-right: 1px solid #dee2e7;
+	vertical-align: middle;
+}

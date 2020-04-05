@@ -1,0 +1,123 @@
+/* Global definitions */
+div#bx_admin_form {margin:0px; padding:0px; color:black; font-family:Verdana,Arial,helvetica,sans-serif; background-color:white;}
+
+div#bx_admin_form a:link {color:#2747BF;}
+div#bx_admin_form a:visited {color:#1E1885;}
+div#bx_admin_form a:hover {color:red;}
+div#bx_admin_form a div {cursor:pointer; cursor: hand;}
+div#bx_admin_form div.empty {width:1px; height:1px; overflow:hidden;}
+div#bx_admin_form form {margin:0px;}
+
+div#bx_admin_form p, div#bx_admin_form ul, div#bx_admin_form ol {font-size:11px !important;}
+
+/* Edit form*/
+div#bx_admin_form div.edit-form {margin:0px}
+
+div#bx_admin_form table.edit-form td {background-color:#E7EAF5 !important;}
+/*div#bx_admin_form table.edit-form tr.top td {border-top:1px solid #ABB6D7 !important;}
+div#bx_admin_form table.edit-form td.left {border-left:1px solid #ABB6D7 !important;}
+div#bx_admin_form table.edit-form td.right {border-right:1px solid #ABB6D7 !important;}
+div#bx_admin_form table.edit-form tr.top td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/edit/lt.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.edit-form tr.top td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/edit/rt.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.edit-form tr.bottom td {border-bottom:1px solid #ABB6D7 !important;}
+div#bx_admin_form table.edit-form tr.bottom td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/edit/lb.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.edit-form tr.bottom td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/edit/rb.gif) !important; height:2px !important; width:2px !important;} */
+div#bx_admin_form table.edit-form td.content {padding:7px 2px 2px 2px !important;}
+div#bx_admin_form table.edit-form div.buttons {margin:4px 0px 0px 0px !important; padding:5px; background-color:#F8F9FC; background-image:url(/bitrix/themes/.default/images/edit/buttons_bg.gif); border:1px solid #CED6EC; text-align:center !important;}
+
+
+
+/* Tab controls*/
+
+div#bx_admin_form table.edit-tabs td.tab-left-selected, div#bx_admin_form table.edit-tabs td.tab-selected, div#bx_admin_form table.edit-tabs td.tab-right-selected, div#bx_admin_form table.edit-tabs td.tab-right-last-selected {border:medium none !important;}
+
+div#bx_admin_form table.edit-tabs td {font-size:11px !important; font-weight:bold !important; color:#555556 !important;white-space:nowrap !important; border-bottom: solid 1px #B8C1DD !important; padding:0px !important;}
+div#bx_admin_form table.edit-tabs td.tab-container {border:none !important; cursor:pointer !important; cursor: hand !important;}
+div#bx_admin_form table.edit-tabs td.tab-container-selected, table.edit-tabs td.tab-container-disabled {border:none !important; cursor:default !important;}
+div#bx_admin_form table.edit-tabs td.tab-container-disabled table {color:#A2A09F !important;}
+div#bx_admin_form table.edit-tabs td.tab-indent div.empty {width:6px !important; height:21px !important;}
+div#bx_admin_form table.edit-tabs td.tab-left div.empty {width:2px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_l.gif);}
+div#bx_admin_form table.edit-tabs td.tab-right div.empty {width:8px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_r.gif);}
+div#bx_admin_form table.edit-tabs td.tab-right-last div.empty {width:10px; height:21px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_last.gif);}
+div#bx_admin_form table.edit-tabs td.tab {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:21px !important; background-image:url(/bitrix/themes/.default/images/edit/tab_bg.gif) !important;}
+div#bx_admin_form table.edit-tabs td.tab-left-selected, table.edit-tabs td.tab-selected, table.edit-tabs td.tab-right-selected, table.edit-tabs td.tab-right-last-selected {border:none !important;}
+div#bx_admin_form table.edit-tabs td.tab-left-selected div.empty {width:2px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_l_sel.gif);  background-position: top left; background-repeat: repeat-x;}
+div#bx_admin_form table.edit-tabs td.tab-right-selected div.empty {width:8px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_sel.gif); background-position: top left; background-repeat: repeat-x;}
+div#bx_admin_form table.edit-tabs td.tab-right-last-selected div.empty {width:10px; height:22px; background-image:url(/bitrix/themes/.default/images/edit/tab_r_last_sel.gif); background-position: top left; background-repeat: repeat-x;}
+div#bx_admin_form table.edit-tabs td.tab-selected {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:22px !important; background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_bg_sel.gif);}
+div#bx_admin_form table.edit-tabs td.tab-left-hover div.empty {width:2px; height:21px;  background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_l_hov.gif);}
+div#bx_admin_form table.edit-tabs td.tab-right-hover div.empty {width:8px; height:21px;  background-position: top left; background-repeat: repeat-x; background-image:url(/bitrix/themes/.default/images/edit/tab_r_hov.gif);}
+div#bx_admin_form table.edit-tabs td.tab-right-last-hover div.empty {width:10px; height:21px;  background-position: top left; background-repeat: repeat-x;  background-image:url(/bitrix/themes/.default/images/edit/tab_r_last_hov.gif);}
+div#bx_admin_form table.edit-tabs td.tab-hover {padding:0px 4px 0px 5px !important; vertical-align:middle !important; height:21px !important; background-position: top left !important; background-repeat: repeat-x !important; background-image:url(/bitrix/themes/.default/images/edit/tab_bg_hov.gif) !important;}
+div#bx_admin_form table.edit-tabs a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; background-repeat:no-repeat; background-position:3px 3px; height:18px; width:18px; border:0px; margin:1px;}
+div#bx_admin_form table.edit-tabs a.context-button:hover {width:20px; height:20px; margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+
+/* Tab inside edit form */
+div#bx_admin_form table.edit-tab {border:solid 1px #B8C1DD !important; border-top:none !important; width:100% !important;}
+div#bx_admin_form table.edit-tab td {background-color:#F8F9FC !important; padding:0px !important;}
+div#bx_admin_form table.edit-tab td div.edit-tab-inner {height: 409px; width: 100%; overflow: auto; padding: 0px;}
+
+/* Edit table */
+div#bx_admin_form table.edit-table {width:100% !important;}
+div#bx_admin_form table.edit-table td {font-size:11px !important; padding:4px !important;}
+div#bx_admin_form table.edit-table td.field-name {color:#646465 !important; text-align:right !important;}
+div#bx_admin_form table.edit-table tr.heading td {color:#525355 !important; text-align:center !important; font-weight:bold !important; background-color:#E0E4F1 !important;}
+div#bx_admin_form table.edit-table table td {padding:0px !important; border:none !important;}
+div#bx_admin_form table.edit-table table.edit-table td {padding:4px !important;}
+div#bx_admin_form table.edit-table div {font-size:100%;}
+
+div#bx_admin_form span.required {color:red !important;}
+
+/* A table inside edit table */
+div#bx_admin_form table.edit-table table.internal {border-collapse:collapse !important;}
+div#bx_admin_form table.edit-table table.internal td, table.edit-table table.internal table.in_internal td{padding:3px !important; border:1px solid #CFD6E9 !important; font-size:11px !important;}
+div#bx_admin_form table.edit-table table.internal tr.heading td {text-align:center !important; background-color:#E7EAF5 !important; font-weight:normal !important; color:#525355 !important;}
+div#bx_admin_form table.edit-table table.internal td.heading {color:#525355 !important; background-color:#E7EAF5 !important;}
+div#bx_admin_form table.edit-table table.internal table td {padding:0px !important; border:none !important;}
+
+/* Edit tab title*/
+div#bx_admin_form table.edit-tab-title {width:100% !important;}
+div#bx_admin_form table.edit-tab-title td.icon {padding:5px 5px 5px 0px !important; width:32px !important; height:32px !important;}
+div#bx_admin_form table.edit-tab-title td.title {width:100% !important; padding:5px 0px 5px 0px !important; font-size:16px !important; color:#494949 !important; font-weight:bold !important; font-family:Arial,helvetica,sans-serif !important;}
+div#bx_admin_form table.edit-tab-title td.delimiter {padding:0px !important; height:5px !important; background-image:url(/bitrix/themes/.default/images/edit/title_dot.gif) !important; background-position:left top !important; background-repeat:repeat-x !important;}
+div#bx_admin_form table.edit-tab-title td.delimiter-top {background-position:left bottom !important;}
+
+/*View tabs*/
+div#bx_admin_form div.view-tab-container {}
+div#bx_admin_form div.view-tab-container table.edit-tab-title {margin-bottom:5px !important;}
+div#bx_admin_form div.view-tab-content {border:1px solid #ABB6D7; padding:5px; background-color:#F9FAFD; font-size:11px;}
+div#bx_admin_form div.view-tab {height:23px; float:left; bottom:-1px; position:relative; padding:5px; color:#555556; font-size:11px; font-weight:bold; white-space:nowrap; box-sizing:border-box; -moz-box-sizing:border-box;}
+div#bx_admin_form div.view-tab-active {border:1px solid #ABB6D7; border-bottom:none; border-top-color:#8B94BA; background-color:#F9FAFD; padding:4px 4px 5px 4px; background-image:url(/bitrix/themes/.default/images/tabs/active_bg.gif); background-position:left top; background-repeat:repeat-x;}
+div#bx_admin_form div.view-tab-delimiter{overflow:hidden; float:left; width:2px; height:13px; background-color:#ABB6D7; margin:6px 0px 4px 0px;}
+div#bx_admin_form div.view-tab-hide-delimiter{background-color:transparent;}
+div#bx_admin_form div.view-tab a, div.view-tab a:visited {color:#555556; text-decoration:none;}
+div#bx_admin_form div.view-tab a:hover {color:#555556; text-decoration:underline;}
+div#bx_admin_form div.view-tab-container br.tab-break {clear:both;}
+div#bx_admin_form div.view-tab-content h2 {font-size:110% !important;}
+
+/* Notes */
+div#bx_admin_form div.notes {margin-top:16px; margin-bottom:16px;}
+div#bx_admin_form div.edit-form div.notes {margin:4px 0px 4px 0px;}
+div#bx_admin_form table.notes td {padding:0px !important; background-color:#FEFDEA !important; font-size:11px !important; color:#333333 !important;}
+div#bx_admin_form table.notes tr.top td {border-top:1px solid #D7D6BA !important;}
+div#bx_admin_form table.notes td.left {border-left:1px solid #D7D6BA !important;}
+div#bx_admin_form table.notes td.right {border-right:1px solid #D7D6BA !important;}
+div#bx_admin_form table.notes tr.top td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/lt.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.notes tr.top td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/rt.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.notes tr.bottom td {border-bottom:1px solid #D7D6BA !important;}
+div#bx_admin_form table.notes tr.bottom td.left {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/lb.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.notes tr.bottom td.right {border:0px !important; background-image:url(/bitrix/themes/.default/images/notes/rb.gif) !important; height:2px !important; width:2px !important;}
+div#bx_admin_form table.notes td.content {padding:7px !important;}
+div#bx_admin_form div.notes div.ruler {border-top:1px solid #D7D6BA; margin-top:8px;}
+div#bx_admin_form div.notes p {font-size:100% !important; margin:12px 0px 12px 0px;}
+div#bx_admin_form div.notes a.control {text-decoration:none; color:black;}
+div#bx_admin_form div.notes a.control:hover {text-decoration:underline;}
+
+/*Lamps*/
+div#bx_admin_form div.lamp-green, div#bx_admin_form div.lamp-green-s, div#bx_admin_form div.lamp-grey, div#bx_admin_form div.lamp-red, div#bx_admin_form div.lamp-yellow {width:14px; height:14px; background-repeat:no-repeat;}
+div#bx_admin_form div.lamp-green {background-image:url(/bitrix/themes/.default/images/lamp/green.gif);}
+div#bx_admin_form div.lamp-green-s {background-image:url(/bitrix/themes/.default/images/lamp/green_s.gif);}
+div#bx_admin_form div.lamp-grey {background-image:url(/bitrix/themes/.default/images/lamp/grey.gif);}
+div#bx_admin_form div.lamp-red {background-image:url(/bitrix/themes/.default/images/lamp/red.gif);}
+div#bx_admin_form div.lamp-yellow {background-image:url(/bitrix/themes/.default/images/lamp/yellow.gif);}
+

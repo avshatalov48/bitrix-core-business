@@ -1,0 +1,1 @@
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/admin/cat_subcoupon_edit.php");?>

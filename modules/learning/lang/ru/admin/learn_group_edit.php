@@ -1,0 +1,23 @@
+<?php
+$MESS['LEARNING_BACK_TO_ADMIN'] = "Вернуться к списку учебных групп";
+$MESS['LEARNING_BAD_LEARNING_GROUP_ID_EX'] = "Учебная группа не найдена или недостаточно прав на ее просмотр";
+$MESS['LEARNING_BACK_TO_LEARNING_GROUPS'] = 'Вернуться на список учебных групп';
+$MESS['LEARNING_GROUPS_LIST'] = 'Учебные группы';
+$MESS['LEARNING_ADMIN_TAB1'] = 'Учебная группа';
+$MESS['LEARNING_ADMIN_TAB1_EX'] = 'Учебная группа';
+$MESS['LEARNING_ADMIN_TITLE'] = 'Название';
+$MESS['LEARNING_ADMIN_CODE'] = 'Символическое имя';
+$MESS['LEARNING_ADMIN_ATTACHED_COURSE'] = 'Курс';
+$MESS['LEARNING_ADMIN_CHANGE_ATTACHED_COURSE'] = 'выбрать';
+$MESS['LEARNING_ADMIN_ACTIVE'] = 'Запись активна';
+$MESS['LEARNING_ADMIN_SORT'] = 'Индекс сортировки';
+$MESS['LEARNING_ACTIVE_PERIOD'] = 'Период активности';
+$MESS['LEARNING_NEW_TITLE'] = 'Создание новой учебной группы';
+$MESS['LEARNING_EDIT_TITLE'] = 'Редактирование учебной группы';
+$MESS['LEARNING_GROUP_MEMBERS_LIST'] = 'Состав учебной группы';
+$MESS['LEARNING_GROUP_MEMBERSHIP'] = 'Членство в группе';
+$MESS['LEARNING_ACTIVATION_SCHEDULE'] = 'График открытия разделов';
+$MESS['LEARNING_ACTIVATION_SCHEDULE_TITLE'] = 'Задержка перед открытием (в днях)';
+$MESS['LEARNING_ACCESS_DENIED_TO_UF_MANAGE'] = 'Недостаточно прав для создания пользовательских полей';
+$MESS['LEARNING_AVAILABLE_AFTER_ELEMENT_CREATION'] = 'настройка доступна только после создания учебной группы';
+$MESS['LEARNING_ACCESS_DENIED_TO_USERS'] = 'Недостаточно прав для просмотра списка всех пользователей';

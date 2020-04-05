@@ -1,0 +1,2 @@
+<?php
+$MESS["LISTS_BIZPROC_ENTITY_LISTS_NAME"] = "Списки";

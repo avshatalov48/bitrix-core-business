@@ -1,0 +1,138 @@
+.bx-gadgets-content-layout-inspector {
+	display:inline-block;
+	padding:15px 0 15px;
+	vertical-align:top;
+}
+
+.bx-gadgets-inspector:hover .bx-gadgets-color-config-close {background-position:-1px -554px;}
+.bx-gadgets-inspector:hover .bx-gadgets-color-config-close:hover {background-position:-1px -572px;}
+
+.bx-gadgets-colourful.bx-gadgets-inspector {
+	background:#96b132;
+	background-image: -webkit-linear-gradient(top, #c1cad2, #a9b6c2, #92a3b1);
+	background-image:    -moz-linear-gradient(top, #c1cad2, #a9b6c2, #92a3b1);
+	background-image:     -ms-linear-gradient(top, #c1cad2, #a9b6c2, #92a3b1);
+	background-image:      -o-linear-gradient(top, #c1cad2, #a9b6c2, #92a3b1);
+	background-image:         linear-gradient(to bottom, #c1cad2, #a9b6c2, #92a3b1);
+	border: 0;
+	overflow:hidden;
+}
+.bx-gadgets-colourful.bx-gadgets-inspector .bx-gadgets-content {
+	background:none;
+	box-shadow:none;
+	height:138px;
+	-webkit-box-shadow:none;
+	margin:0 0 0 11px!important;
+	padding:0 11px 0 0;
+	position: relative;
+}
+.bx-gadgets-inspector .bx-gadgets-side {
+	background:url("/bitrix/gadgets/bitrix/bitrixcloud_monitoring/images/stitch3.png") repeat-y 0 0;
+}
+
+.bx-gadgets-inspector .bx-gadget-shield {
+	background:url("/bitrix/gadgets/bitrix/bitrixcloud_monitoring/images/gadgets-inspector-sprite.png") no-repeat 0 0;
+	float:right;
+	margin:33px 22px 0 0;
+	height: 74px;
+	width: 73px;
+}
+
+.bx-gadgets-inspector .bx-gadget-button {
+	background:#818c97;
+	background-image: -webkit-linear-gradient(top, #94a0a9, #707c88);
+	background-image:    -moz-linear-gradient(top, #94a0a9, #707c88);
+	background-image:     -ms-linear-gradient(top, #94a0a9, #707c88);
+	background-image:      -o-linear-gradient(top, #94a0a9, #707c88);
+	background-image:         linear-gradient(to bottom, #94a0a9, #707c88);
+	-webkit-box-shadow:inset 0 1px 0 #b2bac1, 0 1px 1px #778f1d;
+	box-shadow:inset 0 1px 0 #b2bac1, 0 1px 1px rgba(0,0,0,.11);
+	border-radius:4px;
+}
+
+.bx-gadgets-inspector .bx-gadget-button:hover {
+	background-image: -webkit-linear-gradient(top, #9daeba, #778896);
+	background-image:    -moz-linear-gradient(top, #9daeba, #778896);
+	background-image:     -ms-linear-gradient(top, #9daeba, #778896);
+	background-image:      -o-linear-gradient(top, #9daeba, #778896);
+	background-image:         linear-gradient(to bottom, #9daeba, #778896);
+	-webkit-box-shadow:inset 0 1px 0 #bbc6d0, 0 1px 1px #778f1d;
+	box-shadow:inset 0 1px 0 #bbc6d0, 0 1px 1px rgba(0,0,0,.11);
+}
+
+.bx-gadgets-inspector .bx-gadget-button-lamp {
+	background:url("/bitrix/gadgets/bitrix/bitrixcloud_monitoring/images/gadgets-inspector-sprite.png") no-repeat center -210px;
+}
+
+.bx-gadgets-inspector div.bx-gadget-mark {
+	color: #f6f8f9;
+	font-size: 18px;
+	line-height: 20px;
+	width: auto;
+	text-shadow: 0 1px #8996a0;
+}
+
+.bx-gadgets-inspector div.bx-gadget-button-text {text-shadow:0 1px #515a61;}
+
+.bx-gadgets-inspector div.bx-gadgets-title {
+	height: 69px;
+	text-shadow: 0 1px #d1d8df;
+}
+
+
+.bx-gadgets-colourful.bx-gadgets-inspector-alert{
+	background-image: -webkit-linear-gradient(top, #fcdb81, #facb4c, #f9bf22);
+	background-image:    -moz-linear-gradient(top, #fcdb81, #facb4c, #f9bf22);
+	background-image:     -ms-linear-gradient(top, #fcdb81, #facb4c, #f9bf22);
+	background-image:      -o-linear-gradient(top, #fcdb81, #facb4c, #f9bf22);
+	background-image:         linear-gradient(to bottom, #fcdb81, #facb4c, #f9bf22);
+}
+
+.bx-gadgets-inspector-alert .bx-gadget-shield {
+	background-position: 0 -100px;
+}
+
+.bx-gadgets-inspector-alert div.bx-gadgets-title {
+}
+
+.bx-gadgets-inspector-alert div.bx-gadget-mark {
+	color: #332604;
+	font-size: 35px;
+	line-height: 40px;
+	text-shadow: 0 1px #fef3d5;
+}
+
+.bx-gadgets-inspector-alert div.bx-gadget-desc {
+	color: #000;
+	margin-top: -1px;
+	text-shadow: 0 1px #fef3d5;
+}
+
+.bx-gadgets-inspector-alert .bx-gadget-button {
+	background-image: -webkit-linear-gradient(top, #fef1d1, #f1e3bf);
+	background-image:    -moz-linear-gradient(top, #fef1d1, #f1e3bf);
+	background-image:     -ms-linear-gradient(top, #fef1d1, #f1e3bf);
+	background-image:      -o-linear-gradient(top, #fef1d1, #f1e3bf);
+	background-image:         linear-gradient(to bottom, #fef1d1, #f1e3bf);
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.bx-gadgets-inspector-alert .bx-gadget-button:hover {
+	background-image: -webkit-linear-gradient(top, #fef5df, #f5ebd2);
+	background-image:    -moz-linear-gradient(top, #fef5df, #f5ebd2);
+	background-image:     -ms-linear-gradient(top, #fef5df, #f5ebd2);
+	background-image:      -o-linear-gradient(top, #fef5df, #f5ebd2);
+	background-image:         linear-gradient(to bottom, #fef5df, #f5ebd2);
+	-webkit-box-shadow:  0 1px 1px rgba(0, 0, 0, 0.2);
+	box-shadow:  0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.bx-gadgets-inspector-alert .bx-gadget-button-lamp {
+	background-position: center -251px;
+}
+
+.bx-gadgets-inspector-alert div.bx-gadget-button-text {
+	color: #000;
+	text-shadow: 0 1px #fcf9f1;
+}

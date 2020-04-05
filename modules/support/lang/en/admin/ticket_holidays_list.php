@@ -1,0 +1,32 @@
+<?
+$MESS["SUP_NAME"] = "Name";
+$MESS["SUP_OPEN_TIME"] = "Action";
+$MESS["SUP_DATE_FROM"] = "From";
+$MESS["SUP_DATE_TILL"] = "Through";
+$MESS["SUP_SLA"] = "SLA";
+$MESS["SUP_GROUP_NAV"] = "Exceptions";
+$MESS["SUP_UPDATE_ALT"] = "Edit";
+$MESS["SUP_DELETE_ALT"] = "Delete";
+$MESS["SUP_DELETE_CONF"] = "Are you sure you want to delete the record?";
+$MESS["SUP_ADD_NEW"] = "Add";
+$MESS["SUP_ADD_NEW_ALT"] = "Add";
+$MESS["SUP_FILTER_NAME"] = "Name";
+$MESS["SUP_FILTER_OPEN_TIME"] = "Action";
+$MESS["SUP_FILTER_SLA"] = "SLA";
+$MESS["SUP_OPEN_TIME_HOLIDAY_G"] = "R&R";
+$MESS["SUP_OPEN_TIME_WORKDAY_G"] = "Work";
+$MESS["SUP_OPEN_TIME_HOLIDAY_H"] = "Time-based break";
+$MESS["SUP_OPEN_TIME_HOLIDAY"] = "Generic day off";
+$MESS["SUP_OPEN_TIME_WORKDAY_H"] = "Time-based special business hours";
+$MESS["SUP_OPEN_TIME_WORKDAY_0"] = "Working day instead of Monday";
+$MESS["SUP_OPEN_TIME_WORKDAY_1"] = "Working day instead of Tuesday";
+$MESS["SUP_OPEN_TIME_WORKDAY_2"] = "Working day instead of Wednesday";
+$MESS["SUP_OPEN_TIME_WORKDAY_3"] = "Working day instead of Thursday";
+$MESS["SUP_OPEN_TIME_WORKDAY_4"] = "Working day instead of Friday";
+$MESS["SUP_OPEN_TIME_WORKDAY_5"] = "Working day instead of Saturday";
+$MESS["SUP_OPEN_TIME_WORKDAY_6"] = "Working day instead of Sunday";
+$MESS["SUP_TITLE"] = "Exceptions";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Selected:";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
+?>

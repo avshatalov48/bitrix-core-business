@@ -1,0 +1,1672 @@
+/*
+    sprite
+*/
+.sender-mailing-sprite{
+    background: url("images/sender/mailing_sprite.png") no-repeat;
+    width: 41px;
+    height: 33px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/*
+    box list, example: group page, mailing chain page
+*/
+.sender-box-selector, .sender-box-list-item, .sender-box-list-item-caption, .sender-box-list-item-block-item{
+    border-width: 1px;
+    border-style: solid;
+    border-color: #e6e6e6;
+    border-collapse: collapse;
+}
+.sender-box-selector{
+    background-color: #E0E8EA;
+    padding: 10px;
+    margin-bottom: 30px;
+}
+.sender-box-selector-caption{
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+.sender-box-selector-control{
+
+}
+
+.sender-box-list{
+    /*  padding-bottom: 30px;
+    min-height: 300px; */
+}
+.sender-box-list select {max-width: 570px;}
+.sender-box-list-item{
+    margin-top: 15px;
+    border-radius: 5px;
+}
+.sender-box-list-item-hidden {
+
+}
+
+.sender-box-list-item-hidden .sender-box-list-item-caption {
+    border-radius: 5px;
+}
+.sender-box-list-item-caption{
+    vertical-align: middle;
+    background-color: #dde4e7;
+    padding: 10px;
+    font-weight: bold;
+    color: #5C6B6F;
+    cursor: pointer;
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #989898;
+    border-right: 1px solid #c4c4c4;
+    border-left: 1px solid #c4c4c4;
+    border-radius: 5px 5px 0px 0px;
+    box-shadow: inset 0px 1px 0px 0px rgba(255,255,255,1), 0px 1px 0px 0px #dedede;
+}
+.sender-box-list-item-caption:hover {
+
+}
+.sender-box-list-item-caption-image{
+    display: inline-block;
+    vertical-align: middle;
+    height: 14px;
+    width: 20px;
+
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4351px!important;
+}
+.sender-box-list-item-hidden .sender-box-list-item-caption-image{
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4331px!important;
+}
+.sender-box-list-item-caption-delete{
+    float: right;
+    opacity: 0.7;
+    height: 20px;
+    width: 23px;
+    margin-top: -2px;
+    background: url(images/sender/bx-admin-sprite-small-2.png) no-repeat 6px -2446px;
+}
+.sender-box-list-item-caption-delete:hover {
+    opacity: 1;
+}
+.sender-box-list-item-caption-additional{
+    float: right;
+    padding-right: 50px;
+    vertical-align: sub;
+    line-height: 20px;
+}
+.sender-box-list-item-caption-additional-less{
+    font-weight: normal;
+    padding-right: 5px;
+    color: #485b6d;
+    text-shadow: 0px 1px 0px #fff;
+}
+.sender-box-list-item-caption-additional.loading{
+    position: relative;
+}
+.sender-box-list-item-caption-additional.loading .connector_form_counter{
+    background-image: url(images/wait.gif);
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    top: 0;
+    right: 30px;
+}
+.sender-box-list-item-caption-name{
+    vertical-align: sub;
+}
+.sender-box-list-item-block{
+    padding: 10px;
+    background-color: #FFF;
+    border-radius: 0px 0px 5px 5px;
+}
+.sender-box-list-item-hidden .sender-box-list-item-block{
+    display: none;
+}
+.sender-box-list-item-block-item{
+    padding: 10px;
+    background-color: #F5F9F9;
+    border-radius: 4px;
+}
+.sender-box-list-item-block-item td {
+    padding-left: 10px;
+}
+.sender-box-list-item-block-item td:first-child {
+    text-align: right;
+}
+.sender-box-list-item-block-item td:last-child {
+    text-align: left;
+}
+
+
+/*
+    group page summary address counter
+*/
+div.sender-group-address-counter{
+    padding: 30px;
+    background-color: #cdedf9;
+    margin-top: 20px;
+}
+div.sender-group-address-counter .sender-group-address-counter-img{
+    background-position: center -248px;
+    vertical-align: middle;
+}
+div.sender-group-address-counter .sender-group-address-counter-text{
+    font-size: medium;
+    color: #3E494D;
+    padding-left: 10px;
+    vertical-align: middle;
+}
+div.sender-group-address-counter .sender-group-address-counter-cnt{
+    float: right;
+    font-weight: bold;
+    font-size: 22px;
+    line-height: 33px;
+    color: #41474f;
+    text-shadow: 0px 1px 0px #fff;
+}
+div.sender-group-address-counter .sender-group-address-counter-cnttext{
+    float: right;
+    font-size: small;
+    padding-right: 20px;
+    color: #3E494D;
+}
+
+
+
+.sender-text-description-header{
+    font-weight: bold;
+}
+.sender-text-description-detail{
+    font-weight: normal;
+}
+
+/*
+    mailing chain page
+*/
+.sender-test-send{
+    width: 100%; padding: 30px; padding-left: 60px; background-color: #C9E4F0;
+}
+.sender-test-send-header{
+    padding-bottom: 20px;
+    vertical-align: top;
+}
+.sender-test-send-header-grey{
+    color: #94ADC2;
+}
+.sender-test-send-header-img{
+    background-position: center -152px;
+}
+.sender-test-caption{
+    font-weight: bold;
+}
+.sender-test-recent{
+    padding-bottom: 20px;
+}
+.sender-link-email{
+    text-decoration: none;
+    cursor: pointer;
+}
+.sender-link-email:hover{
+    text-decoration: none;
+    border-bottom: 1px dotted #2675d7;
+}
+
+
+/*
+    mailing group
+*/
+.sender-mailing-group{
+
+}
+.sender-mailing-group-head-img{
+
+}
+.sender-mailing-group-head-img-inc{
+    background-position: center -213px;
+}
+.sender-mailing-group-head-img-exc{
+    background-position: center -182px;
+}
+.sender-mailing-group-head-text{
+    font-weight: bold;
+    font-size: 15px;
+}
+.sender-mailing-group-block-all{
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.sender-mailing-group-block-sel{
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.sender-mailing-group-block-sect-delim{
+    width: 90px;
+    text-align: center;
+}
+
+
+/*
+    mailing chain status
+*/
+.sender-mailing-status{
+    background-color: white;
+    border-color: #D3D8DB;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px 0 10px 15px;
+}
+.sender-mailing-status-text{
+    vertical-align: middle;
+    font-weight: bold;
+}
+.sender-mailing-status-text-n{
+    color: #64717F;
+}
+.sender-mailing-status-text-s{
+    color: #46B7EA;
+}
+.sender-mailing-status-text-w{
+    color: #7BA31D;
+}
+.sender-mailing-status-text-p{
+    color: #000;
+}
+.sender-mailing-status-text-y{
+    color: #7BA31D;
+}
+.sender-mailing-status-text-date{
+    color: #000;
+    font-weight: normal;
+}
+.sender-mailing-status-creator{
+    color: #C2C2C2;
+    font-weight: normal;
+    padding-left: 5px;
+}
+.sender-mailing-status-img{
+    background-position: center 5px;
+    width: 41px;
+    vertical-align: middle;
+}
+.sender-mailing-status-img-n{
+    background-position: center 5px;
+}
+.sender-mailing-status-img-s{
+    background-position: center -110px;
+}
+.sender-mailing-status-img-w{
+    background-position: center -70px;
+}
+.sender-mailing-status-img-p{
+    background-position: center -30px;
+}
+.sender-mailing-status-img-y{
+    background-position: center -70px;
+}
+
+
+/*
+    mail templates
+*/
+.sender-template-caption{
+    font-weight: bold;
+    font-size: 14px;
+}
+.sender-template-list-caption{
+    font-weight: bold;
+    margin-left: 20px;
+}
+.sender-template-type-selector{
+    width: 300px;
+    -webkit-user-select: none;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+.sender-template-type-selector-title {
+    position: relative;
+    font-weight: bold;
+    margin-bottom: 30px;
+    height: 15px;
+    font-size: 14px;
+}
+
+.sender-template-type-selector-title:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 30px;
+    top: 30px;
+    margin: auto;
+    height: 1px;
+    background: rgb(224, 224, 224);
+}
+
+.sender-template-type-selector-button{
+    padding: 7px 13px;
+    margin-bottom: 10px;
+    display: inline-block;
+    float: left;
+    clear: left;
+    font-weight: normal;
+    cursor: pointer;
+}
+.sender-template-type-selector-button:hover, .sender-template-type-selector-button-selected{
+    color: #fff;
+    background-color: #5CC3EF;
+}
+
+.sender-template-list-container {
+    width: 100%; margin-left: 20px;
+}
+.sender-template-btn-close{
+    background: url("/bitrix/panel/main/images/popup_sprite.png") no-repeat 0 -30px;
+    cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    width: 28px;
+    background-position: 0 -90px
+}
+.sender-template-list-type-blockempty{
+    margin: 50px 0;
+    font-size: 38px;
+    color: #dddddd;
+    text-align: center;
+}
+.sender-template-list-type-block{
+    width: 140px;
+    margin-right: 40px;
+    text-align: center;
+    margin-bottom: 40px;
+    display: inline-block;
+    vertical-align: bottom;
+}
+.sender-template-list-type-block-caption{
+
+}
+.sender-template-list-type-block-img{
+    height: 185px;
+    width: 140px;
+    background-color: #ECECEC;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.sender-template-list-type-block-img img{
+    height: 185px;
+    width: 140px;
+}
+
+
+
+/*
+    statictics
+*/
+
+.sender_statistics{
+    background-color: white;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.sender-stat-graph {
+    width: 550px;
+    height: 100%;
+    font-size: 11px;
+    background-color: white;
+}
+
+.sender-stat-cont{
+    background-color: white;
+    margin-top: 20px;
+    white-space: nowrap;
+    padding-bottom: 80px;
+}
+
+.sender-stat-right{
+    font-size: 15px;
+    margin-left: 20px;
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    height: 368px;
+}
+.sender-stat-left{
+    font-size: 15px;
+    margin-left: 20px;
+    width: 400px;
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.sender-stat-info {
+    height: 100%;
+    font-size: 12px;
+    background-color: papayawhip;
+    margin-top: 15px;
+    padding: 15px;
+}
+.sender-stat-info-list{
+    margin-bottom: 20px;
+}
+.sender-stat-info-list table{
+    width: 100%;
+}
+.sender-stat-info-list table td:first-child{
+    width: 1%;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+.sender-stat-info-list table td.sender-stat-info-list-head{
+    font-weight: bold;
+}
+.sender-stat-info-list table td.sender-stat-info-list-value{
+    padding-bottom: 10px;
+    padding-left: 5px;
+    font-weight: bold;
+    width: 99%;
+    word-wrap: break-word;
+    word-break: break-word;
+    word-break: break-all;
+    overflow: hidden;
+}
+
+.sender-stat-info-cnt{
+    background-color: white;
+    padding: 15px;
+}
+.sender-stat-info-cnt table{
+    width: 100%;
+}
+.sender-stat-info-cnt table td:first-child{
+    font-weight: bold;
+    width: 99%;
+}
+.sender-stat-info-cnt table td:first-child.sender-stat-info-cnt-metric-add{
+    font-weight: normal;
+}
+.sender-stat-info-cnt table td:first-child.sender-stat-info-cnt-metric-name{
+    padding-left: 15px;
+    font-weight: normal;
+}
+.sender-stat-info-cnt table td:last-child{
+    width: 1%;
+    white-space: nowrap;
+}
+.sender-stat-info-cnt table td:last-child span{
+    font-weight: bold;
+}
+
+.sender-stat-reiterate-cont{
+    background-color: white;
+    margin-top: 60px;
+    min-height: 500px;
+    padding-bottom: 80px;
+    margin-left: 20px;
+}
+.sender-stat-reiterate-head{
+    font-size: 15px;
+}
+.sender-stat-reiterate-graph{
+    width: 100%;
+    height: 500px;
+    font-size: 11px;
+}
+
+
+
+
+
+.adm-white-container {
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+    border: 1px solid #ccd4d5;
+    margin-top: 25px;
+}
+
+/*h2------------------------------------------------------------------------------------------------------------------*/
+h2.adm-white-container-title {
+    position: relative;
+    font-size: 26px;
+    font-weight: bold;
+    margin: 0px 0px 40px;
+}
+
+h2.adm-white-container-title:before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 50px;
+    width: 100%;
+    height: 1px;
+    background: #eff0f1;
+}
+
+/*p-------------------------------------------------------------------------------------------------------------------*/
+p.adm-white-container-p {
+    font-size: 14px;
+    color: #5f707b;
+    margin-bottom: 20px;
+}
+
+/*input & label ------------------------------------------------------------------------------------------------------*/
+.adm-white-container input.sender-wizard-radio {
+    display: none;
+}
+
+.adm-white-container label.sender-wizard-radio-label {
+    margin-right: 40px;
+    font-size: 14px;
+    vertical-align: middle;
+    display: inline-block;
+    cursor: pointer;
+}
+.adm-white-container label.sender-wizard-radio-label span {
+    position: relative;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 8px;
+    border: 1px solid #939393;
+    background: url("images/sender/radio-bg.png") no-repeat -1px 0px;
+    margin-right: 7px;
+    vertical-align: bottom;
+}
+.adm-white-container label.sender-wizard-radio-label span:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    width: 6px;
+    height: 6px;
+    margin: auto;
+    border-radius: 3px;
+    background: transparent;
+}
+
+.adm-white-container input[type=radio]:checked + label {
+    font-weight: bold;
+}
+.adm-white-container input[type=radio]:checked + label span {
+    background-position: -1px -17px;
+    border: 1px solid #5b5b6a;
+}
+.adm-white-container input[type=radio]:checked + label span:before {
+    background: #000;
+}
+
+.bx-ie8 .adm-white-container input.sender-wizard-radio {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-ie8 .adm-white-container label span {
+    display: none;
+}
+/*adm-email-master-----------------------------------------------------------------------------------------------------*/
+
+.adm-email-master {
+    padding: 25px 0px;
+    background: #f7fafa;
+    border: 1px solid #e2ebef;
+    font-size: 0px;
+    margin: -16px -11px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.adm-email-master .adm-email-master-step {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 20%;
+    text-align: center;
+    white-space: normal;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-icon {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 98px;
+    height: 99px;
+    background: url("images/sender/email-master-bg.png") no-repeat 0px 0px;
+}
+.adm-email-master .adm-email-master-step.active .adm-email-master-step-icon {
+    background-position: 0px -100px;
+}
+.adm-email-master .adm-email-master-step.passed .adm-email-master-step-icon {
+    background-position: 0px -200px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-icon:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    display: block;
+    margin: auto;
+    background: url("images/sender/email-master-step.png") no-repeat 0px 0px;
+}
+
+.adm-email-master .adm-email-master-step-addmail .adm-email-master-step-icon:before {
+    width: 58px;
+    height: 49px;
+    background-position: 0px 0px;
+    top: -8px;
+}
+.adm-email-master .adm-email-master-step-addgroup .adm-email-master-step-icon:before {
+    width: 66px;
+    height: 46px;
+    background-position: 0px -54px;
+    left: 3px;
+}
+.adm-email-master .adm-email-master-step-addissue .adm-email-master-step-icon:before {
+    width: 53px;
+    height: 52px;
+    background-position: -2px -105px;
+    left: -4px;
+    top: -1px;
+}
+.adm-email-master .adm-email-master-step-timingmail .adm-email-master-step-icon:before {
+    width: 62px;
+    height: 62px;
+    background-position: 0px -156px;
+    left: 5px;
+}
+.adm-email-master .adm-email-master-step-done .adm-email-master-step-icon:before {
+    width: 45px;
+    height: 44px;
+    background-position: -6px -223px;
+    left: -4px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-divider {
+    position: absolute;
+    top: 45px;
+    width: 100%;
+    height: 10px;
+    background: #d4d9db;
+}
+.adm-email-master .adm-email-master-step:first-child .adm-email-master-step-divider {
+    width: 50%;
+    right: 0px;
+}
+.adm-email-master .adm-email-master-step:last-child .adm-email-master-step-divider {
+    width: 50%;
+    left: 0px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.adm-white-container table.adm-detail-content-table>tbody>tr>td:first-child{
+    text-align: right;
+    padding: 5px 4px 7px 0;
+}
+.adm-white-container table.adm-detail-content-table>tbody>tr.adm-detail-required-field>td:first-child,
+.adm-white-container table.adm-detail-content-table.edit-table>tbody>tr.adm-detail-required-field>td:first-child {
+    font-weight: bold;
+}
+.adm-white-container table.adm-detail-content-table>tbody>tr>td:last-child{
+    padding: 5px 0 7px 4px;
+}
+.adm-white-container table.adm-detail-content-table>tbody>tr>td:only-child{
+    text-align: left;
+}
+.adm-white-container table.adm-detail-content-table>tbody>tr.adm-detail-required-field>td:only-child{
+    font-weight: normal;
+}
+
+.bx-ed-type-selector{
+    margin-bottom: 10px;
+}
+
+
+.adm-white-container {
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+    border: 1px solid #ccd4d5;
+    margin-top: 25px;
+}
+.sender-wizard-popup .adm-white-container {overflow: auto;}
+/*h2------------------------------------------------------------------------------------------------------------------*/
+h2.adm-white-container-title {
+    position: relative;
+    font-size: 26px;
+    font-weight: bold;
+    margin: 0px 0px 40px;
+}
+
+h2.adm-white-container-title:before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 50px;
+    width: 100%;
+    height: 1px;
+    background: #eff0f1;
+}
+
+/*p-------------------------------------------------------------------------------------------------------------------*/
+p.adm-white-container-p {
+    font-size: 14px;
+    color: #5f707b;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+p.adm-white-container-subtitle {
+    font-size: 22px;
+    color: #000;
+    line-height: 48px;
+    background: #ecf2f2;
+    padding: 0px 20px;
+    margin-bottom: 25px;
+    border-radius: 3px;
+}
+
+/*input & label ------------------------------------------------------------------------------------------------------*/
+.adm-white-container input[type="radio"]{
+    display: none;
+}
+
+.adm-white-container label {
+    margin-right: 40px;
+    font-size: 14px;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 16px;
+}
+.adm-white-container label span {
+    position: relative;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 8px;
+    border: 1px solid #939393;
+    background: url("images/sender/radio-bg.png") no-repeat -1px 0px;
+    margin-right: 7px;
+    vertical-align: bottom;
+}
+.adm-white-container label span:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    width: 6px;
+    height: 6px;
+    margin: auto;
+    border-radius: 3px;
+    background: transparent;
+}
+
+.adm-white-container input[type=radio]:checked + label {
+    font-weight: bold;
+}
+.adm-white-container input[type=radio]:checked + label span {
+    background-position: -1px -17px;
+    border: 1px solid #5b5b6a;
+}
+.adm-white-container input[type=radio]:checked + label span:before {
+    background: #000;
+}
+
+/*adm-email-master-----------------------------------------------------------------------------------------------------*/
+.adm-email-master {
+    padding: 25px 0px;
+    background: #f7fafa;
+    border: 1px solid #e2ebef;
+    font-size: 0px;
+    margin: -16px -11px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.adm-email-master .adm-email-master-step {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 20%;
+    text-align: center;
+    white-space: normal;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-icon {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 98px;
+    height: 99px;
+    background: url("images/sender/email-master-bg.png") no-repeat 0px 0px;
+}
+.adm-email-master .adm-email-master-step.active .adm-email-master-step-icon {
+    background-position: 0px -100px;
+}
+.adm-email-master .adm-email-master-step.passed .adm-email-master-step-icon {
+    background-position: 0px -200px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-icon:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    display: block;
+    margin: auto;
+    background: url("images/sender/email-master-step.png") no-repeat 0px 0px;
+}
+
+.adm-email-master .adm-email-master-step-addmail .adm-email-master-step-icon:before {
+    width: 58px;
+    height: 49px;
+    background-position: 0px 0px;
+    top: -8px;
+}
+.adm-email-master .adm-email-master-step-addgroup .adm-email-master-step-icon:before {
+    width: 66px;
+    height: 46px;
+    background-position: 0px -54px;
+    left: 3px;
+}
+.adm-email-master .adm-email-master-step-addissue .adm-email-master-step-icon:before {
+    width: 53px;
+    height: 52px;
+    background-position: -2px -105px;
+    left: -4px;
+    top: -1px;
+}
+.adm-email-master .adm-email-master-step-timingmail .adm-email-master-step-icon:before {
+    width: 62px;
+    height: 62px;
+    background-position: 0px -156px;
+    left: 5px;
+}
+.adm-email-master .adm-email-master-step-done .adm-email-master-step-icon:before {
+    width: 45px;
+    height: 44px;
+    background-position: -6px -223px;
+    left: -4px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-divider {
+    position: absolute;
+    top: 45px;
+    width: 100%;
+    height: 10px;
+    background: #d4d9db;
+}
+.adm-email-master .adm-email-master-step:first-child .adm-email-master-step-divider {
+    width: 50%;
+    right: 0px;
+}
+.adm-email-master .adm-email-master-step:last-child .adm-email-master-step-divider {
+    width: 50%;
+    left: 0px;
+}
+
+.adm-email-master .adm-email-master-step .adm-email-master-step-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.sender-wizard-btn-cont{
+    margin-top: 20px;
+}
+
+.adm-email-master-container .adm-white-container .adm-detail-content-item-block-title  {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+.adm-email-master-container .adm-white-container .adm-detail-content-item-block-span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.adm-detail-content-item-block-save {
+    line-height: 28px;
+    margin-top: 15px;
+    font-weight: normal;
+}
+
+.sender-mailing-group-container {
+    min-height: 27px;
+    padding: 13px 17px;
+}
+
+.sender-mailing-group-container.sender-mailing-group-add {
+    background: #e4f2f7;
+    color: #345f71;
+}
+.sender-mailing-group-container.sender-mailing-group-add .adm-white-container-p {
+    border-left: 1px solid #d7e5ea;
+}
+
+.sender-mailing-group-container.sender-mailing-group-del {
+    background: #fde4e1;
+    color: #9e2f2f
+}
+.sender-mailing-group-container.sender-mailing-group-del .adm-white-container-p {
+    border-left: 1px solid #f1cecc;
+}
+.sender-mailing-group-container.sender-mailing-group-ok {
+    background: #E7F0CF;
+    color: #738A37;
+}
+.sender-mailing-group-container.sender-mailing-group-ok .adm-white-container-p {
+    border-left: 1px solid #D4E49A;
+}
+
+.sender-mailing-group-container .sender-mailing-group-container-title {
+    font-size: 20px;
+    font-weight: bold;
+    display: inline-block;
+    line-height: 27px;
+    padding-right: 27px;
+    padding-left: 38px;
+    text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+    float: left;
+    position: relative;
+    display: table;
+}
+
+.sender-mailing-group-container .sender-mailing-group-container-title span {
+    display: table-cell;
+}
+
+.sender-mailing-group-container .sender-mailing-group-container-title:before {
+    content: '';
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    margin: auto;
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4642px!important;
+}
+.sender-mailing-group-container.sender-mailing-group-del .sender-mailing-group-container-title:before {
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4672px!important;
+}
+.sender-mailing-group-container.sender-mailing-group-ok .sender-mailing-group-container-title:before {
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4702px!important;
+}
+
+.sender-mailing-group-container .adm-white-container-p {
+    font-weight: normal;
+    padding-left: 25px;
+    display: block;
+    overflow: hidden;
+    height: 27px;
+    min-height: 27px;
+    display: table;
+}
+.sender-mailing-group-container .adm-white-container-p span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.adm-email-master-container .adm-white-container .bx-ed-type-selector-item .adm-designed-checkbox-label {
+    margin-right: 0px;
+    padding-right: 0px!important;
+}
+
+.adm-email-master-container .adm-white-container .sender-box-selector-caption {
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.adm-email-master-container .adm-white-container .adm-info-message-wrap {
+    font-weight: normal;
+}
+
+.adm-detail-content-item-block-save label,
+.adm-detail-content-item-block-save input,
+.adm-detail-content-item-block-save span,
+.adm-detail-content-item-block-save span span {
+    font-size: 13px;
+    margin-right: 0px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+
+.adm-email-master-container .adm-white-container label.adm-designed-checkbox-label {margin-right: 5px;}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.adm-fn {
+    font-size: 11px;
+    font-weight: normal;
+    color: #878787;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.hidden-when-show-template-list-name{
+    font-size: 16px;
+    line-height: 28px;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.hidden-when-show-template-list-name + .sender-link-email {
+    color: #d32f2f;
+    font-size: 14px;
+    text-decoration: underline;
+    border: none;
+    margin-left: 15px;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.hidden-when-show-template-list-tags {
+    color: #676a6c;
+    font-size: 13px;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.hidden-when-show-template-list-name + .sender-link-email:hover {
+    text-decoration: none;
+}
+
+.adm-detail-content-table.edit-table td span.hidden-when-show-template-list-info {
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0px -4598px;
+    width: 19px;
+    height: 20px;
+    display: inline-block;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table td span.hidden-when-show-template-list-text {
+    width: 420px;
+    display: block;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.adm-email-master-container .adm-detail-content-table.edit-table textarea {
+    width: 490px;
+    height: 70px;
+}
+
+
+.adm-email-master-container .adm-white-container table.adm-detail-content-table>tbody>tr>td:last-child {
+    vertical-align: top;
+}
+
+.adm-email-master-container .adm-white-container table.adm-detail-content-table>tbody>tr>td:first-child {
+    width: 25%;
+    min-width: 250px;
+    vertical-align: top;
+    padding-top: 10px;
+}
+
+table.adm-detail-content-table>tbody>tr.hidden-when-show-template-list>td:first-child {
+    width: 25%;
+}
+
+.sender-template-type-selector-button {
+    padding: 7px 13px;
+    margin-bottom: 20px;
+    display: inline-block;
+    float: left;
+    clear: left;
+    font-weight: normal;
+    height: 15px;
+}
+
+.sender-template-type-selector-button:hover, .sender-template-type-selector-button-selected {
+    position: relative;
+    background: -webkit-linear-gradient(bottom,  #2595d2, #30b4de)!important;
+    background: -moz-linear-gradient(bottom,  #2595d2, #30b4de)!important;
+    background: -ms-linear-gradient(bottom,  #2595d2, #30b4de)!important;
+    background: -o-linear-gradient(bottom,  #2595d2, #30b4de)!important;
+    background: linear-gradient(bottom,  #2595d2, #30b4de)!important;
+    color: #fff;
+    text-shadow: 0px 1px 0px rgba(0,0,0,0.2);
+    font-weight: bold;
+    font-size: 13px;
+    height: 27px;
+    line-height: 27px;
+    text-decoration: none;
+    border: 1px solid #1a99d0;
+    border-top: 1px solid #31a8e3;
+    border-bottom: 1px solid #028abc;
+    padding: 0px 13px;
+    box-shadow: inset 0px 1px 0px 0px  #48d9ef, 0px 1px 1px 0px rgba(0,0,0,0.25);
+    border-radius: 2px;
+}
+
+.sender-template-type-selector-button:active {
+    background: -webkit-linear-gradient(bottom,  #0089c5, #008ac6)!important;
+    background: -moz-linear-gradient(bottom,  #0089c5, #008ac6)!important;
+    background: -ms-linear-gradient(bottom,  #0089c5, #008ac6)!important;
+    background: -o-linear-gradient(bottom,  #0089c5, #008ac6)!important;
+    background: linear-gradient(bottom,  #0089c5, #008ac6)!important;
+    box-shadow: inset 0px 1px 0px 0px  #0c6595, 0px 1px 1px 0px rgba(0,0,0,0.25);
+    border-top: 1px solid #0f5884;
+    border-bottom: 1px solid #008ac6;
+    height: auto!important;
+    padding: 0px 13px!important;
+    border-radius: 2px;
+    height: 27px;
+    line-height: 27px;
+}
+
+.sender-template-type-selector-button:hover:before, .sender-template-type-selector-button-selected:before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -10px;
+    width: 11px;
+    height: 29px;
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0px -4495px!important;
+}
+
+.sender-template-type-selector-button:active:before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -10px;
+    width: 11px;
+    height: 29px;
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4562px!important;
+}
+
+
+
+.adm-email-master-container .adm-white-container .adm-btn.adm-btn-grey:after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 9px;
+    top: 0px;
+    bottom: 0px;
+    right: 15px;
+    margin: auto;
+    background: url("images/sender/bx-admin-sprite-small-2.png") -3px -4478px;
+}
+
+.adm-email-master-container .adm-white-container .adm-btn.adm-btn-grey{
+    height: 32px !important;
+    padding: 0px 40px 0px 15px !important;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 32px;
+    color: #646d7a;
+    text-shadow: 0px 1px 0px #fff;
+    border: 1px solid #b8c2c6;
+    border-top: 1px solid #c8d1d4;
+    border-bottom: 1px solid #99a4a9;
+    box-shadow: inset 0px 1px 0px 0px #eef2f3, 0px 1px 1px 0px #cfcfcf;
+    border-radius: 2px;
+    background: -webkit-linear-gradient(bottom, #becfd3, #dce5e7)!important;
+    background: -moz-linear-gradient(bottom, #becfd3, #dce5e7)!important;
+    background: -ms-linear-gradient(bottom, #becfd3, #dce5e7)!important;
+    background: -o-linear-gradient(bottom, #becfd3, #dce5e7)!important;
+    background: linear-gradient(bottom, #becfd3, #dce5e7)!important;
+}
+
+.adm-email-master-container .adm-white-container .adm-btn.adm-btn-grey:hover{
+	background: -webkit-linear-gradient(bottom,  #e3e8ea, #eff2f4)!important;
+	background: -moz-linear-gradient(bottom,  #e3e8ea, #eff2f4)!important;
+	background: -ms-linear-gradient(bottom,  #e3e8ea, #eff2f4)!important;
+	background: -o-linear-gradient(bottom,  #e3e8ea, #eff2f4)!important;
+	background: linear-gradient(bottom,  #e3e8ea, #eff2f4)!important;
+}
+.adm-email-master-container .adm-white-container .adm-btn.adm-btn-grey:active{
+	background: -webkit-linear-gradient(bottom,  #c4d3d7, #bac7cb)!important;
+	background: -moz-linear-gradient(bottom,  #c4d3d7, #bac7cb)!important;
+	background: -ms-linear-gradient(bottom,  #c4d3d7, #bac7cb)!important;
+	background: -o-linear-gradient(bottom,  #c4d3d7, #bac7cb)!important;
+	background: linear-gradient(bottom,  #c4d3d7, #bac7cb)!important;
+	height: 32px!important;
+	padding: 0px 40px 0px 15px!important;
+	border-radius: 2px;
+	border: 1px solid #bac7cb;
+	border-top: 1px solid #9ba3a9;
+	border-bottom: 1px solid #c4d3d7;
+	box-shadow: inset 0px 1px 1px 0px #a6afb4;
+    line-height: 32px;
+}
+
+
+.adm-email-master-container span.adm-btn-input-container {
+    position: relative;
+    display: block;
+}
+
+.adm-email-master-container span.adm-btn-input-container .adm-btn.adm-btn-grey{
+    padding: 0px 20px!important;
+    margin-top: 0;
+}
+.adm-email-master-container span.adm-btn-input-container .adm-btn.adm-btn-grey:active{
+    padding: 0px 20px!important;
+    margin-top: 0;
+}
+
+.adm-email-master-container span.adm-btn-input-container.left-input-container span{
+    background-position: -3px -4627px;
+}
+.adm-email-master-container span.adm-btn-input-container span {
+    content: '';
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    width: 12px;
+    height: 9px;
+    margin: auto;
+    background: url("images/sender/bx-admin-sprite-small-2.png") -3px -4478px;
+    cursor: pointer;
+}
+
+.adm-email-master-container .adm-white-container input[type="button"].adm-btn-add.adm-btn-green, .sender-box-selector input[type="button"].adm-btn-add.adm-btn-green{
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 10px -665px #86ad00!important;
+}
+
+.sender-mailing-container{
+    background: rgb(244, 249, 249);
+    border: 1px solid rgb(230, 230, 230);
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+    border-radius: 3px;
+    padding: 20px;
+}
+
+.sender-wizard-trig-mailing-tmpl-list-item {
+    position: relative;
+    display: block;
+    margin: 0 25px 25px 0;
+}
+
+.sender-wizard-trig-mailing-tmpl-list-item-inner {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    z-index: 3;
+    position: relative;
+    padding: 15px 25px 30px;
+    box-shadow: 0 0 5px 0 rgba(0,0,0,0.25);
+    background: #fff url("images/sender/email-master-triger-bg.jpg") repeat-x 25px 0px;
+}
+
+.sender-wizard-trig-mailing-tmpl-list-item:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: -10px;
+    right: -10px;
+    left: 10px;
+    margin: auto;
+    box-shadow: 0 0 5px 0 rgba(0,0,0,0.25);
+    background: #fff;
+    z-index: 2;
+}
+
+.sender-wizard-trig-mailing-tmpl-list-item:after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    bottom: -20px;
+    right: -20px;
+    left: 20px;
+    margin: auto;
+    box-shadow: 0 0 5px 0 rgba(0,0,0,0.25);
+    background: #fff;
+    z-index: 1;
+}
+
+.sender-wizard-trig-mailing-tmpl-list-item-inner h2 {
+    border-bottom: 1px solid #c6d2dd;
+    padding-bottom: 15px;
+}
+
+.sender-time-dialog {
+    padding: 10px 0px;
+    display: none;
+}
+#bx-admin-prefix #sender-letter-container-time-dialog .popup-window-close-icon{
+    background-color: #fff;
+}
+
+.sender-trigger-status-mailing {
+    margin-bottom: 10px;
+    background: url(images/sender/container-letter-bg.png) repeat-y 5px 0;
+    padding: 0 0 25px 30px;
+}
+
+.sender-trigger-status-mailing-finish {
+    background: none;
+}
+
+.sender-trigger-status-mailing-title {
+    position: relative;
+    font-size: 17px;
+    color: #2d2e2f;
+    line-height: 36px;
+    font-weight: bold;
+}
+
+.sender-trigger-status-mailing-title:before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 0;
+    left: -29px;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    background: #949caa;
+    display: block;
+    box-shadow: 0 5px 0 0 #f5f9f9, 0 -12px 0 0 #f5f9f9
+}
+
+.sender-trigger-status-mailing-desc {
+    color: #536677;
+    font-size: 14px;
+    background: #e3ecee;
+    line-height: 37px;
+    padding: 0 17px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.sender-trigger-chain-container-letter {
+    background: url(images/sender/container-letter-bg.png) repeat-y 5px 0;
+    padding: 0 0 25px 30px;
+    margin-top: 10px;
+}
+
+.sender-trigger-status-mailing-time {
+    position: relative;
+    font-size: 14px;
+    color: #2d2e2f;
+    line-height: 16px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.sender-trigger-status-mailing-time:before {
+    display: inline-block;
+    content: '';
+    width: 12px;
+    height: 30px;
+    background: #f5f9f9 url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -4726px;
+    position: absolute;
+    left: -30px;
+    top: 10px;
+    bottom: 0;
+    margin: auto;
+}
+
+.sender_letter_container_move {
+    width: 14px;
+    padding: 4px 0;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: move;
+}
+
+.sender_letter_container_burger {
+    position: relative;
+    width: 14px;
+    height: 2px;
+    background: #6f797e;
+}
+
+.sender_letter_container_burger:before,
+.sender_letter_container_burger:after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 2px;
+    background: #6f797e;
+    top: -4px;
+}
+
+.sender_letter_container_burger:after {
+    bottom: -4px;
+    top: auto;
+}
+
+.sender_letter_container_head h3 {
+    font-size: 17px;
+    font-weight: bold;
+    color: #2d2e2f;
+    margin: 0 0 15px;
+    min-height: 21px;
+}
+
+.sender_letter_container_head {}
+
+.sender_letter_container_sorter_view {
+    height: 67px;
+    float: left;
+    padding: 15px 33px;
+    text-align: center;
+    border-right: 1px solid #eeeff0;
+    margin-right: 20px;
+}
+.sender_letter_container_sorter_view .sender_letter_container_sorter_text {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 37px;
+    display: inline-block;
+}
+.sender_letter_container_sorter_icon {
+    position: relative;
+    width: 47px;
+    height: 37px;
+    background: #fff;
+    border: 2px solid #9ba3b2;
+    display: block;
+    padding-left: 12px;
+    text-align: left;
+}
+.sender_letter_container_sorter_icon:before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 7px;
+    height: 7px;
+    background: #9ba3b2;
+}
+.sender_letter_container_sorter_icon:after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 6px;
+    border-top: 2px solid #8aa3ac;
+    border-bottom: 2px solid #8aa3ac;
+    right: 3px;
+    bottom: 3px;
+    box-shadow: inset 0 2px 0 0 #fff, inset 0 -2px 0 0 #fff;
+    background: #8aa3ac;
+}
+
+.sender_letter_container-info {
+    display: block;
+    font-size: 12px;
+    color: #86898b;
+    margin-bottom: 20px;
+}
+
+.sender_letter_container-author {
+    color: #474747;
+    font-size: 12px;
+}
+
+.sender_letter_container-author:hover {
+    text-decoration: none;
+}
+
+.sender_letter_container-create {
+    font-weight: bold;
+    color: #383b3c;
+}
+
+.sender_letter_container_button_show {
+    font-size: 14px;
+    font-weight: bold;
+    color: #475056;
+    text-shadow: 0 1px 0 #fff;
+    background: #f6f5f9;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 29px;
+    padding: 0 30px 0 15px;
+    border-radius: 3px;
+    position: relative;
+}
+
+.sender_letter_container_button_show:before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    bottom: 0;
+    right: 13px;
+    margin: auto;
+    height: 0;
+    border: 4px solid transparent;
+    border-top: 4px solid #475056;
+    border-bottom: none;
+}
+
+.sender_letter_container_button_show.sender_letter_container_button_hide:before {
+    border: 4px solid transparent;
+    border-bottom: 4px solid #475056;
+    border-top: none;
+}
+
+.sender_letter_container_button_show:hover {
+    text-decoration: none;
+}
+
+.sender_letter_container {
+    border-radius: 3px;
+    box-shadow: 0 0 3px 0 rgba(0,0,0,0.29);
+    padding: 15px;
+    position: relative;
+    background: #fff;
+}
+
+.sender_letter_container_button_delete {
+    position: absolute;
+    width: 13px;
+    height: 20px;
+    display: block;
+    top: 4px;
+    right: 10px;
+    text-decoration: none;
+    line-height: 10px;
+    font-size: 19px;
+    color: #576166;
+    font-weight: bold;
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat 0 -2446px;
+}
+
+.sender_letter_container_button_delete:hover {
+    background: url("images/sender/bx-admin-sprite-small-2.png") no-repeat -4px -2987px;
+}
+
+.sender_letter_container_body {
+    border-top: 1px solid #dee3e8;
+    margin-top: 25px;
+    padding: 20px 0px 0px 35px;
+}
+
+table.trigger_chain_item {
+    padding: 5px 0;
+    width: 100%;
+}
+
+table.trigger_chain_item td {
+    padding: 5px 0;
+}
+
+table.trigger_chain_item .bx-ed-type-selector {
+    text-align: left !important;
+}
+table.trigger_chain_item .typearea, table.trigger_chain_item input.sender_letter_container_subject{
+    width: 98% !important;
+}
+
+table.trigger_chain_item td:first-child {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.sender-trigger-add-letter {
+    position: relative;
+    background: url(images/sender/container-letter-bg.png) repeat-y 5px 0;
+    padding: 0 0 25px 30px;
+}
+
+.sender-trigger-add-letter:before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 0;
+    left: 1px;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    background: #949caa;
+    display: block;
+    box-shadow: 0 10px 0 0 #f5f9f9, 0 -10px 0 0 #f5f9f9;
+}
+
+.adm-white-container .sender-template-type-selector-button{
+    max-width: 85%;
+}
+
+.adm-white-container .sender-template-type-selector-button span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.senderdrag.sender-trigger-chain-container-letter{
+    background: none;
+    border-style: dashed;
+    border-color: rgb(171, 178, 189);
+    border-width: 2px;
+    margin-left: 5px;
+    background-color: rgb(230, 235, 237);
+    margin-bottom: 37px;
+}
+.senderdrag .sender_letter_container{
+    visibility: hidden;
+}
+.senderdrag .sender-trigger-status-mailing-time{
+    display: none;
+}

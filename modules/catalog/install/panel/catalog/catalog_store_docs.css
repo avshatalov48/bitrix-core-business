@@ -1,0 +1,41 @@
+.cat-doc-title {font-weight: bold; text-align: center; font-size: 13px;}
+.cat-doc-hidden-div {display: none;}
+.hor-spacer {display:inline-block; width:25px;}
+.split-delete-item { width: 15px; height: 15px;  display: inline-block;}
+.split-delete-item {width: 15px; height: 15px; background:url('/bitrix/images/catalog/store/grey_del.gif'); }
+.split-delete-item:hover{background:url('/bitrix/images/catalog/store/red_del.gif') no-repeat; }
+.cat-doc-scroll-div {min-height: 50px; max-height: 300px; overflow: auto;}
+.cat-doc-status-left-Y {
+    padding: 4px 0 4px 10px;
+    background-color: #E1E9C5;
+    -webkit-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+    display: inline-block;
+    text-align: right;
+}
+.cat-doc-status-left-N {
+    padding: 4px 0 4px 10px;
+    background-color: #E9A74A;
+    -webkit-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+    display: inline-block;
+    text-align: right;
+}
+.cat-doc-status-right-Y {
+    padding: 4px 10px;
+    background-color: #E1E9C5;
+    -webkit-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+    display: inline-block;
+    text-align: left;
+    margin-left: -9px;
+}
+.cat-doc-status-right-N {
+    padding: 4px 10px;
+    background-color: #E9A74A;
+    -webkit-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+    display: inline-block;
+    text-align: left;
+    margin-left: -9px;
+}

@@ -1,0 +1,19 @@
+/**
+ * videojs-playlist-thumbs
+ * @version 0.1.5
+ * @copyright 2016 Emmanuel Alves <manel.pb@gmail.com>
+ * @license MIT
+ */
+.video-js{position:relative}
+.video-js.vjs-playlist{display:block}
+.video-js .vjs-button-prev,.video-js .vjs-button-next{cursor:pointer;font-size:15px;margin-bottom:2px;font-weight:bold;}
+.video-js .vjs-button-prev:before{content:"<<"}
+.video-js .vjs-button-next:before{content:">>"}
+.video-js .vjs-playlist-items{height:100%;position:absolute;right:0;top:0;overflow:hidden;overflow-y:auto;margin:0;padding:0 10px 0 10px; list-style: none; background: rgba(43, 51, 63, 0.7)}
+.video-js .vjs-playlist-items li{background-size:cover;height:120px;position:relative;margin: 10px 0 0 0;}
+.video-js .vjs-playlist-items li .vjs-playlist-video-title{position:absolute;top:5px;text-shadow:1px 2px 3px #000;left:5px;}
+.video-js .vjs-playlist-items li .vjs-playlist-video-title div{margin-top:8px}
+.video-js .vjs-playlist-items li div.vjs-playlist-video-upnext{font-size:12px;color:#f00; display: none;}
+.video-js .vjs-playlist-items li:hover{cursor:pointer}
+.video-js .vjs-playlist-items :last-child { margin: 10px 0 10px 0;}
+.video-js .vjs-playlist-items li.current {border: 2px solid #8b0000;}

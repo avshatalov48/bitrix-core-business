@@ -1,0 +1,35 @@
+<?
+$MESS ['TITLE'] = "Управление модулями";
+$MESS ['MOD_SETUP'] = "Статус";
+$MESS ['MOD_ACTION'] = "Действие";
+$MESS ['MOD_NAME'] = "Название";
+$MESS ['MOD_VERSION'] = "Версия";
+$MESS ['SAVE'] = "Сохранить изменения";
+$MESS ['RESET'] = "Сброс";
+$MESS ['MOD_INSTALL'] = "Установить модуль";
+$MESS ['MOD_INSTALL_BUTTON'] = "Установить";
+$MESS ['MOD_DELETE'] = "Удалить";
+$MESS ['MOD_INSTALLED'] = "Установлен";
+$MESS ['MOD_NOT_INSTALLED'] = "Не установлен";
+$MESS ['MOD_MAIN_MODULE'] = "Главный модуль";
+$MESS ['MOD_MAIN_DESCRIPTION'] = "Ядро продукта с технологией #A1#\"SiteUpdate\"#A2#.";
+$MESS ['MOD_DATE_UPDATE'] = "Дата обновления";
+$MESS ['MOD_UNINST_WARN'] = "Внимание!<br>Модуль будет удален из системы";
+$MESS ['MOD_UNINST_SAVE'] = "Вы можете сохранить данные в таблицах базы данных:";
+$MESS ['MOD_UNINST_SAVE_TABLES'] = "Сохранить таблицы";
+$MESS ['MOD_UNINST_SAVE_EVENTS'] = "Сохранить типы и шаблоны сообщений";
+$MESS ['MOD_UNINST_DEL'] = "Удалить модуль";
+$MESS ['MOD_UNINST_DEN'] = "Нельзя удалить этот модуль";
+$MESS ['MOD_UNINST_OK'] = "Удаление модуля успешно завершено";
+$MESS ['MOD_BACK'] = "Вернуться в список";
+$MESS ['MOD_UNINST_ERR'] = "Ошибки при удалении:";
+$MESS ['MOD_INST_ERR'] = "Ошибки при установке:";
+$MESS ['MOD_INST_OK'] = "Установка модуля успешно завершена";
+$MESS ['COPY_PUBLIC_FILES'] = "Скопировать публичные файлы";
+$MESS ['COPY_FOLDER'] = "Папка, в которую будут скопированы файлы:";
+$MESS ['INSTALL_PUBLIC_REW'] = "Переписывать существующие файлы";
+$MESS ['MOD_DEMO_DIR'] = "Работу компонент в публичной части вы можете посмотреть по нижеследующим ссылкам:";
+$MESS ['MOD_DEMO_SITE'] = "Сайт";
+$MESS ['MOD_DEMO_LINK'] = "Ссылка";
+$MESS ['MOD_PARTNER_NAME'] = "Компания <a target='_blank' href='#URI#'>#NAME#</a>";
+?>

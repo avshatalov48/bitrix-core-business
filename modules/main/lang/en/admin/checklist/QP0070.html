@@ -1,0 +1,50 @@
+<p>Even if your web project was designed and developed following the rules and
+guidelines, there is always a risk of emergence of slow web pages and components
+due to coding errors, unforeseen execution scenarios, mutually incompatible
+server software and so on.</p>
+
+<p>To prevent system breakdowns, increase performance reserve and verify system
+robustness, always run stress tests. </p>
+
+<p>To get as close to real-life results as possible, import to your website data
+of such size that would match the real-life value. For example, if you expect
+2.000.000 user profiles, 100.000 products in 10.000 sections and 1.000.000 posts
+in the forum surviving 500.000 daily hits - import data of this extent. It is
+obvious that the test should be run on the same hardware as will be used in real
+life, or at least close to it.</p>
+
+
+<ol>
+<li>Ensure the website is populated with test data of real-life size; the
+  testing hardware is the same as will be used in real life.</li>
+<li>Open "Settings > Performance > Performance Panel", select 10 minutes
+  duration and click "Test Performance". Use longer intervals for better
+  precision.
+<ol>
+<li>Impose some load on the website. This can be any testing software like JMeter, WAPT,
+  or just employees or other developers clicking links, adding products to the
+  shopping cart etc - it does not matter; what matters is that the degree and
+  nature of the load should be the same as in real life.</li>
+<li>While the test is at full tilt, browse the website manually and make a
+  visual estimation of the following characteristics:
+<ul>
+<li>the web pages are opening fast;</li>
+<li>the images are loaded with the blink of an eye.</li> 
+To all intents and purposes, browsing a website that is being stress-tested we
+see it through the eyes of a real-life visitor. 
+ </ul>
+</li>  
+ </ol>
+
+</li> 
+<li>Once the test is complete, click the "Development" tab and analyze the
+  results:
+<ul>
+<li>View the "20 most heavy pages".</li>
+<li>The values in the "Avg. Time" column showing the page generation time
+  should not exceed 0.5 sec.</li> 
+<li>The "Development errors" column must not show any issues. Any development
+  error must be fixed.</li> 
+ </ul>
+</li>
+ </ol>

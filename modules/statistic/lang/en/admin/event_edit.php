@@ -1,0 +1,32 @@
+<?
+$MESS["STAT_TITLE"] = "Event loading";
+$MESS["STAT_CHARGEBACK"] = "Chargeback";
+$MESS["STAT_EVENT_TYPE"] = "Event type<br>ID";
+$MESS["STAT_DATE"] = "Date<br>";
+$MESS["STAT_PARAM"] = "Additional parameter<br>(#GROUP_SITE_ID#.session.<br>visitor.country.<br>advertising_campaign.<br>back.site)";
+$MESS["STAT_COPY"] = "Copy to the bottom line";
+$MESS["STAT_CALENDAR"] = "Calendar";
+$MESS["STAT_SELECT_EVENT"] = "Select event type";
+$MESS["STAT_LOAD"] = "Load";
+$MESS["STAT_FILE"] = "CSV file:";
+$MESS["STAT_MONEY"] = "Amount of money";
+$MESS["STAT_PREVIEW"] = "With preview:";
+$MESS["STAT_STEP"] = "Loading step (sec.):";
+$MESS["STAT_HANDLER"] = "CSV file handler:";
+$MESS["STAT_LOADING_FROM_TABLE"] = "Manual event loading";
+$MESS["STAT_LOADING_FROM_CSV"] = "Event loading from CSV file";
+$MESS["STAT_UNIQUE"] = "Load unique events only";
+$MESS["STAT_UNIQUE_ALT"] = "uniqueness is being checked by combination of all loaded fields (except amount of money)";
+$MESS["STAT_CURRENCY"] = "Currency";
+$MESS["STAT_NEXT_STEP"] = "next step";
+$MESS["STAT_EVENTS_LOADING"] = "Event loading in progress. Please wait....";
+$MESS["STAT_LOADED"] = "Loaded:";
+$MESS["STAT_PROCESSED"] = "Processed:";
+$MESS["STAT_ON_STEP"] = "On step";
+$MESS["STAT_TOTAL_CSV"] = "Total rows in CSV:";
+$MESS["STAT_DUPLICATE"] = "Duplicates:";
+$MESS["STAT_CONVERT_TO_DEFAULT_CUR"] = "Before loading all the amounts, they will be converted to the base currency.";
+$MESS["STAT_FROM_FILE"] = "From file";
+$MESS["STAT_FROM_FORM"] = "Manually entering";
+$MESS["STAT_ATTENTION_1"] = "Attention";
+?>

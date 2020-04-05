@@ -1,0 +1,1 @@
+{"version":3,"file":"comp_props.min.js","sources":["comp_props.js"],"names":["BxShowComponentNotes","arParams","cell","oCont","parentNode","cells","deleteCell","colSpan","innerHTML","data"],"mappings":"AAAA,QAASA,sBAAqBC,GAE7B,GAAIC,GAAOD,EAASE,MAAMC,WAAWC,MAAM,EAC3CJ,GAASE,MAAMC,WAAWE,WAAW,EACrCJ,GAAKK,QAAU,CACfL,GAAKM,UAAY,8GAA8GP,EAASQ,KAAK"}

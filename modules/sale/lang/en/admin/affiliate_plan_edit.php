@@ -1,0 +1,34 @@
+<?
+$MESS["SAPE1_NO_SITE"] = "The plan site is not specified";
+$MESS["SAPE1_NO_NAME"] = "The plan name is not specified";
+$MESS["SAPE1_NO_RATE_CURRENCY"] = "The plan rate currency is not specified";
+$MESS["SAPE1_NO_SECTION"] = "No product group is specified";
+$MESS["SAPE1_NO_MODULE"] = "The product group module is not specified";
+$MESS["SAPE1_ERROR_SAVE"] = "Error saving the plan";
+$MESS["SAPE1_ERROR_SAVE_SECTION"] = "Error saving the plan product group";
+$MESS["SAPE1_TITLE_UPDATE"] = "Edit plan #ID#";
+$MESS["SAPE1_TITLE_ADD"] = "New plan";
+$MESS["SAPE1_LIST"] = "Plans";
+$MESS["SAPE1_ADD"] = "New plan";
+$MESS["SAPE1_DELETE"] = "Delete plan";
+$MESS["SAPE1_DELETE_CONF"] = "Are you sure you want to delete this plan?";
+$MESS["SAPE1_PLAN"] = "Plan";
+$MESS["SAPE1_PLAN_PARAM"] = "Plan parameters";
+$MESS["SAPE1_SECTIONS"] = "Product groups";
+$MESS["SAPE1_SECTIONS_ALT"] = "Special rate product groups";
+$MESS["SAPE1_TIMESTAMP_X"] = "Last modification date:";
+$MESS["SAPE1_SITE"] = "Site:";
+$MESS["SAPE1_NAME"] = "Plan name:";
+$MESS["SAPE1_DESCR"] = "Plan description:";
+$MESS["SAPE1_ACTIVE"] = "Active:";
+$MESS["SAPE1_RATE"] = "Tariff:";
+$MESS["SAPE1_LIMIT"] = "The plan is active for sales over (pcs.)";
+$MESS["SAPE1_LIMIT_HINT"] = "The plan is active for sales with amount over<br><small>in the site base currency</small>";
+$MESS["SAPE1_NO"] = "(No)";
+$MESS["SAPE1_DELETE1"] = "Delete";
+$MESS["SAPE1_MODULE"] = "Module";
+$MESS["SAPE1_SECTION"] = "Group";
+$MESS["SAPE1_RATE1"] = "Tariff";
+$MESS["SAPE1_ADD1"] = "Add";
+$MESS["SAPE1_DELETE1_CONF"] = "Are you sure you want to delete this record?";
+?>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" elementFormDefault="qualified" attributeFormDefault="unqualified" vc:minVersion="1.1">
+	<xs:element name="ShipmentArray">
+		<xs:annotation>
+			<xs:documentation>Shipment Elements</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Shipment" type="ShipmentType" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ShipmentType">
+		<xs:sequence>
+			<xs:element name="OrderID" type="xs:string"/>
+			<xs:element name="OrderLineItemID" type="xs:string"/>
+			<xs:element name="ShippedTime" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="ShipmentTracking" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ShippingCarrier" type="xs:string" minOccurs="0"/>
+						<xs:element name="TrackingNumber" type="xs:string" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

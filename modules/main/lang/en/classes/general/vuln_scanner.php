@@ -1,0 +1,38 @@
+<?
+$MESS["VULNSCAN_SIMILAR"] = "Similar";
+$MESS["VULNSCAN_REQUIRE"] = "Required conditions";
+$MESS["VULNSCAN_FILE"] = "File";
+$MESS["VULNSCAN_XSS_NAME"] = "Cross-Site Scripting";
+$MESS["VULNSCAN_XSS_HELP"] = "An attacker can execute arbitrary malicious HTML/JS code in the context of the victim's browser. It is recommended that you filter the variables before output to HTML/JS.<br>Read more: <a href=\"https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)\">https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)</a>";
+$MESS["VULNSCAN_XSS_HELP_SAFE"] = "Use <b>htmlspecialcharsbx</b>. Tag attribute values always in double quotes. Force protocol specifier (http) in href and src attribute values when required.";
+$MESS["VULNSCAN_HEADER_NAME"] = "HTTP Response Splitting";
+$MESS["VULNSCAN_HEADER_HELP"] = "An attacker can use HTTP response header injection to perform redirection or insert malicious HTML/JS code. It is recommended that you filter out the newlines before output to the response header. Actual for PHP prior to 5.4. Read more: <a href=\"http://www.infosecwriters.com/text_resources/pdf/HTTP_Response.pdf\">http://www.infosecwriters.com/text_resources/pdf/HTTP_Response.pdf</a>";
+$MESS["VULNSCAN_HEADER_HELP_SAFE"] = "Newlines are recommended to be filtered out before adding text to header.";
+$MESS["VULNSCAN_DATABASE_NAME"] = "SQL Injection";
+$MESS["VULNSCAN_DATABASE_HELP"] = "An attacker can inject arbitrary SQL commands into the query, which is extremely dangerous. It is recommended that you filter user data before actually sending them to the server. Read more: <a href=\"https://www.owasp.org/index.php/SQL_Injection\">https://www.owasp.org/index.php/SQL_Injection</a>";
+$MESS["VULNSCAN_DATABASE_HELP_SAFE"] = "Use explicit type casts for numeric data (int, float etc.). Use mysql_escape_string, \$DB->ForSQL() and similar routines for string data. Control data length.";
+$MESS["VULNSCAN_INCLUDE_NAME"] = "File Inclusion";
+$MESS["VULNSCAN_INCLUDE_HELP"] = "An attacker can mount local and/or remote files, or read website files. It is recommended that you canonicalize paths in user data before using them. Read more: <a href=\"https://rdot.org/forum/showthread.php?t=343\">https://rdot.org/forum/showthread.php?t=343</a>";
+$MESS["VULNSCAN_INCLUDE_HELP_SAFE"] = "Normalize paths before using them.";
+$MESS["VULNSCAN_EXEC_NAME"] = "Arbitrary command execution";
+$MESS["VULNSCAN_EXEC_HELP"] = "An attacker can inject and execute arbitrary code or commands. It is extremely dangerous. Read more: <a href=\"https://www.owasp.org/index.php/Code_Injection\">https://www.owasp.org/index.php/Code_Injection</a>";
+$MESS["VULNSCAN_EXEC_HELP_SAFE"] = "Check that the variable values are valid and in allowed range. For example, you may want to reject national and punctuation characters. The allowed range is defined by the project requirements. Use escapeshellcmd and escapeshellarg to be on the safe side.";
+$MESS["VULNSCAN_CODE_NAME"] = "Arbitrary code execution";
+$MESS["VULNSCAN_CODE_HELP"] = "An attacker can inject and execute arbitrary PHP code. Read more: <a href=\"http://cwe.mitre.org/data/definitions/78.html\">http://cwe.mitre.org/data/definitions/78.html</a>";
+$MESS["VULNSCAN_CODE_HELP_SAFE"] = "Filter user input using <b>EscapePHPString</b>.";
+$MESS["VULNSCAN_POP_NAME"] = "Data serialization";
+$MESS["VULNSCAN_POP_HELP"] = "User data deserialization may become a serious vulnerability. Read more: <a href=\"https://rdot.org/forum/showthread.php?t=950\">https://rdot.org/forum/showthread.php?t=950</a>";
+$MESS["VULNSCAN_OTHER_NAME"] = "Potential system logic change";
+$MESS["VULNSCAN_OTHER_HELP"] = "No description.";
+$MESS["VULNSCAN_UNKNOWN"] = "Potential vulnerability";
+$MESS["VULNSCAN_UNKNOWN_HELP"] = "No description.";
+$MESS["VULNSCAN_HELP_INPUT"] = "Source";
+$MESS["VULNSCAN_HELP_FUNCTION"] = "Function/Method";
+$MESS["VULNSCAN_HELP_VULNTYPE"] = "Type of vulnerability";
+$MESS["VULNSCAN_HELP_SAFE"] = "Be Safe!";
+$MESS["VULNSCAN_FIULECHECKED"] = "Files checked:";
+$MESS["VULNSCAN_VULNCOUNTS"] = "Potential problems found: ";
+$MESS["VULNSCAN_DYNAMIC_FUNCTION"] = "Dynamic function call!";
+$MESS["VULNSCAN_EXTRACT"] = "Previously initialized variables can be overwritten!";
+$MESS["VULNSCAN_TOKENIZER_NOT_INSTALLED"] = "PHP tokenizer is not enabled. Please enable it to complete the test.";
+?>

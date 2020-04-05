@@ -1,0 +1,20 @@
+<?
+$MESS["SALE_HPS_BILLLA_DATE_INSERT"] = "Girada el";
+$MESS["SALE_HPS_BILLLA_DATE_PAY_BEFORE"] = "Para pagarse el";
+$MESS["SALE_HPS_BILLLA_DELIVERY"] = "Envío";
+$MESS["SALE_HPS_BILLLA_DISCOUNT"] = "Descuento";
+$MESS["SALE_HPS_BILLLA_MEASURE"] = 'pza';
+$MESS["SALE_HPS_BILLLA_SUB_TOTAL"] = 'Sub Total';
+$MESS["SALE_HPS_BILLLA_TAX"] = 'Impuesto';
+$MESS["SALE_HPS_BILLLA_TAX_IN"] = 'Incluido ';
+$MESS["SALE_HPS_BILLLA_SUM_PAID"] = 'Pago hecho';
+$MESS["SALE_HPS_BILLLA_TOTAL"] = "Total";
+$MESS["SALE_HPS_BILLLA_COMMENT"] = "Términos y Condiciones";
+$MESS["SALE_HPS_BILLLA_COMPANY_NAME"] = "Nombre de la cuenta";
+$MESS["SALE_HPS_BILLLA_COMPANY_BANK"] = "de la Cuenta";
+$MESS["SALE_HPS_BILLLA_COMPANY_BANK_DETAIL"] = "Detalles bancarios";
+$MESS["SALE_HPS_BILLLA_COMPANY_BANK_2"] = "Nombre y dirección del banco";
+$MESS["SALE_HPS_BILLLA_COMPANY_BANK_ROUTE_NO"] = "Número de enrutamiento del banco";
+$MESS["SALE_HPS_BILLLA_COMPANY_BANK_SWIFT"] = "SWIFT del banco";
+$MESS["SALE_HPS_BILLLA_FOR"] = "Para";
+$MESS["SALE_HPS_BILLLA_COMPANY_PHONE"] = "Tel.";

@@ -1,0 +1,14 @@
+table.learning-certificate-table
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+}
+
+table.learning-certificate-table td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 3px;
+	vertical-align:top;
+}

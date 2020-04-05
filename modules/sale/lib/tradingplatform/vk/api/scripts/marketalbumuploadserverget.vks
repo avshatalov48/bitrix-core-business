@@ -1,0 +1,4 @@
+var group_id = "%GROUP_ID%";
+
+var res =  API.photos.getMarketAlbumUploadServer({"group_id": group_id});
+return res;

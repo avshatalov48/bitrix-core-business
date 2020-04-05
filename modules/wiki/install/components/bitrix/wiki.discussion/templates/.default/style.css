@@ -1,0 +1,37 @@
+
+div#wiki-post {
+	margin-bottom: 10px;
+}
+
+div.wiki-errors {
+	border: 1px solid #FFD482;
+	margin: 1.117em;
+	padding: 0.4em 1.117em;
+	color:red;
+	background-color:#FFFEEB;
+}
+
+div#wiki-post div#wiki-post-content {
+}
+
+div#wiki-post a.wiki_red {
+	color: red;
+}
+div#wiki-post div.wiki_comment_add_link {
+	text-align:center;
+	margin-top: 5px;
+}
+
+div#wiki-post div.wiki_comment_add_link a {
+	font-weight: bold;
+}
+
+div#wiki-post div.wiki_comment_addition {
+	text-align:center;
+	margin-top: 5px;
+	font-weight: bold;
+}
+
+div#wiki-post div.reviews-text {
+	margin-left: 5px;
+}

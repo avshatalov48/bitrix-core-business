@@ -1,0 +1,1 @@
+{"version":3,"file":"statefinalizationactivity.min.js","sources":["statefinalizationactivity.js"],"names":["StateFinalizationActivity","ob","SequentialWorkflowActivity","Type"],"mappings":"AAGAA,0BAA4B,WAE3B,GAAIC,GAAK,GAAIC,2BACbD,GAAGE,KAAO,2BAGV,OAAOF"}

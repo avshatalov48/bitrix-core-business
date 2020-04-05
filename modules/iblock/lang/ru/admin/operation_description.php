@@ -1,0 +1,39 @@
+<?
+$MESS["OP_NAME_IBLOCK_ADMIN_DISPLAY"] = "Показ инфоблока в административном разделе";
+$MESS["OP_NAME_IBLOCK_EDIT"] = "Изменение параметров инфоблока";
+$MESS["OP_NAME_IBLOCK_DELETE"] = "Удаление инфоблока";
+$MESS["OP_NAME_IBLOCK_RIGHTS_EDIT"] = "Изменение прав доступа к инфоблоку";
+$MESS["OP_NAME_IBLOCK_EXPORT"] = "Экспорт инфоблока";
+$MESS["OP_NAME_SECTION_READ"] = "Чтение параметров раздела";
+$MESS["OP_NAME_SECTION_EDIT"] = "Изменение раздела";
+$MESS["OP_NAME_SECTION_DELETE"] = "Удаление раздела";
+$MESS["OP_NAME_SECTION_ELEMENT_BIND"] = "Добавление элемента в раздел (создание элемента)";
+$MESS["OP_NAME_SECTION_SECTION_BIND"] = "Создание подраздела в разделе";
+$MESS["OP_NAME_SECTION_RIGHTS_EDIT"] = "Изменение прав доступа к разделу";
+$MESS["OP_NAME_ELEMENT_READ"] = "Чтение элемента";
+$MESS["OP_NAME_ELEMENT_EDIT"] = "Изменение элемента";
+$MESS["OP_NAME_ELEMENT_EDIT_ANY_WF_STATUS"] = "Изменение элемента в любом статусе документооборота";
+$MESS["OP_NAME_ELEMENT_EDIT_PRICE"] = "Редактирование цен, относящихся к элементу";
+$MESS["OP_NAME_ELEMENT_DELETE"] = "Удаление элемента";
+$MESS["OP_NAME_ELEMENT_BIZPROC_START"] = "Запуск бизнес-процесса для элемента";
+$MESS["OP_NAME_ELEMENT_RIGHTS_EDIT"] = "Изменение прав доступа к элементу";
+
+$MESS["OP_DESC_IBLOCK_ADMIN_DISPLAY"] = "Пользователь имеет доступ к инфоблоку в разделе администрирования";
+$MESS["OP_DESC_IBLOCK_EDIT"] = "Пользователь может изменять параметры инфоблока, за исключением прав доступа";
+$MESS["OP_DESC_IBLOCK_DELETE"] = "Пользователь может удалить инфоблок";
+$MESS["OP_DESC_IBLOCK_RIGHTS_EDIT"] = "Пользователь может изменять права доступа к инфоблоку (требуется наличие операции iblock_edit)";
+$MESS["OP_DESC_IBLOCK_EXPORT"] = "Зарезервировано";
+$MESS["OP_DESC_SECTION_READ"] = "Пользователь имеет доступ для чтения параметров (полей и свойств) раздела инфоблока";
+$MESS["OP_DESC_SECTION_EDIT"] = "Пользователь может изменять параметры раздела инфоблока, за исключением прав доступа и изменения родительского раздела";
+$MESS["OP_DESC_SECTION_DELETE"] = "Пользователь может удалить раздел инфоблока";
+$MESS["OP_DESC_SECTION_ELEMENT_BIND"] = "Пользователь может создавать элементы инфоблока";
+$MESS["OP_DESC_SECTION_SECTION_BIND"] = "Пользователь может создавать разделы инфоблока";
+$MESS["OP_DESC_SECTION_RIGHTS_EDIT"] = "Пользователь может изменять права доступа к разделу инфоблока (требуется наличие операции section_edit)";
+$MESS["OP_DESC_ELEMENT_READ"] = "Пользователь имеет доступ для чтения элемента инфоблока";
+$MESS["OP_DESC_ELEMENT_EDIT"] = "Пользователь может изменять элемент инфоблока, за исключением прав доступа и привязки к разделам";
+$MESS["OP_DESC_ELEMENT_EDIT_ANY_WF_STATUS"] = "Пользователь может изменять элемент инфоблока в любом статусе документооборота, за исключением прав доступа и привязки к разделам";
+$MESS["OP_DESC_ELEMENT_EDIT_PRICE"] = "Пользователь может изменять цены, относящиеся к элементу (требуется наличие операции element_edit и catalog_price_edit)";
+$MESS["OP_DESC_ELEMENT_DELETE"] = "Пользователь может удалить элемент инфоблока";
+$MESS["OP_DESC_ELEMENT_BIZPROC_START"] = "Пользователь имеет право запускать бизнес-процессы для элемента инфоблока";
+$MESS["OP_DESC_ELEMENT_RIGHTS_EDIT"] = "Пользователь может изменять права доступа к элементу инфоблока (требуется наличие операции element_edit)";
+?>

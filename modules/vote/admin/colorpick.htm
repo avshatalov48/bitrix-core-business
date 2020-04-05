@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DAREA HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<style type="text/css">
+.tablebodytext {font-family: Arial, Helvetica, sans-serif; font-size:smaller; height:10px;}
+.t{width:10px; height:10px;}
+</style>
+</head>
+<body style="BORDER-BOTTOM: threeddarkshadow solid 1px; BORDER-LEFT: threedface solid 1px; BORDER-RIGHT: threeddarkshadow solid 1px; BORDER-TOP: threedface solid 1px;" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table id="c" cellpadding="0" border="0" cellspacing="1" width="0%">
+</table>
+<script>
+<!--
+var w;
+function public_SetColor(color, _w)
+{
+	w = _w;
+	document.all("clrtext").innerText=" "+color.toUpperCase();
+	document.all("clr").bgColor=color;
+}
+
+function mkc(num)
+{
+	if(num==0)return "00";
+	if(num==1)return "33";
+	if(num==2)return "66";
+	if(num==3)return "99";
+	if(num==4)return "CC";
+	return "FF";
+}
+
+function mcl()
+{
+	cl=this.bgColor;
+	w.OnColorSelect(cl);
+	window.external.raiseEvent("OnColorSelect", cl);
+}
+
+function mo()
+{
+	cl=this.bgColor;
+	document.all("clrtext").innerText=" "+cl.toUpperCase();
+	document.all("clr").bgColor=this.bgColor;
+}
+
+a1=0;a2=0;a3=0;
+for(i=0; i<12; i++)
+{
+	tr = c.insertRow();
+	for(j=0; j<18; j++)
+	{
+		td = tr.insertCell();
+		td.innerText = "";
+		td.onmouseover = mo;
+		td.onclick = mcl;
+		td.className = "t";
+		td.bgColor="#"+mkc(a1)+mkc(a2)+mkc(a3);
+		a3++;
+		if(a3>5)
+		{
+			a3=0;
+			a2++;
+		}
+		if(a2>5)
+		{
+			a2=0;
+			a1++;
+		}
+	}
+}
+
+tr = c.insertRow();
+td = tr.insertCell();
+td.colSpan="18";
+td.bgColor="#000000";
+td.innerHTML='<table cellpadding="0" cellspacing="1" border="0" width="100%"><tr><td width="50%" id="clr" bgcolor="#FFFFFF"></td><td width="50%" id="clrtext" bgcolor="#FFFFFF" class="tablebodytext"></td></tr></table>';
+//-->
+</script>
+</body>
+</html>

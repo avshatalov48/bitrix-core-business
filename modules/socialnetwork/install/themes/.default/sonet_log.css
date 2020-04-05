@@ -1,0 +1,30 @@
+.sonet-log-event {
+	width: 22px;
+	height: 22px;
+	margin-top: 8px;
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -230px;
+}
+
+div.sonet-log-event-blog-post {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 0;
+}
+
+div.sonet-log-event-blog-comment {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -22px;
+}
+
+div.sonet-log-event-photo {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -68px;
+}
+
+div.sonet-log-event-tasks {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -138px;
+}
+
+div.sonet-log-event-files {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -94px;
+}
+
+div.sonet-log-event-system-friends, div.sonet-log-event-system-groups, div.sonet-log-event-system {
+	background: url(icons/socialnetwork/sprite-icons.png) no-repeat 0 -208px;
+}

@@ -1,0 +1,33 @@
+<?
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TAB_NAME_COMMON"] = "Общие параметры";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TAB_TITLE_COMMON"] = "Общие параметры купона";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TAB_TITLE_MULTI_COMMON"] = "Общие параметры купонов";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TITLE_ADD"] = "Создание купона";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TITLE_MULTI_ADD"] = "Создание купонов";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TITLE_UPDATE"] = "Редактирование купона с кодом #ID#";
+$MESS["BX_SALE_DISCOUNT_COUPON_EDIT_TITLE_COPY"] = "Копирование купона с кодом #ID#";
+$MESS["BX_SALE_DISCOUNT_COUPONT_CONTEXT_COUPON_LIST"] = "Список купонов";
+$MESS["BX_SALE_DISCOUNT_COUPONT_CONTEXT_NEW"] = "Добавить новый";
+$MESS["BX_SALE_DISCOUNT_COUPONT_CONTEXT_COPY"] = "Скопировать";
+$MESS["BX_SALE_DISCOUNT_COUPON_CONTEXT_DELETE"] = "Удалить";
+$MESS["BX_SALE_DISCOUNT_COUPON_CONTEXT_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить купон?";
+$MESS["BX_SALE_DISCOUNT_COUPON_ERR_SAVE"] = "Ошибки при сохранении";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_ID"] = "ID:";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_ACTIVE"] = "Активность:";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_DISCOUNT"] = "Правило корзины:";
+$MESS["BX_SALE_DISCOUNT_COUPON_MESS_DISCOUNT_ABSENT"] = "Активные правила корзины отсутствуют.";
+$MESS["BX_SALE_DISCOUNT_COUPON_MESS_DISCOUNT_ADD"] = "Создать правило";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_COUPON"] = "Купон:";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_COUPON_GENERATE"] = "Сгенерировать купон";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_PERIOD"] = "Период активности:";
+$MESS["BX_SALE_DISCOUNT_COUPON_PERIOD_EMPTY"] = "Без ограничений";
+$MESS["BX_SALE_DISCOUNT_COUPON_PERIOD_INTERVAL"] = "Интервал";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_USER_ID"] = "Владелец купона";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_TYPE"] = "Тип купона:";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_MAX_USE"] = "Максимальное число использований:";
+$MESS["BX_SALE_DISCOUNT_COUPON_FIELD_DESCRIPTION"] = "Комментарий";
+$MESS["BX_SALE_DISCOUNT_COUPON_ERR_DISCOUNT_ID_ABSENT"] = "Не указано правило, для которого создается купон(ы)";
+$MESS["BX_SALE_DISCOUNT_COUPON_ERR_COUPON_COUNT"] = "Не задано количество создаваемых купонов";
+$MESS["BX_SALE_DISCOUNT_COUPON_ERR_COUPON_TYPE"] = "Не задан или неверный тип купонов";
+$MESS["BX_SALE_DISCOUNT_COUPON_COUNT"] = "Число купонов:";
+?>

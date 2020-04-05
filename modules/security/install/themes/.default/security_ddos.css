@@ -1,0 +1,365 @@
+.adm-detail-content-wrap {
+	margin-bottom: 10px;
+}
+
+.adm-detail-title-colored {
+	line-height: 56px;
+	background: #23a9ef;
+	font-size: 26px;
+	color: #fff;
+	padding: 0 25px;
+}
+
+.adm-detail-content-item-block {
+	text-align: center;
+}
+
+.adm-detail-content-item-block p {
+	color: rgba(0,0,0,0.8);
+	width: 865px;
+	margin: auto;
+	text-align: left;
+}
+
+.ddos-info-container {
+	padding: 40px;
+	overflow: hidden;
+	text-align: left;
+}
+
+.ddos-info {
+	overflow: hidden;
+}
+
+.ddos-info-container-title {
+	color: #000;
+	font-size: 29px;
+	margin-bottom: 20px;
+}
+
+.ddos-info-container img {
+	float: left;
+	margin-right: 60px;
+}
+
+.ddos-info-container p {
+	line-height: 17px;
+	margin-bottom: 15px;
+	font-size: 14px;
+}
+
+.ddos-title-ribbon {
+	position: relative;
+	font-size: 38px;
+	line-height: 41px;
+	color: #fff;
+	display: inline-block;
+	text-align: center;
+	margin: 30px 40px 50px;
+	max-width: 900px;
+}
+
+.ddos-title-ribbon span {
+	position: relative;
+	display: block;
+	padding: 10px 50px;
+	background: #6cc921;
+	z-index: 2;
+}
+
+.ddos-title-ribbon:before {
+	content: '';
+	width: 30px;
+	position: absolute;
+	bottom: -8px;
+	left: -48px;
+	border: 36px solid transparent;
+	border-left: 16px solid #f5f9f9;
+	background: #54a314;
+}
+
+.ddos-title-ribbon:after {
+	content: '';
+	width: 30px;
+	position: absolute;
+	bottom: -8px;
+	right: -48px;
+	border: 36px solid transparent;
+	border-right: 16px solid #f5f9f9;
+	background: #54a314;
+}
+
+.ddos-action {
+	display: block;
+	font-size: 22px;
+	color: #000;
+	line-height: 28px;
+	max-width: 900px;
+	margin: auto;
+}
+
+.ddos-conditions {
+	margin: 45px auto 0;
+	width: 920px;
+}
+
+.ddos-conditions-title {
+	position: relative;
+	color: rgba(0,0,0,0.5);
+	font-size: 16px;
+	max-width: 900px;
+	margin: 0 auto 35px;
+}
+
+.ddos-conditions-title span {
+	position: relative;
+	padding: 0 10px;
+	z-index: 2;
+	background: #f5f9f9;
+}
+
+.ddos-conditions-title:before {
+	content: '';
+	display: block;
+	height: 1px;
+	background: #dee1e1;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.ddos-conditions-item {
+	display: inline-block;
+	vertical-align: top;
+	width: 300px;
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.ddos-icon-container {
+	position: relative;
+	background: #fff;
+	border-radius: 50%;
+	width: 150px;
+	height: 150px;
+	border: 2px solid rgba(45,50,61,0.11);
+	margin: 0 auto 30px;
+}
+
+.ddos-icon-container img {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
+
+.ddos-conditions-item span {
+	font-size: 18px;
+	line-height: normal;
+	color: #000;
+}
+
+.ddos-footnote {
+	position: relative;
+	font-size: 12px;
+	color: #000;
+	line-height: 38px;
+	width: 865px;
+	background: #dde1e1;
+	margin: 50px 0;
+	display: inline-block;
+}
+
+.ddos-info-form-container {
+	position: relative;
+	padding: 40px 70px 0;
+}
+
+.ddos-info-form-container .ddos-info-container-title {
+	text-align: center;
+}
+
+.ddos-info-form-container:before {
+	content: '';
+	width: 100%;
+	height: 1px;
+	background: #dee1e1;
+	position: absolute;
+	width: 865px;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.ddos-form-container {
+	margin-top: 50px;
+	text-align: center;
+}
+
+.ddos-form-field-container {
+	margin: 0 0 30px;
+	text-align: center;
+}
+
+.ddos-form-field-container .ddos-input-container {
+	position: relative;
+	display: inline-block;
+}
+
+.ddos-form-field-container .ddos-input-container .ddos-label-container {
+	position: absolute;
+	display: block;
+	left: -240px;
+	right: 469px;
+	text-align: right;
+	line-height: 51px;
+}
+
+.adm-workarea .ddos-form-field-container label {
+	font-size: 16px;
+	color: rgba(0,0,0,0.7);
+	text-align: right;
+}
+
+.adm-workarea .ddos-form-field-container input {
+    padding: 0 10px !important;
+    width: 427px !important;
+    border: 1px solid #aeb6bf !important;
+    box-shadow: inset 0 2px 2px 0 rgba(174,188,195,0.75) !important;
+    height: 49px !important;
+    border-radius: 2px !important;
+    font-size: 14px !important;
+    line-height: 51px !important;
+}
+
+.bx-ie .adm-workarea .ddos-form-field-container input {
+	line-height: 51px;
+}
+
+.ddos-btn {
+	display: inline-block;
+	margin-top: 15px;
+	overflow: hidden;
+}
+
+.ddos-btn-main {
+	font-size: 21px;
+	font-weight: bold;
+	text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+	text-decoration: none;
+	background-color: #729e00;
+	background-image: -webkit-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -moz-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -ms-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -o-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: linear-gradient(bottom, #729e00, #97ba00);
+	box-shadow: 0 1px 1px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;
+	border: solid 1px;
+	border-color: #97c004 transparent #648900 #7ea502;
+	line-height: 58px;
+	padding: 0 30px;
+	display: inline-block;
+	border-radius: 6px 0px 0px 6px;
+	color: #fff;
+	vertical-align: middle;
+}
+
+.ddos-btn:hover .ddos-btn-main {
+	text-decoration: none;
+	background-color: #9ec710;
+	background-image: -webkit-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -moz-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -ms-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -o-linear-gradient(top, #acce11, #8abb0d);
+	background-image: linear-gradient(top, #acce11, #8abb0d);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 1px 0 #d5e71a inset;
+	border-color: #97c004 transparent #648900 #7ea502;
+}
+
+.ddos-btn:active .ddos-btn-main {
+	background: #698f00;
+	box-shadow: inset 0 1px 0px rgba(66,84,17,.71) ;
+	border-color: transparent #698f00 #698f00 ;
+	border-top: 1px solid transparent;
+}
+
+.ddos-btn-arrow {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	background-color: #729e00;
+	background-image: -webkit-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -moz-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -ms-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: -o-linear-gradient(bottom, #729e00, #97ba00);
+	background-image: linear-gradient(bottom, #729e00, #97ba00);
+	height: 60px;
+	width: 18px;
+	box-shadow: 0 1px 0px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;
+}
+
+.ddos-btn-arrow:before {
+	content: '';
+	width: 34px;
+	height: 3px;
+	display: block;
+	position: absolute;
+	transform: rotate(59deg);
+	right: -7px;
+	top: 14px;
+	box-shadow: 0 0px 0px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;
+	border-top: solid 1px;
+	border-color: #97c004 transparent #648900 #7ea502;
+}
+
+.ddos-btn-arrow:after {
+	content: '';
+	width: 32px;
+	height: 3px;
+	display: block;
+	position: absolute;
+	border-bottom: solid 1px;
+	border-color: #97c004 transparent #648900 #7ea502;
+	transform: rotate(-59deg);
+	right: -6px;
+	bottom: 12px;
+}
+
+.ddos-btn:active .ddos-btn-arrow:before {
+	box-shadow: inset 0 1px 0px rgba(66,84,17,.71);
+}
+
+.ddos-btn-arrow span {
+	display: block;
+	border: 31px solid #f5f9f9;
+	border-left: 19px solid transparent;
+}
+
+.ddos-btn:hover .ddos-btn-arrow {
+	background-color: #9ec710;
+	background-image: -webkit-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -moz-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -ms-linear-gradient(top, #acce11, #8abb0d);
+	background-image: -o-linear-gradient(top, #acce11, #8abb0d);
+	background-image: linear-gradient(top, #acce11, #8abb0d);
+	box-shadow: 0 1px 0px rgba(0, 0, 0, 0.25), 0 1px 0 #d5e71a inset;
+	border-color: #97c004 #7ea502 #648900;
+}
+
+.ddos-btn:active .ddos-btn-arrow {
+	background: #698f00;
+	box-shadow: inset 0 1px 0px rgba(66,84,17,.71) ;
+	border-color: transparent #698f00 #698f00 ;
+	border-top: 0px solid transparent;
+}
+
+.bx-ie8 .ddos-btn-arrow:before,
+.bx-ie8 .ddos-btn-arrow:after {
+	display: none;
+}

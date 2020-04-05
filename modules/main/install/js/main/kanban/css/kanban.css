@@ -1,0 +1,1288 @@
+.main-kanban {
+	max-width: 100%;
+	clear: both;
+	display: block;
+	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	height: 100%;
+	overflow: hidden;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.main-kanban-inner {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+	z-index: 9;
+	overflow-x: hidden;
+}
+
+.main-kanban-inner:before,
+.main-kanban-inner:after {
+	content: '';
+	position: absolute;
+	width: 10px;
+	-webkit-border-radius: 80%;
+	border-radius: 80%;
+	left: -10px;
+	top: 0;
+	bottom: 0;
+	z-index: 9;
+	opacity: 0;
+	box-shadow: 0 0 10px rgba(0,0,0,.2);
+	transition: .2s;
+}
+
+.main-kanban-inner:after {
+	left: auto;
+	right: -10px;
+}
+
+.main-kanban-left-ear-shown .main-kanban-inner:before,
+.main-kanban-right-ear-shown .main-kanban-inner:after {
+	opacity: 1;
+}
+
+.main-kanban-fixed {
+	position: fixed;
+	top: 15px;
+	bottom: 0;
+}
+
+.main-kanban-grid {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+	z-index: 1;
+	-ms-overflow-y: hidden;
+	overflow: auto;
+	scrollbar-arrow-color: #ccc;
+	scrollbar-track-color: transparent;
+	scrollbar-base-color: #ccc;
+	scrollbar-shadow-color: #fff;
+	scrollbar-highlight-color: #fff;
+}
+
+.main-kanban-grid::-webkit-scrollbar {
+	height: 6px;
+}
+
+.main-kanban-grid::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.main-kanban-grid::-webkit-scrollbar-thumb {
+	background: #ccc;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-ear-left,
+.main-kanban-ear-right {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -50px;
+	width: 50px;
+	opacity: 0;
+	pointer-events: none;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-ear-right {
+	left: auto;
+	right: -50px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%0A%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2042%2081%22%3E%3Cpath%20fill%3D%22%23535c69%22%20opacity%3D%220.3%22%20d%3D%22M40.024%2C0H42a0%2C0%2C0%2C0%2C1%2C0%2C0V81a0%2C0%2C0%2C0%2C1%2C0%2C0H40.977A40.977%2C40.977%2C0%2C0%2C1%2C0%2C40.024v0A40.024%2C40.024%2C0%2C0%2C1%2C40.024%2C0Z%22/%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M20.2%2C31.91l8.014%2C8.576L20.2%2C49.061a0.762%2C0.762%2C0%2C0%2C0%2C0%2C1.026l1.563%2C1.672a0.647%2C0.647%2C0%2C0%2C0%2C.958%2C0l8.014-8.576h0L32.776%2C41a0.762%2C0.762%2C0%2C0%2C0%2C0-1.025L22.72%2C29.212a0.647%2C0.647%2C0%2C0%2C0-.958%2C0L20.2%2C30.885A0.762%2C0.762%2C0%2C0%2C0%2C20.2%2C31.91Z%22/%3E%3C/svg%3E%0A') center right no-repeat;
+}
+
+.main-kanban-ear-left {
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2042%2081%22%3E%3Cpath%20fill%3D%22%23535c69%22%20opacity%3D%220.3%22%20d%3D%22M0%2C0H1.023A40.977%2C40.977%2C0%2C0%2C1%2C42%2C40.977v0A40.024%2C40.024%2C0%2C0%2C1%2C1.977%2C81H0a0%2C0%2C0%2C0%2C1%2C0%2C0V0A0%2C0%2C0%2C0%2C1%2C0%2C0Z%22/%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M20.8%2C49.09l-8.014-8.576L20.8%2C31.939a0.762%2C0.762%2C0%2C0%2C0%2C0-1.026l-1.563-1.673a0.647%2C0.647%2C0%2C0%2C0-.959%2C0l-8.014%2C8.576h0L8.224%2C40a0.762%2C0.762%2C0%2C0%2C0%2C0%2C1.026L18.28%2C51.788a0.647%2C0.647%2C0%2C0%2C0%2C.959%2C0L20.8%2C50.116A0.761%2C0.761%2C0%2C0%2C0%2C20.8%2C49.09Z%22/%3E%3C/svg%3E') center left no-repeat;
+}
+
+.main-kanban-left-ear-shown .main-kanban-ear-left,
+.main-kanban-right-ear-shown .main-kanban-ear-right {
+	opacity: .6;
+	z-index: 99;
+	pointer-events: auto;
+}
+
+.main-kanban-right-ear-shown .main-kanban-ear-right {
+	right: 0;
+}
+
+.main-kanban-left-ear-shown .main-kanban-ear-left {
+	left: 0;
+}
+
+.main-kanban-left-ear-shown .main-kanban-ear-left:hover,
+.main-kanban-right-ear-shown .main-kanban-ear-right:hover {
+	opacity: .8;
+}
+
+.main-kanban-ear-shown {
+	opacity: .5;
+	z-index: 99;
+	pointer-events: auto;
+}
+
+.main-kanban-column {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	min-width: 240px;
+	max-width: 340px;
+	padding: 0 3px;
+	position: relative;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	transform: translateZ(0);
+}
+
+.main-kanban-column:hover {
+	z-index: 99;
+}
+
+.main-kanban-column:first-child {
+	padding-left: 0;
+}
+
+.main-kanban-column:before {
+	content: '';
+	position: absolute;
+	left: 3px;
+	top: 30px;
+	bottom: 5px;
+	width: 2px;
+	border-left: 1px dashed #d7dee1;
+	z-index: 9;
+}
+
+.main-kanban-column:first-child:before {
+	left: 0;
+}
+
+.main-kanban-column-draggable {
+	z-index: 1000;
+	background: #fff;
+	opacity: .6;
+}
+
+.main-kanban-column-disabled {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.main-kanban-column-header:after {
+	bottom: -55px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012.969%207.938%22%20height%3D%228px%22%20width%3D%2214px%22%3E%3Cpath%20opacity%3D%220.17%22%20fill-rule%3D%22evenodd%22%20d%3D%22M307.5%2C151.03l-1.308%2C1.332-5.175%2C5.266%2C1.309%2C1.332%2C5.174-5.267%2C5.175%2C5.267%2C1.308-1.332-5.174-5.266L307.5%2C151.03%22%20transform%3D%22translate%28-301%20-151.031%29%22/%3E%3C/svg%3E') center 10px no-repeat, -webkit-linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, .9) 50%, rgba(255, 255, 255, 0) 100%);
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012.969%207.938%22%20height%3D%228px%22%20width%3D%2214px%22%3E%3Cpath%20opacity%3D%220.17%22%20fill-rule%3D%22evenodd%22%20d%3D%22M307.5%2C151.03l-1.308%2C1.332-5.175%2C5.266%2C1.309%2C1.332%2C5.174-5.267%2C5.175%2C5.267%2C1.308-1.332-5.174-5.266L307.5%2C151.03%22%20transform%3D%22translate%28-301%20-151.031%29%22/%3E%3C/svg%3E') center 10px no-repeat, -moz-linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, .9) 50%, rgba(255, 255, 255, 0) 100%);
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012.969%207.938%22%20height%3D%228px%22%20width%3D%2214px%22%3E%3Cpath%20opacity%3D%220.17%22%20fill-rule%3D%22evenodd%22%20d%3D%22M307.5%2C151.03l-1.308%2C1.332-5.175%2C5.266%2C1.309%2C1.332%2C5.174-5.267%2C5.175%2C5.267%2C1.308-1.332-5.174-5.266L307.5%2C151.03%22%20transform%3D%22translate%28-301%20-151.031%29%22/%3E%3C/svg%3E') center 10px no-repeat, linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, .9) 50%, rgba(255, 255, 255, 0) 100%);
+}
+
+.main-kanban-column-top-button-shown .main-kanban-column-header:after,
+.main-kanban-column-bottom-button-shown:after {
+	opacity: 1;
+	z-index: 999;
+}
+
+.main-kanban-column-title-info {
+	display: -ms-flexbox;
+	display: flex;
+	position: relative;
+	z-index: 9;
+	margin: 0 18px 0 12px;
+}
+
+.main-kanban-column-title-text {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex: 1;
+	flex: 1;
+	overflow: hidden;
+	margin: 0 4px 0 0;
+	vertical-align: middle;
+	height: 32px;
+	line-height: 32px;
+	font-family: "OpenSans-SemiBold", 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #000;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	pointer-events: none;
+}
+
+.main-kanban-column-title-text-inner {
+	display: inline-block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.main-kanban-column-total-item {
+	-ms-flex: 1;
+	flex: 1;
+	height: 32px;
+	margin: 0 0 0 2px;
+	line-height: 32px;
+	font-size: 11px;
+	color: #000;
+	opacity: .7;
+	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.main-kanban-column-title-dark .main-kanban-column-total-item,
+.main-kanban-column-title-dark .main-kanban-column-title-text { color: #fff }
+
+.main-kanban-column-total-item:before { content: '(' }
+.main-kanban-column-total-item:after { content: ')' }
+
+.main-kanban-column-edit {
+	display: inline-block;
+	width: 0;
+	height: 32px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23535C69%22%20d%3D%22M907.061669%2C258%20L908.990291%2C259.928622%20L902.07275%2C266.844782%20L900.144127%2C264.91616%20L907.061669%2C258%20Z%20M899.007124%2C267.723439%20C898.987783%2C267.79666%20899.008506%2C267.874026%20899.061004%2C267.927906%20C899.114884%2C267.981786%20899.19225%2C268.002509%20899.265471%2C267.981786%20L901.551911%2C267.365621%20L899.623289%2C265.436999%20L899.007124%2C267.723439%20Z%22%20transform%3D%22translate%28-899%20-258%29%22/%3E%0A%3C/svg%3E%0A') center center no-repeat;
+	background-size: 11px 11px;
+	cursor: pointer;
+	opacity: 0;
+	-webkit-transition: .3s;
+	transition: .3s;
+}
+
+.main-kanban-column-title-dark .main-kanban-column-edit {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M907.061669%2C258%20L908.990291%2C259.928622%20L902.07275%2C266.844782%20L900.144127%2C264.91616%20L907.061669%2C258%20Z%20M899.007124%2C267.723439%20C898.987783%2C267.79666%20899.008506%2C267.874026%20899.061004%2C267.927906%20C899.114884%2C267.981786%20899.19225%2C268.002509%20899.265471%2C267.981786%20L901.551911%2C267.365621%20L899.623289%2C265.436999%20L899.007124%2C267.723439%20Z%22%20transform%3D%22translate%28-899%20-258%29%22/%3E%0A%3C/svg%3E%0A');
+}
+
+.main-kanban-column-title:hover .main-kanban-column-edit {
+	width: 19px;
+	opacity: .4;
+}
+
+.main-kanban-column:last-child .main-kanban-column-edit {
+	right: 12px;
+}
+
+.main-kanban-column-title:hover .main-kanban-column-edit:hover {
+	opacity: 1;
+}
+
+.main-kanban-column-title-edit {
+	display: block;
+	position: relative;
+	z-index: 9;
+	margin: 0 0 0 5px;
+}
+
+.main-kanban-column-title-input-edit {
+	display: inline-block;
+	width: calc(100% - 70px);
+	margin: 0 5px 0 0;
+	vertical-align: middle;
+	background: #fff;
+	border: 1px solid #eaecef;
+	height: 26px;
+	padding: 0 6px;
+	font-family: "OpenSans-Bold", 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #525c68;
+}
+
+.main-kanban-column-title-add-column {
+	opacity: 0;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: -18px;
+	width: 30px;
+	-webkit-transform: translateX(5px);
+	transform: translateX(5px);
+	-webkit-transition: .2s;
+	transition: .2s;
+	cursor: pointer;
+	z-index: 9;
+}
+
+.main-kanban-column:last-child .main-kanban-column-title-add-column {
+	width: 18px;
+	right: 0;
+	-webkit-transform: translateX(0);
+	transform: translateX(0);
+}
+
+.main-kanban-column:last-child .main-kanban-column-title:hover .main-kanban-column-title-add-column {
+	-webkit-transform: translateX(-5px);
+	transform: translateX(-5px);
+}
+
+.main-kanban-column-title-add-column:before {
+	content: '';
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	left: 0;
+	top: 50%;
+	background: #fff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%22.543%22/%3E%0A%3C/svg%3E') center center no-repeat;
+	background-size: 10px 10px;
+	box-shadow: 0 1px 2px 0 rgba(0,0,0,0.15);
+	-webkit-border-radius: 100%;
+	border-radius: 100%;
+	-webkit-transition: .1s;
+	transition: .1s;
+	-webkit-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.main-kanban-column-title-add-column:hover:before {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868E%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22/%3E%0A%3C/svg%3E');
+}
+
+.main-kanban-column-title:hover .main-kanban-column-title-add-column {
+	opacity: 1;
+	-webkit-transform: translateX(0);
+	transform: translateX(0);
+}
+
+.main-kanban-column-edit-mode .main-kanban-column-title-add-column { display: none }
+
+.main-kanban-column-color {
+	display: inline-block;
+	vertical-align: middle;
+	width: 20px;
+	height: 32px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%2012%22%3E%0A%20%20%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M654.321749%2C269.521789%20C654.725275%2C269.53104%20655.191703%2C269.537588%20655.648332%2C269.417898%20C655.922924%2C269.34597%20655.966073%2C269.244885%20655.847247%2C268.98851%20C655.240804%2C267.680182%20654.269314%2C266.71975%20653.057555%2C265.991007%20C652.613651%2C265.72403%20652.123776%2C265.524512%20651.614918%2C265.53766%20C650.758149%2C265.5598%20650.35488%2C266.110437%20650.459853%2C267.004657%20C650.547638%2C267.752942%20650.863533%2C268.428154%20651.304256%2C269.041001%20C651.389682%2C269.159808%20651.480905%2C269.235218%20651.620202%2C269.264738%20C652.490567%2C269.448925%20653.369756%2C269.5379%20654.321749%2C269.521789%20M649.933704%2C266.634309%20C649.873522%2C266.662737%20649.855%2C266.666323%20649.84402%2C266.677445%20C648.677873%2C267.858392%20647.499208%2C269.026969%20646.351634%2C270.226157%20C645.656635%2C270.952406%20645.458079%2C271.819757%20645.912193%2C272.754463%20C646.596264%2C274.162316%20647.652153%2C275.206682%20649.053181%2C275.87966%20C649.512836%2C276.100486%20650.004764%2C276.137646%20650.502643%2C276.018787%20C650.96435%2C275.908556%20651.315646%2C275.614398%20651.641033%2C275.288433%20C652.618987%2C274.308772%20653.592939%2C273.325109%20654.564121%2C272.338639%20C654.710088%2C272.190417%20654.900384%2C272.085954%20655.036193%2C271.871312%20C654.357766%2C271.868922%20653.751425%2C271.695857%20653.173457%2C271.420045%20C652.295037%2C271.000947%20651.611018%2C270.332803%20650.980204%2C269.608113%20C650.63527%2C269.211883%20650.336204%2C268.776519%20650.158683%2C268.269746%20C649.977315%2C267.751902%20649.905178%2C267.216857%20649.933704%2C266.634309%20M649.850074%2C276.856566%20C649.293706%2C276.84903%20648.818505%2C276.602842%20648.360594%2C276.322456%20C647.538919%2C275.819373%20646.858799%2C275.145459%20646.233629%2C274.418951%20C645.737084%2C273.841913%20645.293077%2C273.221634%20645.088569%2C272.464202%20C645.039366%2C272.282043%20644.999142%2C271.515828%20645.000014%2C271.49769%20C645.031311%2C270.86473%20645.343973%2C270.362894%20645.762122%2C269.933714%20C647.136522%2C268.523262%20648.522055%2C267.123932%20649.911796%2C265.729019%20C650.241544%2C265.398065%20650.636861%2C265.168871%20651.093181%2C265.036084%20C651.255105%2C264.988946%20651.684079%2C265.001887%20651.724919%2C265.000952%20C652.220027%2C264.98957%20652.662803%2C265.167364%20653.076949%2C265.414124%20C654.250536%2C266.113452%20655.192883%2C267.068582%20655.981773%2C268.181758%20C656.435169%2C268.821474%20656.754706%2C269.515812%20656.705401%2C270.334414%20C656.688469%2C270.615631%20656.597195%2C270.884375%20656.596939%2C271.17027%20C656.596682%2C271.524091%20656.680773%2C271.864244%20656.720741%2C272.211154%20C656.751423%2C272.477611%20656.811297%2C272.740638%20656.858243%2C273.005225%20C656.858243%2C273.178445%20656.822533%2C273.714219%20656.808065%2C273.809222%20C656.716432%2C274.411675%20656.574158%2C274.739355%20656.15678%2C274.7946%20C655.91764%2C274.826251%20655.713132%2C274.740238%20655.532994%2C274.612337%20C655.02075%2C274.248589%20654.778583%2C273.883542%20655.229619%2C273.212383%20C655.34157%2C273.045814%20655.497542%2C272.923422%20655.623807%2C272.772445%20C655.827904%2C272.528439%20655.973051%2C272.259383%20655.935443%2C271.905146%20C655.880596%2C271.918191%20655.874234%2C271.96959%20655.845708%2C271.998694%20C654.564173%2C273.30536%20653.28197%2C274.611453%20651.996587%2C275.914273%20C651.582902%2C276.333578%20651.129404%2C276.689998%20650.542354%2C276.836661%20C650.424246%2C276.866181%20649.877523%2C276.856982%20649.850074%2C276.856566%22%20transform%3D%22translate%28-645%20-265%29%22/%3E%0A%3C/svg%3E%0A') center center no-repeat;
+	background-size: 12px 12px;
+	opacity: .6;
+	cursor: pointer;
+	-webkit-transition: .1s;
+	transition: .1s;
+}
+
+.main-kanban-column-remove-button {
+	display: inline-block;
+	vertical-align: middle;
+	width: 20px;
+	height: 32px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23525C69%22%20d%3D%22M671%2C270%20L671%2C266%20L669%2C266%20L669%2C270%20L665%2C270%20L665%2C272%20L669%2C272%20L669%2C276%20L671%2C276%20L671%2C272%20L675%2C272%20L675%2C270%20L671%2C270%20Z%22%20transform%3D%22rotate%28-45%2016.41%20940.726%29%22%20/%3E%0A%3C/svg%3E%0A') center center no-repeat;
+	background-size: 10px 10px;
+	opacity: .6;
+	cursor: pointer;
+	-webkit-transition: .1s;
+	transition: .1s;
+}
+
+.main-kanban-column-remove-button:hover,
+.main-kanban-column-color:hover { opacity: 1 }
+
+.main-kanban-column-title-info {
+	opacity: 1;
+	transform: scale3d(1,1,1) translateY(0);
+	-webkit-transform: scale3d(1,1,1) translateY(0);
+	transition: .4s;
+	-webkit-transition: .4s;
+	z-index: 99;
+}
+
+.main-kanban-column-title-block-edit {
+	display: block;
+	position: relative;
+	opacity: 0;
+	margin: 0 0 0 4px;
+	transform: scale3d(.8,.8,.8) translateY(-27px);
+	-webkit-transform: scale3d(.8,.8,.8) translateY(-27px);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.main-kanban-column-edit-mode .main-kanban-column-title-info {
+	opacity: 0;
+	transform: scale3d(.8,.8,.8) translateY(-5px);
+	-webkit-transform: scale3d(.8,.8,.8) translateY(-5px);
+}
+
+.main-kanban-column-edit-mode .main-kanban-column-title-block-edit {
+	opacity: 1;
+	transform: scale3d(1,1,1) translateY(-32px);
+	-webkit-transform: scale3d(1,1,1) translateY(-32px);
+	z-index: 99;
+}
+
+.main-kanban-column-top-button,
+.main-kanban-column-bottom-button {
+	display: none;
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	height: 60px;
+	left: 3px;
+	right: 10px;
+	z-index: 100;
+	pointer-events: none;
+}
+
+.main-kanban-column-bottom-button {
+	top: auto;
+	bottom: 0;
+}
+
+.main-kanban-column-top-button-shown .main-kanban-column-top-button,
+.main-kanban-column-bottom-button-shown .main-kanban-column-bottom-button {
+	display: block;
+}
+
+.main-kanban-drag-mode-item .main-kanban-column-top-button,
+.main-kanban-drag-mode-item .main-kanban-column-bottom-button {
+	pointer-events: auto;
+}
+
+.main-kanban-column-top-button:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -9px;
+	height: 10px;
+	box-shadow: 0 0 10px rgba(0,0,0,.3);
+	opacity: 0;
+	transition: .2s;
+	-webkit-border-radius: 80%;
+	border-radius: 80%;
+}
+
+.main-kanban-column-top-button:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	background: #d5dce0;
+	height: 1px;
+}
+
+.main-kanban-column-top-button-shown .main-kanban-column-top-button:before {
+	opacity: 1;
+}
+
+.main-kanban-column-body {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	padding: 1px 3px 0 1px;
+	margin: 0 -2px 0 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: relative;
+	opacity: 1;
+	z-index: 99;
+	scrollbar-arrow-color: #ccc;
+	scrollbar-track-color: transparent;
+	scrollbar-base-color: #ccc;
+	scrollbar-shadow-color: #fff;
+	scrollbar-highlight-color: #fff;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-search-mode .main-kanban-column-body {
+	opacity: .5;
+}
+
+.main-kanban-column-body::-webkit-scrollbar {
+	width: 6px;
+}
+
+.main-kanban-column-body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.main-kanban-column-body::-webkit-scrollbar-thumb {
+	background: #dde2e6;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+	opacity: .4;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-column-body:hover::-webkit-scrollbar-thumb {
+	background: #d1d6da;
+}
+
+.main-kanban-column-body:hover::-webkit-scrollbar-thumb:hover {
+	background: #c8cdd2;
+}
+
+.main-kanban-item-drag-target,
+.main-kanban-column-drag-target {
+	content: '';
+	display: block;
+	height: 0;
+	background: #e4ebee !important;
+	border: 0 dashed transparent;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	opacity: 0;
+}
+
+.main-kanban-column-drag-target { margin: 0 0 0 -1px }
+
+.main-kanban-column-target-shown .main-kanban-column-drag-target {
+	border: 1px dashed #c7ced3;
+	margin-bottom: 7px;
+	opacity: 1;
+}
+
+.main-kanban-item-target-shown .main-kanban-item-drag-target {
+	border: 1px dashed #c7ced3;
+	margin-bottom: 7px;
+	opacity: 1;
+}
+
+.main-kanban-column-header {
+	position: relative;
+	margin: 0 -4px 5px 0;
+	z-index: 9;
+}
+
+.main-kanban-column:last-child .main-kanban-column-header {
+	margin: 0 0 5px 0;
+}
+
+.main-kanban-column-top-button-shown .main-kanban-column-header {
+	z-index: 999;
+}
+
+.main-kanban-column-title {
+	display: block;
+	height: 32px;
+	position: relative;
+	width: 100%;
+	white-space: nowrap;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.main-kanban-column:last-child .main-kanban-column-title {
+	padding-right: 10px;
+}
+
+.main-kanban-column-title-wrapepr {
+	display: block;
+}
+
+.main-kanban-column-title-dark .main-kanban-column-title-name {
+	color: #fff;
+}
+
+.main-kanban-column-title-dark .main-kanban-column-title-total {
+	color: #f0f5f6;
+}
+
+.main-kanban-column-title-dark .main-kanban-column-title-edit {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2211%22%20height%3D%2211%22%20viewBox%3D%220%200%2011%2011%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M0.8%2C9.052%20L0.01%2C11.862%20L2.9%2C11.03%20C2.72219093%2C10.5765823%202.45719065%2C10.1624344%202.12%2C9.811%20C1.74496149%2C9.45885887%201.29300419%2C9.19898342%200.8%2C9.052%20L0.8%2C9.052%20Z%20M7.21%2C2.567%20L1.54%2C8.236%20C2.01127432%2C8.46113133%202.44882703%2C8.75092585%202.84%2C9.097%20C3.16135611%2C9.46816456%203.42743478%2C9.88378617%203.63%2C10.331%20C3.98%2C9.98%207.57%2C6.392%209.29%2C4.664%20C9.07328539%2C4.1783772%208.77572741%2C3.73305464%208.41%2C3.347%20C8.05892616%2C3.01445721%207.64846419%2C2.75087957%207.2%2C2.57%20L7.21%2C2.567%20Z%20M10.44%2C1.417%20C10.1600426%2C1.13941601%209.78090397%2C0.985002768%209.38667053%2C0.988006451%20C8.99243708%2C0.991010135%208.61569532%2C1.15118246%208.34%2C1.433%20L8.31%2C1.462%20L7.97%2C1.802%20C8.42191844%2C1.99228357%208.83534809%2C2.26338497%209.19%2C2.602%20C9.55192111%2C2.97960848%209.84620972%2C3.41664398%2010.06%2C3.894%20C10.27%2C3.684%2010.4%2C3.552%2010.4%2C3.552%20C10.9968031%2C2.9871271%2011.0280144%2C2.04722073%2010.47%2C1.444%20L10.44%2C1.414%20L10.44%2C1.414%20L10.44%2C1.417%20Z%22%20transform%3D%22translate%280%20-1%29%22/%3E%3C/svg%3E%0A');
+}
+
+.main-kanban-column-title-dark .main-kanban-column-color {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%2012%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M654.321749%2C269.521789%20C654.725275%2C269.53104%20655.191703%2C269.537588%20655.648332%2C269.417898%20C655.922924%2C269.34597%20655.966073%2C269.244885%20655.847247%2C268.98851%20C655.240804%2C267.680182%20654.269314%2C266.71975%20653.057555%2C265.991007%20C652.613651%2C265.72403%20652.123776%2C265.524512%20651.614918%2C265.53766%20C650.758149%2C265.5598%20650.35488%2C266.110437%20650.459853%2C267.004657%20C650.547638%2C267.752942%20650.863533%2C268.428154%20651.304256%2C269.041001%20C651.389682%2C269.159808%20651.480905%2C269.235218%20651.620202%2C269.264738%20C652.490567%2C269.448925%20653.369756%2C269.5379%20654.321749%2C269.521789%20M649.933704%2C266.634309%20C649.873522%2C266.662737%20649.855%2C266.666323%20649.84402%2C266.677445%20C648.677873%2C267.858392%20647.499208%2C269.026969%20646.351634%2C270.226157%20C645.656635%2C270.952406%20645.458079%2C271.819757%20645.912193%2C272.754463%20C646.596264%2C274.162316%20647.652153%2C275.206682%20649.053181%2C275.87966%20C649.512836%2C276.100486%20650.004764%2C276.137646%20650.502643%2C276.018787%20C650.96435%2C275.908556%20651.315646%2C275.614398%20651.641033%2C275.288433%20C652.618987%2C274.308772%20653.592939%2C273.325109%20654.564121%2C272.338639%20C654.710088%2C272.190417%20654.900384%2C272.085954%20655.036193%2C271.871312%20C654.357766%2C271.868922%20653.751425%2C271.695857%20653.173457%2C271.420045%20C652.295037%2C271.000947%20651.611018%2C270.332803%20650.980204%2C269.608113%20C650.63527%2C269.211883%20650.336204%2C268.776519%20650.158683%2C268.269746%20C649.977315%2C267.751902%20649.905178%2C267.216857%20649.933704%2C266.634309%20M649.850074%2C276.856566%20C649.293706%2C276.84903%20648.818505%2C276.602842%20648.360594%2C276.322456%20C647.538919%2C275.819373%20646.858799%2C275.145459%20646.233629%2C274.418951%20C645.737084%2C273.841913%20645.293077%2C273.221634%20645.088569%2C272.464202%20C645.039366%2C272.282043%20644.999142%2C271.515828%20645.000014%2C271.49769%20C645.031311%2C270.86473%20645.343973%2C270.362894%20645.762122%2C269.933714%20C647.136522%2C268.523262%20648.522055%2C267.123932%20649.911796%2C265.729019%20C650.241544%2C265.398065%20650.636861%2C265.168871%20651.093181%2C265.036084%20C651.255105%2C264.988946%20651.684079%2C265.001887%20651.724919%2C265.000952%20C652.220027%2C264.98957%20652.662803%2C265.167364%20653.076949%2C265.414124%20C654.250536%2C266.113452%20655.192883%2C267.068582%20655.981773%2C268.181758%20C656.435169%2C268.821474%20656.754706%2C269.515812%20656.705401%2C270.334414%20C656.688469%2C270.615631%20656.597195%2C270.884375%20656.596939%2C271.17027%20C656.596682%2C271.524091%20656.680773%2C271.864244%20656.720741%2C272.211154%20C656.751423%2C272.477611%20656.811297%2C272.740638%20656.858243%2C273.005225%20C656.858243%2C273.178445%20656.822533%2C273.714219%20656.808065%2C273.809222%20C656.716432%2C274.411675%20656.574158%2C274.739355%20656.15678%2C274.7946%20C655.91764%2C274.826251%20655.713132%2C274.740238%20655.532994%2C274.612337%20C655.02075%2C274.248589%20654.778583%2C273.883542%20655.229619%2C273.212383%20C655.34157%2C273.045814%20655.497542%2C272.923422%20655.623807%2C272.772445%20C655.827904%2C272.528439%20655.973051%2C272.259383%20655.935443%2C271.905146%20C655.880596%2C271.918191%20655.874234%2C271.96959%20655.845708%2C271.998694%20C654.564173%2C273.30536%20653.28197%2C274.611453%20651.996587%2C275.914273%20C651.582902%2C276.333578%20651.129404%2C276.689998%20650.542354%2C276.836661%20C650.424246%2C276.866181%20649.877523%2C276.856982%20649.850074%2C276.856566%22%20transform%3D%22translate%28-645%20-265%29%22/%3E%0A%3C/svg%3E%0A');
+}
+
+.main-kanban-column-title-dark .main-kanban-column-remove-button {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M671%2C270%20L671%2C266%20L669%2C266%20L669%2C270%20L665%2C270%20L665%2C272%20L669%2C272%20L669%2C276%20L671%2C276%20L671%2C272%20L675%2C272%20L675%2C270%20L671%2C270%20Z%22%20transform%3D%22rotate%28-45%2016.41%20940.726%29%22%20/%3E%0A%3C/svg%3E%0A');
+}
+
+.main-kanban-column-title-bg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 13px;
+	z-index: -999;
+	background: #ace9fb;
+	-webkit-border-radius: 3px 0 0 3px;
+	-moz-border-radius: 3px 0 0 3px;
+	border-radius: 3px 0 0 3px;
+}
+
+.main-kanban-column-title-right {
+	content: '';
+	width: 14px;
+	height: 32px;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.main-kanban-column:last-child .main-kanban-column-title-right {
+	display: none;
+}
+
+.main-kanban-column:last-child .main-kanban-column-title-bg {
+	right: 1px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.main-kanban-column-title-input {
+	position: absolute;
+	height: 26px;
+	left: 3px;
+	top: 3px;
+	border: none;
+	border-radius: 2px;
+	background: #fff;
+	width: calc(100% - 37px);
+	padding: 0 4px;
+	z-index: 99;
+	color: #404956;
+	opacity: 1;
+	font-size: 13px;
+	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-transition: .2s;
+	-moz-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-column-title-input::selection {
+	background: #def2f4
+}
+
+.main-kanban-column-title-input::-moz-selection {
+	background: #def2f4
+}
+
+.main-kanban-column-title-input:disabled {
+	width: 0;
+	opacity: 0;
+}
+
+.main-kanban-column-title-edit {
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMSAxMSI+ICA8cGF0aCBmaWxsPSIjNTM1QzY5IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wLjgsOS4wNTIgTDAuMDEsMTEuODYyIEwyLjksMTEuMDMgQzIuNzIyMTkwOTMsMTAuNTc2NTgyMyAyLjQ1NzE5MDY1LDEwLjE2MjQzNDQgMi4xMiw5LjgxMSBDMS43NDQ5NjE0OSw5LjQ1ODg1ODg3IDEuMjkzMDA0MTksOS4xOTg5ODM0MiAwLjgsOS4wNTIgTDAuOCw5LjA1MiBaIE03LjIxLDIuNTY3IEwxLjU0LDguMjM2IEMyLjAxMTI3NDMyLDguNDYxMTMxMzMgMi40NDg4MjcwMyw4Ljc1MDkyNTg1IDIuODQsOS4wOTcgQzMuMTYxMzU2MTEsOS40NjgxNjQ1NiAzLjQyNzQzNDc4LDkuODgzNzg2MTcgMy42MywxMC4zMzEgQzMuOTgsOS45OCA3LjU3LDYuMzkyIDkuMjksNC42NjQgQzkuMDczMjg1MzksNC4xNzgzNzcyIDguNzc1NzI3NDEsMy43MzMwNTQ2NCA4LjQxLDMuMzQ3IEM4LjA1ODkyNjE2LDMuMDE0NDU3MjEgNy42NDg0NjQxOSwyLjc1MDg3OTU3IDcuMiwyLjU3IEw3LjIxLDIuNTY3IFogTTEwLjQ0LDEuNDE3IEMxMC4xNjAwNDI2LDEuMTM5NDE2MDEgOS43ODA5MDM5NywwLjk4NTAwMjc2OCA5LjM4NjY3MDUzLDAuOTg4MDA2NDUxIEM4Ljk5MjQzNzA4LDAuOTkxMDEwMTM1IDguNjE1Njk1MzIsMS4xNTExODI0NiA4LjM0LDEuNDMzIEw4LjMxLDEuNDYyIEw3Ljk3LDEuODAyIEM4LjQyMTkxODQ0LDEuOTkyMjgzNTcgOC44MzUzNDgwOSwyLjI2MzM4NDk3IDkuMTksMi42MDIgQzkuNTUxOTIxMTEsMi45Nzk2MDg0OCA5Ljg0NjIwOTcyLDMuNDE2NjQzOTggMTAuMDYsMy44OTQgQzEwLjI3LDMuNjg0IDEwLjQsMy41NTIgMTAuNCwzLjU1MiBDMTAuOTk2ODAzMSwyLjk4NzEyNzEgMTEuMDI4MDE0NCwyLjA0NzIyMDczIDEwLjQ3LDEuNDQ0IEwxMC40NCwxLjQxNCBMMTAuNDQsMS40MTQgTDEwLjQ0LDEuNDE3IFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTEpIi8+PC9zdmc+);
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 11px 11px;
+	right: 2px;
+	top: 0;
+	opacity: 0;
+	z-index: 9;
+	cursor: pointer;
+	-webkit-transform: translate(3px, 0);
+	-moz-transform: translate(3px, 0);
+	transform: translate(3px, 0);
+	-webkit-transition: .2s;
+	-moz-transition: .2s;
+	transition: .2s;
+}
+
+.main-kanban-column-title-save {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNCAxMCI+ICA8cGF0aCBmaWxsPSIjNTM1QzY5IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMS41OTMsMC4xIEw0LjY4LDcuMDEyIEwxLjY3Miw0LjAwNCBDMS41NDA2OTUwMSwzLjg3NDExMDYzIDEuMzI5MzA0OTksMy44NzQxMTA2MyAxLjE5OCw0LjAwNCBMMC4wOTgsNS4xMDQgQy0wLjAzMTg4OTM3Miw1LjIzNTMwNDk5IC0wLjAzMTg4OTM3Miw1LjQ0NjY5NTAxIDAuMDk4LDUuNTc4IEwzLjM0NCw4LjgyNCBMNC40NDQsOS45MjQgQzQuNTc1NjQ2MjgsMTAuMDU0MDA2OSA0Ljc4NzM1MzcyLDEwLjA1NDAwNjkgNC45MTksOS45MjQgTDYuMDE5LDguODI0IEw2LjAxOSw4LjgyNCBMMTMuMTcsMS42NzMgQzEzLjMwMDU1MDIsMS41NDE1NzcyNCAxMy4zMDA1NTAyLDEuMzI5NDIyNzYgMTMuMTcsMS4xOTggTDEyLjA3LDAuMDk4IEMxMi4wMDY1MTg1LDAuMDM0OTM5MDU4OSAxMS45MjA1NjQsLTAuMDAwMjg2NjA5NDQ2IDExLjgzMTA4NTMsOC44NTYzMzY0NWUtMDUgQzExLjc0MTYwNjYsMC4wMDA0NjM3MzYxNzUgMTEuNjU1OTUwNCwwLjAzNjQwODk0NiAxMS41OTMsMC4xIEwxMS41OTMsMC4xIFoiLz48L3N2Zz4=);
+	opacity: 1 !important;
+	-webkit-transform: translate(0, 0);
+	-moz-transform: translate(0, 0);
+	transform: translate(0, 0);
+}
+
+.main-kanban-column-title:hover .main-kanban-column-title-edit {
+	opacity: .3;
+	-webkit-transform: translate(0, 0);
+	-moz-transform: translate(0, 0);
+	transform: translate(0, 0);
+}
+
+.main-kanban-column-title:hover .main-kanban-column-title-edit:hover {
+	opacity: .9;
+}
+
+.main-kanban-column:last-child .main-kanban-column-title:before {
+	display: none;
+}
+
+.main-kanban-column-title-name {
+	float: left;
+	max-width: calc(100% - 35px);
+	overflow: hidden;
+	height: 32px;
+	line-height: 32px;
+	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #404956;
+	font-size: 13px;
+	white-space: nowrap;
+	-ms-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+}
+
+.main-kanban-column-title-total {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+	line-height: 32px;
+	font-size: 11px;
+	color: #5e8589;
+	padding: 0 0 0 4px;
+	z-index: 9;
+}
+
+.main-kanban-column-title-total:before {
+	content: '(';
+}
+
+.main-kanban-column-title-total:after {
+	content: ')';
+}
+
+.main-kanban-column-subtitle {
+	overflow: hidden;
+	position: relative;
+	font-family: "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	min-height: 25px;
+	line-height: 70px;
+	color: #525c68;
+	text-align: center;
+	z-index: 9;
+}
+
+.main-kanban-column-subtitle-box {
+	min-height: 20px;
+	padding-top: 5px;
+}
+
+.main-kanban-column-add-item-button {
+	display: block;
+	overflow: hidden;
+	height: 20px;
+	margin: 0 30px;
+	position: relative;
+	cursor: pointer;
+}
+
+.main-kanban-column-add-item-button:before {
+	content: '';
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	left: 50%;
+	top: 50%;
+	background: transparent url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%2380868e%22%20fill-rule%3D%22evenodd%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22%20opacity%3D%22.543%22/%3E%0A%3C/svg%3E') center center no-repeat;
+	background-size: 10px 10px;
+	-webkit-border-radius: 100%;
+	border-radius: 100%;
+	-webkit-transition: .2s;
+	transition: .2s;
+	-webkit-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+}
+
+.main-kanban-column-add-item-button:hover:before {
+	background: #2fc6f6 url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010%2010%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M109%2C16%20L109%2C12%20L107%2C12%20L107%2C16%20L103%2C16%20L103%2C18%20L107%2C18%20L107%2C22%20L109%2C22%20L109%2C18%20L113%2C18%20L113%2C16%20L109%2C16%20Z%22%20transform%3D%22translate%28-103%20-12%29%22/%3E%0A%3C/svg%3E') center center no-repeat;
+	background-size: 10px 10px;
+}
+
+.main-kanban-column-subtitle-total {
+	width: 100%;
+	overflow: hidden;
+	display: inline-block;
+	font-size: 26px;
+	white-space: nowrap;
+	-ms-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+	padding: 0 10px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.main-kanban-item {
+	display: block;
+	position: relative;
+	padding: 0 0 6px 0;
+	margin: 0 1px 0 -1px;
+}
+
+.main-kanban-item:hover {
+	z-index: 9;
+}
+
+.main-kanban-item-wrapper-added {
+	-webkit-animation: showItem 2s forwards;
+	animation: showItem 2s forwards;
+}
+
+@keyframes showItem {
+	0% { opacity: 1 }
+	25% { opacity: .3 }
+	50% { opacity: 1 }
+	75% { opacity: .3 }
+	100% { opacity: 1 }
+}
+
+@-webkit-keyframes showItem {
+	0% { opacity: 1 }
+	25% { opacity: .3 }
+	50% { opacity: 1 }
+	75% { opacity: .3 }
+	100% { opacity: 1 }
+}
+
+.main-kanban-item-default {
+	height: 100px;
+	border: 1px solid #dfe0e3;
+	padding: 10px;
+	border-radius: 2px;
+}
+
+.main-kanban-item-disabled .main-kanban-item-wrapper {
+	opacity: .45;
+	pointer-events: none;
+}
+
+.main-kanban-item-drag {
+	background: #fff;
+	z-index: 999999;
+	-webkit-transition: 0s;
+	-moz-transition: 0s;
+	transition: 0s;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+	-webkit-transform: rotate(4deg) translate(-30px, -20px);
+	-moz-transform: rotate(4deg) translate(-30px, -20px);
+	transform: rotate(4deg) translate(-30px, -20px);
+}
+
+.main-kanban-item-draft {
+	height: 92px;
+	border: 1px solid #65d2f6;
+	padding: 7px 12px;
+	box-sizing: border-box;
+	background: #fff;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+}
+
+.main-kanban-item-draft-textarea {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	word-wrap: break-word;
+	border: none;
+	outline: none;
+	resize: none;
+	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	font-size: 13px;
+	line-height: 15px;
+}
+
+.main-kanban-item-draft-textarea::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #b1b6bb;
+	-webkit-transition: color .3s;
+	transition: color .3s;
+}
+.main-kanban-item-draft-textarea::-moz-placeholder { /* Firefox 19+ */
+	color: #b1b6bb;
+	-webkit-transition: color .3s;
+	transition: color .3s;
+	opacity: 1;
+}
+.main-kanban-item-draft-textarea:-ms-input-placeholder { /* IE 10+ */
+	color: #b1b6bb;
+	-webkit-transition: color .3s;
+	transition: color .3s;
+}
+.main-kanban-item-draft-textarea:-moz-placeholder { /* Firefox 18- */
+	color: #b1b6bb;
+	-webkit-transition: color .3s;
+	transition: color .3s;
+}
+
+.main-kanban-item-draft-textarea:disabled {
+	background: #fff;
+}
+
+.main-kanban-item-draft-disabled {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.main-kanban-dropzone-area {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	position: absolute;
+	-webkit-box-align: end;
+	-ms-flex-align: end;
+	align-items: flex-end;
+	left: 0;
+	bottom: 0;
+	padding: 0;
+	height: 67px;
+	width: 100%;
+	line-height: 0;
+	opacity: 1;
+	pointer-events: none;
+	z-index: 99;
+}
+
+.main-kanban-dropzone-show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+@keyframes main-kanban-dropzone-show {
+	from {
+		opacity: 0;
+		height: 0;
+	}
+	to {
+		opacity: 1;
+		height: 60px;
+	}
+}
+
+.main-kanban-dropzone {
+	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	position: relative;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	height: 100%;
+	align-content: center;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	transition: .2s;
+}
+
+.main-kanban-dropzone-active {
+
+}
+
+.main-kanban-dropzone-title {
+	display: inline-block;
+	position: relative;
+	text-align: center;
+	font-size: 16px;
+	color: #fff;
+	opacity: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 160px;
+	padding: 0 15px;
+	z-index: 9;
+	transition: 1s;
+}
+
+.main-kanban-dropzone-title-light {
+	color: #333;
+}
+
+.main-kanban-dropzone-bg {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	opacity: .8;
+	height: 0;
+	transition: 1.1s;
+}
+
+.main-kanban-dropzone-show .main-kanban-dropzone-title {
+	line-height: 60px;
+	opacity: 1;
+	transition: .4s;
+}
+
+.main-kanban-dropzone-show .main-kanban-dropzone-bg {
+	height: calc(100% - 8px);
+	transition: .3s;
+}
+
+.main-kanban-dropzone-show .main-kanban-dropzone-bg {
+	opacity: .9;
+}
+
+.main-kanban-dropzone-show .main-kanban-dropzone-bg {
+	opacity: .9;
+}
+
+.main-kanban-dropzone-active .main-kanban-dropzone-bg,
+.main-kanban-dropzone-captured .main-kanban-dropzone-bg {
+	opacity: 1;
+	height: 68px;
+}
+
+.main-kanban-dropzone-active .main-kanban-dropzone-title,
+.main-kanban-dropzone-captured .main-kanban-dropzone-title {
+	transform: translateY(-7px);
+	transition: .3s;
+}
+
+.main-kanban-dropzone-cancel {
+	position: relative;
+	display: none;
+	text-align: center;
+	line-height: normal;
+	z-index: 9;
+}
+
+.main-kanban-dropzone-cancel-link {
+	display: inline-block;
+	border-bottom: 2px solid #fff;
+	color: #666;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.main-kanban-dropzone-captured .main-kanban-dropzone-cancel {
+	display: inline-block;
+}
+
+.main-kanban-dropzone-captured .main-kanban-dropzone-cancel-link {
+	color: #fff;
+}
+
+.main-kanban-loader {
+	display: block;
+	overflow: hidden;
+	position: relative;
+	height: 50px;
+	margin: 10px 0;
+	-webkit-transition: .1s;
+	-moz-transition: .1s;
+	transition: .1s;
+}
+
+.main-kanban-loader-shown  {
+
+}
+
+.main-kanban-loader-shown .main-kanban-loader-circle {
+	display: block;
+}
+
+.main-kanban-loader-outer {
+	position: absolute;
+	left: 50%;
+	-webkit-transform: translate(-50%, 0%);
+	transform: translate(-50%, 0%);
+}
+
+.main-kanban-loader-inner {
+	position: relative;
+	height: 50px;
+	width: 50px;
+	margin: auto;
+}
+
+.main-kanban-loader-inner:before {
+	content: '';
+	display: block;
+	padding-top: 100%;
+}
+
+.main-kanban-loader-circle {
+	display: none;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	height: 50px;
+	width: 50px;
+	-webkit-animation: main-kanban-loader-rotate 2s linear infinite;
+	animation: main-kanban-loader-rotate 2s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.main-kanban-loader-path {
+	stroke: #3bc8f5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	-webkit-animation: main-kanban-loader-dash 1.5s ease-in-out infinite;
+	animation: main-kanban-loader-dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+
+@keyframes main-kanban-loader-rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@-webkit-keyframes main-kanban-loader-rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes main-kanban-loader-dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}
+
+@-webkit-keyframes main-kanban-loader-dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}
+
+.main-kanban-no-data {
+	display: none;
+	overflow: hidden;
+	position: absolute;
+	min-height: 220px;
+	top: 32px;
+	left: -15px;
+	right: -15px;
+	bottom: 0;
+}
+
+.main-kanban-no-data-mode {
+	overflow: hidden;
+}
+
+.main-kanban-no-data-mode .main-kanban-no-data {
+	display: block;
+}
+
+.main-kanban-no-data-inner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+
+.main-kanban-no-data-image {
+	margin: auto auto 40px auto;
+	width: 87px;
+	height: 111px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2087%20111%22%3E%3Cdefs%3E%3Cstyle%3E.cls-1%20%7B%20fill%3A%20%23535c69%3B%20fill-rule%3A%20evenodd%3B%20opacity%3A%200.12%3B%20%7D%3C/style%3E%3C/defs%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M86.93%2025.17l.018-.018L61.884.032l-.03.03v-.05H.012v111h86.8v-.008h.17V31.988h.034v-6.82h-.085zM61.84%209.63l15.504%2015.54H61.84V9.63zm18.336%2094.564H6.816V6.83h48.222v18.34h-.02v6.818h25.16v72.206zM56.91%2044.814L44.43%2057.32%2031.95%2044.812%2026.576%2050.2l12.48%2012.508-12.48%2012.507%205.376%205.388L44.43%2068.1l12.48%2012.508%205.377-5.388-12.48-12.508L62.288%2050.2z%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+
+.main-kanban-no-data-text {
+	font: 32px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #c6c8cc;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.main-kanban-loader-container {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 110px;
+	height: 110px;
+	margin-left: -55px;
+	margin-top: -55px;
+	z-index: 1001;
+}
+
+.main-kanban-faded .main-kanban-loader-container {
+	display: block;
+}
+
+.main-kanban-loader-circular {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 110px;
+	width: 110px;
+	margin-top: -55px;
+	-webkit-animation: rotate 2s linear infinite;
+	animation: rotate 2s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.main-kanban-loader-path {
+	stroke: #bfc3c8;
+	stroke-width: 1.5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	-webkit-animation: dash 1.5s ease-in-out infinite;
+	animation: dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+
+.main-kanban-faded .main-kanban-grid {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.main-kanban-faded .main-kanban-no-data,
+.main-kanban-faded .main-kanban-ear-left,
+.main-kanban-faded .main-kanban-ear-right {
+	display: none;
+}

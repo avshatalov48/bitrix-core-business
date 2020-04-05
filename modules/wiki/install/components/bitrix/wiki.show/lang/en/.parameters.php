@@ -1,0 +1,31 @@
+<?
+$MESS["WIKI_PATH_TO_POST"] = "Wiki Page Path Template";
+$MESS["WIKI_PATH_TO_POST_EDIT"] = "Wiki Page Editor Path Template";
+$MESS["WIKI_PATH_TO_PAGES"] = "Wiki Pages List Path Template";
+$MESS["WIKI_PATH_TO_CATEGORY"] = "Wiki Categories Description Page Path Template";
+$MESS["WIKI_PATH_TO_CATEGORIES"] = "Wiki Categories Page Path Template";
+$MESS["WIKI_PATH_TO_HISTORY"] = "Wiki Page Update Log Path Template";
+$MESS["WIKI_PATH_TO_SEARCH"] = "Search Page Path Template";
+$MESS["WIKI_PATH_TO_HISTORY_DIFF"] = "Wiki Page Versioning Path Template";
+$MESS["WIKI_PATH_TO_DISCUSSION"] = "Discussion Page Path Template";
+$MESS["WIKI_PATH_TO_USER"] = "User Profile Path Template";
+$MESS["WIKI_PAGE_VAR"] = "Page Variable";
+$MESS["WIKI_OPER_VAR"] = "Operation Variable Name";
+$MESS["WIKI_VARIABLE_ALIASES"] = "Variable Aliases";
+$MESS["CP_BND_ELEMENT_NAME"] = "Wiki Page Title";
+$MESS["CP_BND_ELEMENT_CODE"] = "Wiki Page Code";
+$MESS["CP_BND_ELEMENT_ID"] = "Wiki Page ID";
+$MESS["CP_BND_SET_STATUS_404"] = "Generate 404 Status When Element Or Section Is Missing";
+$MESS["T_IBLOCK_DESC_ADD_SECTIONS_CHAIN"] = "Add Section To Breadcrumbs";
+$MESS["T_IBLOCK_DESC_INCLUDE_IBLOCK_INTO_CHAIN"] = "Add Information Block To Breadcrumbs";
+$MESS["T_IBLOCK_DESC_LIST_ID"] = "Information Block ID";
+$MESS["T_IBLOCK_DESC_LIST_TYPE"] = "Information Block Type (only for verification)";
+$MESS["SHOW_RATING"] = "Enable rating";
+$MESS["SHOW_RATING_CONFIG"] = "default";
+$MESS["RATING_TYPE"] = "Rating buttons design";
+$MESS["RATING_TYPE_CONFIG"] = "default";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Like/Unlike (text)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Like/Unlike (image)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Like (text)";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Like (image)";
+?>

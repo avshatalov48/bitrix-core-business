@@ -1,0 +1,16 @@
+var group_id = "%GROUP_ID%";
+var data = %DATA%;
+var res = [];
+
+    var photo = data.photo;
+    var server = data.server;
+    var hash = data.hash;
+    var res_curr = API.photos.saveMarketAlbumPhoto({"group_id": group_id, "photo": photo,"server": server,"hash": hash });
+    res = {"group_id": group_id, "photo": photo,"server": server,"hash": hash, "res_curr":res_curr };
+
+return res_curr;
+
+
+
+
+

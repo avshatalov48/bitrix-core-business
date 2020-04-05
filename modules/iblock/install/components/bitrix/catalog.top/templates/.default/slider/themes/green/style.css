@@ -1,0 +1,75 @@
+/* catalog.top */
+.bx_catalog_tile_home_type_2.bx_green .bx_catalog_tile_slider_arrow_left,
+.bx_catalog_tile_home_type_2.bx_green .bx_catalog_tile_slider_arrow_right 			{background-image: url(images/slider_arrow.png)}
+.bx_catalog_tile_home_type_2.bx_green .bx_catalog_tile_slider_pagination li			{background: url(images/pagination_dot.png) no-repeat right center}
+.bx_catalog_tile_home_type_2.bx_green .bx_catalog_tile_slider_pagination li:hover,
+.bx_catalog_tile_home_type_2.bx_green .bx_catalog_tile_slider_pagination li.active	{background: url(images/pagination_dot.png) no-repeat 0px center}
+
+.bx_catalog_tile_home_type_2.bx_green .bx_bt_button  				{
+	background:#99d23e;
+	background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzk5ZDIzZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2M2FhMjgiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#99d23e), color-stop(100%,#63aa28));
+	background:-webkit-linear-gradient(top, #99d23e 0%,#63aa28 100%);
+	background:   -moz-linear-gradient(top, #99d23e 0%, #63aa28 100%);
+	background:    -ms-linear-gradient(top, #99d23e 0%,#63aa28 100%);
+	background:    -o-linear-gradient(top, #99d23e 0%,#63aa28 100%);
+	background:       linear-gradient(to bottom, #99d23e 0%,#63aa28 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99d23e', endColorstr='#63aa28',GradientType=0 );
+
+	color:#fff;
+	text-shadow: 0 1px 0 #5d8634;
+
+	display:inline-block;
+	border-radius:3px;
+	text-align:center;
+	text-decoration:none;
+	font-size:14px;
+	cursor:pointer;
+}
+.bx_catalog_tile_home_type_2.bx_green .bx_bt_button:hover  		{
+	background:#a8d95b;
+	background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2E4ZDk1YiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM3YWI3NDgiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#a8d95b), color-stop(100%,#7ab748));
+	background:-webkit-linear-gradient(top, #a8d95b 0%,#7ab748 100%);
+	background:   -moz-linear-gradient(top, #a8d95b 0%, #7ab748 100%);
+	background:    -ms-linear-gradient(top, #a8d95b 0%,#7ab748 100%);
+	background:     -o-linear-gradient(top, #a8d95b 0%,#7ab748 100%);
+	background:        linear-gradient(to bottom, #a8d95b 0%,#7ab748 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a8d95b', endColorstr='#7ab748',GradientType=0 );
+}
+.bx_catalog_tile_home_type_2.bx_green .bx_bt_button:active  		{
+	background:#63aa28;
+	background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzYzYWEyOCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2ZmIzMmQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#63aa28), color-stop(100%,#6fb32d));
+	background:-webkit-linear-gradient(top, #63aa28 0%,#6fb32d 100%);
+	background:   -moz-linear-gradient(top, #63aa28 0%, #6fb32d 100%);
+	background:    -ms-linear-gradient(top, #63aa28 0%,#6fb32d 100%);
+	background:     -o-linear-gradient(top, #63aa28 0%,#6fb32d 100%);
+	background:        linear-gradient(to bottom, #63aa28 0%,#6fb32d 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#63aa28', endColorstr='#6fb32d',GradientType=0 );
+}
+/* scu_detail_size */
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_size ul li .cnt  				{border: 1px solid #74af40}
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_size ul li:hover .cnt  		{border: 1px solid #5d9729}
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_size ul li:active .cnt,
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_size ul li.bx_active .cnt 		{border: 2px solid #5d9729}
+
+.bx-retina .bx_catalog_tile_home_type_2.bx_green .bx_item_detail_size ul li.bx_active .cnt{
+	-webkit-border-image: url(images/x2border_active.png) 2 stretch;
+	-moz-border-image: url(images/x2border_active.png) 2 stretch;
+	-o-border-image: url(images/x2border_active.png) 2 stretch;
+	border-image: url(images/x2border_active.png) 2 fill stretch;
+}
+
+/* scu_detail_scu */
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_scu .bx_scu ul li .cnt  			{border: 1px solid #74af40}
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_scu .bx_scu ul li:hover .cnt  		{border: 1px solid #5d9729}
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_scu .bx_scu ul li:active .cnt,
+.bx_catalog_tile_home_type_2.bx_green .bx_item_detail_scu .bx_scu ul li.bx_active .cnt 	{border: 2px solid #5d9729}
+
+.bx-retina .bx_catalog_tile_home_type_2.bx_green .bx_item_detail_scu .bx_scu ul li.bx_active .cnt{
+	-webkit-border-image: url(images/x2border_active.png) 2 stretch;
+	-moz-border-image: url(images/x2border_active.png) 2 stretch;
+	-o-border-image: url(images/x2border_active.png) 2 stretch;
+	border-image: url(images/x2border_active.png) 2 fill stretch;
+}

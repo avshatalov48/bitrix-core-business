@@ -1,0 +1,23 @@
+var owner_id = "%OWNER_ID%";
+var count = %COUNT%;
+var data = %DATA%;
+var res = [];
+
+var i = 0;
+while (i < count) {
+    var item_id = data[i].VK_ID;
+    var res_curr = API.market.delete({"owner_id": owner_id, "item_id": item_id });
+    if(res_curr) {
+        res = res + [{"VK_ID":item_id, "flag_product_delete_result": true}];
+    } else {
+        res = res + [{"VK_ID":item_id, "flag_product_delete_result": false}];
+    }
+    i = i+1;
+}
+
+return res;
+
+
+
+
+

@@ -1,0 +1,9 @@
+/*Menu icon*/
+#catalog_menu_icon {background-image:url(icons/catalog/mnu_catalog.gif);}
+#catalog_page_icon {background-image:url(icons/catalog/title.gif);}
+
+/*Float form*/
+div.float-form {position:absolute; background-color:#F8F9FC; border:1px solid #B8C1DD; padding:5px; z-index:2;}
+div.float-form td {font-size:70%; padding:3px; white-space:nowrap;}
+div.float-form div.data {width:400px; height:300px; overflow:scroll; font-size:70%; background-color:white; margin-bottom:5px; border:1px solid #B8C1DD; padding:5px;}
+div.float-form-shadow {position:absolute; background-color:#797979; z-index:1; opacity: 0.5; filter: alpha(opacity=50);}

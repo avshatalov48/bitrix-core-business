@@ -1,0 +1,34 @@
+<?
+$MESS["SAPE1_NO_SITE"]="Не указан сайт плана";
+$MESS["SAPE1_NO_NAME"]="Не указано название плана";
+$MESS["SAPE1_NO_RATE_CURRENCY"]="Не указана валюта ставки плана";
+$MESS["SAPE1_NO_SECTION"]="Не указана группа товаров";
+$MESS["SAPE1_NO_MODULE"]="Не указан модуль группы товаров";
+$MESS["SAPE1_ERROR_SAVE"]="Ошибка сохранения плана";
+$MESS["SAPE1_ERROR_SAVE_SECTION"]="Ошибка сохранения группы товаров плана";
+$MESS["SAPE1_TITLE_UPDATE"]="Изменение плана №#ID#";
+$MESS["SAPE1_TITLE_ADD"]="Добавление нового плана";
+$MESS["SAPE1_LIST"]="Список планов";
+$MESS["SAPE1_ADD"]="Добавить план";
+$MESS["SAPE1_DELETE"]="Удалить план";
+$MESS["SAPE1_DELETE_CONF"]="Вы уверены, что хотите удалить этот план?";
+$MESS["SAPE1_PLAN"]="План";
+$MESS["SAPE1_PLAN_PARAM"]="Параметры плана";
+$MESS["SAPE1_SECTIONS"]="Группы товаров";
+$MESS["SAPE1_SECTIONS_ALT"]="Группы товаров с особыми комиссиями аффилиата";
+$MESS["SAPE1_TIMESTAMP_X"]="Дата последнего изменения:";
+$MESS["SAPE1_SITE"]="Сайт:";
+$MESS["SAPE1_NAME"]="Название плана:";
+$MESS["SAPE1_DESCR"]="Описание плана:";
+$MESS["SAPE1_ACTIVE"]="Активность:";
+$MESS["SAPE1_RATE"]="Комиссия аффилиата:";
+$MESS["SAPE1_LIMIT"]="План действует при продаже не менее (шт.)";
+$MESS["SAPE1_LIMIT_HINT"]="План действует при продаже на сумму не менее<br><small>В базовой валюте сайта</small>";
+$MESS["SAPE1_NO"]="(Нет)";
+$MESS["SAPE1_DELETE1"]="Удалить";
+$MESS["SAPE1_MODULE"]="Модуль";
+$MESS["SAPE1_SECTION"]="Группа";
+$MESS["SAPE1_RATE1"]="Комиссия аффилиата";
+$MESS["SAPE1_ADD1"]="Добавить";
+$MESS["SAPE1_DELETE1_CONF"]="Вы уверены, что хотите удалить эту запись?";
+?>

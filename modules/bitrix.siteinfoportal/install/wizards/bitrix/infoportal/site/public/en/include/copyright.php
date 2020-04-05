@@ -1,0 +1,1 @@
+&copy; Infoportal, 2014

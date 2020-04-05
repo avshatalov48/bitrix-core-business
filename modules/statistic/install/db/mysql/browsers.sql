@@ -1,0 +1,14 @@
+insert  into b_stat_browser values (1, 'Mozilla%');
+insert  into b_stat_browser values (2, 'Opera%');
+insert  into b_stat_browser values (3, '%Netscape%');
+insert  into b_stat_browser values (4, '%Mosaic%');
+insert  into b_stat_browser values (5, '%AOL%');
+insert  into b_stat_browser values (6, '%Lynx%');
+insert  into b_stat_browser values (7, '%Avant Browser%');
+insert  into b_stat_browser values (8, '%Firefox/%');
+insert  into b_stat_browser values (9, '%SonyEricsson%');
+insert  into b_stat_browser values (10, '%Nokia%');
+insert  into b_stat_browser values (11, '%SAMSUNG%');
+insert  into b_stat_browser values (12, '%Microsoft Pocket Internet Explorer%');
+insert  into b_stat_browser values (13, '%Konqueror%');
+insert  into b_stat_browser values (14, '%RSS%Reader%');

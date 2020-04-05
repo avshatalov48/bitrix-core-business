@@ -1,0 +1,31 @@
+<?
+$MESS ['STAT_RECORDS_LIST'] = "Pages and sections popularity";
+$MESS ['STAT_SECTION_PAGES'] = "Records";
+$MESS ['STAT_F_SECTIONS'] = "Page / Section";
+$MESS ['STAT_F_VIEW'] = "View";
+$MESS ['STAT_F_VIEW_SECTIONS'] = "sections only";
+$MESS ['STAT_F_VIEW_FILES'] = "pages only";
+$MESS ['STAT_SECTION_GRAPH'] = "Traffic graph for this page";
+$MESS ['STAT_SECTION_LINK_STAT'] = "Link statistics for this page";
+$MESS ['STAT_GO'] = "Follow link";
+$MESS ['STAT_T_HITS_DIAGRAM'] = "Popularity";
+$MESS ['STAT_T_EXIT_DIAGRAM'] = "List of exit points";
+$MESS ['STAT_T_ENTER_DIAGRAM'] = "List of entry points";
+$MESS ['STAT_GROUP_BY_HITS'] = "Hits";
+$MESS ['STAT_GROUP_BY_EXITS'] = "Exit points";
+$MESS ['STAT_GROUP_BY_ENTERS'] = "Entry points";
+$MESS ['STAT_PERCENT'] = "Percent";
+$MESS ['STAT_NO_DATA'] = "No data for drawing a diagram";
+$MESS ['STAT_OTHER'] = "(other)";
+$MESS ['STAT_ATTENTION_GOTO'] = "Click the \"&raquo;\" symbol to navigate to the section or page.";
+$MESS ['STAT_F_ADV'] = "Advertising campaign";
+$MESS ['STAT_F_ADV_DATA_TYPE'] = "Data type for advertising campaigns";
+$MESS ['STAT_ADV_NO_BACK'] = "direct hits";
+$MESS ['STAT_ADV_BACK'] = "returns";
+$MESS ['STAT_ADV_SUMMA'] = "total both direct hits and returns";
+$MESS ['STAT_PAGE'] = "Section/page";
+$MESS ['STAT_HITS'] = "Hits";
+$MESS ['STAT_SESSIONS'] = "Sessions";
+$MESS ['STAT_FILTER_PAGE_DIAGRAM_ALT'] = "Show hits diagram for this section";
+$MESS ['STAT_ATTENTION'] = "Warning";
+?>

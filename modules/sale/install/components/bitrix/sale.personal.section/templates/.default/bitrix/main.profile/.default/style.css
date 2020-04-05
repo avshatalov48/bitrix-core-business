@@ -1,0 +1,44 @@
+.bx_profile .main-profile-block-date-info{
+	margin-bottom: 15px;
+}
+
+.bx_profile .main-profile-form-password-annotation{
+	font-family: Arial, Helvetica,sans-serif;
+	color: grey;
+	font-weight: lighter;
+	font-size: 12px;
+	margin-top: 15px;
+	margin-bottom: 0;
+}
+
+.bx_profile .main-profile-block-date-info, .bx_profile .form-group{
+	overflow-y: hidden;
+}
+@media (min-width: 992px)
+{
+	.text-md-right{
+		text-align: right;
+	}
+
+	.form-group{
+		display: table;
+		width: 100%;
+	}
+
+	.main-profile-form-label.text-md-right, input[class*="col-"] {
+		float: none !important;
+		display: table-cell;
+		vertical-align: middle;
+	}
+}
+
+.bx_profile .main-profile-social-block{
+	margin-top: 40px;
+}
+
+.bx_profile .form-group .form-control{
+	height: 40px;
+}
+
+
+

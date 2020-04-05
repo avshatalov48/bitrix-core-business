@@ -1,0 +1,29 @@
+.bx-share-social {
+	margin: 0;
+	margin-top: 5px;
+	padding: 0;
+	display: inline-block;
+	list-style: none;
+}
+.bx-share-icon {
+	float: right;
+	display: block;
+	margin-left: 4px;
+	margin-bottom: 4px;
+	height: 22px;
+	width: 22px;
+}
+.bx-share-icon a,
+.bx-share-icon a:link,
+.bx-share-icon a:visited,
+.bx-share-icon a:active {
+	color: #fff;
+	padding-top: 4px;
+	font-size: 14px;
+	text-align: center;
+	vertical-align: middle;
+	display: block;
+	height: 22px;
+	width: 22px;
+	border-radius: 3px;
+}

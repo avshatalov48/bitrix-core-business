@@ -1,0 +1,32 @@
+<?
+$MESS["HTTPS_PROMO__ADMIN_TITLE"] = "Update your website to use HTTPS";
+$MESS["HTTPS_PROMO__SUBTITLE"] = "HTTPS - safety and security for your data";
+$MESS["HTTPS_PROMO__TITLE"] = "Setting up HTTPS for your website";
+$MESS["HTTPS_PROMO__PREPARE_SITE"] = "Update your website to use HTTPS";
+$MESS["HTTPS_PROMO__CHANGE_LINKS_NEW"] = "Change all absolute website hyperlinks to relative.";
+$MESS["HTTPS_PROMO__CHECK_PROTOCOL_NEW"] = "Check protocol settings for the content from external resources (video, images).";
+$MESS["HTTPS_PROMO__EXTERNAL_SCRIPTS"] = "Change links for all external scripts from absolute to relative.";
+$MESS["HTTPS_PROMO__CERTIFICATE_INSTALL_NEW"] = "Install an SSL certificate to a server";
+$MESS["HTTPS_PROMO__CERTIFICATE_CHOICE_NEW"] = "Choose and buy a certificate.";
+$MESS["HTTPS_PROMO__CERTIFICATES_FEATURES"] = "Important certificate information";
+$MESS["HTTPS_PROMO__CERTIFICATE_REGULAR"] = "Single certificate";
+$MESS["HTTPS_PROMO__CERTIFICATE_REGULAR_ALT"] = "Single certificate";
+$MESS["HTTPS_PROMO__TO_MOST_SITES"] = " - fits most websites.";
+$MESS["HTTPS_PROMO__WILDCART"] = "Wildcard";
+$MESS["HTTPS_PROMO__TO_SEVERAL_DOMAINS"] = "dynamic subdomains";
+$MESS["HTTPS_PROMO__TO_SEVERAL_DOMAINS_ALT"] = " - for a secure origin with many dynamic subdomains.";
+$MESS["HTTPS_PROMO__CERTIFICATE_IDN"] = "With IDN support";
+$MESS["HTTPS_PROMO__CERTIFICATE_IDN_ALT"] = " - for Cyrillic domains.";
+$MESS["HTTPS_PROMO__MULTIDOMAINS_CERTIFICATE"] = "Multi-domain certificate";
+$MESS["HTTPS_PROMO__MULTIDOMAINS_CERTIFICATE_ALT"] = " - for multiple well-known secure origins.";
+$MESS["HTTPS_PROMO__CERTIFICATE_VENDORS"] = "General SSL certificate providers";
+$MESS["HTTPS_PROMO__INSTALL_CERTIFICATE_NEW"] = "Install an SSL certificate to your hosting.";
+$MESS["HTTPS_PROMO__CHECK_ACTIVE_NEW"] = "Check a website availability via HTTPS.";
+$MESS["HTTPS_PROMO__SITE_SETTINGS_NEW"] = "Perform all important website changes";
+$MESS["HTTPS_PROMO__HOST_AND_ROBOTS_NEW"] = "Set up the Host directive in the robots.txt file for HTTPS.";
+$MESS["HTTPS_PROMO__REDIRECT_NEW"] = "Set up 301 redirect from HTTP to HTTPS.";
+$MESS["HTTPS_PROMO__SITEMAP_NEW"] = "Change links in the sitemap.xml file.";
+$MESS["HTTPS_PROMO__SEARCHERS_NEW"] = "Update global search index";
+$MESS["HTTPS_PROMO__GOOGLE"] = "Add an HTTPS website version to the Google Search Console.";
+$MESS["HTTPS_PROMO__YANDEX_NEW"] = "Change address in the Yandex.Webmaste and Google Search Console.";
+?>

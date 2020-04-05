@@ -1,0 +1,31 @@
+<?
+$MESS["BT_UT_SAUTOCOMPLETE_DESCR"] = "Привязка к разделам с автозаполнением";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_TITLE"] = "Настройки привязки к разделам с автозаполнением";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_SHOW_ADD"] = "Показывать кнопку добавления разделов";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_IBLOCK_MESS"] = "Брать название кнопки добавления из настроек связанного инфоблока";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_MAX_WIDTH"] = "Максимальная ширина поля ввода в пикселах (0 - не ограничивать)";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_COMMENT_MAX_WIDTH"] = "px";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_MIN_HEIGHT"] = "Минимальная высота поля ввода в пикселах, если свойство множественное";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_COMMENT_MIN_HEIGHT"] = "px";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_MAX_HEIGHT"] = "Максимальная высота поля ввода в пикселах, если свойство множественное";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_COMMENT_MAX_HEIGHT"] = "px";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_VIEW"] = "Интерфейс показа";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_BAN_SYMBOLS"] = "Заменяемые при показе символы";
+$MESS["BT_UT_SAUTOCOMPLETE_SETTING_REP_SYMBOL"] = "Символ, который заменит при показе запрещенные символы";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_INVITE"] = "введите текст";
+$MESS["BT_UT_SAUTOCOMPLETE_VIEW_AUTO"] = "Строка с автозаполнением";
+$MESS["BT_UT_SAUTOCOMPLETE_VIEW_ELEMENT"] = "Строка с автозаполнением и выбор из окна поиска";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_LIST_INVITE"] = "(введите название)";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_NO_SEARCH_RESULT_TEXT"] = "ничего не найдено";
+$MESS["BT_UT_AUTOCOMPLETE_SYM_SPACE"] = "Пробел";
+$MESS["BT_UT_AUTOCOMPLETE_SYM_GRID"] = "#";
+$MESS["BT_UT_AUTOCOMPLETE_SYM_STAR"] = "*";
+$MESS["BT_UT_AUTOCOMPLETE_SYM_UNDERLINE"] = "_";
+$MESS["BT_UT_AUTOCOMPLETE_SYM_OTHER"] = "другое";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_SEARCH_ELEMENT"] = "...";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_SEARCH_ELEMENT_DESCR"] = "Выбор раздела в окне поиска";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR"] = "Выбор нескольких разделов в окне поиска";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_NEW_ELEMENT"] = "Добавить раздел";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_NEW_ELEMENT_DESCR"] = "Добавить новый раздел и выбрать его";
+$MESS["BT_UT_SAUTOCOMPLETE_MESS_ELEMENT_EDIT"] = "Перейти на страницу редактирования раздела";
+?>

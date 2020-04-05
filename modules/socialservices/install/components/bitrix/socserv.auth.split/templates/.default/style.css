@@ -1,0 +1,44 @@
+div.soc-serv-title { font-family:Arial, Helvetica,sans-serif; }
+div#workarea > div.soc-serv-main {padding-left: 12px; position: relative; }
+tr.soc-serv-header { color:grey;  font-weight:lighter; font-size: 85%; }
+td.split-item-actions a.split-delete-item { width: 15px; height: 15px;  display: inline-block; }
+td.split-item-actions a.split-delete-item {width: 15px; height: 15px; background:url('images/grey_del.gif'); }
+td.split-item-actions a.split-delete-item:hover{background:url('images/red_del.gif') no-repeat; }
+div.soc-serv-accounts { color:grey; font-weight:lighter; }
+div.soc-serv-accounts td.soc-serv-name { color: black; padding-right: 5px; }
+div.soc-serv-title { padding-left: 7px; padding-top: 3px; background: #f5f5f5; width: 460px; height: 19px; border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px; }
+div.soc-serv-title-grey { font-family:Arial, Helvetica,sans-serif; color:grey;  font-weight:lighter; padding-left: 4px; }
+A.soc-serv-link:visited {color: #486DAA; }
+a.soc-serv-link:hover {color: #D00;}
+div.soc-serv-main tr.soc-serv-personal td.bx-ss-icons { padding: 9px !important;}
+
+i.soc-serv-photo { width: 30px; height: 30px; display: inline-block; vertical-align:-60%;}
+i.soc-serv-text { font-style: normal; vertical-align:-43%;}
+td.bx-ss-icons i.bx-ss-icon { width: 16px; height: 16px;  display: inline-block; vertical-align:-10%; }
+.bx-ss-icon {background-image:url('/bitrix/js/socialservices/css/icons_v5.png'); width:16px; height:16px; background-repeat:no-repeat; }
+.openid {background-position: 0px -192px;}
+.yandex {background-position: 0px 0px;}
+.openid-mail-ru {background-position: 0px -48px;}
+.livejournal {background-position: 0px -16px;}
+.liveinternet {background-position: 0px -128px;}
+.blogger {background-position: 0px -144px;}
+.rambler {background-position: 0px -160px;}
+.liveid {background-position: 0px -176px;}
+.facebook {background-position: 0px -32px;}
+.twitter {background-position: 0px -96px;}
+.vkontakte {background-position: 0px -80px;}
+.mymailru {background-position: 0px -64px;}
+.google {background-position: 0px -112px;}
+.odnoklassniki {background-position: 0px -208px;}
+.bitrix24 {background-position:0px -378px}
+
+.feed-add-post-form-but-wrap {padding:0 7px 2px; position:relative; display: none;}
+.feed-add-post-text {color:#bfbfbf; font-size:17px; display: none; /*height:75px; padding:10px 7px 0;*/}
+.feed-add-post-form.feed-add-post-edit-form {padding:0 7px 2px; position:relative; display: none;}
+.feed-add-post-destination-block {border-bottom: 0px !important; margin-top:5px; overflow:hidden; padding:0 0 7px 12px; position:relative; zoom:1; line-height: 20px;}
+.feed-add-post-destination-wrap {max-width:100% !important;}
+.feed-add-button {display: none;}
+
+div#bx_sonet_fieldset_SOCSERV  td.bx-sonet-profile-fieldcaption {display: none;}
+.bx-sonet-profile-edit-layout div.bx-sonet-profile-edit-layers table.bx-sonet-profile-fieldset-table td.bx-sonet-profile-field  {padding-left: 35px;}
+.bx-auth input[type|="text"] {width: 25% !important;}

@@ -1,0 +1,239 @@
+/* PLACE */
+.bx-editor-place{
+	padding: 20px!important;
+	background-color: rgb(228, 228, 228)!important;
+	outline: 1px dashed rgb(125, 125, 125)!important;
+	text-align: center!important;
+	margin-top:9px!important;
+	margin-right: 18px!important;
+	margin-bottom: 9px!important;
+	margin-left: 18px!important;
+	color: #777777!important;
+	font-weight: bold !important;
+	font-size: 20px !important;;
+	font-family: sans-serif !important;
+}
+.bx-editor-place.bx-dd-start{
+	outline: 1px solid rgb(147, 193, 234)!important;
+}
+.bx-editor-place.bx-dd-enter{
+	background-color: rgb(229, 242, 253)!important;
+	outline: 1px solid rgb(147, 193, 234)!important;
+	color: #64B1F5!important;
+}
+.bx-stylist-enter{
+	outline: 2px dashed rgb(147, 193, 234);
+	opacity: 0.7;
+}
+
+
+.bx-editor-block{
+	padding: 2px;
+}
+/* BLOCK */
+.bx-editor-block.bx-dd-start{
+	/*outline: 1px solid rgb(147, 193, 234);*/
+	box-shadow: inset 0 0 0 1px rgb(147, 193, 234)
+}
+.bx-editor-block.bx-dd-enter{
+	/*outline: 1px solid rgb(147, 193, 234);*/
+	box-shadow: inset 0 0 0 1px rgb(147, 193, 234)
+}
+
+
+
+/* BLOCK AUX */
+.bx-editor-block .bx-block-inside{
+	/*outline: 1px dashed #bee4f9;*/
+	position: relative;
+}
+.bx-editor-block .bx-block-inside:hover, 
+.bx-editor-block.bx-editor-block-current-edit .bx-block-inside{
+	outline: 1px solid #283b4e;
+	min-height: 32px;
+}
+
+
+
+/* BLOCK SHADOW */
+.bx-editor-block .bx-shadow{
+	/*display: none;*/
+	opacity: 0;
+	min-height: 32px;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: rgba(24,46,67,0.8);
+	z-index: 8;
+	-webkit-transition: all 0.2s ease-in-out;
+	   -moz-transition: all 0.2s ease-in-out;
+		-ms-transition: all 0.2s ease-in-out;
+		 -o-transition: all 0.2s ease-in-out;
+			transition: all 0.2s ease-in-out;
+}
+.bx-editor-block .bx-block-inside:hover .bx-shadow{
+	/*display: block;*/
+	opacity: 1;
+}
+
+.bx-editor-block .bx-block-inside:hover.bx-dd-enter .bx-shadow{
+	display: none;
+}
+
+/* BLOCK CONTENT */
+.bx-editor-block .bx-content{
+
+}
+
+/* BLOCK COMPONENT */
+.bx-editor-block .bx-component {
+	background-color: #fcfff3;
+	border: 1px solid #a1c039;
+	border-radius: 2px;
+	display: none;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 0;
+	min-height: 140px;
+	position: relative;
+}
+
+
+.bx-editor-block .bx-component-header {
+	background-color: #9fbe38;
+	color: #ffffff;
+	font-size: 13px;
+	height: 29px;
+	line-height: 29px;
+	padding-left: 20px;
+}
+
+.bx-editor-block .bx-component-icon {
+	background: url(/bitrix/images/fileman/block_editor/block_editor_blocks.png) no-repeat center -1502px;
+	border: 4px solid #9fbe38;
+	border-radius: 50%;
+	height: 33px;
+	left: 19px;
+	position: absolute;
+	top: 48px;
+	width: 33px;
+}
+
+.bx-editor-block .bx-component-description {
+	color: #000000;
+	display: inline-block;
+	font-size: 13px;
+	padding:24px 15px 10px 80px;
+}
+
+.bx-editor-block.bx-type-component .bx-component{
+	display: block;
+}
+.bx-editor-block.bx-type-component .bx-content{
+	display: none;
+}
+
+
+/* BLOCK DROPZONE*/
+.bx-editor-block .bx-dropzone{
+	display: none;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	width: 100%;
+	background-color: rgb(229, 242, 253);
+	box-shadow: inset 0 0 0 1px #1485ce;
+	/*outline: 1px solid rgb(147, 193, 234);*/
+}
+.bx-editor-block.bx-dd-enter .bx-dropzone{
+	font-weight: bold !important;
+	font-size: 20px !important;
+	font-family: sans-serif !important;
+	text-align: center;
+	color: #64B1F5;
+}
+.bx-editor-block.bx-dd-enter-top .bx-dropzone:first-child,
+.bx-editor-block.bx-dd-enter-bottom .bx-dropzone:last-child{
+	display: block;
+}
+.bx-editor-block.bx-dd-start *{
+	pointer-events: none;
+}
+
+
+
+/* BLOCK CONTROLS */
+.bx-editor-block .bx-block-inside .bx-controls {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	z-index: 10;
+}
+.bx-editor-block .bx-block-inside:hover .bx-controls{
+	display: block;
+}
+.bx-editor-block .bx-block-inside:hover.bx-dd-enter .bx-controls{
+	display: none;
+}
+.bx-editor-block .bx-block-inside .bx-controls span{
+	display: inline;
+	color: #FFFFFF;
+	margin-left: 5px;
+	margin-right: 10px;
+	margin-top: 7px;
+	cursor: pointer;
+	font-weight: bold;
+	float: right;
+}/*
+.bx-editor-block .bx-block-inside .bx-controls .bx-drag,
+.bx-editor-block .bx-block-inside .bx-controls .bx-remove,
+.bx-editor-block .bx-block-inside .bx-controls .bx-clone,
+.bx-editor-block .bx-block-inside .bx-controls .bx-edit {
+	background: url(/bitrix/images/fileman/block_editor/icon.png) no-repeat;
+	height: 16px;
+	opacity: 0.7;
+	width: 16px;
+}*/
+.bx-editor-block-controls-btn {
+	background: url(/bitrix/images/fileman/block_editor/icon.png) no-repeat;
+	height: 16px;
+	opacity: 0.7;
+	width: 16px;
+}
+.bx-editor-block-controls-btn.bx-clone {background-position: center 0;}
+.bx-editor-block-controls-btn.bx-edit {background-position: center -16px;}
+.bx-editor-block-controls-btn.bx-remove {background-position: center -32px;}
+.bx-editor-block-controls-btn.bx-drag {background-position: center -48px;}
+
+.bx-editor-block-controls-btn:hover{
+	opacity: 1;
+}
+.bx-editor-block .bx-block-inside .bx-controls .bx-drag{
+	float: left;
+}
+.bx-editor-block .bx-block-inside .bx-controls .bx-drag:hover{
+	cursor: move;
+}
+.bx-editor-block .bx-block-inside .bx-controls .bx-remove,
+.bx-editor-block .bx-block-inside .bx-controls .bx-edit,
+.bx-editor-block .bx-block-inside .bx-controls .bx-clone{
+	float: right;
+}
+
+
+
+/* BLOCK CONTENT PHP STYLES */
+.bxhtmled-surrogate{
+	background-color: #f7f9fb !important;
+	color: #000 !important;
+	border: 2px solid #9a9fa8 !important;
+	border-radius: 3px;
+	padding: 4px;
+	font-size: 12px;
+	font-weight: bold;
+	font-family: sans-serif;
+	white-space: nowrap;
+}

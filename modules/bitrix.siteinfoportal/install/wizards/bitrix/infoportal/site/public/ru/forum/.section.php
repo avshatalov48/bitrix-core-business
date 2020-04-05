@@ -1,0 +1,6 @@
+<?
+$sSectionName = "Форум";
+$arDirProperties = Array(
+
+);
+?>

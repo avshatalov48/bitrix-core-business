@@ -1,0 +1,23 @@
+<?
+$MESS['SUP_UGL_PAGES'] = 'Пользователи';
+$MESS['SUP_UGL_GROUP_ID'] = 'ID группы';
+$MESS['SUP_UGL_USER_ID'] = 'ID пользователя';
+$MESS['SUP_UGL_CAN_VIEW_GROUP_MESSAGES'] = 'Может смотреть тикеты группы';
+$MESS['SUP_UGL_GROUP_NAME'] = 'Название группы';
+$MESS['SUP_UGL_LOGIN'] = 'Login';
+$MESS['SUP_UGL_FIRST_NAME'] = 'Имя';
+$MESS['SUP_UGL_LAST_NAME'] = 'Фамилия';
+$MESS['SUP_UGL_EDIT'] = 'Редактировать';
+$MESS['SUP_UGL_ADD'] = 'Добавить';
+$MESS['SUP_UGL_ADD_TITLE'] = 'Добавить';
+$MESS['SUP_UGL_TITLE'] = 'Группы и пользователи';
+$MESS['SUP_UGL_DELETE'] = 'Удалить';
+$MESS['SUP_UGL_DELETE_CONFIRMATION'] = 'Действительно удалить?';
+$MESS['SUP_UGL_FLT_GROUP'] = 'Группа';
+$MESS['SUP_UGL_FLT_USER'] = 'Пользователь';
+$MESS['SUP_UGL_FLT_LOGIN'] = 'Login';
+$MESS['SUP_UGL_FLT_CAN_VIEW_GROUP_MESSAGES'] = 'Может смотреть тикеты группы';
+$MESS['SUP_UGL_EXACT_MATCH'] = 'Искать точное совпадение';
+$MESS['SUP_UGL_FLT_ALL_GROUPS'] = 'все группы';
+$MESS['SUP_UGL_IS_TEAM_GROUP'] = 'Группа сотрудников техподдержки';
+$MESS['SUP_UGL_FLT_IS_TEAM_GROUP'] = 'Группа сотрудников техподдержки';

@@ -1,0 +1,30 @@
+.account_item_description{
+    margin:15px 0;
+    padding:12px;
+    background:#fff;
+    border-radius:5px;
+    border:1px solid #cecece;
+    border-bottom-width:3px;
+}
+
+.account_item_description h1{
+    font-size:25px;
+    font-weight:bold;
+    color:#a90000;
+    text-align:center;
+}
+.account_item_description h3{
+    color:#3e4d56;
+    font-weight:bold;
+    position:relative;
+    font-size:14px;
+    padding-right:25px;
+    border-bottom:1px solid #cecece;
+    padding-bottom:11px;
+}
+.account_item_description_text {
+    overflow:hidden;
+    color:#000;
+    line-height:20px;
+    font-size:12px;
+}

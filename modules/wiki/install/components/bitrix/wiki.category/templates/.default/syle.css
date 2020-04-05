@@ -1,0 +1,20 @@
+div#wiki-post a.wiki_red {
+	color: red;
+}
+
+div.wiki-errors {
+	border: 1px solid #FFD482; 
+	margin: 1.117em; 
+	padding: 0.4em 1.117em;
+	color:red;
+	background-color:#FFFEEB;	
+}
+
+div#wiki-post div.wiki-post-header {
+	background-color:#E7E7E7;
+	font-size:1em;
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+	border:1px solid #E1E1E1;
+	margin-bottom: 5px;	
+}

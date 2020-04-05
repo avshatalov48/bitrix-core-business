@@ -1,0 +1,83 @@
+.main{}
+.mainspecialoffer_component{
+    padding:0 9px 4px;
+    margin-top:7px;
+    border-style:solid;
+    border-width:5px 0px 7px;;
+    -webkit-border-image:url(images/hd_bd_bg.png) 10 0 14 repeat stretch;
+    border-image:url(images/hd_bd_bg.png) 10 0 14 fill repeat stretch;
+
+}
+.main_specialoffer_container{
+    padding:10px 10px 3px;
+    position:relative;
+    /*margin-bottom:9px;*/
+}
+.mainspecialoffer_component table{width:100%}
+.mainspecialoffer_component table tr td{padding:0}
+.mainspecialoffer_component table tr td:first-child{padding-right:10px}
+.mainspecialoffer_component table tr td:last-child{padding-left:10px}
+.main_specialoffer_img{
+    display:block;
+    background:#fff;
+    /*padding:5px;*/
+    width:90px;
+    height:90px;
+    border-radius:5px;
+    border:1px solid #f2f2f2;
+    /*box-shadow:0 3px 4px 0 rgba(0,0,0,.1);*/
+    float:left;
+    position:relative;
+    overflow:hidden;
+}
+.main_specialoffer_img span{
+    display:block;
+    width:500px;
+    text-align:center;
+    margin-left:-250px;
+    left:50%;
+    position:absolute;
+}
+.main_specialoffer_img img{
+    width:auto;
+    max-height:100%;
+}
+.main_specialoffer_title{
+    font-size:16px;
+    /*margin-top:30px;*/
+    margin-left:116px;
+}
+.main_specialoffer_title a{
+    color:#000;
+    /*text-shadow:0 -1px 0 #731516;*/
+    text-decoration:none;
+}
+.main_specialoffer_description{
+    margin-left:116px;
+    font-size:10px;
+    color:#a6a6a6;
+    margin-top:10px;
+    height:25px;
+    line-height:11px;
+    display:block;
+    overflow:hidden;
+}
+.main_specialoffer_price_container{
+    margin-left:116px;
+    margin-top:10px;
+    min-height:35px;
+    position: relative;
+}
+.main_specialoffer_label{
+    font-weight:bold;
+    font-size:14px;
+    margin-left:116px;
+    color:#b51012;
+    padding:0 0 8px; 
+    line-height: 14px;
+}
+
+@media screen and (max-width:640px){
+    .mainspecialoffer_component table tr td:first-child{padding-right:0}
+    .mainspecialoffer_component table tr td:last-child{display:none}
+}

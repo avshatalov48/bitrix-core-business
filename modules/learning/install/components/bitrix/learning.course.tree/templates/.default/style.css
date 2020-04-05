@@ -1,0 +1,66 @@
+div.learn-course-tree
+{
+	font-size:100%;
+}
+
+div.learn-course-tree ul
+{
+	list-style-type: none;
+	margin: 0; 
+	padding: 0 1em 0 0;
+}
+
+div.learn-course-tree ul ul
+{
+	width: auto;
+	margin:-0.75em 0 0 0;
+	padding: 0 0 0 0.75em;
+}
+
+div.learn-course-tree li
+{
+	margin: 0 0 -0.85em 0;
+	padding:0;
+}
+
+div.learn-course-tree li li
+{
+	margin: 0 0 -0.85em 0.5em; 
+	padding:0;
+}
+
+div.learn-course-tree li.close ul
+{
+	display: none;
+}
+
+div.learn-course-tree div.item-text
+{
+	position:relative;
+	top:-19px;left:19px;
+}
+
+/* Links*/
+div.item-text a 
+{
+	color:#000;
+	text-decoration:none;
+}
+div.item-text a.selected 
+{
+	background-color:#C7CEDA;
+}
+
+/*Icons*/
+div.chapter, div.lesson, div.test-list, div.course-detail
+{
+	background-repeat:no-repeat;
+	width:17px;
+	height:17px;
+	vertical-align:top;
+}
+div.chapter{cursor:pointer; cursor: hand;background-image:url(images/chapter_open.gif);}
+div.learn-course-tree li.close div.chapter{background-image:url(images/chapter_close.gif);}
+div.lesson{background-image:url(images/lesson.gif);}
+div.course-detail{background-image:url(images/course_detail.gif);}
+div.test-list{background-image:url(images/test_list.gif);}

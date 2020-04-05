@@ -1,0 +1,50 @@
+/* ======================== Tags Popup ====================== */
+.popup-tags-window { width: 450px;  font: normal normal normal 12px/normal Verdana, Tahoma, sans-serif; color: #000; }
+.popup-tags-window table { width: 100%; table-layout:fixed; }
+.popup-tags-window td { padding: 0; vertical-align: top; width: 50%;}
+
+.popup-tags-create-new { position: relative; margin: 0 0 7px 0;}
+.popup-tags-textbox { margin: 0 33px 0 0;}
+.popup-tags-textbox input { width: 99%; border: 1px solid; border-color:#b0b0b0 #e2e2e2 #e2e2e2 #b0b0b0; padding: 2px 0 3px 3px; font: 13px/normal Arial, Helvetica, sans-serif; }
+.popup-tags-add-button { position: absolute; top: 3px; right: 6px; width:17px; height: 17px; background: url(../images/controls-sprite.png?2) right -304px; cursor: pointer; }
+.popup-tags-add-button-disabled { cursor: default; -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; filter: alpha(opacity=50); -moz-opacity: 0.5; -khtml-opacity: 0.5; opacity: 0.5; }
+
+.popup-tags-content-wrapper {margin: 9px 2px 0 0; }
+.popup-tags-content { position:relative; }
+.popup-tags-content-ie { overflow-x: hidden; }
+.popup-tags-container table { }
+
+.popup-tags-item { position:relative; margin: 9px 0 0 9px; }
+.popup-tags-item-first { margin: 0 0 0 9px; }
+
+.popup-tags-item-default-mode label, .popup-tags-item-highlight-mode label { display: block; margin: 0 10px 0 20px; color: #191919; vertical-align: top; }
+.popup-tags-item-default-mode input, .popup-tags-item-highlight-mode input {  margin: 0; padding: 0; width: 14px; left: 0; top: 0;  vertical-align: top;  position: absolute; }
+.popup-tags-item-ie input, .popup-tags-item-ie input { height: 14px;}
+
+.popup-tags-item-edit-mode-wrapper { position: relative; padding: 0 15px 0 0; }
+.popup-tags-item-edit-mode input.popup-tags-item-checkbox { position: absolute; top: 0; left: 0;}
+.popup-tags-item-edit-mode input.popup-tags-item-texbox { width: 95%; font: normal normal normal 12px/normal Verdana, Tahoma, sans-serif;}
+.popup-tags-item-edit-mode .popup-tags-item-delete-icon { display: block; width: 13px; height: 13px; position: absolute; top:4px; right: 4px; background: url(../images/controls-sprite.png?2) no-repeat 0 -283px; outline: none;}
+.popup-tags-item-edit-mode .popup-tags-item-delete-icon:hover { background: url(../images/controls-sprite.png?2) no-repeat right -283px; }
+
+.popup-tags-item-highlighted { background: #f2b100; }
+
+.popup-tags-window .popup-tags-left-top-cell {  }
+.popup-tags-window .popup-tags-right-top-cell {  }
+.popup-tags-window .popup-tags-middle-cell { vertical-align: middle; }
+.popup-tags-window .popup-tags-left-bottom-cell {}
+.popup-tags-window .popup-tags-right-bottom-cell { }
+
+.popup-tags-button-edit {
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	left: 0;
+	top: 30px;
+	cursor: pointer;
+	outline: none;
+	background: url(../images/controls-sprite.png?2) no-repeat 0 -402px;
+}
+.popup-tags-button-edit:hover { background: url(../images/controls-sprite.png?2) no-repeat 0 -425px; }
+.popup-tags-button-edit-pressed { display: none; }
+.popup-tags-button-edit-pressed, .popup-tags-button-edit-pressed:hover { background: url(../images/controls-sprite.png?2) no-repeat 0 -448px; cursor: default; }

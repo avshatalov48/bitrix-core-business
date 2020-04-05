@@ -1,0 +1,68 @@
+<p>To provide best information security, perform auditing of events and
+incidents recorded by the event log.</p>
+
+<p>Depending on current settings, the event log may keep track of virus activity
+events, attacks (registered by the proactive filter), changes in sections and
+elements of information blocks, forum moderator activity, authorization and
+registration events, user profile changes, file and module access permission
+changes and other events.</p>
+
+<p>First of all, set the required storage time for the events in the log. Open "Settings
+> System Settings > Module Settings", select "Kernel" in the
+drop-down list. Click the "Event Log" tab and set the "Keep events
+(days)" value. The right storage time depends on how often the security
+auditing will be performed. For example, you may opt for weekly review of all
+events and daily review of virus and attack related events. In that case, a 2 or
+4 week time period is a good choice.</p>
+  
+<p>Next, configure the types of events to register.</p>
+
+<p>Open "Settings &gt; System Settings &gt; Module Settings", select
+"Kernel" in the drop-down list. Click the "Event Log" tab.
+Under the "Log events" section, select the required events. It is
+recommended to log all events.</p>
+
+<p>If required, enable the web antivirus and select a required virus logging
+mode. Open "Settings &gt; Proactive Protection &gt; Web Antivirus" and
+click the "Activate web antivirus" button. Select the
+"Parameters" tab and choose one of the actions.</p>
+
+<p>Now enable the proactive filter here: "Settings &gt; Proactive
+Protection &gt; Proactive Filter" by clicking the "Enable Proactive
+Protection" button. Select the "Active Reaction" tab and check
+the "Add Intrusion Attempt to Log" box. Optionally, you may disable
+the website for the attacker's IP address.</p>
+
+<p>If the website specifications specify to log the information block
+modification events, select such events for each of the information blocks
+individually: "Content > Information Blocks > Information Block Types", the "Event
+Log" tab. It is wise to keep track of events of the information blocks
+containing crucial information like price or SKU catalog.</p>
+
+<p>Now, to perform the auditing, open the "Event Log" form: "Settings &gt;
+Tools &gt; Event Log".</p>
+
+
+<ol>
+<li>Make sure all the events mentioned in the website specifications are set to
+  be logged:
+<ul>
+<li>"Settings &gt; System Settings &gt; Module Settings", Kernel (main) module, "Event
+  Log" tab;</li>
+<li>"Settings &gt; Proactive Protection &gt; Web Antivirus", "Parameters"
+  tab;</li> 
+<li>"Settings &gt; Proactive Protection &gt; Proactive Filter", "Active
+  Reaction" tab,</li> 
+<li>"Content &gt; Information Blocks &gt; Information Block Types", select
+  each of the required information blocks one by one, use the "Event Log"
+  tab.</li>
+ </ul>
+</li>
+<li>Make sure a formal procedure exists (best if defined in the website
+  specifications) to perform the security auditing and countermeasures.
+<p>Example: if an attack occurs, then a system administrator blocks the
+attacker's IP address; if a virus activity is detected, then a machine is
+quarantined from which a virus originated and so on.</p>
+</li> 
+
+ </ol>

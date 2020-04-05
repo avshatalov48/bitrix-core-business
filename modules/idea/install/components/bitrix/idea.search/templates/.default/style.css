@@ -1,0 +1,71 @@
+.bx-idea-lifesearch-tools{
+	position:absolute; right:0;
+	top: 0px;
+	width: 45px;
+	height: 24px;
+}
+
+.bx-idea-close-button-index{
+	float:left;
+	margin-top: 5px;
+	margin-left: 5px;
+	cursor: pointer;
+	visibility: hidden;
+}
+
+.bx-idea-waiter-index{
+	margin-top: 4px;
+	float:left;
+	visibility: hidden;
+}
+
+.bx-idea-lifesearch-mainbox{
+	margin-right: 2px;
+}
+
+.bx-idea-lifesearch-box{
+	position:relative;
+}
+
+.bx-idea-lifesearch-field
+{
+	border: 0px;
+	width:200px;
+	padding: 0px;
+	height: 24px;
+	padding-left: 10px;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+
+	border: 1px solid #ccc;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14) inset;
+	padding-right: 50px;
+	margin-left: 10px;
+
+	color: #ccc;
+	line-height: 24px;
+}
+
+.bx-idea-lifesearch-field:focus{
+	font-size: 18px;
+	color: #000;
+}
+
+/*Life Search*/
+div.bx-idea-waiter{
+	background: url('/bitrix/js/main/core/images/wait.gif') top left no-repeat;
+	height: 19px;
+	width: 19px;
+}
+
+.bx-idea-close-button{
+	background: url("/bitrix/js/main/core/images/controls-sprite.png") no-repeat scroll 0 -280px transparent;
+	height: 16px;
+	width: 16px;
+}
+
+.bx-idea-close-button:hover{
+	background: url("/bitrix/js/main/core/images/controls-sprite.png") no-repeat scroll -17px -280px transparent;
+}

@@ -1,0 +1,14 @@
+<p>Use only strong passwords for the database connection. A strong password
+should include letters in varying case, digits and punctuation marks and contain
+at least 8 characters. This will reduce the risk of successful password
+bruteforce.</p>
+
+<p>The database should be accessed using a dedicated account with minimum
+sufficient access privileges (not "root").</p>
+
+
+<ol>
+<li>Verify that the password follows the security guidelines in "/bitrix/php_interface/dbconn.php"
+  ("$DBPassword" variable).</li>
+<li>Check the privileges of the database access account.</li> 
+ </ol>

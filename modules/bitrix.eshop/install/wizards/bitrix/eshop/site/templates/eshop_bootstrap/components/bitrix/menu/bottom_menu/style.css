@@ -1,0 +1,25 @@
+.bx-inclinksfooter a{border-bottom: none;}
+.bx-inclinksfooter .bx-block-title{
+	margin: 0;
+	padding: 0;
+	font-size: 17px;
+	font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #fff;
+	font-weight: 600;
+}
+.bx-inclinksfooter-container {
+    margin-top: 15px;
+    padding: 0;
+    color: #fff;
+    border-radius: 2px;
+    font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.bx-inclinksfooter-list{
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.bx-inclinksfooter-item{
+	padding: 0 0 5px 0;
+}

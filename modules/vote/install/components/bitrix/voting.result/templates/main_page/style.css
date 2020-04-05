@@ -1,0 +1,38 @@
+ol.vote-items-list, ol.vote-items-list li {
+	margin: 0; padding: 0; border: none; font-size: 100%; list-style-type: none;}
+ol.vote-items-list li.vote-question-item {
+	padding: 0.55em;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;}
+ol.vote-items-list li.vote-item-vote-first{
+	border-top: 1px solid #ccc;}
+
+.vote-item-title{
+	font-weight:bold;}
+
+.graph-bar {
+	height:12px;
+	font-size:12px;
+	min-width:2px;}
+
+.graph {
+	position: relative;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	width: 100%; 
+	padding: 2px; 
+	margin-bottom: .5em; }
+
+.graph .bar {
+	display: block;
+	position: relative;
+	text-align: center;
+	height: 1em;
+	line-height: 1em; }
+
+.graph .bar span {
+	position: absolute;
+	left: 1em;}
+.vote-answer-lolight {
+    color:#999; }

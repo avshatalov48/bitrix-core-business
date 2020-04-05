@@ -1,0 +1,31 @@
+<?
+$MESS ['MAIL_OPTIONS_SAVE_SRC'] = "Сохранять исходный текст письма:";
+$MESS ['MAIL_OPTIONS_SAVE_ATTACHMENTS'] = "Сохранять вложенные файлы:";
+$MESS ['MAIL_OPTIONS_TIMEOUT'] = "Таймаут соединения:";
+$MESS ['MAIL_OPTIONS_CHECKSPAM'] = "Проверять сообщения на спам при получении почты:";
+$MESS ['MAIL_OPTIONS_LOG_SAVE'] = "Хранить журнал работы (дней):";
+$MESS ['MAIL_OPTIONS_SAVE'] = "Сохранить";
+$MESS ['MAIL_OPTIONS_RESET'] = "Отменить";
+$MESS ['MAIN_TAB_SMTP'] = "SMTP-сервер";
+$MESS ['MAIN_TAB_SMTP_TITLE'] = "Параметры запуска SMTP-сервера";
+$MESS ['MAIL_OPT_CONFIRM'] = "Текущее значение командной строки не сохранено. Запустить сервер со старыми данными?";
+$MESS ['MAIL_OPT_ERR'] = "Ошибка:";
+$MESS ['MAIL_OPT_ERR_CON'] = "Ошибка соединения.";
+$MESS ['EMAIL_OPT_DAYS'] = "дн";
+$MESS ['EMAIL_OPT_HR'] = "ч";
+$MESS ['EMAIL_OPT_MIN'] = "мин";
+$MESS ['EMAL_OPT_SEC'] = "сек";
+$MESS ['EMAL_OPT_SMTP_STOPPED'] = "Сервер: остановлен";
+$MESS ['EMAL_OPT_SMTP_RUN'] = "Сервер: работает";
+$MESS ['EMAL_OPT_SMTP_STAT_START'] = "Запущен:";
+$MESS ['EMAL_OPT_SMTP_STAT_UPTIME'] = "работает";
+$MESS ['EMAL_OPT_SMTP_STAT_CNT'] = "Принято:";
+$MESS ['EMAL_OPT_SMTP_STAT_CNT_MAIL'] = "писем";
+$MESS ['EMAL_OPT_SMTP_STAT_CONS'] = "Соединений:";
+$MESS ['EMAL_OPT_SMTP_STAT_CONS_NOW'] = "сейчас:";
+$MESS ['EMAL_OPT_PHP_LINE'] = "Командная строка запуска PHP:";
+$MESS ['EMAL_OPT_STATUS'] = "Состояние:";
+$MESS ['EMAL_OPT_STATUS_UNK'] = "неизвестно";
+$MESS ['EMAL_OPT_START_SMTP'] = "Запустить SMTP-сервер";
+$MESS ['EMAL_OPT_STOP_SMTP'] = "Остановить SMTP-сервер";
+?>

@@ -1,0 +1,12 @@
+<p>When using a multitier configuration (frontend-backend, balancer) you have to
+ensure that a correct client IP address is passed on to the web project, which
+can be achieved by setting an appropriate HTTP header field (X-Real-IP, X-Forwarded-For)
+on a balancer or caching proxy server and then having a web server (in mod_rpaf
+etc.) or web application to get this value.   </p> 
+
+
+<ul>
+  <li>Open "Settings > Tools > PHP Settings" and check the value of _SERVER["REMOTE_ADDR"].
+    It must be set to your IP address. You can also view this value in "Settings
+    > Proactive protection > Control Panel Protection".</li>
+</ul>

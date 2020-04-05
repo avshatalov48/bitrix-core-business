@@ -1,0 +1,14 @@
+<p>Never include system configuration information in the public error messages.</p>
+
+<p>How to perform the test?</p>
+
+<ol>
+<li>Make sure a line "$DBDebug = false" exists in in the database
+  connection file "/bitrix/php_interface/dbconn.php". This will prevent showing
+  the SQL errors.</li>
+<li>Open "Settings &gt; System Settings &gt; Module Settings", select
+  "Kernel" in the drop-down list. Click the "Settings" tab.
+  Check that the "Error report mode" option is "None".
+  Alternatively, open the PHP settings form ("Settings &gt; Tools &gt; PHP
+  Settings"). The "display_errors" parameters must be set to "Off".</li> 
+</ol>

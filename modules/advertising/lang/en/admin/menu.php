@@ -1,0 +1,30 @@
+<?
+$MESS ['AD_MENU_MAIN'] = "Advertising";
+$MESS ['AD_MENU_BANNER_LIST'] = "Banners";
+$MESS ['AD_MENU_BANNER_LIST_ALT'] = "Banner list";
+$MESS ['AD_MENU_TYPE_LIST'] = "Banner types";
+$MESS ['AD_MENU_TYPE_LIST_ALT'] = "List of banner types";
+$MESS ['AD_MENU_CONTRACT_LIST'] = "Contracts";
+$MESS ['AD_MENU_CONTRACT_LIST_ALT'] = "List of advertising contracts";
+$MESS ['AD_MENU_STATISTICS_GRAPH'] = "Graphs";
+$MESS ['AD_MENU_STATISTICS_ALT_GRAPH'] = "Graphs for banner shows and clicks";
+$MESS ['AD_MENU_STATISTICS_DIAGRAM'] = "Diagrams";
+$MESS ['AD_MENU_STATISTICS_ALT_DIAGRAM'] = "Diagrams for banner shows and clicks";
+$MESS ['AD_MENU_BANNER_LIST_GRAPH'] = "Banners";
+$MESS ['AD_MENU_CONTRACT_LIST_GRAPH'] = "Contracts";
+$MESS ['AD_MENU_TYPE_LIST_GRAPH'] = "Banner types";
+$MESS ['AD_MENU_BANNER_LIST_DIAGRAM'] = "Banners";
+$MESS ['AD_MENU_CONTRACT_LIST_DIAGRAM'] = "Contracts";
+$MESS ['AD_MENU_TYPE_LIST_DIAGRAM'] = "Banner types";
+$MESS ['AD_MENU_STATISTICS'] = "Diagrams";
+$MESS ['AD_MENU_STATISTICS_ALT'] = "Banner diagrams";
+$MESS ['AD_MENU_MAIN_TITLE'] = "Advertisement Management";
+$MESS ['AD_MENU_REPORTS'] = "Reports";
+$MESS ['AD_MENU_REPORTS_TITLE'] = "Banners and contracts graphic reports";
+$MESS ['AD_MENU_BAN_GR'] = "Banners graphs";
+$MESS ['AD_MENU_BAN_CO'] = "Contracts graphs";
+$MESS ['AD_MENU_BAN_CO_TITLE'] = "Contracts graphs";
+$MESS ['AD_MENU_DIAG_BAN'] = "Banners diagrams";
+$MESS ['AD_MENU_DIAG_CO'] = "Contracts diagrams";
+$MESS ['AD_MENU_DIAG_CO_TITLE'] = "Contracts diagrams";
+?>

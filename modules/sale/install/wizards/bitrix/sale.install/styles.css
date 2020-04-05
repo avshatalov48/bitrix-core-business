@@ -1,0 +1,40 @@
+/*Data table*/
+table.data-table
+{
+	border:1px solid #c2c2c5;
+	border-collapse:collapse;
+}
+
+/*Any cell*/
+table.data-table td
+{
+	border:1px solid #c2c2c5;
+	color:#333;
+	padding:3px 5px;
+}
+
+/*Head cell*/
+table.data-table thead td, table.data-table th
+{
+	vertical-align: top;
+	text-align:left;
+	font-weight:normal;
+	background-image:none;
+	border:1px solid #c2c2c5;
+	padding:4px;
+	color:#333;
+}
+
+/*Body cell*/
+table.data-table tbody td
+{
+	background-image:none;
+	color:#333;
+}
+
+/*Foot cell*/
+table.data-table tfoot td
+{
+	padding:4px;
+	color:#333;
+}

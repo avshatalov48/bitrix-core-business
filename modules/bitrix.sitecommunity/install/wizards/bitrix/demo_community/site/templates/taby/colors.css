@@ -1,0 +1,142 @@
+/* Text */
+h1, h2, h3, h4, h5, h6 { color:#000000; }
+hr, .hr { border-color: #DEDEDE;}
+a:link {color:#004D70;}
+a:visited {color:#004D70;}
+a:hover {color:#c90000;}
+a:active {color:#004D70;}
+
+body { background-color: #cecece; }
+
+#logo-text a { color: #666666; }
+#logo-text span.h1 { color: #CB0000; }
+
+#auth-form a { color: #000;}
+#auth-form label.remember { color: #996800; }
+#auth-form .starrequired { color: #000 !important;}
+
+#user-menu, #user-menu a, #user-menu .mdash-list m, #user-menu .mdash-list li:before { color: White;}
+
+#top-menu a { color:#474747; background: #EDEDED url(images/top-menu-sprite.gif) no-repeat right -41px; }
+#top-menu a:hover { background: #F4F4F4 url(images/top-menu-sprite.gif) no-repeat right -78px; }
+#top-menu span { background: url(images/top-menu-sprite.gif) no-repeat left -41px; }
+#top-menu a:hover span { background: url(images/top-menu-sprite.gif) no-repeat left -78px; }
+#top-menu li.selected a { color: #CB0000; background: #FFF url(images/top-menu-sprite.gif) no-repeat right top; }
+#top-menu li.selected span { background: url(images/top-menu-sprite.gif) no-repeat left top; }
+
+#submenu a { color: #4C4C4C;}
+#submenu li.selected a { color: #c90000;}
+
+#sidebar h3 { color: #004D70; }
+
+#footer { background-color: #eee; }
+
+#search div.search-box { border-color: #CCC; background: white;}
+#search div.search-box input { border-color: white;}
+#search-button {border-color: #E7E7E7 #999999 #999999 #E3E3E3; background: #BBBBBB;}
+#search-button input { 	 color: #474747; }
+
+div.rounded-block { background: #F1F1F1; }
+div.auth-block { background: #FFAE00;}
+div.rounded-block div.corner { background:url(images/block-corners.gif) no-repeat; }
+div.auth-block div.corner { background:url(images/auth-corners.gif) no-repeat;}
+
+ul.last-items-list a.item-author, table.user-stat-list td.user-name a { background: transparent url(images/last-item-user.gif) left bottom no-repeat; }
+ul.last-items-list a.item-author, ul.last-items-list a.item-category, ul.last-items-list li, table.user-stat-list td.user-stat { color:#959595; }
+
+#sidebar div.photo-photo-list div.photo-photo-item-ascetic { border-color: #D4D4D4; background: white; } 
+
+/*Common Elements */
+div.content-rounded-box div.inner-box { border-color: #e3e3e3; }
+div.content-rounded-box b.r1 { border-color: #f0f0f0; background: #e3e3e3;}
+div.content-rounded-box b.r0 { border-color: #f0f0f0; }
+div.content-form div.form-input input, div.content-form div.form-input textarea, div.content-form div.form-input select
+{
+	background: #F8F7F7;
+	border-color: #DEDEDE;
+}
+div.content-form div.field-error div.form-input input, 
+div.content-form div.field-error div.form-input textarea, 
+div.content-form div.field-error div.form-input select
+{
+	color: red;
+	background:	#fff8d3;
+}
+div.content-form div.field label.field-title { color:#555; }
+div.content-form div.description { color:#979797;}
+div.content-form div.legend { color: #474747;}
+
+/* Content List */
+div.content-author a { color: #A4A4A4;}
+div.content-date { color: #999;}
+div.content-description, div.content-signature {color: #777;}
+div.content-rating { color: #004D70; }
+div.content-avatar a { background-color: #f2f2f2 !important;}
+div.user-sidebar div.content-avatar a { background-color: #ddd !important;} 
+
+/* Content Table */
+table.content-table td.label { color: #4c4c4c; }
+
+/* Filter */
+div.filter-item label { color: #004D70;}
+
+/* List with dash bullet */
+.mdash-list li:before, .mdash-list m { color: #7c7c7c; }
+.mdash-list li.selected a { color: black; }
+
+/* Navigation */
+span.nav-current-page { background-color:#EDEDED; }
+div.navigation span.disabled { color:#7E7E7E;}
+div.navigation span.arrow { color:#7E7E7E; }
+div.navigation span.ctrl { color:#7E7E7E; }
+
+/* Blog */
+h2.blog-post-title a, h2.blog-post-title a:hover, div.blog-list-title a { color: #EC1212 !important; }
+
+div.blog-post, div.blog-comment-cont, div.blog-add-comment-top, div.blog-list-item, div.blog-edit-buttons { border-color: #E9E9E9}
+
+div.blog-post-date, div.blog-comment-date, div.blog-register-date { color:#909090; }
+
+div.blog-post-meta-util a, div.blog-post-tag, div.blog-post-tag a, div.blog-comment-author-ip a, div.blog-comment-meta a { color:#929292 !important; }
+
+div.blog-comment-preview div.blog-comment-cont { border-color: red;}
+
+div.bbcode-line a:hover, div.bbcode-line a:hover img { background-color: #D7D7D7;}
+
+div.blog-note-box {	background:#FFFEEB; border-color: #FFD482;}
+div.blog-code-box, table.blog-quote td { background: #f7f7f7; border-color: #dedede; color: #4C4C4C; }
+
+div.blog-edit-field-title input, div.blog-edit-field-post-date input, div.blog-edit-field-slug input,
+div.blog-edit-field-tags input, div.blog-edit-field-text textarea,	
+div.blog-edit-field-desc textarea, div.blog-edit-field-syndication-rss-feed-url input,
+div.blog-comment-field-user input, div.blog-comment-field-content textarea, div.blog-comment-field-captcha input
+{ background: #F8F7F7; border-color: #D9D9D9;}
+
+.lha-iframe { background: #F8F7F7; }
+.lha-html-div  { border-color: #D9D9D9 !important;}
+.lhe-button-normal {border: 1px solid white;}
+.lhe-button-over { background-color: transparent; border:1px solid #D9D9D9;}
+
+div.blog-edit-field-title label, div.blog-edit-field-desc label, label.blog-edit-field-caption,
+div.blog-comment-field-user label, div.blog-comment-field-captcha label {color:#1D0405;}
+
+.blog-required-field { color: red;}
+
+.blog-author a { color: #909090; }
+div.blog-comment-avatar  { background-color:#F2F2F2 !important;}
+div.blog-comment-info .blog-author a { color: #004D70;}
+div.blog-comment-info div.blog-author { color:#777777;}
+div.blog-comment-date { color:#7F7F7F;}
+
+/* Pop-ups*/
+div.bx-dialog-container-wrapper  { background-color: #8A8A8A;}
+div.bx-dialog-container { border-color: #5D5D5D; }
+div.bx-dialog-titlebar { background-color: #F4F3F1;}
+
+/* Search results*/
+div.search-item { border-color: #E9E9E9;}
+div.search-page input.search-query { background: #F8F7F7; border-color: #D9D9D9; }
+
+/*Error & OK messages*/
+.errortext, .starrequired { color: red;} 
+.errortext, .notetext { background:#FFFEEB; border-color: #FFD482;} 

@@ -1,0 +1,29 @@
+<?
+$MESS["SONET_GL_EMPTY_ENTITY_TYPE"] = "Не указан тип сущности";
+$MESS["SONET_GL_ERROR_NO_ENTITY_TYPE"] = "Тип сущности не верен";
+$MESS["SONET_GL_EMPTY_ENTITY_ID"] = "Не указан код сущности";
+$MESS["SONET_GL_ERROR_CALC_ENTITY_TYPE"] = "Ошибка вычисления типа сущности";
+$MESS["SONET_GL_ERROR_NO_ENTITY_ID"] = "Код сущности не верен";
+$MESS["SONET_GL_ERROR_NO_USER_ID"] = "Код пользователя не верен";
+$MESS["SONET_GL_EMPTY_EVENT_ID"] = "Не указано событие";
+$MESS["SONET_GL_ERROR_NO_FEATURE_ID"] = "Событие указано не верно";
+$MESS["SONET_GL_EMPTY_DATE_CREATE"] = "Неверная дата создания";
+$MESS["SONET_GL_EMPTY_TITLE"] = "Не указан заголовок";
+$MESS["SONET_GL_WRONG_PARAMETER_ID"] = "Параметр ID не верен";
+$MESS["SONET_GL_TITLE_JOIN1"] = "К группе присоединился новый участник #TITLE#.";
+$MESS["SONET_GL_TITLE_JOIN2"] = "К группе присоединились новые участники #TITLE#.";
+$MESS["SONET_GL_TITLE_UNJOIN1"] = "Группу покинул участник #TITLE#.";
+$MESS["SONET_GL_TITLE_UNJOIN2"] = "Группу покинули участники #TITLE#.";
+$MESS["SONET_GL_TITLE_MODERATE1"] = "В группе назначен модератор #TITLE#.";
+$MESS["SONET_GL_TITLE_MODERATE2"] = "В группе назначены модераторы #TITLE#.";
+$MESS["SONET_GL_TITLE_OWNER1"] = "В группе назначен новый владелец #TITLE#.";
+$MESS["SONET_GL_TITLE_UNMODERATE1"] = "В группе уволен модератор #TITLE#.";
+$MESS["SONET_GL_TITLE_UNMODERATE2"] = "В группе уволены модераторы #TITLE#.";
+$MESS["SONET_GL_TITLE_FRIEND1"] = "В список друзей добавлен пользователь #TITLE#.";
+$MESS["SONET_GL_TITLE_UNFRIEND1"] = "Пользователь #TITLE# больше не является другом.";
+$MESS["SONET_GL_TITLE_GROUP1"] = "Пользователь вступил в группу  #TITLE#.";
+$MESS["SONET_GL_TITLE_UNGROUP1"] = "Пользователь покинул в группу #TITLE#.";
+$MESS["SONET_GL_TITLE_EXCLUDE_USER1"] = "Пользователь исключен из группы #TITLE#.";
+$MESS["SONET_GL_TITLE_EXCLUDE_GROUP1"] = "Из группы исключен участник #TITLE#.";
+$MESS["SONET_GL_SEND_EVENT_LINK"] = "Перейти: ";
+?>

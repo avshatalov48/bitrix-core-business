@@ -1,0 +1,107 @@
+.bx-gadgets-mobile-shop .bx-gadgets-content {
+	background-color: #b95656;
+	background-image: -webkit-linear-gradient(top, #c06e6e, #af4848);
+	background-image:    -moz-linear-gradient(top, #c06e6e, #af4848);
+	background-image:     -ms-linear-gradient(top, #c06e6e, #af4848);
+	background-image:      -o-linear-gradient(top, #c06e6e, #af4848);
+	background-image:         linear-gradient(to bottom, #c06e6e, #af4848);
+}
+
+.bx-gadgets-mobile-shop div.bx-gadgets-title {
+	font-size: 23px;
+	color: #fff;
+	text-shadow: 0 -1px rgba(0,0,0,.3);
+}
+
+.bx-gadgets-mobile-shop .bx-gadgets-title-2 {
+	font-size: 28px;
+	font-weight: bold;
+	padding-left: 73px;
+}
+
+.bx-gadgets-mobile-shop .bx-gadgets-content-layout-perform {
+	padding: 0;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-button {
+	background-color: #754a4a;
+	background-image: -webkit-linear-gradient(top, #835b5b, #643939);
+	background-image:    -moz-linear-gradient(top, #835b5b, #643939);
+	background-image:     -ms-linear-gradient(top, #835b5b, #643939);
+	background-image:      -o-linear-gradient(top, #835b5b, #643939);
+	background-image:         linear-gradient(to bottom, #835b5b, #643939);
+	-webkit-box-shadow: inset 0 1px 0 #a98d8d;
+	box-shadow: inset 0 1px 0 #a98d8d;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-button:hover {
+	background-color: #913636;
+	background-image: -webkit-linear-gradient(top, #a54a4a, #862828);
+	background-image:    -moz-linear-gradient(top, #a54a4a, #862828);
+	background-image:     -ms-linear-gradient(top, #a54a4a, #862828);
+	background-image:      -o-linear-gradient(top, #a54a4a, #862828);
+	background-image:         linear-gradient(to bottom, #a54a4a, #862828);
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-button-lamp {
+	background: url(images/sprite.png) no-repeat -211px 0;
+}
+
+.bx-gadgets-mobile-shop div.bx-gadget-mark {
+	color: #f5bbbb;
+	font-size: 13px;
+	line-height: normal;
+	text-shadow: 0 -1px #a16565;
+	width: auto;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-bottom-cont {
+	margin: 9px 0 10px;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-mobile-icon {
+	display: inline-block;
+	height: 36px;
+	vertical-align: middle;
+	width: 82px;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-mobile-icon-andr,
+.bx-gadgets-mobile-shop .bx-gadget-mobile-icon-ios {
+	background: url(images/sprite.png) no-repeat -108px 0;
+	cursor: pointer;
+	display: inline-block;
+	height: 36px;
+	vertical-align: middle;
+	width: 82px;
+	vertical-align: top;
+	width: 44px;
+}
+.bx-gadgets-mobile-shop .bx-gadget-mobile-icon-ios {
+	background-position: -152px 0;
+}
+
+.bx-gadgets-mobile-shop .bx-gadget-shield {
+	background: url(images/sprite.png) no-repeat 0 0;
+	float: right;
+	height: 105px;
+	margin: 9px -1px 0 0;
+	width: 101px;
+}
+
+.bx-gadgets-mobile-shop .bx-gadgets-side {
+	background: url(images/sprite.png) repeat-y right 0;
+}
+
+.bx-gadgets-mobile-shop .bx-gadgets-color-config-close {
+	background: url(images/sprite.png) no-repeat -116px -54px;
+	display: none;
+	opacity: 0.7;
+}
+.bx-gadgets-mobile-shop:hover .bx-gadgets-color-config-close {
+	display: block;
+}
+
+.bx-gadgets-mobile-shop .bx-gadgets-color-config-close:hover {
+	opacity: 1;
+}

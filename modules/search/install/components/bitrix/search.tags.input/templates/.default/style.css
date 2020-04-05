@@ -1,0 +1,7 @@
+input.search-tags{}
+div.search-popup{border: 1px solid #333333;background: #FFFFFF;padding: 2px;margin: 0px;}
+div.search-popup-row, div.search-popup-row-active{position: relative; padding: 2px 4px;margin: 0px;cursor: hand;cursor: pointer;}
+div.search-popup-row{background:#FFFFFF;}
+div.search-popup-row-active{background:#EEEEEE;}
+div.search-popup-el-name, div.search-popup-el-cnt{position: relative; margin:0px;padding:0px;text-align:left;}
+div.search-popup-el-cnt{text-align:right; float:right;}

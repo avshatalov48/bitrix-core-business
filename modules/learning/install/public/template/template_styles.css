@@ -1,0 +1,186 @@
+html, body
+{
+	margin: 0;
+	padding: 0;
+	height:100%;
+}
+
+/*Font*/
+body
+{
+	font-size: 80%;
+	font-family: Tahoma, Verdana, Helvetica, sans-serif;
+	color: #333;
+	background: white;
+}
+
+#outer
+{
+	border: none;
+	border-spacing: 0;
+	height: 100%;
+	width: 100%;
+}
+
+
+#header-row {
+	vertical-align: top;
+}
+
+#header
+{
+	height:53px;
+	width:100%;
+	border-collapse:collapse;
+	background:#576F9E url(images/top_bg.gif) repeat-x;
+}
+
+#header td
+{
+	padding:0;
+}
+
+#logo
+{
+	background:transparent url(images/top_left.gif) no-repeat;
+	width:282px;
+	color: #fff;
+	text-align:center;
+	font-size: 18px;
+}
+
+
+#logotext
+{
+	color: #fff;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#toolbar
+{
+	width:100%;
+	border-collapse:collapse;
+}
+
+#toolbar td
+{
+	padding:0;
+}
+
+#toolbar_icons
+{
+	height:38px;
+	width:282px;
+	background:#c7ceda url(images/vdots_toolbar.gif) right repeat-y;
+}
+
+#toolbar_title
+{
+	background-color:#eaecf1;
+}
+
+#container
+{
+	width:100%;
+	position:relative;
+	min-height:16px;
+}
+
+#title
+{
+	float:left;
+	width:85%;
+	padding:0 0 0 16px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+
+#complete
+{
+	position:absolute;
+	right:16px;
+	top:0;
+	bottom:0;
+
+}
+
+#workarea-row
+{
+	height: 100%;
+	padding: 0;
+	text-align: left;
+	vertical-align: top;
+}
+
+/*Work area container*/
+#workarea
+{
+	height:100%;
+
+}
+
+/*Work area table*/
+#workarea-row table.learn-work-table
+{
+	height:100%;
+	width:100%;
+	border-collapse:collapse;
+	background:transparent url(images/bg.gif) repeat-y;
+}
+
+/*Left data cell*/
+#workarea-row table.learn-work-table td.learn-left-data
+{
+	vertical-align:top;
+	width:265px;
+	padding:12px 8px;
+}
+
+/*Right data cell*/
+#workarea-row table.learn-work-table td.learn-right-data
+{
+	vertical-align:top;
+	padding:12px 16px;
+	height: 100%;
+}
+
+#footer {
+	height: 0;
+}
+
+/*Min-width for left cell*/
+div.learn-course-tree
+{
+	width:265px;
+}
+
+#copyright
+{
+	padding:10px 0 5px 10px;
+	color:#616161;
+	border-top:1px solid #CCC;
+	background-color:#eaecf1;
+}
+
+a
+{
+	color:#1952D3;
+}
+
+.errortext
+{
+	color:red;
+	font-weight:bold;
+}
+
+#learning-copyright
+{
+	background-color: #EAECF1;
+	border-top: 1px solid #CCCCCC;
+	color: #616161;
+	height: 24px;
+	padding: 9px 0 0 300px;
+
+}

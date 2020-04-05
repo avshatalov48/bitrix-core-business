@@ -1,0 +1,365 @@
+.file-placeholder {
+	margin-left: 56px;
+}
+.file-placeholder .loading-wrap {
+    display:inline-block;
+    margin-left:15px;
+    vertical-align:middle;
+    position:relative;
+    width:50%;
+}
+.file-placeholder .loading {
+    background:#e3ebed;
+    display:block;
+    border:1px solid;
+    border-top:1px solid #bcc2c4;
+    border-left-color:#cfd7d9;
+    border-right-color:#cfd7d9;
+    border-bottom:1px solid #dde5e6;
+    border-radius:2px;
+    height:17px;
+    -webkit-box-shadow:inset 0 1px 2px rgba(188,194,196,0.7);
+    -moz-box-shadow:inset 0 1px 2px rgba(188,194,196,0.7);
+    box-shadow:inset 0 1px 2px rgba(188,194,196,0.7);
+}
+.file-placeholder .loading .del-but {
+    background: url("images/live_feed_sprite.png") no-repeat scroll 7px -20px transparent;
+    cursor: pointer;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+}
+.file-placeholder .load-indicator {
+	background:#40c0e9;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#40c0e9', endColorstr='#2698db');
+    background:linear-gradient(top, #40c0e9, #2698db);
+    background:-moz-linear-gradient(top, #40c0e9, #2698db);
+    background:-o-linear-gradient(top, #40c0e9, #2698db);
+    background:-ms-linear-gradient(top, #40c0e9, #2698db);
+    background:-webkit-gradient(linear, left top, left bottom, from(#40c0e9), to(#2698db));
+    border-radius:2px;
+    color:#fff;
+    font-size:12px;
+    height:19px;
+    text-align:center;
+    text-shadow:0 1px 0 rgba(56, 124, 162, 1);
+    left:0;
+    top:0;
+    position:absolute;
+}
+.file-placeholder .load-number {
+	display:inline-block; box-sizing:border-box; padding-top:2px;
+}
+.file-placeholder .files-title {
+	background:url("images/live_feed_sprite.png") no-repeat;
+	color:#5c6470;
+	font-size:12px;
+	text-shadow:0 1px 0 rgba(255, 255, 255, 0.8);
+	left:13px;
+	top:12px;
+	width:54px;
+	padding-left:20px;
+	position:absolute;
+}
+.file-placeholder .files-list-wrap {
+	margin-left:56px;
+}
+html* .file-placeholder .files-list {
+	width: auto !important;
+}
+.file-placeholder .files-list {
+	margin-top:-10px;
+	table-layout:fixed;
+	width:100%;
+	position:relative;
+}
+.file-placeholder .files-list td {
+	box-shadow:0 -2px 0 -1px #FFFFFF inset;
+	border-bottom:1px solid #dde5e8;
+	color:#5c6470;
+	font-size:12px;
+	line-height:16px;
+	padding:10px 0 10px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	position: relative;
+	zoom:1;
+}
+.file-placeholder .file-edit,
+.file-placeholder .file-section {
+	display: none;
+}
+.file-placeholder .files-name {
+	width:30%
+}
+.file-placeholder .files-size {
+	width:12%
+}
+.file-placeholder .files-storage {
+	width:20%
+}
+.file-placeholder .files-storage .files-storage-text{
+	display: inline-block;
+	width:80px;
+	color:#5C6470;
+}
+.file-placeholder .files-storage-block {
+	position:relative;
+}
+.file-placeholder .files-text {
+	-moz-box-sizing: border-box;
+	color: #2067B0;
+	display: inline-block;
+	font-weight: bold;
+	max-width: 100%;
+	padding-right: 20px;
+	position: relative;
+	zoom:1;
+}
+.file-placeholder .error-load .files-text {
+	color:#bb0000;
+}
+.file-placeholder .f-wrap {
+	display: inline-block;
+	overflow: hidden;
+	width: 100%;
+	word-wrap: break-word;
+	zoom:1;
+}
+.file-placeholder .del-but {
+	background: url("images/live_feed_sprite.png") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+}
+.file-placeholder .files-text .del-but {
+	background-position:6px -19px;
+	display:inline-block;
+	margin-top:-2px;
+	position:static;
+	vertical-align:top;
+}
+.file-placeholder .loading .del-but {
+    background-position: 7px -20px;
+    top: 0;
+}
+.file-placeholder .files-storage-block .del-but {
+    background-position: 7px -20px;
+    top: 0;
+}
+.file-placeholder .info-icon {
+	background:url("images/live_feed_sprite.png") no-repeat -112px -60px;
+	display:inline-block;
+	height:16px;
+	margin-right:10px;
+	vertical-align:middle;
+	width:17px;
+}
+.file-placeholder .stor-place {
+	display:inline-block;
+	margin-left:10px;
+	vertical-align:top;
+}
+.file-placeholder .stor-text {
+	display:inline-block;
+	border-bottom:1px solid #5c6470;
+}
+.file-placeholder .stor-pl-arrow {
+	background:url("images/live_feed_sprite.png") no-repeat -130px -23px;
+	display:inline-block;
+	margin-left:10px;
+	height:5px;
+	vertical-align:middle;
+	width:3px;
+}
+.file-placeholder .edit-stor {
+	background:url("images/live_feed_sprite.png") no-repeat 4px -64px;
+	/*cursor:pointer;*/
+	/*display:inline-block;*/
+	display: none;
+	height:15px;
+	margin-left:0px;
+	vertical-align:middle;
+	width:15px;
+}
+.file-placeholder .files-path,
+.file-placeholder .files-path:visited,
+.file-placeholder .files-path:active,
+.file-placeholder .files-path:link,
+.file-placeholder .files-path:hover {
+	border-bottom:1px dashed #5C6470;
+	display:inline-block;
+	color:#5C6470;
+	/*margin-left:10px;*/
+	text-decoration:none;
+}
+.file-placeholder .files-placement,
+.file-placeholder .files-placement:visited,
+.file-placeholder .files-placement:active,
+.file-placeholder .files-placement:link,
+.file-placeholder .files-placement:hover {
+	display:inline-block;
+	color:#5C6470;
+	/*margin-left:10px;*/
+	text-decoration:none;
+}
+.file-selectdialog {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: none repeat scroll 0 0 #F4F8F9;
+    border-color: #CED0D1 #CED1D1 #D3D7D8;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 2px -1px rgba(164, 164, 164, 0.698) inset;
+    margin-bottom: 11px;
+    overflow: hidden;
+    padding: 13px 30px 0 0;
+    position: relative;
+	display: none;
+}
+.file-selectdialog .file-placeholder{
+	margin-left: 56px;
+}
+.file-selectdialog .file-simple .file-placeholder {
+	margin-top: 0px;
+	margin-left: 90px;
+}
+.file-selectdialog .file-label {
+    background: url("images/live_feed_sprite.png") no-repeat scroll -146px -186px transparent;
+    color: #5C6470;
+    font-size: 12px;
+    left: 13px;
+    padding-left: 20px;
+    position: absolute;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    top: 12px;
+    width: 54px;
+	line-height: 20px;
+}
+.file-selectdialog .file-extended .file-selector {
+    border-radius: 5px 5px 5px 5px;
+    color: #A0AEB5;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 26px;
+    margin: 30px 0 10px;
+    padding: 24px 3px 43px 191px;
+    position: relative;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.file-selectdialog .file-extended .file-selector-active {
+	background-position:57px -88px;
+	border:3px dashed #d4dde1;
+	padding:21px 0 40px 190px;
+}
+.file-selectdialog .file-extended .file-selector:hover {
+	border:3px dashed #d4dde1;
+	padding:21px 0 40px 188px;
+}
+.file-selectdialog .file-extended .file-load-img {background:url("images/loading-place-img.gif") no-repeat 0 0;
+	height:79px;
+	left:58px;
+	top:20px;
+	position:absolute;
+	width:90px;
+}
+.file-selectdialog .file-extended .file-selector:hover .file-load-img  {
+	background-position:0 -104px;
+	left:55px;
+	top:17px;
+}
+.file-selectdialog .file-extended .file-uploader {
+    color: #2067B0;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    vertical-align: top;
+}
+.file-selectdialog .file-extended .file-uploader .file-but-text {
+	cursor: pointer;
+	display: block;
+	width:100%;
+	height:100%;
+}
+.file-selectdialog .file-simple .file-uploader .file-fileUploader {
+	/*font-size: 12px;*/
+}
+.file-selectdialog .file-uploader .file-fileUploader {
+	font-size:120px;
+	height:85px;
+	opacity:0;
+	filter: alpha(opacity=0);
+	position:absolute;
+	right: 0;
+	top: -20px;
+	cursor: pointer;
+}
+.file-selectdialog .file-uploader .file-filemacos {
+	left:0 !important;
+}
+.file-selectdialog .file-label2 {
+	color: #5C6470;
+    font-size: 12px;
+    margin-left: 58px;
+    padding-bottom: 11px;
+}
+.file-selectdialog .file-simple,
+.file-selectdialog .file-extended {
+	display: none;
+	margin-left: 30px;
+}
+.file-selectdialog .file-simple .file-label2 {
+	margin-top:20px;
+}
+.file-selectdialog .file-simple .file-selector{
+	color:#5c6470;
+	overflow: hidden;
+	height: 30px;
+	/*font-size:12px;*/
+	font-weight:bold;
+	margin:6px 0 6px 90px;
+	text-shadow:0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.file-selectdialog .file-simple .file-uploader{
+	overflow: hidden;
+    position: relative;
+	display: inline-block;
+    margin: 0 15px 0 0;
+    vertical-align: middle;
+	cursor:pointer;
+}
+.file-selectdialog .file-simple .file-uploader-left{
+    background: url("images/live_feed_sprite.png") no-repeat scroll 0px -240px transparent;
+    display: inline-block;
+    height: 25px;
+    vertical-align: top;
+    width: 4px;
+}
+.file-selectdialog .file-simple .file-uploader-right{
+    background: url("images/live_feed_sprite.png") no-repeat scroll -7px -240px transparent;
+    display: inline-block;
+    height: 25px;
+    vertical-align: top;
+    width: 4px;
+}
+.file-selectdialog .file-simple .file-but-text{
+    background: url("images/live_feed_sprite.png") repeat-x scroll 0 -267px transparent;
+    color: #7A808C;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    height: 25px;
+    padding: 2px 10px 0;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    vertical-align: top;
+}

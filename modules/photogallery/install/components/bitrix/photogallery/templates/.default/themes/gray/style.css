@@ -1,0 +1,155 @@
+div.photo-page-gallery, div.photo-header-big, div.photo-filter{ border-color: #ECECEC; }
+div.photo-photo-date, div.photo-photo-tags, div.photo-photo-tags a, div.photo-album-date { color: #7E7E7E;}
+li.photo-album-item div.photo-album-photos {color: #000000;}
+
+/************** Menu Controls **************************************/
+/*
+div.photo-controls-buttons ul.photo-controls li a, 
+div.photo-controls-buttons ul.photo-controls li a span { background-image: url('images/buttons/button.gif');}
+div.photo-controls-buttons ul.photo-controls li a { color: #616161;}
+div.photo-controls-moderate ul.photo-controls li a{ color: #BC262C; }
+div.photo-controls-gallery ul.photo-controls li a,
+div.photo-controls-gallery ul.photo-controls li a span,
+div.photo-controls-album ul.photo-controls li a, 
+div.photo-controls-album ul.photo-controls li a span { background-image: url('images/buttons/button_slim.gif');}
+div.photo-controls-album ul.photo-controls li.photo-control-album-edit a span { background-image: url('images/buttons/button_slim_arrow.gif')!important;}
+
+td.gutter div.photo-control-album-edit{background-image: url('images/icons/alb_edit.png');}
+td.gutter div.photo-control-album-edit-icon{background-image: url('images/icons/alb_edit_icon.png')!important;}
+td.gutter div.photo-control-album-edit-sort{background-image: url('images/icons/alb_edit.png');}
+td.gutter div.photo-control-album-drop{background-image: url('images/icons/alb_drop.png');}
+*/
+/************** Menu Controls/**************************************/
+
+li.photo-control-photo-selectall span, li.photo-control-photo-drop span, 
+li.photo-control-photo-moderate span, 
+div.photo-album-menu-controls a:hover, 
+div.photo-album-menu-controls a:active, 
+div.modern-page-navigation a, 
+span.modern-page-current, 
+div.modern-page-navigation a.modern-page-previous, 
+span.modern-page-dots { 
+	border-color: #CDCDCD; }
+
+
+/************** Standart *******************************************/
+div.photo-note-box {
+	background: #fffdc3; 
+	border-color: #ffca63;}
+font.starrequired{
+	color:red;}
+ /************** Standart/*******************************************/
+/******************************************************************** 
+				Album
+********************************************************************/
+/*div.photo-album-avatar, div.photo-album-thumbs-avatar, */div.photo-album-avatar-empty{background-color: #E2E2E2;}
+div.photo-album-avatar-empty { background-image: url('images/album/cover_empty.gif');}
+div.photo-item-cover-block-container, 
+div.photo-item-cover-block-outer, 
+div.photo-item-cover-block-inner { border-color: #B0B0B0; }
+/************** Album controls on cover ****************************/
+div.photo-album-menu-substrate {
+	background-position: -20px top;
+	background-repeat: no-repeat; 
+	background-image: url('images/album/cover_white_mat.png');}
+div.photo-album-menu-controls span {
+	display: none; }
+div.photo-album-menu-controls a:link, 
+div.photo-album-menu-controls a:visited, 
+div.photo-album-menu-controls a:active, 
+div.photo-album-menu-controls a:hover {
+	width: 20px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-position: center;
+	line-height: 1em;
+	float: left;
+	display: block;
+	border: 1px solid #FFFFFF;}
+div.photo-album-menu-controls a:hover, div.photo-album-menu-controls a:active { 
+	border: 1px solid #B0B0B0;}
+div.photo-album-menu-controls a.photo-control-album-edit {background-image:url('images/icons/alb_edit.png');}
+div.photo-album-menu-controls a.photo-control-album-edit-icon {background-image:url('images/icons/alb_edit_icon.png');}
+div.photo-album-menu-controls a.photo-control-album-drop {background-image:url('images/icons/alb_drop.png');}
+
+/************** Album Single ***************************************/
+div.photo-album-password div.photo-album-name, li.photo-album-password div.photo-album-name {
+	padding-left:15px;
+	background-image:url('images/album/lock.gif');
+	background-repeat:no-repeat;
+	background-position:left center;}
+li.photo-album-password div.photo-album-name{
+	background-position:left 15%; }
+/******************************************************************** 
+				/ Album
+********************************************************************/
+
+/******************************************************************** 
+				Photo 
+********************************************************************/
+table.photo-photo-item-notapproved div.photo-photo-item-inner, 
+table.photo-photo-item-notapproved div.photo-photo-item-outline, 
+div.photo-photo-item-notapproved { background-color:#FED2D2!important;}
+table.photo-photo-item-checked div.photo-photo-item-inner, 
+div.photo-photo-item-checked{ background-color:#E0DFE3!important;}
+/************** Photo Table Shadow *********************************/
+table.photo-photo-item-table, table.photo-photo-item-table div.photo-photo-item-block-inner{
+	border-color: #BBBBBB;}
+table.photo-photo-item-table th, table.photo-photo-item-table td{
+	background-color: #F6F6F6;}
+table.photo-photo-item-table table.photo-photo-image td {
+	background-color: #FFFFFF!important;}
+table.photo-photo-item-table div.photo-photo-item-block-outer{
+	padding-bottom: 6px;
+	background-image: url('images/photo/shadow.gif');
+	background-repeat: no-repeat;
+	background-position: right bottom;}
+table.photo-photo-item-table div.photo-photo-item-block-container{
+	background-image: url('images/photo/shadow.gif');
+	background-repeat: no-repeat;
+	background-position: left bottom;}
+/************** Popup div To Detail to around Slider ***************/
+div.photo-photo-item-popup {background-image:url('images/photo/arrow.gif');}
+/************** Photo navigation on detail page ********************/
+#photo_go_to_prev span, #photo_go_to_next span {display:none;}
+#photo_go_to_prev, #photo_go_to_next {
+	display: block;
+	width: 23px;
+	height: 23px;
+	background-position: left center;
+	background-repeat: no-repeat;}
+a#photo_go_to_prev, a#photo_go_to_next { background-image: url('images/buttons/arrow.gif'); }
+div#photo_go_to_prev, div#photo_go_to_next { background-image: url('images/buttons/arrow_disabled.gif'); }
+a#photo_go_to_next, div#photo_go_to_next { background-position: right center; }
+/************** Photo Voting ***************************************/
+div.iblock-vote {
+	line-height: 13px;}
+div.star-active {
+	cursor: pointer; }
+div.star-empty, div.star-voted, div.star-over {
+	background-image: url('images/vote.gif');
+	background-repeat: no-repeat;
+	background-position: right center;
+	width: 13px;
+	height: 13px;
+	overflow: hidden;
+	float: left;
+	margin-right: 1px; }
+div.star-voted {
+	background-position: center center; }
+div.star-over {
+	background-position: left center; }
+td.vote-result { 
+	padding-left: 5px; } 
+div.vote-no-results {
+	display: none; }
+/******************************************************************** 
+				Photo 
+********************************************************************/
+/******************************************************************** 
+				Gallery 
+********************************************************************/
+div.photo-gallery-description {color: #7E7E7E; }
+/******************************************************************** 
+				/ Gallery 
+********************************************************************/

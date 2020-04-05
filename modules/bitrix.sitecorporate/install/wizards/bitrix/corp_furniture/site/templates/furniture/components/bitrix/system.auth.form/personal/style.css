@@ -1,0 +1,13 @@
+#login-form-window
+{
+	display:none;
+	border:1px solid #000;
+	background:#F5F5ED;
+	padding:10px;
+	z-index:10000;
+	position:absolute;
+	top:98%;
+	right:20%;
+	width:200px;
+	color: #454545;
+}

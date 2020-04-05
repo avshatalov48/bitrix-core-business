@@ -1,0 +1,232 @@
+.bp-title {
+	font-size: 17px;
+	font-weight: bold;
+	color: #000;
+	vertical-align: top;
+}
+
+.bp-title-desc {
+	display: block;
+	color: #535c69;
+	font-size: 14px;
+	line-height: 17px;
+	position: relative;
+	padding-left: 45px;
+	min-height: 34px;
+}
+
+.bp-title-desc .bold {
+	color: #000;
+	font-weight: bold;
+}
+
+.bp-title-desc-icon {
+	width: 36px;
+	height: 30px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: auto;
+}
+
+.bp-post {
+	position: relative;
+}
+
+.bp-livefeed-wrapper
+{
+	max-height: 1500px;
+	transition: max-height 300ms ease-in-out;
+	overflow: hidden;
+}
+
+.bp-livefeed-wrapper-loading
+{
+	max-height: 105px;
+}
+
+.bp-title-desc-icon.bp-title-desc-icon-vacation {
+	background-position: 0 -224px;
+}
+
+.bp-title-desc-icon.bp-title-desc-icon-mission {
+	background-position: 0 -257px;
+}
+
+.bp-title-desc-icon.bp-title-desc-icon-invoice {
+	background-position: 0 -290px;
+}
+
+.bp-title-desc-icon.bp-title-desc-icon-ready {
+	background-position: 0 -191px;
+}
+
+.bp-title-desc-icon.bp-title-desc-icon-cancel {
+	background-position: 0 -158px;
+}
+
+.bp-title-desc-link {
+	color: #0063c6;
+	font-size: 14px;
+	line-height: 17px;
+	font-weight: bold;
+	border-bottom: 1px solid transparent;
+	-webkit-transition: border-bottom-color 0.2s linear;
+	transition: border-bottom-color 0.2s linear;
+}
+
+.bp-title-desc-link:hover {
+	border-bottom: 1px solid;
+}
+
+.bp-post .bp-short-process-inner {
+	position: relative;
+	overflow: hidden;
+}
+
+.bp-post .bp-short-process-inner .bp-short-process {
+	height: 77px;
+	float: left;
+	margin: 12px 0px;
+	margin-right: 30px;
+}
+
+.bp-post .bp-short-process, .bp-post .bp-btn-panel {
+	display: inline-block;
+	vertical-align: middle;
+	padding: 13px 0;
+}
+
+.bp-post .bp-short-process-inner .bp-btn-panel {
+	display: table;
+	overflow: hidden;
+	padding: 0;
+	height: 102px;
+}
+
+.bp-post .bp-short-process-inner .bp-btn-panel .bp-btn-panel-inner {
+	display: table-cell;
+	vertical-align: middle;
+	line-height: normal;
+}
+
+.bp-post .bp-short-process {
+	margin-right: 30px;
+	padding: 0;
+}
+
+.bp-post .bp-btn-panel .bp-button {
+	margin: 3px 0;
+	line-height: 18px!important;
+	padding: 8px 10px;
+	height: auto;
+}
+
+.bp-post .bp-btn-panel .bp-button:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.bp-post .bp-status,
+.bp-post .bp-status-cancel, .bp-post .bp-status-ready {
+	display: table;
+	overflow: hidden;
+	height: 102px;
+}
+
+.bp-post .bp-status-cancel span, .bp-post .bp-status-ready span {
+	display: table-cell;
+	vertical-align: middle;
+	line-height: normal;
+}
+
+.bp-task-block {
+	position: relative;
+	padding: 15px 20px 50px;
+	background: #e8f9fe;
+	border-radius: 2px;
+	color: #000;
+	font-size: 13px;
+	padding-bottom: 15px;
+	margin-top: 15px;
+}
+
+.bp-task-block-title {
+	font-weight: bold;
+	display: block;
+	margin-bottom: 15px;
+}
+
+
+/* .bp-task-block:before {
+	content: '';
+	position: absolute;
+	left: 260px;
+	top: -21px;
+	border: 21px solid transparent;	
+	border-bottom: 21px solid #ebf8fc;
+	border-top: 0;
+	width: 0;
+	margin: auto;
+} */
+
+@media only screen and (min-width: 0px) and (max-width: 1400px) {
+	.bp-post .bp-btn-panel .bp-button {
+		display: block;
+		white-space: normal;
+		height: auto;
+	}
+}
+
+@media only screen and (min-width: 0px) and (max-width: 1315px) {
+
+	.bp-post.bp-lent .bp-short-process-inner .bp-short-prosess-steps-arrow {
+		width: 38px;
+	}
+
+	.bp-post.bp-lent .bp-short-process-steps .bp-short-prosess-steps-arrow {
+		width: 38px;
+	}
+
+	.bp-post .bp-short-process-inner .bp-short-process {
+		margin-right: 20px;
+	}
+
+	.bp-post.bp-lent  a.process-step-more {
+		font-size: 9px;
+	}
+
+	.bp-task-block:before {
+		left: 200px;
+	}
+
+	.bp-post.bp-lent .bp-status .bp-status-inner span {
+		padding: 11px 12px;
+	}
+
+	.bp-post.bp-lent .bp-status .bp-status-inner span:after {
+		display: none;
+	}
+}
+
+@media only screen and (min-width: 0px) and (max-width: 1180px) {
+	.bp-post .bp-btn-panel .bp-button {
+		font-size: 11px;
+	}
+}
+
+.bx-lists-live-feed-title-link {color:#000000;}
+.bx-lists-live-feed-title-link:hover {color:#000000;}
+
+.bp-opacity-animation
+{
+	opacity: 1;
+	-webkit-transition: opacity .5s ease;
+	-moz-transition: opacity .5s ease;
+	-ms-transition: opacity .5s ease;
+	-o-transition: opacity .5s ease;
+	transition: opacity .5s ease;
+}
+.bp-hidden
+{
+	opacity: 0;
+}

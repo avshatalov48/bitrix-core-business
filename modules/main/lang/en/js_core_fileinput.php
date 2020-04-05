@@ -1,0 +1,36 @@
+<?
+$MESS["JS_CORE_FILE_UPLOAD"] = "Upload from computer";
+$MESS["JS_CORE_FILE_INSERT_PATH"] = "Insert file path";
+$MESS["JS_CORE_FILE_MEDIALIB"] = "Select a Media Library item";
+$MESS["JS_CORE_FILE_SITE"] = "Select from Site Explorer";
+$MESS["JS_CORE_FILE_CLOUD"] = "Upload from cloud storage";
+$MESS["JS_CORE_FI_UPLOAD_DENIED"] = "Upload denied";
+$MESS["JS_CORE_FI_TOO_MANY_FILES"] = "The number of files exceeds the allowed maximum of #amount#.";
+$MESS["JS_CORE_FI_TOO_MANY_FILES2"] = "File quota reached.";
+$MESS["JS_CORE_FI_TOO_MANY_FILES3"] = "File quota exceeded.";
+$MESS["JS_CORE_FI_FRAME_Y"] = "Use cropping";
+$MESS["JS_CORE_FI_PIN_DESCRIPTION"] = "Pin description field";
+$MESS["JS_CORE_FI_CLEAR"] = "Clear";
+$MESS["JS_CORE_FI_FRAME_IS_LOADING"] = "Please wait, uploading images now. Cancel cropping?";
+$MESS["JS_CORE_FI_FRAME_IS_LOADING_CANCEL"] = "Yes";
+$MESS["JS_CORE_FI_LINK"] = "Link:";
+$MESS["JS_CORE_FI_ADD_LINK"] = "Add link";
+$MESS["JS_CORE_FI_ADD"] = "Add";
+$MESS["JS_CORE_FI_CANCEL"] = "Cancel";
+$MESS["JS_CORE_FI_TITLE"] = "Name";
+$MESS["JS_CORE_FI_WIDTH"] = "Width";
+$MESS["JS_CORE_FI_HEIGHT"] = "Height";
+$MESS["JS_CORE_FI_ADD_PRESET"] = "Add preset";
+$MESS["JS_CORE_FI_SAVE_PRESET"] = "Save preset";
+$MESS["JS_CORE_FI_CANCEL_PRESET"] = "Cancel<br> action";
+$MESS["JS_CORE_FI_FRAMING"] = "Cropping: ";
+$MESS["JS_CORE_FI_USE_PRESET"] = "Use preset";
+$MESS["JS_CORE_FI_EDIT_PRESET"] = "Edit preset";
+$MESS["JS_CORE_FI_PRESET_IS_TOO_BIG"] = "Image size is smaller than the selected preset. Do you want to enlarge the image?";
+$MESS["JS_CORE_FI_SCALE"] = "Enlarge";
+$MESS["JS_CORE_FILE_INFO_SIZE"] = "Size";
+$MESS["JS_CORE_FILE_INFO_DIM"] = "Dimensions";
+$MESS["JS_CORE_FILE_INFO_LINK"] = "Link";
+$MESS["JS_CORE_FILE_DESCRIPTION"] = "Description";
+$MESS["JS_CORE_FILE_APPLY"] = "Apply";
+?>

@@ -1,0 +1,11 @@
+<?
+$MESS["STORE_BARCODE_ENTITY_ID_FIELD"] = "Идентификатор штрихкода";
+$MESS["STORE_BARCODE_ENTITY_PRODUCT_ID_FIELD"] = "Идентификатор товара";
+$MESS["STORE_BARCODE_ENTITY_BARCODE_FIELD"] = "Штрихкод";
+$MESS["STORE_BARCODE_ENTITY_STORE_ID_FIELD"] = "Идентификатор склада";
+$MESS["STORE_BARCODE_ENTITY_ORDER_ID_FIELD"] = "Идентификатор заказа";
+$MESS["STORE_BARCODE_ENTITY_DATE_MODIFY_FIELD"] = "Дата изменения";
+$MESS["STORE_BARCODE_ENTITY_DATE_CREATE_FIELD"] = "Дата создания";
+$MESS["STORE_BARCODE_ENTITY_CREATED_BY_FIELD"] = "Кем создан";
+$MESS["STORE_BARCODE_ENTITY_MODIFIED_BY_FIELD"] = "Кем изменен";
+?>

@@ -1,0 +1,34 @@
+<?
+$MESS["FID_TIP"] = "Forum ID";
+$MESS["TID_TIP"] = "Topic ID";
+$MESS["MID_TIP"] = "Post ID";
+$MESS["URL_TEMPLATES_READ_TIP"] = "Topic View Page";
+$MESS["URL_TEMPLATES_MESSAGE_TIP"] = "Message view page (with message ID)";
+$MESS["URL_TEMPLATES_LIST_TIP"] = "Topics Page";
+$MESS["URL_TEMPLATES_MESSAGE_MOVE_TIP"] = "Message move page";
+$MESS["URL_TEMPLATES_PROFILE_VIEW_TIP"] = "User Profile URL Template";
+$MESS["URL_TEMPLATES_TOPIC_NEW_TIP"] = "New Topic Creation Page";
+$MESS["URL_TEMPLATES_SUBSCR_LIST_TIP"] = "Subscription Page";
+$MESS["URL_TEMPLATES_TOPIC_MOVE_TIP"] = "Topic Move Page";
+$MESS["URL_TEMPLATES_INDEX_TIP"] = "Forums Page";
+$MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Personal Messages Page";
+$MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Message Creation Page";
+$MESS["URL_TEMPLATES_RSS_TIP"] = "RSS Page";
+$MESS["URL_TEMPLATES_USER_POST_TIP"] = "User's Messages Page";
+$MESS["MESSAGES_PER_PAGE_TIP"] = "Number of Messages Per Page";
+$MESS["DATE_FORMAT_TIP"] = "Date Format";
+$MESS["DATE_TIME_FORMAT_TIP"] = "Date And Time Format";
+$MESS["PAGE_NAVIGATION_TEMPLATE_TIP"] = "Breadcrumb Navigation Template";
+$MESS["PAGE_NAVIGATION_WINDOW_TIP"] = "Pages in Breadcrumbs";
+$MESS["PAGE_NAVIGATION_SHOW_ALL_TIP"] = "Enable Show All Pages Option";
+$MESS["WORD_LENGTH_TIP"] = "Word Length";
+$MESS["IMAGE_SIZE_TIP"] = "Attached Image Size (px)";
+$MESS["SHOW_FIRST_POST_TIP"] = "Show Initial Post on Every Page";
+$MESS["SET_NAVIGATION_TIP"] = "Show Breadcrumbs";
+$MESS["AJAX_TYPE_TIP"] = "Use AJAX";
+$MESS["SET_PAGE_PROPERTY_TIP"] = "Add Keywords And Topic Description to Page HEAD Tag";
+$MESS["SET_TITLE_TIP"] = "Set Page Title";
+$MESS["CACHE_TYPE_TIP"] = "Cache Type";
+$MESS["CACHE_TIME_TIP"] = "Cache Lifetime (sec.)";
+$MESS["SHOW_RATING_TIP"] = "Show Rating";
+?>

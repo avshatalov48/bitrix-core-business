@@ -1,0 +1,168 @@
+/* Text */
+body {color: #000; background:#f1f1f1;}
+
+a:link {color:#2474bf;}
+a:visited {color:#2474bf;}
+a:hover {color:#2474bf;}
+a:active {color:#2474bf;}
+
+h1{color:#000;border-bottom:1px solid #e5e5e5;}
+h2,h3,h4,h5 {color:#318e1f;}
+
+hr, .hr {border-color: #E9E9E9;}
+span.small-grey{color:#999999}
+div.hr-title{border-bottom:1px solid #e5e5e5;}
+
+#page-wrapper{background:#fff;}
+#footer-wrapper  {border-top:1px solid #cccccc; background:#e3e3e3;}
+#footer-wrapper div.copyright{color:#717171}
+
+#header {background:url("images/header.png") repeat-x top #318e1f;}
+
+span.grey{background:#efefef;}
+
+/*Main Menu Root items: hover*/
+#horizontal-multilevel-menu li:hover a.root-item, #horizontal-multilevel-menu li.jshover a.root-item, #horizontal-multilevel-menu li a.root-item-selected
+{
+	background:#7dcd74;
+	color:#fff;
+}
+
+#header-title, #header-title a{color:#fff;}
+
+/* AUTH */
+#header-auth a{color:#ffffff;}
+
+/* MAIN THEME */
+div.main-theme-list div.main-theme-title{color:#318e1f;border-bottom:1px solid #e5e5e5;}
+div.main-theme-list img.preview_picture{border:1px solid #e3e3e3;}
+div.main-theme-list div.main-theme-name a{color:#000;}
+div.main-theme-list div.theme-news-list span.news-date-time{color:#7f7f7f}
+div.main-theme-list div.theme-news-list a{color:#000;}
+
+/* BOTTOM MENU LEFT */
+div.bottom-menu-left div.bottom-menu-title{color:#000;}
+div.bottom-menu-left ul li a{color:#717171;}
+
+/* MAIN NEWS */
+div.main-news-list div.main-news-title{color:#318e1f;border-bottom:1px solid #e5e5e5;}
+div.main-news-list span.news-date-time{color:#7f7f7f}
+div.main-news-list div.news-picture{background-color:#f1f1f1;}
+
+/* NEWS LIST */
+div.news-list div.main-news-title{color:#318e1f;border-bottom:1px solid #e5e5e5;}
+div.news-item span.news-date-time{color:#7f7f7f}
+div.news-list div.news-picture{background-color:#f1f1f1;}
+div.news-list span.news-show-property{color:#7f7f7f}
+
+/* NATIONAL NEWS */
+div.national-news a {color:#000000;}
+div.national-news span.news-show-counter{color:#7f7f7f}
+
+/* DETAIL NEWS */
+div.news-detail div.news-picture {border:#f1f1f1;}
+div.news-detail span.news-date-time {color:#7f7f7f}
+div.news-detail div.news-theme-date{color:#7f7f7f}
+div.news-detail-theme{border-top:1px solid #e5e5e5;color:#318e1f;}
+
+/* THEMES */
+table.theme-list td.theme-letter{color:#318e1f}
+
+/* JOB */
+div.job-list-title h2{color:#000000;}
+div.job-list ul li span{color:#717171;}
+div.job-section td.job-date{color:#7F7F7F}
+div.job-section td{border-bottom:1px solid #E5E5E5}
+div.job-section th{color:#318e1f; border-bottom:1px solid #E5E5E5}
+
+/* BOARD */
+div.board-section-list span{color:#717171;}
+div.board-section-list a.board-section-selected{color:#000000;}
+div.board-section span.board-date{color:#7f7f7f}
+div.board-section-list ul li{color:#318e1f}
+div.board-section td{border-bottom:1px solid #e5e5e5;}
+div.board-section td td{border-bottom:none;}
+div.board-section span.properties{color:#318e1f;}
+div.board-section div.board-title{color:#444444}
+div.board-sections h2{color:#000000}
+
+/* REVIEWS */
+table.reviews-post-table thead td{color:#7f7f7f;}
+table.reviews-post-table thead div.reviews-post-reply-buttons a{color:#7f7f7f;}
+table.reviews-post-table thead td b{color: #318e1f;}
+table.reviews-post-table div.reviews-text{ border-top: 1px solid #DADADA;}
+div.reviews-add-text{border-top: 1px solid #DADADA;}
+table.reviews-post-table table.forum-quote{background: #fafafa; border:1px solid #e3e3e3;}
+table.reviews-post-table table.forum-quote th{color:#d71212;}
+table.reviews-post-table table.forum-quote td{color:#7d7d7d;}
+
+/* VOTE */
+div.voting-form-box div.vote-item-title h2{color:#000000;}
+table.vote-answers-list td.vote-answer-percent{color:#318e1f;}
+table.vote-answers-list td.vote-answer-counter{color:#7f7f7f;}
+
+/* Navigation */
+span.nav-current-page { background-color:#EDEDED; }
+div.navigation span.disabled { color:#7E7E7E;}
+div.navigation span.arrow { color:#7E7E7E; }
+div.navigation span.ctrl { color:#7E7E7E; }
+
+/* ADD FORM */
+div.data-form div.data-form-input input, div.data-form div.data-form-input select, div.data-form div.data-form-input textarea{border:1px solid #bfbfbf; background-color: #fafafa;}
+div.data-form-input div.bxlhe-frame {
+    border: 1px solid #bfbfbf !important;
+}
+div.data-form-input td.bxlhe-editor-cell {
+    background: none repeat scroll 0 0 #fafafa !important;
+    border-top: 1px solid #bfbfbf !important;
+}
+
+/* BLOG */
+div.blog-sidebar ul h3{ border-bottom: 1px solid #E5E5E5;}
+.blog-post-title{ border:0; border-bottom: 1px solid #E5E5E5;background:none}
+.blog-post-title span, .blog-post-title a:link, .blog-post-title a:visited, .blog-post-title a:active{color:#318e1f}
+.blog-post-date, .blog-comment-date{color:#7F7F7F}
+
+.blog-group-icon {background-image: url(images/blog/user_group.gif);}
+.blog-author-icon {background-image: url(images/blog/user.gif);}
+.blog-group-edit, .blog-post-edit-link {background-image: url(images/blog/icon_edit.gif);}
+.blog-group-delete, .blog-post-delete-link {background-image: url(images/blog/icon_delete.gif);}
+.blog-post-comments-link {background-image: url(images/blog/icon_comment.gif);}
+.blog-post-views-link {background-image: url(images/blog/icon_view.gif); }
+.blog-post-publish-link {background-image: url(images/blog/icon_publish.gif);}
+.blog-post-show-link {background-image: url(images/blog/icon_show.gif);}
+.blog-post-hide-link {background-image: url(images/blog/icon_hide.gif);}
+
+/* PHOTO */
+div.photo-header-component, div.photo-header-big{color:#318e1f;}
+div.photo-header-big div.photo-header-inner{ border-bottom: 1px solid #E5E5E5;}
+
+
+/*Common Elements */
+div.content-form div.form-input input, div.content-form div.form-input textarea, div.content-form div.form-input select
+{
+	background: #FAFAFA;
+	border-color: #BFBFBF;
+}
+div.content-form div.field-error div.form-input input, 
+div.content-form div.field-error div.form-input textarea, 
+div.content-form div.field-error div.form-input select
+{
+	color: red;
+	background:	#fff8d3;
+}
+div.content-form div.field label.field-title { color:#555; }
+div.content-form div.description { color:#979797;}
+
+div.content-form div.field-error div.form-input input, 
+div.content-form div.field-error div.form-input textarea, 
+div.content-form div.field-error div.form-input select
+{
+	color: red;
+	background:	#fff8d3;
+}
+
+
+/*Error & OK messages*/
+.errortext, .starrequired { color: red;}  
+.errortext, .notetext { background:#FFFEEB; border-color: #FFD482;}

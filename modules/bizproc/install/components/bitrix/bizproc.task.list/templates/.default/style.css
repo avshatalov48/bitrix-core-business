@@ -1,0 +1,212 @@
+/* >>> bizproc.task.list */
+.bp-errortext
+{
+	color: red;
+	padding: 5px;
+}
+
+.bp-interface-toolbar-container {
+	padding: 0;
+}
+
+.bp-interface-toolbar {
+	font-size: 13px;
+	height: 60px;
+	padding-right: 20px;
+	color: #94a6af;
+}
+
+.bp-interface-toolbar .bp-context-button {
+	position: relative;
+	font-size: 12px;
+	line-height: 20px;
+	display: inline-block;
+	height: 20px;
+	margin-right: 15px;
+	padding: 13px 20px;
+	-webkit-transition: background .2s cubic-bezier(.000, .465, .750, .750);
+	-moz-transition: background .2s cubic-bezier(.000, .465, .750, .750);
+	-o-transition: background .2s cubic-bezier(.000, .465, .750, .750);
+	transition: background .2s cubic-bezier(.000, .465, .750, .750);
+	vertical-align: middle;
+	white-space: nowrap;
+	text-decoration: none;
+	text-transform: uppercase;
+	color: #535c69;
+	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+}
+
+.bp-interface-toolbar .bp-context-button:hover,
+.bp-interface-toolbar .bp-context-button.active {
+	background: #def9ff;
+}
+
+.bp-context-button-notice {
+	position: absolute;
+	top: 2px;
+	width: 21px;
+	height: 21px;
+	color: #fff;
+	line-height: 21px;
+	border-radius: 11px;
+	text-align: center;
+	background: #fc0000;
+}
+
+.bp-interface-filelist {
+	padding-right: 0;
+}
+
+.bp-footer-interface-toolbar-container {
+	margin: 0
+}
+
+input.bx-bizproc-btn.bx-bizproc-btn-medium {
+	margin-bottom: 0;
+}
+
+.bp-comments {
+	padding: 20px 0;
+	display: inline-block;
+	width: 30px;
+}
+
+.bp-comments a {
+	color: #3c454b;
+	text-align: center;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.bp-comments-icon {
+	display: block;
+	width: 16px;
+	height: 16px;
+	background: url(images/bp-sprite.png) no-repeat 0 -18px;
+}
+
+.bp-object-name {
+	word-break: break-all;
+	min-width: 79px;
+}
+
+.bp-folder-title {
+	position: relative;
+	color: #000 !important;
+	overflow: hidden;
+	height: 16px;
+	display: block;
+}
+
+.bx-bizproc-table-body>td {
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+.bp-folder-title-link {
+	position: relative;
+	text-decoration: underline;
+	display: block;
+	color: #0069ac;
+	/*margin-bottom: 15px;*/
+	overflow: hidden;
+	height: 32px;
+}
+
+.bp-folder-title:after, .bp-folder-title-link:after,
+.bp-folder-title:after, .bp-task a:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 15px;
+	height: 16px;
+	width: 40px;
+	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#fff), color-stop(50%, #fff));
+	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
+	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
+	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
+	background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff 50%, #fff);
+}
+
+.bx-bizproc-table-body.selected .bp-folder-title:after,
+.bx-bizproc-table-body.selected .bp-folder-title-link:after,
+.bx-bizproc-table-body.selected:hover .bp-folder-title:after,
+.bx-bizproc-table-body.selected:hover .bp-folder-title-link:after,
+.bx-bizproc-table-body.selected .bp-task a:after,
+.bx-bizproc-table-body.selected:hover .bp-task a:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	height: 16px;
+	width: 40px;
+	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#f5fcde), color-stop(50%, #f5fcde));
+	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
+	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
+	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
+	background: linear-gradient(to right, rgba(255, 255, 255, 0), #f5fcde 50%, #f5fcde);
+}
+
+.bx-bizproc-table-body:hover .bp-folder-title:after, .bx-bizproc-table-body:hover .bp-folder-title-link:after, .bx-bizproc-table-body:hover .bp-task a:after {
+	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#f5f5f5), color-stop(50%, #f5f5f5));
+	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
+	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
+	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
+	background: linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
+}
+
+.bp-folder-title-description {
+	color: #525252;
+	font-size: 12px;
+}
+
+.bp-folder-title-description span {
+	font-weight: bold;
+}
+
+.bx-bizproc-table-body td {
+	padding: 15px 10px !important;
+	vertical-align: top !important;
+}
+
+.bp-comments .bp-comments-icon {
+	background: url(images/bp-sprite.png) no-repeat 0 0;
+	margin: 0 auto 5px;
+}
+
+.bx-bizproc-table-body:hover .bp-short-process-steps .bp-short-process-finished span span {
+	background: #f5f5f5;
+}
+
+.bp-task-container {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.bp-task {
+	display: block;
+	margin-bottom: 15px;
+	font-size: 13px;
+}
+
+.bp-task a {
+	color: #000;
+	position: relative;
+	display: block;
+	max-height: 30px;
+	overflow: hidden;
+	margin-right: 10px;
+}
+
+.bp-task a:hover {
+	text-decoration: underline;
+	color: #0069ac;
+}
+
+.bp-btn-panel {
+	display: inline-block;
+	vertical-align: middle;
+}
+/* <<< bizproc.task.list */

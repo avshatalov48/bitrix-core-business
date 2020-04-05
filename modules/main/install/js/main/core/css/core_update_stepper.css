@@ -1,0 +1,193 @@
+div.main-stepper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: justify;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	padding: 0 12px 0 16px;
+	height: 0;
+	border-bottom: 3px #eef2f4 solid;
+	background: #fff8d5;
+	font: 13px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #716e62;
+	box-sizing: border-box;
+}
+
+.main-stepper-info {
+	/*width: 440px;*/
+	padding: 0 15px 0 0;
+	box-sizing: border-box;
+}
+
+.main-stepper-inner {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+}
+
+.main-stepper-bar {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+	margin: 2px 0 0 0;
+	height: 8px;
+	width: 100%;
+	border-radius: 5px;
+	overflow: hidden;
+	background: #ebcd2c;
+
+}
+
+.main-stepper-bar:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent), to(transparent) );
+	background-image: -moz-linear-gradient( -45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent );
+	z-index: 1;
+	-webkit-background-size: 25px 25px;
+	-moz-background-size: 25px 25px;
+	background-size: 25px 25px;
+	-webkit-animation: crmViewProgressMove 8s linear infinite;
+	-moz-animation: crmViewProgressMove 8s linear infinite;
+	-webkit-border-top-right-radius: 8px;
+	-webkit-border-bottom-right-radius: 8px;
+	-moz-border-radius-topright: 8px;
+	-moz-border-radius-bottomright: 8px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	-webkit-border-top-left-radius: 20px;
+	-webkit-border-bottom-left-radius: 20px;
+	-moz-border-radius-topleft: 20px;
+	-moz-border-radius-bottomleft: 20px;
+	border-top-left-radius: 20px;
+	border-bottom-left-radius: 20px;
+	overflow: hidden;
+}
+
+.main-stepper-bar-line {
+	position: absolute;
+	height: 100%;
+	background: #ebcd2c;
+	border-radius: 5px;
+	-webkit-transition: width 1s linear;
+	transition: width 1s linear;
+	z-index: 2;
+}
+
+.main-stepper-steps {
+	padding: 0 0 0 10px;
+	text-align: right;
+	box-sizing: border-box;
+}
+.main-stepper.main-stepper-error {
+
+}
+.main-stepper-error .main-stepper-bar, .main-stepper-error .main-stepper-steps, .main-stepper-error-text {
+	display: none;
+}
+.main-stepper-error .main-stepper-error-text {
+	display: block;
+	color: red;
+}
+.main-stepper-show.main-stepper {
+	-webkit-animation: crmViewProgressshow .3s linear forwards;
+	animation: crmViewProgressshow .3s linear forwards;
+}
+
+.main-stepper-hide.main-stepper {
+	-webkit-animation: crmViewProgresshidden .3s linear forwards;
+	animation: crmViewProgresshidden .3s linear forwards;
+}
+
+@keyframes crmViewProgressMove {
+	0% {
+		background-position: 100% 50%;
+	}
+	99.999% {
+		background-position: 50% 0;
+	}
+	100% {
+		background-position: 50% 0;
+	}
+}
+
+@-webkit-keyframes crmViewProgressMove {
+	0% {
+		background-position: 100% 50%;
+	}
+	99.999% {
+		background-position: 50% 0;
+	}
+	100% {
+		background-position: 50% 0;
+	}
+}
+
+@-webkit-keyframes crmViewProgresshidden {
+	0% {
+		height: 42px;
+		opacity: 1;
+		visibility: visible;
+	}
+	50% { opacity: 1; }
+	99.999% {
+		visibility: visible;
+	}
+	100% {
+		height: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+@keyframes crmViewProgresshidden {
+	0% {
+		height: 42px;
+		opacity: 1;
+		visibility: visible;
+	}
+	50% { opacity: 1; }
+	99.999% {
+		visibility: visible;
+	}
+	100% {
+		height: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+@-webkit-keyframes crmViewProgressshow {
+	0% { opacity: 0; }
+	50% { opacity: 0; }
+	100% {
+		height: 42px;
+		opacity: 1;
+		visibility: visible;
+	}
+}
+
+@keyframes crmViewProgressshow {
+	0% { opacity: 0; }
+	50% { opacity: 0; }
+	100% {
+		height: 42px;
+		opacity: 1;
+		visibility: visible;
+	}
+}

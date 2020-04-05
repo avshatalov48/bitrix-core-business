@@ -1,0 +1,37 @@
+<?
+$MESS ['STAT_STOP_PAGES'] = "Record";
+$MESS ['STAT_F_LOGIC'] = "Logic between fields";
+$MESS ['STAT_GREEN_LAMP'] = "Record active";
+$MESS ['STAT_RED_LAMP'] = "Record not active";
+$MESS ['STAT_LAMP_ACTIVE'] = "Record active.";
+$MESS ['STAT_LAMP_NOT_ACTIVE'] = "Record not active.";
+$MESS ['STAT_COMMENT'] = "Comment";
+$MESS ['STAT_MESSAGE'] = "Message";
+$MESS ['STAT_REDIRECT'] = "Redirect (URL)";
+$MESS ['STAT_F_DATE_START'] = "Start date";
+$MESS ['STAT_DATE_START'] = "Start";
+$MESS ['STAT_F_DATE_END'] = "End date";
+$MESS ['STAT_DATE_END'] = "End";
+$MESS ['STAT_RECORDS_LIST'] = "Stop list";
+$MESS ['STAT_F_ID'] = "ID";
+$MESS ['STAT_RECORD_STATUS'] = "Activity status";
+$MESS ['STAT_F_ACTIVE'] = "Active";
+$MESS ['STAT_F_STATISTIC'] = "Add to statistics";
+$MESS ['STAT_F_IP'] = "IP address";
+$MESS ['STAT_F_USER_AGENT'] = "UserAgent";
+$MESS ['STAT_F_FROM'] = "From";
+$MESS ['STAT_ACTIVE'] = "Active";
+$MESS ['STAT_STAT'] = "Stat.";
+$MESS ['STAT_IP'] = "IP address";
+$MESS ['STAT_MASK'] = "Net mask";
+$MESS ['STAT_USER_AGENT'] = "UserAgent";
+$MESS ['STAT_REFERER'] = "From";
+$MESS ['STAT_CONFIRM_DEL_STOP'] = "Are you sure you want to delete the record?";
+$MESS ['STAT_URL_TO'] = "To";
+$MESS ['STAT_F_SITE'] = "Site";
+$MESS ['STAT_F_TO'] = "To";
+$MESS ['STAT_F_REDIRECT'] = "Redirect";
+$MESS ['STAT_F_COMMENTS'] = "Comment";
+$MESS ['STAT_F_MESSAGE'] = "Message";
+$MESS ['SAVE_ERROR'] = "Error updating record #";
+?>

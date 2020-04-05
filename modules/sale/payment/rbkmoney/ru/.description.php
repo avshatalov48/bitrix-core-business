@@ -1,0 +1,55 @@
+<?
+global $MESS;
+$MESS["SALE_RBK_SHOULD_PAY"] = "Сумма к оплате";
+$MESS["SALE_RBK_DESC_SHOULD_PAY"] = "";
+$MESS["SALE_RBK_CURRENCY"] = "Валюта оплаты";
+$MESS["SALE_RBK_DESC_CURRENCY"] = "";
+$MESS["SALE_RBK_SERVICE_NAME"] = "Описание товара";
+$MESS["SALE_RBK_DESC_SERVICE_NAME"] = "Описание товара к оплате";
+$MESS["SALE_RBK_ORDER_ID"] = "Номер заказа";
+$MESS["SALE_RBK_DESC_ORDER_ID"] = "Номер заказа в вашем Интернет-магазине";
+$MESS["SALE_RBK_ESHOP_ID"] = "Номер магазина в системе RBK Money";
+$MESS["SALE_RBK_DESC_ESHOP_ID"] = "";
+$MESS["SALE_RBK_SUCCESS_URL"] = "Адрес при успешной оплате";
+$MESS["SALE_RBK_DESC_SUCCESS_URL"] = "URL скрипта (на веб-сайте продавца) обрабатывающего оповещения о результате платежа";
+$MESS["SALE_RBK_FAIL_URL"] = "Адрес при ошибке оплаты";
+$MESS["SALE_RBK_DESC_FAIL_URL"] = "URL (на веб-сайте продавца) для перенаправления плательщика при неуспешном платеже";
+$MESS["SALE_RBK_SECRET_KEY"] = "Кодовое слово продавца";
+$MESS["SALE_RBK_DESC_SECRET_KEY"] = "Кодовое поле (shared secret) определяется в процессе заключения договоренности по активации функционала приема платежей и предоставляется менеджером по подключению";
+$MESS["SALE_RBK_PAY_BUTTON"] = "Название кнопки оплаты";
+$MESS["SALE_RBK_DESC_PAY_BUTTON"] = "";
+$MESS["SALE_RBK_USER_FIELD_1"] = "Дополнительный параметр 1";
+$MESS["SALE_RBK_DESC_USER_FIELD_1"] = "Хранится вместе с прочими данными плательщика и возвращаются при оповещении о платеже и выгрузке данных";
+$MESS["SALE_RBK_USER_FIELD_2"] = "Дополнительный параметр 2";
+$MESS["SALE_RBK_DESC_USER_FIELD_2"] = "Хранится вместе с прочими данными плательщика и возвращаются при оповещении о платеже и выгрузке данных";
+$MESS["SALE_RBK_USER_FIELD_3"] = "Дополнительный параметр 3";
+$MESS["SALE_RBK_DESC_USER_FIELD_3"] = "Хранится вместе с прочими данными плательщика и возвращаются при оповещении о платеже и выгрузке данных";
+$MESS["SALE_RBK_F_NAME"] = "Имя пользователя";
+$MESS["SALE_RBK_DESC_F_NAME"] = "";
+$MESS["SALE_RBK_S_NAME"] = "Фамилия пользователя";
+$MESS["SALE_RBK_DESC_S_NAME"] = "";
+$MESS["SALE_RBK_EMAIL"] = "Электронная почта";
+$MESS["SALE_RBK_DESC_EMAIL"] = "";
+$MESS["SALE_RBK_ACTION_TYPE"] = "Тип платёжной системы";
+$MESS["SALE_RBK_DESC_ACTION_TYPE"] = "Тип страницы оплаты на сайте Робокассы (пользователь сразу переходит на данный тип страницы):<br/>Оплата с кошелька Rbk Money - inner или rbkmoney<br/>Банковская карта Visa/MasterCard - bankcard<br/>Электронные платежные системы - exchangers<br/>Платежные терминалы - terminals<br/>Предоплаченная карта RBK Money - prepaidcard<br/>Почта России - postrus<br/>Салоны связи - mobilestores<br/>Системы денежных переводов - transfers<br/>Интернет банкинг - ibank<br/>Банковский платеж - sberbank<br/>Связной - svyaznoy<br/>Евросеть - euroset<br/>Contact - contact<br/>МТС - mts<br/>Кассы Уралсиб - uralsib<br/>HandyBank - handybank<br/>Океан Банк - ocean<br/>Интернет-банк Уралсиб - ibankuralsib";
+$MESS["PYM_CHANGE_STATUS_PAY"] = "Автоматически оплачивать заказ при получении успешного статуса оплаты";
+$MESS["PYM_CHANGE_STATUS_PAY_DESC"] = "Y - оплачивать, N - не оплачивать.";
+
+$MESS["SALE_PAY_ALL"] = "Все";
+$MESS["SALE_PAY_RBK"] = "Кошелёк Rbk Money";
+$MESS["SALE_PAY_VISA"] = "Карта Visa/MasterCard";
+$MESS["SALE_PAY_ECOM"] = "Электронные платежные системы";
+$MESS["SALE_PAY_TRANSFER"] = "Системы денежных переводов";
+$MESS["SALE_PAY_TERMINAL"] = "Платёжные терминалы";
+$MESS["SALE_PAY_BANK"] = "Банковский платёж";
+$MESS["SALE_PAY_POST"] = "Почта России";
+$MESS["SALE_PAY_INET"] = "Интернет банкинг";
+$MESS["SALE_PAY_SVIAZ"] = "Связной";
+$MESS["SALE_PAY_EURO"] = "Евросеть";
+$MESS["SALE_PAY_MTC"] = "МТС";
+$MESS["SALE_PAY_URAL"] = "Кассы Уралсиб";
+$MESS["SALE_PAY_HANDY"] = "HandyBank";
+$MESS["SALE_PAY_OCEAN"] = "Океан Банк";
+$MESS["SALE_PAY_URALSIB"] = "Интернет-банк Уралсиб";
+
+?>

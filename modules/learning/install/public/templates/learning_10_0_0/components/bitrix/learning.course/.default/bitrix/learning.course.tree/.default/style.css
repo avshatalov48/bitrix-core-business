@@ -1,0 +1,63 @@
+div.learn-course-tree
+{
+	font-size:100%;
+}
+
+div.learn-course-tree ul
+{
+	list-style-type: none;
+	margin: 0; 
+	padding: 0 1em 0 0;
+}
+
+div.learn-course-tree ul ul
+{
+	width: auto;
+	margin:0;
+	padding: 2px 0 0 10px;
+	clear: both;
+}
+
+.tree-item { margin: 0 0 2px 0; padding:0; cursor: pointer;}
+.tree-item-hover div.tree-item-text { background: #eaeaea; }
+.tree-item-hover .r0 { background: #eaeaea; border-left: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0;}
+.tree-item-selected .tree-item-text { background: #e6e6e6; }
+.tree-item-selected .tree-item-link {  color: #fd1717 !important;}
+.tree-item-selected .r0 { background: #e6e6e6; border-left: 1px solid #efefef; border-right: 1px solid #efefef; }
+
+.tree-item-course { margin: 0 0 10px 0;}
+.tree-item-course .tree-item-link { font-style: italic;  font-size: 14px;}
+.tree-item-tests { margin: 10px 0 0 0;}
+
+.tree-item-wrapper { overflow: hidden; zoom:1;}
+
+.tree-item .tree-item { padding: 0 0 2px 0;  margin:0; }
+.tree-item-closed ul { display: none; }
+
+.tree-item-link
+{
+	overflow: hidden;
+	padding: 1px 0 4px 4px;
+	color:#000;
+	text-decoration:none;
+	display:block;
+	outline:none;
+	cursor:pointer;
+	zoom:1;
+}
+
+.tree-item-text { overflow: hidden; } 
+
+/*Icons*/
+div.chapter, div.lesson { width:14px; height:14px; float: left;}
+div.test-list { width:17px; height:16px; float: left; background:url(images/sprite.gif) no-repeat -1px -77px;}
+div.course-detail { width:18px; height:18px; float: left; background:url(images/sprite.gif) no-repeat -1px -54px;}
+
+div.chapter{cursor:pointer; cursor: hand; background:url(images/sprite.gif) no-repeat -1px -11px; }
+.tree-item-closed div.chapter{ background:url(images/sprite.gif) no-repeat 0 2px; }
+
+div.lesson{ background:url(images/sprite.gif) no-repeat 0 -27px; }
+.tree-item-selected div.lesson{ background:url(images/sprite.gif) no-repeat 0 -38px; }
+
+
+div.test-list{  }

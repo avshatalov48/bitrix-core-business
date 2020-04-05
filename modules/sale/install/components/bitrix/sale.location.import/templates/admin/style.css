@@ -1,0 +1,94 @@
+.adm-loc-i-selector{
+	margin-bottom: 10px;
+}
+.adm-loc-i-tree-node{
+	position: relative;
+	padding-left: 25px;
+	margin-bottom: 10px;
+}
+.adm-loc-i-tree-node .adm-loc-orig-label{
+	margin-bottom: 10px;
+}
+.adm-loc-i-selector-arrow{
+	background: url(/bitrix/panel/main/images/bx-admin-sprite-small-1.png) 1px -1138px no-repeat scroll;
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	top: -2px;
+	left: 0px;
+}
+.adm-loc-i-selector-arrow.bx-ui-item-tree-expander{
+	background: url(/bitrix/panel/main/images/bx-admin-sprite.png) -6px -238px no-repeat scroll;
+	background-position: -6px -238px;
+}
+.adm-loc-i-selector-arrow.bx-ui-item-tree-expander.expanded{
+	background-position: -6px -217px;
+}
+.adm-loc-i-tree-panel{
+	margin: 10px 0 10px -3px;
+	display: none;
+}
+
+.adm-loc-i-statusbar {
+	margin-top: 10px;
+	margin-bottom: -15px;
+}
+.adm-loc-i-upload-files {
+	margin: 20px 0 0 25px;
+}
+.adm-detail-content-table td{
+	width: 50%;
+}
+
+/* states */
+.bx-ui-state-mode-remote .bx-ui-load-file{
+	display: none;
+}
+.bx-ui-state-mode-file .bx-ui-load-remote{
+	display: none;
+}
+.bx-ui-state-running .bx-ui-loc-i-loader{
+	background: url(/bitrix/panel/main/images/filter-active-waiter.gif) 0px 0px no-repeat scroll;
+	width: 20px;
+	height: 20px;
+	display: inline;
+	padding: 2px 10px;
+}
+
+.bx-ui-loc-i-progressbar{
+	display: none;
+}
+.bx-ui-file-async-loader-loaded{
+	display: none;
+}
+.bx-ui-file-async-loader-success,
+.bx-ui-file-async-loader-fail,
+.bx-ui-file-async-loader-in-progress{
+	display: none;
+	margin-top: 10px;
+	padding: 0 0 2px 20px;
+}
+.bx-ui-file-async-loader-success,
+.bx-ui-file-async-loader-fail{
+	background: url(/bitrix/panel/main/images/bx-admin-sprite-small.png) 0px -2875px no-repeat scroll;
+}
+.bx-ui-file-async-loader-success{
+	background-position: 0px -2875px;
+}
+.bx-ui-file-async-loader-fail{
+	background-position: 0px -2904px;
+}
+
+.bx-ui-loc-i-delete-all-form .adm-btn-load-img-green {
+	display: none;
+}
+.bx-ui-loc-i-delete-all-form.adm-form-submitting .adm-btn-load-img-green {
+	left: 			50% !important;
+	top: 			5px !important;
+	display: 		block;
+	margin-left: 	-10px;
+}
+.bx-ui-loc-i-delete-all-form .adm-btn-wrapper {
+	position: 		relative;
+	display: 		inline-block;
+}

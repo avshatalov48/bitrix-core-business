@@ -1,0 +1,203 @@
+.bx-gadgets-colourful.bx-gadgets-perfmon {
+	background-color: #97b22b;
+	background-image: -webkit-linear-gradient(top, #a5bf3c, #96b02a, #86a21c);
+	background-image:   linear-gradient(to bottom, #a5bf3c, #96b02a, #86a21c);
+	border: 0;
+	overflow:hidden;
+}
+
+.bx-gadgets-colourful.bx-gadgets-perfmon .bx-gadgets-content {
+	background:none;
+	box-shadow:none;
+	height:138px;
+	-webkit-box-shadow:none;
+	margin:0 0 0 11px!important;
+	padding:0 11px 0 0;
+	position: relative;
+}
+
+.bx-gadgets-speed-top {
+	margin-right: 19px;
+	padding-top: 13px;
+	position: relative;
+}
+
+.bx-gadgets-title-speed {
+	text-shadow: 0 1px 0 rgba(243, 244, 188, 0.73);
+}
+
+.bx-gadget-text-color {
+	border-bottom: 1px solid #4a5813;
+	color: #4a5813 !important;
+	font-size: 22px !important;
+	opacity: 0;
+	text-decoration: none;
+
+	-webkit-transition: opacity 0.3s linear;
+	transition: opacity 0.3s linear;
+}
+
+.bx-gadgets-speed-ready .bx-gadget-text-color {
+	opacity: 1;
+}
+
+.bx-gadget-speed-num-block {
+	color: #4a5813;
+	font-size: 50px;
+	font-weight: bold;
+	height: 59px;
+	top: 7px;
+	text-shadow: 0 1px rgba(221,231,233, 0.44);
+	text-align: right;
+	right: 0;
+	position: absolute;
+	min-width: 135px;
+}
+
+.bx-gadget-speed-num {
+	display: inline-block;
+	opacity: 0;
+	padding: 0;
+
+	-webkit-transition: opacity 0.3s linear 0.2s;
+	transition: opacity 0.3s linear 0.2s;
+}
+.bx-gadget-speed-text {
+	display: inline-block;
+	font-size: 16px;
+	margin-left: 4px;
+	opacity: 0;
+
+	-webkit-transition: opacity 0.3s linear 0.2s;
+	transition: opacity 0.3s linear 0.2s;
+}
+
+.bx-gadgets-speed-ready .bx-gadget-speed-num,
+.bx-gadgets-speed-ready .bx-gadget-speed-text {
+	opacity: 1;
+}
+
+
+.bx-gadget-speed-speedo-block {
+	margin-top: -3px;
+	padding-right: 19px;
+}
+
+
+.bx-gadget-speed-ruler {
+	background: url(images/speed-sprite.png) repeat right -90px;
+	color: #576812;
+	height: 14px;
+	margin-bottom: 3px;
+	font-size: 12px;
+	text-shadow: 0 1px #fff;
+}
+
+.bx-gadget-speed-ruler-start {
+	background-color: #94af29;
+	display: inline-block;
+	width: 11px;
+}
+
+.bx-gadget-speed-graph {
+	border-radius: 3px;
+	-webkit-box-shadow: 0 6px 2px -5px #425202, 0 11px 2px -10px #637a04;
+	box-shadow:  0 6px 2px -5px #425202, 0 11px 2px -10px #637a04;
+	height: 40px;
+	position: relative;
+}
+
+.bx-gadget-speed-graph-part {
+	background: url(images/speed-sprite.png) repeat-x 0 -40px;
+	display: inline-block;
+	color: #1d2331;
+	font-size: 8px;
+	line-height: 10px;
+	height: 40px;
+	text-shadow: 0 1px rgba(221,231,233, .7);
+	vertical-align: top;
+	width: 20%;
+	text-transform: uppercase;
+}
+
+.bx-gadget-speed-graph-part:before {
+	content: '';
+	display: inline-block;
+	height: 40px;
+	vertical-align: middle;
+	width: 14px;
+}
+
+.bx-gadget-speed-graph-text {
+	display: inline-block;
+	margin-top: 3px;
+	vertical-align: middle;
+}
+
+.bx-gadget-speed-graph-varyfast {
+	background-color: #cddd62;
+	border-radius: 3px 0 0 3px;
+}
+.bx-gadget-speed-graph-fast {
+	background-color: #afc232;
+}
+.bx-gadget-speed-graph-notfast {
+	background-color: #ecd238;
+}
+.bx-gadget-speed-graph-slow {
+	background-color: #eaaa3a;
+}
+.bx-gadget-speed-graph-veryslow {
+	background-color: #eb8825;
+	border-radius: 0 3px 3px 0;
+}
+
+.bx-gadget-speed-pointer {
+	background-color: rgba(74,88,19, 0.32);
+	bottom: 0;
+	left: -15%;
+	height: 40px;
+	position: absolute;
+	width: 1px;
+
+	-webkit-transition: left 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+	transition: left 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bx-gadget-speed-value {
+	background: url(images/speed-sprite.png) no-repeat 0 0;
+	color: #000;
+	height: 27px;
+	font-size: 13px;
+	font-weight: bold;
+	left: -22px;
+	line-height: 19px;
+	position: absolute;
+	text-align: center;
+	text-shadow: 0 -1px rgba(255,255,255,0.68);
+	top: -22px;
+	width: 44px;
+}
+
+.bx-gadgets-perfmon .bx-gadgets-side {
+	background: url("images/stitch2.png") repeat-y 0 0;
+}
+
+
+.bx-gadget-speed-waiter {
+	background: url(images/waiter-speed.gif) no-repeat 0 0;
+	height: 42px;
+	left: 77px;
+	position: absolute;
+	top: 9px;
+	width: 42px;
+
+	-webkit-transition: opacity 0.3s linear;
+	transition: opacity 0.3s linear;
+}
+
+.bx-gadgets-speed-ready .bx-gadget-speed-waiter {
+	opacity: 0;
+}
+
+

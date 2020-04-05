@@ -1,0 +1,4 @@
+<?
+$MESS["SALE_LOCATION_ADMIN_SEARCH_HELPER_ENTITY_INVALID_SINDEX"] = "Der Suchindex der Standorte ist veraltet. Wenn Sie die Suchzeile zur Auswahl der Standorte benutzen, kann die Suche lange dauern und das Ergebnis nicht relevant sein. Es wird empfohlen, #ANCHOR_INDEX_RESTORE#den Suchindex manuell wiederherzustellen#ANCHOR_END#.";
+$MESS["SALE_LOCATION_ADMIN_SEARCH_HELPER_ENTITY_INVALID_DBINDEX"] = "Einer oder mehrere Indexe fehlen in den Tabellen mit Standortdatenbank. Das kann die Performance der Standorte beeinträchtigen. Es wird empfohlen, #ANCHOR_INDEX_RESTORE#Datenbankindexe manuell wiederherzustellen#ANCHOR_END#.";
+?>

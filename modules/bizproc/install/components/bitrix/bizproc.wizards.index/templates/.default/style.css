@@ -1,0 +1,12 @@
+div.bpcw-item-container{position:relative; height:250px;}
+div.bpcw-item-menu-container{position:absolute; top:0; left:0; width:150px; height:150px; z-index:20;background-image:url("images/album/cover_b.gif");cursor:pointer;}
+div.bpcw-item-menu{background:white; z-index:20; float:left;}
+div.bpcw-item-info-container{position:absolute; top:0; left:0; width:200px;z-index:10;}
+
+div.bpcw-item-menu a:link, div.bpcw-item-menu a:visited, div.bpcw-item-menu a:active, div.bpcw-item-menu a:hover{background-position:center center;background-repeat:no-repeat;border:1px solid #FFFFFF;display:block;float:left;height:20px;line-height:1em;width:20px;color:#285B96;text-decoration:underline;}
+
+div.bpcw-item-menu a:hover{border:1px solid #AAAAAA;}
+
+a.bpcw-item-menu-edit{background-image:url("icons/alb_edit.png");}
+
+a.bpcw-item-menu-delete{background-image:url("icons/alb_drop.png");display:block;height:20px;line-height:1em;width:20px;}

@@ -1,0 +1,23 @@
+drop table if exists b_ticket;
+drop table if exists b_ticket_dictionary;
+drop table if exists b_ticket_dictionary_2_site;
+drop table if exists b_ticket_message;
+drop table if exists b_ticket_message_2_file;
+drop table if exists b_ticket_online;
+drop table if exists b_ticket_sla;
+drop table if exists b_ticket_sla_2_site;
+drop table if exists b_ticket_sla_2_category;
+drop table if exists b_ticket_sla_2_criticality;
+drop table if exists b_ticket_sla_2_mark;
+drop table if exists b_ticket_sla_2_user_group;
+drop table if exists b_ticket_sla_shedule;
+drop table if exists b_ticket_ugroups;
+drop table if exists b_ticket_user_ugroup;
+drop table if exists b_ticket_supercoupons;
+drop table if exists b_ticket_supercoupons_log;
+
+drop table if exists b_ticket_timetable;
+drop table if exists b_ticket_holidays;
+drop table if exists b_ticket_sla_2_holidays;
+drop table if exists b_ticket_search;
+drop table if exists b_ticket_timetable_cache;

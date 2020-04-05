@@ -1,0 +1,25 @@
+
+
+/* Web-forms :: public css */
+
+.tablebodylink {text-decoration: none;}
+a.tablebodylink:hover {text-decoration: underline;}
+.filteron {color:#FF0000;}
+.filteroff {color:#1C7729;}
+.anstext {color:#166122;}
+.ansvalue {color:#FF0000;}
+.smalltxt {font-family: Arial, Helvetica, sans-serif; font-size:11px; color:#000000; font-weight:normal; text-decoration: none}
+.smalltxtlink {font-family: Arial, Helvetica, sans-serif; font-size:11px; font-weight:normal; text-decoration: none}
+a.smalltxtlink:hover {text-decoration: underline;}
+.notetext {font-family: Verdana,Arial,Helvetica,sans-serif; font-size:12px; font-weight: bold; color: green;}
+.tline {border-bottom:1pt solid #D1D1D1}
+.tablenullbody {background-color:#FFFFFF;}
+.statusred {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#FF0000;}
+.statusblue {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#0000FF;}
+.statusgreen {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#1C7729;}
+.statusgrey {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#7E7E7E;}
+.statusblack {font-family: Arial, Helvetica, sans-serif; font-size:12px; color:#000000;}
+
+/*Site edit mode buttons*/
+.form-edit-tpl {width:17px; height:17px; background-repeat:no-repeat; background-image: url(/bitrix/images/form/edit_templ_icon.gif)}
+.form-edit-default-tpl {width:17px; height:17px; background-repeat:no-repeat; background-image: url(/bitrix/images/form/edit_def_templ_icon.gif)}

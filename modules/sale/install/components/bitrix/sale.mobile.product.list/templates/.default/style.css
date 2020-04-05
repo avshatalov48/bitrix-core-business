@@ -1,0 +1,192 @@
+.no_foto {
+    background-color: #F5F5F5;
+    border: 1px solid #DCDCDC;
+    /*border-radius: 4px 4px 4px 4px;*/
+    color: #ADADAD;
+    display: inline-block;
+    font-size: 11px !important;
+    height: 74px;
+    line-height: 76px;
+    text-align: center;
+    width: 78px;
+}
+
+.order_detail_container{
+	padding:0 10px;
+	border-bottom:2px solid #d0d3d5;
+	border-top:1px solid #e7ebed;
+}
+
+.order_detail_container .order_infoblock_title{padding:9px 0}
+
+.order_infoblock.close .order_infoblock_content,
+.order_infoblock.close .order_detail_container,
+.order_infoblock.close .order_detail_container_itogi{
+	padding:0 15px;
+	border:none;
+	height:0;
+	overflow:hidden;
+}
+
+.order_infoblock_title{
+	padding:9px 15px;
+	color:#113549;
+	font-weight:bold;
+	font-size:14px;
+	text-shadow:0 1px 0 #fff;
+	position:relative;
+}
+
+.order_detail_table{
+	border-collapse:collapse;
+	border-bottom:none;
+	width:100%;
+	margin:5px auto;
+	border-top:1px solid #e5e5e5;
+	border-bottom:1px solid #e5e5e5;
+}
+.order_detail_table tr td{
+	padding:0;
+	vertical-align:top;
+	padding:15px 0px ;
+}
+
+.order_detail_table_td_img img{
+	max-width:75px;
+	height:auto;
+	margin:0 5px 0 0;
+}
+
+.order_detail_table_td_table{
+	border:1px solid #ccc;
+	border-collapse:collapse;
+	width:100%;
+}
+.order_detail_table_td_table thead tr td{
+	background:#e8ebee;
+	color:#6e787f;
+	font-size:12px;
+	text-align:center;
+	vertical-align:middle;
+	padding:2px 5px;
+	white-space:nowrap;
+	border-right:1px solid #ccc;
+}
+.order_detail_table_td_table tbody tr td{
+	text-align:center;
+	vertical-align:top;
+	padding:3px 5px;
+	border-right:1px solid #ccc;
+	font-size:12px;
+	color:#000;
+}
+.order_detail_table_td_table tbody tr td .price{}
+.order_detail_table_td_table tbody tr td .price_old{
+	color:#a3a3a3;
+	text-decoration:line-through;
+}
+.order_detail_table_td_table tbody tr td .price_sale{}
+.order_detail_list_description_title{
+	float:left;
+	padding-top:2px;
+	font-size:14px;
+	line-height:15px;
+	color:#ccc;
+}
+
+.order_detail_list_description_text{
+	/*margin-left:200px;*/
+	margin-top:10px;
+	padding-bottom:10px;
+}
+.order_detail_list_description_text ul{
+	margin-left:77px;
+	display:block;
+	padding:0;
+}
+.order_detail_list_description_text ul li{}
+
+.order_detail_list_description_text ul li{
+	font-size:14px;
+	color:#000;
+	padding:0;
+	display:block;
+	font-style:italic;
+	line-height:15px;
+}
+.order_detail_list_description_text ul li:after{content:", "}
+.order_detail_list_description_text ul li:last-child:after{content:none}
+
+.order_detail_container_itogi{padding:10px}
+.order_detail_container_itogi_table{
+	width:100%;
+	border-collapse:collapse;
+	/*border-radius:2px;*/
+}
+.order_detail_container_itogi_table tr td{
+	vertical-align:middle;
+	padding:5px;
+	text-align:left;
+}
+.order_detail_container_itogi_table tr td:first-child{
+	color:#5e6970;
+	font-size:11px;
+}
+.order_detail_container_itogi_table tr td:last-child{
+	color:#000;
+	font-size:13px;
+	font-weight:bold;
+}
+.order_detail_container_itogi_table_td_green{background:#edf2d4}
+.order_detail_container_itogi_coupon{
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 10px;
+}
+.order_detail_container_itogi_coupon tr td{
+	color: #112a38;
+	font-size: 11px;
+	vertical-align: middle;
+	text-align: left;
+}
+
+
+.order_detail_container_coupon_input_container input[type=text]{
+	line-height: 30px;
+	border: none;
+	border-radius: 14px;
+	display: block;
+	background: transparent;
+	width: 100%;
+}
+.order_detail_container_coupon_input_container{
+	position: relative;
+	border-radius: 5px;
+	border: 1px solid #b9bcbe;
+	background: #fff;
+	margin: 0 5px;
+	box-shadow: inset 0 1px 2px 0 rgba(0,0,0,.1), 0 1px 1px 0 #fff;
+}
+
+.order_detail_container_coupon_button{
+
+	padding:5px 15px;
+	display:block;
+	border-top:1px solid #f1f1f1;
+	border-left:1px  solid #d8d8d8;
+	border-right:1px solid #d8d8d8;
+	border-bottom:1px solid #a9a9a9;
+	color:#133c53;
+	font-size:14px;
+	font-weight:bold;
+	border-radius: 5px;
+	text-shadow:0 1px 0 #fff;
+	background-image:-webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#e0e5e8));
+	background-image:-webkit-linear-gradient(#fff 0%, #e0e5e8 100%);
+	background-image:linear-gradient(#fff 0%, #e0e5e8 100%);
+	text-decoration:none;
+	box-shadow:0 1px 0 0 #e5e5e5, inset 0 0 1px 0 #e8ecee;
+	line-height:18px;
+}
+
+.clb{clear:both}

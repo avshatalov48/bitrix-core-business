@@ -1,0 +1,31 @@
+<?
+$MESS["SEC_IP_EDIT_TAB"] = "Rule";
+$MESS["SEC_IP_EDIT_TAB_TITLE"] = "Edit IP block rule";
+$MESS["SEC_IP_EDIT_SAVE_ERROR"] = "Error saving the rule.";
+$MESS["SEC_IP_EDIT_EDIT_TITLE"] = "Edit Rule";
+$MESS["SEC_IP_EDIT_ADD_TITLE"] = "New Rule";
+$MESS["SEC_IP_EDIT_MENU_LIST"] = "Rules";
+$MESS["SEC_IP_EDIT_MENU_LIST_TITLE"] = "Blocking Rules";
+$MESS["SEC_IP_EDIT_MENU_ADD"] = "Add";
+$MESS["SEC_IP_EDIT_MENU_ADD_TITLE"] = "Add a new rule";
+$MESS["SEC_IP_EDIT_MENU_DELETE"] = "Delete";
+$MESS["SEC_IP_EDIT_MENU_DELETE_TITLE"] = "Delete rule";
+$MESS["SEC_IP_EDIT_MENU_DELETE_CONF"] = "Are you sure you want to delete the rule?";
+$MESS["SEC_IP_EDIT_ID"] = "ID";
+$MESS["SEC_IP_EDIT_ACTIVE"] = "Active";
+$MESS["SEC_IP_EDIT_ADMIN_SECTION"] = "For Control Panel Pages";
+$MESS["SEC_IP_EDIT_SITE_ID"] = "For Public Section Pages";
+$MESS["SEC_IP_EDIT_SORT"] = "Sort";
+$MESS["SEC_IP_EDIT_NAME"] = "Title";
+$MESS["SEC_IP_EDIT_ACTIVE_FROM"] = "Active From";
+$MESS["SEC_IP_EDIT_ACTIVE_TO"] = "Active Until";
+$MESS["SEC_IP_EDIT_INCL_IPS"] = "Block IP Addresses And Ranges";
+$MESS["SEC_IP_EDIT_INCL_IPS_SAMPLE"] = "Examples: 192.168.0.7; 192.168.0.1-192.168.0.100";
+$MESS["SEC_IP_EDIT_EXCL_IPS"] = "Except IP's";
+$MESS["SEC_IP_EDIT_INCL_MASKS"] = "Block access to paths (mask)";
+$MESS["SEC_IP_EDIT_INCL_MASKS_SAMPLE"] = "Examples: /* or /bitrix/admin/*";
+$MESS["SEC_IP_EDIT_EXCL_MASKS"] = "Except Paths (mask)";
+$MESS["SEC_IP_EDIT_ROW_ADD"] = "Add";
+$MESS["SEC_IP_EDIT_SAVE_ERROR_EMPTY_INCL_IPS"] = "The IP addresses to block are required.";
+$MESS["SEC_IP_EDIT_SAVE_ERROR_EMPTY_INCL_MASKS"] = "The address wildcards to be blocked are required.";
+?>

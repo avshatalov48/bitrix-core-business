@@ -1,0 +1,280 @@
+/*pay*/
+.sale-order-payment-change-pp.row{
+	margin-right: 0;
+	margin-left: 0;
+}
+
+.sale-order-payment-change-pp-list{
+	opacity:0;
+}
+
+.sale-order-payment-change-pp-company {
+	height:40px;
+	padding-bottom: 20px;
+	z-index: 100;
+	position: relative;
+}
+
+.sale-order-payment-change-pp .sale-order-payment-change-pp-company {
+	padding: 7px;
+	border: 1px solid transparent;
+	height: auto;
+	margin-bottom: 15px;
+	-webkit-transition: all 100ms ease;
+	   -moz-transition: all 100ms ease;
+		-ms-transition: all 100ms ease;
+		 -o-transition: all 100ms ease;
+			transition: all 100ms ease;
+}
+
+.sale-order-payment-change-pp-company:hover .sale-order-payment-change-pp-company-graf-container{
+	-webkit-transition: all 100ms ease;
+	-moz-transition: all 100ms ease;
+	-ms-transition: all 100ms ease;
+	-o-transition: all 100ms ease;
+	transition: all 100ms ease;
+	border-color: #159ebb;
+}
+
+.sale-order-payment-change-pp-company-graf-container {
+	border: 2px solid #c3cace;
+	border-radius: 2px;
+	position: relative;
+	background: #fff;
+	width: auto;
+	height: 0;
+	padding-top: 50%;
+}
+
+.sale-order-payment-change-pp-company-image {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	bottom: 5px;
+	left: 5px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.sale-order-payment-change-pp-company-smalltitle {
+	padding-top: 9px;
+	color: #a3a3a3;
+	font-size: 11px;
+	text-align: center;
+	padding-bottom: 5px;
+}
+
+.sale-order-payment-change-pp-field .form-control { background: #fff; }
+
+.sale-order-payment-change-pp-price {
+	text-align: right;
+	padding: 4px 0;
+}
+
+.sale-order-payment-change-service-small {
+	color: #a3a3a3;
+	font-size: 11px;
+}
+
+@media (min-width: 1200px) {
+	.sale-order-payment-change-pp div .sale-order-payment-change-pp-company:nth-child(4n+1),
+	.sale-order-payment-change-pp-item-container .sale-order-payment-change-pp-company:nth-child(4n+1) {
+		clear: both;
+		padding-left: 0;
+	}
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+	.sale-order-payment-change-pp div .sale-order-payment-change-pp-company:nth-child(3n+1),
+	.sale-order-payment-change-pp-item-container .sale-order-payment-change-pp-company:nth-child(3n+1) {
+		clear: both;
+		padding-left: 0;
+	}
+}
+@media (max-width: 767px) {
+	.sale-order-payment-change-pp,
+	.sale-order-payment-change-pp-item-container { max-width: 450px; }
+	.sale-order-payment-change-pp div .sale-order-payment-change-pp-company:nth-child(2n+1),
+	.sale-order-payment-change-pp-item-container .sale-order-payment-change-pp-company:nth-child(2n+1) {
+		clear: both;
+		padding-left: 0;
+	}
+}
+
+.sale-order-payment-change-inner-row {
+	padding: 0;
+	position: relative;
+}
+
+.sale-order-payment-change-payment{
+	padding-bottom: 20px;
+}
+
+.sale-order-payment-change-payment-title{
+	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #000;
+}
+
+.sale-order-payment-change-status-alert,
+.sale-order-payment-change-status-restricted,
+.sale-order-payment-change-status-success {
+	display: inline-block;
+	padding: 4px 10px 5px 8px;
+	border: 1px solid #eab3b9;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	-o-border-radius: 2px;
+	border-radius: 2px;
+	background: #ffe5e8;
+	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #d0021b;
+}
+
+.sale-order-payment-change-status-restricted {
+	background: #f3f4f5;
+	border: 1px solid rgba(128,134,142,0.20);
+	color: #535c69;
+}
+
+.sale-order-payment-change-status-success {
+	background: #e3f0bd;
+	border: 1px solid #bed277;
+	color: #597707;
+}
+
+.sale-order-payment-change-payment-price {
+	padding: 4px 0 0 0;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.sale-order-payment-change-payment-form-group{
+	display: table;
+}
+.sale-order-payment-change-payment-form-cell{
+	display: table-cell;
+	vertical-align: middle;
+
+	text-align:center;
+}
+.sale-order-inner-payment-button {
+	display: block;
+	cursor: pointer;
+	padding: 0 17px;
+	max-width: 115px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	height: 38px;
+	background: #1485ce;
+	color: #fff;
+	font: bold 13px/38px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align: center;
+	float: left;
+}
+
+.sale-order-inner-payment-button:hover {
+	color: #fff;
+	background: #53a4d8;
+	-webkit-transition: background ease-out 0.5s;
+	-moz-transition: background ease-out 0.5s;
+	-o-transition: background ease-out 0.5s;
+	transition: background ease-out 0.5s;
+}
+
+.sale-order-inner-payment-button.inactive-button {
+	opacity: 0.2;
+	cursor: pointer;
+}
+
+.sale-order-inner-payment-button.inactive-button:hover{
+	background: #1485ce;
+	color: #FFFFFF;
+}
+.sale-order-inner-padding-bottom{
+	padding-bottom:15px;
+}
+.sale-paysystem-wrapper {
+	position: relative;
+	padding: 24px 38px 24px 38px;
+	margin: 0 -15px 0 0;
+	border: 1px solid #3bc8f5;
+	font: 14px "Helvetica Neue",Arial,Helvetica,sans-serif;
+	color: #424956;
+}
+.sale-paysystem-wrapper {
+	position: relative;
+	padding: 24px 38px 24px 38px;
+	margin: 0 -15px 0 0;
+	border: 1px solid #3bc8f5;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #424956;
+}
+
+.sale-paysystem-close {
+	position: absolute;
+	top: 7px;
+	right: 7px;
+}
+
+.sale-paysystem-close-item {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background: url(../../components/bitrix/sale.personal.order.detail/templates/.default/images/sale-personal-order-sprite.svg) 1px 1px no-repeat;
+	-webkit-transition: opacity .3s ease;
+	-moz-transition: opacity .3s ease;
+	transition: opacity .3s ease;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.sale-paysystem-close-item:hover {
+	opacity: .5;
+}
+
+.sale-paysystem-description {
+	margin: 0 0 11px 0;
+	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #bcbdc0;
+}
+
+.sale-paysystem-yandex-button {
+	display: inline-block;
+	margin: 26px 10px 26px 0;
+}
+
+.sale-paysystem-yandex-button-item {
+	padding: 0 22px;
+	height: 38px;
+	border: 0;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	background: #f59023;
+	font: bold 13px/35px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #fff;
+	-webkit-transition: background .3s ease;
+	-moz-transition: background .3s ease;
+	transition: background .3s ease;
+}
+
+.sale-paysystem-yandex-button-item:hover {
+	background: #ff911a;
+	color: #fff;
+	text-decoration: none;
+}
+
+.sale-paysystem-yandex-checkout-button-item {
+	padding: 10px 22px;
+}
+
+.sale-paysystem-yandex-button-item:focus {
+	color: #fff;
+	text-decoration: none;
+}
+
+.sale-paysystem-yandex-button-descrition {
+	display: inline-block;
+	margin: 0 0 15px 0;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868e;
+}

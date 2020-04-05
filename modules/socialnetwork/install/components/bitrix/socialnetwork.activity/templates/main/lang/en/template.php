@@ -1,0 +1,5 @@
+<?
+$MESS ['SONET_ACTIVITY_T_GROUP_TITLE'] = "Group #NAME#";
+$MESS ['SONET_ACTIVITY_T_USER_TITLE1'] = "User ";
+$MESS ['SONET_ACTIVITY_T_NO_UPDATES'] = "No updates.";
+?>

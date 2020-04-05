@@ -1,0 +1,20 @@
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}
+
+.bx-user-controls {margin-top:10px;}
+.bx-user-controls .bx-user-control {
+	margin: 0px;
+	text-align:right;
+}
+
+.bx-user-controls .bx-user-control a {color:#999999;}
+.bx-user-controls .bx-user-control a:hover {text-decoration: underline;}
+
+.bx-user-controls .bx-user-control ul {list-style-image: none; list-style-position: outside; list-style-type: none; margin: 0; padding: 0;}
+.bx-user-control ul li.bx-icon {
+	display: block;
+	clear: both;
+}

@@ -1,0 +1,22 @@
+.bx-pin {
+	position: relative;
+	box-sizing: border-box;
+}
+
+.bx-pinned-top,
+.bx-pinned-bottom {
+	position: fixed;
+}
+
+.bx-pinned-top {
+	top: 0;
+}
+
+.bx-pinned-bottom {
+	bottom: 0;
+}
+
+.bx-pin[data-pin-use-controll="true"] {}
+.bx-pin-controll {}
+.bx-pin-controll-pin {}
+.bx-pin-controll-unpin {}

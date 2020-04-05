@@ -1,0 +1,46 @@
+var owner_id = "%OWNER_ID%";
+var count =%COUNT%;
+var data =%DATA%;
+var res = [];
+
+var i = 0;
+while (i < count) {
+
+    var res_curr = [];
+    var FLAG_EDIT = data[i].FLAG_EDIT;
+    var params = {
+        "title": data[i].TITLE,
+        "owner_id": owner_id,
+    };
+    if(data[i].PHOTO_VK_ID) {
+        params.photo_id = data[i].PHOTO_VK_ID;
+    }
+
+
+    if(FLAG_EDIT == true) {
+        params.album_id = data[i].ALBUM_VK_ID;
+        var res_edit = API.market.editAlbum(params);
+        if(res_edit) {
+            res_curr.flag_album_edit_result = true;
+        } else {
+            res_curr.flag_album_edit_result = false;
+        }
+    }
+    else {
+        var res_add= API.market.addAlbum(params);
+        if(res_add) {
+            res_curr.ALBUM_VK_ID = res_add.market_album_id;
+            res_curr.flag_album_add_result = true;
+        } else {
+            res_curr.flag_album_add_result = false;
+        }
+    }
+
+
+    res_curr.SECTION_ID = data[i].SECTION_ID;
+    res_curr.FLAG_EDIT = FLAG_EDIT;
+    res = res + [res_curr];
+    i = i + 1;
+}
+
+return res;

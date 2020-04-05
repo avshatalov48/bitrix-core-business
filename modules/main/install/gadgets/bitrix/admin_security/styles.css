@@ -1,0 +1,87 @@
+.bx-gadgets-security{position:relative;}
+
+.bx-gadgets-security:hover .bx-gadgets-color-config-close {background-position:-1px -589px;}
+.bx-gadgets-security:hover .bx-gadgets-color-config-close:hover {background-position:-1px -606px;}
+
+.bx-gadgets-colourful.bx-gadgets-security {border:none;}
+.bx-gadgets-colourful.bx-gadgets-security .bx-gadgets-content {
+	background:#3175b5;
+	background:-webkit-linear-gradient(top, #3d93cb, #1c72aa);
+	background:-moz-linear-gradient(top, #3f83c3, #1d61a1);
+	background:-ms-linear-gradient(top, #3f83c3, #1d61a1);
+	background:-o-linear-gradient(top, #3f83c3, #1d61a1);
+	background:linear-gradient(top, #3d93cb, #1c72aa);
+
+	box-shadow:inset 0 1px 0 #5c95cc;
+	-webkit-box-shadow:inset 0 1px 0 #5c95cc;
+	padding:12px 13px 15px;
+	position: relative;
+}
+
+.bx-gadgets-security .bx-gadget-shield {
+	float:right;
+	height: 78px;
+	margin:16px 20px 0 0;
+	width: 69px;
+}
+
+.bx-gadgets-security .bx-gadget-shield-blue {
+	background:url("/bitrix/gadgets/bitrix/admin_security/images/shield_blue.png") no-repeat left top;
+}
+
+.bx-gadgets-security .bx-gadget-shield-red {
+	background:url("/bitrix/gadgets/bitrix/admin_security/images/shield_red.png") no-repeat left top;
+}
+
+.bx-gadgets-security .bx-gadgets-side { background:url("/bitrix/gadgets/bitrix/admin_security/images/stitch2.png") repeat-y left top transparent; }
+
+.bx-gadgets-security .bx-gadget-button {
+	border-radius:4px;
+	border:1px solid;
+	border-color:#2778ad #1e6897 #144d72;
+	background:#419ddf;
+	background:-webkit-linear-gradient(top, #409cde, #2b7fb9, #176397);
+	background:-moz-linear-gradient(top, #409cde, #2b7fb9, #176397);
+	background:-ms-linear-gradient(top, #409cde, #2b7fb9, #176397);
+	background:-o-linear-gradient(top, #409cde, #2b7fb9, #176397);
+	background:linear-gradient(top, #409cde, #2b7fb9, #176397);
+	-webkit-shadow:inset 0 1px 0 #52aceb, inset -1px 0 0 #4396c9, inset 0 -1px 0 #317faf, inset 1px 0 0 #4396c9, 0 1px 0 #1b689a;
+	box-shadow: inset 0 -1px 0 #317faf, inset 0 1px 0 #52aceb, inset 0 0 0 1px #4498cb, 0 2px 0 -1px #1b689a;
+	margin-bottom:1px;
+}
+
+.bx-gadgets-security .bx-gadget-button:hover {
+	background:#4aa7e3;
+	background:-webkit-linear-gradient(top, #57b1fb, #4197c3, #307ca6);
+	background:-moz-linear-gradient(top, #57b1fb, #4197c3, #307ca6);
+	background:-ms-linear-gradient(top, #57b1fb, #4197c3, #307ca6);
+	background:-o-linear-gradient(top, #57b1fb, #4197c3, #307ca6);
+	background:linear-gradient(top, #57b1fb, #4197c3, #307ca6);
+	-webkit-shadow:inset 0 1px 0 #52aceb, inset -1px 0 0 #4396c9, inset 0 -1px 0 #317faf, inset 1px 0 0 #4396c9, 0 1px 0 #1b689a;
+	box-shadow: inset 0 -1px 0 #317faf, inset 0 1px 0 #52aceb, inset 0 0 0 1px #4498cb, 0 2px 0 -1px #1b689a;
+}
+
+.bx-gadgets-security .bx-gadget-button-active {
+	background: #185186!important;
+	box-shadow: 0 1px 0 0 rgba(152,205,237,0.76), inset 0 1px 0 #0f3055 , inset 0 2px 0 0 #113861, inset 0 2px 3px rgba(17,28,46,0.5) !important;
+	border-radius:4px;
+	margin-bottom:1px;
+}
+.bx-gadgets-security .bx-gadget-button-lamp { background:url("/bitrix/gadgets/bitrix/admin_security/images/lamp.png") no-repeat left top transparent; }
+.bx-gadgets-security .bx-gadget-button-active .bx-gadget-button-lamp { background:url("/bitrix/gadgets/bitrix/admin_security/images/lamp_active.png") no-repeat left top transparent; }
+.bx-gadgets-security .bx-gadget-button-text {text-shadow: 0 -1px 0 #08203a;}
+.bx-gadgets-security .bx-gadgets-title {text-shadow: 0 1px 0 #7cbce9; margin-right:25px;}
+.bx-gadgets-security .bx-gadget-events {
+	color: #0A3A68;
+	text-shadow: 0 1px 0 #7FB6DF;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 10px;
+	font-size: 50px;
+	line-height: 47px;
+	font-family: Helvetica,Arial,sans-serif;
+	font-weight: bold;
+
+}
+.bx-gadgets-security .bx-gadgets-title2 {color: #98cded; text-shadow: 0 -1px 0 #235483;}
+

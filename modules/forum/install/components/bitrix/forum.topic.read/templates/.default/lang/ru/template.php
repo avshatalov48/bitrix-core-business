@@ -1,0 +1,35 @@
+<?
+$MESS["F_UNSUBSCRIBE"] = "Отписаться";
+$MESS["F_UNSUBSCRIBE_TITLE"] = "Не получать уведомления о новых сообщениях по E-mail";
+$MESS["F_REPLY"] = "Ответить";
+$MESS["F_SUBSCRIBE"] = "Подписаться";
+$MESS["F_SUBSCRIBE_TITLE"] = "Получать уведомления о новых сообщениях по E-mail";
+$MESS["F_CLOSED"] = "Закрыто";
+$MESS["F_EDIT_TOPIC"] = "Изменить тему";
+$MESS["F_DELETE_TOPIC"] = "Удалить тему";
+$MESS["F_CLOSE_TOPIC"] = "Закрыть тему";
+$MESS["F_OPEN_TOPIC"] = "Открыть тему";
+$MESS["F_DELETE_CONFIRM"] = "Сообщение будет удалено без возможности восстановления. Удалить? ";
+$MESS["F_DELETE_TOPIC_CONFIRM"] = "Тема будет удалена без возможности восстановления. Удалить? ";
+$MESS["F_HIDE_TOPIC"] = "Скрыть тему";
+$MESS["F_SHOW"] = "Показать";
+$MESS["F_SHOW_TOPIC"] = "Показать тему";
+$MESS["F_PINN_TOPIC"] = "Прикрепить тему";
+$MESS["F_UNPINN_TOPIC"] = "Открепить тему";
+$MESS["F_MOVE_TOPIC"] = "Перенести тему";
+$MESS["F_MANAGE_TOPIC"] = "Управление темой";
+$MESS["F_MANAGE_MESSAGES"] = "Управление сообщениями";
+$MESS["F_SHOW_MESSAGES"] = "Показать сообщения";
+$MESS["F_HIDE_MESSAGES"] = "Скрыть сообщения";
+$MESS["F_MOVE_MESSAGES"] = "Перенести сообщения";
+$MESS["F_DELETE_MESSAGES"] = "Удалить сообщения";
+$MESS["JQOUTE_AUTHOR_WRITES"] = "пишет";
+$MESS["JS_NO_MESSAGES"] = "Не указан список сообщений. Выберите сообщения.";
+$MESS["JS_NO_ACTION"] = "Не выбрано действие. Выберите действие.";
+$MESS["F_DELETE_MESSAGES_CONFIRM"] = "Сообщения будут удалены без возможности восстановления. Удалить?";
+$MESS["F_COLLAPSE"] = "Свернуть";
+$MESS["F_POSTS"] = "Ответы";
+$MESS["F_SELECT_ALL"] = "Выделить все";
+$MESS["F_HIDE"] = "Скрыть";
+$MESS["F_WAIT"] = "Подождите...";
+?>

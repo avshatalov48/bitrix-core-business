@@ -1,0 +1,6 @@
+<?
+$sSectionName = "Процессы";
+$arDirProperties = array(
+
+);
+?>

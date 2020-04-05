@@ -1,0 +1,32 @@
+<?
+$aMenuLinks = Array(
+	Array(
+		"Feed", 
+		"#SITE_DIR#", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Communities", 
+		"#SITE_DIR#groups/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"People", 
+		"#SITE_DIR#people/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Photo", 
+		"#SITE_DIR#photo/", 
+		Array(), 
+		Array(), 
+		"" 
+	)
+);
+?>

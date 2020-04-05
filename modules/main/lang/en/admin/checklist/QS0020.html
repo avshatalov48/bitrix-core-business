@@ -1,0 +1,33 @@
+<p> Bitrix Framework is supplied with a huge variety of perfectly tested, secure
+and high-performance components ("News", "Menu",
+"Sitemap" and hundreds of others). The standard components is a
+simplest way to reduce the project development time and costs because all that
+is to be done is to fit them to the project specifications.</p>
+
+<p>However, there still may occur a situation when no existing component is
+capable of performing a required function and a custom solution is to be
+developed. When creating your custom components, use the standard ones as an
+example of user interface, public section accessibility, performance and
+security.</p>
+<p>On a large scale, a web project can be envisaged as a set of web pages
+containing standard and/or custom components.</p>
+
+<ol>
+<li>Make up a complete registry of components you use in the project, optionally
+  grouping the components into two major lists: standard and custom.</li>
+<li>The standard components always have a "bitrix:" prefix. Always
+  check the user interface and the component settings in the public section.<p>For
+  example, if a customized "bitrix:news" component is used to render
+  the "Details" list, the component name and settings should reflect the
+  purpose: for example, the "News per page" parameter should be
+  hidden. </p>
+</li> 
+<li>Pay special attention to cache mode in each component. The recommended
+  option is "Auto + Managed" with long cache lifetime. It is essential to
+  remember that, if the caching is disabled, a component will perform database
+  queries every time it needs data which will decrease the website performance.
+<p><img height="96" border="0" width="486" src="/bitrix/images/main/checklist/en/QS0020.png" /></p>
+</li> 
+<li>Run system update. Once it has completed, verify that all the components are
+  intact and function properly.</li>
+ </ol>

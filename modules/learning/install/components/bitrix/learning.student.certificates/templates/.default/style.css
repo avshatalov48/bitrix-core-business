@@ -1,0 +1,28 @@
+/*Table*/
+table.learn-certificates-table
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+}
+
+/*Table head*/
+table.learn-certificates-table th
+{
+	text-align: left;
+	color:#25639A;
+}
+
+/* Table cells and heads*/
+table.learn-certificates-table th, table.learn-certificates-table td
+{
+	border:1px solid #ADC3D5;
+	padding: 3px 5px;
+	vertical-align:top;
+}
+
+/* Only table cells*/
+table.learn-certificates-table td
+{
+}

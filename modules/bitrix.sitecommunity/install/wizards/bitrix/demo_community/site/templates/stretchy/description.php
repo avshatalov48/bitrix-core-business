@@ -1,0 +1,2 @@
+<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?$arTemplate = Array("NAME"=>GetMessage("WIDE_TEMPLATE_DESCRIPTION_NAME"), "DESCRIPTION"=>GetMessage("WIDE_TEMPLATE_DESCRIPTION_DESC"));?>

@@ -1,0 +1,33 @@
+<?
+$MESS["admin_authorize_error"] = "Authentication failure";
+$MESS["admin_forgot_password_error"] = "Error recovering password!";
+$MESS["admin_change_password_error"] = "Error changing password!";
+$MESS["admin_authorize_info"] = "Information";
+$MESS["AUTH_LOGIN"] = "Login";
+$MESS["AUTH_PASSWORD"] = "Password";
+$MESS["AUTH_REMEMBER_ME"] = "Remember Me";
+$MESS["AUTH_PLEASE_AUTH"] = "Please log in";
+$MESS["AUTH_FORGOT_PASSWORD_2"] = "Forgot password?";
+$MESS["AUTH_CAPTCHA_PROMT"] = "Type the letters you see on the picture";
+$MESS["AUTH_CHANGE_PASSWORD"] = "Change password";
+$MESS["AUTH_CHANGE_PASSWORD_1"] = "Please enter the checkword and your new password";
+$MESS["AUTH_CHANGE_PASSWORD_2"] = "Password has been changed successfully.";
+$MESS["AUTH_CHANGE"] = "Change password";
+$MESS["AUTH_CHECKWORD"] = "Checkword";
+$MESS["AUTH_NEW_PASSWORD"] = "New password";
+$MESS["AUTH_NEW_PASSWORD_CONFIRM"] = "Confirm password";
+$MESS["AUTH_NEW_PASSWORD_CONFIRM_WRONG"] = "The passwords you entered did not match.";
+$MESS["AUTH_FORGOT_PASSWORD"] = "Password request";
+$MESS["AUTH_FORGOT_PASSWORD_1"] = "If you cannot remember your password, enter your login or e-mail you have used for registration. A message containing the check word you can use to change the password will be sent to your e-mail.";
+$MESS["AUTH_OR"] = "or";
+$MESS["AUTH_GOTO_AUTH_FORM"] = "Log in";
+$MESS["AUTH_GOTO_AUTH_FORM_1"] = "Login";
+$MESS["AUTH_GOTO_FORGOT_FORM"] = "Recover password";
+$MESS["AUTH_GOTO_CHANGE_FORM"] = "Change password";
+$MESS["AUTH_GET_CHECK_STRING"] = "Send me checkword";
+$MESS["AUTH_GET_CHECK_STRING_SENT"] = "Checkword has been sent.";
+$MESS["AUTH_SEND"] = "Send";
+$MESS["AUTH_OTP_REMEMBER_ME"] = "Remember password on this computer";
+$MESS["AUTH_OTP_PASS"] = "One-time password";
+$MESS["AUTH_NW_SECTION"] = "or login using";
+?>

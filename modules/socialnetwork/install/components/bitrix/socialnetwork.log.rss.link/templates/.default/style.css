@@ -1,0 +1,12 @@
+.log-rss-icon {
+	background-image: url(images/rss_icon.gif);
+	background-repeat: no-repeat; 
+	width:45px; 
+	height:17px; 
+	display:block; 
+	line-height: 1em;
+}
+.log-rss-text {
+	padding-left: 20px;
+	padding-top: 1px;
+}

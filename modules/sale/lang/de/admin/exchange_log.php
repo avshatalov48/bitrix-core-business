@@ -1,0 +1,29 @@
+<?
+$MESS["LOG_ID"] = "ID";
+$MESS["LOG_ENTITY_ID"] = "ID des Elements";
+$MESS["LOG_ENTITY_TYPE_ID"] = "Elementtyp";
+$MESS["LOG_PARENT_ID"] = "ID des Containers";
+$MESS["LOG_OWNER_ENTITY_ID"] = "ID des übergeordneten Elements";
+$MESS["LOG_ENTITY_DATE_UPDATE"] = "Element zuletzt aktualisiert am";
+$MESS["LOG_XML_ID"] = "Externe ID";
+$MESS["LOG_MARKED"] = "Markiert";
+$MESS["LOG_MARKED_Y"] = "Ja";
+$MESS["LOG_MESSAGE"] = "Volltext der Anfrage/Antwort";
+$MESS["LOG_DATE_INSERT"] = "Erstellt am";
+$MESS["group_admin_nav"] = "Elemente";
+$MESS["LOG_TITLE"] = "Log-Datei der Elemente im Austausch";
+$MESS["LOG_NOTES1"] = "Die Datei enthält Elemente, die beim Export oder Import erstellt wurden";
+$MESS["LOG_REPORT_TYPES"] = "Elementtyp";
+$MESS["LOG_REPORT_DATE_INSERT"] = "Erstellt am";
+$MESS["LOG_REPORT_ENTITY_ID"] = "ID des Elements";
+$MESS["LOG_REPORT_PARENT_ENTITY_ID"] = "ID des Containers";
+$MESS["LOG_REPORT_DIRECTION_ID"] = "Richtung";
+$MESS["LOG_REPORT_DIRECTION_EXPORT"] = "Export";
+$MESS["LOG_REPORT_DIRECTION_IMPORT"] = "Import";
+$MESS["LOG_REPORT_XML_ID"] = "Externe ID";
+$MESS["LOG_REPORT_FROM"] = "von";
+$MESS["LOG_REPORT_TO"] = "bis";
+$MESS["REPORT_ALL"] = "alle";
+$MESS["REPORT_SHOW_SET"] = "Maximieren";
+$MESS["REPORT_HIDE_SET"] = "Ausblenden";
+?>

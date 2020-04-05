@@ -1,0 +1,33 @@
+<p>Before you start to configure the web cluster for maximum performance and
+robustness, it is strongly recommended that you spent some time reading the
+documentation authored by the Bitrix software engineers.</p>
+
+<p>Don't try to exploit all the possible web clustering features at once roaming
+blind in the wilderness of settings. It is advised that you exercise an iterated
+approach and configure your web system in steps. For example:
+</p>
+
+<ol>
+<li>Read the <a href="http://www.bitrixsoft.com/download/manuals/en/webcluster_guide_en.pdf" target="_blank">web
+  cluster configuration guide</a>.</li>
+<li>Configure memcached by analyzing data and selecting the optimum cache size (say, 128
+  MB for each memcached instance).</li> 
+<li>Configure another application server.</li> 
+<li>Configure content synchronization using csync (or some other software).</li> 
+<li>Connect monitoring software to the second and other servers.</li>
+<li>Configure the balancer and the SSL termination (if required).</li> 
+<li>Configure the session distribution mode, which can be: a) shared sessions
+  stored in the database, b) user private sessions distributed per IP address.
+  Other scenarios are also possible</li> 
+<li>Configure SQL replication. Use vertical sharding if required.</li>
+ </ol>
+
+<ul>
+<li>Ensure all the developers and administrators involved have read the
+  configuration guide.</li>
+<li>Verify that the approved web cluster architecture matches the tasks as well
+  as the accessibility and performance requirements. The number of application
+  and database servers, the balancer mode, the replication mode etc. have to be
+  well reasoned. It is recommended to create web cluster specifications in which
+  to describe the required architecture.</li> 
+ </ul>

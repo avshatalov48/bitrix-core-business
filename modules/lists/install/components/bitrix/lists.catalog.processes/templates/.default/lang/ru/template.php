@@ -1,0 +1,11 @@
+<?
+$MESS["LISTS_LCP_TEMPLATE_DESCRIPTION_PAGE"] = "Выберите процессы для установки";
+$MESS["LISTS_LCP_TEMPLATE_TITLE_SYSTEM_PROCESSES"] = "Системные процессы";
+$MESS["LISTS_LCP_TEMPLATE_TITLE_USER_PROCESSES"] = "Пользовательские процессы";
+$MESS["LISTS_LCP_TEMPLATE_BUTTON_INSTALL"] = "Установить";
+$MESS["LISTS_LCP_TEMPLATE_TRANSITION_PROCESSES"] = "Процессы";
+$MESS["LISTS_LCP_TEMPLATE_STATUS_ACTION_SUCCESS"] = "Успешно";
+$MESS["LISTS_LCP_TEMPLATE_STATUS_ACTION_ERROR"] = "Произошла ошибка";
+$MESS["LISTS_LCP_TEMPLATE_PROCESS_INSTALLED"] = " (Установлен)";
+$MESS["LISTS_LCP_TEMPLATE_DESCRIPTION_PAGE_ALL_INSTALL"] = "У вас установлены все доступные Бизнес-процессы.";
+?>

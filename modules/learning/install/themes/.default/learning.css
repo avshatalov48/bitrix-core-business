@@ -1,0 +1,16 @@
+.adm-list-table-cell .learning_icon_courses {
+	background-position: center -1814px;
+}
+.adm-list-table-cell .learning_icon_lessons {
+	background-position: center -1777px;
+	height: 16px;
+}
+.adm-list-table-cell .learning_icon_chapters {
+	background-position: center -118px;
+}
+
+.learning-question-s {width:20px; height:20px;background-image:url(icons/learning/question_s.gif);}
+.learning-question-m {width:20px; height:20px;background-image:url(icons/learning/question_m.gif);}
+.learning-question-r {width:20px; height:20px;background-image:url(icons/learning/question_r.gif);}
+.learning-question-t {width:20px; height:20px;background-image:url(icons/learning/question_t.gif);}
+.learning-wrong-answer {color:red;}

@@ -1,0 +1,11 @@
+.stat_attention {color:#f00;}
+a.stat_attention {color:#f00;}
+.stat_notauth {color:#136C1C;}
+.stat_newguest {color:#1C7729;}
+.stat_oldguest {color:#939393;}
+.stat_pointed {color:green;}
+
+a.stat_link {text-decoration:none;}
+a.stat_link:hover {text-decoration:underline;}
+a.stat_link:hover {color:red;}
+

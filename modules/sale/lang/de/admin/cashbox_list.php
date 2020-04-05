@@ -1,0 +1,35 @@
+<?
+$MESS["SALE_ACCESS_DENIED"] = "Zugriff verweigert.";
+$MESS["SALE_CASHBOX_TITLE"] = "Cash-Register";
+$MESS["SALE_F_ACTIVE"] = "Aktiv";
+$MESS["SALE_ALL"] = "Alle";
+$MESS["SALE_YES"] = "Ja";
+$MESS["SALE_NO"] = "Nein";
+$MESS["SALE_CASHBOX_ADD_NEW"] = "Cash-Register anbinden";
+$MESS["SALE_CASHBOX_ID"] = "ID";
+$MESS["SALE_CASHBOX_NAME"] = "Name";
+$MESS["SALE_CASHBOX_ACTIVE"] = "Aktiv";
+$MESS["SALE_CASHBOX_SORT"] = "Sortierung";
+$MESS["SALE_CASHBOX_DATE_CREATE"] = "Erstellt am";
+$MESS["SALE_CASHBOX_NUMBER_KKM"] = "Cash-Register #";
+$MESS["SALE_CASHBOX_EDIT"] = "Bearbeiten";
+$MESS["SALE_CASHBOX_COPY"] = "URL kopieren";
+$MESS["SALE_CASHBOX_WINDOW_TITLE"] = "Cash-Register anbinden";
+$MESS["SALE_CASHBOX_WINDOW_STEP_1"] = "Geben Sie diese URL in den App-Einstellungen an";
+$MESS["SALE_CASHBOX_WINDOW_STEP_2"] = "Starten Sie unsere Desktop Anwendung zum Cash-Register";
+$MESS["SALE_CASHBOX_POPUP_TITLE"] = "Link zur Anbindung des Cash-Registers";
+$MESS["SALE_CASHBOX_EDIT_DESCR"] = "Parameter des Cash-Registers bearbeiten";
+$MESS["SALE_CASHBOX_DELETE"] = "Löschen";
+$MESS["SALE_CASHBOX_DELETE_DESCR"] = "Löschen";
+$MESS["SPSAN_ERROR_DELETE_1C"] = "1C Kassenapparat kann nicht gelöscht werden, weil er zum System gehört.";
+$MESS["SPSAN_ERROR_DELETE"] = "Fehler beim Löschen eines Kassenapparats";
+$MESS["SPSAN_ERROR_UPDATE"] = "Fehler beim Ändern eines Kassenapparats";
+$MESS["SALE_CASHBOX_DATE_LAST_CHECK"] = "Letztes Kassenzetteldatum";
+$MESS["SALE_CASHBOX_GENERATE_LINK"] = "Link erstellen";
+$MESS["SALE_CASHBOX_DELETE_CONFIRM"] = "Möchten Sie den Kassenapparat ##CASHBOX_ID# wirklich löschen?";
+$MESS["SALE_MARKETPLACE_ADD_NEW"] = "Aus dem Marketplace installieren";
+$MESS["SALE_MARKETPLACE_ADD_NEW_ALT"] = "Klicken Sie, um aus dem Marketplace zu installieren";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS"] = "Status der letzten Anfrage";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS_Y"] = "OK";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS_N"] = "Fehler";
+?>

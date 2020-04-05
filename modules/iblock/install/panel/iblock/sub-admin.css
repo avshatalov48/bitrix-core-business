@@ -1,0 +1,14 @@
+.adm-sublist .adm-list-table-footer .adm-select-wrap
+{
+	display: inline-block;
+}
+
+.adm-sublist .adm-list-table-cell span.row-alert
+{
+	display: inline-block;
+	width: 26px;
+	height: 17px;
+	background: transparent url("images/row-alert.png") no-repeat scroll left top;
+	margin: auto 0 auto 0; vertical-align: middle;
+	padding: 0; border: 0 none transparent;
+}

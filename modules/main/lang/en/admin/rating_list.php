@@ -1,0 +1,32 @@
+<?
+$MESS["RATING_NAME"] = "Name";
+$MESS["RATING_CREATED"] = "Created";
+$MESS["RATING_LAST_MODIFIED"] = "Modified";
+$MESS["RATING_LAST_CALCULATED"] = "Calculated";
+$MESS["RATING_ACTIVE"] = "Active";
+$MESS["RATING_STATUS"] = "Status";
+$MESS["RATING_ENTITY_ID"] = "Binding";
+$MESS["RATING_LIST_NAV"] = "Ratings";
+$MESS["RATING_ACTIVE_YES"] = "Yes";
+$MESS["RATING_ACTIVE_NO"] = "No";
+$MESS["RATING_STATUS_DONE"] = "calculated";
+$MESS["RATING_STATUS_WORKING"] = "being updated";
+$MESS["RATING_STATUS_WAITING"] = "update pending";
+$MESS["RATING_LIST_EDIT"] = "Edit Rating Parameters";
+$MESS["RATING_LIST_RECALCULATE"] = "Recalculate Rating";
+$MESS["RATING_LIST_DEL"] = "Delete Rating";
+$MESS["RATING_LIST_DEL_CONF"] = "Delete Rating?";
+$MESS["RATING_LIST_ADD"] = "New Rating";
+$MESS["RATING_LIST_ADD_TITLE"] = "Add New Rating";
+$MESS["RATING_LIST_FLT_NAME"] = "Name";
+$MESS["RATING_LIST_FLT_ACTIVE"] = "active";
+$MESS["RATING_LIST_FLT_ID"] = "ID";
+$MESS["RATING_LIST_FLT_ENTITY_ID"] = "Entity";
+$MESS["RATING_LIST_FLT_find"] = "Search:";
+$MESS["RATING_LIST_FLT_ALL"] = "(all)";
+$MESS["RATING_LIST_FLT_INACTIVE"] = "inactive";
+$MESS["RATING_LIST_ERR_EDIT"] = "Error updating the record.";
+$MESS["RATING_LIST_ERR_DEL"] = "Error deleting the rating.";
+$MESS["RATING_LIST_ERR_CAL"] = "Error recalculating the rating.";
+$MESS["MAIN_RATING_LIST"] = "Ratings";
+?>

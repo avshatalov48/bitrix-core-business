@@ -1,0 +1,93 @@
+.bx-gadgets-marketplace .bx-gadgets-content {
+	background-color: #f5894b;
+	background-image: -webkit-linear-gradient(top, #f79c68, #f37127);
+	background-image:    -moz-linear-gradient(top, #f79c68, #f37127);
+	background-image:     -ms-linear-gradient(top, #f79c68, #f37127);
+	background-image:      -o-linear-gradient(top, #f79c68, #f37127);
+	background-image:         linear-gradient(to bottom, #f79c68, #f37127);
+}
+
+.bx-gadgets-marketplace div.bx-gadgets-title {
+	color: #fff;
+	font-size: 44px;
+	font-weight: bold;
+	text-shadow: 0 -1px rgba(255,255,255,.2);
+}
+
+.bx-gadgets-marketplace .bx-gadget-shield {
+	background: url(images/sprite.png) no-repeat 0 0;
+	float: right;
+	height: 97px;
+	margin: 6px -14px 0 0;
+	width: 80px;
+}
+
+.bx-gadgets-marketplace .bx-gadgets-side {
+	background: url(images/sprite.png) repeat-y right 0;
+}
+
+.bx-gadgets-marketplace .bx-gadgets-content-layout-perform {
+	padding: 0;
+}
+
+.bx-gadgets-marketplace .bx-gadgets-color-config-close {
+	background: url(images/sprite.png) no-repeat 3px -111px;
+	display: none;
+	opacity: 0.7;
+}
+
+.bx-gadgets-marketplace:hover .bx-gadgets-color-config-close {
+	display: block;
+}
+
+.bx-gadgets-marketplace .bx-gadgets-color-config-close:hover {
+	opacity: 1;
+}
+
+.bx-gadgets-marketplace .bx-gadget-button {
+	background-color: #c05f3e;
+	background-image: -webkit-linear-gradient(top, #cf7151, #b14e2b);
+	background-image:    -moz-linear-gradient(top, #cf7151, #b14e2b);
+	background-image:     -ms-linear-gradient(top, #cf7151, #b14e2b);
+	background-image:      -o-linear-gradient(top, #cf7151, #b14e2b);
+	background-image:         linear-gradient(to bottom, #cf7151, #b14e2b);
+	border-radius: 3px;
+	-webkit-box-shadow: inset 0 1px 0 #de9d86, 0 1px 0 rgba(0, 0, 0, .15);
+	box-shadow: inset 0 1px 0 #de9d86, 0 1px 0 rgba(0, 0, 0, .15);
+}
+
+.bx-gadgets-marketplace .bx-gadget-button:hover {
+	background-color: #d16424;
+	background-image: -webkit-linear-gradient(top, #e2783b, #c55414);
+	background-image:    -moz-linear-gradient(top, #e2783b, #c55414);
+	background-image:     -ms-linear-gradient(top, #e2783b, #c55414);
+	background-image:      -o-linear-gradient(top, #e2783b, #c55414);
+	background-image:         linear-gradient(to bottom, #e2783b, #c55414);
+}
+
+.bx-gadgets-marketplace .bx-gadget-button-text {
+	text-shadow: 0 1px rgba(0,0,0,.32);
+}
+
+.bx-gadgets-marketplace .bx-gadget-button-lamp {
+	background: url(images/sprite.png) no-repeat -41px -113px;
+}
+
+.bx-gadgets-marketplace div.bx-gadget-mark {
+	color: #311405;
+	font-size: 19px;
+	line-height: normal;
+	text-shadow: 0 1px #f9b38c;
+	width: auto;
+}
+
+.bx-gadgets-marketplace .bx-gadget-mark-desc {
+	color: #000;
+	font-size: 15px;
+	line-height: normal;
+	width: auto;
+}
+
+.bx-gadgets-marketplace .bx-gadget-bottom-cont {
+	margin: 9px 0 10px;
+}

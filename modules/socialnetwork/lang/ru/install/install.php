@@ -1,0 +1,33 @@
+<?
+$MESS ['SONET_I_IBLOCK_TYPE_NAME'] = "Каталог авто";
+$MESS ['SONET_I_IBLOCK_NAME'] = "Каталог авто";
+$MESS ['SONET_I_USER_PROP_EFL'] = "Марка автомобиля";
+$MESS ['SONET_I_USER_PROP_LCL'] = "Марка автомобиля";
+$MESS ['SONET_I_USER_PROP_LFL'] = "Марка автомобиля";
+$MESS ['SONET_GROUP_SUBJECT_0'] = "Модели";
+$MESS ['SONET_GROUP_SUBJECT_1'] = "Увлечения";
+$MESS ['SONET_GROUP_SUBJECT_2'] = "Ремонт";
+$MESS ['SONET_GROUP_NAME_0'] = "Авторемонт";
+$MESS ['SONET_GROUP_NAME_1'] = "Клуб владельцев VOLKSWAGEN";
+$MESS ['SONET_GROUP_NAME_2'] = "Автоспорт";
+$MESS ['SONET_GROUP_NAME_3'] = "Тюнинг авто";
+$MESS ['SONET_GROUP_NAME_4'] = "4х4";
+$MESS ['SONET_GROUP_DESCRIPTION_0'] = "Признаки и причины неисправностей автомобиля, простые и доступ­ные способы их обнаружения и устранения своими силами.";
+$MESS ['SONET_GROUP_DESCRIPTION_1'] = "Владельцы автомобилей VOLKSWAGEN, объединяйтесь.";
+$MESS ['SONET_GROUP_DESCRIPTION_2'] = "Автомобили и спорт.";
+$MESS ['SONET_GROUP_DESCRIPTION_3'] = "Все о тюнинге автомобилей.";
+$MESS ['SONET_GROUP_DESCRIPTION_4'] = "Все о внедорожниках.";
+$MESS ['SONET_GROUP_KEYWORDS_0'] = "ремонт, сервис, техобслуживание, авто";
+$MESS ['SONET_GROUP_KEYWORDS_1'] = "volkswagen, фольксваген, гольф";
+$MESS ['SONET_GROUP_KEYWORDS_2'] = "спорт, гонки, авто";
+$MESS ['SONET_GROUP_KEYWORDS_3'] = "сервис, авто, тюнинг";
+$MESS ['SONET_GROUP_KEYWORDS_4'] = "внедорожник, джип, авто";
+$MESS ['SONET_I_FORUM_NAME'] = "Форум соц. сети";
+$MESS ['SONET_I_VOTE_NAME'] = "Опросы форума соц. сети";
+$MESS ['SONET_I_BLOG_NAME'] = "Блоги соц. сети";
+$MESS ['SONET_I_PHOTO_IBLOCK_TYPE_NAME'] = "Галерея";
+$MESS ['SONET_I_IBLOCK_PHOTO_USER_NAME'] = "Галереи пользователей соц. сети";
+$MESS ['SONET_I_IBLOCK_PHOTO_GROUP_NAME'] = "Галереи групп соц. сети";
+$MESS ['SONET_I_FEATURE_FORUM'] = "Форум";
+$MESS ['SONET_I_FEATURE_BLOG'] = "Блог";
+?>

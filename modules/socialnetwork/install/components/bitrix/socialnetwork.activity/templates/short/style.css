@@ -1,0 +1,13 @@
+.sonet-profile-line {
+	height:1px; 
+	width:100%; 
+	overflow:hidden; 
+	background-color:#C7D2D5; 
+	margin-top:8px; 
+	margin-bottom:8px;
+}
+
+.sonet-log-date{
+color:#8A8A8A;
+font-size:95%;
+}

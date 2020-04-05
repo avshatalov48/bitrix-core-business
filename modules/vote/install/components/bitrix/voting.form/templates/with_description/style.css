@@ -1,0 +1,42 @@
+.voting-form-box
+{
+	font-size:100%;
+	border:1px solid #ccc;
+	padding:4px;
+}
+
+#content_container_ver .voting-form-box
+{
+    font-size:75%
+}
+
+.voting-form-box .active
+{
+	color:green;
+}
+
+.voting-form-box .disable
+{
+	color:red;
+}
+
+.voting-form-box label
+{
+	line-height:20px;
+}
+
+.voting-form-box form
+{
+	margin:0;
+}
+
+.starrequired 
+{
+    color:red;
+}
+.vote-reply-field-captcha-label {
+    margin-bottom:6px;}
+.vote-vote-footer {
+    margin-top:6px;}
+.vote-reply-field-captcha-image {
+    margin:6px 0;}

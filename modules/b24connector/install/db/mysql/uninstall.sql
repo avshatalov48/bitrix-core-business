@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS b_b24connector_buttons;

@@ -1,0 +1,3 @@
+<?
+$MESS["IM_INT_SN_GROUP_EXTRANET"] = "Extranet: #GROUP_NAME#";
+?>

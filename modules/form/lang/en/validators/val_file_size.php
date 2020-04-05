@@ -1,0 +1,7 @@
+<?
+$MESS['FORM_VALIDATOR_FILE_SIZE_DESCRIPTION'] = "File size";
+$MESS['FORM_VALIDATOR_FILE_SIZE_SETTINGS_SIZE_FROM'] = "Minimum size (bytes)";
+$MESS['FORM_VALIDATOR_FILE_SIZE_SETTINGS_SIZE_TO'] = "Maximum size (bytes)";
+$MESS['FORM_VALIDATOR_FILE_SIZE_ERROR_LESS'] = "#FIELD_NAME#: the file is too small";
+$MESS['FORM_VALIDATOR_FILE_SIZE_ERROR_MORE'] = "#FIELD_NAME#: the file is too large";
+?>

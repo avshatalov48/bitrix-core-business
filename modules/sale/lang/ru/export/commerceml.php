@@ -1,0 +1,37 @@
+<?
+$MESS["CommerceInfo"] = "КоммерческаяИнформация";
+$MESS["Document"] = "Документ";
+$MESS["Operation"] = "ХозОперация";
+$MESS["NumberDoc"] = "Номер";
+$MESS["DateDoc"] = "Дата";
+$MESS["TimeDoc"] = "Время";
+$MESS["PaymentDate"] = "СрокПлатежа";
+$MESS["Sum"] = "Сумма";
+$MESS["Comment"] = "Комментарий";
+$MESS["Currency"] = "Валюта";
+$MESS["CompanyInDocument"] = "ПредприятиеВДокументе";
+$MESS["Role"] = "Роль";
+$MESS["Company"] = "Контрагент";
+$MESS["Article"] = "ТоварнаяПозиция";
+$MESS["Catalog"] = "Каталог";
+$MESS["Product"] = "Товар";
+$MESS["Unit"] = "Единица";
+$MESS["Amount"] = "Количество";
+$MESS["Price"] = "Цена";
+$MESS["Description"] = "Описание";
+$MESS["ID"] = "Идентификатор";
+$MESS["Name"] = "Наименование";
+$MESS["DisplayName"] = "ОтображаемоеНаименование";
+$MESS["Address"] = "Адрес";
+$MESS["JuridicAddress"] = "ЮридическийАдрес";
+$MESS["WWW"] = "Сайт";
+$MESS["Comment"] = "Комментарий";
+$MESS["Contact"] = "Контакт";
+$MESS["ContactMan"] = "КонтактноеЛицо";
+$MESS["E-mail"] = "Почта";
+$MESS["Tax"] = "Налог";
+$MESS["TaxSum"] = "СуммаНалога";
+$MESS["TaxRate"] = "Ставка";
+$MESS["Sum"] = "Сумма";
+$MESS["IncludedInSum"] = "ВключенВсумму";
+?>

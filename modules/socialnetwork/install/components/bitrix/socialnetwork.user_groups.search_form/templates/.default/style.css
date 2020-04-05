@@ -1,0 +1,7 @@
+.sonet-groups-title-button-search { display: inline-block; height: 19px; margin: 0 11px 0 0; vertical-align: top; }
+.sonet-groups-title-button-search-left { background: url("images/group-list-sprite.png") no-repeat -31px -49px; display: inline-block; height: 21px; font-size: 1px; vertical-align: top; width: 2px; }
+.sonet-groups-title-button-search-right { background: url("images/group-list-sprite.png") no-repeat -34px -49px; display: inline-block; height: 21px; font-size: 1px; vertical-align: top; width: 2px; }
+.sonet-groups-title-button-search-textbox { border-bottom: 1px solid #E8E8E8; border-top: 1px solid #E8E8E8; display: inline-block; height: 19px; font-size: 1px; padding:0 3px; vertical-align: top; background-color: #FFFFFF; }
+.sonet-groups-title-button-search-input { border: 0 none; font: 12px/18px Verdana,Arial,Helvetica,sans-serif; height: 18px; margin: 0; outline: medium none; padding: 0; vertical-align: top; width: 92px; }
+.sonet-groups-title-button-search-icon { background: url("images/group-list-sprite.png") no-repeat -14px -99px; cursor: pointer; display: inline-block; font-size: 1px; line-height: 1px; height: 19px; vertical-align: top; width: 16px;}
+.sonet-groups-title-button-search-full .sonet-groups-title-button-search-input { color: #333; width: 184px; }

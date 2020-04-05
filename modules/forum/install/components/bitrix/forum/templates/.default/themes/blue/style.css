@@ -1,0 +1,110 @@
+/*----------------------------------------------------Table Cells And Backgrounds------------------------------------------------ */
+
+/* Table Header, Reply Form Header, BBCode Icons Highlighting */
+table.forum-table th, div.forum-reply-header,
+div.forum-bbcode-line a:hover, div.forum-bbcode-line a:hover img { background-color: #dae1e9; }
+
+/* Table Cell Border */
+table.forum-table td, 
+table.forum-table th.forum-column-lastpost, 
+table.forum-table th.forum-column-title, 
+table.forum-table th.forum-first-column,
+table.forum-table th.forum-last-column,
+div.forum-info-box, 
+div.forum-reply-form { border-color: #dae0e7;}
+
+/* Table Cell, Info Box, Reply Form */
+table.forum-table td, div.forum-info-box, div.forum-reply-form { background:#fbfcfd; }
+div.forum-reply-form table.bxlhe-frame-table td.bxlhe-editor-buttons { background-color:#fbfcfd!important; }
+div.forum-reply-field td.bxlhe-editor-cell, div.forum-reply-field .feed-add-post-form-but-wrap {border-color: #ced0d1;}
+
+/* Hidden Table Cell and Row */
+table.forum-table tr.forum-row-hidden td, 
+table.forum-table td.forum-cell-hidden,
+table.forum-table tr.forum-row-inactive td.forum-column-icon,
+table.forum-post-hidden td.forum-cell-post, 
+table.forum-post-hidden td.forum-cell-actions { background: #e5f8e3 !important; }
+
+/* Selected (via checkbox) Table Cell and Row */
+table.forum-table tr.forum-row-selected td, 
+table.forum-table td.forum-cell-selected, 
+table.forum-post-selected td.forum-cell-post, 
+table.forum-post-selected td.forum-cell-actions { background: #d4dfea !important; }
+
+/* Table Footer and Alone Footer Box */
+table.forum-table td.forum-column-footer, table.forum-post-table td.forum-column-footer, div.forum-footer-box { background: #dae1e9; }
+
+/* Post Table: User Info and User Contacts Cells*/
+table.forum-post-table td.forum-cell-user, table.forum-post-table td.forum-cell-contact { background: #f1f6fa; }
+
+/* Post Table: Post and Actions Cell */
+table.forum-post-table td.forum-cell-post, table.forum-post-table td.forum-cell-actions { background: #fbfcfd; }
+
+div.forum-post-date { background: #e5eaf0; border-bottom-color: #d6dde5; }
+
+
+/* ---------------------------------------------------Borders----------------------------------------------------- */
+
+/* Menu Items, Page Navigation */
+span.forum-menu-item, div.forum-page-navigation a, span.forum-page-current, div.forum-page-navigation a.forum-page-previous, span.forum-page-dots { border-color: #d4dae3; }
+
+/* First Row Cell */
+table.forum-table tr.forum-row-first td { border-top-color: #c4ccd6;}
+
+/* Last Row Cell */
+table.forum-table tr.forum-row-last td { border-bottom-color: #c4ccd6; }
+
+/* Table Footer and Alone Footer Box */
+table.forum-table td.forum-column-footer, table.forum-post-table td.forum-column-footer, div.forum-footer-box { border-color: #c4ccd6; }
+
+/* Footer Item Separator */
+span.forum-footer-option { border-color: #a5b4c8; }
+
+/* Topic posts table (separator line) */
+table.forum-post-table { border-top-color: #fff; border-bottom-color: #d0d3d8; }
+
+/* Post Table: User Info and User Contacts Cells*/
+table.forum-post-table td.forum-cell-user, table.forum-post-table td.forum-cell-contact { border-left-color: #d5dae0; border-right-color: #d6dde5; }
+
+/* Post Table: Post and Actions Cell */
+table.forum-post-table td.forum-cell-post, table.forum-post-table td.forum-cell-actions { border-right-color: #d5dae0; }
+
+/* Post Table: User Contacts and Actions Cell */
+table.forum-post-table td.forum-cell-contact, table.forum-post-table td.forum-cell-actions { border-top-color: #d6dde5; }
+
+/* User Signature*/
+div.forum-signature-line { border-top-color: #d6dde5; }
+
+/* ---------------------------------------------------Text Color-------------------------------------------------- */
+
+/* Header Box Right Links*/
+div.forum-header-box a:link, 
+div.forum-header-box a:visited, 
+div.forum-header-box a:active, 
+div.forum-header-box a:hover { color: #fff; }
+
+.forum-required-field { color: red; }
+
+/* --------------------------------------------------Special Elements---------------------------------------------- */
+
+div.forum-header-box { color: #fff; background:#163f72; border-color: #406390;}
+
+/* Page navigation */
+div.forum-navigation-box { background:#fff; border-color: #dae0e7; }
+
+/*BBCode: Quote and Code*/
+table.forum-quote, table.forum-spoiler, table.forum-code, div.forum-code-box, div.forum-post-attachments {  border-color: #abbacc; }
+table.forum-quote td, table.forum-spoiler td, table.forum-code td, div.forum-code-box ol, div.forum-post-attachments {background:#fff !important; color:#696969;}
+table.forum-quote th, table.forum-spoiler th, table.forum-code th, div.forum-code-box {background:#e5eaf0 !important; color: #606264;}
+
+div.forum-note-box {border-color: #ffc34f; background: #fffdbe; }
+/* --------------------------------------------------Icons---------------------------------------------- */
+div.forum-icon-default { background-image: url(images/default.gif); }
+div.forum-icon-newposts { background-image: url(images/newposts.gif); }
+div.forum-icon-sticky { background-image: url(images/sticky.gif); }
+div.forum-icon-sticky-newposts { background-image: url(images/sticky-newposts.gif); }
+div.forum-icon-closed, div.forum-icon-sticky-closed { background-image: url(images/closed.gif); }
+div.forum-icon-closed-newposts, div.forum-icon-sticky-closed-newposts { background-image: url(images/closed-newposts.gif); }
+div.forum-icon-moved { background-image: url(images/moved.gif); }
+/* --------------------------------------------------Votes---------------------------------------------- */
+div.vote-answer-item-bar-inner {background-color:#dae1e9;}

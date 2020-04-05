@@ -1,0 +1,4595 @@
+<?
+namespace Bitrix\Iblock\Component;
+
+use \Bitrix\Main;
+use \Bitrix\Main\Loader;
+use \Bitrix\Main\Error;
+use \Bitrix\Main\ErrorCollection;
+use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Currency;
+use \Bitrix\Iblock;
+use \Bitrix\Catalog;
+
+/**
+ * @global \CUser $USER
+ * @global \CMain $APPLICATION
+ */
+
+Loc::loadMessages(__FILE__);
+
+abstract class Base extends \CBitrixComponent
+{
+	const ACTION_BUY = 'BUY';
+	const ACTION_ADD_TO_BASKET = 'ADD2BASKET';
+	const ACTION_SUBSCRIBE = 'SUBSCRIBE_PRODUCT';
+	const ACTION_ADD_TO_COMPARE = 'ADD_TO_COMPARE_LIST';
+	const ACTION_DELETE_FROM_COMPARE = 'DELETE_FROM_COMPARE_LIST';
+
+	const ERROR_TEXT = 1;
+	const ERROR_404 = 2;
+
+	const PARAM_TITLE_MASK = '/^[A-Za-z_][A-Za-z01-9_]*$/';
+	const SORT_ORDER_MASK = '/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i';
+
+	private $action = '';
+	private $cacheUsage = true;
+	private $extendedMode = true;
+	/** @var ErrorCollection */
+	protected $errorCollection;
+
+	protected $selectFields = array();
+	protected $filterFields = array();
+	protected $sortFields = array();
+
+	/** @var array Array of ids to show directly */
+	protected $productIds = array();
+
+	protected $productIdMap = array();
+	protected $iblockProducts = array();
+	protected $elements = array();
+	protected $elementLinks = array();
+
+	protected $productWithOffers = array();
+	protected $productWithPrices = array();
+
+	protected $globalFilter = array();
+	protected $navParams = false;
+
+	protected $useCatalog = false;
+	protected $isIblockCatalog = false;
+	protected $useDiscountCache = false;
+
+	/** @var bool Fill old format $arResult and enable deprecated functionality for existing components (catalog.section, catalog.element, etc) */
+	protected $compatibleMode = false;
+
+	protected $oldData = array();
+	/** @var array Item prices (new format) */
+	protected $prices = array();
+	protected $calculatePrices = array();
+
+	protected $measures = array();
+	protected $ratios = array();
+	protected $quantityRanges = array();
+
+	protected $storage = array();
+	protected $recommendationIdToProduct = array();
+
+	/**
+	 * Base constructor.
+	 * @param \CBitrixComponent|null $component		Component object if exists.
+	 */
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+		$this->errorCollection = new ErrorCollection();
+	}
+
+	/**
+	 * Return current action.
+	 *
+	 * @return string
+	 */
+	public function getAction()
+	{
+		return $this->action;
+	}
+
+	/**
+	 * Action setter.
+	 *
+	 * @param string $action		Action code.
+	 * @return void
+	 */
+	protected function setAction($action)
+	{
+		$this->action = $action;
+	}
+
+	/**
+	 * Return true if errors exist.
+	 *
+	 * @return bool
+	 */
+	protected function hasErrors()
+	{
+		return (bool)count($this->errorCollection);
+	}
+
+	/**
+	 * Errors processing depending on error codes.
+	 *
+	 * @return bool
+	 */
+	protected function processErrors()
+	{
+		if (!empty($this->errorCollection))
+		{
+			/** @var Error $error */
+			foreach ($this->errorCollection as $error)
+			{
+				$code = $error->getCode();
+
+				if ($code == self::ERROR_404)
+				{
+					Tools::process404(
+						trim($this->arParams['MESSAGE_404']) ?: $error->getMessage(),
+						true,
+						$this->arParams['SET_STATUS_404'] === 'Y',
+						$this->arParams['SHOW_404'] === 'Y',
+						$this->arParams['FILE_404']
+					);
+				}
+				elseif ($code == self::ERROR_TEXT)
+				{
+					ShowError($error->getMessage());
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Cache usage setter. Enable it to ignore cache.
+	 *
+	 * @param bool $state	Cache usage mode.
+	 * @return $this
+	 */
+	protected function setCacheUsage($state)
+	{
+		$this->cacheUsage = (bool)$state;
+
+		return $this;
+	}
+
+	/**
+	 * Check if cache disabled.
+	 *
+	 * @return bool
+	 */
+	public function isCacheDisabled()
+	{
+		return (bool)$this->cacheUsage === false;
+	}
+
+	/**
+	 * Extended mode setter.
+	 * Enabled - adds result_modifier.php template logic in component class.
+	 * In both cases(true or false) result_modifier.php will be included.
+	 *
+	 * @param bool $state	New extended mode.
+	 * @return $this
+	 */
+	protected function setExtendedMode($state)
+	{
+		$this->extendedMode = (bool)$state;
+
+		return $this;
+	}
+
+	/**
+	 * Check if extended mode is enabled.
+	 *
+	 * @return bool
+	 */
+	public function isExtendedMode()
+	{
+		return (bool)$this->extendedMode;
+	}
+
+	/**
+	 * Enable/disable fill old keys in result data and use of outdated settings. Strict use only for catalog.element, .section, .top, etc.
+	 *
+	 * @param bool $state		Enable/disable state.
+	 * @return void
+	 */
+	protected function setCompatibleMode($state)
+	{
+		$this->compatibleMode = (bool)$state;
+	}
+
+	/**
+	 * Return state filling old keys in result data. This method makes no sense for the new components.
+	 *
+	 * @return bool
+	 */
+	public function isEnableCompatible()
+	{
+		return $this->compatibleMode;
+	}
+
+	/**
+	 * Return settings script path with modified time postfix.
+	 *
+	 * @param string $componentPath		Path to component.
+	 * @param string $settingsName		Settings name.
+	 * @return string
+	 */
+	public static function getSettingsScript($componentPath, $settingsName)
+	{
+		$path = $componentPath.'/settings/'.$settingsName.'/script.js';
+		$file = new Main\IO\File(Main\Application::getDocumentRoot().$path);
+
+		return $path.'?'.$file->getModificationTime();
+	}
+
+	/**
+	 * Processing of component parameters.
+	 *
+	 * @param array $params			Raw component parameters values.
+	 * @return mixed
+	 */
+	public function onPrepareComponentParams($params)
+	{
+		if (!isset($params['CURRENT_BASE_PAGE']))
+		{
+			$uri = new Main\Web\Uri($this->request->getRequestUri());
+			$uri->deleteParams(Main\HttpRequest::getSystemParameters());
+			$params['CURRENT_BASE_PAGE'] = $uri->getUri();
+		}
+
+		// parent component params for correct template load through ajax
+		if (!isset($params['PARENT_NAME']) && $parent = $this->getParent())
+		{
+			$params['PARENT_NAME'] = $parent->getName();
+			$params['PARENT_TEMPLATE_NAME'] = $parent->getTemplateName();
+			$params['PARENT_TEMPLATE_PAGE'] = $parent->getTemplatePage();
+		}
+
+		// save original parameters for further ajax requests
+		$this->arResult['ORIGINAL_PARAMETERS'] = $params;
+
+		// for AJAX_MODE set original ajax_id from initial load
+		if (isset($params['AJAX_MODE']) && $params['AJAX_MODE'] === 'Y')
+		{
+			$ajaxId = $this->request->get('AJAX_ID');
+			if (!empty($ajaxId))
+			{
+				$params['AJAX_ID'] = $ajaxId;
+			}
+			unset($ajaxId);
+		}
+
+		if (!isset($params['CACHE_TIME']))
+		{
+			$params['CACHE_TIME'] = 36000000;
+		}
+
+		$params['IBLOCK_ID'] = isset($params['IBLOCK_ID']) ? (int)$params['IBLOCK_ID'] : 0;
+		$params['SECTION_ID'] = isset($params['SECTION_ID']) ? (int)$params['SECTION_ID'] : 0;
+		$params['SECTION_CODE'] = isset($params['SECTION_CODE']) ? trim($params['SECTION_CODE']) : '';
+		$params['SECTION_URL'] = isset($params['SECTION_URL']) ? trim($params['SECTION_URL']) : '';
+		$params['DETAIL_URL'] = isset($params['DETAIL_URL']) ? trim($params['DETAIL_URL']) : '';
+		$params['BASKET_URL'] = isset($params['BASKET_URL']) ? trim($params['BASKET_URL']) : '/personal/basket.php';
+
+		$params['ACTION_VARIABLE'] = isset($params['ACTION_VARIABLE']) ? trim($params['ACTION_VARIABLE']) : '';
+		if ($params['ACTION_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['ACTION_VARIABLE']))
+		{
+			$params['ACTION_VARIABLE'] = 'action';
+		}
+
+		$params['PRODUCT_ID_VARIABLE'] = isset($params['PRODUCT_ID_VARIABLE']) ? trim($params['PRODUCT_ID_VARIABLE']) : '';
+		if ($params['PRODUCT_ID_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_ID_VARIABLE']))
+		{
+			$params['PRODUCT_ID_VARIABLE'] = 'id';
+		}
+
+		$params['PRODUCT_QUANTITY_VARIABLE'] = isset($params['PRODUCT_QUANTITY_VARIABLE']) ? trim($params['PRODUCT_QUANTITY_VARIABLE']) : '';
+		if ($params['PRODUCT_QUANTITY_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_QUANTITY_VARIABLE']))
+		{
+			$params['PRODUCT_QUANTITY_VARIABLE'] = 'quantity';
+		}
+
+		$params['PRODUCT_PROPS_VARIABLE'] = isset($params['PRODUCT_PROPS_VARIABLE']) ? trim($params['PRODUCT_PROPS_VARIABLE']) : '';
+		if ($params['PRODUCT_PROPS_VARIABLE'] == '' || !preg_match(self::PARAM_TITLE_MASK, $params['PRODUCT_PROPS_VARIABLE']))
+		{
+			$params['PRODUCT_PROPS_VARIABLE'] = 'prop';
+		}
+
+		$params['SET_TITLE'] = $params['SET_TITLE'] !== 'N';
+		$params['SET_BROWSER_TITLE'] = isset($params['SET_BROWSER_TITLE']) && $params['SET_BROWSER_TITLE'] === 'N' ? 'N' : 'Y';
+		$params['SET_META_KEYWORDS'] = isset($params['SET_META_KEYWORDS']) && $params['SET_META_KEYWORDS'] === 'N' ? 'N' : 'Y';
+		$params['SET_META_DESCRIPTION'] = isset($params['SET_META_DESCRIPTION']) && $params['SET_META_DESCRIPTION'] === 'N' ? 'N' : 'Y';
+		$params['ADD_SECTIONS_CHAIN'] = isset($params['ADD_SECTIONS_CHAIN']) && $params['ADD_SECTIONS_CHAIN'] === 'Y';
+		$params['SET_LAST_MODIFIED'] = isset($params['SET_LAST_MODIFIED']) && $params['SET_LAST_MODIFIED'] === 'Y';
+		$params['DISPLAY_COMPARE'] = isset($params['DISPLAY_COMPARE']) && $params['DISPLAY_COMPARE'] === 'Y';
+		$params['COMPARE_PATH'] = isset($params['COMPARE_PATH']) ? trim($params['COMPARE_PATH']) : '';
+		$params['COMPARE_NAME'] = isset($params['COMPARE_NAME']) ? trim($params['COMPARE_NAME']) : 'CATALOG_COMPARE_LIST';
+		$params['USE_COMPARE_LIST'] = (isset($params['USE_COMPARE_LIST']) && $params['USE_COMPARE_LIST'] === 'Y' ? 'Y' : 'N');
+
+		$params['USE_PRICE_COUNT'] = isset($params['USE_PRICE_COUNT']) && $params['USE_PRICE_COUNT'] === 'Y';
+		$params['SHOW_PRICE_COUNT'] = isset($params['SHOW_PRICE_COUNT']) ? (int)$params['SHOW_PRICE_COUNT'] : 1;
+		if ($params['SHOW_PRICE_COUNT'] <= 0)
+		{
+			$params['SHOW_PRICE_COUNT'] = 1;
+		}
+		$params['FILL_ITEM_ALL_PRICES'] = isset($params['FILL_ITEM_ALL_PRICES']) && $params['FILL_ITEM_ALL_PRICES'] === 'Y';
+
+		$params['USE_PRODUCT_QUANTITY'] = isset($params['USE_PRODUCT_QUANTITY']) && $params['USE_PRODUCT_QUANTITY'] === 'Y';
+
+		$params['ADD_PROPERTIES_TO_BASKET'] = isset($params['ADD_PROPERTIES_TO_BASKET']) && $params['ADD_PROPERTIES_TO_BASKET'] === 'N' ? 'N' : 'Y';
+		if ($params['ADD_PROPERTIES_TO_BASKET'] === 'N')
+		{
+			$params['PRODUCT_PROPERTIES'] = array();
+			$params['OFFERS_CART_PROPERTIES'] = array();
+		}
+
+		$params['PARTIAL_PRODUCT_PROPERTIES'] = isset($params['PARTIAL_PRODUCT_PROPERTIES']) && $params['PARTIAL_PRODUCT_PROPERTIES'] === 'Y' ? 'Y' : 'N';
+
+		if (empty($params['OFFERS_SORT_FIELD']))
+		{
+			$params['OFFERS_SORT_FIELD'] = 'sort';
+		}
+
+		if (!preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER']))
+		{
+			$params['OFFERS_SORT_ORDER'] = 'asc';
+		}
+
+		if (empty($params['OFFERS_SORT_FIELD2']))
+		{
+			$params['OFFERS_SORT_FIELD2'] = 'id';
+		}
+
+		if (!preg_match(self::SORT_ORDER_MASK, $params['OFFERS_SORT_ORDER2']))
+		{
+			$params['OFFERS_SORT_ORDER2'] = 'desc';
+		}
+
+		$params['PRICE_VAT_INCLUDE'] = !(isset($params['PRICE_VAT_INCLUDE']) && $params['PRICE_VAT_INCLUDE'] === 'N');
+		$params['CONVERT_CURRENCY'] = isset($params['CONVERT_CURRENCY']) && $params['CONVERT_CURRENCY'] === 'Y' ? 'Y' : 'N';
+		$params['CURRENCY_ID'] = isset($params['CURRENCY_ID']) ? trim($params['CURRENCY_ID']) : '';
+
+		if ($params['CURRENCY_ID'] === '' || $params['CONVERT_CURRENCY'] === 'N')
+		{
+			$params['CONVERT_CURRENCY'] = 'N';
+			$params['CURRENCY_ID'] = '';
+		}
+
+		$params['OFFERS_LIMIT'] = isset($params['OFFERS_LIMIT']) ? (int)$params['OFFERS_LIMIT'] : 0;
+		if ($params['OFFERS_LIMIT'] < 0)
+		{
+			$params['OFFERS_LIMIT'] = 0;
+		}
+
+		$params['CACHE_GROUPS'] = trim($params['CACHE_GROUPS']);
+		if ($params['CACHE_GROUPS'] !== 'N')
+		{
+			$params['CACHE_GROUPS'] = 'Y';
+		}
+
+		if (isset($params['~PRICE_CODE']))
+		{
+			$params['PRICE_CODE'] = $params['~PRICE_CODE'];
+		}
+		if (!isset($params['PRICE_CODE']) || !is_array($params['PRICE_CODE']))
+		{
+			$params['PRICE_CODE'] = array();
+		}
+
+		$params['SHOW_FROM_SECTION'] = isset($params['SHOW_FROM_SECTION']) && $params['SHOW_FROM_SECTION'] === 'Y' ? 'Y' : 'N';
+		if ($params['SHOW_FROM_SECTION'] === 'Y')
+		{
+			$params['SECTION_ELEMENT_ID'] = isset($params['SECTION_ELEMENT_ID']) ? (int)$params['SECTION_ELEMENT_ID'] : 0;
+			$params['SECTION_ELEMENT_CODE'] = isset($params['SECTION_ELEMENT_CODE']) ? trim($params['SECTION_ELEMENT_CODE']) : '';
+			$params['DEPTH'] = isset($params['DEPTH']) ? (int)$params['DEPTH'] : 0;
+
+			if (empty($params['SECTION_ID']))
+			{
+				if ($params['SECTION_CODE'] !== '')
+				{
+					$sectionId = $this->getSectionIdByCode($params['SECTION_CODE']);
+				}
+				else
+				{
+					$sectionId = $this->getSectionIdByElement($params['SECTION_ELEMENT_ID'], $params['SECTION_ELEMENT_CODE']);
+				}
+
+				$params['SECTION_ID'] = $sectionId;
+			}
+		}
+
+		if (!isset($params['FILTER_IDS']))
+		{
+			$params['FILTER_IDS'] = array();
+		}
+		elseif (!is_array($params['FILTER_IDS']))
+		{
+			$params['FILTER_IDS'] = array($params['FILTER_IDS']);
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Check necessary modules for component.
+	 *
+	 * @return bool
+	 */
+	protected function checkModules()
+	{
+		$this->useCatalog = Loader::includeModule('catalog');
+		$this->storage['MODULES'] = array(
+			'iblock' => true,
+			'catalog' => $this->useCatalog,
+			'currency' => $this->useCatalog
+		);
+
+		return true;
+	}
+
+	/**
+	 * Fill discount cache before price calculation.
+	 *
+	 * @return void
+	 */
+	protected function initCatalogDiscountCache()
+	{
+		if ($this->useCatalog && $this->useDiscountCache && !empty($this->elementLinks))
+		{
+			foreach ($this->iblockProducts as $iblock => $products)
+			{
+				if ($this->storage['USE_SALE_DISCOUNTS'])
+				{
+					Catalog\Discount\DiscountManager::preloadPriceData($products, $this->storage['PRICES_ALLOW']);
+					Catalog\Discount\DiscountManager::preloadProductDataToExtendOrder($products, $this->getUserGroups());
+				}
+				else
+				{
+					\CCatalogDiscount::SetProductSectionsCache($products);
+					\CCatalogDiscount::SetDiscountProductCache($products, array('IBLOCK_ID' => $iblock, 'GET_BY_ID' => 'Y'));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Clear discount cache.
+	 *
+	 * @return void
+	 */
+	protected function clearCatalogDiscountCache()
+	{
+		if ($this->useCatalog && $this->useDiscountCache)
+		{
+			\CCatalogDiscount::ClearDiscountCache(array(
+				'PRODUCT' => true,
+				'SECTIONS' => true,
+				'PROPERTIES' => true
+			));
+		}
+	}
+
+	/**
+	 * Check the settings for the output price currency.
+	 *
+	 * @return void
+	 */
+	protected function initCurrencyConvert()
+	{
+		$this->storage['CONVERT_CURRENCY'] = array();
+
+		if ($this->arParams['CONVERT_CURRENCY'] === 'Y')
+		{
+			$correct = false;
+			if (Loader::includeModule('currency'))
+			{
+				$this->storage['MODULES']['currency'] = true;
+				$correct = Currency\CurrencyManager::isCurrencyExist($this->arParams['CURRENCY_ID']);
+			}
+			if ($correct)
+			{
+				$this->storage['CONVERT_CURRENCY'] = array(
+					'CURRENCY_ID' => $this->arParams['CURRENCY_ID']
+				);
+			}
+			else
+			{
+				$this->arParams['CONVERT_CURRENCY'] = 'N';
+				$this->arParams['CURRENCY_ID'] = '';
+			}
+			unset($correct);
+		}
+	}
+
+	/**
+	 * Check offers iblock.
+	 *
+	 * @param int $iblockId		Iblock Id.
+	 * @return bool
+	 */
+	protected function offerIblockExist($iblockId)
+	{
+		if (empty($this->storage['CATALOGS'][$iblockId]))
+			return false;
+
+		$catalog = $this->storage['CATALOGS'][$iblockId];
+
+		if (empty($catalog['CATALOG_TYPE']))
+			return false;
+
+		return $catalog['CATALOG_TYPE'] == \CCatalogSku::TYPE_FULL || $catalog['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT;
+	}
+
+	/**
+	 * Load used iblocks info to component storage.
+	 *
+	 * @return void
+	 */
+	protected function initCatalogInfo()
+	{
+		$catalogs = array();
+
+		if ($this->useCatalog)
+		{
+			$this->storage['SHOW_CATALOG_WITH_OFFERS'] = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+			$this->storage['USE_SALE_DISCOUNTS'] = (string)Main\Config\Option::get('sale', 'use_sale_discount_only') === 'Y';
+			foreach (array_keys($this->iblockProducts) as $iblockId)
+			{
+				$catalog = \CCatalogSku::GetInfoByIBlock($iblockId);
+				if (!empty($catalog) && is_array($catalog))
+				{
+					$this->isIblockCatalog = $this->isIblockCatalog || $catalog['CATALOG_TYPE'] != \CCatalogSku::TYPE_PRODUCT;
+					$catalogs[$iblockId] = $catalog;
+				}
+			}
+		}
+
+		$this->storage['CATALOGS'] = $catalogs;
+	}
+
+	/**
+	 * Load catalog prices in component storage.
+	 *
+	 * @return void
+	 */
+	protected function initPrices()
+	{
+		// This function returns array with prices description and access rights
+		// in case catalog module n/a prices get values from element properties
+		$this->storage['PRICES'] = \CIBlockPriceTools::GetCatalogPrices(false, $this->arParams['PRICE_CODE']);
+		$this->storage['PRICES_ALLOW'] = \CIBlockPriceTools::GetAllowCatalogPrices($this->storage['PRICES']);
+		$this->storage['PRICES_CAN_BUY'] = array();
+		$this->storage['PRICES_MAP'] = array();
+		foreach ($this->storage['PRICES'] as $priceType)
+		{
+			$this->storage['PRICES_MAP'][$priceType['ID']] = $priceType['CODE'];
+			if ($priceType['CAN_BUY'])
+				$this->storage['PRICES_CAN_BUY'][] = $priceType['ID'];
+		}
+
+		$this->storage['PRICE_TYPES'] = array();
+		if ($this->useCatalog)
+			$this->storage['PRICE_TYPES'] = \CCatalogGroup::GetListArray();
+
+		$this->useDiscountCache = false;
+		if ($this->useCatalog)
+		{
+			if (!empty($this->storage['CATALOGS']) && !empty($this->storage['PRICES_ALLOW']))
+				$this->useDiscountCache = true;
+		}
+
+		if ($this->useCatalog && $this->useDiscountCache)
+		{
+			$this->useDiscountCache = \CIBlockPriceTools::SetCatalogDiscountCache(
+				$this->storage['PRICES_ALLOW'],
+				$this->getUserGroups()
+			);
+		}
+
+		if ($this->useCatalog)
+			Catalog\Product\Price::loadRoundRules($this->storage['PRICES_ALLOW']);
+	}
+
+	/**
+	 * Initialize and data process of iblock elements.
+	 *
+	 * @return void
+	 */
+	protected function initElementList()
+	{
+		$this->storage['CURRENCY_LIST'] = array();
+		$this->storage['DEFAULT_MEASURE'] = $this->getDefaultMeasure();
+
+		$this->initQueryFields();
+
+		foreach ($this->iblockProducts as $iblock => $products)
+		{
+			$elementIterator = $this->getElementList($iblock, $products);
+			$iblockElements = $this->getIblockElements($elementIterator);
+
+			if (!empty($iblockElements) && !$this->hasErrors())
+			{
+				$this->modifyDisplayProperties($iblock, $iblockElements);
+				$this->elements = array_merge($this->elements, array_values($iblockElements));
+				$this->iblockProducts[$iblock] = array_keys($iblockElements);
+			}
+
+			unset($elementIterator, $iblockElements, $element);
+		}
+	}
+
+	/**
+	 * Return elements.
+	 *
+	 * @param \CIBlockResult $elementIterator		Iterator.
+	 * @return mixed
+	 */
+	abstract protected function getIblockElements($elementIterator);
+
+	/**
+	 * Sort elements by original position (in case when product ids used in GetList).
+	 *
+	 * @return void
+	 */
+	protected function sortElementList()
+	{
+		if (!empty($this->productIdMap) && is_array($this->productIdMap))
+		{
+			$sortedElements = array();
+
+			foreach (array_keys($this->productIdMap) as $productId)
+			{
+				$parentId = $this->productIdMap[$productId];
+
+				foreach ($this->elements as $element)
+				{
+					if ($element['ID'] == $parentId)
+					{
+						$sortedElements[$productId] = $element;
+						break;
+					}
+				}
+			}
+
+			$this->elements = array_values($sortedElements);
+		}
+	}
+
+	/**
+	 * Create link to elements for fast access.
+	 *
+	 * @return void
+	 */
+	protected function makeElementLinks()
+	{
+		if (!empty($this->elements))
+		{
+			foreach ($this->elements as $index => $element)
+			{
+				$this->elementLinks[$element['ID']] =& $this->elements[$index];
+			}
+		}
+	}
+
+	/**
+	 * Return array of iblock element ids to show for "initialLoad" action.
+	 *
+	 * @return bool|array
+	 */
+	protected function getProductIds()
+	{
+		return false;
+	}
+
+	/**
+	 * Return array of iblock element ids to show for "bigDataLoad" action.
+	 *
+	 * @return array
+	 */
+	protected function getBigDataProductIds()
+	{
+		$shownIds = $this->request->get('shownIds');
+		if (!empty($shownIds) && is_array($shownIds))
+		{
+			$this->arParams['FILTER_IDS'] += $shownIds;
+		}
+
+		$this->arParams['PAGE_ELEMENT_COUNT'] = $this->request->get('count') ?: 20;
+		$this->arParams['FILTER'] = $this->arParams['FILTER'] ?: array('PAYED');
+		$this->arParams['BY'] = $this->arParams['BY'] ?: 'AMOUNT';
+		$this->arParams['PERIOD'] = (int)$this->arParams['PERIOD'] ?: 30;
+		$this->arParams['DEPTH'] = (int)$this->arParams['DEPTH'] ?: 2;
+
+		// general filter
+		$this->filterFields = $this->getFilter();
+		$this->filterFields['IBLOCK_ID'] = $this->arParams['IBLOCK_ID'];
+		$this->initPricesQuery();
+
+		// try cloud
+		$ids = $this->request->get('items') ?: array();
+		if (!empty($ids))
+		{
+			$recommendationId = $this->request->get('rid');
+			$ids = $this->filterByParams($ids, $this->arParams['FILTER_IDS']);
+
+			foreach ($ids as $id)
+			{
+				$this->recommendationIdToProduct[$id] = $recommendationId;
+			}
+		}
+
+		// try bestsellers
+		if (Main\Loader::includeModule('sale') && count($ids) < $this->arParams['PAGE_ELEMENT_COUNT'])
+		{
+			$ids = $this->getBestSellersRecommendation($ids);
+		}
+
+		// try most viewed
+		if ($this->useCatalog && count($ids) < $this->arParams['PAGE_ELEMENT_COUNT'])
+		{
+			$ids = $this->getMostViewedRecommendation($ids);
+		}
+
+		// try random
+		if (count($ids) < $this->arParams['PAGE_ELEMENT_COUNT'])
+		{
+			$ids = $this->getRandomRecommendation($ids);
+		}
+
+		// limit
+		$ids = array_slice($ids, 0, $this->arParams['PAGE_ELEMENT_COUNT']);
+
+		return $ids;
+	}
+
+	/**
+	 * Return recommended best seller products ids.
+	 *
+	 * @param array $ids		Products id.
+	 * @return array
+	 */
+	protected function getBestSellersRecommendation($ids)
+	{
+		// increase element count
+		$this->arParams['PAGE_ELEMENT_COUNT'] = $this->arParams['PAGE_ELEMENT_COUNT'] * 10;
+		$bestsellers = $this->getBestSellersProductIds();
+		$this->arParams['PAGE_ELEMENT_COUNT'] = $this->arParams['PAGE_ELEMENT_COUNT'] / 10;
+
+		if (!empty($bestsellers))
+		{
+			$recommendationId = 'bestsellers';
+			$bestsellers = Main\Analytics\Catalog::getProductIdsByOfferIds($bestsellers);
+			$bestsellers = $this->filterByParams($bestsellers, $this->arParams['FILTER_IDS']);
+
+			foreach ($bestsellers as $id)
+			{
+				if (!isset($this->recommendationIdToProduct[$id]))
+				{
+					$this->recommendationIdToProduct[$id] = $recommendationId;
+				}
+			}
+
+			$ids = array_unique(array_merge($ids, $bestsellers));
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Return recommended most viewed products ids.
+	 *
+	 * @param array $ids		Products id.
+	 * @return array
+	 */
+	protected function getMostViewedRecommendation($ids)
+	{
+		$mostViewed = array();
+		$recommendationId = 'mostviewed';
+
+		$result = Catalog\CatalogViewedProductTable::getList(array(
+			'select' => array(
+				'ELEMENT_ID',
+				new Main\Entity\ExpressionField('SUM_HITS', 'SUM(%s)', 'VIEW_COUNT')
+			),
+			'filter' => array(
+				'=SITE_ID' => $this->getSiteId(),
+				'>ELEMENT_ID' => 0,
+				'>DATE_VISIT' => new Main\Type\DateTime(date('Y-m-d H:i:s', strtotime('-30 days')), 'Y-m-d H:i:s')
+			),
+			'order' => array('SUM_HITS' => 'DESC'),
+			'limit' => $this->arParams['PAGE_ELEMENT_COUNT'] * 10
+		));
+		while ($row = $result->fetch())
+		{
+			$mostViewed[] = $row['ELEMENT_ID'];
+		}
+		unset($row, $result);
+
+		$mostViewed = $this->filterByParams($mostViewed, $this->arParams['FILTER_IDS']);
+
+		foreach ($mostViewed as $id)
+		{
+			if (!isset($this->recommendationIdToProduct[$id]))
+			{
+				$this->recommendationIdToProduct[$id] = $recommendationId;
+			}
+		}
+
+		return array_unique(array_merge($ids, $mostViewed));
+	}
+
+	/**
+	 * Return random products ids.
+	 *
+	 * @param array $ids		Products id.
+	 * @return array
+	 */
+	protected function getRandomRecommendation($ids)
+	{
+		$limit = $this->getRecommendationLimit($ids);
+
+		if ($limit <= 0)
+		{
+			return $ids;
+		}
+
+		$randomIds = array();
+		$recommendationId = 'random';
+		$filter = $this->filterFields;
+
+		$filterIds = array_merge($ids, $this->arParams['FILTER_IDS']);
+		if (!empty($filterIds))
+		{
+			$filter['!ID'] = $filterIds;
+		}
+
+		if ($this->arParams['SHOW_FROM_SECTION'] === 'Y' && !empty($this->arParams['SECTION_ID']))
+		{
+			$filter['SECTION_ID'] = $this->arParams['SECTION_ID'];
+		}
+
+		$elementIterator = \CIBlockElement::GetList(array('RAND' => 'ASC'), $filter, false, array('nTopCount' => $limit), array('ID'));
+		while ($element = $elementIterator->Fetch())
+		{
+			$randomIds[] = $element['ID'];
+		}
+
+		if (!empty($randomIds))
+		{
+			$this->setCacheUsage(false);
+		}
+
+		foreach ($randomIds as $id)
+		{
+			if (!isset($this->recommendationIdToProduct[$id]))
+			{
+				$this->recommendationIdToProduct[$id] = $recommendationId;
+			}
+		}
+
+		return array_merge($ids, $randomIds);
+	}
+
+	/**
+	 * Filter correct product ids.
+	 *
+	 * @param array $ids				Items ids.
+	 * @param array $filterIds			Filtered ids.
+	 * @param bool $useSectionFilter	Check filter by section.
+	 * @return array
+	 */
+	protected function filterByParams($ids, $filterIds = array(), $useSectionFilter = true)
+	{
+		if (empty($ids))
+		{
+			return array();
+		}
+
+		$ids = array_values(array_unique($ids));
+		// remove duplicates of already showed items
+		if (!empty($filterIds))
+		{
+			$ids = array_diff($ids, $filterIds);
+		}
+
+		if (!empty($ids))
+		{
+			$filter = $this->filterFields;
+			$filter['ID'] = $ids;
+
+			$correctIds = array();
+			$elementIterator = \CIBlockElement::GetList(array(), $filter, false, false, array('ID'));
+			while ($element = $elementIterator->Fetch())
+			{
+				$correctIds[] = $element['ID'];
+			}
+
+			if ($useSectionFilter && !empty($correctIds) && $this->arParams['SHOW_FROM_SECTION'] === 'Y')
+			{
+				$correctIds = $this->filterIdBySection(
+					$correctIds,
+					$this->arParams['IBLOCK_ID'],
+					$this->arParams['SECTION_ID'],
+					$this->arParams['PAGE_ELEMENT_COUNT'],
+					$this->arParams['DEPTH']
+				);
+			}
+
+			$correctIds = array_flip($correctIds);
+			// remove invalid items
+			foreach ($ids as $key => $id)
+			{
+				if (!isset($correctIds[$id]))
+				{
+					unset($ids[$key]);
+				}
+			}
+
+			return array_values($ids);
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+	/**
+	 * Return section ID by CODE.
+	 *
+	 * @param string $sectionCode			Iblock section code.
+	 * @return int
+	 */
+	protected function getSectionIdByCode($sectionCode = '')
+	{
+		$sectionId = 0;
+		$sectionCode = (string)$sectionCode;
+
+		if ($sectionCode === '')
+		{
+			return $sectionId;
+		}
+
+		$sectionFilter = array(
+			'@IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
+			'=IBLOCK.ACTIVE' => 'Y',
+			'=CODE' => $sectionCode
+		);
+		$section = Iblock\SectionTable::getList(array(
+			'select' => array('ID'),
+			'filter' => $sectionFilter
+		))->fetch();
+		if (!empty($section))
+		{
+			$sectionId = (int)$section['ID'];
+		}
+
+		return $sectionId;
+	}
+
+	/**
+	 * Return section ID by element ID.
+	 *
+	 * @param int $elementId				Iblock element id.
+	 * @param string $elementCode			Iblock element code.
+	 * @return int
+	 */
+	protected function getSectionIdByElement($elementId, $elementCode = '')
+	{
+		$sectionId = 0;
+		$elementId = (int)$elementId;
+		$elementCode = (string)$elementCode;
+		$filter = array('=IBLOCK_ID' => $this->arParams['IBLOCK_ID']);
+
+		if ($elementId > 0)
+		{
+			$filter['=ID'] = $elementId;
+		}
+		elseif ($elementCode !== '')
+		{
+			$filter['=CODE'] = $elementCode;
+		}
+		else
+		{
+			return $sectionId;
+		}
+
+		$itemIterator = Iblock\ElementTable::getList(array(
+			'select' => array('ID', 'IBLOCK_SECTION_ID'),
+			'filter' => $filter
+		));
+		if ($item = $itemIterator->fetch())
+		{
+			$sectionId = (int)$item['IBLOCK_SECTION_ID'];
+		}
+
+		return $sectionId;
+	}
+
+	protected function filterIdBySection($elementIds, $iblockId, $sectionId, $limit, $depth = 0)
+	{
+		$map = array();
+
+		Main\Type\Collection::normalizeArrayValuesByInt($elementIds);
+
+		if (empty($elementIds))
+			return $map;
+
+		$iblockId = (int)$iblockId;
+		$sectionId = (int)$sectionId;
+		$limit = (int)$limit;
+		$depth = (int)$depth;
+
+		if ($iblockId <= 0 ||$depth < 0)
+			return $map;
+
+		$subSections = array();
+		if ($depth > 0)
+		{
+			$parentSectionId = Catalog\Product\Viewed::getParentSection($sectionId, $depth);
+			if ($parentSectionId !== null)
+			{
+				$subSections[$parentSectionId] = $parentSectionId;
+			}
+			unset($parentSectionId);
+		}
+
+		if (empty($subSections) && $sectionId <= 0)
+		{
+			$getListParams = array(
+				'select' => array('ID'),
+				'filter' => array(
+					'@ID' => $elementIds,
+					'=IBLOCK_ID' => $iblockId,
+					'=WF_STATUS_ID' => 1,
+					'=WF_PARENT_ELEMENT_ID' => null
+				),
+			);
+			if ($limit > 0)
+			{
+				$getListParams['limit'] = $limit;
+			}
+
+			$iterator = Iblock\ElementTable::getList($getListParams);
+		}
+		else
+		{
+			if (empty($subSections))
+			{
+				$subSections[$sectionId] = $sectionId;
+			}
+
+			$sectionQuery = new Main\Entity\Query(Iblock\SectionTable::getEntity());
+			$sectionQuery->setTableAliasPostfix('_parent');
+			$sectionQuery->setSelect(array('ID', 'LEFT_MARGIN', 'RIGHT_MARGIN'));
+			$sectionQuery->setFilter(array('@ID' => $subSections));
+
+			$subSectionQuery = new Main\Entity\Query(Iblock\SectionTable::getEntity());
+			$subSectionQuery->setTableAliasPostfix('_sub');
+			$subSectionQuery->setSelect(array('ID'));
+			$subSectionQuery->setFilter(array('=IBLOCK_ID' => $iblockId));
+			$subSectionQuery->registerRuntimeField(
+				'',
+				new Main\Entity\ReferenceField(
+					'BS',
+					Main\Entity\Base::getInstanceByQuery($sectionQuery),
+					array('>=this.LEFT_MARGIN' => 'ref.LEFT_MARGIN', '<=this.RIGHT_MARGIN' => 'ref.RIGHT_MARGIN'),
+					array('join_type' => 'INNER')
+				)
+			);
+
+			$sectionElementQuery = new Main\Entity\Query(Iblock\SectionElementTable::getEntity());
+			$sectionElementQuery->setSelect(array('IBLOCK_ELEMENT_ID'));
+			$sectionElementQuery->setGroup(array('IBLOCK_ELEMENT_ID'));
+			$sectionElementQuery->setFilter(array('=ADDITIONAL_PROPERTY_ID' => null));
+			$sectionElementQuery->registerRuntimeField(
+				'',
+				new Main\Entity\ReferenceField(
+					'BSUB',
+					Main\Entity\Base::getInstanceByQuery($subSectionQuery),
+					array('=this.IBLOCK_SECTION_ID' => 'ref.ID'),
+					array('join_type' => 'INNER')
+				)
+			);
+
+			$elementQuery = new Main\Entity\Query(Iblock\ElementTable::getEntity());
+			$elementQuery->setSelect(array('ID'));
+			$elementQuery->setFilter(array('=IBLOCK_ID' => $iblockId, '=WF_STATUS_ID' => 1, '=WF_PARENT_ELEMENT_ID' => null));
+			$elementQuery->registerRuntimeField(
+				'',
+				new Main\Entity\ReferenceField(
+					'BSE',
+					Main\Entity\Base::getInstanceByQuery($sectionElementQuery),
+					array('=this.ID' => 'ref.IBLOCK_ELEMENT_ID'),
+					array('join_type' => 'INNER')
+				)
+			);
+			if ($limit > 0)
+			{
+				$elementQuery->setLimit($limit);
+			}
+
+			$iterator = $elementQuery->exec();
+
+			unset($elementQuery, $sectionElementQuery, $subSectionQuery, $sectionQuery);
+		}
+
+		while ($row = $iterator->fetch())
+		{
+			$map[] = $row['ID'];
+		}
+		unset($row, $iterator);
+
+		return $map;
+	}
+
+	/**
+	 * Return random element ids to fill partially empty space in row when lack of big data elements.
+	 * Does not fill rows with no big data elements at all.
+	 *
+	 * @param array $ids
+	 * @return int
+	 */
+	protected function getRecommendationLimit($ids)
+	{
+		$limit = 0;
+		$idsCount = count($ids);
+		$rowsRange = $this->request->get('rowsRange');
+
+		if (!empty($rowsRange))
+		{
+			foreach ($rowsRange as $range)
+			{
+				$range = (int)$range;
+
+				if ($range > $idsCount)
+				{
+					$limit = $range - $idsCount;
+					break;
+				}
+			}
+		}
+		else
+		{
+			$limit = $this->arParams['PAGE_ELEMENT_COUNT'] - $idsCount;
+		}
+
+		return $limit;
+	}
+
+	protected function getBigDataServiceRequestParams($type = '')
+	{
+		$params = array(
+			'uid' => $_COOKIE['BX_USER_ID'],
+			'aid' => Main\Analytics\Counter::getAccountId(),
+			'count' => max($this->arParams['PAGE_ELEMENT_COUNT'] * 2, 30)
+		);
+
+		// random choices
+		if ($type === 'any_similar')
+		{
+			$possible = array('similar_sell', 'similar_view', 'similar');
+			$type = $possible[array_rand($possible)];
+		}
+		elseif ($type === 'any_personal')
+		{
+			$possible = array('bestsell', 'personal');
+			$type = $possible[array_rand($possible)];
+		}
+		elseif ($type === 'any')
+		{
+			$possible = array('similar_sell', 'similar_view', 'similar', 'bestsell', 'personal');
+			$type = $possible[array_rand($possible)];
+		}
+
+		// configure
+		switch ($type)
+		{
+			case 'bestsell':
+				$params['op'] = 'sim_domain_items';
+				$params['type'] = 'order';
+				$params['domain'] = Main\Context::getCurrent()->getServer()->getHttpHost();
+				break;
+			case 'personal':
+				$params['op'] = 'recommend';
+				break;
+			case 'similar_sell':
+				$params['op'] = 'simitems';
+				$params['eid'] = $this->arParams['RCM_PROD_ID'];
+				$params['type'] = 'order';
+				break;
+			case 'similar_view':
+				$params['op'] = 'simitems';
+				$params['eid'] = $this->arParams['RCM_PROD_ID'];
+				$params['type'] = 'view';
+				break;
+			case 'similar':
+				$params['op'] = 'simitems';
+				$params['eid'] = $this->arParams['RCM_PROD_ID'];
+				break;
+			default:
+				$params['op'] = 'recommend';
+		}
+
+		$iblocks = array();
+
+		if (!empty($this->storage['IBLOCK_PARAMS']))
+		{
+			$iblocks = array_keys($this->storage['IBLOCK_PARAMS']);
+		}
+		else
+		{
+			$iblockList = array();
+			/* catalog */
+			$iblockIterator = Catalog\CatalogIblockTable::getList(array(
+				'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID')
+			));
+			while ($iblock = $iblockIterator->fetch())
+			{
+				$iblock['IBLOCK_ID'] = (int)$iblock['IBLOCK_ID'];
+				$iblock['PRODUCT_IBLOCK_ID'] = (int)$iblock['PRODUCT_IBLOCK_ID'];
+				$iblockList[$iblock['IBLOCK_ID']] = $iblock['IBLOCK_ID'];
+
+				if ($iblock['PRODUCT_IBLOCK_ID'] > 0)
+				{
+					$iblockList[$iblock['PRODUCT_IBLOCK_ID']] = $iblock['PRODUCT_IBLOCK_ID'];
+				}
+			}
+
+			/* iblock */
+			$iblockIterator = Iblock\IblockSiteTable::getList(array(
+				'select' => array('IBLOCK_ID'),
+				'filter' => array('@IBLOCK_ID' => $iblockList, '=SITE_ID' => $this->getSiteId())
+			));
+			while ($iblock = $iblockIterator->fetch())
+			{
+				$iblocks[] = $iblock['IBLOCK_ID'];
+			}
+		}
+
+		$params['ib'] = join('.', $iblocks);
+
+		return $params;
+	}
+
+	/**
+	 * Return best seller product ids.
+	 *
+	 * @return array
+	 */
+	protected function getBestSellersProductIds()
+	{
+		$productIds = array();
+		$filter = $this->getBestSellersFilter();
+
+		if (!empty($filter))
+		{
+			$productIterator = \CSaleProduct::GetBestSellerList(
+				$this->arParams['BY'],
+				array(),
+				$filter,
+				$this->arParams['PAGE_ELEMENT_COUNT']
+			);
+			while($product = $productIterator->fetch())
+			{
+				$productIds[] = $product['PRODUCT_ID'];
+			}
+		}
+
+		return $productIds;
+	}
+
+	protected function getBestSellersFilter()
+	{
+		$filter = array();
+
+		if (!empty($this->arParams['FILTER']))
+		{
+			$filter = defined('SITE_ID') && !SITE_ID ? array('=LID' => $this->getSiteId()) : array();
+			$subFilter = array('LOGIC' => 'OR');
+
+			$statuses = array(
+				'CANCELED' => true,
+				'ALLOW_DELIVERY' => true,
+				'PAYED' => true,
+				'DEDUCTED' => true
+			);
+
+			if ($this->arParams['PERIOD'] > 0)
+			{
+				$date = ConvertTimeStamp(AddToTimeStamp(array('DD' => '-'.$this->arParams['PERIOD'])));
+				if (!empty($date))
+				{
+					foreach ($this->arParams['FILTER'] as $field)
+					{
+						if (isset($statuses[$field]))
+						{
+							$subFilter[] = array(
+								'>=DATE_'.$field => $date,
+								'='.$field => 'Y'
+							);
+						}
+						else
+						{
+							if (empty($this->storage['ORDER_STATUS']) || in_array($field, $this->storage['ORDER_STATUS']))
+							{
+								$subFilter[] = array(
+									'=STATUS_ID' => $field,
+									'>=DATE_UPDATE' => $date,
+								);
+							}
+						}
+					}
+					unset($field);
+				}
+			}
+			else
+			{
+				foreach ($this->arParams['FILTER'] as $field)
+				{
+					if (isset($statuses[$field]))
+					{
+						$subFilter[] = array(
+							'='.$field => 'Y'
+						);
+					}
+					else
+					{
+						if (empty($this->storage['ORDER_STATUS']) || in_array($field, $this->storage['ORDER_STATUS']))
+						{
+							$subFilter[] = array(
+								'=STATUS_ID' => $field,
+							);
+						}
+					}
+				}
+				unset($field);
+			}
+
+			$filter[] = $subFilter;
+		}
+
+		return $filter;
+	}
+
+	/**
+	 * Return array of iblock element ids to show for "initialLoad" action.
+	 *
+	 * @return array
+	 */
+	protected function getDeferredProductIds()
+	{
+		return array();
+	}
+
+	protected function getProductIdMap($productIds)
+	{
+		if ($productIds === false)
+		{
+			return false;
+		}
+
+		return $this->useCatalog ? static::getProductsMap($productIds) : $productIds;
+	}
+
+	/**
+	 * Returns ids map: SKU_PRODUCT_ID => PRODUCT_ID.
+	 *
+	 * @param array $originalIds			Input products ids.
+	 * @return array
+	 */
+	public static function getProductsMap(array $originalIds = array())
+	{
+		if (empty($originalIds))
+		{
+			return array();
+		}
+
+		$result = array();
+		$productList = \CCatalogSku::getProductList($originalIds);
+		if ($productList === false)
+		{
+			$productList = array();
+		}
+
+		foreach ($originalIds as $id)
+		{
+			$result[$id] = isset($productList[$id]) ? $productList[$id]['ID'] : (int)$id;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Return array map of iblock products.
+
+	 * 3 following cases to process $productIdMap:
+	 * ~ $productIdMap is array with ids	- show elements with presented ids
+	 * ~ $productIdMap is empty array		- nothing to show
+	 * ~ $productIdMap === false				- show elements via filter(e.g. $arParams['IBLOCK_ID'],  arParams['ELEMENT_ID'])
+	 *
+	 * @return array
+	 */
+	protected function getProductsSeparatedByIblock()
+	{
+		$iblockItems = array();
+
+		if (!empty($this->productIdMap) && is_array($this->productIdMap))
+		{
+			$itemsIterator = Iblock\ElementTable::getList(array(
+				'select' => array('ID', 'IBLOCK_ID'),
+				'filter' => array('@ID' => $this->productIdMap)
+			));
+			while ($item = $itemsIterator->fetch())
+			{
+				$item['ID'] = (int)$item['ID'];
+				$item['IBLOCK_ID'] = (int)$item['IBLOCK_ID'];
+
+				if (!isset($iblockItems[$item['IBLOCK_ID']]))
+				{
+					$iblockItems[$item['IBLOCK_ID']] = array();
+				}
+
+				$iblockItems[$item['IBLOCK_ID']][] = $item['ID'];
+			}
+			unset($item, $itemsIterator);
+		}
+		elseif ($this->productIdMap === false)
+		{
+			$iblockItems[$this->arParams['IBLOCK_ID']] = $this->arParams['ELEMENT_ID'];
+		}
+
+		return $iblockItems;
+	}
+
+	/**
+	 * Return default measure.
+	 *
+	 * @return array|null
+	 */
+	protected function getDefaultMeasure()
+	{
+		$defaultMeasure = array();
+
+		if ($this->useCatalog)
+		{
+			$defaultMeasure = \CCatalogMeasure::getDefaultMeasure(true, true);
+		}
+
+		return $defaultMeasure;
+	}
+
+	/**
+	 * Return \CIBlockResult iterator for current iblock ID.
+	 *
+	 * @param int $iblockId
+	 * @param array|int $products
+	 * @return \CIBlockResult|int
+	 */
+	protected function getElementList($iblockId, $products)
+	{
+		$selectFields = $this->selectFields;
+		$filterFields = $this->filterFields;
+
+		if ($iblockId > 0)
+		{
+			$filterFields['IBLOCK_ID'] = $iblockId;
+		}
+
+		if (!empty($products))
+		{
+			$filterFields['ID'] = $products;
+		}
+
+		if ($this->isIblockCatalog || $this->offerIblockExist($iblockId))
+		{
+			$selectFields[] = 'CATALOG_TYPE';
+		}
+
+		$elementIterator = \CIBlockElement::GetList(
+			$this->sortFields,
+			array_merge($this->globalFilter, $filterFields),
+			false,
+			$this->navParams,
+			$selectFields
+		);
+		$elementIterator->SetUrlTemplates($this->arParams['DETAIL_URL']);
+
+		return $elementIterator;
+	}
+
+	/**
+	 * Initialization of general query fields.
+	 *
+	 * @return void
+	 */
+	protected function initQueryFields()
+	{
+		$this->selectFields = $this->getSelect();
+		$this->filterFields = $this->getFilter();
+		$this->sortFields = $this->getSort();
+		$this->initPricesQuery();
+	}
+
+	/**
+	 * Return select fields to execute.
+	 *
+	 * @return array
+	 */
+	protected function getSelect()
+	{
+		return array(
+			'ID', 'IBLOCK_ID', 'CODE', 'XML_ID', 'NAME', 'ACTIVE', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'SORT',
+			'PREVIEW_TEXT', 'PREVIEW_TEXT_TYPE', 'DETAIL_TEXT', 'DETAIL_TEXT_TYPE', 'DATE_CREATE', 'CREATED_BY', 'TAGS',
+			'TIMESTAMP_X', 'MODIFIED_BY', 'IBLOCK_SECTION_ID', 'DETAIL_PAGE_URL', 'DETAIL_PICTURE', 'PREVIEW_PICTURE'
+		);
+	}
+
+	/**
+	 * Return filter fields to execute.
+	 *
+	 * @return array
+	 */
+	protected function getFilter()
+	{
+		return array(
+			'IBLOCK_LID' => $this->getSiteId(),
+			'ACTIVE_DATE' => 'Y',
+			'CHECK_PERMISSIONS' => 'Y',
+			'MIN_PERMISSION' => 'R'
+		);
+	}
+
+	/**
+	 * Return sort fields to execute.
+	 *
+	 * @return array
+	 */
+	protected function getSort()
+	{
+		return array();
+	}
+
+	protected function initPricesQuery()
+	{
+		foreach (array_keys($this->sortFields) as $fieldName)
+		{
+			$fieldName = strtoupper($fieldName);
+			$priceId = 0;
+
+			if (strncmp($fieldName, 'CATALOG_PRICE_', 14) === 0)
+			{
+				$priceId = (int)substr($fieldName, 14);
+			}
+			elseif (strncmp($fieldName, 'CATALOG_CURRENCY_', 17) === 0)
+			{
+				$priceId = (int)substr($fieldName, 17);
+			}
+			elseif (strncmp($fieldName, 'CATALOG_PRICE_SCALE_', 20) === 0)
+			{
+				$priceId = (int)substr($fieldName, 20);
+			}
+
+			if ($priceId <= 0)
+				continue;
+
+			if (!isset($this->filterFields['CATALOG_SHOP_QUANTITY_'.$priceId]))
+			{
+				$this->filterFields['CATALOG_SHOP_QUANTITY_'.$priceId] = $this->arParams['SHOW_PRICE_COUNT'];
+			}
+		}
+	}
+
+	/**
+	 * Return parsed conditions array.
+	 *
+	 * @param $condition
+	 * @param $params
+	 * @return array
+	 */
+	protected function parseCondition($condition, $params)
+	{
+		$result = array();
+
+		if (!empty($condition) && is_array($condition))
+		{
+			if ($condition['CLASS_ID'] === 'CondGroup')
+			{
+				if (!empty($condition['CHILDREN']))
+				{
+					foreach ($condition['CHILDREN'] as $child)
+					{
+						$childResult = $this->parseCondition($child, $params);
+
+						// is group
+						if ($child['CLASS_ID'] === 'CondGroup')
+						{
+							$result[] = $childResult;
+						}
+						// same property names not overrides each other
+						elseif (isset($result[key($childResult)]))
+						{
+							$fieldName = key($childResult);
+
+							if (!isset($result['LOGIC']))
+							{
+								$result = array(
+									'LOGIC' => $condition['DATA']['All'],
+									array($fieldName => $result[$fieldName])
+								);
+							}
+
+							$result[][$fieldName] = $childResult[$fieldName];
+						}
+						else
+						{
+							$result += $childResult;
+						}
+					}
+
+					if (!empty($result))
+					{
+						$this->parsePropertyCondition($result, $condition, $params);
+
+						if (count($result) > 1)
+						{
+							$result['LOGIC'] = $condition['DATA']['All'];
+						}
+					}
+				}
+			}
+			else
+			{
+				$result += $this->parseConditionLevel($condition, $params);
+			}
+		}
+
+		return $result;
+	}
+
+	protected function parseConditionLevel($condition, $params)
+	{
+		$result = array();
+
+		if (!empty($condition) && is_array($condition))
+		{
+			$name = $this->parseConditionName($condition);
+			if (!empty($name))
+			{
+				$operator = $this->parseConditionOperator($condition);
+				$value = $this->parseConditionValue($condition, $name);
+				$result[$operator.$name] = $value;
+
+				if ($name === 'SECTION_ID')
+				{
+					$result['INCLUDE_SUBSECTIONS'] = isset($params['INCLUDE_SUBSECTIONS']) && $params['INCLUDE_SUBSECTIONS'] === 'N' ? 'N' : 'Y';
+
+					if (isset($params['INCLUDE_SUBSECTIONS']) && $params['INCLUDE_SUBSECTIONS'] === 'A')
+					{
+						$result['SECTION_GLOBAL_ACTIVE'] = 'Y';
+					}
+
+					$result = array($result);
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	protected function parseConditionName(array $condition)
+	{
+		$name = '';
+		$conditionNameMap = array(
+			'CondIBXmlID' => 'XML_ID',
+//			'CondIBActive' => 'ACTIVE',
+			'CondIBSection' => 'SECTION_ID',
+			'CondIBDateActiveFrom' => 'DATE_ACTIVE_FROM',
+			'CondIBDateActiveTo' => 'DATE_ACTIVE_TO',
+			'CondIBSort' => 'SORT',
+			'CondIBDateCreate' => 'DATE_CREATE',
+			'CondIBCreatedBy' => 'CREATED_BY',
+			'CondIBTimestampX' => 'TIMESTAMP_X',
+			'CondIBModifiedBy' => 'MODIFIED_BY',
+			'CondIBTags' => 'TAGS',
+			'CondCatQuantity' => 'CATALOG_QUANTITY',
+			'CondCatWeight' => 'CATALOG_WEIGHT'
+		);
+
+		if (isset($conditionNameMap[$condition['CLASS_ID']]))
+		{
+			$name = $conditionNameMap[$condition['CLASS_ID']];
+		}
+		elseif (strpos($condition['CLASS_ID'], 'CondIBProp') !== false)
+		{
+			$name = $condition['CLASS_ID'];
+		}
+
+		return $name;
+	}
+
+	protected function parseConditionOperator($condition)
+	{
+		$operator = '';
+
+		switch ($condition['DATA']['logic'])
+		{
+			case 'Equal':
+				$operator = '';
+				break;
+			case 'Not':
+				$operator = '!';
+				break;
+			case 'Contain':
+				$operator = '%';
+				break;
+			case 'NotCont':
+				$operator = '!%';
+				break;
+			case 'Great':
+				$operator = '>';
+				break;
+			case 'Less':
+				$operator = '<';
+				break;
+			case 'EqGr':
+				$operator = '>=';
+				break;
+			case 'EqLs':
+				$operator = '<=';
+				break;
+		}
+
+		return $operator;
+	}
+
+	protected function parseConditionValue($condition, $name)
+	{
+		$value = $condition['DATA']['value'];
+
+		switch ($name)
+		{
+			case 'DATE_ACTIVE_FROM':
+			case 'DATE_ACTIVE_TO':
+			case 'DATE_CREATE':
+			case 'TIMESTAMP_X':
+				$value = ConvertTimeStamp($value, 'FULL');
+				break;
+		}
+
+		return $value;
+	}
+
+	protected function parsePropertyCondition(array &$result, array $condition, $params)
+	{
+		if (!empty($result))
+		{
+			$subFilter = array();
+
+			foreach ($result as $name => $value)
+			{
+				if (!empty($result[$name]) && is_array($result[$name]))
+				{
+					$this->parsePropertyCondition($result[$name], $condition, $params);
+				}
+				else
+				{
+					if (($ind = strpos($name, 'CondIBProp')) !== false)
+					{
+						list($prefix, $iblock, $propertyId) = explode(':', $name);
+						$operator = $ind > 0 ? substr($prefix, 0, $ind) : '';
+
+						$catalogInfo = \CCatalogSku::GetInfoByIBlock($iblock);
+						if (!empty($catalogInfo))
+						{
+							if (
+								$catalogInfo['CATALOG_TYPE'] != \CCatalogSku::TYPE_CATALOG
+								&& $catalogInfo['IBLOCK_ID'] == $iblock
+							)
+							{
+								$subFilter[$operator.'PROPERTY_'.$propertyId] = $value;
+							}
+							else
+							{
+								$result[$operator.'PROPERTY_'.$propertyId] = $value;
+							}
+						}
+
+						unset($result[$name]);
+					}
+				}
+			}
+
+			if (!empty($subFilter) && !empty($catalogInfo))
+			{
+				$offerPropFilter = array(
+					'IBLOCK_ID' => $catalogInfo['IBLOCK_ID'],
+					'ACTIVE_DATE' => 'Y',
+					'ACTIVE' => 'Y'
+				);
+
+				if ($params['HIDE_NOT_AVAILABLE_OFFERS'] === 'Y')
+				{
+					$offerPropFilter['HIDE_NOT_AVAILABLE'] = 'Y';
+				}
+				elseif ($params['HIDE_NOT_AVAILABLE_OFFERS'] === 'L')
+				{
+					$offerPropFilter[] = array(
+						'LOGIC' => 'OR',
+						'CATALOG_AVAILABLE' => 'Y',
+						'CATALOG_SUBSCRIBE' => 'Y'
+					);
+				}
+
+				if (count($subFilter) > 1)
+				{
+					$subFilter['LOGIC'] = $condition['DATA']['All'];
+					$subFilter = array($subFilter);
+				}
+
+				$result['=ID'] = \CIBlockElement::SubQuery(
+					'PROPERTY_'.$catalogInfo['SKU_PROPERTY_ID'],
+					$offerPropFilter + $subFilter
+				);
+			}
+		}
+	}
+
+	/**
+	 * Process element data to set in $arResult.
+	 *
+	 * @param array &$element
+	 * @return void
+	 */
+	protected function processElement(array &$element)
+	{
+		$this->modifyElementCommonData($element);
+		$this->modifyElementPrices($element);
+		$this->setElementPanelButtons($element);
+	}
+
+	/**
+	 * Fill various common fields for element.
+	 *
+	 * @param array &$element			Element data.
+	 * @return void
+	 */
+	protected function modifyElementCommonData(array &$element)
+	{
+		$element['ID'] = (int)$element['ID'];
+		$element['IBLOCK_ID'] = (int)$element['IBLOCK_ID'];
+		if ($this->isEnableCompatible())
+		{
+			$element['ACTIVE_FROM'] = (isset($element['DATE_ACTIVE_FROM']) ? $element['DATE_ACTIVE_FROM'] : null);
+			$element['ACTIVE_TO'] = (isset($element['DATE_ACTIVE_TO']) ? $element['DATE_ACTIVE_TO'] : null);
+		}
+
+		$ipropValues = new Iblock\InheritedProperty\ElementValues($element['IBLOCK_ID'], $element['ID']);
+		$element['IPROPERTY_VALUES'] = $ipropValues->getValues();
+
+		Iblock\Component\Tools::getFieldImageData(
+			$element,
+			array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
+			Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
+			'IPROPERTY_VALUES'
+		);
+
+		/* it is not the final version */
+		$element['PRODUCT'] = array(
+			'TYPE' => null,
+			'AVAILABLE' => null,
+			'MEASURE' => null,
+			'VAT_ID' => null,
+			'VAT_RATE' => null,
+			'VAT_INCLUDED' => null,
+			'QUANTITY' => null,
+			'QUANTITY_TRACE' => null,
+			'CAN_BUY_ZERO' => null,
+			'SUBSCRIPTION' => null
+		);
+
+		if (isset($element['CATALOG_TYPE']))
+		{
+			$element['CATALOG_TYPE'] = (int)$element['CATALOG_TYPE']; // this key will be deprecated
+			$element['PRODUCT']['TYPE'] = $element['CATALOG_TYPE'];
+		}
+		if (isset($element['CATALOG_MEASURE']))
+		{
+			$element['CATALOG_MEASURE'] = (int)$element['CATALOG_MEASURE']; // this key will be deprecated
+			$element['PRODUCT']['MEASURE'] = $element['CATALOG_MEASURE'];
+		}
+		/*
+		 * this keys will be deprecated
+		 * CATALOG_*
+		 */
+		if (isset($element['CATALOG_AVAILABLE']))
+			$element['PRODUCT']['AVAILABLE'] = $element['CATALOG_AVAILABLE'];
+		if (isset($element['CATALOG_VAT']))
+			$element['PRODUCT']['VAT_RATE'] = $element['CATALOG_VAT'];
+		if (isset($element['CATALOG_VAT_INCLUDED']))
+			$element['PRODUCT']['VAT_INCLUDED'] = $element['CATALOG_VAT_INCLUDED'];
+		if (isset($element['CATALOG_QUANTITY']))
+			$element['PRODUCT']['QUANTITY'] = $element['CATALOG_QUANTITY'];
+		if (isset($element['CATALOG_QUANTITY_TRACE']))
+			$element['PRODUCT']['QUANTITY_TRACE'] = $element['CATALOG_QUANTITY_TRACE'];
+		if (isset($element['CATALOG_CAN_BUY_ZERO']))
+			$element['PRODUCT']['CAN_BUY_ZERO'] = $element['CATALOG_CAN_BUY_ZERO'];
+		if (isset($element['CATALOG_SUBSCRIPTION']))
+			$element['PRODUCT']['SUBSCRIPTION'] = $element['CATALOG_SUBSCRIPTION'];
+		/* it is not the final version - end*/
+
+		$element['PROPERTIES'] = array();
+		$element['DISPLAY_PROPERTIES'] = array();
+		$element['PRODUCT_PROPERTIES'] = array();
+		$element['PRODUCT_PROPERTIES_FILL'] = array();
+		$element['OFFERS'] = array();
+		$element['OFFER_ID_SELECTED'] = 0;
+
+		if (!empty($this->storage['CATALOGS'][$element['IBLOCK_ID']]))
+			$element['CHECK_QUANTITY'] = $this->isNeedCheckQuantity($element['PRODUCT']);
+
+		if ($this->getAction() === 'bigDataLoad')
+		{
+			$element['RCM_ID'] = $this->recommendationIdToProduct[$element['ID']];
+		}
+	}
+
+	/**
+	 * Add Hermitage button links for element.
+	 *
+	 * @param array &$element			Element data.
+	 * @return void
+	 */
+	protected function setElementPanelButtons(&$element)
+	{
+		$buttons = \CIBlock::GetPanelButtons(
+			$element['IBLOCK_ID'],
+			$element['ID'],
+			$element['IBLOCK_SECTION_ID'],
+			array('SECTION_BUTTONS' => false, 'SESSID' => false, 'CATALOG' => true)
+		);
+		$element['EDIT_LINK'] = $buttons['edit']['edit_element']['ACTION_URL'];
+		$element['DELETE_LINK'] = $buttons['edit']['delete_element']['ACTION_URL'];
+	}
+
+	/**
+	 * Process element display properties by iblock parameters.
+	 *
+	 * @param int $iblock					Iblock ID.
+	 * @param array &$iblockElements		Items.
+	 * @return void
+	 */
+	protected function modifyDisplayProperties($iblock, &$iblockElements)
+	{
+	}
+
+	protected function getPropertyList($iblock, $propertyCodes)
+	{
+		$propertyList = array();
+		if (empty($propertyCodes))
+			return $propertyList;
+
+		$propertyCodes = array_fill_keys($propertyCodes, true);
+
+		$propertyIterator = Iblock\PropertyTable::getList(array(
+			'select' => array('ID', 'CODE'),
+			'filter' => array('=IBLOCK_ID' => $iblock, '=ACTIVE' => 'Y'),
+			'order' => array('SORT' => 'ASC', 'ID' => 'ASC')
+		));
+		while ($property = $propertyIterator->fetch())
+		{
+			$code = (string)$property['CODE'];
+
+			if ($code == '')
+			{
+				$code = $property['ID'];
+			}
+
+			if (!isset($propertyCodes[$code]))
+				continue;
+
+			$propertyList[] = $code;
+		}
+
+		return $propertyList;
+	}
+
+	/**
+	 * Clear products data.
+	 *
+	 * @return void
+	 */
+	protected function clearItems()
+	{
+		$this->prices = array();
+		$this->measures = array();
+		$this->ratios = array();
+		$this->quantityRanges = array();
+		$this->oldData = array();
+	}
+
+	/**
+	 * Load measure ratios for items.
+	 *
+	 * @param array $itemIds		Items id list.
+	 *
+	 * @return void
+	 */
+	protected function loadMeasureRatios(array $itemIds)
+	{
+		if (empty($itemIds))
+			return;
+		Main\Type\Collection::normalizeArrayValuesByInt($itemIds, true);
+		if (empty($itemIds))
+			return;
+		$emptyRatioIds = array_fill_keys($itemIds, true);
+
+		$iterator = Catalog\MeasureRatioTable::getList(array(
+			'select' => array('ID', 'RATIO', 'IS_DEFAULT', 'PRODUCT_ID'),
+			'filter' => array('@PRODUCT_ID' => $itemIds),
+			'order' => array('PRODUCT_ID' => 'ASC')// not add 'RATIO' => 'ASC' - result will be resorted after load prices
+		));
+		while ($row = $iterator->fetch())
+		{
+			$ratio = ((float)$row['RATIO'] > (int)$row['RATIO'] ? (float)$row['RATIO'] : (int)$row['RATIO']);
+			if ($ratio > CATALOG_VALUE_EPSILON)
+			{
+				$row['RATIO'] = $ratio;
+				$row['ID'] = (int)$row['ID'];
+				$id = (int)$row['PRODUCT_ID'];
+				if (!isset($this->ratios[$id]))
+					$this->ratios[$id] = array();
+				$this->ratios[$id][$row['ID']] = $row;
+				unset($emptyRatioIds[$id]);
+				unset($id);
+			}
+			unset($ratio);
+		}
+		unset($row, $iterator);
+		if (!empty($emptyRatioIds))
+		{
+			$emptyRatio = $this->getEmptyRatio();
+			foreach (array_keys($emptyRatioIds) as $id)
+			{
+				$this->ratios[$id] = array(
+					$emptyRatio['ID'] => $emptyRatio
+				);
+			}
+			unset($id, $emptyRatio);
+		}
+		unset($emptyRatioIds);
+	}
+
+	/**
+	 * Return default empty ratio (unexist in database).
+	 *
+	 * @return array
+	 */
+	protected function getEmptyRatio()
+	{
+		return array(
+			'ID' => 0,
+			'RATIO' => 1,
+			'IS_DEFAULT' => 'Y'
+		);
+	}
+
+	/**
+	 * Init measure for items.
+	 *
+	 * @param array &$items			Items list.
+	 * @return void
+	 */
+	protected function initItemsMeasure(array &$items)
+	{
+		if (empty($items))
+			return;
+
+		foreach (array_keys($items) as $index)
+		{
+			if (!isset($items[$index]['PRODUCT']['MEASURE']))
+				continue;
+			if ($items[$index]['PRODUCT']['MEASURE'] > 0)
+			{
+				$items[$index]['ITEM_MEASURE'] = array(
+					'ID' => $items[$index]['PRODUCT']['MEASURE'],
+					'TITLE' => '',
+					'~TITLE' => ''
+				);
+			}
+			else
+			{
+				$items[$index]['ITEM_MEASURE'] = array(
+					'ID' => null,
+					'TITLE' => $this->storage['DEFAULT_MEASURE']['SYMBOL_RUS'],
+					'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS']
+				);
+			}
+		}
+		unset($index);
+	}
+
+	/**
+	 * Return measure ids for items.
+	 *
+	 * @param array $items			Items data.
+	 * @return array
+	 */
+	protected function getMeasureIds(array $items)
+	{
+		$result = array();
+
+		if (!empty($items))
+		{
+			foreach (array_keys($items) as $itemId)
+			{
+				if (!isset($items[$itemId]['ITEM_MEASURE']))
+					continue;
+				$measureId = (int)$items[$itemId]['ITEM_MEASURE']['ID'];
+				if ($measureId > 0)
+					$result[$measureId] = $measureId;
+				unset($measureId);
+			}
+			unset($itemId);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Load measures data.
+	 *
+	 * @param array $measureIds
+	 * @return void
+	 */
+	protected function loadMeasures(array $measureIds)
+	{
+		if (empty($measureIds))
+			return;
+		Main\Type\Collection::normalizeArrayValuesByInt($measureIds, true);
+		if (empty($measureIds))
+			return;
+
+		$measureIterator = \CCatalogMeasure::getList(
+			array(),
+			array('@ID' => $measureIds),
+			false,
+			false,
+			array('ID', 'SYMBOL_RUS')
+		);
+		while ($measure = $measureIterator->GetNext())
+		{
+			$measure['ID'] = (int)$measure['ID'];
+			$measure['TITLE'] = $measure['SYMBOL_RUS'];
+			$measure['~TITLE'] = $measure['~SYMBOL_RUS'];
+			unset($measure['SYMBOL_RUS'], $measure['~SYMBOL_RUS']);
+			$this->measures[$measure['ID']] = $measure;
+		}
+		unset($measure, $measureIterator);
+	}
+
+	/**
+	 * Load prices for items.
+	 *
+	 * @param array $itemIds		Item ids.
+	 * @return void
+	 */
+	protected function loadPrices(array $itemIds)
+	{
+		if (empty($itemIds))
+			return;
+		Main\Type\Collection::normalizeArrayValuesByInt($itemIds, true);
+		if (empty($itemIds))
+			return;
+		if (empty($this->storage['PRICES_ALLOW']))
+			return;
+
+		$enableCompatible = $this->isEnableCompatible();
+
+		$ratioList = array_fill_keys($itemIds, array());
+		$quantityList = array_fill_keys($itemIds, array());
+
+		$select = array(
+			'ID', 'PRODUCT_ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY',
+			'QUANTITY_FROM', 'QUANTITY_TO'
+		);
+		if ($enableCompatible)
+			$select[] = 'EXTRA_ID';
+
+		$pagedItemIds = array_chunk($itemIds, 500);
+		foreach ($pagedItemIds as $pageIds)
+		{
+			if (empty($pageIds))
+				continue;
+
+			$iterator = Catalog\PriceTable::getList(array(
+				'select' => $select,
+				'filter' => array('@PRODUCT_ID' => $pageIds, '@CATALOG_GROUP_ID' => $this->storage['PRICES_ALLOW']),
+				'order' => array('PRODUCT_ID' => 'ASC', 'CATALOG_GROUP_ID' => 'ASC')
+			));
+			while ($row = $iterator->fetch())
+			{
+				$id = (int)$row['PRODUCT_ID'];
+				unset($row['PRODUCT_ID']);
+				if (!isset($this->prices[$id]))
+				{
+					$this->prices[$id] = array(
+						'RATIO' => array(),
+						'QUANTITY' => array(),
+						'SIMPLE' => array()
+					);
+				}
+
+				if ($row['QUANTITY_FROM'] !== null || $row['QUANTITY_TO'] !== null)
+				{
+					$hash = $this->getQuantityRangeHash($row);
+					if (!isset($quantityList[$id][$hash]))
+					{
+						$quantityList[$id][$hash] = array(
+							'HASH' => $hash,
+							'QUANTITY_FROM' => $row['QUANTITY_FROM'],
+							'QUANTITY_TO' => $row['QUANTITY_TO'],
+							'SORT_FROM' => (int)$row['QUANTITY_FROM'],
+							'SORT_TO' => ($row['QUANTITY_TO'] === null ? INF : (int)$row['QUANTITY_TO'])
+						);
+					}
+					if (!isset($this->prices[$id]['QUANTITY'][$hash]))
+					{
+						$this->prices[$id]['QUANTITY'][$hash] = array();
+					}
+					$this->prices[$id]['QUANTITY'][$hash][$row['CATALOG_GROUP_ID']] = $row;
+					unset($hash);
+				}
+				elseif ($row['MEASURE_RATIO_ID'] === null && $row['QUANTITY_FROM'] === null && $row['QUANTITY_TO'] === null)
+				{
+					$this->prices[$id]['SIMPLE'][$row['CATALOG_GROUP_ID']] = $row;
+				}
+				$this->storage['CURRENCY_LIST'][$row['CURRENCY']] = $row['CURRENCY'];
+
+				unset($id);
+			}
+			unset($row, $iterator);
+		}
+		unset($pageIds, $pagedItemIds);
+
+		foreach ($itemIds as $id)
+		{
+			if (isset($this->prices[$id]))
+			{
+				foreach ($this->prices[$id] as $key => $data)
+				{
+					if (empty($data))
+						unset($this->prices[$id][$key]);
+				}
+				unset($key, $data);
+
+				if (count($this->prices[$id]) !== 1)
+				{
+					unset($this->prices[$id]);
+				}
+				else
+				{
+					if (!empty($this->prices[$id]['QUANTITY']))
+					{
+						$productQuantity = $quantityList[$id];
+						Main\Type\Collection::sortByColumn(
+							$productQuantity,
+							array('SORT_FROM' => SORT_ASC, 'SORT_TO' => SORT_ASC),
+							'', null, true
+						);
+						$this->quantityRanges[$id] = $productQuantity;
+						unset($productQuantity);
+
+						if (count($this->ratios[$id]) > 1)
+							$this->compactItemRatios($id);
+					}
+					if (!empty($this->prices[$id]['SIMPLE']))
+					{
+						$range = $this->getFullQuantityRange();
+						$this->quantityRanges[$id] = array(
+							$range['HASH'] => $range
+						);
+						unset($range);
+						if (count($this->ratios[$id]) > 1)
+							$this->compactItemRatios($id);
+					}
+				}
+			}
+		}
+		unset($id);
+
+		unset($quantityList, $ratioList);
+
+		unset($enableCompatible);
+	}
+
+	protected function calculateItemPrices(array &$items)
+	{
+		if (empty($items))
+			return;
+
+		$enableCompatible = $this->isEnableCompatible();
+
+		if ($enableCompatible)
+			$this->initCompatibleFields($items);
+
+		foreach (array_keys($items) as $index)
+		{
+			$id = $items[$index]['ID'];
+			if (!isset($this->calculatePrices[$id]))
+				continue;
+			if (empty($this->prices[$id]))
+				continue;
+			$productPrices = $this->prices[$id];
+			$result = array(
+				'ITEM_PRICE_MODE' => null,
+				'ITEM_PRICES' => array()
+			);
+			if ($this->arParams['FILL_ITEM_ALL_PRICES'])
+				$result['ITEM_ALL_PRICES'] = array();
+			$priceBlockIndex = 0;
+			if (!empty($productPrices['QUANTITY']))
+			{
+				$result['ITEM_PRICE_MODE'] = Catalog\ProductTable::PRICE_MODE_QUANTITY;
+				$ratio = current($this->ratios[$id]);
+				foreach ($this->quantityRanges[$id] as $range)
+				{
+					$priceBlock = $this->calculatePriceBlock(
+						$items[$index],
+						$productPrices['QUANTITY'][$range['HASH']],
+						$ratio['RATIO'],
+						$this->arParams['USE_PRICE_COUNT'] || $this->checkQuantityRange($range)
+					);
+					if (!empty($priceBlock))
+					{
+						$minimalPrice = ($this->arParams['FILL_ITEM_ALL_PRICES']
+							? $priceBlock['MINIMAL_PRICE']
+							: $priceBlock
+						);
+						if ($minimalPrice['QUANTITY_FROM'] === null)
+						{
+							$minimalPrice['MIN_QUANTITY'] = $ratio['RATIO'];
+						}
+						else
+						{
+							$minimalPrice['MIN_QUANTITY'] = $ratio['RATIO'] * ((int)($minimalPrice['QUANTITY_FROM']/$ratio['RATIO']));
+							if ($minimalPrice['MIN_QUANTITY'] < $minimalPrice['QUANTITY_FROM'])
+								$minimalPrice['MIN_QUANTITY'] += $ratio['RATIO'];
+						}
+						$result['ITEM_PRICES'][$priceBlockIndex] = $minimalPrice;
+						if ($this->arParams['FILL_ITEM_ALL_PRICES'])
+						{
+							$priceBlock['ALL_PRICES']['MIN_QUANTITY'] = $minimalPrice['MIN_QUANTITY'];
+							$result['ITEM_ALL_PRICES'][$priceBlockIndex] = $priceBlock['ALL_PRICES'];
+						}
+						unset($minimalPrice);
+						$priceBlockIndex++;
+					}
+					unset($priceBlock);
+				}
+				unset($range);
+				unset($ratio);
+			}
+			if (!empty($productPrices['SIMPLE']))
+			{
+				$result['ITEM_PRICE_MODE'] = Catalog\ProductTable::PRICE_MODE_SIMPLE;
+				$ratio = current($this->ratios[$id]);
+				$priceBlock = $this->calculatePriceBlock(
+					$items[$index],
+					$productPrices['SIMPLE'],
+					$ratio['RATIO'],
+					true
+				);
+				if (!empty($priceBlock))
+				{
+					$minimalPrice = ($this->arParams['FILL_ITEM_ALL_PRICES']
+						? $priceBlock['MINIMAL_PRICE']
+						: $priceBlock
+					);
+					$minimalPrice['MIN_QUANTITY'] = $ratio['RATIO'];
+					$result['ITEM_PRICES'][$priceBlockIndex] = $minimalPrice;
+					if ($this->arParams['FILL_ITEM_ALL_PRICES'])
+					{
+						$priceBlock['ALL_PRICES']['MIN_QUANTITY'] = $minimalPrice['MIN_QUANTITY'];
+						$result['ITEM_ALL_PRICES'][$priceBlockIndex] = $priceBlock['ALL_PRICES'];
+					}
+					unset($minimalPrice);
+					$priceBlockIndex++;
+				}
+				unset($priceBlock);
+				unset($ratio);
+			}
+			$this->prices[$id] = $result;
+
+			if (isset($items[$index]['ACTIVE']) && $items[$index]['ACTIVE'] === 'N')
+			{
+				$items[$index]['CAN_BUY'] = false;
+			}
+			else
+			{
+				$items[$index]['CAN_BUY'] = !empty($result['ITEM_PRICES']) && $items[$index]['PRODUCT']['AVAILABLE'] === 'Y';
+			}
+
+			unset($priceBlockIndex, $result);
+			unset($productPrices);
+
+			if ($enableCompatible)
+				$this->resortOldPrices($id);
+		}
+		unset($index);
+	}
+
+	protected function transferItems(array &$items)
+	{
+		if (empty($items))
+			return;
+
+		$enableCompatible = $this->isEnableCompatible();
+		$urls = $this->storage['URLS'];
+
+		foreach (array_keys($items) as $index)
+		{
+			$itemId = $items[$index]['ID'];
+			// measure
+			if (!empty($items[$index]['ITEM_MEASURE']))
+			{
+				$id = (int)$items[$index]['ITEM_MEASURE']['ID'];
+				if (isset($this->measures[$id]))
+				{
+					$items[$index]['ITEM_MEASURE']['TITLE'] = $this->measures[$id]['TITLE'];
+					$items[$index]['ITEM_MEASURE']['~TITLE'] = $this->measures[$id]['~TITLE'];
+				}
+				unset($id);
+			}
+			// prices
+			$items[$index]['ITEM_MEASURE_RATIOS'] = $this->ratios[$itemId];
+			$items[$index]['ITEM_MEASURE_RATIO_SELECTED'] = $this->searchItemSelectedRatioId($itemId);
+			$items[$index]['ITEM_QUANTITY_RANGES'] = $this->quantityRanges[$itemId];
+			$items[$index]['ITEM_QUANTITY_RANGE_SELECTED'] = $this->searchItemSelectedQuantityRangeHash($itemId);
+			if (!empty($this->prices[$itemId]))
+			{
+				$items[$index] = array_merge($items[$index], $this->prices[$itemId]);
+				if (!empty($items[$index]['ITEM_PRICES']))
+				{
+					switch ($items[$index]['ITEM_PRICE_MODE'])
+					{
+						case Catalog\ProductTable::PRICE_MODE_SIMPLE:
+							$items[$index]['ITEM_PRICE_SELECTED'] = 0;
+							break;
+						case Catalog\ProductTable::PRICE_MODE_QUANTITY:
+							foreach (array_keys($items[$index]['ITEM_PRICES']) as $priceIndex)
+							{
+								if ($items[$index]['ITEM_PRICES'][$priceIndex]['QUANTITY_HASH'] == $items[$index]['ITEM_QUANTITY_RANGE_SELECTED'])
+								{
+									$items[$index]['ITEM_PRICE_SELECTED'] = $priceIndex;
+									break;
+								}
+							}
+							break;
+						case Catalog\ProductTable::PRICE_MODE_RATIO:
+							foreach (array_keys($items[$index]['ITEM_PRICES']) as $priceIndex)
+							{
+								if ($items[$index]['ITEM_PRICES'][$priceIndex]['MEASURE_RATIO_ID'] == $items[$index]['ITEM_MEASURE_RATIO_SELECTED'])
+								{
+									$items[$index]['ITEM_PRICE_SELECTED'] = $priceIndex;
+									break;
+								}
+							}
+							break;
+					}
+				}
+			}
+
+			// compatibility
+			if ($enableCompatible)
+			{
+				// old links to buy, add to basket, etc
+				$id = $items[$index]['ID'];
+				$items[$index]['~BUY_URL'] = str_replace('#ID#', $id, $urls['~BUY_URL_TEMPLATE']);
+				$items[$index]['BUY_URL'] = str_replace('#ID#', $id, $urls['BUY_URL_TEMPLATE']);
+				$items[$index]['~ADD_URL'] = str_replace('#ID#', $id, $urls['~ADD_URL_TEMPLATE']);
+				$items[$index]['ADD_URL'] = str_replace('#ID#', $id, $urls['ADD_URL_TEMPLATE']);
+				$items[$index]['~SUBSCRIBE_URL'] = str_replace('#ID#', $id, $urls['~SUBSCRIBE_URL_TEMPLATE']);
+				$items[$index]['SUBSCRIBE_URL'] = str_replace('#ID#', $id, $urls['SUBSCRIBE_URL_TEMPLATE']);
+				if ($this->arParams['DISPLAY_COMPARE'])
+				{
+					$items[$index]['~COMPARE_URL'] = str_replace('#ID#', $id, $urls['~COMPARE_URL_TEMPLATE']);
+					$items[$index]['COMPARE_URL'] = str_replace('#ID#', $id, $urls['COMPARE_URL_TEMPLATE']);
+					$items[$index]['~COMPARE_DELETE_URL'] = str_replace('#ID#', $id, $urls['~COMPARE_DELETE_URL_TEMPLATE']);
+					$items[$index]['COMPARE_DELETE_URL'] = str_replace('#ID#', $id, $urls['COMPARE_DELETE_URL_TEMPLATE']);
+				}
+				unset($id);
+
+				// old measure
+				$items[$index]['CATALOG_MEASURE_NAME'] = $items[$index]['ITEM_MEASURE']['TITLE'];
+				$items[$index]['~CATALOG_MEASURE_NAME'] = $items[$index]['ITEM_MEASURE']['~TITLE'];
+
+				// old measure ratio
+				$items[$index]['CATALOG_MEASURE_RATIO'] = $items[$index]['ITEM_MEASURE_RATIOS'][$items[$index]['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'];
+
+				// old fields
+				if (!empty($this->oldData[$itemId]))
+					$items[$index] = array_merge($this->oldData[$itemId], $items[$index]);
+			}
+			unset($itemId);
+		}
+		unset($index);
+		unset($urls, $enableCompatible);
+	}
+
+	/**
+	 * Calculate price block (simple price, quantity range, etc).
+	 *
+	 * @param array $product            Product data.
+	 * @param array $priceBlock         Prices.
+	 * @param int|float $ratio          Measure ratio value.
+	 * @param bool $defaultBlock        Save result to old keys (PRICES, PRICE_MATRIX, MIN_PRICE).
+	 * @return array|null
+	 */
+	protected function calculatePriceBlock(array $product, array $priceBlock, $ratio, $defaultBlock = false)
+	{
+		if (empty($product) || empty($priceBlock))
+			return null;
+
+		$enableCompatible = $defaultBlock && $this->isEnableCompatible();
+
+		if ($enableCompatible && !$this->arParams['USE_PRICE_COUNT'])
+			$this->fillCompatibleRawPriceFields($product['ID'], $priceBlock);
+
+		$userGroups = $this->getUserGroups();
+
+		$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
+		/** @var null|array $minimalPrice */
+		$minimalPrice = null;
+		$fullPrices = array();
+
+		$currencyConvert = $this->arParams['CONVERT_CURRENCY'] === 'Y';
+		$resultCurrency = ($currencyConvert ? $this->storage['CONVERT_CURRENCY']['CURRENCY_ID'] : null);
+
+		$vatRate = (float)$product['PRODUCT']['VAT_RATE'];
+		$percentVat = $vatRate * 0.01;
+		$percentPriceWithVat = 1 + $percentVat;
+		$vatInclude = $product['PRODUCT']['VAT_INCLUDED'] === 'Y';
+
+		$oldPrices = array();
+		$oldMinPrice = false;
+		$oldMatrix = false;
+		if ($enableCompatible && $this->arParams['USE_PRICE_COUNT'])
+		{
+			$oldMatrix = $this->getCompatibleFieldValue($product['ID'], 'PRICE_MATRIX');
+			if (empty($oldMatrix))
+			{
+				$oldMatrix = $this->getEmptyPriceMatrix();
+				$oldMatrix['AVAILABLE'] = $product['PRODUCT']['AVAILABLE'];
+			}
+		}
+
+		foreach ($priceBlock as $rawPrice)
+		{
+			$priceType = (int)$rawPrice['CATALOG_GROUP_ID'];
+			$price = (float)$rawPrice['PRICE'];
+			if (!$vatInclude)
+				$price *= $percentPriceWithVat;
+			$currency = $rawPrice['CURRENCY'];
+
+			$changeCurrency = $currencyConvert && $currency !== $resultCurrency;
+			if ($changeCurrency)
+			{
+				$price = \CCurrencyRates::ConvertCurrency($price, $currency, $resultCurrency);
+				$currency = $resultCurrency;
+			}
+
+			$discounts = array();
+			if (\CIBlockPriceTools::isEnabledCalculationDiscounts())
+			{
+				\CCatalogDiscountSave::Disable();
+				$discounts = \CCatalogDiscount::GetDiscount(
+					$product['ID'],
+					$product['IBLOCK_ID'],
+					array($priceType),
+					$userGroups,
+					'N',
+					$this->getSiteId(),
+					array()
+				);
+				\CCatalogDiscountSave::Enable();
+			}
+			$discountPrice = \CCatalogProduct::CountPriceWithDiscount(
+				$price,
+				$currency,
+				$discounts
+			);
+			unset($discounts);
+			if ($discountPrice !== false)
+			{
+				$priceWithVat = $price;
+				$price /= $percentPriceWithVat;
+
+				$discountPriceWithVat = $discountPrice;
+				$discountPrice /= $percentPriceWithVat;
+
+				$roundPriceWithVat = Catalog\Product\Price::roundPrice(
+					$priceType,
+					$discountPriceWithVat,
+					$currency
+				);
+				$roundPrice = Catalog\Product\Price::roundPrice(
+					$priceType,
+					$discountPrice,
+					$currency
+				);
+
+				$priceRow = array(
+					'ID' => $rawPrice['ID'],
+					'PRICE_TYPE_ID' => $rawPrice['CATALOG_GROUP_ID'],
+					'QUANTITY_FROM' => $rawPrice['QUANTITY_FROM'],
+					'QUANTITY_TO' => $rawPrice['QUANTITY_TO'],
+					'QUANTITY_HASH' => $this->getQuantityRangeHash($rawPrice),
+					'CURRENCY' => $currency
+				);
+				if ($this->arParams['PRICE_VAT_INCLUDE'])
+				{
+					$priceRow['BASE_PRICE'] = $priceWithVat;
+					$priceRow['UNROUND_PRICE'] = $discountPriceWithVat;
+					$priceRow['PRICE'] = $roundPriceWithVat;
+				}
+				else
+				{
+					$priceRow['BASE_PRICE'] = $price;
+					$priceRow['UNROUND_PRICE'] = $discountPrice;
+					$priceRow['PRICE'] = $roundPrice;
+				}
+				if ($priceRow['BASE_PRICE'] > $priceRow['UNROUND_PRICE'])
+				{
+					$priceRow['DISCOUNT'] = $priceRow['BASE_PRICE'] - $priceRow['PRICE'];
+					$priceRow['PERCENT'] = roundEx(100*$priceRow['DISCOUNT']/$priceRow['BASE_PRICE'], 0);
+					if ($priceRow['DISCOUNT'] < 0)
+					{
+						$priceRow['BASE_PRICE'] = $priceRow['PRICE'];
+						$priceRow['DISCOUNT'] = 0;
+						$priceRow['PERCENT'] = 0;
+					}
+				}
+				else
+				{
+					$priceRow['BASE_PRICE'] = $priceRow['PRICE'];
+					$priceRow['DISCOUNT'] = 0;
+					$priceRow['PERCENT'] = 0;
+				}
+				if ($this->arParams['PRICE_VAT_SHOW_VALUE'])
+					$priceRow['VAT'] = ($vatRate > 0 ? $roundPriceWithVat - $roundPrice : 0);
+
+				$priceRow['PRICE_SCALE'] = \CCurrencyRates::ConvertCurrency(
+					$priceRow['PRICE'],
+					$priceRow['CURRENCY'],
+					$baseCurrency
+				);
+
+				if ($minimalPrice === null || $minimalPrice['PRICE_SCALE'] > $priceRow['PRICE_SCALE'])
+					$minimalPrice = $priceRow;
+				if ($this->arParams['FILL_ITEM_ALL_PRICES'])
+				{
+					$fullPrices[$priceType] = array(
+						'ID' => $priceRow['ID'],
+						'PRICE_TYPE_ID' => $priceRow['PRICE_TYPE_ID'],
+						'CURRENCY' => $currency,
+						'BASE_PRICE' => $priceRow['BASE_PRICE'],
+						'UNROUND_PRICE' => $priceRow['UNROUND_PRICE'],
+						'PRICE' => $priceRow['PRICE'],
+						'DISCOUNT' => $priceRow['DISCOUNT'],
+						'PERCENT' => $priceRow['DISCOUNT']
+					);
+					if (isset($priceRow['VAT']))
+						$fullPrices[$priceType]['VAT'] = $priceRow['VAT'];
+				}
+
+				if ($enableCompatible)
+				{
+					if ($this->arParams['USE_PRICE_COUNT'])
+					{
+						$rowIndex = $this->getQuantityRangeHash($rawPrice);
+						$oldMatrix['ROWS'][$rowIndex] = array(
+							'QUANTITY_FROM' => (float)$rawPrice['QUANTITY_FROM'],
+							'QUANTITY_TO' => (float)$rawPrice['QUANTITY_TO']
+						);
+						if (!isset($oldMatrix['MATRIX'][$priceType]))
+						{
+							$oldMatrix['MATRIX'][$priceType] = array();
+							$oldMatrix['COLS'][$priceType] = $this->storage['PRICE_TYPES'][$priceType];
+						}
+						$oldMatrix['MATRIX'][$priceType][$rowIndex] = array(
+							'ID' => $priceRow['ID'],
+							'PRICE' => $priceRow['BASE_PRICE'],
+							'DISCOUNT_PRICE' => $priceRow['PRICE'],
+							'UNROUND_DISCOUNT_PRICE' => $priceRow['UNROUND_PRICE'],
+							'CURRENCY' => $currency,
+							'VAT_RATE' => $percentVat
+						);
+						if ($changeCurrency)
+						{
+							$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_PRICE'] = \CCurrencyRates::ConvertCurrency(
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['PRICE'],
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['CURRENCY'],
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_CURRENCY']
+							);
+							$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_DISCOUNT_PRICE'] = \CCurrencyRates::ConvertCurrency(
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['DISCOUNT_PRICE'],
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['CURRENCY'],
+								$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_CURRENCY']
+							);
+							$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_CURRENCY'] = $rawPrice['CURRENCY'];
+							$oldMatrix['MATRIX'][$priceType][$rowIndex]['ORIG_VAT_RATE'] = $percentVat; // crazy key, but above all the compatibility
+						}
+					}
+					else
+					{
+						$priceCode = $this->storage['PRICES_MAP'][$priceType];
+						$oldPrices[$priceCode] = array(
+							'PRICE_ID' => $priceRow['PRICE_TYPE_ID'],
+							'ID' => $priceRow['ID'],
+							'CAN_ACCESS' => ($this->storage['PRICES'][$priceCode]['CAN_VIEW'] ? 'Y' : 'N'),
+							'CAN_BUY' => ($this->storage['PRICES'][$priceCode]['CAN_BUY'] ? 'Y' : 'N'),
+							'MIN_PRICE' => 'N',
+							'VALUE_NOVAT' => $price,
+							'VALUE_VAT' => $priceWithVat,
+							'VATRATE_VALUE' => $priceWithVat - $price,
+							'DISCOUNT_VALUE_NOVAT' => $discountPrice,
+							'DISCOUNT_VALUE_VAT' => $discountPriceWithVat,
+							'DISCOUNT_VATRATE_VALUE' => $discountPriceWithVat - $discountPrice,
+							'CURRENCY' => $currency,
+							'ROUND_VALUE_VAT' => $roundPriceWithVat,
+							'ROUND_VALUE_NOVAT' => $roundPrice,
+							'ROUND_VATRATE_VALUE' => $roundPriceWithVat - $roundPrice,
+							'VALUE' => $priceRow['BASE_PRICE'],
+							'UNROUND_DISCOUNT_VALUE' => $priceRow['UNROUND_PRICE'],
+							'DISCOUNT_VALUE' => $priceRow['PRICE'],
+							'DISCOUNT_DIFF' => $priceRow['DISCOUNT'],
+							'DISCOUNT_DIFF_PERCENT' => $priceRow['PERCENT']
+						);
+						if ($changeCurrency)
+							$oldPrices[$priceCode]['ORIG_CURRENCY'] = $rawPrice['CURRENCY'];
+					}
+				}
+			}
+			unset($priceType);
+		}
+		unset($price);
+
+		$minimalPriceId = null;
+		if (is_array($minimalPrice))
+		{
+			unset($minimalPrice['PRICE_SCALE']);
+			$minimalPriceId = $minimalPrice['PRICE_TYPE_ID'];
+			$prepareFields = array(
+				'BASE_PRICE', 'PRICE', 'DISCOUNT'
+			);
+			if ($this->arParams['PRICE_VAT_SHOW_VALUE'])
+				$prepareFields[] = 'VAT';
+
+			foreach ($prepareFields as $fieldName)
+			{
+				$minimalPrice['PRINT_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
+					$minimalPrice[$fieldName],
+					$minimalPrice['CURRENCY'],
+					true
+				);
+				$minimalPrice['RATIO_'.$fieldName] = $minimalPrice[$fieldName]*$ratio;
+				$minimalPrice['PRINT_RATIO_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
+					$minimalPrice['RATIO_'.$fieldName],
+					$minimalPrice['CURRENCY'],
+					true
+				);
+			}
+			unset($fieldName);
+
+			if ($this->arParams['FILL_ITEM_ALL_PRICES'])
+			{
+				foreach (array_keys($fullPrices) as $priceType)
+				{
+					foreach ($prepareFields as $fieldName)
+					{
+						$fullPrices[$priceType]['PRINT_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
+							$fullPrices[$priceType][$fieldName],
+							$fullPrices[$priceType]['CURRENCY'],
+							true
+						);
+						$fullPrices[$priceType]['RATIO_'.$fieldName] = $fullPrices[$priceType][$fieldName]*$ratio;
+						$fullPrices[$priceType]['PRINT_RATIO_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
+							$minimalPrice['RATIO_'.$fieldName],
+							$minimalPrice['CURRENCY'],
+							true
+						);
+					}
+					unset($fieldName);
+				}
+				unset($priceType);
+			}
+
+			unset($prepareFields);
+		}
+
+		if ($enableCompatible)
+		{
+			if ($this->arParams['USE_PRICE_COUNT'])
+			{
+				$oldMatrix['CAN_BUY'] = $this->storage['PRICES_CAN_BUY'];
+				$this->oldData[$product['ID']]['PRICE_MATRIX'] = $oldMatrix;
+			}
+			else
+			{
+				$convertFields = array(
+					'VALUE_NOVAT', 'VALUE_VAT', 'VATRATE_VALUE',
+					'DISCOUNT_VALUE_NOVAT', 'DISCOUNT_VALUE_VAT', 'DISCOUNT_VATRATE_VALUE'
+				);
+
+				$prepareFields = array(
+					'VALUE_NOVAT', 'VALUE_VAT', 'VATRATE_VALUE',
+					'DISCOUNT_VALUE_NOVAT', 'DISCOUNT_VALUE_VAT', 'DISCOUNT_VATRATE_VALUE',
+					'VALUE', 'DISCOUNT_VALUE', 'DISCOUNT_DIFF'
+				);
+
+				if (!empty($oldPrices))
+				{
+					foreach (array_keys($oldPrices) as $index)
+					{
+						foreach ($prepareFields as $fieldName)
+							$oldPrices[$index]['PRINT_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
+								$oldPrices[$index][$fieldName],
+								$oldPrices[$index]['CURRENCY'],
+								true
+							);
+						unset($fieldName);
+						if (isset($oldPrices[$index]['ORIG_CURRENCY']))
+						{
+							foreach ($convertFields as $fieldName)
+								$oldPrices[$index]['ORIG_' . $fieldName] = \CCurrencyRates::ConvertCurrency(
+									$oldPrices[$index][$fieldName],
+									$oldPrices[$index]['CURRENCY'],
+									$oldPrices[$index]['ORIG_CURRENCY']
+								);
+							unset($fieldName);
+						}
+						if ($oldPrices[$index]['PRICE_ID'] === $minimalPriceId)
+						{
+							$oldPrices[$index]['MIN_PRICE'] = 'Y';
+							$oldMinPrice = $oldPrices[$index];
+						}
+					}
+					unset($index);
+				}
+				unset($prepareFields);
+
+				$this->oldData[$product['ID']]['PRICES'] = $oldPrices;
+				$this->oldData[$product['ID']]['MIN_PRICE'] = $oldMinPrice;
+			}
+		}
+		unset($oldMatrix, $oldMinPrice, $oldPrices);
+
+		if (!$this->arParams['FILL_ITEM_ALL_PRICES'])
+			return $minimalPrice;
+
+		return array(
+			'MINIMAL_PRICE' => $minimalPrice,
+			'ALL_PRICES' => array(
+				'QUANTITY_FROM' => $minimalPrice['QUANTITY_FROM'],
+				'QUANTITY_TO' => $minimalPrice['QUANTITY_TO'],
+				'QUANTITY_HASH' => $minimalPrice['QUANTITY_HASH'],
+				'MEASURE_RATIO_ID' => $minimalPrice['MEASURE_RATIO_ID'],
+				'PRICES' => $fullPrices
+			)
+		);
+	}
+
+	protected function searchItemSelectedRatioId($id)
+	{
+		if (!isset($this->ratios[$id]))
+			return null;
+
+		$minimal = null;
+		$minimalRatio = null;
+		$result = null;
+		foreach ($this->ratios[$id] as $ratio)
+		{
+			if ($minimalRatio === null || $minimalRatio > $ratio['RATIO'])
+			{
+				$minimalRatio = $ratio['RATIO'];
+				$minimal = $ratio['ID'];
+			}
+			if ($ratio['IS_DEFAULT'] === 'Y')
+			{
+				$result = $ratio['ID'];
+				break;
+			}
+		}
+		unset($ratio);
+		return ($result === null ? $minimal : $result);
+	}
+
+	protected function compactItemRatios($id)
+	{
+		$ratioId = $this->searchItemSelectedRatioId($id);
+		if ($ratioId === null)
+			return;
+		$this->ratios[$id] = array(
+			$ratioId => $this->ratios[$id][$ratioId]
+		);
+	}
+
+	protected function getQuantityRangeHash(array $range)
+	{
+		return ($range['QUANTITY_FROM'] === null ? 'ZERO' : $range['QUANTITY_FROM']).
+			'-'.($range['QUANTITY_TO'] === null ? 'INF' : $range['QUANTITY_TO']);
+	}
+
+	protected function getFullQuantityRange()
+	{
+		return array(
+			'HASH' => $this->getQuantityRangeHash(array('QUANTITY_FROM' => null, 'QUANTITY_TO' => null)),
+			'QUANTITY_FROM' => null,
+			'QUANTITY_TO' => null,
+			'SORT_FROM' => 0,
+			'SORT_TO' => INF
+		);
+	}
+
+	protected function searchItemSelectedQuantityRangeHash($id)
+	{
+		if (empty($this->quantityRanges[$id]))
+			return null;
+		foreach ($this->quantityRanges[$id] as $range)
+		{
+			if ($this->checkQuantityRange($range))
+				return $range['HASH'];
+		}
+		reset($this->quantityRanges[$id]);
+		$firsrRange = current($this->quantityRanges[$id]);
+		return $firsrRange['HASH'];
+	}
+
+	/**
+	 * Load URLs for different actions to storage.
+	 *
+	 * @return void
+	 */
+	protected function initUrlTemplates()
+	{
+		/** @global \CMain $APPLICATION */
+		global $APPLICATION;
+
+		$actionVar = $this->arParams['ACTION_VARIABLE'];
+		$productIdVar = $this->arParams['PRODUCT_ID_VARIABLE'];
+
+		if (!empty($this->arParams['CUSTOM_CURRENT_PAGE']))
+		{
+			$pageUrl = $this->arParams['CUSTOM_CURRENT_PAGE'];
+		}
+		else
+		{
+			$pageUrl = $this->request->isAjaxRequest()
+				? $this->arParams['CURRENT_BASE_PAGE']
+				: $APPLICATION->GetCurPageParam();
+		}
+
+		$currentPath = \CHTTP::urlDeleteParams(
+			$pageUrl,
+			array($productIdVar, $actionVar, ''),
+			array('delete_system_params' => true)
+		);
+		$currentPath .= (stripos($currentPath, '?') === false ? '?' : '&');
+
+		if ($this->arParams['USE_COMPARE_LIST'] == 'Y')
+		{
+			$comparePath = $currentPath;
+		}
+		else
+		{
+			if ($this->arParams['COMPARE_PATH'] == '')
+			{
+				$comparePath = $currentPath;
+			}
+			else
+			{
+				$comparePath = \CHTTP::urlDeleteParams(
+					$this->arParams['COMPARE_PATH'],
+					array(''),
+					array('delete_system_params' => true)
+				);
+				$comparePath .= (stripos($comparePath, '?') === false ? '?' : '&');
+			}
+		}
+
+		$urls = array();
+		$urls['~BUY_URL_TEMPLATE'] = $currentPath.$actionVar.'='.self::ACTION_BUY.'&'.$productIdVar.'=#ID#';
+		$urls['~ADD_URL_TEMPLATE'] = $currentPath.$actionVar.'='.self::ACTION_ADD_TO_BASKET.'&'.$productIdVar.'=#ID#';
+		$urls['~SUBSCRIBE_URL_TEMPLATE'] = $currentPath.$actionVar.'='.self::ACTION_SUBSCRIBE.'&'.$productIdVar.'=#ID#';
+		$urls['~COMPARE_URL_TEMPLATE'] = $comparePath.$actionVar.'='.self::ACTION_ADD_TO_COMPARE.'&'.$productIdVar.'=#ID#';
+		$urls['~COMPARE_DELETE_URL_TEMPLATE'] = $comparePath.$actionVar.'='.self::ACTION_DELETE_FROM_COMPARE.'&'.$productIdVar.'=#ID#';
+
+		$urls['BUY_URL_TEMPLATE'] = Main\Text\HtmlFilter::encode($urls['~BUY_URL_TEMPLATE']);
+		$urls['ADD_URL_TEMPLATE'] = Main\Text\HtmlFilter::encode($urls['~ADD_URL_TEMPLATE']);
+		$urls['SUBSCRIBE_URL_TEMPLATE'] = Main\Text\HtmlFilter::encode($urls['~SUBSCRIBE_URL_TEMPLATE']);
+		$urls['COMPARE_URL_TEMPLATE'] = Main\Text\HtmlFilter::encode($urls['~COMPARE_URL_TEMPLATE']);
+		$urls['COMPARE_DELETE_URL_TEMPLATE'] = Main\Text\HtmlFilter::encode($urls['~COMPARE_DELETE_URL_TEMPLATE']);
+
+		$this->storage['URLS'] = $urls;
+	}
+
+	/**
+	 * Process element prices.
+	 *
+	 * @param array &$element		Item data.
+	 * @return void
+	 */
+	protected function modifyElementPrices(&$element)
+	{
+		$enableCompatible = $this->isEnableCompatible();
+		$id = $element['ID'];
+		$iblockId = $element['IBLOCK_ID'];
+		$catalog = !empty($this->storage['CATALOGS'][$element['IBLOCK_ID']])
+			? $this->storage['CATALOGS'][$element['IBLOCK_ID']]
+			: array();
+
+		$element['ITEM_PRICE_MODE'] = null;
+		$element['ITEM_PRICES'] = array();
+		$element['ITEM_QUANTITY_RANGES'] = array();
+		$element['ITEM_MEASURE_RATIOS'] = array();
+		$element['ITEM_MEASURE'] = array();
+		$element['ITEM_MEASURE_RATIO_SELECTED'] = null;
+		$element['ITEM_QUANTITY_RANGE_SELECTED'] = null;
+		$element['ITEM_PRICE_SELECTED'] = null;
+
+		if (!empty($catalog))
+		{
+			if (!isset($this->productWithOffers[$iblockId]))
+				$this->productWithOffers[$iblockId] = array();
+			if ($element['PRODUCT']['TYPE'] == Catalog\ProductTable::TYPE_SKU)
+			{
+				$this->productWithOffers[$iblockId][$id] = $id;
+				if ($this->storage['SHOW_CATALOG_WITH_OFFERS'] && $enableCompatible)
+				{
+					$this->productWithPrices[$id] = $id;
+					$this->calculatePrices[$id] = $id;
+				}
+			}
+
+			if (in_array(
+				$element['PRODUCT']['TYPE'],
+				array(
+					Catalog\ProductTable::TYPE_PRODUCT,
+					Catalog\ProductTable::TYPE_SET,
+					Catalog\ProductTable::TYPE_OFFER
+				)
+			))
+			{
+				$this->productWithPrices[$id] = $id;
+				$this->calculatePrices[$id] = $id;
+			}
+
+			if (isset($this->productWithPrices[$id]))
+			{
+				if ($element['PRODUCT']['MEASURE'] > 0)
+				{
+					$element['ITEM_MEASURE'] = array(
+						'ID' => $element['PRODUCT']['MEASURE'],
+						'TITLE' => '',
+						'~TITLE' => ''
+					);
+				}
+				else
+				{
+					$element['ITEM_MEASURE'] = array(
+						'ID' => null,
+						'TITLE' => $this->storage['DEFAULT_MEASURE']['SYMBOL_RUS'],
+						'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS']
+					);
+				}
+				if ($enableCompatible)
+				{
+					$element['CATALOG_MEASURE'] = $element['ITEM_MEASURE']['ID'];
+					$element['CATALOG_MEASURE_NAME'] = $element['ITEM_MEASURE']['TITLE'];
+					$element['~CATALOG_MEASURE_NAME'] = $element['ITEM_MEASURE']['~TITLE'];
+				}
+			}
+		}
+		else
+		{
+			$element['PRICES'] = \CIBlockPriceTools::GetItemPrices(
+				$element['IBLOCK_ID'],
+				$this->storage['PRICES'],
+				$element,
+				$this->arParams['PRICE_VAT_INCLUDE'],
+				$this->storage['CONVERT_CURRENCY']
+			);
+			if (!empty($element['PRICES']))
+			{
+				$element['MIN_PRICE'] = \CIBlockPriceTools::getMinPriceFromList($element['PRICES']);
+			}
+
+			$element['CAN_BUY'] = \CIBlockPriceTools::CanBuy($element['IBLOCK_ID'], $this->storage['PRICES'], $element);
+		}
+	}
+
+	/**
+	 * Load, calculate and fill data (prices, measures, discounts, deprecated fields) for simple products.
+	 *
+	 * @return void.
+	 */
+	protected function processProducts()
+	{
+		$this->initItemsMeasure($this->elements);
+		$this->loadMeasures($this->getMeasureIds($this->elements));
+
+		$this->loadMeasureRatios($this->productWithPrices);
+
+		$this->loadPrices($this->productWithPrices);
+		$this->calculateItemPrices($this->elements);
+
+		$this->transferItems($this->elements);
+	}
+
+	/**
+	 * Load, calculate and fill data (prices, measures, discounts, deprecated fields) for offers.
+	 * Link offers to products.
+	 *
+	 * @return void
+	 */
+	protected function processOffers()
+	{
+		if ($this->useCatalog && !empty($this->iblockProducts))
+		{
+			$offers = array();
+
+			$paramStack = array();
+			$enableCompatible = $this->isEnableCompatible();
+			if ($enableCompatible)
+			{
+				$paramStack['USE_PRICE_COUNT'] = $this->arParams['USE_PRICE_COUNT'];
+				$paramStack['SHOW_PRICE_COUNT'] = $this->arParams['SHOW_PRICE_COUNT'];
+				$this->arParams['USE_PRICE_COUNT'] = false;
+				$this->arParams['SHOW_PRICE_COUNT'] = 1;
+			}
+
+			foreach (array_keys($this->iblockProducts) as $iblock)
+			{
+				if (!empty($this->productWithOffers[$iblock]))
+				{
+					$iblockOffers = $this->getIblockOffers($iblock);
+					if (!empty($iblockOffers))
+					{
+						$offersId = array_keys($iblockOffers);
+						$this->initItemsMeasure($iblockOffers);
+						$this->loadMeasures($this->getMeasureIds($iblockOffers));
+
+						$this->loadMeasureRatios($offersId);
+
+						$this->loadPrices($offersId);
+						$this->calculateItemPrices($iblockOffers);
+
+						$this->transferItems($iblockOffers);
+
+						$this->modifyOffers($iblockOffers);
+						$this->chooseOffer($iblockOffers, $iblock);
+
+						$offers = array_merge($offers, $iblockOffers);
+					}
+					unset($iblockOffers);
+				}
+			}
+			if ($enableCompatible)
+			{
+				$this->arParams['USE_PRICE_COUNT'] = $paramStack['USE_PRICE_COUNT'];
+				$this->arParams['SHOW_PRICE_COUNT'] = $paramStack['SHOW_PRICE_COUNT'];
+			}
+			unset($enableCompatible, $paramStack);
+		}
+	}
+
+	/**
+	 * Return offers array for current iblock.
+	 *
+	 * @param $iblockId
+	 * @return array
+	 */
+	protected function getIblockOffers($iblockId)
+	{
+		$offers = array();
+		$iblockParams = $this->storage['IBLOCK_PARAMS'][$iblockId];
+
+		$enableCompatible = $this->isEnableCompatible();
+
+		if (
+			$this->useCatalog
+			&& $this->offerIblockExist($iblockId)
+			&& !empty($this->productWithOffers[$iblockId])
+		)
+		{
+			$catalog = $this->storage['CATALOGS'][$iblockId];
+
+			$productProperty = 'PROPERTY_'.$catalog['SKU_PROPERTY_ID'];
+			$productPropertyValue = $productProperty.'_VALUE';
+
+			$offersFilter = $this->getOffersFilter($catalog['IBLOCK_ID']);
+			$offersFilter[$productProperty] = $this->productWithOffers[$iblockId];
+
+			$offersOrder = $this->getOffersSort();
+
+			$offersSelect = array(
+				'ID' => 1,
+				'IBLOCK_ID' => 1,
+				$productProperty => 1,
+				'CATALOG_TYPE' => 1
+			);
+			if (!empty($iblockParams['OFFERS_FIELD_CODE']))
+			{
+				foreach ($iblockParams['OFFERS_FIELD_CODE'] as $code)
+					$offersSelect[$code] = 1;
+				unset($code);
+			}
+
+			$checkFields = array();
+			foreach (array_keys($offersOrder) as $code)
+			{
+				$code = strtoupper($code);
+				$offersSelect[$code] = 1;
+				if ($code == 'ID' || $code == 'CATALOG_AVAILABLE')
+					continue;
+				$checkFields[] = $code;
+			}
+			unset($code);
+
+			$offersSelect['PREVIEW_PICTURE'] = 1;
+			$offersSelect['DETAIL_PICTURE'] = 1;
+
+			$offersId = array();
+			$offersCount = array();
+			$iterator = \CIBlockElement::GetList(
+				$offersOrder,
+				$offersFilter,
+				false,
+				false,
+				array_keys($offersSelect)
+			);
+			while($row = $iterator->GetNext())
+			{
+				$row['ID'] = (int)$row['ID'];
+				$row['IBLOCK_ID'] = (int)$row['IBLOCK_ID'];
+				$productId = (int)$row[$productPropertyValue];
+
+				if ($productId <= 0)
+					continue;
+
+				if ($enableCompatible && $this->arParams['OFFERS_LIMIT'] > 0)
+				{
+					$offersCount[$productId]++;
+					if($offersCount[$productId] > $this->arParams['OFFERS_LIMIT'])
+						continue;
+				}
+
+				$row['SORT_HASH'] = 'ID';
+				if (!empty($checkFields))
+				{
+					$checkValues = '';
+					foreach ($checkFields as $code)
+						$checkValues .= (isset($row[$code]) ? $row[$code] : '').'|';
+					unset($code);
+					if ($checkValues != '')
+						$row['SORT_HASH'] = md5($checkValues);
+					unset($checkValues);
+				}
+				$row['LINK_ELEMENT_ID'] = $productId;
+				$row['PROPERTIES'] = array();
+				$row['DISPLAY_PROPERTIES'] = array();
+
+				/* it is not the final version */
+				$row['PRODUCT'] = array(
+					'TYPE' => null,
+					'AVAILABLE' => null,
+					'MEASURE' => null,
+					'VAT_ID' => null,
+					'VAT_RATE' => null,
+					'VAT_INCLUDED' => null,
+					'QUANTITY' => null,
+					'QUANTITY_TRACE' => null,
+					'CAN_BUY_ZERO' => null,
+					'SUBSCRIPTION' => null
+				);
+
+				if (isset($row['CATALOG_TYPE']))
+				{
+					$row['CATALOG_TYPE'] = (int)$row['CATALOG_TYPE']; // this key will be deprecated
+					$row['PRODUCT']['TYPE'] = $row['CATALOG_TYPE'];
+				}
+				if (isset($row['CATALOG_MEASURE']))
+				{
+					$row['CATALOG_MEASURE'] = (int)$row['CATALOG_MEASURE']; // this key will be deprecated
+					$row['PRODUCT']['MEASURE'] = $row['CATALOG_MEASURE'];
+				}
+				/*
+				 * this keys will be deprecated
+				 * CATALOG_*
+				 */
+				if (isset($row['CATALOG_AVAILABLE']))
+					$row['PRODUCT']['AVAILABLE'] = $row['CATALOG_AVAILABLE'];
+				if (isset($row['CATALOG_VAT']))
+					$row['PRODUCT']['VAT_RATE'] = $row['CATALOG_VAT'];
+				if (isset($row['CATALOG_VAT_INCLUDED']))
+					$row['PRODUCT']['VAT_INCLUDED'] = $row['CATALOG_VAT_INCLUDED'];
+				if (isset($row['CATALOG_QUANTITY']))
+					$row['PRODUCT']['QUANTITY'] = $row['CATALOG_QUANTITY'];
+				if (isset($row['CATALOG_QUANTITY_TRACE']))
+					$row['PRODUCT']['QUANTITY_TRACE'] = $row['CATALOG_QUANTITY_TRACE'];
+				if (isset($row['CATALOG_CAN_BUY_ZERO']))
+					$row['PRODUCT']['CAN_BUY_ZERO'] = $row['CATALOG_CAN_BUY_ZERO'];
+				if (isset($element['CATALOG_SUBSCRIPTION']))
+					$element['PRODUCT']['SUBSCRIPTION'] = $element['CATALOG_SUBSCRIPTION'];
+				/* it is not the final version - end*/
+
+				if ($row['PRODUCT']['TYPE'] == Catalog\ProductTable::TYPE_OFFER)
+					$this->calculatePrices[$row['ID']] = $row['ID'];
+
+				$row['ITEM_PRICE_MODE'] = null;
+				$row['ITEM_PRICES'] = array();
+				$row['ITEM_QUANTITY_RANGES'] = array();
+				$row['ITEM_MEASURE_RATIOS'] = array();
+				$row['ITEM_MEASURE'] = array();
+				$row['ITEM_MEASURE_RATIO_SELECTED'] = null;
+				$row['ITEM_QUANTITY_RANGE_SELECTED'] = null;
+				$row['ITEM_PRICE_SELECTED'] = null;
+				$row['CHECK_QUANTITY'] = $this->isNeedCheckQuantity($row['PRODUCT']);
+
+				if ($row['PRODUCT']['MEASURE'] > 0)
+				{
+					$row['ITEM_MEASURE'] = array(
+						'ID' => $row['PRODUCT']['MEASURE'],
+						'TITLE' => '',
+						'~TITLE' => ''
+					);
+				}
+				else
+				{
+					$row['ITEM_MEASURE'] = array(
+						'ID' => null,
+						'TITLE' => $this->storage['DEFAULT_MEASURE']['SYMBOL_RUS'],
+						'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS']
+					);
+				}
+				if ($enableCompatible)
+				{
+					$row['CATALOG_MEASURE'] = $row['ITEM_MEASURE']['ID'];
+					$row['CATALOG_MEASURE_NAME'] = $row['ITEM_MEASURE']['TITLE'];
+					$row['~CATALOG_MEASURE_NAME'] = $row['ITEM_MEASURE']['~TITLE'];
+				}
+
+				$row['PROPERTIES'] = array();
+				$row['DISPLAY_PROPERTIES'] = array();
+
+				Iblock\Component\Tools::getFieldImageData(
+					$row,
+					array('PREVIEW_PICTURE', 'DETAIL_PICTURE'),
+					Iblock\Component\Tools::IPROPERTY_ENTITY_ELEMENT,
+					''
+				);
+
+				$offersId[$row['ID']] = $row['ID'];
+				$offers[$row['ID']] = $row;
+			}
+			unset($row, $iterator);
+
+			if (!empty($offersId))
+			{
+				$propertyList = $this->getPropertyList(
+					$catalog['IBLOCK_ID'],
+					$iblockParams['OFFERS_PROPERTY_CODE']
+				);
+				if (!empty($propertyList))
+				{
+					\CIBlockElement::GetPropertyValuesArray($offers, $catalog['IBLOCK_ID'], $offersFilter);
+					foreach ($offers as &$row)
+					{
+						if ($this->useDiscountCache)
+						{
+							if ($this->storage['USE_SALE_DISCOUNTS'])
+								Catalog\Discount\DiscountManager::setProductPropertiesCache($row['ID'], $row["PROPERTIES"]);
+							else
+								\CCatalogDiscount::SetProductPropertiesCache($row['ID'], $row["PROPERTIES"]);
+						}
+
+						foreach ($propertyList as $pid)
+						{
+							if (!isset($row["PROPERTIES"][$pid]))
+								continue;
+							$prop = &$row["PROPERTIES"][$pid];
+							$boolArr = is_array($prop["VALUE"]);
+							if(
+								($boolArr && !empty($prop["VALUE"])) ||
+								(!$boolArr && (string)$prop["VALUE"] !== '')
+							)
+							{
+								$row["DISPLAY_PROPERTIES"][$pid] = \CIBlockFormatProperties::GetDisplayValue($row, $prop, "catalog_out");
+							}
+							unset($boolArr, $prop);
+						}
+						unset($pid);
+					}
+					unset($row);
+				}
+
+				if ($this->useDiscountCache)
+				{
+					if ($this->storage['USE_SALE_DISCOUNTS'])
+					{
+						Catalog\Discount\DiscountManager::preloadPriceData($offersId, $this->storage['PRICES_ALLOW']);
+						Catalog\Discount\DiscountManager::preloadProductDataToExtendOrder($offersId, $this->getUserGroups());
+					}
+					else
+					{
+						\CCatalogDiscount::SetProductSectionsCache($offersId);
+						\CCatalogDiscount::SetDiscountProductCache($offersId, array('IBLOCK_ID' => $catalog['IBLOCK_ID'], 'GET_BY_ID' => 'Y'));
+					}
+				}
+			}
+			unset($offersId);
+		}
+
+		return $offers;
+	}
+
+	protected function getOffersFilter($iblockId)
+	{
+		$offersFilter = array(
+			'IBLOCK_ID' => $iblockId,
+			'ACTIVE' => 'Y',
+			'ACTIVE_DATE' => 'Y',
+			'CHECK_PERMISSIONS' => 'N'
+		);
+
+		if ($this->arParams['HIDE_NOT_AVAILABLE_OFFERS'] === 'Y')
+		{
+			$offersFilter['CATALOG_AVAILABLE'] = 'Y';
+		}
+		elseif ($this->arParams['HIDE_NOT_AVAILABLE_OFFERS'] === 'L')
+		{
+			$offersFilter['CUSTOM_FILTER'] = array(
+				'LOGIC' => 'OR',
+				'CATALOG_AVAILABLE' => 'Y',
+				'CATALOG_SUBSCRIBE' => 'Y'
+			);
+		}
+
+		if (!$this->arParams['USE_PRICE_COUNT'])
+		{
+			$offersFilter['SHOW_PRICE_COUNT'] = $this->arParams['SHOW_PRICE_COUNT'];
+		}
+
+		return $offersFilter;
+	}
+
+	/**
+	 * Return offers sort fields to execute.
+	 *
+	 * @return array
+	 */
+	protected function getOffersSort()
+	{
+		$offersOrder = array(
+			$this->arParams['OFFERS_SORT_FIELD'] => $this->arParams['OFFERS_SORT_ORDER'],
+			$this->arParams['OFFERS_SORT_FIELD2'] => $this->arParams['OFFERS_SORT_ORDER2']
+		);
+		if (!isset($offersOrder['ID']))
+			$offersOrder['ID'] = 'DESC';
+
+		return $offersOrder;
+	}
+
+	protected function modifyOffers($offers)
+	{
+		//$urls = $this->storage['URLS'];
+
+		foreach ($offers as &$offer)
+		{
+			$elementId = $offer['LINK_ELEMENT_ID'];
+
+			if (!isset($this->elementLinks[$elementId]))
+				continue;
+
+			$offer['CAN_BUY'] = $this->elementLinks[$elementId]['ACTIVE'] === 'Y' && $offer['CAN_BUY'];
+
+			$this->elementLinks[$elementId]['OFFERS'][] = $offer;
+
+			unset($elementId, $offer);
+		}
+	}
+
+	abstract protected function chooseOffer($offers, $iblockId);
+
+	protected function initResultCache()
+	{
+		if (
+			$this->arParams['CONVERT_CURRENCY'] === 'Y'
+			&& !empty($this->storage['CURRENCY_LIST'])
+			&& defined('BX_COMP_MANAGED_CACHE')
+		)
+		{
+			$this->storage['CURRENCY_LIST'][$this->storage['CONVERT_CURRENCY']['CURRENCY_ID']] = $this->storage['CONVERT_CURRENCY']['CURRENCY_ID'];
+			$taggedCache = Main\Application::getInstance()->getTaggedCache();
+			foreach ($this->storage['CURRENCY_LIST'] as $oneCurrency)
+			{
+				$taggedCache->registerTag('currency_id_'.$oneCurrency);
+			}
+
+			unset($oneCurrency);
+			unset($taggedCache);
+		}
+
+		unset($this->storage['CURRENCY_LIST']);
+
+		$this->setResultCacheKeys($this->getCacheKeys());
+	}
+
+	protected function getCacheKeys()
+	{
+		return array();
+	}
+
+	/**
+	 * All iblock/section/element/offer initializations starts here.
+	 * If have no errors - result showed in $arResult.
+	 */
+	protected function processResultData()
+	{
+		$this->iblockProducts = $this->getProductsSeparatedByIblock();
+		$this->checkIblock();
+
+		if ($this->hasErrors())
+			return;
+
+		$this->initCurrencyConvert();
+		$this->initCatalogInfo();
+		$this->initPrices();
+		$this->initUrlTemplates();
+
+		$this->initElementList();
+		if (!$this->hasErrors())
+		{
+			$this->sortElementList();
+			$this->makeElementLinks();
+			$this->prepareData();
+			$this->filterPureOffers();
+			$this->makeOutputResult();
+		}
+	}
+
+	/**
+	 * Check for correct iblocks.
+	 */
+	protected function checkIblock()
+	{
+		if (!empty($this->iblockProducts))
+		{
+			$iblocks = array();
+			$iblockIterator = Iblock\IblockSiteTable::getList(array(
+				'select' => array('IBLOCK_ID'),
+				'filter' => array(
+					'=IBLOCK_ID' => array_keys($this->iblockProducts),
+					'=SITE_ID' => $this->getSiteId(),
+					'=IBLOCK.ACTIVE' => 'Y'
+				)
+			));
+			while ($iblock = $iblockIterator->fetch())
+			{
+				$iblocks[$iblock['IBLOCK_ID']] = true;
+			}
+
+			foreach ($this->iblockProducts as $iblock => $products)
+			{
+				if (!isset($iblocks[$iblock]))
+				{
+					unset($this->iblockProducts[$iblock]);
+				}
+			}
+
+			if (empty($this->iblockProducts))
+			{
+				$this->abortResultCache();
+				$this->errorCollection->setError(new Error(Loc::getMessage('INVALID_IBLOCK'), self::ERROR_TEXT));
+			}
+		}
+	}
+
+	protected function prepareData()
+	{
+		$this->clearItems();
+		$this->initCatalogDiscountCache();
+		$this->processProducts();
+		$this->processOffers();
+		$this->makeOutputResult();
+		$this->clearItems();
+	}
+
+	protected function filterPureOffers()
+	{
+		if (!empty($this->productIds) && is_array($this->productIds))
+		{
+			foreach ($this->productIds as $productId)
+			{
+				// check if it's element
+				if ($this->productIdMap[$productId] == $productId)
+				{
+					continue;
+				}
+
+				if (isset($this->elementLinks[$this->productIdMap[$productId]]) && !empty($this->elementLinks[$this->productIdMap[$productId]]['OFFERS']))
+				{
+					// clear all unwanted offers
+					foreach ($this->elementLinks[$this->productIdMap[$productId]]['OFFERS'] as $key => $offer)
+					{
+						if ($offer['ID'] != $productId)
+						{
+							unset($this->elementLinks[$this->productIdMap[$productId]]['OFFERS'][$key]);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Set component data from storage to $arResult.
+	 */
+	protected function makeOutputResult()
+	{
+		$this->arResult = array_merge($this->arResult, $this->storage['URLS']);
+		$this->arResult['CONVERT_CURRENCY'] = $this->storage['CONVERT_CURRENCY'];
+		$this->arResult['CATALOGS'] = $this->storage['CATALOGS'];
+		$this->arResult['MODULES'] = $this->storage['MODULES'];
+		$this->arResult['PRICES_ALLOW'] = $this->storage['PRICES_ALLOW'];
+
+		if ($this->isEnableCompatible())
+		{
+			if ($this->arParams['IBLOCK_ID'] > 0)
+			{
+				$this->arResult['CATALOG'] = false;
+
+				if (
+					!empty($this->storage['CATALOGS'][$this->arParams['IBLOCK_ID']])
+					&& is_array($this->storage['CATALOGS'][$this->arParams['IBLOCK_ID']])
+				)
+				{
+					$this->arResult['CATALOG'] = $this->storage['CATALOGS'][$this->arParams['IBLOCK_ID']];
+				}
+			}
+		}
+	}
+
+	/**
+	 * Process of buy/add-to-basket/etc actions.
+	 */
+	protected function processLinkAction()
+	{
+		global $APPLICATION;
+
+		if ($this->request->get($this->arParams['ACTION_VARIABLE'].self::ACTION_BUY) !== null)
+		{
+			$action = self::ACTION_BUY;
+		}
+		elseif ($this->request->get($this->arParams['ACTION_VARIABLE'].self::ACTION_ADD_TO_BASKET))
+		{
+			$action = self::ACTION_ADD_TO_BASKET;
+		}
+		else
+		{
+			$action = strtoupper($this->request->get($this->arParams['ACTION_VARIABLE']));
+		}
+
+		$productId = (int)$this->request->get($this->arParams['PRODUCT_ID_VARIABLE']);
+
+		if (
+			($action == self::ACTION_ADD_TO_BASKET || $action == self::ACTION_BUY || $action == self::ACTION_SUBSCRIBE)
+			&& $productId > 0
+			&& Loader::includeModule('sale')
+			&& Loader::includeModule('catalog')
+		)
+		{
+			$addByAjax = $this->request->get('ajax_basket') === 'Y';
+			if ($addByAjax)
+			{
+				$this->request->set(Main\Text\Encoding::convertEncoding($this->request->toArray(), 'UTF-8', SITE_CHARSET));
+			}
+
+			list($successfulAdd, $errorMsg) = $this->addProductToBasket($productId, $action);
+
+			if ($addByAjax)
+			{
+				if ($successfulAdd)
+				{
+					$addResult = array(
+						'STATUS' => 'OK',
+						'MESSAGE' => Loc::getMessage('CATALOG_SUCCESSFUL_ADD_TO_BASKET')
+					);
+				}
+				else
+				{
+					$addResult = array(
+						'STATUS' => 'ERROR',
+						'MESSAGE' => $errorMsg
+					);
+				}
+
+				$APPLICATION->RestartBuffer();
+				header('Content-Type: application/json');
+				echo Main\Web\Json::encode($addResult);
+				die();
+			}
+			else
+			{
+				if ($successfulAdd)
+				{
+					$pathRedirect = $action == self::ACTION_BUY
+						? $this->arParams['BASKET_URL']
+						: $APPLICATION->GetCurPageParam('', array(
+							$this->arParams['PRODUCT_ID_VARIABLE'],
+							$this->arParams['ACTION_VARIABLE'],
+							$this->arParams['PRODUCT_QUANTITY_VARIABLE'],
+							$this->arParams['PRODUCT_PROPS_VARIABLE']
+						));
+
+					LocalRedirect($pathRedirect);
+				}
+				else
+				{
+					$this->errorCollection->setError(new Error($errorMsg, self::ERROR_TEXT));
+				}
+			}
+		}
+	}
+
+	protected function addProductToBasket($productId, $action)
+	{
+		/** @global \CMain $APPLICATION */
+		global $APPLICATION;
+
+		$successfulAdd = true;
+		$errorMsg = '';
+
+		$quantity = 0;
+		$productProperties = array();
+		$iblockId = (int)\CIBlockElement::GetIBlockByID($productId);
+
+		if ($iblockId > 0)
+		{
+			$productCatalogInfo = \CCatalogSku::GetInfoByIBlock($iblockId);
+			if (!empty($productCatalogInfo) && $productCatalogInfo['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT)
+			{
+				$productCatalogInfo = false;
+			}
+			if (!empty($productCatalogInfo))
+			{
+				if ($this->arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y')
+				{
+					$productIblockId = ($productCatalogInfo['CATALOG_TYPE'] == \CCatalogSku::TYPE_CATALOG
+						? $productCatalogInfo['IBLOCK_ID']
+						: $productCatalogInfo['PRODUCT_IBLOCK_ID']
+					);
+					$iblockParams = $this->storage['IBLOCK_PARAMS'][$productIblockId];
+					if ($productCatalogInfo['CATALOG_TYPE'] !== \CCatalogSku::TYPE_OFFERS)
+					{
+						if (!empty($iblockParams['CART_PROPERTIES']))
+						{
+							$productPropsVar = $this->request->get($this->arParams['PRODUCT_PROPS_VARIABLE']);
+							if (is_array($productPropsVar))
+							{
+								$productProperties = \CIBlockPriceTools::CheckProductProperties(
+									$productIblockId,
+									$productId,
+									$iblockParams['CART_PROPERTIES'],
+									$productPropsVar,
+									$this->arParams['PARTIAL_PRODUCT_PROPERTIES'] === 'Y'
+								);
+								if (!is_array($productProperties))
+								{
+									$errorMsg = Loc::getMessage('CATALOG_PARTIAL_BASKET_PROPERTIES_ERROR');
+									$successfulAdd = false;
+								}
+							}
+							else
+							{
+								$errorMsg = Loc::getMessage('CATALOG_EMPTY_BASKET_PROPERTIES_ERROR');
+								$successfulAdd = false;
+							}
+						}
+					}
+					else
+					{
+						$skuAddProps = $this->request->get('basket_props') ?: '';
+						if (!empty($iblockParams['OFFERS_CART_PROPERTIES']) || !empty($skuAddProps))
+						{
+							$productProperties = \CIBlockPriceTools::GetOfferProperties(
+								$productId,
+								$productIblockId,
+								$iblockParams['OFFERS_CART_PROPERTIES'],
+								$skuAddProps
+							);
+						}
+					}
+				}
+			}
+			else
+			{
+				$errorMsg = Loc::getMessage('CATALOG_PRODUCT_NOT_FOUND');
+				$successfulAdd = false;
+			}
+
+			if ($this->arParams['USE_PRODUCT_QUANTITY'])
+			{
+				$quantity = (float)$this->request->get($this->arParams['PRODUCT_QUANTITY_VARIABLE']);
+			}
+
+			if ($quantity <= 0)
+			{
+				$ratioIterator = \CCatalogMeasureRatio::getList(
+					array(),
+					array('PRODUCT_ID' => $productId),
+					false,
+					false,
+					array('PRODUCT_ID', 'RATIO')
+				);
+				if ($ratio = $ratioIterator->Fetch())
+				{
+					$intRatio = (int)$ratio['RATIO'];
+					$floatRatio = (float)$ratio['RATIO'];
+					$quantity = $floatRatio > $intRatio ? $floatRatio : $intRatio;
+				}
+			}
+
+			if ($quantity <= 0)
+			{
+				$quantity = 1;
+			}
+		}
+		else
+		{
+			$errorMsg = Loc::getMessage('CATALOG_PRODUCT_NOT_FOUND');
+			$successfulAdd = false;
+		}
+
+		$rewriteFields = $this->getRewriteFields($action);
+
+		if ($successfulAdd)
+		{
+			if (!Add2BasketByProductID($productId, $quantity, $rewriteFields, $productProperties))
+			{
+				if ($ex = $APPLICATION->GetException())
+				{
+					$errorMsg = $ex->GetString();
+				}
+				else
+				{
+					$errorMsg = Loc::getMessage('CATALOG_ERROR2BASKET');
+				}
+
+				$successfulAdd = false;
+			}
+		}
+
+		return array($successfulAdd, $errorMsg);
+	}
+
+	protected function getRewriteFields($action)
+	{
+		$rewriteFields = array();
+
+		if ($action == self::ACTION_SUBSCRIBE)
+		{
+			$notify = unserialize(Main\Config\Option::get('sale', 'subscribe_prod', ''));
+			if (!empty($notify[$this->getSiteId()]) && $notify[$this->getSiteId()]['use'] === 'Y')
+			{
+				$rewriteFields['SUBSCRIBE'] = 'Y';
+				$rewriteFields['CAN_BUY'] = 'N';
+			}
+		}
+
+		return $rewriteFields;
+	}
+
+	/**
+	 * This method executes when "deferredLoad" action chosen.
+	 * Override getDeferredProductIds method to return needed product ids array.
+	 */
+	protected function deferredLoadAction()
+	{
+		$this->productIds = $this->getDeferredProductIds();
+
+		// if no products - show empty response
+		if (empty($this->productIds))
+		{
+			static::sendJsonAnswer();
+		}
+
+		$this->productIdMap = $this->getProductIdMap($this->productIds);
+		$this->loadData();
+	}
+
+	/**
+	 * This method executes when "bigDataLoad" action is chosen.
+	 */
+	protected function bigDataLoadAction()
+	{
+		$this->initBigDataLastUsage();
+		$this->productIds = $this->getBigDataProductIds();
+
+		// if no products - show empty response
+		if (empty($this->productIds))
+		{
+			static::sendJsonAnswer();
+		}
+
+		$this->productIdMap = $this->getProductIdMap($this->productIds);
+		$this->loadData();
+	}
+
+	/**
+	 * Mark last usage of BigData.
+	 */
+	protected function initBigDataLastUsage()
+	{
+		$lastUsage = Main\Config\Option::get('main', 'rcm_component_usage', 0);
+
+		if ($lastUsage == 0 || (time() - $lastUsage) > 3600)
+		{
+			Main\Config\Option::set('main', 'rcm_component_usage', time());
+		}
+	}
+
+	/**
+	 * This method executes when "initialLoad" action is chosen.
+	 */
+	protected function initialLoadAction()
+	{
+		$this->productIds = $this->getProductIds();
+		$this->productIdMap = $this->getProductIdMap($this->productIds);
+		$this->loadData();
+	}
+
+	/**
+	 * Show cached component data or load if outdated.
+	 * If extended mode enabled - uses result_modifier.php logic in component (be careful not to duplicate it).
+	 */
+	protected function loadData()
+	{
+		if ($this->isCacheDisabled() || $this->startResultCache(false, $this->getAdditionalCacheId(), $this->getComponentCachePath()))
+		{
+			$this->processResultData();
+			if (!$this->hasErrors())
+			{
+				if ($this->isExtendedMode())
+				{
+					$this->initComponentTemplate();
+					$this->applyTemplateModifications();
+				}
+
+				$this->initResultCache();
+				$this->includeComponentTemplate();
+				$this->clearCatalogDiscountCache();
+			}
+		}
+	}
+
+	/**
+	 * Return component cache identifier.
+	 *
+	 * @return mixed
+	 */
+	abstract protected function getAdditionalCacheId();
+
+	/**
+	 * Return component cache path.
+	 *
+	 * @return mixed
+	 */
+	abstract protected function getComponentCachePath();
+
+	public function getTemplateEmptyPreview()
+	{
+		$emptyPreview = false;
+		$documentRoot = Main\Application::getDocumentRoot();
+		$emptyPreviewPath = $this->getTemplate()->GetFolder().'/images/no_photo.png';
+
+		$file = new Main\IO\File($documentRoot.$emptyPreviewPath);
+		if ($file->isExists())
+		{
+			$size = getimagesize($documentRoot.$emptyPreviewPath);
+			if (!empty($size))
+			{
+				$emptyPreview = array(
+					'ID' => 0,
+					'SRC' => $emptyPreviewPath,
+					'WIDTH' => (int)$size[0],
+					'HEIGHT' => (int)$size[1]
+				);
+			}
+		}
+
+		return $emptyPreview;
+	}
+
+	protected function sliceItemsForSlider(&$items)
+	{
+		$rows = array();
+
+		while (!empty($items))
+		{
+			$rows[] = array_splice($items, 0, $this->arParams['LINE_ELEMENT_COUNT']);
+		}
+
+		$items = $rows;
+	}
+
+	protected function getTemplateCurrencies()
+	{
+		$currencies = array();
+
+		if ($this->arResult['MODULES']['currency'])
+		{
+			if (isset($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']))
+			{
+				$currencyFormat = \CCurrencyLang::GetFormatDescription($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']);
+				$currencies = array(
+					array(
+						'CURRENCY' => $this->arResult['CONVERT_CURRENCY']['CURRENCY_ID'],
+						'FORMAT' => array(
+							'FORMAT_STRING' => $currencyFormat['FORMAT_STRING'],
+							'DEC_POINT' => $currencyFormat['DEC_POINT'],
+							'THOUSANDS_SEP' => $currencyFormat['THOUSANDS_SEP'],
+							'DECIMALS' => $currencyFormat['DECIMALS'],
+							'THOUSANDS_VARIANT' => $currencyFormat['THOUSANDS_VARIANT'],
+							'HIDE_ZERO' => $currencyFormat['HIDE_ZERO']
+						)
+					)
+				);
+				unset($currencyFormat);
+			}
+			else
+			{
+				$currencyIterator = Currency\CurrencyTable::getList(array(
+					'select' => array('CURRENCY')
+				));
+				while ($currency = $currencyIterator->fetch())
+				{
+					$currencyFormat = \CCurrencyLang::GetFormatDescription($currency['CURRENCY']);
+					$currencies[] = array(
+						'CURRENCY' => $currency['CURRENCY'],
+						'FORMAT' => array(
+							'FORMAT_STRING' => $currencyFormat['FORMAT_STRING'],
+							'DEC_POINT' => $currencyFormat['DEC_POINT'],
+							'THOUSANDS_SEP' => $currencyFormat['THOUSANDS_SEP'],
+							'DECIMALS' => $currencyFormat['DECIMALS'],
+							'THOUSANDS_VARIANT' => $currencyFormat['THOUSANDS_VARIANT'],
+							'HIDE_ZERO' => $currencyFormat['HIDE_ZERO']
+						)
+					);
+				}
+				unset($currencyFormat, $currency, $currencyIterator);
+			}
+		}
+
+		return $currencies;
+	}
+
+	/**
+	 * Send answer for AJAX request.
+	 *
+	 * @param array $result
+	 */
+	public static function sendJsonAnswer(array $result = array())
+	{
+		global $APPLICATION;
+
+		if (!empty($result))
+		{
+			$result['JS'] = Main\Page\Asset::getInstance()->getJs();
+		}
+
+		$APPLICATION->RestartBuffer();
+		echo Main\Web\Json::encode($result);
+
+		\CMain::FinalActions();
+		die();
+	}
+
+	/**
+	 * Action preparing to execute in doAction method with postfix "Action".
+	 * E.g. action "initialLoad" calls "initialLoadAction".
+	 *
+	 * @return string
+	 */
+	protected function prepareAction()
+	{
+		if (
+			$this->request->get($this->arParams['ACTION_VARIABLE']) !== null
+			&& $this->request->get($this->arParams['PRODUCT_ID_VARIABLE']) !== null
+		)
+		{
+			$action = 'processLink';
+		}
+		elseif ($this->request->isAjaxRequest() && $this->request->get('action') === 'deferredLoad')
+		{
+			$action = $this->request->get('bigData') === 'Y' ? 'bigDataLoad' : 'deferredLoad';
+		}
+		else
+		{
+			$action = 'initialLoad';
+		}
+
+		return $action;
+	}
+
+	/**
+	 * Action executor.
+	 */
+	protected function doAction()
+	{
+		$action = $this->getAction();
+
+		if (is_callable(array($this, $action.'Action')))
+		{
+			call_user_func(array($this, $action.'Action'));
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function executeComponent()
+	{
+		$this->checkModules();
+
+		if ($this->hasErrors())
+		{
+			return $this->processErrors();
+		}
+
+		$action = $this->prepareAction();
+		$this->setAction($action);
+		$this->doAction();
+
+		if ($this->hasErrors())
+		{
+			return $this->processErrors();
+		}
+
+		return isset($this->arResult['ID']) ? $this->arResult['ID'] : false;
+	}
+
+	public function applyTemplateModifications()
+	{
+		$this->prepareTemplateParams();
+		$this->checkTemplateTheme();
+		$this->editTemplateData();
+
+		return $this->arParams;
+	}
+
+	protected function prepareTemplateParams()
+	{
+		$params =& $this->arParams;
+		$defaultParams = $this->getTemplateDefaultParams();
+		$params = array_merge($defaultParams, $params);
+
+		$params['SHOW_OLD_PRICE'] = $params['SHOW_OLD_PRICE'] === 'Y' ? 'Y' : 'N';
+		$params['SHOW_CLOSE_POPUP'] = $params['SHOW_CLOSE_POPUP'] === 'Y' ? 'Y' : 'N';
+		$params['SHOW_DISCOUNT_PERCENT'] = $params['SHOW_DISCOUNT_PERCENT'] === 'Y' ? 'Y' : 'N';
+		$params['DISCOUNT_PERCENT_POSITION'] = trim($params['DISCOUNT_PERCENT_POSITION']) ?: 'bottom-right';
+		$params['LABEL_PROP_POSITION'] = trim($params['LABEL_PROP_POSITION']) ?: 'top-left';
+		$params['PRODUCT_SUBSCRIPTION'] = $params['PRODUCT_SUBSCRIPTION'] === 'N' ? 'N' : 'Y';
+		$params['MESS_BTN_BUY'] = trim($params['MESS_BTN_BUY']);
+		$params['MESS_BTN_ADD_TO_BASKET'] = trim($params['MESS_BTN_ADD_TO_BASKET']);
+		$params['MESS_BTN_SUBSCRIBE'] = trim($params['MESS_BTN_SUBSCRIBE']);
+		$params['MESS_BTN_DETAIL'] = trim($params['MESS_BTN_DETAIL']);
+		$params['MESS_NOT_AVAILABLE'] = trim($params['MESS_NOT_AVAILABLE']);
+		$params['MESS_BTN_COMPARE'] = trim($params['MESS_BTN_COMPARE']);
+		$params['SHOW_SLIDER'] = $params['SHOW_SLIDER'] === 'N' ? 'N' : 'Y';
+		$params['SLIDER_INTERVAL'] = (int)$params['SLIDER_INTERVAL'] ?: 5000;
+		$params['SLIDER_PROGRESS'] = $params['SLIDER_PROGRESS'] === 'Y' ? 'Y' : 'N';
+		$params['USE_ENHANCED_ECOMMERCE'] = $params['USE_ENHANCED_ECOMMERCE'] === 'Y' ? 'Y' : 'N';
+		$params['DATA_LAYER_NAME'] = trim($params['DATA_LAYER_NAME']);
+		$params['BRAND_PROPERTY'] = $params['BRAND_PROPERTY'] !== '-' ? trim($params['BRAND_PROPERTY']) : '';
+
+		if (!isset($params['SHOW_MAX_QUANTITY']) || !in_array($params['SHOW_MAX_QUANTITY'], array('Y', 'M', 'N')))
+		{
+			$params['SHOW_MAX_QUANTITY'] = 'N';
+		}
+
+		$params['RELATIVE_QUANTITY_FACTOR'] = (int)$params['RELATIVE_QUANTITY_FACTOR'] > 0 ? (int)$params['RELATIVE_QUANTITY_FACTOR'] : 5;
+	}
+
+	protected function getTemplateDefaultParams()
+	{
+		return array(
+			'TEMPLATE_THEME' => 'blue',
+			'SHOW_MAX_QUANTITY' => 'N',
+			'SHOW_OLD_PRICE' => 'N',
+			'SHOW_CLOSE_POPUP' => 'N',
+			'SHOW_DISCOUNT_PERCENT' => 'N',
+			'DISCOUNT_PERCENT_POSITION' => 'bottom-right',
+			'LABEL_PROP' => array(),
+			'LABEL_PROP_MOBILE' => array(),
+			'LABEL_PROP_POSITION' => 'top-left',
+			'PRODUCT_SUBSCRIPTION' => 'Y',
+			'MESS_BTN_BUY' => '',
+			'MESS_BTN_ADD_TO_BASKET' => '',
+			'MESS_BTN_SUBSCRIBE' => '',
+			'MESS_BTN_DETAIL' => '',
+			'MESS_NOT_AVAILABLE' => '',
+			'MESS_BTN_COMPARE' => '',
+			'SHOW_SLIDER' => 'N',
+			'SLIDER_INTERVAL' => 5000,
+			'SLIDER_PROGRESS' => 'N',
+			'USE_ENHANCED_ECOMMERCE' => 'N',
+			'DATA_LAYER_NAME' => 'dataLayer',
+			'BRAND_PROPERTY' => ''
+		);
+	}
+
+	protected function checkTemplateTheme()
+	{
+		$theme =& $this->arParams['TEMPLATE_THEME'];
+		$theme = (string)$theme;
+
+		if ($theme != '')
+		{
+			$theme = preg_replace('/[^a-zA-Z0-9_\-\(\)\!]/', '', $theme);
+			if ($theme === 'site')
+			{
+				$siteId = $this->getSiteId();
+				$templateId = Main\Config\Option::get('main', 'wizard_template_id', 'eshop_bootstrap', $siteId);
+				$templateId = preg_match('/^eshop_adapt/', $templateId) ? 'eshop_adapt' : $templateId;
+				$theme = Main\Config\Option::get('main', 'wizard_'.$templateId.'_theme_id', 'blue', $siteId);
+			}
+
+			if ($theme != '')
+			{
+				$documentRoot = Main\Application::getDocumentRoot();
+				$templateFolder = $this->getTemplate()->GetFolder();
+
+				$file = new Main\IO\File($documentRoot.$templateFolder.'/themes/'.$theme.'/style.css');
+				if (!$file->isExists())
+				{
+					$theme = '';
+				}
+			}
+		}
+
+		if ($theme == '')
+		{
+			$theme = 'blue';
+		}
+	}
+
+	protected function editTemplateData()
+	{
+		//
+	}
+
+	public static function checkEnlargedData(&$item, $propertyCode)
+	{
+		if (!empty($item) && is_array($item))
+		{
+			$item['ENLARGED'] = 'N';
+			$propertyCode = (string)$propertyCode;
+
+			if ($propertyCode !== '' && isset($item['PROPERTIES'][$propertyCode]))
+			{
+				$prop = $item['PROPERTIES'][$propertyCode];
+				if (!empty($prop['VALUE']))
+				{
+					$item['ENLARGED'] = 'Y';
+				}
+			}
+		}
+	}
+
+	protected function editTemplateProductSlider(&$item, $iblock, $limit = 0, $addDetailToSlider = true, $default = array())
+	{
+		$propCode = $this->storage['IBLOCK_PARAMS'][$iblock]['ADD_PICT_PROP'];
+
+		$slider = \CIBlockPriceTools::getSliderForItem($item, $propCode, $addDetailToSlider);
+		if (empty($slider))
+		{
+			$slider = $default;
+		}
+
+		if ($limit > 0)
+		{
+			$slider = array_slice($slider, 0, $limit);
+		}
+
+		$item['SHOW_SLIDER'] = true;
+		$item['MORE_PHOTO'] = $slider;
+		$item['MORE_PHOTO_COUNT'] = count($slider);
+	}
+
+	protected function editTemplateOfferSlider(&$item, $iblock, $limit = 0, $addDetailToSlider = true, $default = array())
+	{
+		$propCode = $this->storage['IBLOCK_PARAMS'][$iblock]['OFFERS_ADD_PICT_PROP'];
+
+		$slider = \CIBlockPriceTools::getSliderForItem($item, $propCode, $addDetailToSlider);
+		if (empty($slider))
+		{
+			$slider = $default;
+		}
+
+		if ($limit > 0)
+		{
+			$slider = array_slice($slider, 0, $limit);
+		}
+
+		$item['MORE_PHOTO'] = $slider;
+		$item['MORE_PHOTO_COUNT'] = count($slider);
+	}
+
+	protected function editTemplateCatalogInfo(&$item)
+	{
+		if ($this->arResult['MODULES']['catalog'])
+		{
+			$item['CATALOG'] = true;
+			if ($this->isEnableCompatible())
+				$item['CATALOG_TYPE'] = $item['PRODUCT']['TYPE'];
+		}
+		else
+		{
+			if ($this->isEnableCompatible())
+				$item['CATALOG_TYPE'] = 0;
+			$item['OFFERS'] = array();
+		}
+	}
+
+	protected function getTemplatePropCell($code, $offer, &$matrixFields, $skuPropList)
+	{
+		$cell = array(
+			'VALUE' => 0,
+			'SORT' => PHP_INT_MAX,
+			'NA' => true
+		);
+
+		if (isset($offer['DISPLAY_PROPERTIES'][$code]))
+		{
+			$matrixFields[$code] = true;
+			$cell['NA'] = false;
+
+			if ($skuPropList[$code]['USER_TYPE'] === 'directory')
+			{
+				$intValue = $skuPropList[$code]['XML_MAP'][$offer['DISPLAY_PROPERTIES'][$code]['VALUE']];
+				$cell['VALUE'] = $intValue;
+			}
+			elseif ($skuPropList[$code]['PROPERTY_TYPE'] === 'L')
+			{
+				$cell['VALUE'] = (int)$offer['DISPLAY_PROPERTIES'][$code]['VALUE_ENUM_ID'];
+			}
+			elseif ($skuPropList[$code]['PROPERTY_TYPE'] === 'E')
+			{
+				$cell['VALUE'] = (int)$offer['DISPLAY_PROPERTIES'][$code]['VALUE'];
+			}
+
+			$cell['SORT'] = $skuPropList[$code]['VALUES'][$cell['VALUE']]['SORT'];
+		}
+
+		return $cell;
+	}
+
+	/* product tools */
+
+	/**
+	 * Return true, if enable quantity trace and disable make out-of-stock items available for purchase.
+	 *
+	 * @param array $product        Product data.
+	 * @return bool
+	 */
+	protected function isNeedCheckQuantity(array $product)
+	{
+		return (
+			$product['QUANTITY_TRACE'] === Catalog\ProductTable::STATUS_YES
+			&& $product['CAN_BUY_ZERO'] === Catalog\ProductTable::STATUS_NO
+		);
+	}
+
+	/* product tools end */
+
+	/* user tools */
+
+	/**
+	 * Return user groups. Now worked only with current user.
+	 *
+	 * @return array
+	 */
+	protected function getUserGroups()
+	{
+		/** @global \CUser $USER */
+		global $USER;
+		$result = array(2);
+		if (isset($USER) && $USER instanceof \CUser)
+		{
+			$result = $USER->GetUserGroupArray();
+			Main\Type\Collection::normalizeArrayValuesByInt($result, true);
+		}
+		return $result;
+	}
+
+	/**
+	 * Return user groups string for cache id.
+	 *
+	 * @return string
+	 */
+	protected function getUserGroupsCacheId()
+	{
+		return implode(',', $this->getUserGroups());
+	}
+
+	/* user tools end */
+
+	/* compatibility tools */
+
+	/**
+	 * Filling deprecated fields of items for compatibility with old templates.
+	 * Strict use only for catalog.element, .section, .top, etc in compatible mode.
+	 *
+	 * @param array $items			Product list.
+	 * @return void
+	 */
+	protected function initCompatibleFields(array $items)
+	{
+		if (empty($items))
+			return;
+
+		$initFields = array(
+			'PRICES' => array(),
+			'PRICE_MATRIX' => false,
+			'MIN_PRICE' => false
+		);
+		if (!$this->arParams['USE_PRICE_COUNT'] && !empty($this->storage['PRICES']))
+		{
+			foreach ($this->storage['PRICES'] as $value)
+			{
+				if (!$value['CAN_VIEW'] && !$value['CAN_BUY'])
+					continue;
+
+				$priceType = $value['ID'];
+				$initFields['CATALOG_GROUP_ID_'.$priceType] = $priceType;
+				$initFields['~CATALOG_GROUP_ID_'.$priceType] = $priceType;
+				$initFields['CATALOG_GROUP_NAME_'.$priceType] = $value['TITLE'];
+				$initFields['~CATALOG_GROUP_NAME_'.$priceType] = $value['~TITLE'];
+				$initFields['CATALOG_CAN_ACCESS_'.$priceType] = ($value['CAN_VIEW'] ? 'Y' : 'N');
+				$initFields['~CATALOG_CAN_ACCESS_'.$priceType] = ($value['CAN_VIEW'] ? 'Y' : 'N');
+				$initFields['CATALOG_CAN_BUY_'.$priceType] = ($value['CAN_BUY'] ? 'Y' : 'N');
+				$initFields['~CATALOG_CAN_BUY_'.$priceType] = ($value['CAN_BUY'] ? 'Y' : 'N');
+				$initFields['CATALOG_PRICE_ID_'.$priceType] = null;
+				$initFields['~CATALOG_PRICE_ID_'.$priceType] = null;
+				$initFields['CATALOG_PRICE_'.$priceType] = null;
+				$initFields['~CATALOG_PRICE_'.$priceType] = null;
+				$initFields['CATALOG_CURRENCY_'.$priceType] = null;
+				$initFields['~CATALOG_CURRENCY_'.$priceType] = null;
+				$initFields['CATALOG_QUANTITY_FROM_'.$priceType] = null;
+				$initFields['~CATALOG_QUANTITY_FROM_'.$priceType] = null;
+				$initFields['CATALOG_QUANTITY_TO_'.$priceType] = null;
+				$initFields['~CATALOG_QUANTITY_TO_'.$priceType] = null;
+				$initFields['CATALOG_EXTRA_ID_'.$priceType] = null;
+				$initFields['~CATALOG_EXTRA_ID_'.$priceType] = null;
+				unset($priceType);
+			}
+			unset($value);
+		}
+
+		foreach (array_keys($items) as $index)
+			$this->oldData[$items[$index]['ID']] = $initFields;
+		unset($index, $initFields);
+	}
+
+	/**
+	 * Fill deprecated raw price data from database.
+	 * Strict use only for catalog.element, .section, .top, etc in compatible mode.
+	 *
+	 * @param int $id			Item id.
+	 * @param array $prices		Price rows from database.
+	 * @return void
+	 */
+	protected function fillCompatibleRawPriceFields($id, array $prices)
+	{
+		if (!isset($this->oldData[$id]) || empty($prices) || $this->arParams['USE_PRICE_COUNT'])
+			return;
+		foreach ($prices as $rawPrice)
+		{
+			$priceType = $rawPrice['CATALOG_GROUP_ID'];
+			$this->oldData[$id]['CATALOG_PRICE_ID_'.$priceType] = $rawPrice['ID'];
+			$this->oldData[$id]['~CATALOG_PRICE_ID_'.$priceType] = $rawPrice['ID'];
+			$this->oldData[$id]['CATALOG_PRICE_'.$priceType] = $rawPrice['PRICE'];
+			$this->oldData[$id]['~CATALOG_PRICE_'.$priceType] = $rawPrice['PRICE'];
+			$this->oldData[$id]['CATALOG_CURRENCY_'.$priceType] = $rawPrice['CURRENCY'];
+			$this->oldData[$id]['~CATALOG_CURRENCY_'.$priceType] = $rawPrice['CURRENCY'];
+			$this->oldData[$id]['CATALOG_QUANTITY_FROM_'.$priceType] = $rawPrice['QUANTITY_FROM'];
+			$this->oldData[$id]['~CATALOG_QUANTITY_FROM_'.$priceType] = $rawPrice['QUANTITY_FROM'];
+			$this->oldData[$id]['CATALOG_QUANTITY_TO_'.$priceType] = $rawPrice['QUANTITY_TO'];
+			$this->oldData[$id]['~CATALOG_QUANTITY_TO_'.$priceType] = $rawPrice['QUANTITY_TO'];
+			$this->oldData[$id]['CATALOG_EXTRA_ID_'.$priceType] = $rawPrice['EXTRA_ID'];
+			$this->oldData[$id]['~CATALOG_EXTRA_ID_'.$priceType] = $rawPrice['EXTRA_ID'];
+			unset($priceType);
+		}
+		unset($rawPrice);
+	}
+
+	/**
+	 * Return deprecated field value for item.
+	 * Strict use only for catalog.element, .section, .top, etc in compatible mode.
+	 *
+	 * @param int $id				Item id.
+	 * @param string $field			Field name.
+	 * @return null|mixed
+	 */
+	protected function getCompatibleFieldValue($id, $field)
+	{
+		if (!isset($this->oldData[$id]))
+			return null;
+		return (isset($this->oldData[$id][$field]) ? $this->oldData[$id][$field] : null);
+	}
+
+	/**
+	 * Check quantity range for emulate CATALOG_SHOP_QUANTITY_* filter.
+	 * Strict use only for catalog.element, .section, .top, etc in compatible mode.
+	 *
+	 * @param array $row		Price row from database.
+	 * @return bool
+	 */
+	protected function checkQuantityRange(array $row)
+	{
+		return (
+			($row['QUANTITY_FROM'] === null || $row['QUANTITY_FROM'] <= $this->arParams['SHOW_PRICE_COUNT'])
+			&& ($row['QUANTITY_TO'] === null || $row['QUANTITY_TO'] >= $this->arParams['SHOW_PRICE_COUNT'])
+		);
+	}
+
+	protected function getEmptyPriceMatrix()
+	{
+		return array(
+			'ROWS' => array(),
+			'COLS' => array(),
+			'MATRIX' => array(),
+			'CAN_BUY' => array(),
+			'AVAILABLE' => 'N',
+			'CURRENCY_LIST' => array()
+		);
+	}
+
+	/**
+	 * Resort old price format for compatibility. Do not use this method.
+	 * @internl
+	 *
+	 * @param int $id		Item id.
+	 * @return void
+	 */
+	private function resortOldPrices($id)
+	{
+		if (empty($this->oldData[$id]['PRICES']) || count($this->oldData[$id]['PRICES']) < 2)
+			return;
+		foreach (array_keys($this->oldData[$id]['PRICES']) as $priceCode)
+			$this->oldData[$id]['PRICES'][$priceCode]['_SORT'] = $this->storage['PRICES'][$priceCode]['SORT'];
+		unset($priceCode);
+		Main\Type\Collection::sortByColumn(
+			$this->oldData[$id]['PRICES'],
+			array('_SORT' => SORT_ASC, 'PRICE_ID' => SORT_ASC),
+			'', null, true
+		);
+		foreach (array_keys($this->oldData[$id]['PRICES']) as $priceCode)
+			unset($this->oldData[$id]['PRICES'][$priceCode]['_SORT']);
+		unset($priceCode);
+	}
+
+	/* compatibility tools end */
+}

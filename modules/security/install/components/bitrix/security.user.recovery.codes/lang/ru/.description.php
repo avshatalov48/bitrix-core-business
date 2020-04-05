@@ -1,0 +1,5 @@
+<?
+$MESS ['SECURITY_USER_RECOVERY_CODES_NAME'] = "Резервные коды OTP";
+$MESS ['SECURITY_USER_RECOVERY_CODES_DESCRIPTION'] = "Управление резервными кодами OTP";
+$MESS ['SECURITY_USER_RECOVERY_CODES_SECURITY_SERVICE'] = "Безопасность";
+?>

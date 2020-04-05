@@ -1,0 +1,4 @@
+<?
+$MESS["FORUM_CONVERSION_RATE_POST_TITLE"] = "Forum: posts";
+$MESS["FORUM_CONVERSION_RATE_TOPIC_TITLE"] = "Forum: topics";
+?>

@@ -1,0 +1,48 @@
+ol.vote-items-list, ol.vote-items-list li {
+	margin: 0; padding: 0; border: none; font-size: 100%; list-style-type: none;}
+ol.vote-items-list li {}
+ol.vote-items-list li.vote-item-vote-first{}
+ol.vote-answers-list{margin-top:0.55em;}
+ol.vote-answers-list li {
+	margin-bottom:0.2em;
+	margin-left:0.55em;}
+.voting-form-box
+{
+	font-size:100%;
+	border:1px solid #ccc;
+	padding: 0.55em;
+}
+
+div.vote-item-links{
+	float:right;}
+.vote-item-title{
+	font-weight:bold;}
+div.vote-item-date{
+	font-style: italic;}
+div.vote-item-header{
+	margin-bottom: 0.5em;}
+div.vote-item-footer{
+	margin-top: 0.5em;}
+div.vote-item-image{
+	float:left;
+	padding-right:0.55em;}
+div.vote-item-lamp{
+	display:none;}
+.vote-item-lamp-green span {
+	color:green;}
+.vote-item-lamp-red span {
+	color:red;}
+div.vote-clear-float { 
+	clear: both;}
+form.vote-form {
+	margin:0; }
+.starrequired {
+    color:red; }
+.vote-reply-field-captcha-label {
+    margin-bottom:6px;}
+.vote-vote-footer {
+    margin-top:6px;}
+.vote-reply-field-captcha-image {
+    margin-bottom:6px;}
+.vote-form-captcha {
+    margin-left:0.55em;}

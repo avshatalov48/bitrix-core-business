@@ -1,0 +1,22 @@
+<?php
+$MESS['ADMIN_TOOLS_ACCESS_DENIED'] = 'Доступ запрещен';
+$MESS['ADMIN_TOOLS_TITLE_EXPORT'] = 'Экспорт Highload-блока';
+$MESS['ADMIN_TOOLS_TAB_EXPORT'] = 'Экспорт Highload-блока';
+$MESS['ADMIN_TOOLS_TAB_EXPORT_TITLE'] = 'Экспорт Highload-блока (настроек, полей, данных)';
+$MESS['ADMIN_TOOLS_FIELD_EXPORT_FILE'] = 'Файл для экспорта';
+$MESS['ADMIN_TOOLS_FIELD_EXPORT_HL'] = 'Highload-блок';
+$MESS['ADMIN_TOOLS_FIELD_EXPORT_HLS'] = 'Экспортировать структуру';
+$MESS['ADMIN_TOOLS_FIELD_EXPORT_DATA'] = 'Экспортировать данные';
+$MESS['ADMIN_TOOLS_START_EXPORT'] = 'Экспортировать';
+$MESS['ADMIN_TOOLS_STOP_EXPORT'] = 'Остановить экспорт';
+$MESS['ADMIN_TOOLS_ERROR_EXPORT'] = 'При экспорте возникли ошибки';
+$MESS['ADMIN_TOOLS_PROCESS_EXPORT'] = 'Процесс экспорта';
+$MESS['ADMIN_TOOLS_SELECT_HL'] = 'Выберите Highload-блок.';
+$MESS['ADMIN_TOOLS_PROCESS_PERCENT'] = 'Экспортировано #percent#% (#count# из #all#).';
+$MESS['ADMIN_TOOLS_PROCESS_FINAL'] = 'Скачать файл экспорта: #xml_link#.';
+$MESS['ADMIN_TOOLS_PROCESS_FILES_FINAL'] = 'Скачать сохраненные из highload-блока файлы: #files_link#.';
+$MESS['ADMIN_TOOLS_PROCESS_FINISH_DELETE'] = 'Не забудьте удалить экспортированные файлы после переноса или скачивания.';
+$MESS['XML_FILE_NOT_ACCESSIBLE'] = 'Файл для экспорта не найден или недоступен на запись.';
+$MESS['XML_FILENAME_HAS_ERROR'] = 'Имя файла (папки) может состоять только из символов латинского алфавита, цифр, пробела, а также символов: !#$%&()[]{}+-.;=@^_~';
+$MESS['XML_FILENAME_IS_NOT_XML'] = 'Имя файла должно иметь расширение .xml и состоять из букв латинского алфавита, цифр и знака подчеркивания.';
+$MESS['XML_FILENAME_IS_NOT_CORRECT'] = 'Имя файла должно иметь расширение .xml и состоять из букв латинского алфавита, цифр и знака подчеркивания.';

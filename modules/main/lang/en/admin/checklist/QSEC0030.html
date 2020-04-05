@@ -1,0 +1,91 @@
+<p>A website is usually managed by several functionally different user groups;
+at the top of the pyramid is the "Administrators" user group with
+maximum access. All these user groups and their permissions are defined in the
+website specifications. For maximum protection against known and potential
+threats, it is strongly recommended to give each of the user groups only the necessary
+permissions on a need-to-do basis: first remove all the permissions entirely and
+then add the required ones.</p>
+
+<p>For example, if a user is to be allowed to edit the phone number in the
+footer area, create a user group with one and only permission to edit this
+information. Similarly, if a user's jobs is to manage only some information
+blocks, he or she must not be allowed to edit anything else.</p>
+
+<p>What is the reason to be so restrictive?</p>
+
+<ol>
+<li>To keep information on a need-to-know basis. A content editor must not see
+  product keys if his or her job is to edit content.</li>
+<li>In theory, any user account may be hacked by a variety of methods:
+<ul>
+<li>the password may be intercepted and sent to another machine by a virus (which
+  is of extreme importance for freelancers working at home);</li>
+<li>the password may be simply overseen by a malicious person;</li> 
+<li>a user may keep the password on a sticky note;</li> 
+<li>the password may be intercepted by a TCP listener;</li> 
+<li>weak passwords may be easily bruteforced.</li> 
+ </ul>
+</li> 
+ </ol>
+
+<p>User access privileges must not be crucial for system
+security. Assigning the administrator permissions to all users is the most
+common blunder which may entail catastrophe.</p>
+
+
+<ol>
+<li>Review the user groups existing in the system: "Settings > Users > User
+  Groups". Check the permissions of each group except for the "Administrators" (it
+  will be examined individually).<br>
+</li>
+
+<li>Check the each group's access permission for the system modules. If a groups
+  has the "default" permission for a module under review, ensure the
+  default settings will not do any damage: open the respective module settings
+  form: "Settings > System Settings > Module Settings > <i>Module_Name</i>",
+  click the "Access" tab.<p>The default access value is initially
+  highly restrictive: "Access denied"; check that it was not changed. Read
+  the documentation before configuring the permissions because different
+  permissions may have different meaning in the modules.</p></li> 
+
+<li>If a user group has a "Edit files and folders" permission in the "Site
+  Explorer" module, open "Content &gt; Site Explorer &gt; Files and
+  Folders" and ensure this user group cannot access any file system objects
+  other than specified in the website specifications. For example, if a user
+  group is be allowed to edit files in "/about/company", make sure it
+  cannot edit any other files. Check permissions for all the other website
+  objects represented as files: menus, website templates etc.<br>
+</li> 
+
+<li>Check access permissions for all of the existing information blocks: "Content
+  > Information blocks > Information block types > Information block name",
+  click the "Access" tab. If a user group needs to view but not edit
+  the information block contents, use the "Read" access permission and
+  never - "Edit".<br>
+</li>
+
+<li>If the website specifications demand Control Panel access for certain user
+  groups, authorize as a member of each of these user groups and check that only
+  the allowed information is visible and only the allowed management functions
+  are available. A common unpleasant surprise for a system administrator is
+  seeing, for example, a web store customer able to log on to Control Panel and
+  do whatever they like.<br>
+</li> 
+
+<li>Log on to the public section as a member of each of the existing user groups.
+  Verify that the user group's permissions conform to the actions and
+  operations a user is expected to be able to perform.<br>
+</li>
+
+<li>Check the user accounts added to the "Administrators" user group:
+  open the latter for editing, click the "Parameters" tab and scroll to "Users
+  in this group". Does all of the users you see here really need administrative
+  access? It is infrequent to discover long forgotten remains of some test user
+  accounts here.<br>
+</li>
+<li>When logged in as a user, search for any information a user should not be
+  able to access. If you can, change the permissions accordingly.</li> 
+ </ol>
+
+<p>In the end, you will have the access levels of your user groups properly
+properly configured for minimum required permissions.</p>

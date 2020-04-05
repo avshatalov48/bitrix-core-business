@@ -1,0 +1,35 @@
+<?
+$MESS["STAT_RECORDS_LIST"] = "Search keywords";
+$MESS["STAT_F_SEARCH_SYSTEM"] = "Search engine:";
+$MESS["STAT_F_ID"] = "ID:";
+$MESS["STAT_F_SESSION"] = "Session ID:";
+$MESS["STAT_F_REFERER"] = "Referer ID:";
+$MESS["STAT_F_SEARCH_PHRASE"] = "Search keyword:";
+$MESS["STAT_F_PAGE_TO"] = "To:";
+$MESS["STAT_PHRASE"] = "Search keywords";
+$MESS["STAT_SERVER"] = "Search engine";
+$MESS["STAT_REFERER"] = "Referer";
+$MESS["STAT_QUANTITY"] = "Quantity";
+$MESS["STAT_DATE_INSERT"] = "Date";
+$MESS["STAT_PAGE_TO"] = "To";
+$MESS["STAT_SESSION"] = "Session";
+$MESS["STAT_PHRASE_PAGES"] = "records";
+$MESS["STAT_REFERRING_SITE"] = "Referring site";
+$MESS["STAT_AVERAGE_HITS"] = "Average hits";
+$MESS["STAT_SEARCHER_INDEXING"] = "Search engine: site indexing";
+$MESS["STAT_SEARCHER_PHRASES"] = "Search engine: search keywords";
+$MESS["STAT_NAME"] = "name";
+$MESS["STAT_PHRASES"] = "Search keywords";
+$MESS["STAT_FL_ID"] = "Phrase ID";
+$MESS["STAT_FL_SEARCHER"] = "Search engine";
+$MESS["STAT_FL_DATE"] = "Date";
+$MESS["STAT_FL_PAGE"] = "Hit page";
+$MESS["STAT_FL_ID_REF"] = "Referer ID";
+$MESS["STAT_FL_ID_SESS"] = "Session ID";
+$MESS["STAT_PHRASE_SORT"] = "Filter by phrase";
+$MESS["STAT_LINK_OPEN"] = "Open page";
+$MESS["STAT_FIND_SESSION"] = "List of sessions";
+$MESS["STAT_SITE_EDIT"] = "Edit site settings";
+$MESS["STAT_NUM"] = "Number";
+$MESS["STAT_GRAPH"] = "Chart";
+?>

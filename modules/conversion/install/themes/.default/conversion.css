@@ -1,0 +1,1680 @@
+
+
+
+/* Summary */
+
+
+
+.adm-detail-content-wrap {
+	margin-bottom: 10px;
+}
+
+.stat-item-block-container{
+	max-width: 1080px;
+}
+
+.stat-title {
+	background: #8ea2ab;
+	line-height: 48px;
+	padding: 0 53px 0 17px;
+	margin-bottom: 10px;
+	color: #fff;
+}
+
+.stat-title-name {
+	border-bottom: 1px dashed;
+}
+
+.stat-title-name:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.stat-title-select {
+	display: inline-block;
+	vertical-align: middle;
+	width: 0;
+	height: 0;
+	border: 5px solid transparent;	
+	border-top: 5px solid rgba(255,255,255,0.8);
+	border-bottom: none;
+	margin-left: 7px;
+}
+
+.adm-profit-filter {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.adm-description {
+	font-size: 13px;
+	color: #474c53;
+	margin: 30px 0 35px;
+}
+
+.adm-description .adm-description-title {
+	font-weight: bold;
+	float: left;
+	margin-right: 15px;
+}
+
+.adm-description .adm-clarification {
+	display: block;
+	overflow: hidden;
+}
+
+.adm-profit-title {
+	color: #000;
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 11px;
+}
+
+.adm-profit-title-name {
+	font-size: 14px;
+	font-weight: bold;
+	color: #2579bf;
+	border-bottom: 1px dashed;
+}
+
+.adm-profit-title-name:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.adm-profit-title-name-select {
+	display: inline-block;
+	vertical-align: middle;
+	width: 0;
+	height: 0;
+	border: 4px solid transparent;
+	border-top: 4px solid #2579bf;
+	border-bottom: none;
+	margin-left: 4px;
+}
+
+.adm-profit-scale {
+	font-size: 0;
+	position: relative;
+	padding: 0 47px 0 34px;
+}
+
+.adm-profit-scale-part {
+	display: inline-block;
+	vertical-align: top;
+	width: 20%;
+}
+
+.adm-profit-scale-edge {
+	top: 0;
+	height: 40px;
+	position: absolute;
+}
+
+.adm-profit-scale-part-1 .adm-profit-scale-edge {
+	border-radius: 3px 0 0 3px;
+	left: 0;
+	width: 34px;
+}
+.adm-profit-scale-part-5 .adm-profit-scale-edge {
+	border-radius: 0 3px 3px 0;
+	right: 0;
+	width: 47px;
+}
+
+.adm-profit-scale-inner {
+	height: 40px;
+}
+
+.adm-profit-scale-part-1 .adm-profit-scale-inner,
+.adm-profit-scale-part-1 .adm-profit-scale-edge {background-color: #eb7c33;}
+.adm-profit-scale-part-2 .adm-profit-scale-inner {background-color: #ea9f44;}
+.adm-profit-scale-part-3 .adm-profit-scale-inner {background-color: #eccb4b;}
+.adm-profit-scale-part-4 .adm-profit-scale-inner {background-color: #a1b640;}
+.adm-profit-scale-part-5 .adm-profit-scale-inner,
+.adm-profit-scale-part-5 .adm-profit-scale-edge {background-color: #a0caed;}
+
+.adm-profit-scale-title {
+	color: #a0a2a2;
+	font-size: 12px;
+	text-align: center;
+	padding-top: 5px;
+}
+
+.adm-profit-scale-separation {
+	height: 8px;
+	top: 15px;
+	position: absolute;
+	width: 100%;
+	left: 0;
+}
+.adm-profit-scale-num-l {
+	color: #a85b28;
+	font-size: 11px;
+	line-height: 12px;
+	float: left;
+	padding: 0 4px 0 14px;
+}
+.adm-profit-scale-num-r {
+	color: #7c8993;
+	font-size: 11px;
+	line-height: 12px;
+	float: right;
+	padding: 0 14px 0 4px;
+}
+
+.adm-profit-scale-separation-inner {
+	background: url(images/adm-scale-sprite.png) repeat-x 0 -69px;
+	height: 8px;
+	margin: 2px 46px 0 34px;
+	position: relative;
+
+}
+
+.adm-profit-scale-value {
+	background-color: #494f58;
+	bottom: -15px;
+	height: 40px;
+	position: absolute;
+	width: 1px;
+}
+
+.adm-profit-scale-value-num {
+	/*background: url(/bitrix/images/conversion/adm-profitability-sprite.png) no-repeat 0 0;*/
+	background: url(/bitrix/images/conversion/adm-scale-sprite.png) no-repeat 0 0;
+	color: #31353a;
+	font-size: 22px;
+	font-weight: bold;
+	height: 45px;
+	line-height: 35px;
+	/*margin: -19px 0 0 -32px;*/
+    margin: -19px 0 0 -43px;
+	text-align: center;
+	text-shadow: 0 1px #fff;
+	/*padding-right: 10px;*/
+	/*width: 65px;*/
+    width: 90px;
+}
+
+
+
+.adm-profit-scale-shadow {
+	background-image:
+		-webkit-linear-gradient(top, rgba(255,255,255,0.02), rgba(255,255,255,0.15), rgba(255,255,255,0.4)11px, rgba(255,255,255,0)11px,
+		rgba(255,255,255,0)24px,
+		rgba(255,255,255,0.06)22px, rgba(255,255,255,0.4) 31px,rgba(255,255,255,0.52) 34px, rgba(255,255,255,0.3)40px);
+	background-image:
+		linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.15), rgba(255,255,255,0.4)11px, rgba(255,255,255,0)11px,
+		rgba(255,255,255,0)24px,
+		rgba(255,255,255,0.06)22px, rgba(255,255,255,0.4) 31px,rgba(255,255,255,0.52) 34px, rgba(255,255,255,0.3)40px);
+	height: 40px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+
+.stat-item-container {
+	position: relative;
+	padding: 7px 7px;
+	border: 1px solid #e0e1e1;
+	border-radius: 3px;
+	background: #fff;
+	margin-top: 15px;
+}
+
+.stat-description {
+	font-size: 16px;
+	line-height: 22px;
+	color: #5d6471;
+	margin-left: 12px;
+}
+
+.item-total .stat-item-title {
+	background: #e8eef0;
+	color: #000;
+}
+
+.item-detailed {
+	padding-bottom: 23px;
+	margin: 0 auto 15px;
+}
+
+.item-detailed .stat-item-subtitle {
+	font-size: 15px;
+}
+
+.item-detailed .stat-item-equality {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+	bottom: -64px;
+	width: 64px;
+	height: 64px;
+	border: 5px solid #fff;
+	box-shadow: 0px 1px 57px 3px rgba(0,1,1,0.19);
+	border-radius: 50%;
+	background: #788b91;
+	z-index: 1;
+}
+
+.stat-item-equality:before, .stat-item-equality:after {
+	content: '';
+	position: absolute;
+	top: 22px;
+	right: 0;
+	left: 0;
+	margin: auto;
+	background: #fff;
+	width: 31px;
+	height: 7px;
+}
+
+.stat-item-equality:after {
+	top: auto;
+	bottom: 22px;
+}
+
+.stat-item-plus {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+	top: -35px;
+	width: 43px;
+	height: 43px;
+	border: 5px solid #fff;
+	box-shadow: 0px 1px 57px 3px rgba(0,1,1,0.19);
+	border-radius: 50%;
+}
+
+.stat-item-plus:before, .stat-item-plus:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	margin: auto;
+	background: #fff;
+	width: 5px;
+	height: 23px;
+}
+
+.stat-item-plus:after {
+	width: 23px;
+	height: 5px;
+}
+
+.stat-item-title {
+	font-size: 18px;
+	line-height: 48px;
+	color: #fff;
+	padding: 0 17px;
+	background: #29ace3;
+}
+
+.stat-item-title a {
+    color: #fff;
+}
+
+
+/*.stat-item-title span.stat-item-title-period {*/
+	/*font-weight: bold;*/
+/*}*/
+
+.stat-item-title .stat-item-title-name {
+	font-size: 16px;
+	border-bottom: 1px dashed;
+	margin-left: 5px;
+}
+
+.stat-item-title .stat-item-title-name:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.stat-item-title-name-select {
+	display: inline-block;
+	vertical-align: middle;
+	width: 0;
+	height: 0;
+	border: 4px solid transparent;
+	border-top: 4px solid #fff;
+	border-bottom: none;
+	margin-left: 4px;
+	opacity: 0.5;
+}
+
+.stat-graph-container {
+	background: #fefefe;
+	padding: 10px 20px 20px;
+}
+
+.stat-graph-title {
+	font-size: 13px;
+	line-height: 36px;
+	font-weight: bold;
+	color: #000;
+	display: block;
+	margin: 0 0 0 10px;
+}
+
+.stat-item-title-traffic {
+	float: right;
+	font-size: 20px;
+	color: rgba(255,255,255,0.8);
+	font-weight: bold;
+}
+
+.stat-item-title-traffic span {
+	font-weight: normal;
+	font-size: 18px;
+	vertical-align: top;
+	display: inline-block;
+	line-height: 46px;
+}
+
+.stat-item {
+	padding: 15px 0 15px 0;
+	margin: 0 15px 0 10px;
+}
+
+.stat-item-subtitle {
+	display: block;
+	font-size: 12px;
+	font-weight: bold;
+	color: #000;
+	text-transform: uppercase;
+	margin-bottom: 13px;
+	padding-left: 10px;
+}
+
+.stat-item-block {
+	overflow: hidden;
+	text-align: center;
+}
+
+.stat-item-block-first {
+	float: left;
+	width: 290px;
+	text-align: left;
+}
+
+.stat-item-block-conversion {
+	float: right;
+	width: 240px;
+	text-align: right;
+	margin-top: -15px;
+}
+
+.stat-item-block-conversion .stat-item-block-inner {
+	min-width: 150px;
+	background: #ebf0f2;
+}
+
+.stat-item-block-inner {
+	text-align: left;
+	display: inline-block;
+}
+
+.stat-item-block-title {
+	display: block;
+	font-size: 12px;
+	line-height: 12px;
+	color: rgba(0,0,0,0.7);
+	text-align: left;
+	padding: 0 10px;
+}
+
+.stat-item-block-digit {
+	display: block;
+	font-size: 40px;
+	line-height: 52px;
+	padding: 0 10px;
+}
+
+.stat-item-block-digit span {
+	font-size: 15px;
+	text-transform: uppercase;
+}
+
+.stat-item-block-conversion .stat-item-block-title {
+	background: #ced4d6;
+	line-height: 25px;
+	font-weight: bold;
+	color: #000;
+}
+
+.stat-item-block-more {
+	margin-bottom: 20px;
+}
+
+.stat-item-block-more .stat-item {
+	display: none;
+}
+
+.stat-item-block-more.more-deployed .stat-item {
+	display: block;
+}
+
+.stat-item-block-more a {
+	position: relative;
+	display: block;
+	font-size: 10px;
+	height: 28px;
+	line-height: 28px;
+	font-weight: bold;
+	color: #2579bf;
+	text-transform: uppercase;
+}
+
+.stat-item-block-more a span {
+	position: absolute;
+	left: 0;
+	padding-left: 20px;
+	background: #fff;
+	padding-right: 15px;
+	z-index: 1;
+}
+
+.stat-item-block-more a span span {
+	border-bottom: 1px solid;
+	position: static;
+	padding: 0;
+}
+
+.stat-item-block-more a:hover span span {
+	border-bottom: 1px solid transparent;
+}
+
+.stat-item-block-more a:after {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	margin: auto;
+	height: 1px;
+	width: 100%;
+	background: #eeeff0;
+}
+
+.stat-item-block-more.more-deployed a:after {
+	content: none;
+}
+
+.stat-item-block-more .stat-item {
+	border-top: 1px solid #eeeff1;
+}
+
+.stat-item-block-more .stat-item-block-digit {
+	font-size: 20px;
+	line-height: 34px;
+}
+
+.ab-title-icon {
+	width: 36px;
+	height: 36px;
+	background:  url(images/ab-icon.gif) no-repeat 0 0;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.ab-test-info {
+	display: inline-block;
+	font-size: 14px;
+	line-height: 36px;
+	color: rgba(45,50,60,0.7);
+	padding: 0 15px;
+}
+
+.item-test-info {
+	padding: 17px;
+}
+
+.ab-test-info span {
+	font-size: 15px;
+	font-weight: bold;
+	color: #2d323c;
+}
+
+.ab-test-info.ab-test-info-right {
+	float: right;
+	font-size: 13px;
+}
+
+.ab-test-info-btn {
+	display: inline-block;
+	font-size: 14px;
+	font-weight: bold;
+	color: #fff;
+	line-height: 34px;
+	text-decoration: none;
+	padding: 0 18px 0 8px;
+	background: #838b90;
+	border: 1px solid #b1b5be;
+	box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5), 0 1px 0 0px rgba(0,0,0,0.15), inset 0 2px 10px 0 rgba(255,255,255,0.5), inset 0 -3px 10px 0px rgba(0,0,0,0.15);
+	border-radius: 2px;
+}
+
+.ab-test-info-btn:hover {
+	text-decoration: none;
+}
+
+.ab-test-info-btn span {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 10px;
+	width: 18px;
+	height: 18px;
+	border: 1px solid #fff;
+	border-radius: 50%;
+}
+
+.ab-test-info-btn span:before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	background: #fff;
+	position: absolute;
+	top: 0; 
+	bottom: 0;
+	right: 0;
+	left: 0;
+	margin: auto;
+}
+
+.ab-item-container .stat-item-container {
+	display: inline-block;
+	margin-bottom: 30px;;
+}
+
+.ab-item-container .stat-item-container:last-child {
+	float: right;
+}
+
+.ab-letter {
+	display: inline-block;
+	vertical-align: middle;
+	width: 61px;
+	height: 61px;
+	text-align: center;
+	line-height: 61px;
+	color: #fff;
+	font-size: 33px;
+	font-weight: bold;
+	margin-right: 4px;
+}
+
+.ab-letter.ab-letter-a {
+	background: #33b4ea;
+}
+
+.ab-letter.ab-letter-b {
+	background: #ea9a00;
+}
+
+.ab-item {
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 19px;
+	line-height: 61px;
+	color: #000;
+	font-weight: bold;
+	background: #eef2f4;
+	padding: 0 44px 0 22px;
+}
+
+.ab-item-desc {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -30px;
+	margin: auto;
+	text-align: center;
+
+}
+
+.ab-item-desc span {
+	font-weight: bold;
+	font-size: 14px;
+	line-height: 25px;
+}
+
+.item-conversion-block {
+	padding: 25px 40px;
+	text-align: center;
+}
+
+.item-conversion-block-title {
+	font-size: 21px;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.item-conversion-block-subtitle {
+	font-size: 12px;
+	color: #606060;
+	text-align: center;
+}
+
+.item-conversion-block-subtitle span {
+	font-style: italic;
+	color: #929292;
+	display: block;
+}
+
+.item-conversion-graph-block {
+	background: #fff;
+	padding: 50px 65px;
+	text-align: center;
+	border: 2px solid #ecedee;
+	margin-top: 25px;
+}
+
+.item-conversion-block .adm-btn {
+	margin: 20px auto 0;
+}
+
+.item-conversion-block .stat-item-data {
+	padding: 5px;
+	width: 175px;
+	height: 110px;
+	margin-top: 40px;
+	display: inline-block;
+}
+
+.item-conversion-block .stat-item-data .stat-item {
+	margin: 0;
+	background: #e2ebed;
+}
+
+.item-conversion-block .stat-item-data .stat-item-container-title {
+	background: #e2ebed;
+}
+
+.item-conversion-block .stat-item-data .stat-item-container-title-name {
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.item-conversion-block .stat-item-data .stat-item-block {
+	position: static;
+}
+
+.item-conversion-block .stat-item-data .stat-item-block-digit {
+	font-size: 52px;
+	color: #2d323c;
+	line-height: 48px;
+	padding: 0;
+}
+
+.item-conversion-block .stat-item-data-container-dynamics .stat-item-block-digit {
+	color: #fff;
+	text-shadow: 0 -2px 2px rgba(65,91,109,0.4);
+}
+
+.stat-item-data-container-dynamics .stat-item-block-digit-arrow {
+	width: 20px;
+	height: 22px;
+	background: url(images/adm-ab-sprite.png) no-repeat 0 0;	
+	margin-right: 15px;
+}
+
+.stat-item-data-container-dynamics .stat-item-block-fall .stat-item-block-digit-arrow {
+	background-position: 0 -25px;
+}
+
+.stat-item-data-container-dynamics .stat-item-block-incr .stat-item-block-digit-arrow {
+	background-position: 0 0;
+}
+
+.item-conversion-block .stat-item-data .stat-item-block-digit span {
+	font-size: 35px;
+}
+
+.adm-detail-block .adm-detail-toolbar {
+	margin: 50px 0 35px;
+	padding: 0 20px;
+}
+
+.adm-detail-toolbar-title {
+	display: block;
+	font-size: 21px;
+	font-weight: bold;
+	color: #000;
+	line-height: 48px;
+}
+
+.adm-detail-toolbar-title span {
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 12px;
+	font-weight: normal;
+	color: #606060;
+	margin-left: 15px;
+}
+
+.stat-item-data-container {
+	padding: 0 40px;
+	overflow: hidden;
+	display: inline-block;
+	width: 49.5%;
+  box-sizing: border-box;
+}
+
+.stat-item-data-container-a {
+	text-align: left;
+}
+
+.stat-item-data-container-b {
+	text-align: right;
+}
+
+.stat-item-data-container-b .stat-item-container-title-letter {
+	background: #ea9a00;
+}
+
+.item-conversion-block .stat-item-data-container {
+	width: 32%;
+	padding: 0;
+}
+
+.item-conversion-block .stat-item-block-incr .stat-item-container-title {
+	background: #97c500;
+}
+
+.item-conversion-block .stat-item-block-fall .stat-item-container-title {
+	background: #f13a36;
+}
+
+.stat-item-data-container-dynamics .stat-item-container-title-name {
+	background: rgba(88,102,74,0.4);
+	box-shadow: inset 0 -1px 0 0 rgba(255,255,255,0.23);
+}
+
+.item-conversion-block .stat-item-data-container-dynamics .stat-item-block-incr .stat-item{
+	background: #97c500;
+}
+
+.item-conversion-block .stat-item-data-container-dynamics .stat-item-block-fall .stat-item{
+	background: #f13a36;
+}
+
+.stat-item-data {
+	box-shadow: 0 0 1px 0px rgba(0,0,0,0.3);
+	width: 250px;
+	height: 160px;
+	margin: 0 0 32px 0;
+	display: inline-block;
+}
+
+.stat-item-data.stat-item-data-funnel {
+	height: auto;
+	width: auto;
+}
+
+.stat-item-data.stat-item-data-funnel .stat-item-block.stat-item-block-first {
+	position: static;
+	float: none;
+	margin-bottom: 20px;
+}
+
+.stat-item-data-funnel .stat-item {
+	padding-top: 30px;
+	text-align: center;
+}
+
+.stat-item-container-title-letter {
+	float: left;
+	width: 26px; 
+	height: 26px;	
+	line-height: 26px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 14px;
+	color: #fff;
+	background: #33b4ea;
+	margin-right: 4px;
+}
+
+.stat-item-container-title-name {
+	line-height: 26px;
+	padding: 0 10px;
+	display: block;
+	overflow: hidden;
+	border-radius: 2px;
+	font-size: 10px;
+	font-weight: bold;
+	color: #fff;
+	text-shadow: 0px -1px 0px rgba(65,91,109,0.4);
+	box-shadow: inset 0px -1px 1px 0px rgba(51,55,61,0.44);
+	text-transform: uppercase;
+	background: #a4a8ac;
+	text-align: left;
+}
+
+.stat-item-data .stat-item-block.stat-item-block-conversion {
+	position: absolute;
+	top: 60px;
+	left: auto;
+	right: -18px;
+	background: #fff;
+	border-radius: 3px;
+	padding: 3px;
+	box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.29);
+	width: auto;
+}
+
+.stat-item-data .stat-item-block-conversion  .stat-item-block-digit {
+	font-size: 25px;
+	padding: 0 5px;
+	line-height: 44px;
+}
+
+.stat-item-data .stat-item-block-conversion .stat-item-block-inner {
+	min-width: 94px;
+}
+
+.stat-item-data .stat-item-block-conversion-fall .stat-item-block-inner {	
+	background: #fbd1d0;
+}	
+
+.stat-item-data .stat-item-block-conversion-incr .stat-item-block-inner {	
+	background: rgba(199,222,107,0.4);
+}
+
+.stat-item-data .stat-item-block {
+	position: absolute;
+	top: 50px;
+	left: 0px;
+}
+
+.stat-item-data .stat-item-block.stat-item-block-first {
+	top: auto;
+	bottom: 0;
+}
+
+.stat-item-data .stat-item-block-digit {
+	font-size: 30px;
+	color: #2d323c;
+	line-height: 38px;
+}
+
+.stat-item-data .stat-item-block-conversion .stat-item-block-title {
+	background: rgba(135,84,53,0.12);
+}
+
+.stat-item-block-conversion .stat-item-block-digit span {
+	font-size: 17px;
+}
+
+.stat-item-block-digit-arrow {
+	display: inline-block;
+	margin-right: 5px;
+	width: 12px;
+	height: 14px;
+	background: url(images/adm-ab-sprite.png) no-repeat 0 14px;
+}
+
+.stat-item-block-conversion-fall .stat-item-block-digit-arrow {
+	background-position: 0 -67px;
+}
+
+.stat-item-block-conversion-incr .stat-item-block-digit-arrow {
+	background-position: 0 -50px;
+}
+
+.stat-item-chain {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -21px;
+	margin: auto;
+	width: 3px;
+	height: 2px;
+	background: transparent;
+	border-top: 3px solid #a4a8ac;
+	border-bottom: 3px solid #a4a8ac;
+}
+
+.stat-item-chain:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -8px;
+	margin: auto;
+	width: 3px;
+	height: 12px;
+	background: transparent;
+	border-top: 3px solid #a4a8ac;
+	border-bottom: 3px solid #a4a8ac;
+}
+
+.stat-item-chain:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -13px;
+	margin: auto;
+	width: 3px;
+	height: 22px;
+	background: transparent;
+	border-top: 3px solid #a4a8ac;
+	border-bottom: 3px solid #a4a8ac;
+}
+
+.stat-btn-panel {
+	display: block;
+	background: #fff;
+	text-align: center;
+	padding: 25px 20px 5px;
+	max-width: 1080px;
+}
+
+.adm-workarea .stat-btn-panel .adm-btn,
+.adm-workarea .stat-btn-panel .adm-btn:active {
+	padding: 6px 15px 5px 45px !important;
+}
+
+.adm-workarea .stat-btn-panel .adm-btn:before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 12px;
+	margin: auto;
+	width: 9px;
+	height: 13px;
+	background: url(images/adm-ab-sprite.png) no-repeat 0 -83px;
+}
+
+.adm-workarea .stat-btn-panel .adm-btn:after {
+	content: '';
+	position: absolute;
+	left: 30px;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+	width: 1px;
+	height: 22px;
+	background: #cfd5d8;
+	border-right: 1px solid #fff;
+}
+
+.adm-workarea .stat-btn-panel .adm-btn:active:after {
+	border-right: 1px solid rgba(103,109,123,.78);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Calc /bitrix/images/conversion/adm-profitability-sprite.png */
+
+
+
+
+.adm-profit-filter {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.adm-profit-block {
+    margin-bottom: 38px;
+    max-width: 1050px;
+}
+
+.adm-profit-title {
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 11px;
+}
+
+.adm-profit-title-funnel {
+    border-bottom: 1px solid #e7e8e9;
+    margin: 0 59px 0 17px;
+    padding-bottom: 14px;
+}
+
+.adm-profit-scale {
+    font-size: 0;
+    position: relative;
+    padding: 0 47px 0 34px;
+}
+
+.adm-profit-scale-part {
+    display: inline-block;
+    vertical-align: top;
+    width: 20%;
+}
+
+.adm-profit-scale-edge {
+    top: 0;
+    height: 40px;
+    position: absolute;
+}
+
+.adm-profit-scale-part-1 .adm-profit-scale-edge {
+    border-radius: 3px 0 0 3px;
+    left: 0;
+    width: 34px;
+}
+.adm-profit-scale-part-5 .adm-profit-scale-edge {
+    border-radius: 0 3px 3px 0;
+    right: 0;
+    width: 47px;
+}
+
+.adm-profit-scale-inner {
+    height: 40px;
+}
+
+.adm-profit-scale-part-1 .adm-profit-scale-inner,
+.adm-profit-scale-part-1 .adm-profit-scale-edge {background-color: #eb7c33;}
+.adm-profit-scale-part-2 .adm-profit-scale-inner {background-color: #ea9f44;}
+.adm-profit-scale-part-3 .adm-profit-scale-inner {background-color: #eccb4b;}
+.adm-profit-scale-part-4 .adm-profit-scale-inner {background-color: #a1b640;}
+.adm-profit-scale-part-5 .adm-profit-scale-inner,
+.adm-profit-scale-part-5 .adm-profit-scale-edge {background-color: #a0caed;}
+
+.adm-profit-scale-title {
+    color: #a0a2a2;
+    font-size: 12px;
+    text-align: center;
+    padding-top: 5px;
+}
+
+.adm-profit-scale-separation {
+    height: 8px;
+    top: 15px;
+    position: absolute;
+    width: 100%;
+    left: 0;
+}
+.adm-profit-scale-num-l {
+    color: #a85b28;
+    font-size: 11px;
+    line-height: 12px;
+    float: left;
+    padding: 0 4px 0 14px;
+}
+.adm-profit-scale-num-r {
+    color: #7c8993;
+    font-size: 11px;
+    line-height: 12px;
+    float: right;
+    padding: 0 14px 0 4px;
+}
+
+.adm-profit-scale-separation-inner {
+    background: url(/bitrix/images/conversion/adm-profitability-sprite.png) repeat-x 0 -69px;
+    height: 8px;
+    margin: 2px 46px 0 34px;
+    position: relative;
+
+}
+
+
+
+
+.adm-profit-scale-shadow {
+    background-image:
+    -webkit-linear-gradient(top, rgba(255,255,255,0.02), rgba(255,255,255,0.15), rgba(255,255,255,0.4)11px, rgba(255,255,255,0)11px,
+    rgba(255,255,255,0)24px,
+    rgba(255,255,255,0.06)22px, rgba(255,255,255,0.4) 31px,rgba(255,255,255,0.52) 34px, rgba(255,255,255,0.3)40px);
+    background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.15), rgba(255,255,255,0.4)11px, rgba(255,255,255,0)11px,
+    rgba(255,255,255,0)24px,
+    rgba(255,255,255,0.06)22px, rgba(255,255,255,0.4) 31px,rgba(255,255,255,0.52) 34px, rgba(255,255,255,0.3)40px);
+    height: 40px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+
+.adm-profit-indicators-wrap {
+    font-size: 0;
+    position: relative;
+}
+
+.adm-profit-indicators-item {
+    display: inline-block;
+    margin-left: 2%;
+    vertical-align: top;
+    width: 32%;
+}
+
+.adm-profit-indicators-item:first-child {margin: 0;}
+
+.adm-profit-indicators-block {
+    border: 5px solid #fff;
+    box-shadow: 0 0 1px 1px rgba(0,0,0,0.12);
+    border-radius: 1px;
+    text-shadow: 0 1px 0 rgba(66,92,108,.41);
+    height: 151px;
+
+}
+
+.adm-profit-indicators-blue {background-color: #50c1f1;}
+.adm-profit-indicators-green {background-color: #98c322;}
+.adm-profit-indicators-violet {background-color: #c378c8;}
+
+.adm-profit-indicators-title {
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, .25), inset 0 -1px 0 rgba(51,55,61,0.1);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .25), inset 0 -1px 0 rgba(51,55,61,0.1);
+    color: #f1f8fc;
+    font-size: 12px;
+    font-weight: bold;
+    height: 26px;
+    line-height: 26px;
+    padding-left: 10px;
+}
+
+.adm-profit-indicators-blue .adm-profit-indicators-title {background-color: #4dabd8;}
+.adm-profit-indicators-violet .adm-profit-indicators-title {background-color: #b66ebb;}
+.adm-profit-indicators-green .adm-profit-indicators-title {background-color: #89ad22;}
+
+.adm-profit-indicators-cont {
+    height: 113px;
+    text-align: right;
+    padding: 0 5% 12px;
+}
+
+
+
+.adm-profit-indicators-alignment {
+    display: inline-block;
+    height: 113px;
+    margin-left: -1px;
+    vertical-align: bottom;
+    width: 1px;
+}
+
+.adm-profit-indicators-num {
+    color: #fff;
+    display: inline-block;
+    font-size: 45px;
+    vertical-align: bottom;
+    width: 100%;
+}
+.adm-profit-indicators-green .adm-profit-indicators-title {
+    margin-top: 5px;
+}
+.adm-profit-indicators-green .adm-profit-indicators-title:first-child {
+    margin-top: 0;
+}
+.adm-profit-indicators-green .adm-profit-indicators-cont {
+    height: 47px;
+    line-height: 47px;
+    padding-bottom: 0;
+}
+.adm-profit-indicators-green .adm-profit-indicators-alignment {height: 47px;}
+
+.adm-profit-indicators-green .adm-profit-indicators-num {font-size: 29px;}
+
+.adm-profit-indicators-line {
+    background-color: #fff;
+    height: 5px;
+    left: 34%;
+    position: absolute;
+    top: 78px;
+    width: 32%;
+}
+
+
+.adm-profit-percent {
+    background-color: #e8a839;
+    border-width: 3px;
+    border-radius: 3px;
+    height: 49px;
+    position: absolute;
+    top: -7px;
+    text-align: center;
+    right: 12px;
+    width: 73px;
+}
+
+.adm-profit-percent .adm-profit-indicators-title {
+    background-color: #cf9735;
+    font-size: 11px;
+    height: 19px;
+    line-height: 19px;
+    padding: 0;
+}
+
+.adm-profit-percent .adm-profit-indicators-cont {
+    color: #ffffff;
+    font-size: 19px;
+    height: 29px;
+    line-height: 29px;
+    text-align: center;
+    text-indent: 5px;
+}
+
+/*.adm-profit-percent-symbol {*/
+    /*font-size: 14px;*/
+/*}*/
+
+
+.adm-profit-indicators-marks-wrap {
+    top: 59px;
+    position: absolute;
+    width: 2%;
+}
+
+.adm-profit-indicators-mark-minus {left: 32%;}
+
+.adm-profit-indicators-mark-equal {right: 32%;}
+
+.adm-profit-indicators-marks-inner {
+    margin-left: -150%;
+    text-align: center;
+    width: 400%;
+}
+
+.adm-profit-indicators-mark {
+    background-color: #fff;
+    box-shadow: 0 0 3px rgba(0,0,0,.29);
+    border-radius: 50%;
+    display: inline-block;
+    height: 42px;
+    position: relative;
+    vertical-align: top;
+    width: 42px;
+}
+
+
+.adm-profit-indicators-mark:before,
+.adm-profit-indicators-mark-equal .adm-profit-indicators-mark:after {
+    background-color: #000;
+    content: '';
+    height: 4px;
+    left: 13px;
+    position: absolute;
+    width: 16px;
+}
+.adm-profit-indicators-mark-minus .adm-profit-indicators-mark:before {top: 19px;}
+.adm-profit-indicators-mark-equal .adm-profit-indicators-mark:before {top: 15px;}
+.adm-profit-indicators-mark-equal .adm-profit-indicators-mark:after {top: 23px;}
+
+
+.adm-profit-block-white {
+    background-color: #ffffff;
+    border: 1px solid #dfe1e2;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 0 0 1px #eff2f2;
+    box-shadow: 0 0 0 1px #eff2f2;
+    font-size: 0;
+}
+
+.adm-profit-block-part {
+    color: transparent;
+    -webkit-box-shadow: 0 0 0 2px;
+    box-shadow: 0 0 0 2px;
+    display: inline-block;
+    vertical-align: top;
+    padding: 14px 0 20px;
+    width: 50%;
+
+    -webkit-transition: color 0.2s linear;
+    transition: color 0.2s linear;
+}
+
+.adm-profit-block-part-active {
+    border-radius: 2px;
+    color: #a4c753;
+}
+
+.adm-profit-title-wrap {
+    margin: 0 11px 4px;
+    overflow: hidden;
+}
+
+.adm-profit-title-calc {
+    float: left;
+}
+
+.adm-profit-calc-toggle {
+    cursor: pointer;
+    float: right;
+}
+
+.adm-profit-calc-toggle-text {
+    color: #646c7a;
+    display: inline-block;
+    font-size: 12px;
+    margin-right: 7px;
+    vertical-align: middle;
+}
+
+.adm-profit-calc-toggle-btn {
+    background-color: #dddfe2;
+    box-shadow: inset 0 1px 0 rgba(22,50,93,.3);
+    border-radius: 10px;
+    display: inline-block;
+    height: 20px;
+    vertical-align: middle;
+    position: relative;
+    width: 35px;
+
+    -webkit-transition: background-color 0.2s linear;
+    transition: background-color 0.2s linear;
+}
+
+.adm-profit-calc-toggle-btn:before {
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 0 rgba(22,50,93,.3);
+    content: '';
+    height: 16px;
+    left: 2px;
+    position: absolute;
+    top: 2px;
+    width: 16px;
+
+    -webkit-transition: left 0.2s linear;
+    transition: left 0.2s linear;
+
+}
+
+.adm-profit-calc-toggle-active .adm-profit-calc-toggle-btn {
+    background-color: #90bf1f;
+}
+
+.adm-profit-calc-toggle-active .adm-profit-calc-toggle-btn:before {
+    left: 17px;
+}
+
+.adm-profit-calc-block {
+    margin: 0 11px;
+}
+
+.adm-profit-calc-row {
+    padding-top: 9px;
+    position: relative;
+    white-space: nowrap;
+
+    -webkit-transition: height 0.2s linear;
+    transition: height 0.2s linear;
+}
+
+.adm-profit-calc-row:first-child {
+    padding-top: 0;
+}
+
+
+.adm-profit-calc-cel {
+    background-color: #e2ebed;
+    display: inline-block;
+    margin-left: 2px;
+    position: relative;
+    vertical-align: top;
+    width: 33%;
+}
+
+.adm-profit-calc-cel:first-child {
+    margin-left: 0;
+}
+
+.adm-profit-calc-cel-header {
+    background-color: #aeb6bb;
+    -webkit-box-shadow: 0 -1px 0 rgba(51, 55, 61, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 -1px 0 rgba(51, 55, 61, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    height: 26px;
+    line-height: 26px;
+    padding-left: 10px;
+    text-shadow: 0 1px 0 rgba(66, 92, 108, 0.41);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*.adm-profit-calc-cont {*/
+.adm-profit-calc-block input {
+    color: #000;
+    font-size: 22px !important;
+    /*height: 44px;*/
+    /*line-height: 44px;*/
+    border: none !important;
+    margin: 5px !important;
+    /*padding: 10px;*/
+    text-align: right;
+    width: 85%;
+
+}
+
+/*.adm-profit-block-part-active .adm-profit-calc-cont-inp {*/
+    /*color: transparent;*/
+
+    /*-webkit-transition: color 0s linear 0.3s;*/
+    /*transition: color 0s linear 0.3s;*/
+/*}*/
+
+.adm-profit-calc-footer {
+    /*	display: block;
+        margin-left: 0;
+        width: 100%;*/
+    height: 0;
+    overflow: hidden;
+
+    -webkit-transition: height 0.2s linear;
+    transition: height 0.2s linear;
+}
+
+.adm-profit-block-part-active .adm-profit-calc-footer {
+    height: 70px;
+}
+
+.adm-profit-calc-footer-inner {
+    position: relative;
+    width: 33%;
+}
+
+/*input.adm-profit-calc-inp[type="text"] {*/
+    /*color: #000;*/
+    /*font-size: 22px !important;*/
+    /*height: 44px;*/
+    /*line-height: 44px;*/
+    /*padding:0 6%;*/
+    /*text-align: right;*/
+
+
+    /*background-color: #fff;*/
+    /*border: 1px solid;*/
+    /*border-color: #99a2ab #a2abb4 #aeb6be;*/
+    /*border-radius: 2px;*/
+    /*-webkit-box-shadow: inset 0 1px 0 #d2d9dd, 0 1px 0 rgba(255,255,255,0.35);*/
+    /*box-shadow: inset 0 1px 0 #d2d9dd, 0 1px 0 rgba(255,255,255,0.35);*/
+    /*-webkit-box-sizing: border-box;*/
+    /*-moz-box-sizing: border-box;*/
+    /*box-sizing: border-box;*/
+    /*color: #000;*/
+    /*display: none;*/
+    /*height: 29px;*/
+    /*line-height: 28px;*/
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+    /*margin-left: -1px;*/
+    /*left: 3%;*/
+    /*opacity: 0;*/
+    /*padding: 0 3%;*/
+    /*position: absolute;*/
+    /*top: 33px;*/
+    /*width: 95.5%;*/
+
+    /*-webkit-transition: opacity 0.2s linear;*/
+    /*transition: opacity 0.2s linear;*/
+    /*text-align: right;*/
+/*}*/
+
+/*.adm-profit-block-part-active input.adm-profit-calc-inp[type="text"] {*/
+    /*opacity: 1;*/
+    /*display: block;*/
+/*}*/
+
+/*.adm-profit-calc-footer-inner input.adm-profit-calc-inp[type="text"] {*/
+    /*top: 7px;*/
+/*}*/
+
+.adm-profit-calc-cel-yellow {
+    background-color: #f2e783;
+}
+
+.adm-profit-calc-cel-yellow .adm-profit-calc-cel-header {
+    background-color: #d3c866;
+}
+
+.adm-profit-calc-cel-red {
+    background-color: #f6ae94;
+}
+.adm-profit-calc-cel-red .adm-profit-calc-cel-header {
+    background-color: #dd967c;
+}
+
+.adm-profit-calc-cel-violet {
+    background-color: #e5a1e3;
+}
+
+.adm-profit-calc-cel-violet .adm-profit-calc-cel-header {
+    background-color: #ce91ce;
+}
+
+.adm-profit-calc-tip {
+    background-color: #f7f9f9;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 18px;
+    left: 33%;
+    margin-left: -8px;
+    position: absolute;
+    top: 14px;
+    width: 18px;
+}
+
+.adm-profit-calc-row:first-child .adm-profit-calc-tip {
+    top: 5px;
+}
+
+.adm-profit-calc-tip-dot,
+.adm-profit-calc-tip:before,
+.adm-profit-calc-tip:after {
+    background-color: #9a9ea3;
+    content: '';
+    height: 2px;
+    left: 8px;
+    position: absolute;
+    top: 8px;
+    width: 2px;
+}
+
+.adm-profit-calc-tip:before {left: 5px;}
+.adm-profit-calc-tip:after {left: 11px;}
+
+.adm-profit-calc-tip:hover {
+    background-color: #ffffff;
+}
+
+.adm-profit-calc-tip:hover .adm-profit-calc-tip-dot,
+.adm-profit-calc-tip:hover .adm-profit-calc-tip:before,
+.adm-profit-calc-tip:hover .adm-profit-calc-tip:after {
+    background-color: #747880;
+}
+
+.adm-profit-calc-tip:active,
+.adm-profit-calc-tip-active {
+    background-image: -webkit-linear-gradient(top, #eeeeee, #fefefe);
+    background-image:   linear-gradient(to bottom, #eeeeee, #fefefe);
+    -webkit-box-shadow: inset 0 1px 0 #d0d0d0, inset 0 1px 1px rgba(0, 0, 0, .16);
+    box-shadow: inset 0 1px 0 #d0d0d0, inset 0 1px 1px rgba(0, 0, 0, .16);
+}
+
+.adm-profit-calc-tip:active .adm-profit-calc-tip-dot,
+.adm-profit-calc-tip:active .adm-profit-calc-tip:before,
+.adm-profit-calc-tip:active .adm-profit-calc-tip:after
+.adm-profit-calc-tip-active .adm-profit-calc-tip-dot,
+.adm-profit-calc-tip-active .adm-profit-calc-tip:before,
+.adm-profit-calc-tip-active .adm-profit-calc-tip:after {
+    background-color: #72767e;
+}
+
+
+.adm-profit-funnel-block {
+    min-height: 330px;
+    padding-right: 70px;
+    position: relative;
+}
+
+.adm-profit-funnel-arrow {
+    background-color: #e6e7ea;
+    -webkit-box-shadow: -1px 0 0 #f0f1f2, 1px 0 0 #f6f7f8;
+    box-shadow: -1px 0 0 #f0f1f2, 1px 0 0 #f6f7f8;
+    height: 330px;
+    position: absolute;
+    top: 14px;
+    right: 46px;
+    width: 4px;
+}
+
+.adm-profit-funnel-arrow:before,
+.adm-profit-funnel-arrow:after {
+    background: url(/bitrix/images/conversion/adm-profitability-sprite.png) no-repeat 500px 500px #fff;
+    content: '';
+    height: 28px;
+    left: -15px;
+    position: absolute;
+    width: 20px;
+}
+
+
+.adm-profit-funnel-arrow:before {
+    background-position: 0 -94px;
+    top: 0;
+}
+.adm-profit-funnel-arrow:after {
+    background-position: 0 -139px;
+    bottom: 0;
+}
+
+.adm-profit-funnel-arrow-center {
+    background: url(/bitrix/images/conversion/adm-profitability-sprite.png) no-repeat no-repeat -46px -94px #fff;
+    height: 79px;
+    position: absolute;
+    top: 72px;
+    right: -18px;
+    width: 23px;
+}
+
+.adm-profit-error {
+    border-color: #ff4d4d !important;
+    -webkit-box-shadow: 0 1px 0 #d2d9dd inset, 0 0 0 1px #ff4d4d !important;
+    box-shadow: 0 1px 0 #d2d9dd inset, 0 0 0 1px #ff4d4d !important;
+    background-color: #fff2f2 !important;
+}
+
+
+
+

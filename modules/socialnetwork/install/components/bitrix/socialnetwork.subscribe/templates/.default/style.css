@@ -1,0 +1,55 @@
+table.sonet-subscribe-form
+{
+	width: 100%;
+	border: 0;
+	border-collapse:collapse;
+}
+
+table.sonet-subscribe-form td {
+	font-size: 12px;
+	padding: 5px;
+}
+
+table.sonet-subscribe-form select { width: 300px; }
+
+.subscribe-checkbox {
+}
+
+span.subscribe-checkbox-icon {
+	width: 14px;
+	height: 14px;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: 5px;
+}
+
+span.subscribe-checkbox-text {
+	display: inline-block;
+	cursor: default;
+	padding-left: 5px;
+	vertical-align: middle;
+	margin-top: 5px;	
+}
+
+.subscribe-feature-name {
+	vertical-align: top;
+	text-align: right;
+	font-weight: bold;
+}
+
+.subscribe-checkbox-i-Y span.subscribe-checkbox-icon { background: url(images/checkbox-yes-disabled.gif); }
+.subscribe-checkbox-i-N span.subscribe-checkbox-icon { background: url(images/checkbox-no-disabled.gif); }
+.subscribe-checkbox-Y span.subscribe-checkbox-icon { background: url(images/checkbox-yes-enabled.gif); }
+.subscribe-checkbox-N span.subscribe-checkbox-icon { background: url(images/checkbox-no-enabled.gif); }
+
+table.sonet-subscribe-form td.subscribe-header { padding-top: 10px; }
+table.sonet-subscribe-form td.subscribe-header table { border-collapse:collapse; }
+table.sonet-subscribe-form td.subscribe-header table td { padding: 0; }
+table.sonet-subscribe-form td.subscribe-header table td.subscribe-header-left { background: url(images/sprite-subscr.png) no-repeat 0 0; }
+table.sonet-subscribe-form td.subscribe-header table td.subscribe-header-right { background: url(images/sprite-subscr.png) no-repeat 0 -64px; }
+
+table.sonet-subscribe-form td.subscribe-header table td.subscribe-header-center {
+	background: url(images/sprite-subscr.png) repeat-x 0 -32px;
+	padding-left: 10px;
+	width: 100%;	
+}

@@ -1,0 +1,17 @@
+table.edit-table tr td.rating-component-descr { font-weight:normal; font-size:1.1em; font-family: Helvetica, Verdana, Arial, Sans-serif; }
+table.edit-table tr td.rating-component-descr p.formula { font-weight:normal; font-size:1.1em; font-family: Sans, Times; font-style:italic; padding:2px; margin:0px; border: solid 1px #D7D7D7; background-color:#FAFAFA; }
+table.edit-table tr td.rating-component-gap { margin:0; padding:0; height:2px; line-height:2px; }
+table.edit-table tr td.rating-component-td { margin:0; padding:0; }
+table.edit-table tr.heading-left td { text-shadow: 0 1px #FFFFFF; text-align:left; background-color: #E0E8EA; color: #4B6267; font-size: 14px; font-weight: bold; padding: 8px 4px 10px !important; line-height: 11px;}
+div.rating-component-exception {padding:5px 10px; border: 2px solid #FF0000; font-size: 70%; display:inline-block; margin-bottom: 2px;}
+table.edit-table tr td.rating-component-td { margin:0; padding:0; }
+table.edit-table tr td.rating_settings  div { padding-top: 10px; width: 740px; text-align: left; }
+table.edit-table tr td.rating_settings  div:first-child { padding-top: 5px; }
+table.edit-table tr td.rating_settings  span { display:inline-block; padding-left: 20px; }
+table.edit-table tr td.rating_settings  span:first-child { padding-left: 0px; }
+table.edit-table tr td.rating_settings  span input { margin-left: 3px; margin-right: 3px; }
+table.edit-table tr td.rating_settings  span.config_add { width: 530px; text-align: left}
+table.edit-table tr td.rating_settings  input.rating_settings_from { margin-left: 8px; margin-right: 1px;  border:0px; }
+table.edit-table tr td.rating_settings  input { width: 60px;}
+#rating_settings_weight div {white-space: nowrap}
+

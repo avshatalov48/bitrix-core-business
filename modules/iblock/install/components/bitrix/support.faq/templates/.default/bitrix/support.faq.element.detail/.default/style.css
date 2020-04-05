@@ -1,0 +1,45 @@
+/* table */
+	table.border-bluegray {empty-cells: show;border-collapse:collapse;}
+	
+	/* head */
+	table.border-bluegray tr.border-bluegray-head
+	{
+		background: #dae1e9;
+		font-weight: bold;
+	}
+	
+	/* delimiter */
+	table.border-bluegray tr td.border-bluegray-vdelimiter {border-right: 1px solid #bfbfbf;}
+	table.border-bluegray tr td.border-bluegray-hdelimiter {border-top: 1px solid #bfbfbf;}
+	
+	/* rounds */
+	table.border-bluegray td.border-bluegray-round-tl, td.border-bluegray-round-tr, td.border-bluegray-round-bl, td.border-bluegray-round-br
+	{
+		width:5px;
+		height:5px;
+	}	
+	
+	table.border-bluegray td.border-bluegray-round-tl {background: url(images/tl_color_round.gif) no-repeat;}
+	table.border-bluegray td.border-bluegray-round-tr {background: url(images/tr_color_round.gif) no-repeat;}
+	table.border-bluegray td.border-bluegray-round-br {background: url(images/br_round.gif) no-repeat;}
+	table.border-bluegray td.border-bluegray-round-bl {background: url(images/bl_round.gif) no-repeat;}
+	
+	/* lines */
+	table.border-bluegray tr.border-bluegray-head td.border-bluegray-t-line {border-top: 1px solid #bfbfbf;} 
+	table.border-bluegray tr td.border-bluegray-l-line {border-left: 1px solid #bfbfbf;}
+	table.border-bluegray tr td.border-bluegray-r-line {border-right: 1px solid #bfbfbf;}
+	table.border-bluegray tr.border-bluegray-foot td.border-bluegray-b-line {border-bottom: 1px solid #bfbfbf;}
+	
+	/* paddings */
+	table.border-bluegray td.border-bluegray-pall {padding: 9px;}
+	table.border-bluegray td.border-bluegray-prb {padding: 4px 9px 9px 4px;}
+	table.border-bluegray td.border-bluegray-plrb {padding: 4px 9px 9px 9px;}
+	table.border-bluegray td.border-bluegray-plb {padding: 4px 4px 9px 9px;}
+	table.border-bluegray td.border-bluegray-prtb {padding: 9px 9px 9px 4px;}
+	table.border-bluegray td.border-bluegray-pltb {padding: 9px 4px 9px 9px;}
+	table.border-bluegray td.border-bluegray-plt {padding: 9px 4px 4px 9px;}
+	table.border-bluegray td.border-bluegray-plrt {padding: 9px 9px 4px 9px;}
+	table.border-bluegray td.border-bluegray-prt {padding: 9px 9px 4px 4px;}
+	
+	.faq-rating .ilike-light .bx-ilike-right { background-position: 0 -38px;}
+	.faq-rating .ilike-light .bx-you-like .bx-ilike-right { background-position: 0 -18px; }

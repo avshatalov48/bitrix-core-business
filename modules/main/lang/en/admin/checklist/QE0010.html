@@ -1,0 +1,18 @@
+<p>Most web projects, especially large and dynamic ones, have the need to run scheduled
+tasks such as periodic calculation of user points, deletion or aggregation of
+outdated data etc. To set up periodic tasks, use the Agents form: "Desktop
+&gt; Settings &gt; Tools &gt; Agents".</p>
+
+<p>If your web project requires task scheduling, register such tasks as agents
+and properly describe them in the project specifications.</p>
+   
+
+<ol>
+<li>Check that the agents, if required, are configured in "Settings &gt;
+  Tools &gt; Agents" and described in the specifications.</li>
+<li>Check that the default system agents exist in "Settings &gt; Tools &gt;
+  Agents"; correct the time interval if required.</li> 
+<li>Check that lengthy tasks (the ones whose execution time is several minutes
+  or more) use cron instead of agents (if applicable). Such tasks should also be
+  described in the specifications.</li> 
+</ol>

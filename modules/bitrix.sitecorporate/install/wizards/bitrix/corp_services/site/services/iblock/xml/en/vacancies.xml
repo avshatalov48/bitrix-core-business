@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<CommerceInformation SchemaVersion="2.021" CreationDate="2010-09-24T12:26:18">
+	<Metadata>
+		<Id>17</Id>
+		<Title>Bank Vacancies</Title>
+		<Properties>
+			<Property>
+				<Id>CML2_ACTIVE</Id>
+				<Title>BitrixActive</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_CODE</Id>
+				<Title>Code</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_SORT</Id>
+				<Title>Sort</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_FROM</Id>
+				<Title>Start time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_TO</Id>
+				<Title>End time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_TEXT</Id>
+				<Title>Anons</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_PICTURE</Id>
+				<Title>Preview picture</Title>
+				<Multiple>false</Multiple>
+			</Property>
+		</Properties>
+		<Sections>
+		</Sections>
+	</Metadata>
+	<Catalog>
+		<Id>corp_vacancies</Id>
+		<MetadataId>17</MetadataId>
+		<Title>Bank Vacancies</Title>
+		<BitrixCode>corp_vacancies</BitrixCode>
+		<BitrixSort>500</BitrixSort>
+		<BitrixListURL>#SITE_DIR#/about/vacancies.php</BitrixListURL>
+		<BitrixDetailURL>#SITE_DIR#/about/vacancies.php##ID#</BitrixDetailURL>
+		<BitrixSectionURL></BitrixSectionURL>
+		<BitrixPicture></BitrixPicture>
+		<BitrixIndexElements>true</BitrixIndexElements>
+		<BitrixIndexSections>false</BitrixIndexSections>
+		<BitrixWorkflow>false</BitrixWorkflow>
+		<BitrixLabels>
+			<BitrixLabel>
+				<Id>ELEMENT_NAME</Id>
+				<Value>Vacancy</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENTS_NAME</Id>
+				<Value>Vacancies</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_ADD</Id>
+				<Value>Add vacancy</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_EDIT</Id>
+				<Value>Edit vacancy</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_DELETE</Id>
+				<Value>Delete vacancy</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_NAME</Id>
+				<Value>Category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTIONS_NAME</Id>
+				<Value>Categories</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_ADD</Id>
+				<Value>Add category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_EDIT</Id>
+				<Value>Edit category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_DELETE</Id>
+				<Value>Delete category</Value>
+			</BitrixLabel>
+		</BitrixLabels>
+		<Elements>
+			<Element>
+				<Id>171</Id>
+				<Title>Head of retail banking department</Title>
+				<BitrixTags></BitrixTags>
+				<Description>&lt;b&gt;Requirements&lt;/b&gt;
+&lt;ul&gt;
+ &lt;li&gt;higher education in Finance or Economics;&lt;/li&gt;
+ &lt;li&gt;minimum of 3 years experience in similar position;&lt;/li&gt;
+ &lt;li&gt;negotiation skills;&lt;/li&gt;
+ &lt;li&gt;excellent communication skills;&lt;/li&gt;
+ &lt;li&gt;high level of positivity, initiative and motivation;&lt;/li&gt;
+ &lt;li&gt;good command of English is your advantage;&lt;/li&gt;
+ &lt;li&gt;experienced user of PC. &lt;/li&gt;
+&lt;/ul&gt;
+          
+&lt;b&gt;Essential Functions&lt;/b&gt; 
+&lt;ul&gt;
+ &lt;li&gt;customer acquisition and conduct of negotiations;&lt;/li&gt;
+ &lt;li&gt;all Bank products Customer assistance (Accounts, Deposits, Cards, Bank Transfer Service, Loans and other types of provision of finance);&lt;/li&gt;
+ &lt;li&gt;management of current Department activity. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;b&gt;Employment Status&lt;/b&gt;
+&lt;p&gt;Hours Per Week: 40.00&lt;br /&gt;
+Full / Part-time: Fulltime-Regular&lt;br /&gt;
+Weekly Schedule: M-S Flexible&lt;br /&gt;
+Location: US-AR-Conway&lt;/p&gt;</Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value>        
+          
+        </Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+			<Element>
+				<Id>172</Id>
+				<Title>Teller</Title>
+				<BitrixTags></BitrixTags>
+				<Description>&lt;b&gt;Requirements&lt;/b&gt; 						 						 
+&lt;ul&gt;
+ &lt;li&gt;at least 1 year relevant experience with a bank;&lt;/li&gt;
+ &lt;li&gt;currency cashier certificate;&lt;/li&gt;
+ &lt;li&gt;english language (desirable);&lt;/li&gt;
+ &lt;li&gt;basic knowledge of Accounting;&lt;/li&gt;
+ &lt;li&gt;experienced PC-user. &lt;/li&gt;
+&lt;/ul&gt;
+              
+&lt;b&gt;Essential Functions&lt;/b&gt; 						 
+&lt;ul&gt;
+ &lt;li&gt;all types exchange and cash transactions administration (currency, travellers cheque, cards);&lt;/li&gt;
+ &lt;li&gt;cash reception and payment according to debit and credit cach documents;&lt;/li&gt;
+ &lt;li&gt;controll of cash authenticity and paying capacity;&lt;/li&gt;
+ &lt;li&gt;cash documents administration.&lt;/li&gt;
+&lt;/ul&gt;
+					 						
+&lt;b&gt;Employment Status&lt;/b&gt;						 
+&lt;p&gt;Hours Per Week: 20.00&lt;br /&gt;
+Full / Part-time: Parttime-Regular&lt;br /&gt;
+Weekly Schedule: Mon 8-5:30, Fri 8-6:30, Sat 8:45-12:15&lt;/p&gt;
+        </Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+			<Element>
+				<Id>173</Id>
+				<Title>Senior Financial Analyst</Title>
+				<BitrixTags></BitrixTags>
+				<Description>&lt;b&gt;Requirements&lt;/b&gt; 						 						 
+&lt;ul&gt;
+ &lt;li&gt;degree in Finance/Business major;&lt;/li&gt;
+ &lt;li&gt;strong analytical &amp;amp; communication skills, ability to multi task and work in a team and across finance groups;&lt;/li&gt;
+ &lt;li&gt;sdvanced use of MS applications particularly Excel and Powerpoint; strong knowledge of Insight and Essbase applications. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;b&gt;Essential Functions&lt;/b&gt; 						 
+&lt;p&gt;Senior Financial Analyst position in the Global Corporate and Investment Bank's Planning, Reporting &amp;amp; Analysis team. Position is responsible for all aspects of month end financial book close processes such as seeking and consolidating estimated results, perform variance analysis, compilation of monthly financial reports, including performance indicators, budgeting and forecast routines and enterprise stress testing processes. Position is also responsible to guide and manage Yr 1 FMAP and should have strong abilities to work LOB CFOs and Controllers, Corporate Planning Team and other internal constituents. &lt;/p&gt;
+					 						
+&lt;b&gt;Employment Status&lt;/b&gt;				 
+&lt;p&gt;Hours Per Week: 40.00&lt;br /&gt;
+Full / Part-time: Fulltime-Regular&lt;br /&gt;
+Weekly Schedule: Mon-Fri 8 - 5&lt;/p&gt;</Description>
+				<PropertiesValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE</Id>
+						<Value>true</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_CODE</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_SORT</Id>
+						<Value>500</Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_FROM</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_ACTIVE_TO</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_TEXT</Id>
+						<Value></Value>
+					</PropertyValues>
+					<PropertyValues>
+						<Id>CML2_PREVIEW_PICTURE</Id>
+						<Value></Value>
+					</PropertyValues>
+				</PropertiesValues>
+			</Element>
+		</Elements>
+	</Catalog>
+</CommerceInformation>

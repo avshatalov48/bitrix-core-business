@@ -1,0 +1,130 @@
+/*Ratings*/
+div.idea-rating-block {margin-right: 5px; text-align: right}
+
+div.idea-rating-block span.idea-rating-block-left
+{
+	background: url('images/rating-border-left.png') no-repeat left top;
+	padding-left:4px;
+	display: inline-block;
+	border-bottom: 1px solid #ededed;
+}
+div.idea-rating-block span.idea-rating-block-right
+{
+	padding-right:4px;
+	background: url('images/rating-border-right.png') no-repeat right top;
+	display: inline-block;
+}
+
+div.idea-rating-block span.idea-rating-block-content
+{
+	border-top: 1px solid #ededed;
+	display: inline-block;
+}
+
+/*Standart template*/
+.idea-rating-block-content-ext-standart
+{
+	height: 22px!important;
+	padding-top: 4px!important;
+	padding-left: 5px!important;
+	padding-right: 2px!important;
+}
+
+.idea-rating-block-content-ext-standart .idea-rating-block-content-description
+{
+	display: inline-block;
+	color: #9C9C9C;
+	font-size: 11px;
+	font-family: Arial;
+	padding-right: 5px;
+}
+
+.idea-rating-block-content-ext-standart .rating-vote
+{
+	height: auto;
+}
+
+.idea-rating-block-content-ext-standart .rating-vote-result
+{
+	margin: 0px;
+	font: bold 16px Arial!important;
+	padding-right: 5px;
+	margin: -1px 0 0!important;
+}
+
+/*Like template*/
+.idea-rating-block-content-ext-like
+{
+	height: 21px!important;
+	padding-right: 12px!important;
+	padding-left: 9px!important;
+	font-size: 11px!important;
+}
+.idea-rating-block-content-ext-like a
+{
+	color: #929292!important;
+	text-decoration: none!important;
+}
+
+.idea-rating-block-content-ext-like .idea-rating-block-content-description
+{
+	display:none;
+}
+
+@-moz-document url-prefix()
+{
+	.idea-rating-block-content-ext-like .ilike-light .bx-ilike-right {padding-top: 2px!important;}
+}
+
+* + html .idea-rating-block-content-ext-like .ilike-light .bx-ilike-text {height: 16px!important;}
+
+/*Tags*/
+div.tag-line
+{
+	float: left;
+	width: 60%;
+	height: 27px;
+	overflow: hidden;
+	padding-top: 2px;
+	padding-left:10px;
+}
+span.tag-marker{
+	background: url("images/tag-marker.jpg") no-repeat scroll 0 1px transparent;
+	margin-left: 5px;
+	margin-right: 2px;
+	padding-left: 15px;
+}
+/*Category link in the tag section*/
+span.main-tag-category{/*border-bottom: 1px dashed;*/}
+span.main-tag-category a, span.main-tag-category a:hover {text-decoration: none!important;}
+
+/*Common*/
+span.post-comment{float:right;}
+
+div.tag-tl div.tag-block span.post-comment {padding-right: 30px; padding-top: 2px;}
+div.tag-tl div.tag-block span.post-comment a{color: #0E5196; text-decoration:underline;}
+
+/*Utils*/
+.idea-post-meta
+{
+	border-top: 1px solid #ece8c3;
+	margin-top: 3px;
+	padding-top: 3px;
+}
+
+.idea-post-meta a{
+	margin-right: 5px;
+}
+
+.idea-post-meta a, .idea-post-meta a span {
+	font-size: 10px;
+	color: #7C7A66!important;
+	cursor: pointer;
+}
+
+.idea-post-meta-util-subscribe {
+	float: right;
+}
+.idea-post-meta-util {
+	float: left;
+}

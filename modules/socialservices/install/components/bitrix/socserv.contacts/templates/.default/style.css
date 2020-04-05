@@ -1,0 +1,60 @@
+
+.mycontants_card{
+	float: left;
+	width: 33.3333%;
+	min-width: 240px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 11px 3px;
+}
+.mycontants_card_container{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 5px;
+	border: 2px solid #fff;
+	border-radius: 5px;
+	cursor: pointer;
+	-webkit-transition:border ease-in-out .1s;
+	transition:border ease-in-out .1s;
+}
+
+.mycontants_card .mycontants_card_container:hover {
+	border: 2px solid #f2f4f5;
+}
+
+.mycontants_card_avatar{
+	float: left;
+	overflow: hidden;
+	margin-right: 10px;
+	width: 70px;
+	height: 70px;
+	border: 2px solid #d5dde0;
+	border-radius: 3px;
+	background-image: url(images/default_avatar.jpg);
+	background-position: center;
+	-webkit-background-size: cover;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+.mycontants_card_name{
+	margin-bottom: 5px;
+	word-wrap: break-word;
+	overflow: hidden;
+}
+.mycontants_card_name a{
+	/*
+	color: #42464a;
+	text-decoration: none;
+	*/
+	font-size: 16px;
+}
+.mycontants_card_action{
+	color: #a9a9a9;
+	text-decoration: none;
+	font-size: 12px;
+}
+.mycontants_card_action.invite{color: #0066a1;}
+.mycontants_card_action.invite_sended{color: #65a62a;}
+.mycontants_card_action.invite_sended_out{color: #48c1ed;}

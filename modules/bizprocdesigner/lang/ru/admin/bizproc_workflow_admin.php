@@ -1,0 +1,37 @@
+<?
+$MESS ['BPATT_NO_ENTITY'] = "Не указана сущность документа.";
+$MESS ['BPATT_NO_DOC_TYPE'] = "Не указан тип документа.";
+$MESS ['BPATT_NO_EDIT_PAGE'] = "Не указана страница изменения шаблона.";
+$MESS ['BPATT_NO_PERMS'] = "У вас нет прав на доступ к шаблонам документов данного типа.";
+$MESS ['BPATT_ERROR'] = "Ошибка";
+$MESS ['BPATT_NAV'] = "Шаблоны бизнес-процессов";
+$MESS ['BPATT_NAME'] = "Название";
+$MESS ['BPATT_MODIFIED'] = "Изменен";
+$MESS ['BPATT_USER'] = "Изменил";
+$MESS ['BPATT_AUTO_EXECUTE'] = "Автозапуск";
+$MESS ['BPATT_DO_EDIT'] = "Изменить шаблон бизнес-процесса";
+$MESS ['BPATT_AE_NONE'] = "Нет";
+$MESS ['BPATT_AE_CREATE'] = "Создание";
+$MESS ['BPATT_AE_EDIT'] = "Изменение";
+$MESS ['BPATT_AE_DELETE'] = "Удаление";
+$MESS ['BPATT_DO_EDIT1'] = "Изменить";
+$MESS ['BPATT_DO_DELETE1'] = "Удалить";
+$MESS ['BPATT_DO_DELETE1_CONFIRM'] = "Вы уверены, что хотите удалить этот шаблон?";
+$MESS ['BPATT_SUBMENU1_TEXT'] = "Бизнес-процесс со статусами";
+$MESS ['BPATT_SUBMENU1_TEXT_TITLE'] = "Длительный бизнес-процесс с разделением прав доступа, при работе с документами в разных статусах";
+$MESS ['BPATT_SUBMENU2_TEXT'] = "Последовательный бизнес-процесс";
+$MESS ['BPATT_SUBMENU2_TEXT_TITLE'] = "Простой бизнес-процесс, позволяющий запустить документ в последовательную обработку";
+$MESS ['BPATT_DO_CREATE_TEMPLATE'] = "Создать шаблон";
+$MESS ['BPATT_TITLE'] = "Шаблоны бизнес-процессов";
+$MESS ['BPATT_F_NAME'] = "Название";
+$MESS ['BPATT_F_AUTOEXECUTE'] = "Автозапуск";
+$MESS ['BPATT_ANY'] = "любой";
+$MESS ['BPATT_F_CREATE'] = "создание";
+$MESS ['BPATT_F_EDIT'] = "изменение";
+$MESS ['BPATT_USER_PROFILE'] = "Профиль пользователя";
+$MESS ['BPATT_BACK'] = "Назад";
+$MESS ['BPATT_BACK_TITLE'] = "Вернуться назад";
+$MESS ['BPATT_DO_CREATE_TEMPLATE1'] = "Добавить шаблон";
+$MESS["BPWFADM_ERR"]="Ошибка сохранения ##ID#: #ERROR_TEXT#";
+$MESS["BPWFADM_ACT"]="Акт.";
+?>

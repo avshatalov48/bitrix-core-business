@@ -1,0 +1,30 @@
+.sonet-ui-btn-cont {
+	display: block;
+	padding: 10px 0 10px 0;
+}
+
+.sonet-ui-btn-cont.sonet-ui-btn-cont-center {
+	text-align: center;
+	position: relative;
+}
+
+.ui-alert.sonet-ui-form-error-block-invisible {
+	display: none;
+}
+
+#bx-group-join-successfull-request-popup.popup-window {
+	padding: 20px;
+}
+
+.sonet-group-join-successfull-request-popup-title {
+	font-size: 14px;
+	font-weight: bold;
+	padding-bottom: 10px;
+}
+.sonet-group-join-successfull-request-popup-text {
+	padding-bottom: 20px;
+}
+
+.sonet-wait-cont { height: 31px; }
+.sonet-wait-icon { height: 31px; width: 31px; background: url('images/wait.gif') no-repeat 0 0; display: inline-block; position: relative; left: 1px; top: 1px; }
+.sonet-wait-text { height: 31px; display: inline-block; position: relative; padding: 0 10px 0 5px; left: 1px; top: -11px; color: #7F7F7F; }

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<CommerceInformation SchemaVersion="2.021" CreationDate="2012-05-17T15:31:52">
+	<Metadata>
+		<Id>idea</Id>
+		<Title>Idea manager categories</Title>
+		<Properties>
+			<Property>
+				<Id>CML2_ACTIVE</Id>
+				<Title>BitrixActive</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_CODE</Id>
+				<Title>Code</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_SORT</Id>
+				<Title>Sort</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_FROM</Id>
+				<Title>Start time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_ACTIVE_TO</Id>
+				<Title>End time</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_TEXT</Id>
+				<Title>Anons</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_DETAIL_TEXT</Id>
+				<Title>Description</Title>
+				<Multiple>false</Multiple>
+			</Property>
+			<Property>
+				<Id>CML2_PREVIEW_PICTURE</Id>
+				<Title>Preview picture</Title>
+				<Multiple>false</Multiple>
+			</Property>
+		</Properties>
+		<Sections>
+			<Section>
+				<Id>1</Id>
+				<Title>Innovations</Title>
+				<BitrixActive>true</BitrixActive>
+				<BitrixSort>100</BitrixSort>
+				<BitrixCode>feedback</BitrixCode>
+				<BitrixPicture></BitrixPicture>
+				<BitrixDetailPicture></BitrixDetailPicture>
+				<Sections>
+					<Section>
+						<Id>11</Id>
+						<Title>New products</Title>
+						<BitrixActive>true</BitrixActive>
+						<BitrixSort>110</BitrixSort>
+						<BitrixCode>assortment</BitrixCode>
+						<BitrixPicture></BitrixPicture>
+						<BitrixDetailPicture></BitrixDetailPicture>
+						<Sections>
+						</Sections>
+					</Section>
+					<Section>
+						<Id>12</Id>
+						<Title>Delivery</Title>
+						<BitrixActive>true</BitrixActive>
+						<BitrixSort>120</BitrixSort>
+						<BitrixCode>delivery</BitrixCode>
+						<BitrixPicture></BitrixPicture>
+						<BitrixDetailPicture></BitrixDetailPicture>
+						<Sections>
+						</Sections>
+					</Section>
+					<Section>
+						<Id>13</Id>
+						<Title>General</Title>
+						<BitrixActive>true</BitrixActive>
+						<BitrixSort>130</BitrixSort>
+						<BitrixCode>common</BitrixCode>
+						<BitrixPicture></BitrixPicture>
+						<BitrixDetailPicture></BitrixDetailPicture>
+						<Sections>
+						</Sections>
+					</Section>
+				</Sections>
+			</Section>
+			<Section>
+				<Id>2</Id>
+				<Title>Thank-you Notes</Title>
+				<BitrixActive>true</BitrixActive>
+				<BitrixSort>200</BitrixSort>
+				<BitrixCode>acknowledgments</BitrixCode>
+				<BitrixPicture></BitrixPicture>
+				<BitrixDetailPicture></BitrixDetailPicture>
+				<Sections>
+				</Sections>
+			</Section>
+			<Section>
+				<Id>3</Id>
+				<Title>Complaints</Title>
+				<BitrixActive>true</BitrixActive>
+				<BitrixSort>300</BitrixSort>
+				<BitrixCode>claims</BitrixCode>
+				<BitrixPicture></BitrixPicture>
+				<BitrixDetailPicture></BitrixDetailPicture>
+				<Sections>
+				</Sections>
+			</Section>
+		</Sections>
+	</Metadata>
+	<Catalog>
+		<Id>idea</Id>
+		<MetadataId>idea</MetadataId>
+		<Title>Idea manager categories</Title>
+		<BitrixCode>idea</BitrixCode>
+		<BitrixSort>500</BitrixSort>
+		<BitrixListURL></BitrixListURL>
+		<BitrixDetailURL></BitrixDetailURL>
+		<BitrixSectionURL></BitrixSectionURL>
+		<BitrixPicture></BitrixPicture>
+		<BitrixIndexElements>false</BitrixIndexElements>
+		<BitrixIndexSections>false</BitrixIndexSections>
+		<BitrixWorkflow>false</BitrixWorkflow>
+		<BitrixLabels>
+			<BitrixLabel>
+				<Id>ELEMENT_NAME</Id>
+				<Value>Idea</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENTS_NAME</Id>
+				<Value>Ideas</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_ADD</Id>
+				<Value>Add Idea</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_EDIT</Id>
+				<Value>Edit Idea</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>ELEMENT_DELETE</Id>
+				<Value>Delete Idea</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_NAME</Id>
+				<Value>Category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTIONS_NAME</Id>
+				<Value>Categories</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_ADD</Id>
+				<Value>Add Category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_EDIT</Id>
+				<Value>Edit Category</Value>
+			</BitrixLabel>
+			<BitrixLabel>
+				<Id>SECTION_DELETE</Id>
+				<Value>Delete Category</Value>
+			</BitrixLabel>
+		</BitrixLabels>
+		<Elements>
+		</Elements>
+	</Catalog>
+</CommerceInformation>

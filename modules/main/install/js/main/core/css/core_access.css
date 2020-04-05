@@ -1,0 +1,109 @@
+.ur-wait {
+	height: 31px;
+	width: 31px;
+	background: url(../images/access/wait.gif) no-repeat 0 0;
+}
+
+.access-container {
+	border-bottom: 1px solid #DCDCDC;
+	height: 393px;
+	padding: 0 10px;
+	overflow: hidden;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	white-space: nowrap;
+	width: 840px;
+}
+
+.access-providers-container {
+	display: inline-block;
+	height: 393px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 4px 7px 9px 0;
+	vertical-align: top;
+	width: 180px;
+	white-space: normal;
+}
+
+.access-delimiter {
+	border-left: 1px solid #DCDCDC;
+	background-color: #EAEAEA;
+	display: inline-block;
+	height: 393px;
+	vertical-align: top;
+	width: 3px;
+}
+
+.access-content-container {
+	display: inline-block;
+	height: 393px;
+	padding: 11px 13px 0 12px;
+	vertical-align: top;
+	white-space: normal;
+	width: 420px;
+}
+
+.access-selected-container {
+	background-color: #F5F5F5;
+	border: 1px solid #E4E4E4;
+	display: inline-block;
+	height: 379px;
+	margin-top: 7px;
+	overflow: auto;
+	vertical-align: top;
+	width: 206px;
+	white-space: normal;
+}
+
+a.access-provider-button {
+	font: 12px Arial;
+	display: block;
+	border-radius: 3px;
+	padding: 4px 7px;
+	text-decoration: none;
+	font-weight: bold;
+	outline: none;
+	line-height: 18px;
+}
+
+a.access-provider-button,
+a.access-provider-button:active,
+a.access-provider-button:link {
+	color: #000 !important;
+	text-decoration: none
+}
+
+a.access-provider-button-selected {
+	background-color: #FFDF87;
+}
+
+a.access-provider-button:hover {
+	background-color: #EFEFEF;
+}
+
+.access-buttons-delimiter {
+	border-top: solid 1px #E5E5E5;
+	margin: 3px 3px 3px 3px;
+	height: 1px;
+	overflow: hidden;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	padding: 0;
+}
+
+.access-delete {
+	display: inline-block;
+	cursor: pointer;
+	width: 13px;
+	height: 13px;
+	vertical-align: middle;
+	background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -283px;
+}
+
+.access-delete:hover {
+	background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -283px;
+}
+
+

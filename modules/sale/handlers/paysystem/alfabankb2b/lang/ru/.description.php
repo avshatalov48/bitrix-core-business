@@ -1,0 +1,26 @@
+<?
+$MESS["SALE_HPS_ALFABANK_TITLE"] = "Альфа Б2Б";
+$MESS["SALE_HPS_ALFABANK_DATE"] = "Дата оплаты";
+$MESS["SALE_HPS_ALFABANK_EXT_SYSTEM_CODE"] = "Код услуги партнера";
+$MESS["SALE_HPS_ALFABANK_EXT_USER_CODE"] = "Логин пользователя во внешней системе";
+$MESS["SALE_HPS_ALFABANK_PAYMENT_ID"] = "Номер оплаты";
+$MESS["SALE_HPS_ALFABANK_SHOULD_PAY"] = "Сумма к оплате";
+$MESS["SALE_HPS_ALFABANK_COMPANY_NAME"] = "Наименование получателя";
+$MESS["SALE_HPS_ALFABANK_INN_SUPPLI"] = "ИНН получателя";
+$MESS["SALE_HPS_ALFABANK_KPP_SUPPLI"] = "КПП получателя";
+$MESS["SALE_HPS_ALFABANK_ACC_SUPPLI"] = "Счет получателя";
+$MESS["SALE_HPS_ALFABANK_BIK_SUPPLI"] = "БИК банка получателя";
+$MESS["SALE_HPS_ALFABANK_CUSTOMER_INN"] = "ИНН плательщика";
+$MESS["SALE_HPS_ALFABANK_CUSTOMER_KPP"] = "КПП плательщика";
+$MESS["SALE_HPS_ALFABANK_CUSTOMER_PERSON"] = "Счет плательщика";
+$MESS["SALE_HPS_ALFABANK_PAYMENT_SUBJECT"] = "Назначение платежа";
+$MESS["SALE_HPS_ALFABANK_PRIORITY"] = "Очередность платежа";
+$MESS["SALE_HPS_ALFABANK_BUDGET_PAYER_STATUS"] = "Статус плательщика";
+$MESS["SALE_HPS_ALFABANK_BUDGET_KBK"] = "КБК";
+$MESS["SALE_HPS_ALFABANK_BUDGET_OKATO"] = "ОКАТО";
+$MESS["SALE_HPS_ALFABANK_BUDGET_OKTMO"] = "ОКТМО";
+$MESS["SALE_HPS_ALFABANK_BUDGET_PAYMENT_BASE"] = "Основание платежа";
+$MESS["SALE_HPS_ALFABANK_BUDGET_PERIOD"] = "Налоговый период";
+$MESS["SALE_HPS_ALFABANK_BUDGET_DOC_NUMBER"] = "Номер документа";
+$MESS["SALE_HPS_ALFABANK_ALFABANK_BUDGET_DOC_DATE"] = "Тип платежа";
+$MESS["SALE_HPS_ALFABANK_BUDGET_PAYMENT_TYPE"] = "Идентификатор платежа";

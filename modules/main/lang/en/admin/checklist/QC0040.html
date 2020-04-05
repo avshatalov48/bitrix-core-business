@@ -1,0 +1,45 @@
+<p>Sometimes developers don't understand why they would need to use caching
+in their custom components. Really, why? Wouldn't it be simpler to just call the
+database API methods and format output?</p>
+
+<p>Yes, it's just that neat and simple and will work if your website serves one
+user. Well, perhaps not one, but it will work for up to 10 or 20 concurrent
+users depending on the hardware. But as the number of concurrent users grow, the
+website's life is getting insufferable. If a Component 2.0 working cycle
+performing 100 uncached database transactions is 0.1 sec, a hundred of
+concurrent users would require 10.000 transactions and the component working
+cycle will reach unacceptable 5 to 10 sec.</p>
+
+<p>Remember that the cache speed is dramatically higher than that of the
+database. If a component generates output for 2 sec in uncached mode, the first
+user will be served in 2 sec (to fetch the initial data from the database and
+put in on cache), while all subsequent users will be served much faster, in 0.1
+sec approximately.</p>
+
+<p>Another matter that require good understanding is cache lifetime. In "Auto+Managed"
+mode, the system tracks changes in database records and resets cache chunks
+whenever a particular record changes. In "Auto" mode, the component is
+responsible for setting the cache lifetime; it is recommended to set the maximum
+possible time interval according to the underlying business logic.</p>
+
+<p>To summarize:</p>
+<ul>
+<li>the use of cache gives your website a significant performance boost;</li>
+<li>visitors enjoy high speed browsing.</li> 
+ </ul>
+
+
+<ul>
+  <li>Check that all the custom components use caching, and the appropriate
+    cache lifetime is set.</li>
+  <li>The cache type should be set to "Auto+Managed" или "Auto". If you see
+    the cache type is set to just "Cache", change it to "Auto"
+    for easier website administration.</li>
+  <li>The cache lifetime for "Auto+Managed" mode should be considerably long, 1
+    year or so. For "Auto" mode, set the lifetime value according to assumed
+    frequency of information update.</li>
+  <li>Open Control Panel, "Settings &gt; System Settings &gt; Cache Settings". Click
+    the "Components Cache" tab and ensure that the cache is enabled.
+    Click the "Managed Cache" tab, ensure that the managed cache is
+    enabled as well.</li>
+</ul>

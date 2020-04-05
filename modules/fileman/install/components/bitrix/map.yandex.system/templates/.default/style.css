@@ -1,0 +1,15 @@
+div.bx-yandex-map {color: black; font-size: 11px;}
+div.bx-yandex-map div.YMaps-b-balloon-content {color: black; font-size: 11px;}
+div.bx-popup-form div.bx-yandex-map div.YMaps-b-balloon-point div.YMaps-b-balloon div.YMaps-b-balloon-wrap table.YMaps-b-balloon-frame td {
+	padding: 0px !important;
+}
+
+
+div.bx-popup-form div.bx-yandex-map div.YMaps-b-balloon-point div.YMaps-b-balloon div.YMaps-b-balloon-wrap table.YMaps-b-balloon-frame td textarea{
+	font-size: 11px;
+}
+
+
+div.bx-popup-form div.bx-yandex-map div.YMaps-b-balloon-point div.YMaps-b-balloon div.YMaps-b-balloon-wrap table.YMaps-b-balloon-frame td.YMaps-b-balloon-b {
+	background-image: none !important;
+}

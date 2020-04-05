@@ -1,0 +1,93 @@
+.settings-group-main-wrap {color:#000; }
+.settings-group {border:none;}
+.settings-group td {border:none; font:13px Arial, Helvetca sans-serif; vertical-align:top; padding:0;}
+td.settings-left-column {border-right:1px solid #dedede;  width:185px;}
+.settings-item-block {display:block; color:#000; cursor:pointer; height:20px; margin:0 8px 6px 0; text-decoration:none; outline:none; padding:2px 8px 0 11px; position:relative;}
+* html .settings-item-block {height:22px;}
+.settings-item-block:link,
+.settings-item-block:active,
+.settings-item-block:visited {color:#000; text-decoration:none;}
+.settings-item-block:hover {background-color:#f0f0f0; color:#000; height:19px; margin-bottom:7px; text-decoration:none;}
+* html .settings-item-block:hover {height:21px;}
+.settings-item-left {background:url("images/settings-group-sprite.png") no-repeat; display:none; height:22px; left:0; top:0; position:absolute; width:3px;}
+.settings-item-right {background:url("images/settings-group-sprite.png") no-repeat; display:none; height:22px; right:0; top:0; position:absolute; width:8px;}
+.settings-item-active {background:url("images/settings-group-sprite.png") repeat-x 0 -24px;}
+.settings-item-active .settings-item-left {background-position: 0 0 !important; display:block;}
+.settings-item-active .settings-item-right {background-position: -4px 0 !important; display:block;}
+.settings-item-block:hover .settings-item-left {background-position: -13px 0; display:block;}
+.settings-item-block:hover .settings-item-right {background-position: -17px 0; display:block;}
+
+.settings-right-block {height:22px; margin-bottom:14px; padding-left:23px; position:relative;}
+.settings-right-block-text {text-align:right; padding-right:315px;}
+.settings-right-block input,
+.settings-right-block select {height:22px; right:0; top:0; position:absolute; width:300px;}
+.settings-right-block input {height:16px; width: 295px}
+
+td.settings-footer-buttons { text-align:center;}
+.settings-footer-buttons-block {border-top:1px solid #dedede; margin-top:55px; padding-top:20px; text-align: center; }
+.settings-cancel-link {color:#ce1f1f; font-size:12px; text-decoration:underline;}
+
+.settings-blocks-note { border:1px solid #ffc34f; background: #fffdbe; padding:1em; margin: 0 0 10px 5px; max-width: 600px; }
+
+.settings-block-enable-wrap {height: 16px}
+.settings-block-enable { padding: 0 0 0.5em 1em; position: relative; height: 22px; }
+.settings-right-enable-label-wrap { display: inline-block; }
+.settings-block-enable label { line-height: 1.5; text-align: right; }
+.settings-block-enable-checkbox-wrap { display: inline; width: 300px; vertical-align: middle; }
+.settings-block-enable-checkbox-wrap input { margin-left: 0; }
+
+.sn-features-wrap {
+	padding: 10px;
+}
+
+.sonet-slider-frame-popup .sn-features-wrap {
+	padding-bottom: 50px;
+}
+
+.sn-features-row {
+	margin: 0 0 40px 0;
+	overflow: hidden;
+}
+
+.sn-features-title {
+	margin: 0 0 16px 0;
+	padding: 0 0 16px 0;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	font: bold 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+}
+
+.sn-features-input-box {
+	margin: 0 0 20px 0;
+}
+
+.sn-features-input-box:last-child {
+	margin: 0;
+}
+
+.sn-features-caption {
+	margin: 0 0 5px 0;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: rgba(82,92,105,.5);
+}
+
+.sn-features-select {
+	display: block;
+	padding: 8px 11px;
+	width: 100%;
+	max-width: 498px;
+	height: 38px;
+	border: 1px solid #C6CDD3;
+	font: 16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6%204.828L1.757.586.343%202l4.95%204.95.707.707L11.656%202%2010.242.586%206%204.828z%22/%3E%3C/svg%3E');
+	background-color: #fff;
+	background-position: right 10px center;
+	background-repeat: no-repeat;
+	outline: none;
+	-webkit-appearance: none;
+}
+
+.sn-features-select::-ms-expand {
+	display: none;
+}

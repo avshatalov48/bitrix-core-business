@@ -1,0 +1,22 @@
+<?
+$MESS ['LEARNING_ADMIN_TAB1'] = "Урок";
+$MESS ['LEARNING_ADMIN_TAB1_EX'] = "Параметры урока";
+$MESS ['LEARNING_ADMIN_TAB3'] = "Содержание";
+$MESS ['LEARNING_ADMIN_TAB3_EX'] = "Содержание урока";
+$MESS ['LEARNING_ADMIN_TAB2'] = "Анонс";
+$MESS ['LEARNING_ADMIN_TAB2_EX'] = "Описание для анонса";
+$MESS ['LEARNING_ADMIN_TAB4'] = "Связи";
+$MESS ['LEARNING_ADMIN_TAB4_EX'] = "Взаимосвязи урока";
+$MESS ['LEARNING_ERROR'] = "Ошибка при сохранении урока";
+$MESS ['LEARNING_CONFIRM_DEL_MESSAGE'] = "Вы уверены, что хотите удалить данный урок?";
+$MESS ['LEARNING_PATH_TO_FILE'] = "Путь к файлу";
+$MESS ['LEARNING_WIDTH'] = "Ширина";
+$MESS ['LEARNING_HEIGHT'] = "Высота";
+$MESS ['LEARNING_SAVE'] = "Сохранить";
+$MESS ['LEARNING_VIDEO_AUDIO'] = "Видео/аудио";
+$MESS ['LEARNING_PREVIEW_TEXT'] = "Анонс";
+$MESS ['LEARNING_UNLINK_LESSON_FROM_PARENT'] = 'Отцепить от родительского';
+$MESS ['LEARNING_CONFIRM_UNLINK_LESSON_FROM_PARENT'] = 'Вы уверены, что хотите отцепить данный урок от родительского?';
+$MESS['LEARNING_COURSE_ADM_PUBLISH_PROHIBITED'] = 'Не публиковать';
+$MESS['LEARNING_COURSE_ADM_PUBLISH_PROHIBITED_CONTEXT'] = 'в рамках курса: #COURSE_NAME#';
+$MESS['LEARNING_EDIT_FORM_WILL_BE_AVAILABLE_AFTER_LESSON_CREATION'] = 'Данная вкладка доступна только для уже существующих уроков/глав';

@@ -1,0 +1,16 @@
+.bx-ilike-wrap-block {display:inline-block; max-height:132px; position:relative; font-family: Verdana, Tahoma, sans-serif; overflow:hidden; width:186px; }
+* html .bx-ilike-wrap-block {width:186px;}
+.bx-ilike-popup {background-color:#fff; display:inline-block; max-height:121px;  margin: -2px 0 2px 0; padding: 0 6px 5px 0; overflow-y:auto; overflow-x:hidden; width:180px; -moz-user-select: none; -khtml-user-select: none; user-select: none;}
+* html .bx-ilike-popup {width:186px;height:130px;}
+.bx-ilike-popup-img {display:block; color:#656365; text-decoration:none; overflow:hidden; zoom:1;}
+.bx-ilike-popup-img:link span,
+.bx-ilike-popup-img:visited span{color:#50688e; text-decoration:none;}
+.bx-ilike-popup-img:hover span{color:#50688e; text-decoration:underline;}
+.bx-ilike-bottom_scroll {background:url("images/i-like-sprite.png") repeat-x 0 -148px; display:block; height:13px; position:absolute; left:0; bottom:0; width:170px}
+* html .bx-ilike-bottom_scroll {display:none;}
+.bx-ilike-popup-avatar {background:url("images/avatar.gif") no-repeat center; border:1px solid #ddd;  display:block; margin:1px; float:left; width:21px; height:21px; }
+* html .bx-ilike-popup-avatar {width:23px;}
+.bx-ilike-wait { background: url(images/i-like-wait.gif) no-repeat center center; width:183px; height:26px; display: block;margin-top: 2px;}
+.bx-ilike-popup-img img {border:none; background-color:#FFF;}
+.bx-ilike-popup-name {cursor:pointer; display:block; font-size:11px; padding-left:3px; height:15px; text-decoration:underline; overflow:hidden; text-overflow:ellipsis; -o-text-overflow:ellipsis; padding-top:2px; white-space:nowrap; min-width:100px;}
+* html .bx-ilike-popup-name {width:135px;}

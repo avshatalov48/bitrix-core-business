@@ -1,0 +1,73 @@
+.bx-help-popup-loader {
+	background: url(images/help-popup-loader.png?1) no-repeat 0 0;
+	height: 230px;
+	left: 330px;
+	margin-top: 96px;
+	opacity: 1;
+	position: absolute;
+	width: 315px;
+	z-index: 1;
+	-webkit-transition: opacity 0.2s linear 0.5s;
+	transition: opacity 0.2s linear 0.5s;
+}
+
+.bx-help-popup-loader-text {
+	color: #acb0b5;
+	font-size: 14px;
+	margin-top: 200px;
+	padding-left: 40px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.helper-panel-iframe {
+	z-index: 2;
+	opacity: 0;
+	transition: all 0.6s;
+}
+
+.helper-panel-iframe-show {
+	opacity: 1;
+}
+
+.helper-panel-iframe, .helper-container {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	padding: 0;
+	border: none;
+	margin: 0;
+}
+
+.helper-container {
+	background-color: #fff;
+}
+
+.bx-help-start {
+	height: 334px;
+	top: 53px;
+	right: 5px;
+	position: absolute;
+	width: 147px;
+	z-index: 995;
+}
+
+.help-cl-count-digit { padding: 1px 5px;display: inline-block;}
+.help-cl-count {
+	display:inline-block;
+	float:right;
+	font: 11px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	vertical-align: top;
+	border-radius: 12px;
+	background-color: #e15655;
+	background-position: 7px -83px;
+	color: #f7f6f6;
+	text-shadow: none;
+	margin-top: 7px;
+	margin-left: 3px;
+	margin-right: 3px;
+	-webkit-animation: imOpacityFrom05To1 .4s 1; animation: imOpacityFrom05To1 .4s 1;
+	z-index: 12;
+}

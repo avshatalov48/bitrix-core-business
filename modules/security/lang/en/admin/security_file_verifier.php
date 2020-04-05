@@ -1,0 +1,100 @@
+<?
+$MESS["MFC1_CANT_LOAD_DATAFILE"] = "Cannot load the data file.";
+$MESS["MFC1_CANT_OPEN_ERRORFILE"] = "Cannot open the error file.";
+$MESS["MFC1_CANT_CREATE_ERRORFILE"] = "Cannot create the error file.";
+$MESS["MFC1_FILE_NOT_SET"] = "File is not specified.";
+$MESS["MFC1_PWD_NOT_SET"] = "Password is not specified.";
+$MESS["MFC1_KEY_NOT_SET"] = "Key is not specified.";
+$MESS["MFC1_PWD_KEY_EQ"] = "Password and key must be different.";
+$MESS["MFC1_EMPTY_FILE"] = "File is empty.";
+$MESS["MFC1_NO_CRC_NOT_SET"] = "The checksum verification script file is not signed.";
+$MESS["MFC1_CRC_NOT_CORRECT"] = "Checksum is incorrect.";
+$MESS["MFC1_NO_CRC"] = "Checksum is not found.";
+$MESS["MFC1_EXISTS_OTHER_DIF"] = "Other differences exist";
+$MESS["MFC1_SIZE_DIF"] = "size is different";
+$MESS["MFC1_CRC_DIF"] = "checksum is different";
+$MESS["MFC1_NEW_DIF"] = "new";
+$MESS["MFC1_DEL_DIF"] = "deleted";
+$MESS["MFC1_NO_DIF"] = "No differences found.";
+$MESS["MFC1_ERR_NO_PWD"] = "Password to sign the file integrity check script is not specified.";
+$MESS["MFC1_ERR_VERIFY"] = "Errors occurred during integrity check:";
+$MESS["MFC1_OK_VERIFY"] = "Current keyword is '#KEY#'. If this word is different from what you have previously entered, the check script is compromised.";
+$MESS["MFC1_ERR_C_PWD"] = "Password to verify the file integrity check script is not specified.";
+$MESS["MFC1_ERR_C_PWD_CHECK"] = "Password confirmation does not match password. Please re-enter.";
+$MESS["MFC1_ERR_C_KEY"] = "Keyword to sign the file integrity check script is not specified.";
+$MESS["MFC1_ERR_C_PWD_KEY"] = "Keyword must differ from password.";
+$MESS["MFC1_ERR_C_ERR"] = "Errors occurred during signature verification:";
+$MESS["MFC1_ERR_C_ERR_RIGHT"] = "You have no permission to sign the integrity control script. ";
+$MESS["MFC1_ERR_C_SUCCESS"] = "The integrity check script has been signed successfully.";
+$MESS["MFC1_ERR_NO_ACT"] = "You must select an action.";
+$MESS["MFC1_ERR_C_NO_REG"] = "You need to select at least one region.";
+$MESS["MFC1_ERR_C_NO_PWD1"] = "The result encryption password is not specified.";
+$MESS["MFC1_ERR_V_FILE"] = "The verification data file is not selected.";
+$MESS["MFC1_ERR_V_PWD1"] = "The result decryption password is not specified.";
+$MESS["MFC1_TITLE"] = "File Integrity Check";
+$MESS["MFC1_TAB_SIGN"] = "Script Integrity Check";
+$MESS["MFC1_TAB_SIGN_DESCR"] = "Verification Script Integrity";
+$MESS["MFC1_TAB_SELECT"] = "Actions";
+$MESS["MFC1_TAB_SELECT_DESCR"] = "Selection of action";
+$MESS["MFC1_TAB_COLLECT"] = "Data Collection";
+$MESS["MFC1_TAB_COLLECT_DESCR"] = "Data Collection";
+$MESS["MFC1_TAB_COLLECT_REP"] = "Report";
+$MESS["MFC1_TAB_COLLECT_REP_DESCR"] = "Report";
+$MESS["MFC1_TAB_FILE"] = "File";
+$MESS["MFC1_TAB_FILE_DESCR"] = "Selection of file";
+$MESS["MFC1_TAB_VERIFY"] = "Data Check";
+$MESS["MFC1_TAB_VERIFY_DESCR"] = "Data Check";
+$MESS["MFC1_TAB_VERIFY_REP"] = "Report";
+$MESS["MFC1_TAB_VERIFY_REP_DESCR"] = "Report";
+$MESS["MFCW_INT_PASS_NOTSUBSCR"] = "Invent and remember your password. A secure password should have at least 10 characters containing letters and digits.";
+$MESS["MFCW_INT_KEY_HINT_NOT_SUBSCR"] = "This is an arbitrary word that you have to remember. This word must not be the same as the password. If the keyword is different next time, the file check script may have been changed.";
+$MESS["MFCW_INT_PASS_SUBSCR"] = "When checking file integrity, enter the password you have used to set the key.";
+$MESS["MFC1_F_PWD"] = "Password";
+$MESS["MFC1_F_PWD_CONF"] = "Confirm Password";
+$MESS["MFC1_F_KEY"] = "Keyword";
+$MESS["MFC1_F_ACT"] = "Action";
+$MESS["MFC1_F_ACT_VERIFY"] = "Check Files";
+$MESS["MFC1_F_ACT_COLLECT"] = "Collect File Information";
+$MESS["MFC1_F_FILE_SUBTITLE1"] = "Select Verification Data File";
+$MESS["MFC1_F_DELETE_CONFIRM"] = "Are you sure you want to delete this file?";
+$MESS["MFC1_FT_DATE"] = "Date";
+$MESS["MFC1_FT_REGION"] = "Region";
+$MESS["MFC1_FT_EXTS"] = "Extensions";
+$MESS["MFC1_FT_ACTS"] = "Actions";
+$MESS["MFC1_R_KERNEL"] = "Kernel";
+$MESS["MFC1_R_SYSTEM"] = "System area";
+$MESS["MFC1_R_PSYSTEM"] = "Personal system area";
+$MESS["MFC1_R_PUBLIC"] = "Public section";
+$MESS["MFC1_ACT_DODELETE"] = "Delete";
+$MESS["MFC1_F_NO_FILES"] = "Files was not found.";
+$MESS["MFC1_F_FILE_SUBTITLE2"] = "Load Verification Data File";
+$MESS["MFC1_F_LOAD_FILE"] = "Verification Data File";
+$MESS["MFC1_F_COLLECT_REGION"] = "Data Collection Area";
+$MESS["MFC1_F_EXTS"] = "File Extensions";
+$MESS["MFC1_F_CRY_PWD"] = "Encryption Password";
+$MESS["MFC1_F_C_STEP"] = "Step Duration (sec.)";
+$MESS["MFC1_F_DEC_PWD"] = "Decryption Password";
+$MESS["MFC1_F_V_STEP"] = "Step Duration (sec.)";
+$MESS["MFC1_J_FINISH"] = "Files has been processed.";
+$MESS["MFC1_J_NUM_FILES"] = "Successfully processed files";
+$MESS["MFC1_J_DWL_PROMT1"] = "To download the result file,";
+$MESS["MFC1_J_DWL_PROMT2"] = "click here";
+$MESS["MFC1_J_PROCESS_ERR"] = "Errors occurred while processing the files:";
+$MESS["MFC1_SLEEP_A_MINUTE"] = "Please wait for processing to complete...";
+$MESS["MFC1_B_FIRST"] = "First";
+$MESS["MFC1_B_NEXT"] = "Next";
+$MESS["MFCW_LEGEND_SUBSCR_1"] = "<p>File integrity check is useful for determining what changes have been made to the system files. You can verify the integrity of the system kernel, system files or public files anytime you want.<p>
+<p>Before you start verification, you first have to check the verification script for unauthorized modifications.</p>
+<p>Type the password you have used here to sign the verification script. In the verification results, the script will show the keyword you have typed when signing the script.</p>
+<p>Absence of your keyword in the output indicates that the script is compromised (i.e. it was modified and cannot be trusted).</p>
+<p>You will have to set the key again whenever the update system modifies the integrity verification script.</p>";
+$MESS["MFCW_LEGEND_NOTSUBSCR_1"] = "<p>File integrity check is useful for determining what changes have been made to the system files. You can verify the integrity of the system kernel, system files or public files anytime you want.<p>
+<p>Before you start verification, you first have to check the verification script for unauthorized modifications.</p>
+<p>When running the script for the first time, type any desired password here containing at least 10 characters (letters and digits), and any keyword (it must differ from the password), and click &quot;Set New Key&quot;.</p>
+<p><i>Recommended for high security level.</i></p>";
+$MESS["MFCW_LEGEND_2"] = "If you have previously signed the verification script, check the keyword. If it is not the same as what you previously used for signing, the script was modified and you should not trust the verification results.<br />Select the desired action: check the files or collect file information anew.";
+$MESS["MFCW_LEGEND_3_verify"] = "Select a log file or upload a file from your computer.";
+$MESS["MFCW_LEGEND_4_verify"] = "Type the password you have used to create a log file.<br />Specify the step duration (seconds) for step-by-step file check.";
+$MESS["MFCW_LEGEND_3_collect"] = "Type and memorize the password which will be used to encrypt the log file.<br />Enter the step duration (seconds) for step-by-step file check.";
+$MESS["MFC1_ZEND_FILE"] = "Unable to check integrity of Zend encoded file";
+?>

@@ -1,0 +1,14 @@
+div.view-list {
+	width: 200px;
+	border: 1px solid #CCC;
+}
+div.view-header {
+	height: 20px;
+	text-align: center;
+	background-color: #CCC;
+	margin-bottom:10px;
+}
+div.view-item {
+	text-align: center;
+	margin-bottom: 10px;
+}

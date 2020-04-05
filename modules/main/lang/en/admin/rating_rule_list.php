@@ -1,0 +1,33 @@
+<?
+$MESS["MAIN_RATING_RULE_LIST"] = "Processing Rules";
+$MESS["RATING_RULE_NAME"] = "Name";
+$MESS["RATING_RULE_CREATED"] = "Created On";
+$MESS["RATING_RULE_LAST_MODIFIED"] = "Last Modified";
+$MESS["RATING_RULE_LAST_APPLIED"] = "Last Applied";
+$MESS["RATING_RULE_ACTIVE"] = "Active";
+$MESS["RATING_RULE_STATUS"] = "Status";
+$MESS["RATING_RULE_ENTITY_TYPE_ID"] = "Binding";
+$MESS["RATING_RULE_LIST_NAV"] = "Processing Rules";
+$MESS["RATING_RULE_ACTIVE_YES"] = "Yes";
+$MESS["RATING_RULE_ACTIVE_NO"] = "No";
+$MESS["RATING_RULE_STATUS_DONE"] = "applied";
+$MESS["RATING_RULE_STATUS_WORKING"] = "being applied";
+$MESS["RATING_RULE_STATUS_WAITING"] = "pending";
+$MESS["RATING_RULE_LIST_EDIT"] = "Edit Parameters";
+$MESS["RATING_RULE_LIST_REAPPLY"] = "Apply Rule";
+$MESS["RATING_RULE_LIST_DEL"] = "Delete";
+$MESS["RATING_RULE_LIST_DEL_CONF"] = "Are you sure you want to delete this rule?";
+$MESS["RATING_RULE_LIST_ADD"] = "New Rule";
+$MESS["RATING_RULE_LIST_ADD_TITLE"] = "Create a new processing rule";
+$MESS["RATING_RULE_LIST_FLT_NAME"] = "Name";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE"] = "Active";
+$MESS["RATING_RULE_LIST_FLT_ID"] = "ID";
+$MESS["RATING_RULE_LIST_FLT_ENTITY_TYPE_ID"] = "Entity";
+$MESS["RATING_RULE_LIST_FLT_find"] = "Search:";
+$MESS["RATING_RULE_LIST_FLT_ALL"] = "(all)";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE_Y"] = "active";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE_N"] = "inactive";
+$MESS["RATING_RULE_LIST_ERR_EDIT"] = "Error editing the rule.";
+$MESS["RATING_RULE_LIST_ERR_DEL"] = "Error deleting the rule.";
+$MESS["RATING_RULE_LIST_ERR_APP"] = "Error applying the rule.";
+?>

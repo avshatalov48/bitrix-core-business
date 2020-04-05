@@ -1,0 +1,33 @@
+<?
+$MESS["SUP_M_SUPPORT"] = "Техподдержка";
+$MESS["SUP_M_TICKETS"] = "Обращения";
+$MESS["SUP_M_TICKETS_ALT"] = "Обращения посетителей к администрации сайта";
+$MESS["SUP_M_REPORT_TABLE"] = "Рабочий стол ТП";
+$MESS["SUP_M_REPORT_TABLE_ALT"] = "Таблицы распределения открытых и закрытых обращений по различным параметрам";
+$MESS["SUP_M_REPORT_GRAPH"] = "Графики";
+$MESS["SUP_M_REPORT_GRAPH_ALT"] = "Отчет по работе техподдержки в графической форме";
+$MESS["SUP_M_CATEGORY"] = "Категории";
+$MESS["SUP_M_CRITICALITY"] = "Критичности";
+$MESS["SUP_M_STATUS"] = "Статусы";
+$MESS["SUP_M_MARK"] = "Оценки ответов";
+$MESS["SUP_M_FUA"] = "Частые ответы";
+$MESS["SUP_M_SOURCE"] = "Источники";
+$MESS["SUP_M_DIFFICULTY"] = "Сложность";
+$MESS["SUP_M_SLA"] = "Уровни поддержки";
+$MESS["SUP_M_DICT"] = "Справочники";
+$MESS["SUP_M_SUPPORT_TITLE"] = "Управление технической поддержкой";
+$MESS["SUP_M_DICT_TITLE"] = "Настройка справочников";
+$MESS["SUP_M_DIFFICULTY_TITLE"] = "Уровень сложности";
+$MESS["SUP_M_GROUPS"] = "Группы";
+$MESS["SUP_M_GROUPS_TITLE"] = "Редактирование групп";
+$MESS["SUP_M_USER_IN_GROUPS"] = "Пользователи в группах";
+$MESS["SUP_M_USER_IN_GROUPS_TITLE"] = "Список пользователей в группах";
+$MESS["SUP_M_COUPONS"] = "Купоны спецобращений";
+$MESS["SUP_M_COUPONS_TITLE"] = "Создание и редактирование купонов спецобращений";
+$MESS["SUP_M_COUPONS_LOG"] = "Журнал использования купонов";
+$MESS["SUP_M_COUPONS_LOG_TITLE"] = "Журнал использования купонов";
+$MESS["SUP_M_TIMETABLE"] = "Расписания";
+$MESS["SUP_M_HOLIDAYS"] = "Исключения";
+$MESS["SUP_M_SHEDULE"] = "Расписания";
+$MESS["SUP_M_SHEDULE_TITLE"] = "Расписания";
+?>

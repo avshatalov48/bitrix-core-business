@@ -1,0 +1,72 @@
+div.learn-question-tabs
+{
+	background-color:#f6f6f6;
+	padding:2px;
+	line-height:220%;
+
+}
+
+span.learn-tab, span.learn-tab-selected
+{
+	font-size: 100%;
+	line-height:220%;
+	text-decoration: none;
+	color: #000;
+	border: 1px solid #576f9e;
+	padding:1px 2px;
+	margin:0 3px;
+	cursor: pointer; cursor: hand;
+}
+
+span.learn-tab-selected 
+{
+	background-color:#c7ceda;
+	cursor:default;
+}
+
+div.learn-question-cloud
+{
+	border:1px solid #D9D9D9; 
+	min-height:50px;
+	font-size:100%;
+	-moz-border-radius: 6px;
+}
+
+div.learn-question-number
+{
+	float:left; 
+	border-right:1px solid #DADAC1; 
+	border-bottom:1px solid #DADAC1; 
+	background-color:#FAFADE;
+	margin-right:15px;
+	padding:3px 5px;
+	-moz-border-radius-bottomright: 4px;
+}
+
+div.learn-question-name
+{
+	padding:17px;
+	position:relative;
+}
+
+div.learn-answer
+{
+	float:left;
+}
+
+div.learn-answer-right, div.learn-answer-wrong
+{
+	width:14px;
+	height:14px;
+	background-repeat:no-repeat;
+}
+
+div.learn-answer-right
+{
+	background-image:url(images/green.gif);
+}
+
+div.learn-answer-wrong
+{
+	background-image:url(images/red.gif);
+}

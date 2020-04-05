@@ -1,0 +1,38 @@
+<?
+$nameUTF = array(
+	'__SYMBOL' => 'я',
+	"CommerceInfo" => "КоммерческаяИнформация",
+	"OffersList" => "ПакетПредложений",
+	"PropertyValue" => "ЗначениеСвойства",
+	"CatalogID" => "ИдентификаторКаталога",
+	"PropertyId" => "ИдентификаторСвойства",
+	"Catalog" => "Каталог",
+	"ID" => "Идентификатор",
+	"Name" => "Наименование",
+	"Description" => "Описание",
+	"DataType" => "ТипДанных",
+	"Multiple" => "Множественность",
+	"DefaultValue" => "ЗначениеПоУмолчанию",
+	"PropertyVariant" => "ВариантСвойства",
+	"Category" => "Группа",
+	"ParentCategory" => "Родитель",
+	"Product" => "Товар",
+	"CategoryReference" => "СсылкаНаГруппу",
+	"IdInCatalog" => "ИдентификаторВКаталоге",
+	"Value" => "Значение",
+	"Currency" => "Валюта",
+	"Offer" => "Предложение",
+	"ProductId" => "ИдентификаторТовара",
+	"Price" => "Цена",
+	"Amount" => "Количество",
+	"Unit" => "Единица",
+	"Property" => "Свойство",
+	
+	"Package" => "НормаУпаковки",
+	
+	"Company" => "Контрагент",
+	"DisplayName" => "ОтображаемоеНаименование",
+	"DisplayOnSite" => "Отображается",
+	"PropertyReference" => "СсылкаНаСвойство",
+);
+?>

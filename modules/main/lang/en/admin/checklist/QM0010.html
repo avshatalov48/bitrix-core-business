@@ -1,0 +1,97 @@
+<p>Information blocks store the web project data: news, catalogs and other
+information. Proper configuration of information blocks and their underlying
+types is of extreme importance for the usability of the web project, its
+performance and maintenance cost because a streamlined and simple data scheme is
+easier to maintain and extend. It is recommended to disable unused features.</p>
+
+<p>Check the information block types: "Content &gt; Information blocks &gt; Information
+block types". Open the existing information block types for editing, one by
+one.</p>
+<ol>
+<li>An information block type must have a clear, comprehensive and distinctive
+  name.
+  "Type1" or "t1" is what you should not call your information
+  block types. "Company news" is an example of a good name because it
+  is self descriptive.</li>
+<li>Click the "Main" tab. Check that an information block type has
+  custom names for sections and elements appropriate for data the information
+  blocks of this type will store.</li> 
+<li>Click the "Additional" tab. The "Use RSS export" option
+  should be enabled only if the information blocks of this type will ever need
+  to be exported.</li> 
+ </ol>
+
+<p>Check the parameters of the information blocks: "Content &gt; Information blocks &gt;
+Information block types", select the existing information blocks one by
+one.</p>
+
+<ol>
+<li>The property storage (the "Property values are stored..." option)
+  depends on the information block purpose and data size. If there will be a
+  huge number of elements (hundreds of thousands or millions), use a separate
+  table. To improve performance, assign individual field indexes to these tables.<p>However,
+  if the property count may possibly exceed the maximum database column count,
+  use "common table".</p>
+</li>
+
+<li>Ensure the information block is selected for use on the websites for which
+  it is destined.</li> 
+
+<li>If the information block contents needs to be searchable using the website
+  search featuire, enable the "Index ... for the Search module"
+  options. Otherwise, disable these options to improve performance.</li> 
+
+<li>If none of the information block objects will ever be accessed by the
+  Workflow or Business Process module, disable this feature.</li>
+
+<li>Select view mode depending on the expected data size and ease of
+  administration. For huge amount of data (hundreds of thousands of elements),
+  use separate mode.
+</li> 
+
+<li>Click the "Fields" tab. Verify the default property values.
+  Properly configured default values will improve usability.</li> 
+
+<li>Click the "Properties" tab. Check that all properties have clear, comprehensive and distinctive
+  names.
+  "MyNiceProp" or "p1" is what you should not call your
+  properties. It is important to select a correct property type. For example, if
+  a property will store date, use the "Date/Time" type rather than a
+  simple string.</li>
+
+<li>If the information block elements need to be filtered by one or more
+  properties, check the "Use property in a filter..." option in the
+  property settings. This will improve usability and make the content editor's
+  life easier.</li> 
+
+<li>Check the section parameters in a similar way, on the "Section Fields"
+  tab.</li> 
+
+<li>The values on the "Commercial Catalog" tab should be set only if your web
+  project will use this mode. Otherwise, disable these options for better
+  performance.</li>
+
+<li>Click the "Properties" tab. Verify that the access permissions are
+  adequate. For example, an imaginary "Private data" information block
+  must not be available to visitors and common users. Access permissions must be
+  consistent with tasks a respective user group is set to perform. Never give
+  redundant access permissions to any user group. If new data added to an
+  information block needs to be moderated before it becomes available to public,
+  use the "Workflow" permission or use business processes.</li> 
+
+<li>Select the "Titles" tab. Ensure that the titles are logically
+  consistent with the information block purpose and data. For example, if an
+  information block contains water-pipes for sale, the elements title should not
+  read "Oranges".</li> 
+
+<li>Select the "Event Log" tab. The settings on this tab must match
+  the project specifications on the event logging.</li>
+
+<li>For large projects containing dozens of information block types and hundreds
+  of information blocks, create a data model; use any diagramming approach you
+  find most comprehensive. This will help developers and website editors see a
+  larger picture, find data links and minimize development error risks.
+  Furthermore, the model will come in handy when a developer needs to know if an
+  information block elements can be deleted safely because there may be other
+  elements referring to this one.</li> 
+ </ol>

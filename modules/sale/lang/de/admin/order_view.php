@@ -1,0 +1,31 @@
+<?
+$MESS["SALE_OVIEW_TITLE"] = "Bestellung ID (#ID#), Nr. #NUM#, erstellt am #DATE#";
+$MESS["SALE_OVIEW_TO_LIST"] = "Liste der Bestellungen";
+$MESS["SALE_OVIEW_TO_LIST_TITLE"] = "Zur Liste der Bestellungen";
+$MESS["SALE_OVIEW_TO_EDIT"] = "Bestellung bearbeiten";
+$MESS["SALE_OVIEW_TO_EDIT_TITLE"] = "Zum Formular der Bestellbearbeitung";
+$MESS["SALE_OVIEW_TO_PRINT"] = "Bestellung drucken";
+$MESS["SALE_OVIEW_TO_PRINT_TITLE"] = "Bestellung drucken";
+$MESS["SALE_OVIEW_DELETE"] = "Bestellung löschen";
+$MESS["SALE_OVIEW_DELETE_TITLE"] = "Bestellung löschen";
+$MESS["SALE_OVIEW_DEL_MESSAGE"] = "Möchten Sie diese Bestellung wirklich löschen? Die Bestellung wird unwiderruflich gelöscht.";
+$MESS["SALE_OVIEW_BLOCK_TITLE_STATUSORDER"] = "Bestellparameter";
+$MESS["SALE_OVIEW_BLOCK_TITLE_BUYER"] = "Kunde";
+$MESS["SALE_OVIEW_BLOCK_TITLE_DELIVERY"] = "Ausführung";
+$MESS["SALE_OVIEW_BLOCK_TITLE_PAYMENT"] = "Bezahlung";
+$MESS["SALE_OVIEW_BLOCK_TITLE_ADDITIONAL"] = "Zusätzliche Informationen";
+$MESS["SALE_OVIEW_BLOCK_TITLE_BASKET"] = "Elemente der Bestellung";
+$MESS["SALE_OVIEW_BLOCK_TITLE_FINANCEINFO"] = "Information über Bezahlungen";
+$MESS["SALE_OVIEW_ERROR"] = "Fehler";
+$MESS["SALE_OVIEW_TAB_ORDER"] = "Bestellung";
+$MESS["SALE_OVIEW_TAB_HISTORY"] = "Änderungshistorie";
+$MESS["SALE_OVIEW_TAB_ANALYSIS"] = "Bestellauswertung";
+$MESS["SALE_OVIEW_ORDER_COPY"] = "Bestellung kopieren";
+$MESS["SALE_OVIEW_ORDER_COPY_TITLE"] = "Bestellung kopieren";
+$MESS["SALE_OVIEW_UNLOCK"] = "Bestellung entsperren";
+$MESS["SALE_OVIEW_TO_ARCHIVE"] = "Bestellung archivieren";
+$MESS["SALE_OVIEW_TO_ARCHIVE_TITLE"] = "Bestellung ins Archiv verschieben";
+$MESS["SALE_CONFIRM_ARCHIVE_MESSAGE"] = "Möchten Sie diese Bestellung wirklich archivieren? Diese Aktion kann nicht rückgängig gemacht werden.";
+$MESS["SALE_OVIEW_TO_ACTION"] = "Aktionen";
+$MESS["SALE_OVIEW_TO_ACTION_TITLE"] = "Aktion aus der Liste auswählen";
+?>

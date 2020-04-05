@@ -1,0 +1,37 @@
+<?
+$MESS["SALE_UNINSTALL_WARNING"] = "Achtung! Das Modul wird aus dem System gelöscht.";
+$MESS["SINS_PERM_R"] = "anzeigen ohne zu ändern";
+$MESS["SALE_VARIANT2_DESCR"] = "Bestellung in zwei Schritten, muss manuell eingestellt werden (Details entnehmen Sie bitte der Skriptdatei \"order.php\").";
+$MESS["SINS_PERM_U"] = "Bestellungen verwalten";
+$MESS["SALE_INST_PUB_VAR"] = "Darstellungen des öffentlichen Bereichs";
+$MESS["SALE_UNINSTALL_COMPLETE"] = "Deinstallation wurde abgeschlossen.";
+$MESS["SALE_UNINSTALL_DEL"] = "Deinstallieren";
+$MESS["SALE_INSTALL_COMPLETE_ERROR"] = "Die Installation war fehlerhaft";
+$MESS["SALE_INSTALL_COMPLETE_OK"] = "Die Installation wurde abgeschlossen. Für weitere Informationen benutzen Sie Hilfe.";
+$MESS["SALE_VARIANT1_DESCR"] = "Empfohlen: universelle Templates.";
+$MESS["SALE_INSTALL_DESCRIPTION"] = "Erlaubt das Betreiben des Onlineshops.";
+$MESS["SALE_UNINSTALL_ERROR"] = "Es sind Fehler beim Deinstallieren aufgetreten:";
+$MESS["SALE_INSTALL_ERROR"] = "Es sind Fehler beim Installieren aufgetreten";
+$MESS["SALE_INSTALL_CURRENCY"] = "Für die fehlerfreie Funktion des Onlineshops, müssen Sie das Modul \"Währung\" installieren.";
+$MESS["SINS_PERM_D"] = "gesperrt";
+$MESS["SIM_REWRITE_ADD"] = "Hilfsdateien überschreiben";
+$MESS["SALE_INSTALL_TITLE"] = "Installation des Moduls \"Onlineshop\"";
+$MESS["SALE_INSTALL_SETUP"] = "Installieren";
+$MESS["SALE_INSTALL_PUBLIC_SETUP"] = "Installieren";
+$MESS["SIM_COPY_PUBLIC_FILES"] = "Öffentliche Dateien kopieren";
+$MESS["SALE_INSTALL_PUBLIC_DIR"] = "Öffentlicher Ordner";
+$MESS["SALE_INSTALL_PUBLIC"] = "Öffentlicher Ordner für die Installation";
+$MESS["SALE_INSTALL_NAME"] = "Onlineshop";
+$MESS["SIM_COPY_FOLDER"] = "Ordner, in den die Dateien kopiert werden (in Bezug auf Root-Verzeichnis):";
+$MESS["SALE_INSTALL_PERSON"] = "Persönlicher Bereich";
+$MESS["SALE_UNINSTALL_SAVEDATA"] = "Sie können Daten in der Datenbank speichern, wenn Sie das Flag &quot;Tabellen speichern&quot; aktivieren.";
+$MESS["SALE_UNINSTALL_SAVETABLE"] = "Tabellen speichern";
+$MESS["SALE_VARIANT_NUM"] = "Version";
+$MESS["SINS_PERM_W"] = "voller Zugriff";
+$MESS["SALE_INSTALL_PUBLIC_REW"] = "Vorhandene Dateien überschreiben";
+$MESS["SALE_INSTALL_DEFAULT"] = "Wählen Sie aus, welche Beispieldateien für das Modul \"Onlineshop\" installiert werden sollen";
+$MESS["SALE_UNINSTALL_SAVECURRENCY"] = "Währungstabellen speichern (werden von den Modulen \"Katalog\" und \"Onlineshop\" verwendet).";
+$MESS["SALE_INSTALL_BASKET"] = "Warenkorb";
+$MESS["SALE_INSTALL_BACK"] = "Zurück zur Modulverwaltung";
+$MESS["SALE_UPDATER_16036_MIGRATE_NOTIFY"] = "Rabatte des Kommerziellen Katalogs können zu Rabatten des Onlineshops <a href=\"#LINK#\">konvertiert werden</a>.";
+?>

@@ -1,0 +1,26 @@
+.bx-black.bx-top-nav .bx-top-nav-container {
+	background: #333;
+}
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-hover>a,
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-active>a,
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl:hover>a {
+	background: #5c5c5c;
+	border-bottom: none;
+}
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-nav-parent.bx-hover>a,
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-1-lvl.bx-nav-parent:hover>a {
+	color: #333;
+	background-color: transparent;
+}
+/*2 lvl*/
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-2-lvl>a.bx-active,
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-2-lvl>a:hover {
+	color: #333;
+	background: #F0F0F0;
+}
+/*3 lvl*/
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-3-lvl a.bx-active,
+.bx-black.bx-top-nav .bx-top-nav-container .bx-nav-3-lvl a:hover {
+	color: #333;
+	background: #F0F0F0;
+}

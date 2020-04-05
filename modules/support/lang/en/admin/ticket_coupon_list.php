@@ -1,0 +1,37 @@
+<?
+$MESS["SUP_CL_TITLE"] = "Coupons";
+$MESS["SUP_CL_FLT_COUPON"] = "Coupon";
+$MESS["SUP_CL_EXACT_MATCH"] = "Exact match";
+$MESS["SUP_CL_COUPON"] = "Coupon";
+$MESS["SUP_CL_COUNT_TICKETS"] = "Usages";
+$MESS["SUP_CL_DELETE"] = "Delete";
+$MESS["SUP_CL_DELETE_CONFIRMATION"] = "Do you really want to delete the coupon?";
+$MESS["SUP_CL_TIMESTAMP_X"] = "Modified";
+$MESS["SUP_CL_DATE_CREATE"] = "Created";
+$MESS["SUP_CL_CREATED_USER_ID"] = "Creator user ID";
+$MESS["SUP_CL_CREATED_LOGIN"] = "Creator user login";
+$MESS["SUP_CL_CREATED_FIRST_NAME"] = "Creator first name";
+$MESS["SUP_CL_CREATED_LAST_NAME"] = "Creator last name";
+$MESS["SUP_CL_UPDATED_USER_ID"] = "Editor user ID";
+$MESS["SUP_CL_UPDATED_LOGIN"] = "Editor user login";
+$MESS["SUP_CL_UPDATED_FIRST_NAME"] = "Editor user first name";
+$MESS["SUP_CL_UPDATED_LAST_NAME"] = "Editor user last name";
+$MESS["SUP_CL_ADD"] = "New coupon";
+$MESS["SUP_CL_GENERATE_MESS_OK"] = "The coupon %COUPON% has been generated.";
+$MESS["SUP_CL_GENERATE_ERROR"] = "Error generating a coupon";
+$MESS["SUP_CL_GENERATE_CONFIRM"] = "You have already created a coupon during this session. Generate another one?";
+$MESS["SUP_CL_ACTIVE"] = "Active";
+$MESS["SUP_CL_ACTIVE_FROM"] = "Active from";
+$MESS["SUP_CL_ACTIVE_TO"] = "Active till";
+$MESS["SUP_CL_EDIT"] = "Edit coupon";
+$MESS["SUP_CL_ADD_TITLE"] = "Generate new coupon";
+$MESS["SUP_CL_SLA_ID"] = "SLA ID";
+$MESS["SUP_CL_SLA_NAME"] = "SLA";
+$MESS["SUP_CL_LOG"] = "Usage log";
+$MESS["SUP_CL_PAGES"] = "Coupons";
+$MESS["SUP_CL_COUNT_USED"] = "Used";
+$MESS["SUP_GL_PAGES"] = "Coupons";
+$MESS["MAIN_ADMIN_LIST_SELECTED"] = "Selected:";
+$MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
+$MESS["MAIN_ADMIN_LIST_DELETE"] = "delete";
+?>

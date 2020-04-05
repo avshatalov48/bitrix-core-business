@@ -1,0 +1,47 @@
+.blog-post-rating{color: #7a7a7a;}
+.blog-post-rating .rating-vote {height:19px!important;}
+* + html .blog-post-rating .rating-vote {margin-top:5px;}
+.blog-post-rating .rating-vote img {display: none;}
+.blog-post-rating .rating-vote-result {margin-top: 0px!important; color: #7a7a7a!important;}
+
+div.idea-answer .idea-comment-rating-content-like .bx-ilike-right, div.idea-answer .idea-comment-rating-content-like .bx-ilike-text
+{
+	text-decoration: none!important;
+	font-size: 11px!important;
+}
+
+div.idea-answer .idea-comment-rating-content-like .ilike-light
+{
+	display: inline-block;
+	margin-top: -4px;
+}
+
+* + html div.idea-answer .idea-comment-rating-content-like .ilike-light
+{
+	margin-top: -0px!important;
+}
+
+@-moz-document url-prefix()
+{
+	div.idea-answer .idea-comment-rating-content-like .bx-ilike-right{padding-top: 2px!important;}
+}
+
+div.idea-answer .idea-comment-rating-content-like .idea-comment-rating-title
+{
+	display:none;
+}
+
+
+* + html div.idea-answer .idea-comment-rating-content-like .bx-ilike-right
+{
+	padding-top: 3px!important;
+}
+
+* + html div.idea-answer .idea-comment-rating-content-like .bx-ilike-text
+{
+	height: 16px!important;
+}
+
+idea-comment-block-wrapper{
+	zoom:1; font-size: 0px; line-height: 0px;
+}

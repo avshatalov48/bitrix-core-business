@@ -1,0 +1,53 @@
+
+.tm-popup-events { margin: 10px 0 0 6px; }
+.tm-popup-event-list { max-height: 90px; overflow-y: auto; position: relative;}
+
+.tm-popup-event { overflow: hidden; margin: 0 0 6px 0; position:relative; font:normal 12px/17px Arial, Helvetica, sans-serif;}
+.tm-popup-event-datetime { float: left; }
+.tm-popup-event-time-passed { color: #a0a0a0; }
+.tm-popup-event-separator { display:inline-block; padding: 0 3px; }
+.tm-popup-event-name { overflow: hidden; padding: 0 0 0 10px;  }
+.tm-popup-event-text { color: #000; cursor: pointer; vertical-align: middle;}
+.tm-popup-event-name .tm-popup-event-text { color: #000; text-decoration: none; }
+
+.tm-popup-event-delete {  display: inline-block; width: 13px; height: 13px; margin:0 0 0 5px; cursor:pointer; vertical-align:middle;  background:none;}
+.tm-popup-event:hover .tm-popup-event-delete { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -283px;  }
+.tm-popup-event:hover .tm-popup-event-delete:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -283px; }
+.tm-popup-event-text:hover { border-bottom:1px dashed #156cb6; color: #156cb6;}
+
+.tm-popup-event-form { margin: 4px 0 0 0;}
+.tm-popup-event-start-time-textbox { width:31px; text-align: center;}
+.tm-popup-event-start-time-textbox_am_pm { width:48px; text-align: center;}
+.tm-popup-event-end-time-textbox { width:31px; margin: 0 10px 0 7px; text-align: center;}
+.tm-popup-event-end-time-textbox_am_pm { width:48px; margin: 0 10px 0 7px; text-align: center;}
+.tm-popup-event-form-textbox { width: 209px; }
+.tm-popup-event-form-textbox_am_pm { width: 200px; }
+.tm-popup-event-start-time-textbox, .tm-popup-event-start-time-textbox_am_pm, .tm-popup-event-end-time-textbox, .tm-popup-event-end-time-textbox_am_pm, .tm-popup-event-form-textbox, .tm-popup-event-form-textbox_am_pm { color: #000; border: 1px solid #adadad; vertical-align: middle; font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; }
+.tm-popup-event-start-time-textbox, .tm-popup-event-start-time-textbox_am_pm, .tm-popup-event-end-time-textbox, .tm-popup-event-end-time-textbox_am_pm { font-size: 11px; }
+.tm-popup-event-form-disabled .tm-popup-event-form-textbox, .tm-popup-event-form-textbox_am_pm, .tm-popup-event-form-disabled .tm-popup-event-start-time-textbox, .tm-popup-event-start-time-textbox_am_pm, .tm-popup-event-form-disabled .tm-popup-event-end-time-textbox, .tm-popup-event-end-time-textbox_am_pm { color: #adadad; }
+.tm-popup-event-form-disabled .tm-popup-event-form-submit { cursor: default; background: url(/bitrix/js/main/core/images/controls-sprite.png) -11px -68px;  }
+.tm-popup-event-form-options { width:294px; text-align: right; font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #888888; padding: 2px 0 0 0;}
+.tm-popup-event-form-options input { vertical-align: middle; }
+.tm-popup-event-form-options label { vertical-align: middle; }
+
+
+/* Event Info Popup */
+.tm-event-popup { width: 320px; font: normal 12px/normal Arial, Helvetica, sans-serif; overflow: hidden;}
+.tm-event-popup-description { margin: 13px 10px; color: #222222; }
+.tm-event-popup-time { margin: 13px 16px 13px 10px; text-align: center; }
+.tm-event-popup-time-interval { color: #000; font-size: 18px; }
+.tm-event-popup-time-hint { color: #7f7f7f; font-size: 13px; margin: 2px 0 0 0;}
+.tm-event-popup-participants { margin: 13px 10px;  max-height: 120px; overflow-y: auto; overflow-x: hidden;}
+
+.tm-event-popup-participant { overflow: hidden; margin: 0 0 5px 0; }
+.tm-event-popup-participant-status { float: left; width:11px; height:14px; margin: 0 5px 0 0; background: url(images/calendar-planner.png) no-repeat -26px 1px; vertical-align:middle;}
+.tm-event-popup-participant-status-accept { background: url(images/calendar-planner.png) no-repeat 0 1px; }
+.tm-event-popup-participant-status-decline { background: url(images/calendar-planner.png) no-repeat -13px 1px; }
+.tm-event-popup-participant-name { overflow: hidden; text-align: left; }
+.tm-event-popup-participant-name .tm-event-popup-participant-link { color: #3b3b3b; text-decoration: none; vertical-align:middle;}
+.tm-event-popup-participant-name .tm-event-popup-participant-link:hover { text-decoration: underline; }
+.tm-event-popup-participant-hint { color: #838383; display:inline-block; margin-left: 0.5em; vertical-align: top; }
+
+.tm-event-popup-participants-grid { width: 100%; margin:14px 0 0 0; }
+.tm-event-popup-participants-grid-left { width: 50%; padding: 0; vertical-align:top;}
+.tm-event-popup-participants-grid-right { width: 50%; padding: 0 0 0 5px; vertical-align:top;}

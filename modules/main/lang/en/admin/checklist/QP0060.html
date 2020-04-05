@@ -1,0 +1,33 @@
+<p>When developing a web project, a very curious question arises sometimes: what
+could the maximum possible performance be? Or, in other words, how many
+concurrent visitors can the current configuration serve until the delay becomes
+unacceptably apparent?</p>
+
+<p>For example: a web project was properly optimized for high loads and hosted
+on a high performance server. Conventional tests showed acceptable results for
+emulated 3.000.000 daily hits: the average page generation time of 0.5 sec, the
+average web page transmission time of 1 sec. However, what the limit can
+be? </p>
+
+<p>This test may show that, for example, the maximum possible performance is
+5.500.000 daily hits with the average page generation time of 1 sec and the
+average web page transmission time of 3 sec. It is quite obvious that such
+values ensure the system has almost two-fold redundancy and will hold.</p>
+
+
+<p>Open "Settings > Performance > Performance Panel > Scalability" and run the
+stress test using the following initial values:</p>
+
+<ul>
+<li>Initial Concurrent Connections: 1</li>
+<li>Final Concurrent Connections: 5</li> 
+<li>Increment Concurrent Connections By: 1</li> 
+<li>Maximum Test Duration: 5 minutes</li>
+<li>Page: the main or index page (e.g. /index.php). You can specify any other
+  popular page.</li> 
+ </ul>
+
+<p>The page generation time should not exceed 0.5 sec. and should not be
+increasing too fast with the growing concurrent connections. No errors must
+occur. The minimum number of pages per second should match the expected daily
+hits divided by 86400. The page acquisition time should not exceed 1 sec.</p>

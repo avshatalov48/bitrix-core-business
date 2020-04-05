@@ -1,0 +1,159 @@
+/*Edit table*/
+table.support-ticket-edit
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	font-size:100%;
+	font-weight:normal;
+	line-height:160%;
+}
+
+table.support-ticket-edit th, table.support-ticket-edit td
+{
+	border:1px solid #ADC3D5;
+	padding: 5px 5px;
+	vertical-align:top;
+}
+
+table.support-ticket-edit th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: left;
+	color:#25639A;
+}
+
+
+table.support-ticket-edit td
+{
+	padding: 15px 5px;
+}
+
+/*Message*/
+div.ticket-edit-message
+{
+	border:1px solid #ADC3D5;
+	margin: 10px;
+	padding:3px 5px;
+}
+
+
+/*Form table*/
+table.support-ticket-edit-form
+{
+	width:100%;
+	background-color:#F9FAFB;
+	border-collapse:collapse;
+	border:1px solid #ADC3D5;
+	font-size:100%;
+	font-weight:normal;
+	line-height:160%;
+}
+
+table.support-ticket-edit-form th
+{
+	background-image:url(images/table_head.gif);
+	background-repeat:repeat-x;
+	text-align: left;
+	color:#25639A;
+}
+
+
+/* Form Table: cells and head*/
+table.support-ticket-edit-form td, table.support-ticket-edit-form th
+{
+	padding:5px;
+	vertical-align:top;
+}
+
+/* Form Table: head*/
+table.support-ticket-edit-form th
+{
+	border-bottom:1px solid #ADC3D5;
+}
+
+/* Form Table: cells field-name*/
+table.support-ticket-edit-form td.field-name
+{
+	text-align:right;
+	vertical-align:top;
+}
+
+table.support-ticket-edit-form tbody td
+{
+	border:none;
+}
+
+/*Images*/
+
+div.support-paperclip
+{
+	background-image:url(images/paperclip.gif);
+	background-repeat:repeat-x;
+	width: 16px;
+	height: 16px;
+	float: left;
+}
+
+/*Float quote link*/
+.support-float-quote
+{
+	float:right;
+}
+
+
+br.clear
+{
+	clear:left;
+}
+
+
+/* BBCode*/
+
+.support-quote-table, .support-code-table
+{
+	width: 90%;
+}
+
+.support-quote-body, 
+.support-code-body, 
+.support-quote-table,
+.support-code-table,
+.support-code-textarea,
+.support-quote-head,
+.support-code-head
+{
+	padding: 2px;
+	background-color: #F9FAFB; 
+	font-size:100%; 
+}
+
+
+.support-quote-body
+{
+	font-style:italic;
+	background-color:#F1F5F8;
+}
+
+.support-quote-table .support-quote-head, .support-code-table .support-code-head
+{
+	font-weight: bold;
+	padding: 2px;
+	background-color:#E2E9F1;
+}
+
+
+
+.support-code-textarea
+{
+	border-width:0;
+	width: 100%;
+	overflow:auto;
+
+}
+
+.starrequired
+{
+	color:#FF0000;
+}

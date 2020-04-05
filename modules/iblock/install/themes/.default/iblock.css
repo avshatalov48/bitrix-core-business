@@ -1,0 +1,19 @@
+img.linked
+{
+	position: relative;
+	left: 2px;
+	top: 6px;
+	width: 11px;
+	height: 21px;
+	border: none;
+	cursor: pointer;
+}
+.iblock-strike-out td
+{
+	text-decoration: line-through;
+}
+
+.iblock-section-icon
+{
+	background-position:  center -118px;
+}

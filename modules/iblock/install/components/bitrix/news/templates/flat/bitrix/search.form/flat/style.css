@@ -1,0 +1,81 @@
+.bx-searchform {
+    margin: 10px 0 20px;
+}
+.bx-searchform .bx-block-title {
+    font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: #343434;
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-bottom: 9px;
+    font-weight: 600;
+}
+.bx-searchform .bx-input-group {
+    position: relative;
+    display: table;
+    border-collapse: separate;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.bx-searchform .bx-input-group {}
+.bx-searchform .bx-input-group .bx-form-control {
+    display: table-cell;
+    position: relative;
+    z-index: 2;
+    float: left;
+    width: 100%;
+    margin-bottom: 0;
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #f8fafc;
+    border: 1px solid #d5dadc;
+    border-right: none;
+    border-radius: 2px 0 0 2px;
+    outline: none;
+    box-shadow: none !important;
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.bx-ios .bx-searchform .bx-input-group .bx-form-control {
+    /* Fix of input shadow for IOS browsers. */    
+    background-image: -webkit-linear-gradient(#f8fafc 0%, #f8fafc 100%);
+    background-image: linear-gradient(#f8fafc 0%, #f8fafc 100%);
+}
+.bx-searchform .bx-input-group-btn {
+    position: relative;
+    font-size: 0;
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: middle;
+    display: table-cell;
+}
+.bx-searchform .bx-input-group-btn button {
+    position: relative;
+    border: none;
+    background: #95a1a8;
+    display: inline-block;
+    margin-bottom: 0;
+    cursor: pointer;
+    padding: 9px 12px;
+    border-radius: 0 2px 2px 0;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.42857143;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-transition: all .3s ease;
+    -moz-transition: all .3s ease;
+    -ms-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    transition: all .3s ease;
+}
+.bx-searchform .bx-input-group-btn button:hover {
+    background: #1484CE;
+}

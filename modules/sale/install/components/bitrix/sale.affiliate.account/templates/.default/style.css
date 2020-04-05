@@ -1,0 +1,58 @@
+.affiliate-result-table{
+	width: 100%;
+	border: 1px solid #B7BCDB;
+	border-collapse: collapse;
+}
+
+.affiliate-filter-table {
+	width: 0%;
+	border: 1px solid #B7BCDB;
+	border-collapse: collapse;
+}
+
+.affiliate-filter-table td {
+	padding: 3px;
+	border: 0px;
+}
+
+.affiliate-filter-table thead td, .affiliate-result-table thead td
+{
+	text-align: center;
+	background-color: #EBECF3;
+	font-family: Arial, Helvetica, sans-serif; font-size:12px;
+	color:#25639A;
+}
+
+.affiliate-filter-table tbody td, .affiliate-result-table tbody td
+{
+	font-family: Arial, Helvetica, sans-serif; font-size:12px;
+}
+
+.affiliate-filter-table tfoot td
+{
+	font-size: 11px;
+	text-align: center;
+	background-color: #EBECF3;
+}
+
+.affiliate-result-table tfoot td
+{
+	background-color: #EBECF3;
+	font-family: Arial, Helvetica, sans-serif; font-size:12px;
+	color:#25639A;
+}
+
+.affiliate-filter-table tfoot input {
+	font-family:Verdana,Arial,Helvetica; font-size:11px;
+}
+
+
+.affiliate-result-table td {
+	padding: 3px;
+	border: 1px solid #B7BCDB;
+}
+
+.affiliate-result-table .affiliate-result-table-right
+{
+	text-align: right;
+}

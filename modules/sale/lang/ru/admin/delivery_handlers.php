@@ -1,0 +1,32 @@
+<?
+$MESS ['SALE_DH_TITLE'] = "Автоматизированные службы доставки";
+$MESS ['SALE_EDIT_DESCR'] = "Изменить параметры службы доставки";
+$MESS ['SALE_DH_NAV_TITLE'] = "Службы доставки";
+$MESS ['SALE_DH_TABLE_ACTIVE'] = "Акт.";
+$MESS ['SALE_DH_TABLE_ISCONFIG'] = "Уст.";
+$MESS ['SALE_DH_TABLE_NAME'] = "Название";
+$MESS ['SALE_DH_TABLE_PATH'] = "Обработчик";
+$MESS ['SALE_DH_EDIT_DESCR'] = "Редактировать";
+$MESS ['SALE_DH_INSTALL_DESCR'] = "Инсталлировать";
+$MESS ['SALE_DH_DELETE_DESCR'] = "Очистить настройки";
+$MESS ['SALE_DH_RESET_DESCR'] = "очистить настройки";
+$MESS ['SALE_DH_ACTIVATE_DESCR'] = "активировать";
+$MESS ['SALE_DH_DEACTIVATE_DESCR'] = "деактивировать";
+$MESS ['SALE_DH_TABLE_SORT'] = "Сорт";
+$MESS ['SALE_DH_CONFIRM_UNINSTALL'] = "Вы действительно хотите деинсталлировать обработчик службы доставки? Все его настройки будут удалены.";
+$MESS ['SALE_DH_HINT_ADD'] = "Для добавления собственного обработчика доставки используйте каталог";
+$MESS ['SALE_DH_ORDINARY'] = "Настраиваемые службы";
+$MESS ['SALE_DH_ORDINARY_ALT'] = "Перейти к редактированию настраиваемых служб доставки";
+$MESS ['SALE_DH_HINT_SHOP_ADDRESS'] = "Адрес магазина";
+$MESS ['SALE_DH_HINT_SHOP_ADDRESS_ERROR'] = "Не установлен!";
+$MESS ['SALE_DH_HINT_SHOP_ADDRESS_ZIP'] = "Почтовый индекс магазина";
+$MESS ['SALE_DH_HINT_SHOP_ADDRESS_ZIP_ERROR'] = "Не установлен!";
+$MESS ['SALE_DH_SHOP_ADDRESS_CHANGE'] = "изменить";
+$MESS ['SALE_DH_LOCATIONS_STATS'] = "Статистика базы местоположений";
+$MESS ['SALE_DH_LOCATIONS_COUNTRY_STATS'] = "стран";
+$MESS ['SALE_DH_LOCATIONS_CITY_STATS'] = "городов";
+$MESS ['SALE_DH_LOCATIONS_LOC_STATS'] = "всего местоположений";
+$MESS ['SALE_DH_LOCATIONS_GROUP_STATS'] = "групп местоположений";
+$MESS ['SALE_DH_LOCATIONS_LINK'] = "редактировать местоположения";
+$MESS ['SALE_DH_LOCATIONS_IMPORT_LINK'] = "импорт местоположений";
+?>

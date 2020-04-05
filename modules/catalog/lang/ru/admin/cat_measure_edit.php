@@ -1,0 +1,25 @@
+<?
+$MESS["CAT_MEASURE_LIST"] = "Список единиц измерения";
+$MESS["CAT_MEASURE_CODE"] = "Код";
+$MESS["CAT_MEASURE_MEASURE_TITLE"] = "Наименование единицы измерения";
+$MESS["CAT_MEASURE_SYMBOL_RUS"] = "Условное обозначение";
+$MESS["CAT_MEASURE_SYMBOL_INTL"] = "Условное обозначение (международное)";
+$MESS["CAT_MEASURE_SYMBOL_LETTER_INTL"] = "Кодовое буквенное обозначение (международное)";
+$MESS["CAT_MEASURE_IS_DEFAULT"] = "По умолчанию";
+$MESS["CAT_MEASURE_CLASSIFIER_MAIN"] = "Выберите раздел классификатора";
+$MESS["CAT_MEASURE_CLASSIFIER_SUB"] = "Выберите подраздел классификатора";
+$MESS["CAT_MEASURE_ADD"] = "Добавить";
+$MESS["CAT_MEASURE_TITLE"] = "Единицы измерения";
+$MESS["CAT_MEASURE_TITLE_ADD"] = "Добавить единицу измерения";
+$MESS["CAT_MEASURE_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить эту единицу измерения?";
+$MESS["CAT_MEASURE_DELETE"] = "Удалить";
+$MESS["CAT_MEASURE_DEFAULT"] = "По умолчанию";
+$MESS["CVAT_SORT"] = "Сорт.";
+$MESS["CAT_MEASURE_CODE_EMPTY"] = "Введите код единицы измерения.";
+$MESS["CAT_MEASURE_TITLE_EMPTY"] = "Введите название единицы измерения.";
+$MESS['CAT_MEASURE_TITLE_EDIT'] = 'Редактирование единицы измерения #ID#';
+$MESS['CAT_MEASURE_TITLE_NEW'] = 'Создание единицы измерения';
+$MESS['CAT_MEASURE_TITLE_ONE'] = 'Единица измерения';
+$MESS['CAT_MEASURE_TITLE_OKEI'] = 'Добавление единицы измерения из классификатора';
+$MESS['CAT_MEASURE_NOTHING_SELECT'] = 'Ни одной единицы измерения не выбрано';
+$MESS['CAT_MEASURE_SUCCESS_ADD'] = 'Успешно добавлено';

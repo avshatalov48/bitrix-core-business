@@ -1,0 +1,23 @@
+var owner_id = "%OWNER_ID%";
+var count = %COUNT%;
+var data = %DATA%;
+var res = [];
+
+var i = 0;
+while (i < count) {
+    var album_id = data[i].ALBUM_VK_ID;
+    var res_curr = API.market.deleteAlbum({"owner_id": owner_id, "album_id": album_id });
+    if(res_curr) {
+        res = res + [{"ALBUM_VK_ID":album_id, "flag_album_delete_result": true}];
+    } else {
+        res = res + [{"ALBUM_VK_ID":album_id, "flag_album_delete_result": false}];
+    }
+    i = i+1;
+}
+
+return res;
+
+
+
+
+

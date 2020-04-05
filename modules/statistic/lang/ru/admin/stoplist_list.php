@@ -1,0 +1,37 @@
+<?
+$MESS ['STAT_STOP_PAGES'] = "Запись";
+$MESS ['STAT_F_LOGIC'] = "Логика между полями";
+$MESS ['STAT_GREEN_LAMP'] = "Запись активна";
+$MESS ['STAT_RED_LAMP'] = "Запись не активна";
+$MESS ['STAT_LAMP_ACTIVE'] = "Запись активна.";
+$MESS ['STAT_LAMP_NOT_ACTIVE'] = "Запись не активна.";
+$MESS ['STAT_COMMENT'] = "Комментарий";
+$MESS ['STAT_MESSAGE'] = "Сообщение";
+$MESS ['STAT_REDIRECT'] = "Перенаправить (URL)";
+$MESS ['STAT_F_DATE_START'] = "Дата начала";
+$MESS ['STAT_DATE_START'] = "Начало";
+$MESS ['STAT_F_DATE_END'] = "Дата окончания";
+$MESS ['STAT_DATE_END'] = "Окончание";
+$MESS ['STAT_RECORDS_LIST'] = "Стоп-лист";
+$MESS ['STAT_F_ID'] = "ID";
+$MESS ['STAT_RECORD_STATUS'] = "Статус активности";
+$MESS ['STAT_F_ACTIVE'] = "Активно";
+$MESS ['STAT_F_STATISTIC'] = "Добавить в статистику";
+$MESS ['STAT_F_IP'] = "IP адрес";
+$MESS ['STAT_F_USER_AGENT'] = "UserAgent";
+$MESS ['STAT_F_FROM'] = "Откуда";
+$MESS ['STAT_ACTIVE'] = "Акт.";
+$MESS ['STAT_STAT'] = "Стат.";
+$MESS ['STAT_IP'] = "IP адрес сети";
+$MESS ['STAT_MASK'] = "Маска сети";
+$MESS ['STAT_USER_AGENT'] = "UserAgent";
+$MESS ['STAT_REFERER'] = "Откуда";
+$MESS ['STAT_CONFIRM_DEL_STOP'] = "Вы уверены что хотите удалить запись?";
+$MESS ['STAT_URL_TO'] = "Куда";
+$MESS ['STAT_F_SITE'] = "Сайт";
+$MESS ['STAT_F_TO'] = "Куда";
+$MESS ['STAT_F_REDIRECT'] = "Перенаправить";
+$MESS ['STAT_F_COMMENTS'] = "Комментарий";
+$MESS ['STAT_F_MESSAGE'] = "Сообщение";
+$MESS ['SAVE_ERROR'] = "Ошибка при сохранении записи #";
+?>

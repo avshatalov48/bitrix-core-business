@@ -1,0 +1,24 @@
+<p>The Bitrix platform is written in PHP which implies that the website
+performance ultimately depends on the PHP interpreter settings. One of the
+crucial factors is the presence of a PHP precompiler (APC, ZendOptimizer+, eAccelerator, XCache, WinCache).  </p>
+
+<p>It is recommended that you set up the precompiler administration page which
+will allow you to see the runtime parameters and edit them if so required, for
+example: set the adequate cache size, track redundant files etc. Also pay
+attention to such PHP parameters as "open_basedir" and "realpath_cache_size".</p>
+ 
+<p><img height="456" border="0" width="500" src="/bitrix/images/main/checklist/en/QP0020.png" /></p>
+ 
+
+<ol>
+<li>Open "Settings > Performance > Performance Panel", select the "Configuration"
+  tab. The "PHP Configuration" row should show "optimum" in the "Score"
+  column. Otherwise, you have to apply more effort to PHP configuration.</li>
+<li>Ensure there is sufficient memory allocated for the PHP interpreter. To do
+  so, enable PHP error logging and perform a stress test (or any other kind of
+  test you find appropriate to track memory consumption). Once the test is done,
+  search the log file for memory related errors. If such errors exist, increase
+  the value of the "memory_limit" parameter. However, if a web page or
+  script requires too much memory to run (128 MB or more), it requires some
+  correction, optimization or even complete redesign.</li> 
+ </ol>

@@ -1,0 +1,19 @@
+<?
+$MESS["SALE_MODULE_NOT_INSTALLED"] = "Модуль \"Интернет магазин\" не установлен";
+$MESS["SALE_ACCESS_DENIED"] = "Доступ запрещен";
+$MESS["SALE_EBAY_TITLE"] = "Настройки политик\"Ebay\"";
+$MESS["SALE_EBAY_TAB_DEFAULT"] = "Настройки";
+$MESS["SALE_EBAY_TAB_RETURN"] = "Возврат";
+$MESS["SALE_EBAY_TAB_PAYMENT"] = "Оплата";
+$MESS["SALE_EBAY_TAB_SHIPPING"] = "Доставка";
+$MESS["SALE_EBAY_TAB_DEFAULT_TITLE"] = "Общие настройки";
+$MESS["SALE_EBAY_TAB_PAYMENT_TITLE"] = "Настройка соответствий для политик оплаты";
+$MESS["SALE_EBAY_TAB_SHIPPING_TITLE"] = "Настройка соответствий для политик доставки";
+$MESS["SALE_EBAY_SITE"] = "Сайт";
+$MESS["SALE_EBAY_TAB_POLICY_RETURN"] = "Возврат";
+$MESS["SALE_EBAY_TAB_POLICY_SHIPPING"] = "Доставка";
+$MESS["SALE_EBAY_TAB_POLICY_PAYMENT"] = "Оплата";
+$MESS["SALE_EBAY_TAB_POLICY_URL"] = "URL";
+$MESS["SALE_EBAY_DEFAULT"] = "Политики по-умолчанию";
+$MESS["SALE_EBAY_SETTINGS_SAVED"] = "Настройки сохранены";
+$MESS["SALE_EBAY_NOT_MAPPED"] = "cоотвествие не установлено";

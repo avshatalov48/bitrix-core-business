@@ -1,0 +1,30 @@
+<?
+$MESS["FM_ML"] = "Медиабиблиотека";
+$MESS["FM_ML_UPL_LOACATE"] = "Выберите коллекцию из списка";
+$MESS["FM_ML_UPL_NOTICE"] = "После загрузки можно привязать загруженные элементы к другим коллекциям.";
+$MESS["FM_ML_UPL_NOTICE_CYR"] = "Названия файлов могут состоять из латинских букв, цифр, дефисов, точки и подчеркивания. Остальные символы будут вырезаны.";
+$MESS["FM_ML_UPL_TITLE1"] = "Множественная загрузка элементов в медиабиблиотеку";
+$MESS["FM_ML_UPL_TITLE2"] = "Параметры загруженных элементов";
+$MESS["FM_ML_UPL_NO_NAME_WARN"] = "Не введено имя элемента";
+$MESS["FM_ML_UPL_NO_COLS_WARN"] = "Необходимо включить элемент хотя бы в одну коллекцию";
+$MESS["FM_ML_UPL_ACCESS_DENIED"] = "Нет прав для загрузки элементов в эту коллекцию";
+$MESS["ML_ADD_COL2ITEM"] = "Привязать элемент к новой коллекции";
+$MESS["MEDIALIB_UPLOADER_APPLET"] = "Множественная загрузка";
+$MESS["MEDIALIB_UPLOADER_DESCRIPTION"] = "Описание";
+$MESS["MEDIALIB_UPLOADER_HAS_BEEN_UPLOADED"] = "Загружено";
+$MESS["MEDIALIB_UPLOADER_CANCEL"] = "Отменить";
+$MESS["MEDIALIB_UPLOADER_UPLOAD1"] = "Загрузить файлы";
+$MESS["MEDIALIB_UPLOADER_UPLOAD"] = "Загрузить";
+$MESS["MEDIALIB_UPLOADER_UPLOAD_FROM"] = "из";
+$MESS["MEDIALIB_UPLOADER_ADD"] = "Добавить еще";
+$MESS["MEDIALIB_UPLOADER_DND"] = "Перетащить с помощью Drag'n'drop";
+$MESS["MEDIALIB_UPLOADER_COUNT2"] = "Выбрано файлов";
+$MESS["MEDIALIB_UPLOADER_SIMPLIFIED"] = "Упрощенный просмотр";
+$MESS["MEDIALIB_UPLOADER_NORMAL"] = "Обычный просмотр";
+$MESS["MEDIALIB_UPLOADER_EDIT"] = "Изменить";
+$MESS["MEDIALIB_UPLOADER_TURN"] = "Повернуть по часовой стрелке";
+$MESS["MEDIALIB_UPLOADER_DEL"] = "Удалить";
+$MESS["MEDIALIB_UPLOADER_TITLE1"] = "Загрузчик HTML5";
+$MESS["MEDIALIB_UPLOADER_TITLE2"] = "Загрузчик Java";
+$MESS["MEDIALIB_UPLOADER_INTO"] = "Загружать в коллекцию";
+?>

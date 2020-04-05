@@ -1,0 +1,184 @@
+
+div#wiki-post {
+	margin-bottom: 10px;
+}
+
+div.wiki-errors {
+	border: 1px solid #FFD482;
+	margin: 1.117em;
+	padding: 0.4em 1.117em;
+	color:red;
+	background-color:#FFFEEB;
+}
+
+div#wiki-post div#wiki-post-content {
+
+}
+
+.wiki-prereview-post-text pre {
+
+	background-color: #FFFFFF;
+	font-family: monospace,Courier !important;
+	border-color: #C3C3C3;
+	border-style: solid;
+	border-width: 1px;
+	line-height: 1.5em;
+	padding: 5px;
+	font-size: 1em;
+	margin: 15px 5px 5px 0px;
+	color: #696969;
+	overflow: auto;
+	word-wrap: break-word;
+}
+
+.bx-firefox .wiki-prereview-post-text pre
+{
+	font-size: medium;
+}
+
+div#wiki-post a.wiki_red {
+	color: red;
+}
+
+div#wiki-post div.wiki-prereview-header {
+	background-color:#6C6C6C;
+	border-color:#7A7A7A;
+	color:#FFFFFF;
+	font-size:1em;
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+}
+
+div#wiki-post div.wiki-prereview-post-content {
+	background-color: #FBFBFB;
+	border:1px solid #E1E1E1;
+	margin-bottom:1em;
+	padding:0.5em 1.117em;
+}
+div#wiki-post div.wiki-prereview-header-title{
+	color:#FFFFFF;
+	font-size:1em;
+}
+
+div#wiki-post div.wiki-post-fields {
+	background-color:#FBFBFB;
+	border:1px solid #E1E1E1;
+}
+div#wiki-post div.wiki-post-header {
+	background-color:#E7E7E7;
+	font-size:1em;
+	padding:0.462em 1.117em;
+	vertical-align:middle;
+	border:1px solid #E1E1E1;
+	margin-bottom: 5px;
+}
+
+div#wiki-post div.wiki-post-area {
+	margin-top: 10px;
+	padding:0 1.117em 0.8em;
+
+	transition: height 0.3s ease;
+	-moz-transition: height 0.3s ease;
+	-o-transition: height 0.3s ease;
+	-ms-transition: height 0.3s ease;
+	-webkit-transition: height 0.3s ease;
+}
+
+div#wiki-post div.wiki-post-area  div#edit-post-html {
+	margin-top: 5px;
+}
+
+div#wiki-post div.wiki-post-area textarea,
+div#wiki-post div.wiki-post-area input.wiki-input,
+div#wiki-post div.wiki-post-area input.search-tags
+ {
+	width:95%;
+}
+
+div#wiki-post div.wiki-post-area div.wiki-wcode-line a, div.wiki-smiles-line a {vertical-align: middle;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-line a {width: 20px; height: 20px; float: left; margin-right: 0.2em; background-position: center center;  background-repeat:no-repeat; display: block; cursor:pointer;}
+
+/*WIKI line*/
+div#wiki-post div.wiki-post-area div.wiki-wcode-line {margin-right: 2em; float: left;}
+div#wiki-post div.wiki-post-area div.wiki-smiles-line {float: left; white-space:nowrap;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-line img, div.wiki-smiles-line img { border: 0;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-line a, div.wiki-smiles-line a {vertical-align: middle;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-line a {width: 20px; height: 20px; float: left; margin-right: 0.2em; background-position: center center;  background-repeat:no-repeat; display: block;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-line a, div.wiki-wcode-line img, div.wiki-smiles-line a, div.wiki-smiles-line img { outline: none; }
+div#wiki-post div.wiki-post-area div.wiki-wcode-line select { float: left; margin-left:3px; padding:0px; height:20px;}
+div#wiki-post div.wiki-post-area div.wiki-wcode-closeall a{padding-left: 1em; vertical-align: middle; float: left;}
+
+/*WIKI Buttons*/
+div#wiki-post div.wiki-post-area a.wiki-wcode-bold {background-image: url(images/wcode/font_bold.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-italic {background-image: url(images/wcode/font_italic.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-url {background-image: url(images/wcode/link.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-external-url {background-image: url(images/wcode/external_link.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-img-upload {background-image: url(images/wcode/image.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-img {background-image: url(images/wcode/image_upload.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-signature {background-image: url(images/wcode/signature.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-ignore{background-image: url(images/wcode/nowiki.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-wheader {background-image: url(images/wcode/header.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-category{background-image: url(images/wcode/category.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-line{background-image: url(images/wcode/line.gif);}
+div#wiki-post div.wiki-post-area a.wiki-wcode-code{background-image: url(images/wcode/font_code.gif);}
+
+#lhe_btn_header {
+	background-image:url(images/wcode/wheader.gif);
+}
+
+
+div#wiki-post div.wiki-post-area div.wiki-post-area-tags {
+	font-size:1.1em;
+	font-weight:bold;
+}
+
+div.wiki-edit-buttons {
+	border-top:1px solid #E7E7E7;
+	margin:1em 0;
+	padding:1em 1em;
+	text-align:left;
+}
+
+div.wiki-post-field-text {
+	padding-bottom:0.2em;
+}
+
+div#wiki-post div.wiki-post-area div.wiki-post-image {
+	margin-top: 10px;
+}
+
+div#wiki-post div.wiki-post-area div.wiki-post-image-item {float:left; padding-right: 1em; padding-top: 1em; height:125px;}
+div#wiki-post div.wiki-post-area div.wiki-post-image-item-border {border: 1px solid; height:100px; text-align: center; vertical-align: middle; width:100px;}
+div.wiki-post-image-item-input {padding-top: 0.5em;}
+div#wiki-post div.wiki-post-area div#wiki-post div.wiki-post-area div.wiki-post-image-item-input input {width: 100px;}
+div#wiki-post div.wiki-post-area div.wiki-post-buttons {padding-top:1em; padding-bottom: 0.4em;}
+
+div#wiki-post div.wiki-clear-float {clear: both;}
+
+div#wiki-post div.wiki-post-note {
+	margin-top: 10px;
+}
+
+.wiki-post-link-dashed {
+	text-decoration: none;
+	border-bottom: 1px dashed;
+}
+
+.wiki-post-div-animate {
+	transition: opacity 0.3s ease;
+	-moz-transition: opacity 0.3s ease;
+	-o-transition: opacity 0.3s ease;
+	-ms-transition: opacity 0.3s ease;
+	-webkit-transition: opacity 0.3s ease;
+	opacity: 1;
+	display: block;
+}
+
+.wiki-post-div-hide {
+	opacity: 0;
+}
+
+.wiki-post-div-nonedisplay {
+	position: absolute;
+	top: -10000px;
+}

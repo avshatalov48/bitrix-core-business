@@ -1,0 +1,34 @@
+<?
+$MESS["MOD_BACK"] = "Back to modules";
+$MESS["TYPE_ID"] = "Symbolic code";
+$MESS["TYPE_TITLE"] = "Name";
+$MESS["TYPE_CONVERT_IT"] = "Convert this type";
+$MESS["CAL_SETTINGS"] = "Settings";
+$MESS["CAL_PRODUCT_SETTINGS"] = "System settings";
+$MESS["CAL_MODULES"] = "Modules";
+$MESS["CAL_CONVERT"] = "Convert calendars";
+$MESS["CAL_CONVERT_IBLOCK_LIST"] = "Information blocks to be converted to calendar types";
+$MESS["CAL_CONVERT_START"] = "Convert";
+$MESS["CAL_CONVERT_PROCESSING"] = "Now converting...";
+$MESS["CAL_CONVERT_PROCESSING_NOTICE"] = "Attention! Don't abort the conversion process or close the browser page; otherwise you will get invalid conversion results.";
+$MESS["CAL_CONVERT_FROM"] = "from";
+$MESS["CAL_CONVERT_USERS"] = "User calendars";
+$MESS["CAL_CONVERT_GROUPS"] = "Group calendars";
+$MESS["CAL_CONVERT_STAGE_PREPARE"] = "preparing conversion";
+$MESS["CAL_CONVERT_STAGE_SAVE"] = "saving parameters";
+$MESS["CAL_CONVERT_STAGE_CREATE_TYPES"] = "creating calendar types";
+$MESS["CAL_CONVERT_STAGE_USER_CALS"] = "converting calendars of #USER_NAME#: (calendars: #SECT_COUNT#, events: #EVENTS_COUNT#)";
+$MESS["CAL_CONVERT_STAGE_GROUP_CALS"] = "converting calendars of \"#GROUP_NAME# \": (calendars: #SECT_COUNT#, events: #EVENTS_COUNT#)";
+$MESS["CAL_CONVERT_STAGE_TYPE"] = "converting calendars from \"#TYPE_NAME# \": (calendar: #SECT_COUNT#, events: #EVENTS_COUNT#)";
+$MESS["CAL_CONVERT_SET"] = "Calendar module settings";
+$MESS["CAL_CONVERT_PROCES"] = "Conversion process";
+$MESS["CAL_GO_TO_SETTINGS"] = "Open module settings";
+$MESS["CAL_CONVERT_SUCCESS"] = "Conversion has been completed.";
+$MESS["CAL_NOT_1"] = "Check the information blocks you wish to convert to calendar types. You can change the names and/or symbolic codes of the selected types if required.";
+$MESS["CAL_NOT_2"] = "Verify the suggested settings for the Calendars module.";
+$MESS["CAL_NOT_3"] = "Click the \"Convert\" button.";
+$MESS["CAL_NOT_4"] = "Once the conversion process has finished, open the Event Calendar module settings page and make sure the calendar types are correct and have appropriate access permissions.";
+$MESS["CAL_PARSE_CONTENT"] = "Analyze public files";
+$MESS["CAL_NOT_PARSE"] = "The website's public files have to be analyzed to derive the correct module settings.";
+$MESS["CAL_PROC_WAIT"] = "Analyzing public files...";
+?>

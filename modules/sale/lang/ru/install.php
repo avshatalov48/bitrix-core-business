@@ -1,0 +1,38 @@
+<?
+$MESS ['SALE_INSTALL_DEFAULT'] = "Выберите какие примеры публичных файлов модуля продаж изначально устанавливать";
+$MESS ['SALE_INSTALL_NAME'] = "Интернет-магазин";
+$MESS ['SALE_INSTALL_DESCRIPTION'] = "Позволяет осуществлять продажи товаров посетителям сайта.";
+$MESS ['SALE_INSTALL_BASKET'] = "Корзина";
+$MESS ['SALE_INSTALL_PERSON'] = "Персональный раздел";
+$MESS ['SALE_INSTALL_PUBLIC'] = "Публичная папка для установки";
+$MESS ['SALE_INSTALL_TITLE'] = "Установка модуля \"Интернет-магазин\"";
+$MESS ['SALE_INSTALL_PUBLIC_DIR'] = "Публичная папка";
+$MESS ['SALE_INSTALL_SETUP'] = "Установить";
+$MESS ['SALE_INSTALL_COMPLETE_OK'] = "Установка завершена. Для дополнительной помощи обратитесь в раздел помощи.";
+$MESS ['SALE_INSTALL_COMPLETE_ERROR'] = "Установка завершена с ошибками";
+$MESS ['SALE_INSTALL_ERROR'] = "Ошибки при установке";
+$MESS ['SALE_INSTALL_BACK'] = "Вернуться в управление модулями";
+$MESS ['SALE_UNINSTALL_WARNING'] = "Внимание! Модуль будет удален из системы.";
+$MESS ['SALE_UNINSTALL_SAVEDATA'] = "Вы можете сохранить данные в таблицах базы данных, если установите флажок &quot;Сохранить таблицы&quot;";
+$MESS ['SALE_UNINSTALL_SAVECURRENCY'] = "Сохранить таблицы валют (используются совместно модулем торгового каталога и модулем \"Интернет-магазин\")";
+$MESS ['SALE_UNINSTALL_SAVETABLE'] = "Сохранить таблицы";
+$MESS ['SALE_UNINSTALL_DEL'] = "Удалить";
+$MESS ['SALE_UNINSTALL_ERROR'] = "Ошибки при удалении:";
+$MESS ['SALE_UNINSTALL_COMPLETE'] = "Удаление завершено.";
+$MESS ['SALE_INSTALL_PUBLIC_SETUP'] = "Установить";
+$MESS ['SALE_INSTALL_PUBLIC_REW'] = "Переписывать существующие файлы";
+$MESS ['SALE_INST_PUB_VAR'] = "Варианты публичной части";
+$MESS ['SALE_VARIANT_NUM'] = "Вариант";
+$MESS ['SALE_VARIANT1_DESCR'] = "Рекомендуется. Универсальные шаблоны.";
+$MESS ['SALE_VARIANT2_DESCR'] = "Двухшаговая процедура заказа. Требует дополнительной ручной настройки (подробности внутри скрипта процедуры заказа).";
+$MESS ['SIM_COPY_PUBLIC_FILES'] = "Скопировать публичные файлы";
+$MESS ['SIM_COPY_FOLDER'] = "Папка, в которую будут скопированы файлы (относительно корня сайта):";
+$MESS ['SIM_REWRITE_ADD'] = "Переписывать вспомогательные файлы";
+$MESS ['SINS_PERM_D'] = "закрыт";
+$MESS ['SINS_PERM_R'] = "просмотр без права модификации";
+$MESS ['SINS_PERM_P'] = "привязка к компании";
+$MESS ['SINS_PERM_U'] = "обработка заказов";
+$MESS ['SINS_PERM_W'] = "полный доступ";
+$MESS ['SALE_INSTALL_CURRENCY'] = "Для работы Интернет-магазина необходим модуль Валют.<br />Установите сначала модуль Валют.";
+$MESS["SALE_UPDATER_16036_MIGRATE_NOTIFY"] = "Доступна <a href=\"#LINK#\">конвертация</a> «Скидок торгового каталога» в «Скидки магазина».";
+?>

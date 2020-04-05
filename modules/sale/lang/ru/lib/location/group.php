@@ -1,0 +1,4 @@
+<?
+$MESS["SALE_LOCATION_GROUP_ENTITY_SORT_FIELD"] = "Сортировка";
+$MESS["SALE_LOCATION_GROUP_ENTITY_CODE_FIELD"] = "Символьный код";
+?>

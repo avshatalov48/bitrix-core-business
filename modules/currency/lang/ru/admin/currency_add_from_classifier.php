@@ -1,0 +1,32 @@
+<?
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TITLE"] = "Добавить валюту из классификатора";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS"] = "Поиск и основные настройки";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_SEARCH_AND_SETTINGS_TITLE"] = "Поиск и основные настройки валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_LANGUAGE_SETTINGS"] = "Языковые настройки";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_TAB_LANGUAGE_SETTINGS_TITLE"] = "Настройки валюты для показа";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_SECTION_SEARCH_AND_CHOICE"] = "Поиск и выбор валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FORM_SECTION_MAIN_SETTINGS"] = "Основные настройки валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH"] = "Поиск валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SEARCH_PLACEHOLDER"] = "Начните ввод валюты...";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_CHOICE"] = "Выбор валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_NUM_CODE"] = "Цифровой код";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SYM_CODE"] = "Символьный код";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_EXCHANGE_RATE"] = "Курс обмена (по умолч.)";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_SORT_INDEX"] = "Индекс сортировки";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FULL_NAME"] = "Название";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FULL_NAME_TITLE"] = "Полное название валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_FORMAT_STRING"] = "Строка формата для вывода валюты";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_DEC_POINT"] = "Десятичная точка при выводе";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_THOUSANDS_SEPARATOR"] = "Разделитель тысяч при выводе";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_DECIMALS"] = "Количество десятичных знаков";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELD_HIDE_ZERO"] = "В публичной части не показывать незначащие нули в дробной части цены";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_NOMINAL_ERROR"] = "Номинал валюты в поле \"Курс обмена\" задан не корректно или слишком большой";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_EXCHANGE_RATE_ERROR"] = "Курс обмена задан не корректно или слишком большой";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FIELDS_SORT_INDEX_ERROR"] = "Индекс сортировки задан не корректно или слишком большой";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_ISO_STANDART"] = "Перечень возможных кодов валют приведен в международном стандарте <a target=\"_blank\" href=\"#ISO_LINK#\">ISO 4217</a>";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_EXCHANGE_RATE"] = "Модуль валют работает с <b>прямыми котировками</b> валют по отношению к базовой. Для корректной работы необходимой указывать стоимость единицы (1 либо 10, 100, 1000 - при низкой стоимости) редактируемой валюты в базовой валюте. Для базовой валюты номинал и курс \"по умолчанию\" должны быть равны единице.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_DECIMALS_NUMBER"] = "Количество десятичных знаков дробной части цены влияет только на <b>отображение</b> цен. Все расчеты ведутся с неокругленными данными. Это может привести к визуальным ошибкам при конвертации валют и применении скидок. В качестве примера рассмотрим такую ситуацию. Стоимость товара 98,01 руб. Если задать количество десятичных знаков равным 0, цена будет показана как 98 руб. Однако стоимость 100 единиц в корзине будет показана как 9801 руб.";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_FOOTER_HIDE_ZERO"] = "Убирает показ в публичной части незначащих нулей у дробной части цены. Если у вас цена 12500,00 рублей - будет отображено 12500, если у вас 12500,50 - будет отображено 12500,50";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_ADD"] = "Во время добавления валюты произошла неизвестная ошибка";
+$MESS["ADMIN_CURRENCY_CLASSIFIER_UNKNOWN_ERROR_UPDATE"] = "Во время изменения валюты произошла неизвестная ошибка";
+?>

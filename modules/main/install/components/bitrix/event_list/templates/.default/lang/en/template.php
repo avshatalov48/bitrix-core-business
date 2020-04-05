@@ -1,0 +1,13 @@
+<?
+$MESS["EVENT_LIST_SUBMIT"] = "Select";
+$MESS["EVENT_LIST_FILTER_CREATED_BY"] = "Created By";
+$MESS["EVENT_LIST_FILTER_DATE"] = "Date";
+$MESS["EVENT_LIST_FILTER_FEATURES_TITLE"] = "Events";
+$MESS["EVENT_LIST_FILTER_TITLE"] = "Set Filter";
+$MESS["EVENT_LIST_NO_UPDATES"] = "No updates.";
+$MESS["EVENT_LIST_PAGE_NAV"] = "Showing records";
+$MESS["EVENT_LIST_DATE_FILTER_DAYS"] = "days";
+$MESS["EVENT_LIST_FILTER_SHOW"] = "show";
+$MESS["EVENT_LIST_FILTER_HIDE"] = "hide";
+$MESS["EVENT_LIST_NO_ACTIVE_FEATURES_ERROR"] = "No events selected in the filter.";
+?>

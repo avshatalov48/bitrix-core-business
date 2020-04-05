@@ -1,0 +1,1 @@
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/admin/seo_search_yandex_direct_banner.php");?>

@@ -1,0 +1,235 @@
+.bx-desktop { overflow: hidden }
+
+.bx-desktop-confirm { padding: 10px 10px 7px 10px; width: 430px; font: 13px "Helvetica Neue",Helvetica,Arial,sans-serif; color:#444444;}
+.bx-desktop-confirm-without-buttons { padding: 10px 10px 15px 10px; font: 13px "Helvetica Neue",Helvetica,Arial,sans-serif; color:#444444; }
+.bx-desktop-confirm-title { font-weight: bold; font-size: 15px; text-align: center; margin-bottom: 4px;}
+
+.bx-desktop-update-box { height: 494px; background: url(./../images/desktop-update-v2.jpg) no-repeat bottom left #f7f9f9;}
+.bx-desktop-update-box-text { width: 460px; margin: 0 auto; padding-top: 264px; font: 20px/30px "Helvetica Neue",Helvetica,Arial,sans-serif; color: #41474f; text-align: center;    }
+.bx-desktop-update-box-btn {  margin: 0 auto;  font-weight: bold; line-height: 54px;  text-align: center; font-size: 17px; color: #535c69; height: 54px; cursor: pointer;   position: absolute; top: 387px; width: 100%; }
+
+.bx-desktop-button-wrap { display: block; padding-top: 7px; }
+.bx-desktop-button { display: inline-block; height: 30px; vertical-align: top; cursor: pointer; margin-right: 5px; text-decoration:none!important; }
+.bx-desktop-button span { height: 30px; background: url(./../images/im-sprite-v37.png) 0 -843px repeat-x;  display: inline-block; vertical-align: top; padding-left: 13px; padding-right: 13px; font: 13px/27px "Helvetica Neue",Helvetica,Arial,sans-serif; color:#fff; text-shadow: 0 1px #425a05;  text-decoration:none;}
+.bx-desktop-button i { display: inline-block; height: 30px; width: 4px; background: url(./../images/im-sprite-v37.png) -5px -811px no-repeat; }
+.bx-desktop-button i.bx-desktop-button-fc { background-position: 0 -811px; }
+.bx-desktop-button-white span { background-position:0 -907px; color: #505d67; text-shadow: 0 1px #fff; }
+.bx-desktop-button-white i { background-position: -25px -811px;  }
+.bx-desktop-button-white i.bx-desktop-button-fc {background-position: -21px -811px; }
+.bx-desktop-button-cancel span { background-position:0 -875px; text-shadow: 0 1px #660505; }
+.bx-desktop-button-cancel i { background-position: -14px -811px;  }
+.bx-desktop-button-cancel i.bx-desktop-button-fc {background-position: -10px -811px; }
+
+.bx-desktop-reconnect { display:inline-block; background: url(./../images/wait-small.gif) no-repeat; padding-left: 31px; height: 17px; line-height: 20px;}
+
+.bx-desktop-appearance-menu { position: absolute; z-index: 1000; background-color: #fff;border-right: 1px solid #e5e5e5;width: 43px;}
+.bx-desktop-appearance-content { position: relative; z-index: 2; margin-left: 44px;background-color: #fff;  }
+
+.bx-desktop-appearance-hide-menu .bx-desktop-appearance-menu  { display: none; }
+.bx-desktop-appearance-hide-menu .bx-desktop-appearance-content  { margin-left: 0; }
+
+.bx-desktop-appearance-avatar { padding-top: 10px;text-align: center;}
+.bx-desktop-avatar { white-space: nowrap; background: url(./../images/im-sprite-v37.png) 2px -124px no-repeat; display: inline-block; width: 32px; height: 32px; vertical-align: middle; margin-bottom: 12px }
+.bx-desktop-avatar-img { width: inherit; height: inherit; border: 0; border-radius: 50%; }
+.bx-desktop-avatar-img-default { background: url("./../images/im-sprite-v37.png") no-repeat scroll -41px -1903px #77828e; }
+.bx-desktop-separator { display: block;height: 0; border-top: 1px solid #eef0f2; margin: 0 10px;  }
+
+.bx-desktop-tab { display: block;height: 28px; cursor: pointer;padding-bottom: 7px;padding-top: 7px;text-align: center;}
+.bx-desktop-tab:hover .bx-desktop-tab-icon {  }
+.bx-desktop-tab-hide { display: none }
+.bx-desktop-tab-config {}
+.bx-desktop-tab-counter {background-color: #fff;border-radius: 10px;color: #fff;font-size: 11px;position: absolute;margin-top: 13px;margin-left: 13px;line-height: 14px; z-index:2;  opacity: 1;  }
+.bx-desktop-tab-counter-digit { padding: 0 4px 0 5px; display: block; border: 2px solid #fff; border-radius: 10px; background-color: #17b0e1; }
+.bx-desktop-tab-icon { width: 27px; height: inherit; background: url("./../images/desktop-sprite-v7.png?v2") no-repeat scroll 15px 15px;display: inline-block; }
+.bx-desktop-tab-icon-config { background-position: -49px -51px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-config,
+.bx-desktop-tab-icon-config:hover { background-position: -49px -201px; }
+.bx-desktop-tab-icon-disk { background-position: -13px -50px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-disk,
+.bx-desktop-tab-icon-disk:hover { background-position: -13px -200px; }
+.bx-desktop-tab-icon-im { background-position: -12px -9px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-im,
+.bx-desktop-tab-icon-im:hover { background-position: -12px -159px; }
+.bx-desktop-tab-icon-notify { background-position: -86px -11px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-notify,
+.bx-desktop-tab-icon-notify:hover { background-position: -86px -161px; }
+.bx-desktop-tab-icon-im-phone { background-position: -49px -9px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-im-phone,
+.bx-desktop-tab-icon-im-phone:hover { background-position: -49px -159px; }
+.bx-desktop-tab-icon-im-lf { background-position: -86px -50px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-im-lf,
+.bx-desktop-tab-icon-im-lf:hover { background-position: -86px -200px; }
+.bx-desktop-tab-icon-im-ol { background-position: -86px -123px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-im-ol,
+.bx-desktop-tab-icon-im-ol:hover { background-position: -86px -273px; }
+.bx-desktop-tab-icon-exit { background-position: -13px -87px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-exit,
+.bx-desktop-tab-icon-exit:hover { background-position: -13px -237px; }
+.bx-desktop-tab-icon-contact_list { background-position: -49px -87px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-contact_list,
+.bx-desktop-tab-icon-contact_list:hover { background-position: -49px -237px; }
+.bx-desktop-tab-content { display: none; height: inherit }
+.bx-desktop-tab-content-active { display: block; }
+.bx-desktop-tab-icon-account { background-position: -13px -50px; }
+.bx-desktop-tab-active .bx-desktop-tab-icon-account,
+.bx-desktop-tab-icon-account:hover { background-position: -13px -200px; }
+
+.im-desktop-popup .bx-messenger-settings { width: auto; display: block; }
+.im-desktop-popup .bx-messenger-settings { width: auto; }
+
+.bx-im-fullscreen-block-scroll { overflow: hidden; height: 100%; }
+.bx-im-fullscreen-opening { display: block!important;  }
+.bx-im-fullscreen-opening .bx-desktop-placeholder { -webkit-animation: imFullscreenShow .2s 1; animation: imFullscreenShow .2s 1; }
+.bx-im-fullscreen-opening.bx-im-fullscreen-popup { -webkit-animation: imOpacityTo1 .3s 1; animation: imOpacityTo1 .3s 1; }
+.bx-im-fullscreen-open { display: block!important; }
+.bx-im-fullscreen-closed { display: none; }
+.bx-im-fullscreen-closing { opacity: 0;}
+.bx-im-fullscreen-closing .bx-desktop-placeholder { -webkit-animation: imFullscreenClose .2s 1; animation: imFullscreenClose .2s 1; }
+.bx-im-fullscreen-closing.bx-im-fullscreen-popup { -webkit-animation: imOpacityTo0 .3s 1; animation: imOpacityTo0 .3s 1;  }
+
+.bx-ie11 .bx-desktop-tab-counter { margin-left: 20px; }
+
+@-webkit-keyframes imFullscreenShow {0% { opacity: 0 } 20% { opacity: 0; }100% { opacity: 1;}}
+@keyframes imFullscreenShow {0% { opacity: 0 } 20% { opacity: 0; }100% { opacity: 1;}}
+
+@-webkit-keyframes imFullscreenClose {0% { opacity: 1 } 20% { opacity: 1; }100% { opacity: 0;}}
+@keyframes imFullscreenClose {0% { opacity: 1 } 20% { opacity: 1; }100% { opacity: 0;}}
+
+#disk-wrap .header_section_one {white-space: nowrap;}
+
+
+@media screen and (max-width: 599px)  {
+	.bx-im-fullscreen-adaptive .bx-messenger-command-popup { width: 450px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-command-popup-help { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-chatlist-group-add { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact { width: 70px!important;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-call-overlay { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group {  margin: 2px 2px 2px 2px; text-align: center; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group-title { font-size: 10px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-panel-title-chat-input { width: 100%!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-user { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-count { position: absolute; right: 7px!important;; margin-top:-3px!important;; }
+	.bx-mac .bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-count { position: absolute!important; right: 11px!important;; margin-top:-3px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-title {  padding: 0 7px 0 15px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-title:before { left: 4px!important;}
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-open .bx-messenger-cl-group-title:before { left: 4px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-avatar { margin: 0; float: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item { padding: 6px 11px 6px 11px }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 200px!important; background-color: #fff; z-index: 500; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-messenger-chatlist-group-add,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active .bx-messenger-chatlist-group-add { display: block; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status { margin-left: 9px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status-text { opacity: 0 }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status-arrow { opacity: 0 }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform { padding: 0 22px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform-progress { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform-textarea { padding: 9px 0; }
+}
+
+@media screen and (max-width: 740px) {
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-video,
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-audio { overflow: hidden; padding-left: 24px; padding-right: 0; width: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-audio:before { background-position: -58px -379px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-chat { overflow: hidden; padding-left: 26px; padding-right: 0; width: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-avatar { opacity: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-2 .bx-messenger-content-item-avatar { opacity: 1; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-content { margin-right: 31px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-textarea-open-lines .bx-messenger-textarea-open-invite-text { display: none; }
+}
+
+@media screen and (max-width: 853px) and (min-width: 660px) {
+	.bx-im-fullscreen-adaptive .bx-messenger-call-overlay { margin-left: 200px!important;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact { width: 200px!important;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 200px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 200px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-title-chat-input { width: 100%!important;}
+	.bx-im-fullscreen-adaptive #disk-wrap .right_section { display: none; }
+}
+
+@media screen and (max-width: 659px)  {
+	.bx-im-fullscreen-adaptive .bx-messenger-command-popup { width: 450px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-command-popup-help { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-chatlist-group-add { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact { width: 70px!important;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-call-overlay { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 70px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item-pinned:before { display: none;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group {  margin: 2px 2px 2px 2px; text-align: center; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group-title { font-size: 10px!important; padding2: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-panel-title-chat-input { width: 100%!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-user { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-count { position: absolute; right: 7px!important;; margin-top:-3px!important;; }
+	.bx-mac .bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-count { position: absolute!important; right: 11px!important;; margin-top:-3px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-title {  padding: 0 7px 0 15px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-title:before { left: 4px!important;}
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-group-open .bx-messenger-cl-group-title:before { left: 4px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-avatar { margin: 0; float: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item { padding: 6px 11px 6px 11px }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 200px!important; background-color: #fff; z-index: 500; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-messenger-cl-item-pinned:before,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active .bx-messenger-cl-item-pinned:before { display: block1;  }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-messenger-chatlist-group-add,
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active .bx-messenger-chatlist-group-add { display: block; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status { margin-left: 9px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status-text { opacity: 0 }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status-arrow { opacity: 0 }
+	.bx-im-fullscreen-adaptive #disk-wrap .right_section { display: none; }
+	.bx-im-fullscreen-adaptive #disk-wrap .header_section_one { display: none; }
+	.bx-im-fullscreen-adaptive #disk-wrap .header_section_two { width: auto; }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform { padding: 0 22px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform-progress { display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-editform-textarea { padding: 9px 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-confirm { width: auto; }
+}
+@media screen and (max-width: 840px) {
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-video,
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-audio { overflow: hidden; padding-left: 24px; padding-right: 0; width: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-audio:before { background-position: -58px -379px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-panel-chat { overflow: hidden; padding-left: 26px; padding-right: 0; width: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-avatar { opacity: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-message-extra { margin: 0 31px 0 61px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-2 .bx-messenger-content-item-avatar { opacity: 1; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-content { margin-right: 31px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-reply-join { display:none }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-reply { margin-right: 35px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-textarea-open-lines .bx-messenger-textarea-open-invite-text { display: none; }
+}
+
+@media screen and (max-width: 1030px) {
+	.bx-im-fullscreen-adaptive .bx-messenger-body {width: 100%!important;}
+	.bx-im-fullscreen-adaptive .bx-messenger-textarea-place {width: 100%!important;}
+}
+
+
+/* browser */
+@media screen and (min-width: 1280px) {
+	.bx-im-fullscreen-popup .bx-messenger-call-overlay { margin-left: 300px!important;  }
+	.bx-im-fullscreen-popup .bx-messenger-box-contact { width: 300px!important;  }
+	.bx-im-fullscreen-popup .bx-messenger-box-dialog { margin-left: 300px!important; }
+	.bx-im-fullscreen-popup .bx-messenger-box-extra { margin-left: 300px!important; }
+	.bx-im-fullscreen-popup .bx-messenger-panel-title-chat-input { width: 100%!important;}
+
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 { text-align: left; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-arrow { float: right; background: url("./../images/im-sprite-v37.png") no-repeat scroll -11px -307px;}
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-avatar { float: left; margin-left: -63px; text-align: left; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-avatar-name { opacity: 1; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-status { float: right; margin-left: 0; margin-right: -53px;}
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-menu { float: right; margin-left: 0; margin-right: -42px; left: auto; right: 1px; }
+
+	.bx-im-fullscreen-adaptive .bx-messenger-body-wrap { margin: 0 0 0 42px; max-width: 1024px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item { max-width: 1024px; }
+}
+
+/* desktop */
+@media screen and (min-width: 1160px) {
+	.im-desktop .bx-messenger-call-overlay { margin-left: 300px!important;  }
+	.im-desktop .bx-messenger-box-contact { width: 300px!important;  }
+	.im-desktop .bx-messenger-box-dialog { margin-left: 300px!important; }
+	.im-desktop .bx-messenger-box-extra { margin-left: 300px!important; }
+	.im-desktop .bx-messenger-panel-title-chat-input { width: 100%!important;}
+}

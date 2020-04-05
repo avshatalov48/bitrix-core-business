@@ -1,0 +1,4 @@
+<?
+$MESS["SITE_TEMPLATE_THEME_NAME"] = "Green";
+$MESS["SITE_TEMPLATE_THEME_DESCRIPTION"] = "Green color theme";
+?>

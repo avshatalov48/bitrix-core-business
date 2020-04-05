@@ -1,0 +1,13 @@
+var owner_id = "%OWNER_ID%";
+var offset = %OFFSET%;
+var count = %COUNT%;
+
+var res = API.market.getAlbums({"owner_id": owner_id, "offset": offset, "count" : count});
+
+if(res)
+{
+    res.shift();
+    return res;
+}
+
+

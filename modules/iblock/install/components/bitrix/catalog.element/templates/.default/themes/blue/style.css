@@ -1,0 +1,39 @@
+/*******************************************************************************
+ * Project:------------modules
+ * Component---------catalog.element
+ * File Path-----------/iblock/install/components/bitrix/catalog.element/templates/.default/themes/blue/style.css
+ * Bootstrap:----------
+ * Color-------------blue
+ * Last Modified:------17.11.16 13:33
+ *
+ * @version:---------16.11.17
+ ******************************************************************************/
+
+/* catalog.section */
+
+/*
+#3052bf
+#26b0e4
+#00a2df
+*/
+
+/* Slider */
+.bx-blue .product-item-image-slider-progress-bar { background-color: #0083d1;}
+.bx-blue .product-item-image-slider-control:hover{ background-color: rgba(0,131,209,.8);}
+.bx-blue .product-item-image-slider-control.active,
+.bx-blue .product-item-image-slider-control:hover{ background-color: #0083d1;}
+.bx-blue .product-item-selected-scu,
+.bx-blue .product-item-detail-slider-controls-image:hover,
+.bx-blue .product-item-detail-slider-controls-image.active{outline-color: #006cc0;}
+
+/* SCU */
+.bx-blue .product-item-scu-item-text-block:hover,
+.bx-blue .product-item-scu-item-color-block:hover,
+.bx-blue .product-item-scu-item-text-container.selected .product-item-scu-item-text-block,
+.bx-blue .product-item-scu-item-color-container.selected .product-item-scu-item-color-block{ outline-color: #006cc0;}
+
+/* Amount */
+.bx-blue .product-item-amount-field:focus{border-color: #006cc0;}
+
+/*Proress Bar*/
+.bx-blue .product-item-detail-slider-progress-bar{ background-color: #006cc0;}

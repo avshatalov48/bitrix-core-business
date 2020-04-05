@@ -1,0 +1,89 @@
+table.sonet-user-profile-friends, table.sonet-user-profile-groups
+{
+	border:1px solid #C4C4C3;
+	border-collapse:collapse;
+}
+
+table.sonet-user-profile-friends td, table.sonet-user-profile-groups td
+{
+	border:1px solid #c4c4c4;
+	padding:6px 5px;
+}
+
+table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, table.sonet-user-profile-groups thead td, table.sonet-user-profile-groups th
+{
+	background-color:#f2f2ea;
+	/*text-align:left;*/
+	font-weight:bold;
+	font-size:12px;
+	background-image:none;
+	border:1px solid #C4C4C3;
+	border-bottom:none;
+	padding:8px;
+}
+
+
+table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
+{
+	border:none;
+	padding:6px 5px;
+	background:transparent;
+}
+
+.sonet_online
+{
+	color:#c30808;
+	font-weight:bold;
+	font-size:11px;
+}
+
+table.sonet-message-form  
+{
+	width: 100%;
+	border: 1px solid #ABC4D0;
+	border-collapse:collapse;
+	padding: 0px;
+}
+table.sonet-message-form td, table.sonet-message-form tbody td
+{
+	font-weight:normal;
+	font-size:11px;
+	border:none;
+	padding:7px;
+}
+
+table.sonet-message-form th
+{
+	font-weight:normal;
+	font-size:12px;
+	background-color:#F0F5F7;
+	padding: 7px;
+	border:none;
+}
+
+table.sonet-message-form th.sonet-message-form-small
+{
+	font-size:11px;
+}
+
+table.sonet-message-form-smile tbody td, table.sonet-message-form-smile td
+{
+	border:none;
+	padding:3px;
+}
+
+.required-field
+{
+	font-weight:bold;
+	color:#FF0000;
+}
+
+table.sonet-message-form tr td div.button-structure 
+{ 
+	height:13px; 
+	background:url(images/plus.gif) center left no-repeat; 
+	cursor:pointer; 
+	cursor: hand;
+	padding-left: 17px;
+	margin-top: 10px;
+}

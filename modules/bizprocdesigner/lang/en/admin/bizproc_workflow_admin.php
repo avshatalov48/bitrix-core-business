@@ -1,0 +1,37 @@
+<?
+$MESS["BPATT_NO_ENTITY"] = "The document entity is missing.";
+$MESS["BPATT_NO_DOC_TYPE"] = "The document type is required.";
+$MESS["BPATT_NO_EDIT_PAGE"] = "The template change page is missing.";
+$MESS["BPATT_NO_PERMS"] = "You do not have permission to access the templates of this type of document.";
+$MESS["BPATT_ERROR"] = "Error";
+$MESS["BPATT_NAV"] = "Business Process Templates";
+$MESS["BPATT_NAME"] = "Name";
+$MESS["BPATT_MODIFIED"] = "Modified";
+$MESS["BPATT_USER"] = "Modified By";
+$MESS["BPATT_AUTO_EXECUTE"] = "Autorun";
+$MESS["BPATT_DO_EDIT"] = "Edit Business Process Template";
+$MESS["BPATT_AE_NONE"] = "No";
+$MESS["BPATT_AE_CREATE"] = "Create";
+$MESS["BPATT_AE_EDIT"] = "Update";
+$MESS["BPATT_AE_DELETE"] = "Delete";
+$MESS["BPATT_DO_EDIT1"] = "Edit";
+$MESS["BPATT_DO_DELETE1"] = "Delete";
+$MESS["BPATT_DO_DELETE1_CONFIRM"] = "Are you sure you want to delete this template?";
+$MESS["BPATT_SUBMENU1_TEXT"] = "State-driven business process";
+$MESS["BPATT_SUBMENU1_TEXT_TITLE"] = "State-driven business process is a continuous business process with access permission distribution to handle documents in different status";
+$MESS["BPATT_SUBMENU2_TEXT"] = "Sequential business process";
+$MESS["BPATT_SUBMENU2_TEXT_TITLE"] = "Sequential business process is a simple business process to perform a series of  consecutive actions on a document";
+$MESS["BPATT_DO_CREATE_TEMPLATE"] = "Create Template";
+$MESS["BPATT_TITLE"] = "Business Process Templates";
+$MESS["BPATT_F_NAME"] = "Name";
+$MESS["BPATT_F_AUTOEXECUTE"] = "Autorun";
+$MESS["BPATT_ANY"] = "any";
+$MESS["BPATT_F_CREATE"] = "create";
+$MESS["BPATT_F_EDIT"] = "edit";
+$MESS["BPATT_USER_PROFILE"] = "User Profile";
+$MESS["BPATT_BACK"] = "Back";
+$MESS["BPATT_BACK_TITLE"] = "Back to previous page";
+$MESS["BPATT_DO_CREATE_TEMPLATE1"] = "Add a new template";
+$MESS["BPWFADM_ERR"] = "Error ##ID#: #ERROR_TEXT#";
+$MESS["BPWFADM_ACT"] = "Act.";
+?>

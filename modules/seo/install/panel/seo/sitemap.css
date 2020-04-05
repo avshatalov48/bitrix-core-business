@@ -1,0 +1,43 @@
+.sitemap-dir-item
+{
+	position: relative;
+}
+
+.sitemap-dir-item-text {
+	display: inline-block;
+	height: 20px;
+	left: 20px;
+	top: 2px;
+	position: relative;
+}
+
+.sitemap-dir-item-children
+{
+	display: none;
+	margin-left: 20px
+}
+
+.sitemap-tree-icon-iblock, .sitemap-tree-icon
+{
+	display: inline-block;
+	background: url("../main/images/bx-admin-sprite.png") no-repeat scroll -7px -238px rgba(0, 0, 0, 0);
+	height: 20px;
+	width: 20px;
+	cursor: pointer;
+}
+
+.sitemap-tree-icon
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.sitemap-opened {
+	background-position: -7px -216px;
+}
+
+.sitemap-logic-switch
+{
+	cursor: pointer;
+}

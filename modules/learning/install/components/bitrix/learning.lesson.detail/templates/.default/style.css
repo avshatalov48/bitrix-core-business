@@ -1,0 +1,26 @@
+div.learn-self-test-icon
+{
+	width:21px;
+	height:16px;
+	background-image:url(images/selftest.gif);
+	background-repeat:no-repeat;
+}
+
+.float-left
+{
+	float:left;
+}
+
+.float-right
+{
+	float:right;
+}
+
+.float-clear
+{
+	clear:both;
+}
+
+.learn-rating .ilike-light .bx-ilike-right { padding: 0px 1px 0 11px; background-position:0 -41px; line-height: 16px;}
+.learn-rating .ilike-light .bx-you-like .bx-ilike-right { background-position:0 -21px; }
+.learn-rating .ilike-light .bx-ilike-text {	padding: 0; }

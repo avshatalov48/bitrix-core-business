@@ -1,0 +1,34 @@
+<?
+$MESS ['STAT_FORGOT_REFERER'] = "Please enter referer1, referer2";
+$MESS ['STAT_WRONG_REFERER'] = "The provided referer1 and referer2 are already in use";
+$MESS ['STAT_EDIT_RECORD'] = "Advertising campaign # #ID#";
+$MESS ['STAT_NEW_RECORD'] = "New advertising campaign";
+$MESS ['STAT_RECORDS_LIST'] = "List of advertising campaigns";
+$MESS ['STAT_EVENTS_VIEW'] = "Mode of event display:";
+$MESS ['STAT_DEFAULT'] = "< default >";
+$MESS ['STAT_DESCRIPTION'] = "Description:";
+$MESS ['STAT_PAGES_FROM'] = "Navigated from [%_]:<br>(referring sites<br>separated with newline)";
+$MESS ['STAT_SEARCHERS'] = "Search engines:";
+$MESS ['STAT_ADDITIONAL'] = "Additional settings";
+$MESS ['STAT_MORE'] = "More";
+$MESS ['STAT_PROP'] = "Properties";
+$MESS ['STAT_PROP_TITLE'] = "Advertising campaign parameters";
+$MESS ['STAT_MORE_TITLE'] = "Additional settings and finance";
+$MESS ['STAT_IDENTIFIERS'] = "Advertising campaign identifiers";
+$MESS ['STAT_SELECT_WHAT_YOU_NEED'] = "(select required)";
+$MESS ['STAT_PRIORITY'] = "Priority:";
+$MESS ['STAT_PRIORITY_ALT'] = "(higher values set higher priority)";
+$MESS ['STAT_PAGES_TO'] = "Navigated to [%_]::<br>(full page addresses of your site <br>separated with newline)";
+$MESS ['STAT_FINANCES'] = "Finances";
+$MESS ['STAT_COST'] = "Cost:";
+$MESS ['STAT_REVENUE'] = "Revenue:";
+$MESS ['STAT_BASE'] = "base";
+$MESS ['STAT_NEW_ADV'] = "New ad campaign";
+$MESS ['STAT_RESET_ADV'] = "Reset adv campaign";
+$MESS ['STAT_RESET_ADV_CONFIRM'] = "Are you sure you want to reset this campaign?";
+$MESS ['STAT_DELETE_ADV'] = "Delete ad campaign";
+$MESS ['STAT_DELETE_ADV_CONFIRM'] = "Are you sure you want to delete this campaign?";
+$MESS ['STAT_ERROR'] = "Error!";
+$MESS ['STAT_ID_ADD'] = "Additional conditions";
+$MESS ['STAT_ID_ADD_NOTE'] = "The campaign runs if any condition is true";
+?>

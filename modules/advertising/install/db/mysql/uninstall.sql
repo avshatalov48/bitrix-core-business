@@ -1,0 +1,15 @@
+drop table if exists b_adv_banner;
+drop table if exists b_adv_banner_2_country;
+drop table if exists b_adv_banner_2_day;
+drop table if exists b_adv_banner_2_site;
+drop table if exists b_adv_banner_2_page;
+drop table if exists b_adv_banner_2_stat_adv;
+drop table if exists b_adv_banner_2_weekday;
+drop table if exists b_adv_contract;
+drop table if exists b_adv_contract_2_site;
+drop table if exists b_adv_contract_2_page;
+drop table if exists b_adv_contract_2_type;
+drop table if exists b_adv_contract_2_user;
+drop table if exists b_adv_contract_2_weekday;
+drop table if exists b_adv_type;
+drop table if exists b_adv_banner_2_group;

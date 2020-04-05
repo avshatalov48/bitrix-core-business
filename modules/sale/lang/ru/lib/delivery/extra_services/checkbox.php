@@ -1,0 +1,4 @@
+<?
+$MESS["DELIVERY_EXTRA_SERVICE_CHECKBOX_TITLE"] = "Единичная услуга";
+$MESS["DELIVERY_EXTRA_SERVICE_CHECKBOX_PRICE"] = "Цена за услугу";
+?>

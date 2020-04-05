@@ -1,0 +1,35 @@
+<?
+$MESS ['STAT_ADD_TO_STOPLIST_TITLE'] = "добавить IP в стоп-лист";
+$MESS ['STAT_EDIT_USER'] = "Профайл пользователя";
+$MESS ['STAT_VIEW_HITS_LIST_1'] = "Список хитов по данному номеру посетителя";
+$MESS ['STAT_VIEW_HITS_LIST_2'] = "Список хитов по данному номеру сессии";
+$MESS ['STAT_NEW_GUEST'] = "(впервые)";
+$MESS ['STAT_OLD_GUEST'] = "(вернулся)";
+$MESS ['STAT_TITLE'] = "Сессия детально";
+$MESS ['STAT_ID'] = "ID:";
+$MESS ['STAT_LAST_PAGE'] = "Последняя страница:";
+$MESS ['STAT_NUM_PAGES'] = "Хитов:";
+$MESS ['STAT_TIME'] = "Время:";
+$MESS ['STAT_HOUR'] = "ч.";
+$MESS ['STAT_MIN'] = "мин.";
+$MESS ['STAT_SEC'] = "сек.";
+$MESS ['STAT_USER'] = "Посетитель:";
+$MESS ['STAT_NOT_AUTH'] = "(не авторизован)";
+$MESS ['STAT_NOT_REGISTERED'] = "не зарегистрирован";
+$MESS ['STAT_IP_FIRST'] = "Первый IP адрес:";
+$MESS ['STAT_IP_LAST'] = "Последний IP адрес:";
+$MESS ['STAT_REFERER'] = "Откуда пришел:";
+$MESS ['STAT_URL_TO'] = "Первая страница:";
+$MESS ['STAT_NOT_FOUND'] = "Не найден";
+$MESS ['STAT_ADV'] = "Рекламная кампания:";
+$MESS ['STAT_USER_AGENT'] = "UserAgent:";
+$MESS ['STAT_DATE_FIRST'] = "Начало:";
+$MESS ['STAT_DATE_LAST'] = "Конец:";
+$MESS ['STAT_CITY'] = "Город";
+$MESS ['STAT_CLOSE'] = "Закрыть";
+$MESS ['STAT_COUNTRY'] = "Страна";
+$MESS ['STAT_REGION'] = "Регион";
+$MESS ['STAT_SITE'] = "Сайт";
+$MESS ['STAT_STOP'] = "стоп-лист";
+$MESS ['STAT_STOPED'] = "стоп";
+?>

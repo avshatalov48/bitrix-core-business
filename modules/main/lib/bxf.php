@@ -1,0 +1,2 @@
+<?
+//if (!class_exists("CBXFeatures", false)){class CBXFeatures{public static function isFeatureEnabled($a){return true;}public static function isFeatureEditable($b){return true;}public static function setFeatureEnabled($c, $d = true){}public static function saveFeaturesSettings($e, $f){}public static function getFeaturesList(){return array();}}}

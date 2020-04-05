@@ -1,0 +1,3 @@
+<?
+$MESS["MAIN_SIDEPANEL_CLOSE"] = "Close";
+$MESS["MAIN_SIDEPANEL_PRINT"] = "Print";

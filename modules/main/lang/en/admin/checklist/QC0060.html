@@ -1,0 +1,32 @@
+<p>A misuse of caching technology (for example, saving huge database selection
+results in cache) will significantly increase web page generation time and
+server load.</p>
+
+<p>Another risk lurks in the buildup of unused and outdated cache files. This
+may happen if the expired cache auto purge feature is not configured correctly
+on "Settings > System Settings > Cache Settings".</p>
+
+<p>Caching any large data objects (over 1 MB) is not recommended. Instead, you
+have to optimize Bitrix Framework API calls and define more strict filters for
+database selection queries. It's good to occasionally check the size of the
+"/bitrix/cache" folder; delete expired cache using the system ("Settings &gt;
+System Settings &gt; Cache Settings") or operating system tools. Another way
+is to use "memcached" for cache management.</p>
+
+<ul>
+<li>Set the statistics summary debug mode. Perform the stress test using
+  real-life amount of test data (thousands of catalog items, tens of thousands
+  users etc.) and see the component and page cache size:
+
+<p><img height="447" border="0" width="469" src="/bitrix/images/main/checklist/en/QC0060.png" /></p>
+
+  You have to check all, or at least the most visited pages of your website.
+  Remember that the proper amount of test data is of the essence, otherwise you
+  may miss cache overflows.
+</li>
+<li>If using file cache, ensure that a means to control the number and size of
+  cache files in "/bitrix/cache" exists (e.g. Nagios). If the cache mechanism
+  implementation of some of your components is faulty, the file cache may
+  inflate uncontrollably and you may well find a million files totaling to 100
+  GB after a year. Ensure a means to purge the file cache exists.
+</li></ul>

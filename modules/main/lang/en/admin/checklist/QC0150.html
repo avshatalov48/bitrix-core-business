@@ -1,0 +1,29 @@
+<p>The content pages and include areas that may be loaded by a user in the
+visual editor must not contain PHP code inclusions. All the executable code
+should reside in the components because this not just makes loading web pages in
+the editor straightforward but also reduces maintenance cost.</p>
+
+
+<p>Verify that all the content pages and include areas that may be loaded in the
+visual editor does not contain PHP code (except for the system prologue and
+epilogue code).</p>
+
+
+<ul>
+  <li>For example, instead of:<br><br>
+&lt;?<br>
+some user defined PHP code<br>
+?&gt;<br><br>
+
+use components:<br><br>
+
+&lt;?<br>
+$APPLICATION->IncludeComponent(…);<br>
+$APPLICATION->IncludeComponent(…);<br>
+…<br>
+?&gt;</li>
+</ul>
+
+
+
+

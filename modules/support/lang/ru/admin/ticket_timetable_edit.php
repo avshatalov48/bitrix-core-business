@@ -1,0 +1,32 @@
+<?
+$MESS["SUP_ADMIN_TAB1"] = "Расписание";
+$MESS["SUP_ADMIN_TAB2"] = "Часы";
+$MESS["SUP_ADMIN_TITLE"] = "Расписания";
+$MESS["SUP_ADMIN_TITLE_ADD"] = "Создание нового расписания";
+$MESS["SUP_ADMIN_TITLE_EDIT"] = "Редактирование расписания \"#NAME#\"";
+$MESS["SUP_ERROR"] = "Ошибки";
+$MESS["SUP_BACK_TO_ADMIN"] = "К списку";
+$MESS["SUP_TIMETABLE_NOT_FOUND"] = "Расписание не найдено";
+$MESS["SUP_CONFIRM_DEL_MESSAGE"] = "Вы действительно хотите удалить это Расписание?";
+$MESS["SUP_FORM_SETTINGS"] = "Настройки";
+$MESS["SUP_FORM_SETTINGS_EX"] = "Настройки";
+$MESS["SUP_NAME"] = "Имя";
+$MESS["SUP_DESCRIPTION"] = "Описание";
+$MESS["SUP_HOURS"] = "Часы";
+$MESS["SUP_24H"] = "24 часа";
+$MESS["SUP_CLOSED"] = "не работает";
+$MESS["SUP_CUSTOM"] = "часы работы:<br>(HH24:MI)";
+$MESS["SUP_ADMIN_USER_FIELDS"] = "Дополнительные свойства";
+$MESS["SUP_ADMIN_ROW_COPY"] = "Копировать";
+$MESS["SUP_ADMIN_ROW_DELETE"] = "Удалить строку";
+$MESS["MAIN_ADMIN_MENU_LIST"] = "Список";
+$MESS["MAIN_ADMIN_MENU_DELETE"] = "Удалить";
+$MESS["MAIN_ADMIN_MENU_COPY"] = "Копировать";
+$MESS["SUP_WEEKDAY_0"] = "Понедельник";
+$MESS["SUP_WEEKDAY_1"] = "Вторник";
+$MESS["SUP_WEEKDAY_2"] = "Среда";
+$MESS["SUP_WEEKDAY_3"] = "Четверг";
+$MESS["SUP_WEEKDAY_4"] = "Пятница";
+$MESS["SUP_WEEKDAY_5"] = "Суббота";
+$MESS["SUP_WEEKDAY_6"] = "Воскресенье";
+?>

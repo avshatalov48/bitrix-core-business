@@ -1,0 +1,45 @@
+fieldset.bizproc-item {
+	border: 1px solid #D8D8D8;
+	padding: 0 1.5em 1.5em 1em;}
+legend.bizproc-item-legend {
+	padding: 0 1em;
+	margin-left: 2em;
+	font-size: 110%;
+	color: #000000;}
+div.bizproc-item-description {
+	font-style: italic;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	font-size: 97%;}
+div.bizproc-item-text{
+	margin: 1em 0 0 1em;}
+div.bizproc-item-buttons{
+	margin: 1.5em 0 0 1em;}
+div.bizproc-item-buttons input {
+	margin-right:0.7em;}
+
+ul.bizproc-list, ul.bizproc-list li{
+	margin: 0; 
+	padding: 0; 
+	border: none; 
+	font-size: 100%; 
+	list-style-type: none;}
+li.bizproc-list-item{
+	margin:0.7em 0 0 1.1em;}
+div.bizproc-field label{
+	display:block;
+	width:30em;}
+div.bizproc-field span.bizproc-field-description{
+	font-style:italic;}
+span.bizproc-field-value textarea{
+	height:4em;
+	width:25em;}
+span.bizproc-field-value-int input, span.bizproc-field-value-double input, span.bizproc-field-value-string input, 
+/*span.bizproc-field-value-text textarea,*/ span.bizproc-field-value-select select, /*span.bizproc-field-value-bool select, */
+span.bizproc-field-value-date input, span.bizproc-field-value-datetime input/*, span.bizproc-field-value-user textarea*/ {
+ 	width:20em;}
+
+.bizproc-workflow-template-parameters + .bizproc-workflow-template-parameters
+{
+	margin-top: 10px;
+}

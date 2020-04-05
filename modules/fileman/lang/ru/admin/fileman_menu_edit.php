@@ -1,0 +1,34 @@
+<?
+$MESS ['FILEMAN_MENU_EDIT_DEF'] = "(по умолчанию)";
+$MESS ['FILEMAN_MENU_EDIT_ENTER_TYPE'] = "Введите тип меню!";
+$MESS ['FILEMAN_MENU_EDIT_EXISTS_ERROR'] = "Меню такого типа уже существует в этой папке!";
+$MESS ['FILEMAN_MENU_EDIT_TITLE'] = "Редактирование меню";
+$MESS ['FILEMAN_MENU_EDIT_TITLE_ADD'] = "Добавление меню";
+$MESS ['FILEMAN_MENU_EDIT_EXT'] = "Расширенный режим";
+$MESS ['FILEMAN_MENU_EDIT_SIMPLE'] = "Упрощенный режим";
+$MESS ['FILEMAN_MENU_EDIT_AS_TEXT'] = "Редактировать как файл";
+$MESS ['FILEMAN_MENU_EDIT_DELETE'] = "Удалить меню";
+$MESS ['FILEMAN_MENU_EDIT_ADD_ITEM'] = "Вставить пункт &gt;&gt;";
+$MESS ['FILEMAN_MENU_EDIT_NAME'] = "Название:";
+$MESS ['FILEMAN_MENU_EDIT_LINK'] = "Ссылка";
+$MESS ['FILEMAN_MENU_EDIT_SORT'] = "Сортировка";
+$MESS ['FILEMAN_MENU_EDIT_DEL'] = "Удалить";
+$MESS ['FILEMAN_MENU_EDIT_ADDITIONAL_LINK'] = "Доп. ссылки для подсветки:";
+$MESS ['FILEMAN_MENU_EDIT_CONDITION'] = "Условие:";
+$MESS ['FILEMAN_MENU_EDIT_CONDITION_TYPE'] = "Тип условия:";
+$MESS ['FILEMAN_MENU_EDIT_PARAMS'] = "Параметры:";
+$MESS ['FILEMAN_MENU_EDIT_PARAM_NAME'] = "Название";
+$MESS ['FILEMAN_MENU_EDIT_PARAM_VALUE'] = "Значение";
+$MESS ['FILEMAN_MENU_EDIT_TYPE'] = "Тип меню:";
+$MESS ['FILEMAN_MENU_EDIT_TEMPLATE'] = "Шаблон для меню:";
+$MESS ['FILEMAN_MENU_EDIT_LEFT_MENU'] = "Левое меню";
+$MESS ['FILEMAN_MENU_EDIT_TOP_MENU'] = "Верхнее меню";
+$MESS ['FILEMAN_MENU_EDIT_SAVE'] = "Сохранить";
+$MESS ['FILEMAN_MENU_EDIT_APPLY'] = "Применить";
+$MESS ['FILEMAN_MENU_EDIT_RESET'] = "Сбросить";
+$MESS ['FILEMAN_MENU_EDIT_ITEMS'] = "Пункты меню:";
+$MESS ['FILEMAN_BACK'] = "Каталог";
+$MESS ['FILEMAN_DEL_CONF'] = "Вы уверены, что хотите удалить это меню?";
+$MESS ['FILEMAN_TAB1'] = "Меню";
+$MESS ['FILEMAN_TAB1_ALT'] = "Параметры меню";
+?>

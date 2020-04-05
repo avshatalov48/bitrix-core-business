@@ -1,0 +1,6 @@
+<?
+$sSectionName = "vktest";
+$arDirProperties = Array(
+
+);
+?>

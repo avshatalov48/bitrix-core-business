@@ -1,0 +1,45 @@
+.seo-view-field
+{
+	display: block;
+}
+
+.seo-edit-field
+{
+	display: none;
+}
+
+.seo-edit .seo-view-field
+{
+	display: none;
+}
+
+.seo-edit .seo-edit-field
+{
+	display: block;
+}
+
+.seo-edit-link, .seo-save-link, .seo-cancel-link
+{
+	display: inline-block;
+	cursor: pointer;
+	color: #2675D7;
+	border-bottom: dotted 1px #2675D7;
+	margin-left: 5px;
+}
+
+.seo-loading-message
+{
+	display: none;
+}
+
+.seo-loading .seo-loading-message
+{
+	margin-left: 5px;
+	display: inline-block;
+}
+
+.seo-loading .seo-save-link, .seo-loading .seo-cancel-link
+{
+	display: none;
+}
+

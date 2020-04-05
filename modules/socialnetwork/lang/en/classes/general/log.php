@@ -1,0 +1,29 @@
+<?
+$MESS["SONET_GL_EMPTY_ENTITY_TYPE"] = "The entity type is not specified.";
+$MESS["SONET_GL_ERROR_NO_ENTITY_TYPE"] = "The entity type is incorrect.";
+$MESS["SONET_GL_EMPTY_ENTITY_ID"] = "The entity ID is not specified.";
+$MESS["SONET_GL_ERROR_CALC_ENTITY_TYPE"] = "Error defining the entity type.";
+$MESS["SONET_GL_ERROR_NO_ENTITY_ID"] = "The entity ID is incorrect.";
+$MESS["SONET_GL_ERROR_NO_USER_ID"] = "The user ID is incorrect.";
+$MESS["SONET_GL_EMPTY_EVENT_ID"] = "Event is not specified.";
+$MESS["SONET_GL_ERROR_NO_FEATURE_ID"] = "The specified event is incorrect.";
+$MESS["SONET_GL_EMPTY_DATE_CREATE"] = "The creation date is incorrect.";
+$MESS["SONET_GL_EMPTY_TITLE"] = "The title is not specified.";
+$MESS["SONET_GL_WRONG_PARAMETER_ID"] = "The ID is incorrect.";
+$MESS["SONET_GL_TITLE_JOIN1"] = "New member #TITLE# has joined the group.";
+$MESS["SONET_GL_TITLE_JOIN2"] = "New members #TITLE# has joined the group.";
+$MESS["SONET_GL_TITLE_UNJOIN1"] = "Member #TITLE# has left the group.";
+$MESS["SONET_GL_TITLE_UNJOIN2"] = "Members #TITLE# have left the group.";
+$MESS["SONET_GL_TITLE_MODERATE1"] = "Moderator #TITLE# has been appointed in the group.";
+$MESS["SONET_GL_TITLE_MODERATE2"] = "Moderators #TITLE# have been appointed in the group.";
+$MESS["SONET_GL_TITLE_OWNER1"] = "A new owner has been assigned to the group #TITLE#.";
+$MESS["SONET_GL_TITLE_UNMODERATE1"] = "#TITLE# is no longer a moderator of this group.";
+$MESS["SONET_GL_TITLE_UNMODERATE2"] = "#TITLE# are no longer moderators of this group.";
+$MESS["SONET_GL_TITLE_FRIEND1"] = "#TITLE# has been added to the friends list.";
+$MESS["SONET_GL_TITLE_UNFRIEND1"] = "#TITLE# has been unfriended.";
+$MESS["SONET_GL_TITLE_GROUP1"] = "A user has joined the group #TITLE#.";
+$MESS["SONET_GL_TITLE_UNGROUP1"] = "A user has left the group #TITLE#.";
+$MESS["SONET_GL_TITLE_EXCLUDE_USER1"] = "The user has been removed from the group #TITLE#.";
+$MESS["SONET_GL_TITLE_EXCLUDE_GROUP1"] = "The user #TITLE# has been removed from the group.";
+$MESS["SONET_GL_SEND_EVENT_LINK"] = "Go To: ";
+?>

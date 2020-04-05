@@ -1,0 +1,29 @@
+<?
+$MESS ['IBL_NEWS_CAL_M_1'] = "Январь";
+$MESS ['IBL_NEWS_CAL_M_2'] = "Февраль";
+$MESS ['IBL_NEWS_CAL_M_3'] = "Март";
+$MESS ['IBL_NEWS_CAL_M_4'] = "Апрель";
+$MESS ['IBL_NEWS_CAL_M_5'] = "Май";
+$MESS ['IBL_NEWS_CAL_M_6'] = "Июнь";
+$MESS ['IBL_NEWS_CAL_M_7'] = "Июль";
+$MESS ['IBL_NEWS_CAL_M_8'] = "Август";
+$MESS ['IBL_NEWS_CAL_M_9'] = "Сентябрь";
+$MESS ['IBL_NEWS_CAL_M_10'] = "Октябрь";
+$MESS ['IBL_NEWS_CAL_M_11'] = "Ноябрь";
+$MESS ['IBL_NEWS_CAL_M_12'] = "Декабрь";
+$MESS ['IBL_NEWS_CAL_D_0'] = "Воскресенье";
+$MESS ['IBL_NEWS_CAL_D_1'] = "Понедельник";
+$MESS ['IBL_NEWS_CAL_D_2'] = "Вторник";
+$MESS ['IBL_NEWS_CAL_D_3'] = "Среда";
+$MESS ['IBL_NEWS_CAL_D_4'] = "Четверг";
+$MESS ['IBL_NEWS_CAL_D_5'] = "Пятница";
+$MESS ['IBL_NEWS_CAL_D_6'] = "Суббота";
+$MESS ['IBL_NEWS_CAL_S_0'] = "Вс";
+$MESS ['IBL_NEWS_CAL_S_1'] = "Пн";
+$MESS ['IBL_NEWS_CAL_S_2'] = "Вт";
+$MESS ['IBL_NEWS_CAL_S_3'] = "Ср";
+$MESS ['IBL_NEWS_CAL_S_4'] = "Чт";
+$MESS ['IBL_NEWS_CAL_S_5'] = "Пт";
+$MESS ['IBL_NEWS_CAL_S_6'] = "Сб";
+$MESS ['IBLOCK_MODULE_NOT_INSTALLED'] = "Модуль Информационных блоков не установлен";
+?>

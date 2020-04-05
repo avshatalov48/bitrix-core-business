@@ -1,0 +1,32 @@
+<?
+$MESS["SAE_NO_SITE_PLAN"]="Не указан сайт плана";
+$MESS["SAE_NO_USER"]="Не указан пользователь";
+$MESS["SAE_NO_PLAN"]="Не указан план";
+$MESS["SAE_NO_DATE_CREATE"]="Не указана дата создания";
+$MESS["SAE_AFFILIATE_ALREADY_EXISTS"]="Аффилиат для пользователя №#USER_ID# уже существует на сайте #SITE_ID#";
+$MESS["SAE_ERROR_SAVE_AFF"]="Ошибка сохранения аффилиата";
+$MESS["SAE_TITLE_UPDATE_AFF"]="Изменение аффилиата №#ID#";
+$MESS["SAE_TITLE_ADD_AFF"]="Добавление нового аффилиата";
+$MESS["SAE_AFF_LIST"]="Список аффилиатов";
+$MESS["SAE_AFF_ADD"]="Добавить аффилиата";
+$MESS["SAE_AFF_DELETE"]="Удалить аффилиата";
+$MESS["SAE_AFF_DELETE_CONF"]="Вы уверены, что хотите удалить этого аффилиата?";
+$MESS["SAE_AFF_TAB"]="Аффилиат";
+$MESS["SAE_AFF_TAB_TITLE"]="Параметры аффилиата";
+$MESS["SAE_DATE_UPDATE"]="Дата последнего изменения:";
+$MESS["SAE_SITE"]="Сайт:";
+$MESS["SAE_USER"]="Пользователь:";
+$MESS["SAE_PROFILE"]="Перейти к профилю пользователя";
+$MESS["SAE_AFFILIATE_REG"]="Аффилиат, через которого зарегистрировался:";
+$MESS["SAE_NO_AFFILIATE"]="Аффилиат не найден";
+$MESS["SAE_WAIT"]="ждите";
+$MESS["SAE_PLAN"]="План:";
+$MESS["SAE_ACTIVE"]="Активность:";
+$MESS["SAE_DATE_REG"]="Дата регистрации";
+$MESS["SAE_PAYED_SUM"]="Выплаченая сумма:";
+$MESS["SAE_PENDING_SUM"]="Начисленная сумма:";
+$MESS["SAE_LAST_CALC"]="Дата последней калькуляции";
+$MESS["SAE_FIX_PLAN"]="Фиксировать план";
+$MESS["SAE_AFF_SITE"]="Сайт аффилиата";
+$MESS["SAE_AFF_DESCRIPTION"]="Описание аффилиата";
+?>

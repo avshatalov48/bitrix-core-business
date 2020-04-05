@@ -1,0 +1,82 @@
+ul.bizproc-list, ul.bizproc-list li{
+	margin: 0; 
+	padding: 0; 
+	border: none; 
+	font-size: 100%; 
+	list-style-type: none;}
+ul.bizproc-document-states{
+	border:1px solid #CFCFCF;
+	padding:3px;
+	width:99%;}
+ul.bizproc-document-states li{
+	margin-top:3px;}
+ul.bizproc-document-states li.bizproc-list-item-first{
+	margin-top:0px;}
+ul.bizproc-document-states li.bizproc-document-start{
+	border:none;
+	background-image: url('images/gradient.gif');
+	background-position:left top;
+	background-repeat:repeat-x;
+	height:35px!important;
+	overflow:hidden;}
+ul.bizproc-document-states li.bizproc-document-start td, ul.bizproc-document-states li.bizproc-item-buttons td{
+	font-weight:bold;
+	overflow:hidden;}
+ul.bizproc-document-states li.bizproc-item-buttons{
+	border:none;}
+
+ul.bizproc-document-states table{
+	width:100%;
+	border:none;
+	border-collapse:collapse;
+	margin:0;
+	padding:0;}
+ul.bizproc-document-states td, ul.bizproc-document-states th{
+	border:none;
+	margin:0;
+	padding:0.3em 0.6em}
+ul.bizproc-document-states thead th{
+	text-align:left;
+	padding:0.5em 0.6em}
+ul.bizproc-document-states div.bizproc-document-controls span{
+	display:block;
+	float:left;
+	padding-bottom:2px;}
+ul.bizproc-document-states div.bizproc-document-controls span a{
+	margin:0 5px;}
+ul.bizproc-document-states span.bizproc-document-control-first{
+	border-right:1px solid #CFCFCF;}
+div.bizproc-document-controls{
+	float:right;
+	font-weight:normal;}
+ul.bizproc-document-states td.bizproc-field-name {
+	width:30%;}
+
+ul.bizproc-document-states li.bizproc-document-process {
+	border: 1px solid #e0dabf;}
+li.bizproc-document-process thead th{
+	background-color:#F2ECCD;}
+li.bizproc-document-process tbody th, li.bizproc-document-process tbody td{
+	background-color:#FCFAEF;}
+li.bizproc-document-process tbody tr.bizproc-item-row-first td{
+	padding-top:0.7em;}
+li.bizproc-document-process tbody tr.bizproc-item-row-last td{
+	padding-bottom:0.7em;}
+ul.bizproc-document-states li.bizproc-document-hastasks{
+	border:1px solid #e0cbcf;}
+li.bizproc-document-hastasks thead th{
+	background-color:#F2DADA;}
+li.bizproc-document-hastasks tbody th, li.bizproc-document-hastasks tbody td{
+	background-color:#FAF0F0;}
+ul.bizproc-document-states li.bizproc-document-finished{
+	border: 1px solid #d8d8d8;}
+li.bizproc-document-finished thead th{
+	background-color:#E4E4E4;}
+li.bizproc-document-finished tbody th, li.bizproc-document-finished tbody td{
+	background-color:#F4F4F4;}
+
+li.bizproc-document-start td span {
+	padding:0 0 4px 20px;
+	background-image:url('images/bizproc.gif');
+	background-position:left center;
+	background-repeat:no-repeat;}

@@ -1,0 +1,24 @@
+<?
+$MESS["SALE_DLVRS_ADD_NAME"] = "Дополнительные службы доставки";
+$MESS["SALE_DLVRS_ADD_DESCRIPTION"] = "Набор дополнительных служб доставок";
+$MESS["SALE_DLVRS_ADD_SERVICE_TYPE"] = "Тип службы доставки";
+$MESS["SALE_DLVRS_ADD_MAIN_TITLE"] = "Настройки";
+$MESS["SALE_DLVRS_ADD_MAIN_DESCRIPTION"] = "Настройки службы доставки";
+$MESS["SALE_DLVRS_ADD_MAIN_DEFAULT_VALUES"] = "Значения по умолчанию";
+$MESS["SALE_DLVRS_ADD_MAIN_LENGTH_DEFAULT"] = "Длина (мм)";
+$MESS["SALE_DLVRS_ADD_MAIN_WIDTH_DEFAULT"] = "Ширина (мм)";
+$MESS["SALE_DLVRS_ADD_MAIN_HEIGHT_DEFAULT"] = "Высота (мм)";
+$MESS["SALE_DLVRS_ADD_MAIN_WEIGHT_DEFAULT"] = "Вес (г)";
+$MESS["SALE_DLVRS_ADD_LOC_INSTALL"] = "Необходимо установить соответствие между местоположениями магазина и местоположениями службы доставки. Для этого перейдите на вкладку \"Местоположения\" и нажмите кнопку \"Сопоставить\". В зависимости от производительности это может занять продолжительное время";
+$MESS["SALE_DLVRS_ADD_LOC_INSTALL_START"] = "Начать";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_TITLE"] = "Сопоставление местоположений";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_CLOSE"] = "Закрыть";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_AJAX_ERROR"] = "Ошибка получения информации";
+$MESS["SALE_DLVRS_ADD_LOC_COMP_PREPARE"] = "Подготовка";
+$MESS["SALE_DLVRS_ADD_LOC_TAB"] = "Местоположения";
+$MESS["SALE_DLVRS_ADD_LOC_TAB_TITLE"] = "Сопоставление местоположений";
+$MESS["SALE_DLVRS_ADD_CONFIG_RECEIVE_ERROR"] = "Ошибка получения конфигурации службы доставки";
+$MESS["SALE_DLVRS_ADD_PCONFIG_RECEIVE_ERROR"] = "Ошибка получения конфигурации профиля службы доставки";
+$MESS["SALE_DLVRS_ADD_LICENSE_WRONG"] = "В связи с тем, что лицензия недействительна, функциональность обработчика ограничена";
+$MESS["SALE_DLVRS_ADD_LIST_RECEIVE_ERROR"] = "Ошибка получения списка служб доставок";
+$MESS["SALE_DLVRS_ADD_LIST_LICENSE_WRONG"] = "В связи с тем, что лицензия недействительна, некоторые службы доставки недоступны для добавления";

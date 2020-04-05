@@ -1,0 +1,36 @@
+<?
+$MESS["MAIN_ADM_CAPTCHA_PARAM1"] = "Text transparency (percents, 0-100)";
+$MESS["MAIN_ADM_CAPTCHA_PARAM2"] = "Lowest background random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM3"] = "Highest background random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM4"] = "Number of circles ";
+$MESS["MAIN_ADM_CAPTCHA_PARAM5"] = "Lowest circle random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM6"] = "Highest circle random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM7"] = "Lines over text";
+$MESS["MAIN_ADM_CAPTCHA_PARAM8"] = "Number of lines";
+$MESS["MAIN_ADM_CAPTCHA_PARAM9"] = "Lowest line random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM10"] = "Highest line random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM11"] = "Text indent from left";
+$MESS["MAIN_ADM_CAPTCHA_PARAM12"] = "Font size";
+$MESS["MAIN_ADM_CAPTCHA_PARAM13"] = "Lowest font random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM14"] = "Highest font random color value";
+$MESS["MAIN_ADM_CAPTCHA_PARAM15"] = "Minimum vertical rotation angle (in degrees)";
+$MESS["MAIN_ADM_CAPTCHA_PARAM16"] = "Maximum vertical rotation angle (in degrees)";
+$MESS["MAIN_ADM_CAPTCHA_PARAM17"] = "Minimum distance between the lower-left corner of the characters (a negative value means maximum distance of symbols overlapping)";
+$MESS["MAIN_ADM_CAPTCHA_PARAM18"] = "Maximum distance between the lower-left corner of the characters (a negative value means minimum distance of symbols overlapping)";
+$MESS["MAIN_ADM_CAPTCHA_PARAM19"] = "Nonlinear distortion";
+$MESS["MAIN_ADM_CAPTCHA_PARAM20"] = "Border color";
+$MESS["MAIN_ADM_CAPTCHA_PARAM21"] = "Used fonts";
+$MESS["MAIN_ADM_CAPTCHA_PARAM22"] = "Allowed symbols (recommended symbol set: ABCDEFGHJKLMNPQRSTWXYZ23456789)";
+$MESS["MAIN_ADM_CAPTCHA_TAB"] = "Parameters";
+$MESS["MAIN_ADM_CAPTCHA_TAB_TITLE"] = "Editing CAPTCHA settings";
+$MESS["MAIN_ADM_CAPTCHA_PAGE_TITLE"] = "CAPTCHA settings";
+$MESS["MAIN_ADM_CAPTCHA_PRESETS"] = "Preset";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_0"] = "User";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_1"] = "Old style";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_2"] = "Waves";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_3"] = "Lines";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_4"] = "Negative";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_5"] = "Green";
+$MESS["MAIN_ADM_CAPTCHA_PARAM23"] = "Show character outlines";
+$MESS["MAIN_ADM_CAPTCHA_PRESET_6"] = "Outline";
+?>

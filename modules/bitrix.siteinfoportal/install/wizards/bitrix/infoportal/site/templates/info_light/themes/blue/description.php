@@ -1,0 +1,1 @@
+<?$arTemplate = Array("NAME" => GetMessage("CPST_BLUE"));?>

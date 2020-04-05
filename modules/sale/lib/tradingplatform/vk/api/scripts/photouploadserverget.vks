@@ -1,0 +1,5 @@
+var group_id = "%GROUP_ID%";
+var main_photo = "%MAIN_PHOTO%";
+
+var res =  API.photos.getMarketUploadServer({"group_id": group_id,"main_photo": main_photo});
+return res;

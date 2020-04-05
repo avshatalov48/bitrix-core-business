@@ -19,7 +19,6 @@ $MESS["CATALOG_INSTALL_PUBLIC_SETUP"] = "Установить";
 $MESS["CATALOG_UNINS_CURRENCY"] = "Для работы модуля Каталог необходим модуль Валют.<br />Установите сначала модуль Валют.";
 $MESS["CATALOG_UNINS_IBLOCK"] = "Для работы модуля Каталог необходим модуль Инфоблоков.<br />Установите сначала модуль \"Инфоблоки\".";
 $MESS["CATALOG_INSTALL_DESCRIPTION2"] = "Модуль торгового каталога позволяет создавать торговые каталоги товаров и услуг с ценами, наценками и импортом/экспортом данных.";
-$MESS["CATALOG_INSTALL_PROFILE_IRR2"] = "IRR.ru (\"Из рук в руки\")";
 $MESS["CATALOG_PRODUCT_SUBSCRIBE_LIST_NAME"] = "Код подтверждения";
 $MESS["CATALOG_PRODUCT_SUBSCRIBE_LIST_DESC"] = "
 #TOKEN# - Код подтверждения

@@ -39,7 +39,7 @@ $APPLICATION->IncludeComponent(
 		"PAGE_ELEMENT_COUNT" => $arParams["PAGE_ELEMENT_COUNT"],
 		"LINE_ELEMENT_COUNT" => $arParams["LINE_ELEMENT_COUNT"],
 		"PROPERTY_CODE" => $arParams["PROPERTY_CODE"],
-		"PRICE_CODE" => $arParams["PRICE_CODE"],
+		"PRICE_CODE" => $arParams["~PRICE_CODE"],
 		"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
 		"BY_LINK" => "Y",

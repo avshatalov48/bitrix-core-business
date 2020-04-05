@@ -38,7 +38,17 @@ if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_
 	$arParams["SORT_ORDER1"]="DESC";
 
 if(strlen($arParams["SORT_BY2"])<=0)
-	$arParams["SORT_BY2"] = "SORT";
+{
+	if (strtoupper($arParams["SORT_BY1"]) == 'SORT')
+	{
+		$arParams["SORT_BY2"] = "ID";
+		$arParams["SORT_ORDER2"] = "DESC";
+	}
+	else
+	{
+		$arParams["SORT_BY2"] = "SORT";
+	}
+}
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
 	$arParams["SORT_ORDER2"]="ASC";
 

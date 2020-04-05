@@ -8,17 +8,23 @@ class CSocNetFeaturesPerms extends CAllSocNetFeaturesPerms
 	/***************************************/
 	public static function Add($arFields)
 	{
-		global $DB;
+		global $DB, $CACHE_MANAGER;
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
 		if (!CSocNetFeaturesPerms::CheckFields("ADD", $arFields))
+		{
 			return false;
+		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetFeaturesPermsAdd");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		$arInsert = $DB->PrepareInsert("b_sonet_features2perms", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToInsert($arFields1, $arInsert);
@@ -35,13 +41,17 @@ class CSocNetFeaturesPerms extends CAllSocNetFeaturesPerms
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetFeaturesPermsAdd");
 			while ($arEvent = $events->Fetch())
+			{
 				ExecuteModuleEventEx($arEvent, array($ID, $arFields));
+			}
 
 			if (
 				intval($arFields["FEATURE_ID"]) > 0
 				&& defined("BX_COMP_MANAGED_CACHE")
 			)
-				$GLOBALS["CACHE_MANAGER"]->ClearByTag("sonet_feature_".$arFields["FEATURE_ID"]);
+			{
+				$CACHE_MANAGER->ClearByTag("sonet_feature_".$arFields["FEATURE_ID"]);
+			}
 		}
 
 		return $ID;

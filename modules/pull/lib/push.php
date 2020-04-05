@@ -251,6 +251,6 @@ class Push
 
 		$status = $status === false? false: true;
 
-		return (bool)\CUserOptions::SetOption('pull', 'push_status', $status, $userId);
+		return (bool)\CUserOptions::SetOption('pull', 'push_status', $status, false, $userId);
 	}
 }

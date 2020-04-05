@@ -146,8 +146,23 @@
 
 		showSimplePopup: function(params)
 		{
+			if (this.calendar.isExternalMode())
+			{
+				this.calendar.triggerEvent('createNewEntry', params);
+				setTimeout(BX.delegate(function()
+				{
+					if (params.closeCallback && typeof params.closeCallback == 'function')
+					{
+						params.closeCallback();
+					}
+				}, this), 300);
+				return;
+			}
+
 			if (!this.simpleEntryPopup)
+			{
 				this.simpleEntryPopup = new window.BXEventCalendar.SimpleAddPopup(this.calendar);
+			}
 
 			this.simpleEntryPopup.show(params);
 		},
@@ -174,7 +189,9 @@
 			}
 
 			if (!params || !params.entry)
+			{
 				params = {};
+			}
 
 			if (this.simpleEntryPopup)
 			{
@@ -183,16 +200,22 @@
 			}
 
 			if (!this.calendar.editSlider)
+			{
 				this.calendar.editSlider = new window.BXEventCalendar.EditEntrySlider(this.calendar);
+			}
 
 			this.calendar.editSlider.show(params);
 		},
 
 		handleEntryClick: function(params)
 		{
-			var entry = params.entry || this.getEntryById(params.uid);
-
 			params.entry = params.entry || this.getEntryById(params.uid);
+
+			if (this.calendar.isExternalMode())
+			{
+				return this.calendar.triggerEvent('entryClick', params);
+			}
+
 			if (params.entry.isSelected())
 			{
 				if (params.entry.isTask())
@@ -216,8 +239,15 @@
 
 		showViewSlider: function(params)
 		{
+			if (!this.calendar.util.useViewSlider())
+			{
+				return;
+			}
+
 			if (!this.calendar.viewSlider)
+			{
 				this.calendar.viewSlider = new window.BXEventCalendar.ViewEntrySlider(this.calendar);
+			}
 
 			this.calendar.viewSlider.show(params);
 
@@ -2754,19 +2784,19 @@
 	{
 		var
 			viewRangeDate = this.calendar.getViewRangeDate(),
-			time = viewRangeDate.getTime() / 1000,
+			time = viewRangeDate.getTime(),
 			dateTo = new Date(viewRangeDate.getTime() + this.dayCount * this.calendar.util.dayLength);
 
 		if (viewRangeDate.getMonth() != dateTo.getMonth())
 		{
 			View.prototype.setTitle.apply(this, [
-				BX.date.format('f', time) + ' - ' + BX.date.format('f', dateTo.getTime() / 1000) + (this.util.showWeekNumber() ? ', #GRAY_START#' + BX.message('EC_DATE_WEEK_NUMBER').replace('#WEEK_NUMBER#', BX.date.format('W', time)) + '#GRAY_END#' : '')
+				BX.date.format('f', time / 1000) + ' - ' + BX.date.format('f', dateTo.getTime() / 1000) + (this.util.showWeekNumber() ? ', #GRAY_START#' + BX.message('EC_DATE_WEEK_NUMBER').replace('#WEEK_NUMBER#', this.util.getWeekNumber(time)) + '#GRAY_END#' : '')
 			]);
 		}
 		else
 		{
 			View.prototype.setTitle.apply(this, [
-				BX.date.format('f', time) + (this.util.showWeekNumber() ? ', #GRAY_START#' + BX.message('EC_DATE_WEEK_NUMBER').replace('#WEEK_NUMBER#', BX.date.format('W', time)) + '#GRAY_END#' : '')
+				BX.date.format('f', time / 1000) + (this.util.showWeekNumber() ? ', #GRAY_START#' + BX.message('EC_DATE_WEEK_NUMBER').replace('#WEEK_NUMBER#', this.util.getWeekNumber(time)) + '#GRAY_END#' : '')
 			]);
 		}
 	};
@@ -3141,7 +3171,9 @@
 			this.monthRows.push(this.currentMonthRow);
 
 			if (this.util.showWeekNumber())
-				weekNumber = BX.date.format('W', time / 1000);
+			{
+				weekNumber = this.util.getWeekNumber(time);
+			}
 		}
 
 		if (params.month == 'previous')
@@ -3860,7 +3892,15 @@
 		View.prototype.show.apply(this, arguments);
 		this.showNavigationCalendar();
 		BX.remove(this.calendar.additionalInfoOuter);
-		this.displayedRange = this.calendar.entryController.getLoadedEntiesLimits();
+
+		var
+			initYear = parseInt(this.calendar.util.config.init_year),
+			initMonth = parseInt(this.calendar.util.config.init_month);
+		this.displayedRange = {
+			start: new Date(initYear, initMonth - 2, 1),
+			end: new Date(initYear, initMonth + 2, 0)
+		};
+
 		this.calendar.setDisplayedViewRange(this.displayedRange);
 		if (params.displayEntries !== false)
 		{
@@ -4066,7 +4106,7 @@
 			this.entryListIndex[entryPartUid] = true;
 
 			var
-				timeLabel, wrap, timeNode,titleNode,attendesNode, actionsNode,
+				timeLabel, wrap, attendesNode,
 				entry = part.entry;
 
 			this.entriesIndex[entry.uid] = entry.globalIndex;
@@ -4092,10 +4132,9 @@
 				attrs: {'data-bx-calendar-entry': entry.uid},
 				props: {
 					className: 'calendar-timeline-stream-content-event' + (animation ? ' calendar-timeline-stream-section-event-animate-' + animation : '')
-					//className: 'calendar-timeline-stream-content-event' + (animation ? ' calendar-timeline-stream-section-event-animate-previous' : '')
 			}}));
 
-			timeNode = wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-time'}, html: '<span class="calendar-timeline-stream-content-event-time-link">' + timeLabel + '</span>'}));
+			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-time'}, html: '<span class="calendar-timeline-stream-content-event-time-link">' + timeLabel + '</span>'}));
 
 			var location = this.calendar.util.getTextLocation(entry.location) || '';
 			if (location)
@@ -4103,7 +4142,7 @@
 				location = '<span class="calendar-timeline-stream-content-event-location">(' + BX.util.htmlspecialchars(location) + ')</span>';
 			}
 
-			titleNode = wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><span class="calendar-timeline-stream-content-event-name-link">' + BX.util.htmlspecialchars(entry.name) + '</span>' + location}));
+			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><span class="calendar-timeline-stream-content-event-name-link">' + BX.util.htmlspecialchars(entry.name) + '</span>' + location}));
 
 			attendesNode = wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-members'}}));
 
@@ -4118,8 +4157,6 @@
 			{
 				attendesNode.innerHTML = BX.message('EC_EVENT_IS_MINE');
 			}
-
-			//actionsNode = wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-actions'}, html: ''}));
 
 			part.DOM = {};
 
@@ -4174,8 +4211,6 @@
 
 	ListView.prototype.showAttendees = function(wrap, attendees, totalCount)
 	{
-		//BX.cleanNode(this.DOM.attendeesWrap);
-
 		var
 			i,
 			user,
@@ -4224,7 +4259,6 @@
 			//		this.showUserListPopup(this.DOM.allUsersLink, this.entry.getAttendees());
 			//	}, this)}
 			//}));
-
 		}
 	};
 
@@ -4268,7 +4302,8 @@
 				resizable: false,
 				lightShadow: true,
 				content: this.DOM.userListPopupWrap,
-				className: 'calendar-user-list-popup'
+				className: 'calendar-user-list-popup',
+				zIndex: 4000
 			});
 
 		this.userListPopup.setAngle({offset: 36});
@@ -4767,11 +4802,6 @@
 
 	ListView.prototype.applyFilterMode = function()
 	{
-		//if (!this.isBuilt)
-		//{
-		//	this.show({displayEntries: false});
-		//}
-
 		// Hide original title
 		this.filterMode = true;
 		this.calendar.viewTitleContainer.style.display = 'none';

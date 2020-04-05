@@ -106,6 +106,11 @@ abstract class Node
 		return $this->nodeName;
 	}
 
+	public function setNodeName($a)
+	{
+		$this->nodeName = $a;
+	}
+
 	public function getNodeValue()
 	{
 		return $this->nodeValue;

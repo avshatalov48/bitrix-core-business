@@ -1,0 +1,402 @@
+.bx_my_order { margin-bottom: 20px; }
+
+.bx_my_order_status_desc { margin: 20px 0; }
+
+.bx_my_order_status_desc h2 {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+.bx_mos_desc { font-size: 12px; }
+
+.bx_my_order h3 {
+	color: #3f3f3f;
+	font-weight: bold;
+	font-size: 24px;
+}
+
+.bx_my_order .bx_my_order_table {
+	width: 100%;
+	border: 1px solid #e8e8e8;
+	border-collapse: collapse;
+}
+
+.bx_my_order .bx_my_order_table tr td { box-sizing: border-box; }
+
+.bx_my_order .bx_my_order_table thead tr td {
+	padding: 10px;
+	border-bottom: 1px solid #d9d9d9;
+	background: rgb(255, 255, 255);
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlM2UzZTMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 1)), color-stop(100%, rgba(227, 227, 227, 1)));
+	background: -webkit-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(227, 227, 227, 1) 100%);
+	background: -moz-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(227, 227, 227, 1) 100%);
+	background: -ms-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(227, 227, 227, 1) 100%);
+	background: -o-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(227, 227, 227, 1) 100%);
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(227, 227, 227, 1) 100%);
+	color: #3d4345;
+	font-weight: bold;
+	font-size: 15px;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e3e3e3', GradientType=0);
+}
+
+.bx_my_order .bx_order_action { margin-bottom: 20px; }
+
+.bx_my_order .bx_my_order_table td a { font-size: 13px }
+
+.bx_my_order .bx_my_order_table td a:hover { text-decoration: none; }
+
+.bx_my_order .bx_my_order_table tbody tr td {
+	padding: 15px 10px 5px;
+	color: #3f3f3f;
+	vertical-align: top;
+	font-size: 13px;
+	line-height: 30px;
+}
+
+.bx_my_order .bx_my_order_table tbody tr td:first-child { width: 65% }
+
+.bx_my_order .bx_item_list {
+	margin: 5px 0 0;
+	padding: 0 0 0 30px;
+	list-style: decimal;
+}
+
+.bx_my_order .bx_my_order_status {
+	margin-bottom: 20px;
+	padding: 10px 5px;
+	width: 100%;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+	font-weight: bold;
+	font-size: 14px;
+	line-height: normal
+}
+
+.bx_my_order .bx_my_order_status.yellow { background: #ffd34e }
+
+.bx_my_order .bx_my_order_status.red { background: #fb7474 }
+
+.bx_my_order .bx_my_order_status.green { background: #ade421 }
+
+.bx_my_order .bx_my_order_status.gray { background: #bbb }
+
+@media (max-width: 550px) {
+	.bx-touch .bx_my_order .bx_my_order_table tr,
+	.bx-touch .bx_my_order .bx_my_order_table tbody,
+	.bx-touch .bx_my_order .bx_my_order_table tbody td {
+		display: block;
+		width: 100% !important;
+	}
+
+	.bx-touch .bx_my_order .bx_my_order_table tbody { border-top: 1px solid #e8e8e8; }
+
+	.bx-touch .bx_my_order .bx_my_order_table thead td {
+		display: inline-block;
+		width: auto !important;
+		border: none;
+		background: transparent !important;
+		box-shadow: none;
+		white-space: nowrap
+	}
+
+	.bx_my_order .bx_my_order_status {
+		position: relative;
+		margin-left: -10px;
+		padding: 10px;
+	}
+}
+
+.bx_my_order .bx_bt_button_type_2 {
+	display: inline-block;
+	border-radius: 3px;
+	color: #3f3f3f !important;
+	text-align: center;
+	text-decoration: none;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.bx_my_order .bx_shadow.bx_bt_button_type_2 { box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .2) }
+
+.bx_my_order .bx_shadow.bx_bt_button_type_2:active { box-shadow: none }
+
+.bx_my_order .bx_bt_button_type_2 {
+	border: 1px solid #e9e9e9;
+	background: #fcfcfc;
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZjZmNmYyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMWYxZjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fcfcfc), color-stop(100%, #f1f1f1));
+	background: -webkit-linear-gradient(top, #fcfcfc 0%, #f1f1f1 100%);
+	background: -moz-linear-gradient(top, #fcfcfc 0%, #f1f1f1 100%);
+	background: -ms-linear-gradient(top, #fcfcfc 0%, #f1f1f1 100%);
+	background: -o-linear-gradient(top, #fcfcfc 0%, #f1f1f1 100%);
+	background: linear-gradient(to bottom, #fcfcfc 0%, #f1f1f1 100%);
+	color: #656565;
+	text-shadow: 0 1px 0 #fff;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcfcfc', endColorstr='#f1f1f1', GradientType=0);
+}
+
+.bx_my_order .bx_bt_button_type_2:hover { background: #fff }
+
+.bx_my_order .bx_bt_button_type_2:active {
+	background: #f1f1f1;
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2YxZjFmMSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmY2ZjZmMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f1f1f1), color-stop(100%, #fcfcfc));
+	background: -webkit-linear-gradient(top, #f1f1f1 0%, #fcfcfc 100%);
+	background: -moz-linear-gradient(top, #f1f1f1 0%, #fcfcfc 100%);
+	background: -ms-linear-gradient(top, #f1f1f1 0%, #fcfcfc 100%);
+	background: -o-linear-gradient(top, #f1f1f1 0%, #fcfcfc 100%);
+	background: linear-gradient(to bottom, #f1f1f1 0%, #fcfcfc 100%);
+	box-shadow: inset 0 2px 2px 0 rgba(0, 0, 0, .05);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f1f1f1', endColorstr='#fcfcfc', GradientType=0);
+}
+
+.bx_my_order .bx_small.bx_bt_button_type_2 {
+	display: inline-block;
+	min-width: 20px;
+	line-height: 20px;
+}
+
+.bx_my_order .bx_small.bx_bt_button_type_2 { }
+
+.bx_my_order .bx_small.bx_bt_button_type_2:hover { }
+
+.bx_my_order .bx_small.bx_bt_button_type_2:active { }
+
+.bx_my_order .bx_medium.bx_bt_button_type_2 {
+	padding: 0 13px;
+	height: 25px;
+	font-weight: bold;
+	line-height: 25px;
+}
+
+.bx_my_order .bx_medium.bx_bt_button_type_2 { font-weight: bold }
+
+.bx_my_order .bx_medium.bx_bt_button_type_2:hover { }
+
+.bx_my_order .bx_medium.bx_bt_button_type_2:active { }
+
+.bx_my_order .bx_big.bx_bt_button_type_2 {
+	padding: 0 13px;
+	height: 34px;
+	font-weight: bold;
+	line-height: 34px;
+}
+
+.bx_my_order .bx_big.bx_bt_button_type_2 { }
+
+.bx_my_order .bx_big.bx_bt_button_type_2:hover { }
+
+.bx_my_order .bx_big.bx_bt_button_type_2:active { }
+
+.bx_my_order_switch {
+	margin-bottom: 15px;
+	line-height: 30px;
+}
+
+.bx_my_order_switch .bx_mo_link { margin-right: 20px; }
+
+.sale-order-link,
+.sale-order-history-link {margin-right: 22px;}
+
+.sale-order-description {
+	color: #888;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-title-container {
+	border:1px solid #C2F388;
+	background: rgba(194, 243, 136, .5);
+}
+
+.sale-order-list-accomplished-title {
+	margin-top: 10px;
+	color: #2f3435;
+	font: bold 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-inner-container { border: 1px solid #efecec; border-top: none; }
+
+.sale-order-list-inner-title-line {
+	height: 1px;
+	background: #f2f2f2;
+	border: none;
+	margin: 0;
+}
+
+.sale-order-list-inner-title-line-item {
+	color: #9b9b9b;
+	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-inner-row-template { display: none; }
+
+.sale-order-list-payment-title,
+.sale-order-list-shipment-title {
+	color: #000;
+	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-payment-about-link,
+.sale-order-list-payment-repeat-link,
+.sale-order-list-payment-cancel-link { padding: 21px 0 0; }
+
+.sale-order-list-shipment-button,
+.sale-order-list-change-payment {
+	text-decoration: underline;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	cursor: pointer;
+}
+
+.sale-order-list-repeat-link:before {
+	display: inline-block;
+	margin: 0 3px 4px 0;
+	width: 10px;
+	height: 13px;
+	background: url(images/sale-order-repeat.svg) no-repeat;
+	content: "";
+	vertical-align: middle;
+}
+
+.sale-order-link-accomplished {
+	padding: 0;
+	text-decoration: none;
+}
+
+.sale-order-list-shipment-button:hover,
+.sale-order-list-change-payment:hover {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.sale-order-list-status-restricted,
+.sale-order-list-status-alert,
+.sale-order-list-status-success {
+	display: inline-block;
+	padding: 4px 10px 5px 8px;
+	border: 1px solid #eab3b9;
+	border-radius: 2px;
+	background: #ffe5e8;
+	color: #d0021b;
+	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	-o-border-radius: 2px;
+}
+
+.sale-order-list-status-success {
+	border: 1px solid #bed277;
+	background: #e3f0bd;
+	color: #597707;
+}
+
+.sale-order-list-status-restricted {
+	border: 1px solid rgba(128, 134, 142, 0.20);
+	background: #f3f4f5;
+	color: #535c69;
+}
+
+.sale-order-list-status-restricted-message {
+	color: #9e9fa2;
+	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sale-order-list-payment-check,
+.sale-order-list-payment-price {font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;}
+
+.sale-order-list-payment-check {
+	float: left;
+	width: 100%;
+}
+
+.sale-order-list-payment-check-left {
+	display: inline;
+	float: left;
+	padding-right: 5px;
+}
+
+.sale-order-list-shipment {
+	list-style: none;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-shipment-list-item-link {
+	padding: 16px 0 0;
+	text-decoration: underline;
+}
+
+.sale-order-list-shipment-id { font-weight: 700; }
+
+.sale-order-list-shipment-id-icon {
+	display: inline-block;
+	width: 11px;
+	height: 13px;
+	background: url("images/sale-order-order-list-options-methods-shipment-list-item-id-element.svg") center no-repeat;
+	cursor: pointer;
+}
+
+.sale-order-list-top-border {
+	margin: 18px 15px 21px;
+	width: auto;
+	height: 1px;
+	background: #f2f2f2;
+}
+
+.sale-order-list-accomplished-title-container {
+	background: #f2f2f2;
+	border: 1px solid #d6d6d6;
+}
+
+.sale-order-list-accomplished-date-container { text-align: right; }
+
+.sale-order-list-accomplished-date { padding: 0 8px 0 0; }
+
+.sale-order-list-accomplished-date,
+.sale-order-list-accomplished-date-number {
+	display: inline-block;
+	margin: 10px 0 0;
+	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sale-order-list-accomplished-date { color: #888; }
+
+.sale-order-list-accomplished-date.canceled-order { color: #f00; }
+
+.sale-order-list-accomplished-date-number { color: #888; }
+
+.sale-order-list-shipment-status-item {
+	display: inline-block;
+	margin: 6px 0 5px 0;
+	vertical-align: middle;
+}
+
+.sale-order-list-shipment-status-block {
+	display: inline-block;
+	padding: 5px;
+	border: 1px solid rgba(128, 134, 142, 0.20);
+	border-radius: 2px;
+	background: #f3f4f5;
+	color: #535c69;
+	vertical-align: middle;
+	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* state's */
+
+.sale-order-state-green { background: #c2f388; }
+
+.sale-order-state-yellow { background: #d7dd39; }
+
+.sale-order-state-red { background: #dd6239; }
+
+.sale-order-state-grey { background: #f2f2f2; }
+
+@media (max-width: 991px) {
+	.sale-order-list-accomplished-date-container,
+	.sale-order-list-repeat-accomplished { text-align: left; }
+}
+
+@media (max-width: 767px) {
+	.sale-order-list-button {
+		float: none;
+		margin: 10px 0 0;
+		max-width: none;
+	}
+}

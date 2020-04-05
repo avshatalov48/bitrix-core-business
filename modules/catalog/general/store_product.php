@@ -1,4 +1,6 @@
 <?
+use Bitrix\Catalog;
+
 IncludeModuleLangFile(__FILE__);
 
 class CCatalogStoreProductAll
@@ -26,6 +28,10 @@ class CCatalogStoreProductAll
 		return true;
 	}
 
+	/**
+	 * @param array $arFields
+	 * @return bool|int
+	 */
 	public static function UpdateFromForm($arFields)
 	{
 		$rsProps = CCatalogStoreProduct::GetList(array(),array("PRODUCT_ID"=>$arFields['PRODUCT_ID'], "STORE_ID"=>$arFields['STORE_ID']),false,false,array('ID'));
@@ -56,15 +62,14 @@ class CCatalogStoreProductAll
 		return true;
 	}
 
-	public static function OnIBlockElementDelete($productId)
-	{
-		global $DB;
-		$productId = (int)$productId;
-		if($productId <= 0)
-			return false;
-
-		return $DB->Query("DELETE FROM b_catalog_store_product WHERE PRODUCT_ID = ".$productId." ", true);
-	}
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Product::delete
+	 *
+	 * @param $productId
+	 * @return void
+	 */
+	public static function OnIBlockElementDelete($productId) {}
 
 	public static function Delete($id)
 	{

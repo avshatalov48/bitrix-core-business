@@ -539,7 +539,7 @@ if ($NS['step'] == 6)
 		if (!CModule::IncludeModule('clouds'))
 			RaiseErrorAndDie(GetMessage("MAIN_DUMP_NO_CLOUDS_MODULE"), 600, $NS['arc_name']);
 
-		while(haveTime())
+		while(CheckPoint())
 		{
 			$file_size = filesize($NS["arc_name"]);
 			$file_name = $NS['BUCKET_ID'] == -1 ? basename($NS['arc_name']) : substr($NS['arc_name'],strlen(DOCUMENT_ROOT));
@@ -644,8 +644,11 @@ if ($NS['step'] == 6)
 				}
 				else
 				{
-					$ob = new CBitrixCloudBackup;
-					$ob->clearOptions();
+					if ($bBitrixCloud)
+					{
+						$ob = new CBitrixCloudBackup;
+						$ob->clearOptions();
+					}
 					
 					if ($arParams['dump_delete_old'] == 1)
 					{
@@ -667,7 +670,6 @@ if ($NS['step'] == 6)
 				RaiseErrorAndDie(GetMessage("MAIN_DUMP_ERR_FILE_SEND").basename($NS['arc_name']), 680, $NS['arc_name']);
 			}
 		}
-		CheckPoint();
 		$NS['step_finished']++;
 	}
 	$NS['step'] = 7;
@@ -861,7 +863,7 @@ function RaiseErrorAndDie($strError, $errCode = 0, $ITEM_ID = '')
 function CheckPoint()
 {
 	if (haveTime())
-		return;
+		return true;
 	
 	global $NS;
 	$NS['WORK_TIME'] = microtime(1) - START_TIME;

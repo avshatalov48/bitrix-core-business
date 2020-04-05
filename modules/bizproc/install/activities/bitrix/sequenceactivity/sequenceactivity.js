@@ -65,10 +65,21 @@ SequenceActivity = function()
 				if(act_i == 'setstateactivity' && rootActivity.Type == ob.Type)
 					continue;
 
-				oSubMenu.push({'ICON': 'url('+arAllActivities[act_i]['ICON']+')', 'TEXT': '<img src="'+(arAllActivities[act_i]['ICON']?arAllActivities[act_i]['ICON']:'/bitrix/images/bizproc/act_icon.gif')+'" align="left" style="margin-right: 7px;margin-left: 0px">' + '<b>' + HTMLEncode(arAllActivities[act_i]['NAME']) + '</b><br>' + HTMLEncode(arAllActivities[act_i]['DESCRIPTION']), 
+				oSubMenu.push({
+					'ICON': 'url('+arAllActivities[act_i]['ICON']+')',
+					'TEXT': '<img src="'+(arAllActivities[act_i]['ICON']?arAllActivities[act_i]['ICON']:'/bitrix/images/bizproc/act_icon.gif')+'" align="left" style="margin-right: 7px;margin-left: 0px">' + '<b>' + HTMLEncode(arAllActivities[act_i]['NAME']) + '</b><br>' + HTMLEncode(arAllActivities[act_i]['DESCRIPTION']),
 					'ONCLICK': '_SequenceActivityClick(\''+act_i+'\', '+this.ind+');'
-					
-					});
+				});
+			}
+
+			if (groupId === 'rest' && BX.getClass('BX.rest.Marketplace'))
+			{
+				oSubMenu.push({
+					'ICON': 'url(/bitrix/images/bizproc/act_icon_plus.png)',
+					'TEXT': '<img src="/bitrix/images/bizproc/act_icon_plus.png" align="left" style="margin-right: 7px;margin-left: 0px">'
+					+ '<b>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_TITLE']) + '</b><br>' + HTMLEncode(BPMESS['BPSA_MARKETPLACE_ADD_DESCR']),
+					'ONCLICK': 'BX.rest.Marketplace.open({}, \'auto_pb\'); if(window.jsPopup_WFAct) {window.jsPopup_WFAct.PopupHide();}'
+				});
 			}
 
 			if (oSubMenu.length > 0)

@@ -1269,4 +1269,21 @@ EOS;
 
 		return false;
 	}
+
+	public function createAutomationTarget($parameterDocumentType)
+	{
+		list($moduleId, $entity, $documentType) = CBPHelper::ParseDocumentId($parameterDocumentType);
+
+		if (strlen($moduleId) > 0)
+			CModule::IncludeModule($moduleId);
+
+		if (class_exists($entity) && method_exists($entity, "createAutomationTarget"))
+		{
+			/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
+			$target = call_user_func_array(array($entity, "createAutomationTarget"), array($documentType));
+			return $target;
+		}
+
+		return null;
+	}
 }

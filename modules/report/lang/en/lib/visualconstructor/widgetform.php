@@ -1,0 +1,6 @@
+<?
+$MESS["ADD_REPORT_BUTTON"] = "add data";
+$MESS["SAVE_WIDGET_CONFIG_SAVE_BUTTON"] = "Save";
+$MESS["SAVE_WIDGET_CONFIG_CANCEL_BUTTON"] = "Cancel";
+$MESS["SAVE_WIDGET_AS_PATTERN"] = "Save as Preset";
+?>

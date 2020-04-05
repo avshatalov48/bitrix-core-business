@@ -407,7 +407,8 @@ if (!function_exists('__SLGetLogRecord'))
 									"LAST_NAME",
 									"SECOND_NAME",
 									"LOGIN",
-									"EMAIL"
+									"EMAIL",
+									"PERSONAL_GENDER"
 								);
 								foreach ($arEvent["FIELDS_FORMATTED"]["CREATED_BY"]["TOOLTIP_FIELDS"] as $field => $value)
 								{
@@ -449,7 +450,8 @@ if (!function_exists('__SLGetLogRecord'))
 									"LAST_NAME",
 									"SECOND_NAME",
 									"LOGIN",
-									"EMAIL"
+									"EMAIL",
+									"PERSONAL_GENDER"
 								);
 								foreach ($arEvent["FIELDS_FORMATTED"]["ENTITY"]["TOOLTIP_FIELDS"] as $field => $value)
 								{

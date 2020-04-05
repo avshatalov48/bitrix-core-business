@@ -259,4 +259,7 @@ $MESS["EC_B24_LOCATION_LIMITATION"] = "<span>You can create and select event loc
 $MESS["EC_MONTH_WEEK_TITLE"] = "<span>#DAY_OF_WEEK#</span>";
 $MESS["EC_MONTH_SHORT"] = "<small>#MONTH#</small> #DATE#";
 $MESS["EC_WEEK_TITLE"] = "<span class='calendar-day-of-week'>#DAY_OF_WEEK#</span><span class='calendar-num-day'>#DATE#</span>";
+$MESS["EC_LOCATION_RESERVE_ERROR"] = "The location is not available at the specified time.";
+$MESS["EC_VIEW_MODE_SHOW_BY"] = "Sort by";
+$MESS["EC_DESCRIPTION"] = "Description";
 ?>

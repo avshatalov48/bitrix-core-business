@@ -27,7 +27,7 @@ BX.date.format = function(format, timestamp, now, utc)
 	else if (!BX.type.isNotEmptyString(format))
 		return "";
 
-	var formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|yesterday|today|tommorow|tomorrow|[a-z])/gi;
+	var formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tommorow|tomorrow|[a-z])/gi;
 
 	var dateFormats = {
 		d : function() {
@@ -279,6 +279,10 @@ BX.date.format = function(format, timestamp, now, utc)
 			});
 		},
 
+		sshort : function() {
+			return BX.message("FD_SECOND_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 1000));
+		},
+
 		iago : function() {
 			return _formatDateMessage(intval((nowDate - date) / 60 / 1000), {
 				"0" : "FD_MINUTE_AGO_0",
@@ -326,6 +330,10 @@ BX.date.format = function(format, timestamp, now, utc)
 			return result;
 		},
 
+		ishort : function() {
+		    return BX.message("FD_MINUTE_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 1000));
+		},
+
 		Hago : function() {
 			return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 1000), {
 				"0" : "FD_HOUR_AGO_0",
@@ -346,6 +354,10 @@ BX.date.format = function(format, timestamp, now, utc)
 				"MOD_2_4" : "FD_HOUR_DIFF_MOD_2_4",
 				"MOD_OTHER" : "FD_HOUR_DIFF_MOD_OTHER"
 			});
+		},
+
+		Hshort : function() {
+			return BX.message("FD_HOUR_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 1000));
 		},
 
 		yesterday : function() {
@@ -386,6 +398,10 @@ BX.date.format = function(format, timestamp, now, utc)
 			});
 		},
 
+		dshort : function() {
+			return BX.message("FD_DAY_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 24 / 1000));
+		},
+
 		mago : function() {
 			return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 31 / 1000), {
 				"0" : "FD_MONTH_AGO_0",
@@ -408,6 +424,10 @@ BX.date.format = function(format, timestamp, now, utc)
 			});
 		},
 
+		mshort : function() {
+			return BX.message("FD_MONTH_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 24 / 31 / 1000));
+		},
+
 		Yago : function() {
 			return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 365 / 1000), {
 				"0" : "FD_YEARS_AGO_0",
@@ -427,6 +447,17 @@ BX.date.format = function(format, timestamp, now, utc)
 				"MOD_1" : "FD_YEARS_DIFF_MOD_1",
 				"MOD_2_4" : "FD_YEARS_DIFF_MOD_2_4",
 				"MOD_OTHER" : "FD_YEARS_DIFF_MOD_OTHER"
+			});
+		},
+
+		Yshort : function() {
+			return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 365 / 1000), {
+				"0" : "FD_YEARS_SHORT_0",
+				"1" : "FD_YEARS_SHORT_1",
+				"10_20" : "FD_YEARS_SHORT_10_20",
+				"MOD_1" : "FD_YEARS_SHORT_MOD_1",
+				"MOD_2_4" : "FD_YEARS_SHORT_MOD_2_4",
+				"MOD_OTHER" : "FD_YEARS_SHORT_MOD_OTHER"
 			});
 		},
 

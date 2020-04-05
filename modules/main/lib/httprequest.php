@@ -475,4 +475,13 @@ class HttpRequest extends Request
 	{
 		return file_get_contents("php://input");
 	}
+
+	/**
+	 * Returns Y if persistant cookies are enabled, N if disabled, or empty if unknown.
+	 * @return null|string
+	 */
+	public function getCookiesMode()
+	{
+		return $this->getCookie(HttpResponse::STORE_COOKIE_NAME);
+	}
 }

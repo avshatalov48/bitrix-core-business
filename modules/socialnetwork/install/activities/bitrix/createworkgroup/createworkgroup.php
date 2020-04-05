@@ -19,7 +19,7 @@ class CBPCreateWorkGroup
 
 	public function Execute()
 	{
-		global $USER_FIELD_MANAGER;
+		global $USER_FIELD_MANAGER, $DB;
 
 		if (!CModule::IncludeModule("socialnetwork"))
 			return CBPActivityExecutionStatus::Closed;
@@ -97,19 +97,30 @@ class CBPCreateWorkGroup
 		foreach ($users AS $user)
 		{
 			if ($user == $ownerId)
+			{
 				continue;
-			CSocNetUserToGroup::Add(
+			}
+
+			if (CSocNetUserToGroup::Add(
 				array(
 					"USER_ID" => $user,
 					"GROUP_ID" => $groupId,
 					"ROLE" => SONET_ROLES_USER,
-					"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
-					"=DATE_UPDATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+					"=DATE_CREATE" => $DB->CurrentTimeFunction(),
+					"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
 					"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP,
 					"INITIATED_BY_USER_ID" => $ownerId,
 					"MESSAGE" => false,
 				)
-			);
+			))
+			{
+				\Bitrix\Socialnetwork\Item\UserToGroup::addInfoToChat(array(
+					'group_id' => $groupId,
+					'user_id' => $user,
+					'action' => \Bitrix\Socialnetwork\Item\UserToGroup::CHAT_ACTION_IN,
+					'sendMessage' => false
+				));
+			}
 		}
 
 		return CBPActivityExecutionStatus::Closed;

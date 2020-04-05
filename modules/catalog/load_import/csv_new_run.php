@@ -16,7 +16,9 @@
 /** @global string $PATH2IMAGE_FILES */
 /** @global string $outFileAction */
 
-use Bitrix\Catalog;
+use Bitrix\Main,
+	Bitrix\Catalog,
+	Bitrix\Iblock;
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/import_setup_templ.php');
 $startImportExecTime = getmicrotime();
@@ -83,6 +85,8 @@ if (defined('BX_CAT_CRON') && true == BX_CAT_CRON)
 if (defined("CATALOG_LOAD_NO_STEP") && CATALOG_LOAD_NO_STEP)
 	$max_execution_time = 0;
 
+$separateSku = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+
 $bAllLinesLoaded = true;
 
 $io = CBXVirtualIo::GetInstance();
@@ -91,7 +95,7 @@ if (!function_exists('CSVCheckTimeout'))
 {
 	function CSVCheckTimeout($max_execution_time)
 	{
-		return ($max_execution_time <= 0) || (getmicrotime()-START_EXEC_TIME <= $max_execution_time);
+		return ($max_execution_time <= 0) || (getmicrotime()-START_EXEC_TIME <= (2*$max_execution_time/3));
 	}
 }
 
@@ -342,6 +346,8 @@ if ('' == $strImportErrorMessage)
 	$el = new CIBlockElement();
 	$bWasIterations = false;
 
+	Iblock\PropertyIndex\Manager::enableDeferredIndexing();
+	Catalog\Product\Sku::enableDeferredCalculation();
 	if ($arRes)
 	{
 		$bWasIterations = true;
@@ -355,6 +361,7 @@ if ('' == $strImportErrorMessage)
 
 			$arIBlockProperty = array();
 			$arIBlockPropertyValue = array();
+			$multiplePropertyValuesCheck = array();
 			$bThereIsGroups = false;
 			$bDeactivationStarted = false;
 			$arProductGroups = array();
@@ -844,6 +851,7 @@ if ('' == $strImportErrorMessage)
 						}
 						if (!empty($arIBlockProperty[$cur_prop_id]) && is_array($arIBlockProperty[$cur_prop_id]))
 						{
+							$multipleCheckId = $arRes[$i];
 							if ('Y' == $CML2_LINK_IS_XML && $cur_prop_id == $arSku['SKU_PROPERTY_ID'])
 							{
 								$arRes[$i] = trim($arRes[$i]);
@@ -910,21 +918,42 @@ if ('' == $strImportErrorMessage)
 								if (!is_array($arRes[$i]) || !array_key_exists("tmp_name", $arRes[$i]))
 									$arRes[$i] = '';
 							}
+							if (!is_array($arRes[$i]))
+							{
+								$arRes[$i] = trim($arRes[$i]);
+								if ($arRes[$i] == '')
+									$multipleCheckId = $arRes[$i];
+							}
 
 							if ($arIBlockProperty[$cur_prop_id]["MULTIPLE"]=="Y")
 							{
+								if (!isset($arIBlockPropertyValue[$PRODUCT_ID]))
+								{
+									$arIBlockPropertyValue[$PRODUCT_ID] = array();
+									$multiplePropertyValuesCheck[$PRODUCT_ID] = array();
+								}
 								if (
 									!isset($arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id])
 									|| !is_array($arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id])
-									|| !in_array(trim($arRes[$i]), $arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id])
 								)
-									$arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id][] = is_array($arRes[$i]) ? $arRes[$i] : trim($arRes[$i]);
+								{
+									$arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id] = array();
+									$multiplePropertyValuesCheck[$PRODUCT_ID][$cur_prop_id] = array();
+								}
+
+								if (
+									!in_array($multipleCheckId, $multiplePropertyValuesCheck[$PRODUCT_ID][$cur_prop_id])
+								)
+								{
+									$arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id][] = $arRes[$i];
+									$multiplePropertyValuesCheck[$PRODUCT_ID][$cur_prop_id][] = $multipleCheckId;
+								}
 
 								$PROP[$cur_prop_id] = $arIBlockPropertyValue[$PRODUCT_ID][$cur_prop_id];
 							}
 							else
 							{
-								$PROP[$cur_prop_id][] = is_array($arRes[$i]) ? $arRes[$i] : trim($arRes[$i]);
+								$PROP[$cur_prop_id] = $arRes[$i];
 							}
 						}
 					}
@@ -959,19 +988,61 @@ if ('' == $strImportErrorMessage)
 						$arLoadOfferArray[$value["field"]] = trim($arRes[$ind]);
 				}
 
-				$productAddRes = CCatalogProduct::Add($arLoadOfferArray);
-				if (!$productAddRes)
+				$arLoadOfferArray = array(
+					'fields' => $arLoadOfferArray,
+					'external_fields' => array(
+						'IBLOCK_ID' => $IBLOCK_ID
+					)
+				);
+				$row = Catalog\Model\Product::getList(array(
+					'select' => array('ID'),
+					'filter' => array('=ID' => $PRODUCT_ID)
+				))->fetch();
+				if (empty($row))
 				{
-					$strErrorR .= GetMessage('CATI_LINE_NO').' '.$line_num.'. ';
-					if ($ex = $APPLICATION->GetException())
+					if ($boolUseStoreControl)
 					{
-						$strErrorR .= GetMessage('CATI_ERR_PRODUCT_UPDATE').$ex->GetString();
+						$arLoadOfferArray['fields']['QUANTITY'] = 0;
+						$arLoadOfferArray['fields']['QUANTITY_RESERVED'] = 0;
+						$arLoadOfferArray['fields']['QUANTITY_TRACE'] = Catalog\ProductTable::STATUS_YES;
+						$arLoadOfferArray['fields']['CAN_BUY_ZERO'] = Catalog\ProductTable::STATUS_NO;
 					}
 					else
 					{
-						$strErrorR .= GetMessage('CATI_ERR_PRODUCT_UPDATE_UNKNOWN');
+						if (isset($arLoadOfferArray['fields']['QUANTITY']) && $arLoadOfferArray['fields']['QUANTITY'] === '')
+							unset($arLoadOfferArray['fields']['QUANTITY']);
+						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']) && $arLoadOfferArray['fields']['QUANTITY_RESERVED'] === '')
+							unset($arLoadOfferArray['fields']['QUANTITY_RESERVED']);
 					}
-					unset($ex);
+					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
+						unset($arLoadOfferArray['fields']['WEIGHT']);
+					$productResult = Catalog\Model\Product::add($arLoadOfferArray);
+				}
+				else
+				{
+					if ($boolUseStoreControl)
+					{
+						if (isset($arLoadOfferArray['fields']['QUANTITY']))
+							unset($arLoadOfferArray['fields']['QUANTITY']);
+						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']))
+							unset($arLoadOfferArray['fields']['QUANTITY_RESERVED']);
+					}
+					else
+					{
+						if (isset($arLoadOfferArray['fields']['QUANTITY']) && $arLoadOfferArray['fields']['QUANTITY'] === '')
+							$arLoadOfferArray['fields']['QUANTITY'] = 0;
+						if (isset($arLoadOfferArray['fields']['QUANTITY_RESERVED']) && $arLoadOfferArray['fields']['QUANTITY_RESERVED'] === '')
+							$arLoadOfferArray['fields']['QUANTITY_RESERVED'] = 0;
+					}
+					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
+						$arLoadOfferArray['fields']['WEIGHT'] = 0;
+					$productResult = Catalog\Model\Product::update($PRODUCT_ID, $arLoadOfferArray);
+				}
+				unset($row);
+				unset($arLoadOfferArray);
+				if (!$productResult->isSuccess())
+				{
+					$strErrorR .= GetMessage('CATI_LINE_NO').' '.$line_num.'. '.implode('; ', $productResult->getErrorMessages());
 				}
 				else
 				{
@@ -980,16 +1051,17 @@ if ('' == $strImportErrorMessage)
 					for ($j = 0; $j < $NUM_FIELDS; $j++)
 					{
 						if (${"field_".$j} == "CV_QUANTITY_FROM")
-							$quantityFrom = intval($arRes[$j]);
+							$quantityFrom = (int)$arRes[$j];
 						elseif (${"field_".$j} == "CV_QUANTITY_TO")
-							$quantityTo = intval($arRes[$j]);
+							$quantityTo = (int)$arRes[$j];
 					}
-					if (0 >= $quantityFrom)
-						$quantityFrom = false;
-					if (0 >= $quantityTo)
-						$quantityTo = false;
+					if ($quantityFrom <= 0)
+						$quantityFrom = null;
+					if ($quantityTo <= 0)
+						$quantityTo = null;
 
 					$arFields = array();
+					$priceTypeList = array();
 					for ($j = 0; $j < $NUM_FIELDS; $j++)
 					{
 						foreach ($arAvailValueFields_names as $key => $value)
@@ -1006,100 +1078,121 @@ if ('' == $strImportErrorMessage)
 										"QUANTITY_TO" => $quantityTo,
 										"TMP_ID" => $tmpid
 									);
+									$priceTypeList[$strTempKey] = $strTempKey;
 								}
 								$arFields[$strTempKey][$value["field"]] = trim($arRes[$j]);
 							}
 						}
 					}
 
-					foreach ($arFields as $key => $value)
+					if (!empty($arFields))
 					{
-						$strPriceErr = '';
-						$res = CPrice::GetListEx(
-							array(),
-							array(
-								"PRODUCT_ID" => $value['PRODUCT_ID'],
-								"CATALOG_GROUP_ID" => $value['CATALOG_GROUP_ID'],
-								"QUANTITY_FROM" => $value['QUANTITY_FROM'],
-								"QUANTITY_TO" => $value['QUANTITY_TO']
-							),
-							false,
-							false,
-							array('ID')
-						);
-						if ($arr = $res->Fetch())
+						$productPrices = array();
+						$priceIterator = Catalog\Model\Price::getList(array(
+							'select' => array('ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'),
+							'filter' => array('=PRODUCT_ID' => $PRODUCT_ID, '@CATALOG_GROUP_ID' => $priceTypeList)
+						));
+						while ($row = $priceIterator->fetch())
 						{
-							$boolEraseClear = false;
-							if ('Y' == $CLEAR_EMPTY_PRICE)
+							$hash = ($row['QUANTITY_FROM'] === null ? 'ZERO' : $row['QUANTITY_FROM']).'-'.
+								($row['QUANTITY_TO'] === null ? 'INF' : $row['QUANTITY_FROM']);
+							$priceType = (int)$row['CATALOG_GROUP_ID'];
+							if (!isset($productPrices[$priceType]))
+								$productPrices[$priceType] = array();
+							$productPrices[$priceType][$hash] = (int)$row['ID'];
+						}
+						unset($row, $priceIterator);
+
+						foreach ($arFields as $key => $value)
+						{
+							$strPriceErr = '';
+
+							$hash = ($value['QUANTITY_FROM'] === null ? 'ZERO' : $value['QUANTITY_FROM']).'-'.
+								($value['QUANTITY_TO'] === null ? 'INF' : $value['QUANTITY_FROM']);
+							$priceType = (int)$value['CATALOG_GROUP_ID'];
+
+							$priceId = (isset($productPrices[$priceType][$hash]) ? $productPrices[$priceType][$hash] : null);
+
+							if ($priceId !== null)
 							{
-								$boolEraseClear = (
-									(isset($value['PRICE']) && '' === $value['PRICE']) &&
-									(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
-								);
-							}
-							if ($boolEraseClear)
-							{
-								if (!CPrice::Delete($arr["ID"]))
+								$boolEraseClear = false;
+								if ('Y' == $CLEAR_EMPTY_PRICE)
 								{
-									$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+									$boolEraseClear = (
+										(isset($value['PRICE']) && '' === $value['PRICE']) &&
+										(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
+									);
+								}
+								if ($boolEraseClear)
+								{
+									$priceResult = Catalog\Model\Price::delete($priceId);
+									if (!$priceResult->isSuccess())
+									{
+										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+										if ($strPriceErr !== '')
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE').$strPriceErr;
+										else
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+									}
+									unset($priceResult);
+								}
+								else
+								{
+									if (isset($value['PRICE']))
+										$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+
+									$priceResult = Catalog\Model\Price::update($priceId, $value);
+									if ($priceResult->isSuccess())
+									{
+										$bUpdatePrice = 'Y';
+									}
+									else
+									{
+										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+										if ($strPriceErr !== '')
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE').$strPriceErr;
+										else
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE_UNKNOWN');
+									}
+									unset($priceResult);
 								}
 							}
 							else
 							{
-								if (isset($value['PRICE']))
-									$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
-								if (CPrice::Update($arr["ID"], $value))
+								$boolEmptyNewPrice = (
+									(isset($value['PRICE']) && '' === $value['PRICE'])
+									&& (isset($value['CURRENCY']) && '' === $value['CURRENCY'])
+								);
+								if (!$boolEmptyNewPrice)
 								{
-									$bUpdatePrice = 'Y';
-								}
-								else
-								{
-									if ($ex = $APPLICATION->GetException())
+									if (isset($value['PRICE']))
+										$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+
+									$priceResult = Catalog\Model\Price::add($value);
+									if ($priceResult->isSuccess())
 									{
-										$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE').$ex->GetString();
+										$bUpdatePrice = 'Y';
 									}
 									else
 									{
-										$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE_UNKNOWN');
+										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+										if ($strPriceErr !== '')
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD').$strPriceErr;
+										else
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD_UNKNOWN');
 									}
+									unset($priceResult);
 								}
 							}
-						}
-						else
-						{
-							$boolEmptyNewPrice = (
-								(isset($value['PRICE']) && '' === $value['PRICE'])
-								&& (isset($value['CURRENCY']) && '' === $value['CURRENCY'])
-							);
-							if (!$boolEmptyNewPrice)
+							if ('' != $strPriceErr)
 							{
-								if (isset($value['PRICE']))
-									$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
-								if (CPrice::Add($value))
-								{
-									$bUpdatePrice = 'Y';
-								}
-								else
-								{
-									if ($ex = $APPLICATION->GetException())
-									{
-										$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD').$ex->GetString();
-									}
-									else
-									{
-										$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD_UNKNOWN');
-									}
-								}
+								$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
+								break;
 							}
-						}
-						if ('' != $strPriceErr)
-						{
-							$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
-							break;
-						}
-						else
-						{
-							$updateFacet = true;
+							else
+							{
+								$updateFacet = true;
+							}
 						}
 					}
 				}
@@ -1112,7 +1205,7 @@ if ('' == $strImportErrorMessage)
 					$previousProductId = $PRODUCT_ID;
 				if ($previousProductId != $PRODUCT_ID)
 				{
-					CIBlockElement::UpdateSearch($previousProductId);
+					CIBlockElement::UpdateSearch($previousProductId, true);
 					$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($IBLOCK_ID, $previousProductId);
 					$ipropValues->clearValues();
 					unset($ipropValues);
@@ -1120,7 +1213,6 @@ if ('' == $strImportErrorMessage)
 					{
 						if (isset($newProducts[$previousProductId]))
 							CCatalogSKU::ClearCache();
-						\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($IBLOCK_ID, $previousProductId);
 					}
 					$updateFacet = false;
 					$previousProductId = $PRODUCT_ID;
@@ -1138,7 +1230,7 @@ if ('' == $strImportErrorMessage)
 	}
 	if ($PRODUCT_ID > 0)
 	{
-		CIBlockElement::UpdateSearch($PRODUCT_ID);
+		CIBlockElement::UpdateSearch($PRODUCT_ID, true);
 		$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($IBLOCK_ID, $previousProductId);
 		$ipropValues->clearValues();
 		unset($ipropValues);
@@ -1146,10 +1238,13 @@ if ('' == $strImportErrorMessage)
 		{
 			if (isset($newProducts[$PRODUCT_ID]))
 				CCatalogSKU::ClearCache();
-			\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($IBLOCK_ID, $PRODUCT_ID);
 		}
 		$updateFacet = false;
 	}
+	Catalog\Product\Sku::disableDeferredCalculation();
+	Catalog\Product\Sku::calculate();
+	Iblock\PropertyIndex\Manager::disableDeferredIndexing();
+	Iblock\PropertyIndex\Manager::runDeferredIndexing($IBLOCK_ID);
 
 //////////////////////////////
 // start additional actions //
@@ -1167,13 +1262,15 @@ if ('' == $strImportErrorMessage)
 		while($arr = $res->Fetch())
 		{
 			$bs->Update($arr["ID"], array("NAME"=>$arr["NAME"], "ACTIVE" => "Y"));
-			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+				break;
 		}
 	}
 
 	// activate 'in-file' elements
 	if ($bAllLinesLoaded && $inFileAction=="A" && !$bDeactivationStarted)
 	{
+		Catalog\Product\Sku::enableDeferredCalculation();
 		$res = CIBlockElement::GetList(
 			array(),
 			array("IBLOCK_ID" => $IBLOCK_ID, "TMP_ID" => $tmpid, "ACTIVE" => "N"),
@@ -1184,14 +1281,18 @@ if ('' == $strImportErrorMessage)
 		while($arr = $res->Fetch())
 		{
 			$el->Update($arr["ID"], array("ACTIVE" => "Y"));
-
-			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+				break;
 		}
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
 	}
 
 	// update or delete 'not-in-file sections'
 	if ($bAllLinesLoaded && $outFileAction != 'F' && $bThereIsGroups)
 	{
+		if ($outFileAction == "D")
+			Catalog\Product\Sku::enableDeferredCalculation();
 		$res = CIBlockSection::GetList(
 			array(),
 			array("IBLOCK_ID" => $IBLOCK_ID, "!TMP_ID" => $tmpid, 'CHECK_PERMISSIONS' => 'N'),
@@ -1211,28 +1312,41 @@ if ('' == $strImportErrorMessage)
 				$bs->Update($arr["ID"], array("NAME"=>$arr["NAME"], "ACTIVE" => "N", "TMP_ID" => $tmpid));
 			}
 
-			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+				break;
+		}
+		if ($outFileAction == "D")
+		{
+			Catalog\Product\Sku::disableDeferredCalculation();
+			Catalog\Product\Sku::calculate();
 		}
 	}
 
 	// update or delete 'not-in-file' elements
 	if ($bAllLinesLoaded && $outFileAction != "F")
 	{
+		Catalog\Product\Sku::enableDeferredCalculation();
 		if ($bIBlockIsCatalog && $outFileAction=="M")
 		{
 			$arProductArray = Catalog\ProductTable::getDefaultAvailableSettings();
 			$arProductArray['TMP_ID'] = $tmpid;
-			$res = Catalog\ProductTable::getList(array(
+			$filter = array('=IBLOCK_ELEMENT.IBLOCK_ID' => $IBLOCK_ID, '!=TMP_ID' => $tmpid);
+			if (!$separateSku)
+			{
+				$filter['!=TYPE'] = Catalog\ProductTable::TYPE_SKU;
+			}
+			$res = Catalog\Model\Product::getList(array(
 				'select' => array('ID'),
-				'filter' => array('=IBLOCK_ELEMENT.IBLOCK_ID' => $IBLOCK_ID, '!=TMP_ID' => $tmpid),
+				'filter' => $filter,
 				'order' => array('ID' => 'ASC')
 			));
 			while($arr = $res->fetch())
 			{
-				CCatalogProduct::Update($arr['ID'], $arProductArray);
+				$result = Catalog\Model\Product::update($arr['ID'], $arProductArray);
 				$killed_lines++;
 
-				if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+				if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+					break;
 			}
 			unset($arr, $res);
 		}
@@ -1259,29 +1373,40 @@ if ('' == $strImportErrorMessage)
 					$killed_lines++;
 				}
 
-				if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+				if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+					break;
 			}
 			unset($arr, $res);
 		}
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
 	}
 
 	// delete 'not-in-file' element prices
 	if ($bAllLinesLoaded && $bIBlockIsCatalog && 'Y' == $bUpdatePrice && $outFileAction=="D")
 	{
-		$res = CPrice::GetList(
-			array(),
-			array("ELEMENT_IBLOCK_ID" => $IBLOCK_ID, "!TMP_ID" => $tmpid),
-			false,
-			false,
-			array("ID")
+		$filter = array(
+			'=ELEMENT.IBLOCK_ID' => $IBLOCK_ID,
+			'!=TMP_ID' => $tmpid
 		);
-
-		while($arr = $res->Fetch())
+		if (!$separateSku)
 		{
-			CPrice::Delete($arr["ID"]);
-
-			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time))) break;
+			$filter['!=PRODUCT.TYPE'] = Catalog\ProductTable::TYPE_SKU;
 		}
+		Catalog\Product\Sku::enableDeferredCalculation();
+		$res = Catalog\Model\Price::getList(array(
+			'select' => array('ID'),
+			'filter' => $filter
+		));
+		while($arr = $res->fetch())
+		{
+			$priceResult = Catalog\Model\Price::delete($arr['ID']);
+
+			if (!($bAllLinesLoaded = CSVCheckTimeout($max_execution_time)))
+				break;
+		}
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
 	}
 
 	if (!$bAllLinesLoaded)

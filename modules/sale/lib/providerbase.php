@@ -1311,6 +1311,11 @@ abstract class ProviderBase
 					$productData['QUANTITY'] = $productData['AVAILABLE_QUANTITY'];
 				}
 
+				if (!isset($productData['ACTIVE']))
+				{
+					$productData['ACTIVE'] = 'Y';
+				}
+
 				$resultList[$basketCode] = $productData;
 			}
 		}
@@ -4785,13 +4790,12 @@ abstract class ProviderBase
 	{
 		$result = new Result();
 
-		if (empty($providerClass))
+		$providerName = null;
+		if (!empty($providerClass))
 		{
-			return $result;
+			$reflect = new \ReflectionClass($providerClass);
+			$providerName = $reflect->getName();
 		}
-		
-		$reflect = new \ReflectionClass($providerClass);
-		$providerName = $reflect->getName();
 
 		$productId = $productData['PRODUCT_ID'];
 
@@ -5749,7 +5753,20 @@ abstract class ProviderBase
 				throw new ObjectNotFoundException('Entity "BasketItem" not found');
 			}
 
-			if ($providerClass)
+			$callbackFunction = null;
+			if (!empty($productData['CALLBACK_FUNC']))
+			{
+				$callbackFunction = $productData['CALLBACK_FUNC'];
+			}
+
+			$isCustomItem = !($providerClass || $callbackFunction);
+
+			if ($isCustomItem)
+			{
+				$providerData = $basketItem->getFieldValues();
+				$providerData['AVAILABLE_QUANTITY'] = $basketItem->getQuantity();
+			}
+			else
 			{
 				$r = static::getProviderDataByProductData($providerClass, $productData, $context);
 				if (!$r->isSuccess())
@@ -5760,23 +5777,7 @@ abstract class ProviderBase
 				{
 					$result->addWarnings($r->getWarnings());
 				}
-
-				if (!empty($providerClass))
-				{
-					$reflect = new \ReflectionClass($providerClass);
-					$providerName = $reflect->getName();
-				}
-				else
-				{
-					$providerName = $basketItem->getCallbackFunction();
-				}
-
 				$providerData = $r->getData();
-			}
-			else
-			{
-				$providerData = $basketItem->getFieldValues();
-				$providerData['AVAILABLE_QUANTITY'] = $basketItem->getQuantity();
 			}
 
 			if (!empty($providerData))
@@ -5793,7 +5794,7 @@ abstract class ProviderBase
 
 				}
 
-				if ($providerClass)
+				if (!$isCustomItem)
 				{
 					$priceFields = static::getPriceFields();
 

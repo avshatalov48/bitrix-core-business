@@ -1,0 +1,6 @@
+<?php
+$MESS['DASHBOARD_WIDGET_REMOVE_TITLE'] = 'Удалить';
+$MESS['DASHBOARD_WIDGET_REMOVE_CONTENT'] = 'Вы уверены, что хотите удалить блок?';
+$MESS['DASHBOARD_WIDGET_REMOVE_ACCEPT_TITLE'] = 'Да';
+$MESS['DASHBOARD_WIDGET_REMOVE_CANCEL_TITLE'] = 'Нет';
+$MESS['DASHBOARD_EMPTY_BOARD_CONTENT'] = 'Нет данных для показа';

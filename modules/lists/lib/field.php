@@ -598,28 +598,22 @@ class Field
 			self::$cache[$field['ID']] = $items;
 		}
 
-		if(!empty($field['DEFAULT']))
+		if (is_array($field['VALUE']))
 		{
-			$results = array();
-			foreach($items as $value)
+			foreach ($items as $itemKey => $itemValue)
 			{
-				$results[] = $value;
+				if (!in_array($itemKey, $field['VALUE']))
+				{
+					unset($items[$itemKey]);
+				}
 			}
-			$result = implode(self::$separator, $results);
-		}
-		elseif($field['MULTIPLE'] == 'Y' && is_array($field['VALUE']))
-		{
-			$results = array();
-			foreach($field['VALUE'] as $value)
-			{
-				$results[] = $items[$value];
-			}
-			$result = implode(self::$separator, $results);
+			$result = implode(self::$separator, $items);
 		}
 		else
 		{
 			$result = $items[$field['VALUE']];
 		}
+
 		return $result;
 	}
 

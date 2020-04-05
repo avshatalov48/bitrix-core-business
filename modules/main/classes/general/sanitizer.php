@@ -401,7 +401,7 @@
 				case 'src':
 				case 'href':
 				case 'data-url':
-					if(!preg_match("#^(http://|https://|ftp://|file://|mailto:|callto:|skype:|tel:|\\#|/)#i".BX_UTF_PCRE_MODIFIER, $attrValue))
+					if(!preg_match("#^(http://|https://|ftp://|file://|mailto:|callto:|skype:|tel:|sms:|\\#|/)#i".BX_UTF_PCRE_MODIFIER, $attrValue))
 					{
 						$arAttr[3] = 'http://' . $arAttr[3];
 					}

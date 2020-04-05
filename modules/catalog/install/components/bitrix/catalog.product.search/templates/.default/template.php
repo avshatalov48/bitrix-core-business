@@ -263,9 +263,9 @@ else
 					'full_quantity' => $val['QUANTITY'],
 					'measureRatio' => (isset($val['MEASURE_RATIO']) ? $val['MEASURE_RATIO'] : 1),
 					'measure' => (isset($val['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($val['MEASURE']['~SYMBOL_RUS']) : ''),
-					'quantity' => $ratio
+					'quantity' => $val['DEFAULT_QUANTITY']
 				);
-				$rowSku->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$val["ID"].'" value="'.$ratio.'" size="4" />'.$measure.'</span>');
+				$rowSku->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$val["ID"].'" value="'.$val['DEFAULT_QUANTITY'].'" size="4" />'.$measure.'</span>');
 				unset($measure, $ratio);
 
 				$arSkuActions[] = array(
@@ -316,9 +316,9 @@ else
 					'full_quantity' => $arCatalogProduct['QUANTITY'],
 					'measureRatio' => (isset($arCatalogProduct['MEASURE_RATIO']) ? $arCatalogProduct['MEASURE_RATIO'] : 1),
 					'measure' => (isset($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) : ''),
-					'quantity' => $ratio
+					'quantity' => $arCatalogProduct['DEFAULT_QUANTITY']
 				);
-				$row->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$arItems["ID"].'" value="'.$ratio.'" size="4" />'.$measure.'</span>');
+				$row->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$arItems["ID"].'" value="'.$arCatalogProduct['DEFAULT_QUANTITY'].'" size="4" />'.$measure.'</span>');
 				unset($measure, $ratio);
 
 				$arActions[] = array(

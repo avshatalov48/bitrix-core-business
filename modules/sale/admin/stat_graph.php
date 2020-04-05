@@ -136,9 +136,15 @@ if (strlen($filter_date_to)>0)
 	}
 }
 
-if(empty($filter_site_id) || !is_array($filter_site_id))
+if (isset($find_lid) && !empty($find_lid))
+{
+	$filter_site_id = $find_lid;
+}
+elseif(empty($filter_site_id) || !is_array($filter_site_id))
+{
 	$filter_site_id = array_keys($arSite);
-	
+}
+
 $arFilter["LID"] = $filter_site_id;
 
 if ($saleModulePermissions != "W")

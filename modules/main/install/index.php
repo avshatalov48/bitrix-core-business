@@ -390,6 +390,8 @@ class main extends CModule
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogDelete", "main", "CUserCounter", "OnSocNetLogDelete");
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogCommentDelete", "main", "CUserCounter", "OnSocNetLogCommentDelete");
 
+		RegisterModuleDependences("main", "OnAdminInformerInsertItems", "main", "CMpNotifications", "OnAdminInformerInsertItemsHandlerMP");
+
 		COption::SetOptionString("main", "PARAM_MAX_SITES", "2");
 		COption::SetOptionString("main", "PARAM_MAX_USERS", "0");
 		COption::SetOptionString("main", "distributive6", "Y");
@@ -422,6 +424,8 @@ class main extends CModule
 		$eventManager->registerEventHandler("sale", "OnSaleOrderSaved", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrder");
 		$eventManager->registerEventHandler("sale", "OnSaleOrderPaid", "main", "\\Bitrix\\Main\\Analytics\\Catalog", "catchCatalogOrderPayment");
 		$eventManager->registerEventHandlerCompatible("sale", "onBuildDiscountConditionInterfaceControls", "main", "\\Bitrix\\Main\\Discount\\UserConditionControl", "onBuildDiscountConditionInterfaceControls", 1000);
+
+		$eventManager->registerEventHandler('main', 'OnBeforePhpMail', 'main', '\Bitrix\Main\Mail\Sender', 'applyCustomSmtp');
 
 		self::InstallDesktop();
 
@@ -1384,7 +1388,7 @@ class main extends CModule
 				"DESCRIPTION" => GetMessage("MF_EVENT_DESCRIPTION"),
 				"SORT" => 7
 			);
-			$eventTypes[] = array(
+			$arEventTypes[] = array(
 				'LID'         => $lid,
 				'EVENT_NAME'  => 'MAIN_MAIL_CONFIRM_CODE',
 				'NAME'        => getMessage('MAIN_MAIL_CONFIRM_EVENT_TYPE_NAME'),

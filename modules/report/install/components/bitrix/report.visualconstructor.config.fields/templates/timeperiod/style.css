@@ -1,0 +1,78 @@
+.report-configuration-time-period-item .report-configuration-label
+{
+	display: inline-block;
+	margin-right: 5px;
+	max-width: 100%;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: rgba(82, 92, 105, .5);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.report-configuration-time-period-field-control
+{
+	display: inline-block;
+	color: #0a51ae;
+	border-bottom: 1px dashed #0a51ae;
+	cursor: pointer;
+}
+
+.report-configuration-time-period-field-select
+{
+	display: inline-block;
+	padding: 0 32px 0 10px;
+	height: 38px;
+	font-size: 15px;
+	color: #535c69;
+	line-height: 38px;
+	white-space: nowrap;
+	border: 1px solid #c6cdd3;
+	border-radius: 2px;
+	position: relative;
+	background: #fff url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNSIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI1IDE2Ij4gIDxwb2x5Z29uIGZpbGw9IiM1MzVDNjkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgcG9pbnRzPSIzLjU0NiA3LjQyNSAzLjU0NiAxLjYwNyAxLjYwNyAxLjYwNyAxLjYwNyA4LjM5NCAxLjYwNyA5LjM2NCA5LjM2NCA5LjM2NCA5LjM2NCA3LjQyNSIgdHJhbnNmb3JtPSJyb3RhdGUoLTQ1IDkuOSAxLjY1NykiLz48L3N2Zz4=) no-repeat right center;
+	-webkit-appearance: none;
+	cursor: pointer;
+	outline: none;
+}
+
+.report-field-time-period-type,
+.report-configuration-field-select-visible {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.report-field-time-period {
+    display: inline-block;
+	margin-right: 10px;
+}
+
+.report-field-time-period-year,
+.report-field-time-period-month,
+.report-field-time-period-quarter {
+	display: none;
+	margin-right: 10px;
+}
+
+.report-field-time-period-sub-field-visible {
+	display: inline-block !important;
+}
+
+.visualconstructor-select-popup-wrapper
+{
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.visualconstructor-select-item-wrapper
+{
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c68;
+	line-height: 36px;
+	padding: 0 15px 0 9px;
+	text-decoration: none;
+	vertical-align: middle;
+	transition: color 0.2s linear;
+	cursor: pointer;
+	min-width: 50px;
+}

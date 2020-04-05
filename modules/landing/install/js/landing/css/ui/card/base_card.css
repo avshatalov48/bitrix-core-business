@@ -1,0 +1,13 @@
+.landing-ui-card {
+	padding: 20px 40px;
+	margin: 20px 60px;
+}
+
+.landing-ui-card-header {
+	font-size: 23px;
+}
+
+
+.landing-ui-card-header + .landing-ui-card-body {
+	margin-top: 12px;
+}

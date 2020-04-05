@@ -103,10 +103,12 @@ if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
 			{
 				$arResult["RECORDS"][$comment["ID"]]["WEB"] = socialnetworkBlogPostCommentWeb(
 					$comment,
-					$arParams,
+					array_merge($arParams, array("SHOW_RATING" => "Y")),
 					$arResult,
 					$this->__component
 				);
+				$arResult["RECORDS"][$comment["ID"]]['RATING_VOTE_ID'] = (!empty($arResult["RECORDS"][$comment["ID"]]["WEB"]['RATING_VOTE_ID']) ? $arResult["RECORDS"][$comment["ID"]]["WEB"]['RATING_VOTE_ID'] : '');
+				$arResult["RECORDS"][$comment["ID"]]['RATING_USER_HAS_VOTED'] = (!empty($arResult["RECORDS"][$comment["ID"]]["WEB"]['RATING_USER_HAS_VOTED']) ? $arResult["RECORDS"][$comment["ID"]]["WEB"]['RATING_USER_HAS_VOTED'] : '');
 			}
 			$arResult["PUSH&PULL"] = array(
 				"ID" => $comment["ID"],

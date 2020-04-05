@@ -1005,6 +1005,53 @@ abstract class DataManager
 		return $result;
 	}
 
+	/**
+	 * Sets a flag indicating crypto support for a field.
+	 *
+	 * @param string $field
+	 * @param bool   $mode
+	 *
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public static function enableCrypto($field, $mode = true)
+	{
+		$table = static::getTableName();
+		$options = array();
+		$optionString = Main\Config\Option::get("main", "~crypto_".$table);
+		if($optionString <> '')
+		{
+			$options = unserialize($optionString);
+		}
+		$options[strtoupper($field)] = $mode;
+		Main\Config\Option::set("main", "~crypto_".$table, serialize($options));
+	}
+
+	/**
+	 * Returns true if crypto is enabled for a field.
+	 *
+	 * @param string $field
+	 *
+	 * @return bool
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public static function cryptoEnabled($field)
+	{
+		$table = static::getTableName();
+		$optionString = Main\Config\Option::get("main", "~crypto_".$table);
+		if($optionString <> '')
+		{
+			$field = strtoupper($field);
+			$options = unserialize($optionString);
+			if(isset($options[$field]) && $options[$field] === true)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/*
 	An inheritor class can define the event handlers for own events.
 	Why? To prevent from rewriting the add/update/delete functions.

@@ -1,0 +1,46 @@
+.landing-ui-field-unit {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.landing-ui-field-unit .landing-ui-field-header {
+	width: 100%;
+}
+
+
+.landing-ui-field-unit .landing-ui-field-input {
+	display: inline-block;
+	outline: none;
+	flex-grow: 1;
+}
+
+.landing-ui-field-unit .landing-ui-field-input:first-child {
+	margin-left: 0;
+}
+
+
+.landing-ui-field-unit .landing-ui-field-input::-webkit-inner-spin-button,
+.landing-ui-field-unit .landing-ui-field-input::-webkit-outer-spin-button
+{
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.landing-ui-field-unit .landing-ui-field-input::after {
+	display: none;
+}
+
+.landing-ui-field-unit-unit {
+	display: inline-block;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	padding: 7px 10px;
+	height: 38px;
+}
+
+.landing-ui-field-unit-unit:empty {
+	display: none;
+}

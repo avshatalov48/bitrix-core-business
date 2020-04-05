@@ -386,6 +386,15 @@ class CMainUiFilter extends CBitrixComponent
 						);
 						$field["SUB_TYPE"] = self::prepareSubtype($field, $presetFields, "_datesel");
 						$field["VALUES"] = self::prepareValue($field, $presetFields, "_datesel");
+
+						if (is_array($field["YEARS_SWITCHER"]))
+						{
+							$field["YEARS_SWITCHER"]["VALUE"] = self::prepareSelectValue(
+								$field["YEARS_SWITCHER"]["ITEMS"],
+								$presetFields[$field["NAME"]."_allow_year"]
+							);
+						}
+
 						break;
 					}
 

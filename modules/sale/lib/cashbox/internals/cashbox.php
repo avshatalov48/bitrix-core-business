@@ -47,6 +47,11 @@ class CashboxTable extends DataManager
 				'required' => true,
 				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_HANDLER_FIELD'),
 			),
+			'EMAIL' => array(
+				'data_type' => 'string',
+				'required' => true,
+				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_EMAIL_FIELD'),
+			),
 			'SORT' => array(
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('SALE_CASHBOX_ENTITY_SORT_FIELD'),

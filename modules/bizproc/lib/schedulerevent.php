@@ -39,6 +39,10 @@ class SchedulerEventTable extends Main\Entity\DataManager
 			),
 			'ENTITY_ID' => array(
 				'data_type' => 'string'
+			),
+			'EVENT_PARAMETERS' => array(
+				'data_type' => 'text',
+				'serialized' => true
 			)
 		);
 	}

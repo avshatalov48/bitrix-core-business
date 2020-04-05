@@ -39,7 +39,7 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	$periodTimeTypes = array();
 	if ($arCatalog["SUBSCRIPTION"]=="Y")
 	{
-		$periodTimeTypes = CCatalogProduct::GetTimePeriodTypes(true);
+		$periodTimeTypes = Catalog\ProductTable::getPaymentPeriods(true);
 	}
 
 	if (0 < $PRODUCT_ID)
@@ -1749,15 +1749,30 @@ function HideNotice()
 					</td>
 					<td width="60%">
 						<?
-						$str_CAT_MEASURE_RATIO = 1;
+						$str_CAT_MEASURE_RATIO = null;
 						$SUBCAT_MEASURE_RATIO_ID = 0;
-						$db_CAT_MEASURE_RATIO = CCatalogMeasureRatio::getList(array(), array("PRODUCT_ID" => $PRODUCT_ID));
-						if($ar_CAT_MEASURE_RATIO = $db_CAT_MEASURE_RATIO->Fetch())
+						$db_CAT_MEASURE_RATIO = CCatalogMeasureRatio::getList(
+							["ID" => "ASC"],
+							["PRODUCT_ID" => $PRODUCT_ID],
+							false,
+							false,
+							[]
+						);
+						while ($ar_CAT_MEASURE_RATIO = $db_CAT_MEASURE_RATIO->Fetch())
 						{
-							$str_CAT_MEASURE_RATIO = $ar_CAT_MEASURE_RATIO["RATIO"];
-							$SUBCAT_MEASURE_RATIO_ID =  $ar_CAT_MEASURE_RATIO["ID"];
+							if ($str_CAT_MEASURE_RATIO === null || $ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
+							{
+								$str_CAT_MEASURE_RATIO = $ar_CAT_MEASURE_RATIO["RATIO"];
+								$SUBCAT_MEASURE_RATIO_ID = $ar_CAT_MEASURE_RATIO["ID"];
+								if ($ar_CAT_MEASURE_RATIO['IS_DEFAULT'] == 'Y')
+									break;
+							}
 						}
-						if($bVarsFromForm) $str_CAT_MEASURE_RATIO = $SUBCAT_MEASURE_RATIO;
+						unset($db_CAT_MEASURE_RATIO, $ar_CAT_MEASURE_RATIO);
+						if ($str_CAT_MEASURE_RATIO === null)
+							$str_CAT_MEASURE_RATIO = 1;
+						if($bVarsFromForm)
+							$str_CAT_MEASURE_RATIO = $SUBCAT_MEASURE_RATIO;
 						?>
 						<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_MEASURE_RATIO" name="SUBCAT_MEASURE_RATIO" value="<?echo htmlspecialcharsbx($str_CAT_MEASURE_RATIO) ?>" size="30">
 						<input type="hidden" id="SUBCAT_MEASURE_RATIO_ID" name="SUBCAT_MEASURE_RATIO_ID" value="<?echo htmlspecialcharsbx($SUBCAT_MEASURE_RATIO_ID) ?>">

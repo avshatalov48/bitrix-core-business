@@ -1,6 +1,12 @@
 <?if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 
 $enableAuthorize = (isset($arCurrentValues['SHOW_AUTHOR']) && $arCurrentValues['SHOW_AUTHOR'] == 'Y');
+$enableRegistration = !isset($arCurrentValues['SHOW_REGISTRATION']) || $arCurrentValues['SHOW_REGISTRATION'] === 'Y';
+
+if ($enableAuthorize && !isset($arCurrentValues['SHOW_REGISTRATION']))
+{
+	$arCurrentValues['SHOW_REGISTRATION'] = 'Y';
+}
 
 $arComponentParameters = array(
 	"GROUPS" => array(
@@ -78,19 +84,27 @@ $arComponentParameters = array(
 			"PARENT" => "AUTHOR",
 			"REFRESH" => "Y"
 		),
-		"PATH_TO_REGISTER" => array(
-			"NAME" => GetMessage("SBBL_PATH_TO_REGISTER"),
-			"TYPE" => "STRING",
-			"DEFAULT" => '={SITE_DIR."login/"}',
-			"PARENT" => "AUTHOR",
-			"HIDDEN" => ($enableAuthorize ? 'N' : 'Y')
-		),
 		"PATH_TO_AUTHORIZE" => array(
 			"NAME" => GetMessage("SBBL_PATH_TO_AUTHORIZE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "",
 			"PARENT" => "AUTHOR",
 			"HIDDEN" => ($enableAuthorize ? 'N' : 'Y')
+		),
+		"SHOW_REGISTRATION" => array(
+			"NAME" => GetMessage("SBBL_SHOW_REGISTRATION"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "Y",
+			"PARENT" => "AUTHOR",
+			"REFRESH" => "Y",
+			"HIDDEN" => ($enableAuthorize ? 'N' : 'Y')
+		),
+		"PATH_TO_REGISTER" => array(
+			"NAME" => GetMessage("SBBL_PATH_TO_REGISTER"),
+			"TYPE" => "STRING",
+			"DEFAULT" => '={SITE_DIR."login/"}',
+			"PARENT" => "AUTHOR",
+			"HIDDEN" => ($enableRegistration ? 'N' : 'Y')
 		),
 		"PATH_TO_PROFILE" => array(
 			"NAME" => GetMessage("SBBL_PATH_TO_PROFILE"),

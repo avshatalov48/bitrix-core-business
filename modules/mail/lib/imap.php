@@ -353,7 +353,11 @@ class Imap
 		}
 
 		$this->sessState = 'select';
-		$this->sessMailbox['name'] = $mailbox;
+		$this->sessMailbox = array(
+			'name'        => $mailbox,
+			'exists'      => null,
+			'uidvalidity' => null,
+		);
 
 		$regex = '/^ \* \x20 ( \d+ ) \x20 EXISTS /ix';
 		foreach ($this->getUntagged($regex, true) as $item)
@@ -555,12 +559,15 @@ class Imap
 
 		if ($this->sessMailbox['exists'] > 0)
 		{
+			$regex = '/^ \* \x20 (?<id> \d+ ) \x20 FETCH \x20 \( (?<data> .+ ) \) \r\n $/isx';
+			$this->getUntagged($regex, true);
+
 			$response = $this->executeCommand(
 				sprintf(
 					'FETCH %u:%s (%sINTERNALDATE RFC822.SIZE FLAGS)',
 					$params['offset']+1,
 					$params['limit'] > 0 ? $params['offset']+$params['limit'] : '*',
-					$uidtoken > 0 ? 'UID ' : ''
+					!is_null($uidtoken) ? 'UID ' : ''
 				),
 				$error
 			);
@@ -573,7 +580,6 @@ class Imap
 				return false;
 			}
 
-			$regex = '/^ \* \x20 (?<id> \d+ ) \x20 FETCH \x20 \( (?<data> .+ ) \) \r\n $/isx';
 			foreach ($this->getUntagged($regex, true) as $item)
 			{
 				$data = array(
@@ -588,10 +594,10 @@ class Imap
 				{
 					$data['uid'] = $matches['uid'];
 				}
-				else if ($uidtoken > 0)
+				else if (!is_null($uidtoken))
 				{
 					addMessage2Log(
-						sprintf('IMAP: UID not found (%s)', $item[0]),
+						sprintf('IMAP: UID not found v3 (%s)', $item[0]),
 						'mail', 0, false
 					);
 				}

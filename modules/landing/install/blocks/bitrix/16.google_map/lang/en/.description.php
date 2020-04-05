@@ -1,0 +1,3 @@
+<?
+$MESS["LANDING_BLOCK_10_GOOGLE_MAP_NAME"] = "Google Maps";
+?>

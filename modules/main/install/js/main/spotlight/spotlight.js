@@ -121,7 +121,12 @@
 
 			do
 			{
-				index = BX.type.stringToInt(BX.style(element, "z-index"));
+				var propertyValue = BX.style(element, "z-index");
+				if (propertyValue !== "auto")
+				{
+					index = BX.type.stringToInt(propertyValue);
+				}
+
 				element = element.offsetParent;
 			}
 			while (

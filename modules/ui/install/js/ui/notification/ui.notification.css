@@ -1,0 +1,111 @@
+.ui-notification-balloon {
+	display: block;
+	position: fixed;
+	opacity: 0;
+	z-index: 3200;
+	transform: translateZ(0px);
+	transition: opacity .25s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease;
+}
+
+.ui-notification-balloon-animate {
+	opacity: 0.8;
+}
+
+.ui-notification-balloon-content {
+	display: flex;
+	background: #000;
+	border-radius: 26px;
+	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ui-notification-balloon-message {
+	flex: 1;
+	color: #fff;
+	padding: 14px 16px 14px 25px;
+}
+
+.ui-notification-balloon-message:empty:before {
+	content: "\00a0";
+}
+
+.ui-notification-balloon-message a,
+.ui-notification-balloon-message a:hover {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.ui-notification-balloon-message a:hover {
+	border-bottom-color: #fff;
+}
+
+.ui-notification-balloon-actions {
+	display: flex;
+	align-items: center;
+	margin-right: 38px;
+}
+
+.ui-notification-balloon-action {
+	color: #2fc6f6;
+	cursor: pointer;
+	text-decoration: none;
+	padding: 14px 9px;
+	position: relative;
+}
+
+.ui-notification-balloon-action:before {
+	content: "";
+	position: absolute;
+	left: 9px;
+	top: 30px;
+	width: calc(100% - 18px);
+	height: 1px;
+	background-color: #2fc6f6;
+	opacity: 0.4;
+	transition: opacity 180ms linear;
+}
+
+.ui-notification-balloon-action:hover:before {
+	opacity: 1;
+}
+
+.ui-notification-balloon-close-btn {
+	position: absolute;
+	top: 0;
+	right: 2px;
+	display: inline-block;
+	width: 33px;
+	height: 43px;
+	opacity: .2;
+	cursor: pointer;
+	transition: 180ms opacity linear;
+}
+
+.ui-notification-balloon-close-btn:hover {
+	opacity: .7;
+}
+
+.ui-notification-balloon-close-btn:active {
+	opacity: 1;
+}
+
+.ui-notification-balloon-close-btn:after,
+.ui-notification-balloon-close-btn:before {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: block;
+	background: #fff;
+	content: "";
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.ui-notification-balloon-close-btn:after {
+	width: 2px;
+	height: 8px;
+}
+
+.ui-notification-balloon-close-btn:before {
+	width: 8px;
+	height: 2px;
+}

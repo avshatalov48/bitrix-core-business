@@ -65,7 +65,7 @@ class CCalendarRequest
 			switch ($action)
 			{
 				case 'edit_event':
-					self::EditEvent();
+					self::editEntry();
 					break;
 				case 'simple_save_entry':
 					self::simpleSaveEntry();
@@ -74,14 +74,14 @@ class CCalendarRequest
 					self::deleteEntry();
 					break;
 				case 'move_event_to_date':
-					self::MoveEventToDate();
+					self::moveEventToDate();
 					break;
 				case 'delete':
 					self::DeleteEvent();
 					break;
-				case 'load_events':
-					self::LoadEvents();
-					break;
+//				case 'load_events':
+//					self::LoadEvents();
+//					break;
 				case 'load_entries':
 					self::LoadEntries();
 					break;
@@ -191,6 +191,7 @@ class CCalendarRequest
 
 	public static function simpleSaveEntry()
 	{
+		$locationBusyWarning = false;
 		if (CCalendar::GetReadonlyMode() || !CCalendarType::CanDo('calendar_type_view', CCalendar::GetType()))
 		{
 			return CCalendar::ThrowError(GetMessage('EC_ACCESS_DENIED'));
@@ -213,8 +214,13 @@ class CCalendarRequest
 		}
 
 		$remind = array();
-		foreach (self::$request['remind'] as $remindValue)
-			$remind[] = array('type' => 'min', 'count' => intval($remindValue));
+		if (is_array(self::$request['remind']))
+		{
+			foreach (self::$request['remind'] as $remindValue)
+			{
+				$remind[] = array('type' => 'min', 'count' => intval($remindValue));
+			}
+		}
 
 		// Date & Time
 		$dateFrom = self::$request['date_from'];
@@ -237,6 +243,8 @@ class CCalendarRequest
 			CCalendar::SaveUserTimezoneName(CCalendar::GetUserId(), self::$request['default_tz']);
 		}
 
+		$location = isset(self::$request['location']) ? self::$request['location'] : '';
+
 		$arFields = array(
 			"DATE_FROM" => $dateFrom,
 			"DATE_TO" => $dateTo,
@@ -245,19 +253,25 @@ class CCalendarRequest
 			'TZ_TO' => $tzTo,
 			'NAME' => $name,
 			'SECTIONS' => $sectId,
-			'LOCATION' => array(
-				"NEW" => self::$request['location']
-			),
+			'LOCATION' => array("NEW" => $location),
 			"REMIND" => $remind,
 			"IS_MEETING" => !!self::$request['is_meeting']
 		);
+
+		if ($location && !CCalendarLocation::checkAccessibility(trim(self::$request['location']), array('fields' => $arFields)))
+		{
+			$arFields['LOCATION'] = '';
+			$locationBusyWarning = true;
+		}
 
 		$arAccessCodes = array();
 		if (isset(self::$request['access_codes']) && is_array(self::$request['access_codes']))
 		{
 			$arAccessCodes = self::$request['access_codes'];
 			if (!count($arAccessCodes) || CCalendar::GetType() != 'user' || CCalendar::IsPersonal())
+			{
 				$arAccessCodes[] = 'U'.CCalendar::GetUserId();
+			}
 			$arAccessCodes = array_unique($arAccessCodes);
 		}
 
@@ -282,11 +296,13 @@ class CCalendarRequest
 			}
 		}
 
-		$arFields['MEETING_HOST'] = CCalendar::GetUserId();
+		$arFields['MEETING_HOST'] = CCalendar::GetType() == 'user' && CCalendar::GetOwnerId() != CCalendar::GetUserId() ? CCalendar::GetOwnerId() : CCalendar::GetUserId();
+
 		$arFields['MEETING'] = array(
 			'HOST_NAME' => CCalendar::GetUserName($arFields['MEETING_HOST']),
 			'NOTIFY' => self::$request['meeting_notify'] === 'Y',
 			'ALLOW_INVITE' => self::$request['meeting_allow_invite'] === 'Y',
+			'MEETING_CREATOR' => CCalendar::GetUserId()
 		);
 
 		$newId = CCalendar::SaveEvent(array(
@@ -328,12 +344,12 @@ class CCalendarRequest
 			'id' => $newId,
 			'entries' => $entries,
 			'attendees' => $arAttendees,
-			'eventIds' => array_unique($eventIds)
+			'eventIds' => array_unique($eventIds),
+			'location_busy_warning' => $locationBusyWarning
 		));
 	}
 
-
-	public static function EditEvent()
+	public static function editEntry()
 	{
 		if (CCalendar::GetReadonlyMode() || !CCalendarType::CanDo('calendar_type_view', CCalendar::GetType()))
 			return CCalendar::ThrowError(GetMessage('EC_ACCESS_DENIED'));
@@ -485,12 +501,21 @@ class CCalendarRequest
 			}
 		}
 
-		$arFields['MEETING_HOST'] = CCalendar::GetUserId();
+		if (CCalendar::GetType() == 'user' && CCalendar::GetOwnerId() != CCalendar::GetUserId())
+		{
+			$arFields['MEETING_HOST'] = CCalendar::GetOwnerId();
+		}
+		else
+		{
+			$arFields['MEETING_HOST'] = CCalendar::GetUserId();
+		}
+
 		$arFields['MEETING'] = array(
 			'HOST_NAME' => CCalendar::GetUserName($arFields['MEETING_HOST']),
 			'NOTIFY' => self::$request['meeting_notify'] === 'Y',
 			'REINVITE' => self::$request['meeting_reinvite'] === 'Y',
 			'ALLOW_INVITE' => self::$request['allow_invite'] === 'Y',
+			'MEETING_CREATOR' => CCalendar::GetUserId()
 		);
 
 		// Userfields for event
@@ -603,7 +628,7 @@ class CCalendarRequest
 			}
 		}
 
-		self::OutputJSRes(self::$reqId, array(
+		echo \Bitrix\Main\Web\Json::encode(array(
 			'id' => $newId,
 			'entries' => $arEvents,
 			'attendees' => $arAttendees,
@@ -611,7 +636,7 @@ class CCalendarRequest
 		));
 	}
 
-	public static function MoveEventToDate()
+	public static function moveEventToDate()
 	{
 		if (CCalendar::GetReadonlyMode() || !CCalendarType::CanDo('calendar_type_view', CCalendar::GetType()))
 			return CCalendar::ThrowError(GetMessage('EC_ACCESS_DENIED'));
@@ -619,6 +644,7 @@ class CCalendarRequest
 		$id = intVal($_POST['id']);
 		$sectId = intVal($_POST['section']);
 		$reload = $_POST['recursive'] === 'Y';
+		$locationBusyWarning = false;
 		$busyWarning = false;
 
 		if (CCalendar::GetType() != 'user' || CCalendar::GetOwnerId() != CCalendar::GetUserId()) // Personal user's calendar
@@ -646,16 +672,20 @@ class CCalendarRequest
 			$arFields["TZ_TO"] = $_POST['timezone'];
 		}
 
-		if ($_POST['is_meeting'] === 'Y')
+		if (isset(self::$request['location'])
+			&& !CCalendarLocation::checkAccessibility(trim(self::$request['location']), array('fields' => $arFields)))
+		{
+			$locationBusyWarning = true;
+			$reload = true;
+		}
+
+		if ($_POST['is_meeting'] === 'Y' && is_array($_POST['attendees']))
 		{
 			$usersToCheck = array();
-
-			if (is_array($_POST['attendees']))
+			foreach ($_POST['attendees'] as $attId)
 			{
-				foreach ($_POST['attendees'] as $attId)
+				if ($attId !== CCalendar::GetUserId())
 				{
-					if ($attId === CCalendar::GetUserId())
-						continue;
 					$userSettings = CCalendarUserSettings::Get(intval($attId));
 					if($userSettings && $userSettings['denyBusyInvitation'])
 					{
@@ -706,7 +736,7 @@ class CCalendarRequest
 			}
 		}
 
-		if (!$busyWarning)
+		if (!$busyWarning && !$locationBusyWarning)
 		{
 			if ($_POST['recursive'] === 'Y')
 			{
@@ -719,7 +749,6 @@ class CCalendarRequest
 			}
 			else
 			{
-				//SaveEvent
 				$id = CCalendar::SaveEvent(array(
 					'arFields' => $arFields,
 					'silentErrorMode' => false
@@ -730,7 +759,8 @@ class CCalendarRequest
 		self::OutputJSRes(self::$reqId, array(
 			'id' => $id,
 			'reload' => $reload,
-			'busy_warning' => $busyWarning
+			'busy_warning' => $busyWarning,
+			'location_busy_warning' => $locationBusyWarning
 		));
 	}
 
@@ -794,7 +824,7 @@ class CCalendarRequest
 			$isGoogleApiEnabled = CCalendar::isGoogleApiEnabled();
 
 			$JSConfig = array();
-			CCalendar::InitCalDavParams($JSConfig, $isGoogleApiEnabled);
+			CCalendar::InitExternalCalendarsSyncParams($JSConfig);
 			CDavGroupdavClientCalendar::DataSync("user", CCalendar::GetOwnerId());
 
 			if ($isGoogleApiEnabled)
@@ -811,7 +841,7 @@ class CCalendarRequest
                 	$connection['forceSync'] = true;
 	                CCalendarSync::dataSync($connection);
                 }
-                CCalendar::InitGoogleApiParams($JSConfig);
+                CCalendar::InitExternalCalendarsSyncParams($JSConfig);
             }
 			if ($JSConfig['connections'])
 				$connections = $JSConfig['connections'];
@@ -1000,113 +1030,6 @@ class CCalendarRequest
 			'attendees' => $arAttendees,
 			'connections' => $connections,
 			'finish' => $finish
-		));
-	}
-
-	public static function LoadEvents()
-	{
-		$arSect = array();
-		$arHiddenSect = array();
-		$month = intVal($_REQUEST['month']);
-		$year = intVal($_REQUEST['year']);
-		$fromLimit = CCalendar::Date(mktime(0, 0, 0, $month - 1, 20, $year), false);
-		$toLimit = CCalendar::Date(mktime(0, 0, 0, $month + 1, 10, $year), false);
-		$connections = false;
-
-		if ($_REQUEST['cal_dav_data_sync'] == 'Y' && CCalendar::IsCalDAVEnabled())
-		{
-			CDavGroupdavClientCalendar::DataSync("user", CCalendar::GetOwnerId());
-
-			$JSConfig = array();
-			CCalendar::InitCalDavParams($JSConfig);
-			if ($JSConfig['connections'])
-				$connections = $JSConfig['connections'];
-		}
-
-		$bGetTask = false;
-		if (is_array($_REQUEST['active_sect']))
-		{
-			foreach($_REQUEST['active_sect'] as $sectId)
-			{
-				if ($sectId == 'tasks')
-					$bGetTask = true;
-				elseif (intval($sectId) > 0)
-					$arSect[] = intval($sectId);
-			}
-		}
-
-		if (is_array($_REQUEST['hidden_sect']))
-		{
-			foreach($_REQUEST['hidden_sect'] as $sectId)
-			{
-				if ($sectId == 'tasks')
-					$arHiddenSect[] = 'tasks';
-				elseif(intval($sectId) > 0)
-					$arHiddenSect[] = intval($sectId);
-			}
-		}
-
-		$arAttendees = array(); // List of attendees for each event Array([ID] => Array(), ..,);
-		$arEvents = array();
-
-		if (count($arSect) > 0)
-		{
-			// NOTICE: Attendees for meetings selected inside this method and returns as array by link '$arAttendees'
-			$arEvents = CCalendar::GetEventList(array(
-					'type' => CCalendar::GetType(),
-					'section' => $arSect,
-					'fromLimit' => $fromLimit,
-					'toLimit' => $toLimit
-			), $arAttendees);
-		}
-
-		if (is_array($_REQUEST['sup_sect']))
-		{
-			$arDisplayedSPSections = array();
-			foreach($_REQUEST['sup_sect'] as $sectId)
-			{
-				$arDisplayedSPSections[] = intval($sectId);
-			}
-
-			if (count($arDisplayedSPSections) > 0)
-			{
-				$arSuperposedEvents = CCalendarEvent::GetList(
-						array(
-								'arFilter' => array(
-										"FROM_LIMIT" => $fromLimit,
-										"TO_LIMIT" => $toLimit,
-										"SECTION" => $arDisplayedSPSections
-								),
-								'parseRecursion' => true,
-								'fetchAttendees' => true,
-								'userId' => CCalendar::GetUserId()
-						)
-				);
-
-				$arEvents = array_merge($arEvents, $arSuperposedEvents);
-			}
-		}
-
-		//  **** GET TASKS ****
-		$arTaskIds = array();
-		if ($bGetTask)
-		{
-			$arTasks = CCalendar::GetTaskList(array(
-				'fromLimit' => $fromLimit,
-				'toLimit' => $toLimit
-			), $arTaskIds);
-
-			if (count($arTasks) > 0)
-				$arEvents = array_merge($arEvents, $arTasks);
-		}
-
-		// Save hidden calendars
-		//CCalendarSect::Hidden(CCalendar::GetUserId(), $arHiddenSect);
-
-		self::OutputJSRes(self::$reqId, array(
-				'events' => $arEvents,
-				'attendees' => $arAttendees,
-				'connections' => $connections
 		));
 	}
 

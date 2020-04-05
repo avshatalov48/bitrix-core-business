@@ -838,10 +838,11 @@ final class FileResponse extends AbstractResponse
 	{
 		$contents = $this->getContents();
 		$head = strpos($contents, "</head>");
-		$meta = "#<meta\\s+http-equiv\\s*=\\s*(['\"])Content-Type(\\1)\\s+content\\s*=\\s*(['\"])(.*?)(\\3)#im";
+		$meta = "#<meta.*?charset\\s*=\\s*(?:[\"']?)([^\"'>]+)#im";
+
 		if ($head !== false && preg_match($meta, substr($contents, 0, $head), $match))
 		{
-			return $match[4];
+			return "text/html; charset=".$match[1];
 		}
 
 		return false;

@@ -1,0 +1,28 @@
+.landing-ui-panel-content-edit {
+	width: 745px;
+}
+
+.landing-ui-panel-content-edit .landing-ui-panel-content-body {
+	height: calc(100% - 136px);
+}
+
+.landing-ui-panel-content-edit .landing-ui-panel-content-body-content {
+	background: #ffffff;
+}
+
+.landing-ui-panel-content-edit .landing-ui-form:last-child {
+	margin-bottom: 160px;
+}
+
+/* Compact mode */
+.landing-ui-panel-content-edit-compact {
+	width: 496px;
+}
+
+.landing-ui-panel-content-edit-compact .landing-ui-panel-content-body-sidebar {
+	display: none;
+}
+
+.landing-ui-panel-content-edit-compact .landing-ui-panel-content-body-content {
+	margin-left: 20px;
+}

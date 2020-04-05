@@ -1,0 +1,29 @@
+<svg width="120px" height="74px" viewBox="0 0 120 74" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="В-отрисовку" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02_Дизайн-слайдер-вкладки-Copy-2" transform="translate(-622.000000, -1785.000000)">
+            <g id="Group-24-Copy" transform="translate(622.000000, 1785.000000)">
+                <rect id="Rectangle-24" fill="#FFFFFF" x="0" y="0" width="120" height="74" rx="2"></rect>
+                <g id="Group-23-Copy" transform="translate(9.000000, 9.000000)">
+                    <g>
+                        <rect id="Rectangle-12" fill="#2FC6F6" opacity="0.25" x="4" y="4" width="40" height="37"></rect>
+                        <rect id="Rectangle-12-Copy" opacity="0.197293931" x="0" y="0" width="48" height="45" rx="2"></rect>
+                        <path d="M5.25,47 C4.55964406,47 4,46.3284271 4,45.5 C4,44.6715729 4.55964406,44 5.25,44 L42.75,44 C43.4403559,44 44,44.6715729 44,45.5 C44,46.3284271 43.4403559,47 42.75,47 L5.25,47 Z" id="Rectangle-12-Copy-2" fill="#525C69" opacity="0.200000003"></path>
+                        <path d="M5.25,53 C4.55964406,53 4,52.3284271 4,51.5 C4,50.6715729 4.55964406,50 5.25,50 L42.75,50 C43.4403559,50 44,50.6715729 44,51.5 C44,52.3284271 43.4403559,53 42.75,53 L5.25,53 Z" id="Rectangle-12-Copy-3" fill="#525C69" opacity="0.200000003"></path>
+                        <circle id="Oval-4" fill="#3AA8CB" cx="32.5" cy="14.5" r="4.5"></circle>
+                        <polygon id="Path-2" fill="#3AA8CB" points="7 38 7 30.4705882 16.5625 22 28.25 32.3529412 32.5 28.5882353 40.4864387 35.6627277 41 38"></polygon>
+                    </g>
+                </g>
+                <g id="Group-23-Copy" transform="translate(62.000000, 9.000000)">
+                    <g>
+                        <rect id="Rectangle-12" fill="#2FC6F6" opacity="0.25" x="4" y="4" width="40" height="37"></rect>
+                        <rect id="Rectangle-12-Copy" opacity="0.197293931" x="0" y="0" width="48" height="45" rx="2"></rect>
+                        <path d="M5.25,47 C4.55964406,47 4,46.3284271 4,45.5 C4,44.6715729 4.55964406,44 5.25,44 L42.75,44 C43.4403559,44 44,44.6715729 44,45.5 C44,46.3284271 43.4403559,47 42.75,47 L5.25,47 Z" id="Rectangle-12-Copy-2" fill="#525C69" opacity="0.200000003"></path>
+                        <path d="M5.25,53 C4.55964406,53 4,52.3284271 4,51.5 C4,50.6715729 4.55964406,50 5.25,50 L42.75,50 C43.4403559,50 44,50.6715729 44,51.5 C44,52.3284271 43.4403559,53 42.75,53 L5.25,53 Z" id="Rectangle-12-Copy-3" fill="#525C69" opacity="0.200000003"></path>
+                        <circle id="Oval-4" fill="#3AA8CB" cx="32.5" cy="14.5" r="4.5"></circle>
+                        <polygon id="Path-2" fill="#3AA8CB" points="7 38 7 30.4705882 16.5625 22 28.25 32.3529412 32.5 28.5882353 40.4864387 35.6627277 41 38"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

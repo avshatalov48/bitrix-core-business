@@ -746,8 +746,6 @@
 		}
 
 		this.list = {};
-		this.templateListByType = {};
-		this.mailBlockList = {};
 		this.placeHolderList = {};
 
 		this.onPlaceHolderSelectorListCreate = function (placeHolderSelectorList)
@@ -781,61 +779,20 @@
 
 		this.onEditorParse = function(mode)
 		{
-			if (!mode)
-			{
-				var content = this.content;
-
-				content.replace(/(^[\s\S]*?)(<body.*?>)/i, BX.delegate(function(str){
-						this.mailContentParsed.header = str;
-						return '';
-					}, this)
-				);
-
-				content = content.replace(/(<\/body>[\s\S]*?$)/i,  BX.delegate(function(str){
-						this.mailContentParsed.footer = str;
-						return '';
-					}, this)
-				);
-
-				this.content = content;
-			}
+			//if (!mode) this.content = 'test';
 		};
 
 		this.onEditorAfterParse = function(editor, mode)
 		{
-			if (mode)
-			{
-				var content = this.content;
-
-				content = content.replace(/^[\s\S]*?<body.*?>/i, "");
-				content = content.replace(/<\/body>[\s\S]*?$/i, "");
-
-				if(this.mailContentParsed.header != "" && this.mailContentParsed.footer != "")
-				{
-					content = this.mailContentParsed.header + content + this.mailContentParsed.footer;
-				}
-				else
-				{
-					content = editor.content;
-				}
-
-				this.content = content;
-			}
+			//if (!mode) editor.content = 'test';
 		};
 
 		this.onEditorInitedAfter = function(editor)
 		{
 			editor.components.SetComponentIcludeMethod('EventMessageThemeCompiler::includeComponent');
 
-			editor.config.mailblocks = this.getMailBlockList();
-			editor.mailblocks = new BXHtmlEditor.BXEditorMailBlocks(editor);
-			editor.mailblocksTaskbar = new BXHtmlEditor.MailBlocksControl(editor, editor.taskbarManager);
-			editor.taskbarManager.AddTaskbar(editor.mailblocksTaskbar);
-			editor.taskbarManager.ShowTaskbar(editor.mailblocksTaskbar.GetId());
-
-			editor.mailContentParsed = {'header': '', 'footer': ''};
-			BX.addCustomEvent(editor, "OnParse", this.onEditorParse.bind(editor));
-			BX.addCustomEvent(editor, "OnAfterParse", this.onEditorAfterParse.bind(editor, editor));
+			//BX.addCustomEvent(editor, "OnParse", this.onEditorParse.bind(editor));
+			//BX.addCustomEvent(editor, "OnAfterParse", this.onEditorAfterParse.bind(editor, editor));
 		};
 
 		this.add = function(id, params)
@@ -871,12 +828,6 @@
 			BX.addCustomEvent('onSenderMailingTemplateListHide', func);
 		};
 
-		this.setMailBlockList = function(mailBlockList){
-			this.mailBlockList = mailBlockList;
-		};
-		this.getMailBlockList = function(){
-			return this.mailBlockList;
-		};
 		this.setPlaceHolderList = function(placeHolderList){
 			this.placeHolderList = placeHolderList;
 		};
@@ -884,15 +835,8 @@
 			return this.placeHolderList;
 		};
 
-
-		BX.addCustomEvent(
-			'OnEditorInitedBefore',
-			this.onEditorInitedBefore.bind(this)
-		);
-		BX.addCustomEvent(
-			'OnEditorInitedAfter',
-			this.onEditorInitedAfter.bind(this)
-		);
+		BX.addCustomEvent('OnEditorInitedBefore', this.onEditorInitedBefore.bind(this));
+		BX.addCustomEvent('OnEditorInitedAfter', this.onEditorInitedAfter.bind(this));
 
 		SenderLetterManager.instance = this;
 	}
@@ -1051,10 +995,10 @@
 			if(subject && caption)
 			{
 				BX.bind(subject, 'input', function(){
-					caption.innerHTML = subject.value;
+					caption.textContent = subject.value;
 				});
 				BX.bind(subject, 'change', function(){
-					caption.innerHTML = subject.value;
+					caption.textContent = subject.value;
 				});
 			}
 

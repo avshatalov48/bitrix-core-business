@@ -372,9 +372,9 @@ HTML
 {
 	if (BX)
 	{
-		BX.ready(function(){
+		BX.ready(BX.defer(function(){
 			new BX.UI.FileInput('{$this->id}', {$uploadSetts}, {$elementSetts}, {$values}, '{$template}');
-		});
+		}));
 	}
 })(window["BX"] || top["BX"]);
 </script>

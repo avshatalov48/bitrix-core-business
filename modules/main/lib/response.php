@@ -3,9 +3,6 @@ namespace Bitrix\Main;
 
 abstract class Response
 {
-	const SPREAD_SITES = 2;
-	const SPREAD_DOMAIN = 4;
-
 	/** @var string */
 	protected $content;
 
@@ -15,17 +12,10 @@ abstract class Response
 
 	public function clear()
 	{
-
-	}
-
-	public function redirect($url)
-	{
-
 	}
 
 	public function flush($text = '')
 	{
-		$this->writeHeaders();
 		$this->writeBody($text);
 	}
 
@@ -74,11 +64,8 @@ abstract class Response
 		$this->flush($this->content);
 	}
 
-	protected abstract function writeHeaders();
-
 	protected function writeBody($text)
 	{
 		echo $text;
 	}
-
 }

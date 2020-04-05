@@ -213,9 +213,12 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 							$arPrice["NAME_LANG"] = $arPrice["NAME"];
 						$minID = $this->SAFE_FILTER_NAME.'_P'.$arPrice['ID'].'_MIN';
 						$maxID = $this->SAFE_FILTER_NAME.'_P'.$arPrice['ID'].'_MAX';
+						$error = "";
+						$utf_id = \Bitrix\Main\Text\Encoding::convertEncoding(toLower($arPrice["NAME"]), LANG_CHARSET, "utf-8", $error);
 						$items[$arPrice["NAME"]] = array(
 							"ID" => $arPrice["ID"],
 							"CODE" => $arPrice["NAME"],
+							"URL_ID" => rawurlencode(str_replace("/", "-", $utf_id)),
 							"~NAME" => $arPrice["NAME_LANG"],
 							"NAME" => htmlspecialcharsbx($arPrice["NAME_LANG"]),
 							"PRICE" => true,
@@ -892,16 +895,22 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 
 	public function searchPrice($items, $lookupValue)
 	{
-		foreach($items as $itemId => $arItem)
+		$error = "";
+		$searchValue = \Bitrix\Main\Text\Encoding::convertEncoding($lookupValue, LANG_CHARSET, "utf-8", $error);
+		if (!$error)
 		{
-			if ($arItem["PRICE"])
+			$encodedValue = rawurlencode($searchValue);
+			foreach($items as $itemId => $arItem)
 			{
-				$code = toLower($arItem["CODE"]);
-				if ($lookupValue === $code)
-					return $itemId;
+				if ($arItem["PRICE"])
+				{
+					$code = toLower($arItem["CODE"]);
+					if ($lookupValue === $code || $encodedValue === $arItem["URL_ID"])
+						return $itemId;
+				}
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public function searchProperty($items, $lookupValue)
@@ -917,7 +926,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 					return $itemId;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public function searchValue($item, $lookupValue)
@@ -953,7 +962,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 					else
 						$itemId = $this->searchProperty($this->arResult["ITEMS"], $smartElement);
 
-					if ($itemId)
+					if (isset($itemId))
 						$item = &$this->arResult["ITEMS"][$itemId];
 					else
 						break;
@@ -1000,7 +1009,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 
 				if ($smartPart)
 				{
-					array_unshift($smartPart, toLower("price-".$arItem["CODE"]));
+					array_unshift($smartPart, "price-".$arItem["URL_ID"]);
 
 					$smartParts[] = $smartPart;
 				}

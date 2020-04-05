@@ -1,5 +1,5 @@
 <?php
-define('NOT_CHECK_PERMISSIONS', true);
+define('NOT_CHECK_FILE_PERMISSIONS', true);
 define('PUBLIC_AJAX_MODE', true);
 define('NO_KEEP_STATISTIC', 'Y');
 define('STOP_STATISTICS', true);

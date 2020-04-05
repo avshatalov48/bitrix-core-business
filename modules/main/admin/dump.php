@@ -54,7 +54,22 @@ define('DOCUMENT_ROOT', rtrim(str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']),'/
 $arAllBucket = CBackup::GetBucketList();
 $status_title = "";
 
-if($_REQUEST['process'] == "Y")
+if ($_REQUEST['ajax_mode'] == 'Y')
+{
+	if ($_REQUEST['action'] == 'get_table_size')
+	{
+		?>
+		<script>
+			BX('db_size').innerHTML = "(<?=CFile::FormatSize(getTableSize())?>)";
+			BX('db_stat_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_stat"))?>)";
+			BX('db_search_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_search"))?>)";
+			BX('db_event_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_event_log$"))?>)";
+		</script>
+		<?
+		die();
+	}
+}
+elseif($_REQUEST['process'] == "Y")
 {
 	if (!check_bitrix_sessid())
 		RaiseErrorAndDie(GetMessage("DUMP_MAIN_SESISON_ERROR"));
@@ -1229,6 +1244,11 @@ function RetryRequest()
 		ob.disabled=true;
 	AjaxSend('?process=Y&<?=bitrix_sessid_get()?>');
 }
+
+function getTableSize()
+{
+	AjaxSend('?ajax_mode=Y&action=get_table_size');
+}
 </script>
 
 
@@ -1258,6 +1278,8 @@ function RetryRequest()
 		<td width="60%">
 		<?
 			$backup = CBitrixCloudBackup::getInstance();
+			$arFiles = $backup->listFiles();
+			$backup->saveToOptions();
 			CAdminMessage::ShowMessage(array(
 				"TYPE" => "PROGRESS",
 				"DETAILS" => GetMessage("BCL_BACKUP_USAGE", array(
@@ -1364,15 +1386,15 @@ if ($arAllBucket)
 	{
 		?>
 		<tr>
-			<td><?=GetMessage("DUMP_MAIN_ARC_DATABASE")?> (<?=getTableSize("")?> <?=GetMessage("MAIN_DUMP_BASE_SIZE")?>):</td>
+			<td><?=GetMessage("DUMP_MAIN_ARC_DATABASE")?> <span id="db_size">(<a href="javascript:getTableSize()">?</a> <?=GetMessage("MAIN_DUMP_BASE_SIZE")?>)</span>:</td>
 			<td><input type="checkbox" name="dump_base" OnClick="CheckActiveStart()" <?=IntOption("dump_base", 1) ? "checked" : "" ?>></td>
 		</tr>
 		<tr>
 			<td class="adm-detail-valign-top"><?=GetMessage("DUMP_MAIN_DB_EXCLUDE")?></td>
 			<td>
-				<div><input type="checkbox" name="dump_base_skip_stat" <?=IntOption("dump_base_skip_stat", 0) ? "checked" : "" ?> id="dump_base_skip_stat"> <label for="dump_base_skip_stat"><? echo GetMessage("MAIN_DUMP_BASE_STAT")." (".getTableSize("^b_stat")." ".GetMessage("MAIN_DUMP_BASE_SIZE").")" ?></label></div>
-				<div><input type="checkbox" name="dump_base_skip_search" value="Y" <?=IntOption("dump_base_skip_search", 0) ? "checked" : "" ?> id="dump_base_skip_search"> <label for="dump_base_skip_search"><? echo GetMessage("MAIN_DUMP_BASE_SINDEX")." (".getTableSize("^b_search")." ".GetMessage("MAIN_DUMP_BASE_SIZE").")" ?></label></div>
-				<div><input type="checkbox" name="dump_base_skip_log" value="Y"<?=IntOption("dump_base_skip_log", 0) ? "checked" : "" ?> id="dump_base_skip_log"> <label for="dump_base_skip_log"><? echo GetMessage("MAIN_DUMP_EVENT_LOG")." (".getTableSize("^b_event_log$")." ".GetMessage("MAIN_DUMP_BASE_SIZE").")" ?></label></div>
+				<div><input type="checkbox" name="dump_base_skip_stat" <?=IntOption("dump_base_skip_stat", 0) ? "checked" : "" ?> id="dump_base_skip_stat"> <label for="dump_base_skip_stat"><?=GetMessage("MAIN_DUMP_BASE_STAT")?></label> <span id=db_stat_size></span></div>
+				<div><input type="checkbox" name="dump_base_skip_search" value="Y" <?=IntOption("dump_base_skip_search", 0) ? "checked" : "" ?> id="dump_base_skip_search"> <label for="dump_base_skip_search"><?=GetMessage("MAIN_DUMP_BASE_SINDEX")?></label> <span id=db_search_size></span></div>
+				<div><input type="checkbox" name="dump_base_skip_log" value="Y"<?=IntOption("dump_base_skip_log", 0) ? "checked" : "" ?> id="dump_base_skip_log"> <label for="dump_base_skip_log"><?=GetMessage("MAIN_DUMP_EVENT_LOG")?></label> <span id=db_event_size></span></div>
 			</td>
 		</tr>
 		<?
@@ -1510,7 +1532,7 @@ function getTableSize($reg)
 	foreach($CACHE as $table => $s)
 		if (!$reg || preg_match('#'.$reg.'#i', $table))
 			$size += $s;
-	return round($size/(1048576), 2);
+	return $size;
 }
 
 function haveTime()

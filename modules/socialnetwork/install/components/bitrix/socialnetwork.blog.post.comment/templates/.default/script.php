@@ -60,6 +60,7 @@ $formParams = Array(
 	"SMILES" => COption::GetOptionInt("blog", "smile_gallery_id", 0),
 	"LHE" => array(
 		"documentCSS" => "body {color:#434343;}",
+		"iframeCss" => "html body {padding-left: 14px!important; font-size: 13px!important; line-height: 18px!important;}",
 		"ctrlEnterHandler" => "__submit".$rand,
 		"id" => "idLHE_blogCommentForm".$rand,
 		"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",

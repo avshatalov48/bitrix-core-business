@@ -33,7 +33,7 @@ $APPLICATION->IncludeComponent(
 		"ADD_SECTIONS_CHAIN" => (isset($arParams["ADD_SECTIONS_CHAIN"]) ? $arParams["ADD_SECTIONS_CHAIN"] : '')
 	),
 	$component,
-	array("HIDE_ICONS" => "Y")
+	($arParams["SHOW_TOP_ELEMENTS"] !== "N" ? array("HIDE_ICONS" => "Y") : array())
 );
 
 if ($arParams["USE_COMPARE"] === "Y")
@@ -90,7 +90,7 @@ if ($arParams["SHOW_TOP_ELEMENTS"] !== "N")
 			"LINE_ELEMENT_COUNT" => $arParams["TOP_LINE_ELEMENT_COUNT"],
 			"PROPERTY_CODE" => $arParams["TOP_PROPERTY_CODE"],
 			"PROPERTY_CODE_MOBILE" => $arParams["TOP_PROPERTY_CODE_MOBILE"],
-			"PRICE_CODE" => $arParams["PRICE_CODE"],
+			"PRICE_CODE" => $arParams["~PRICE_CODE"],
 			"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 			"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
 			"PRICE_VAT_INCLUDE" => $arParams["PRICE_VAT_INCLUDE"],

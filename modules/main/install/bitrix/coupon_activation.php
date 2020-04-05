@@ -291,7 +291,7 @@ function UpdateActivateCoupon($coupon, &$errorMessage)
 
 	UpdateSetOption('admin_passwordh', $arContent["V1"]);
 
-	if (is_writable($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/define.php"))
+	if (is_writable($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin"))
 	{
 		if ($fp = fopen($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/define.php", 'w'))
 		{
@@ -316,9 +316,11 @@ function UpdateActivateCoupon($coupon, &$errorMessage)
 		UpdateSetOption("PARAM_MAX_USERS", intval($arContent["MAX_USERS"]));
     if (isset($arContent["MAX_USERS_STRING"]))
         UpdateSetOption("~PARAM_MAX_USERS", $arContent["MAX_USERS_STRING"]);
+	if (isset($arContent["DATE_TO_SOURCE_STRING"]))
+		UpdateSetOption("~PARAM_FINISH_DATE", $arContent["DATE_TO_SOURCE_STRING"]);
 	if (isset($arContent["ISLC"]))
 	{
-		if (is_writable($_SERVER['DOCUMENT_ROOT']."/bitrix/license_key.php"))
+		if (is_writable($_SERVER['DOCUMENT_ROOT']."/bitrix"))
 		{
 			if ($fp = fopen($_SERVER['DOCUMENT_ROOT']."/bitrix/license_key.php", "wb"))
 			{

@@ -86,6 +86,7 @@ $arParams = array(
 	"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"]=="vote_avg"? "vote_avg": "rating",
 	"READ_ONLY" => $arParams["READ_ONLY"],
 	"ELEMENT_CODE" => $arParams["ELEMENT_CODE"],
+	"~ELEMENT_CODE" => $arParams["~ELEMENT_CODE"],
 	"SHOW_RATING" => $arParams["SHOW_RATING"]=="Y"? "Y": "N",
 	"SET_STATUS_404" => $arParams["SET_STATUS_404"]=="Y"? "Y": "N",
 	"MESSAGE_404" => $arParams["MESSAGE_404"],

@@ -405,7 +405,7 @@ class CSaleOrderProps
 			$key = array_search('*', $arSelectFields);
 			unset($arSelectFields[$key]);
 
-			$arSelectFields = $arSelectFields + $defaultSelectFields;
+			$arSelectFields = array_merge($arSelectFields, $defaultSelectFields);
 
 			$arSelectFields = array_unique($arSelectFields);
 		}

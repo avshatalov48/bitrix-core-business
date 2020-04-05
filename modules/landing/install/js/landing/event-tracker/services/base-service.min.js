@@ -1,0 +1,1 @@
+(function(){"use strict";BX.namespace("BX.Landing.EventTracker.Service");BX.Landing.EventTracker.Service.BaseService=function(){};BX.Landing.EventTracker.Service.BaseService.prototype={push:function(e){throw new Error("Must be implemented by subclass")}}})();

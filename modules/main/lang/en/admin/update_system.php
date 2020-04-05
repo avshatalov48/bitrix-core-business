@@ -1,4 +1,6 @@
 <?
+$MESS["SUP_MYSQL_LM1010"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql MariaDB versions below 10.0.5. You are currently using MySql MariaDB #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
+$MESS["SUP_MYSQL_L560"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql versions below 5.6. MySql 5.7 or higher is recommended. You are currently using MySql #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
 $MESS["SUP_TITLE_BASE"] = "SiteUpdate";
 $MESS["SUP_CHECK_UPDATES"] = "Check for updates";
 $MESS["SUP_SETTINGS"] = "Modify settings";
@@ -190,6 +192,7 @@ $MESS["SUP_CANT_EACCELERATOR"] = "As of current version, eAccelerator is no long
 $MESS["SUP_SALE_1500_HINT"] = "To continue installing updates you should perform <a href=\"#ADDR#\">the e-store module conversion</a>.";
 $MESS["SUP_DEVSRV_MESS"] = "A development installation is not intended as a publicly available resource.";
 $MESS["SUP_NO_MS_ORACLE"] = "As of January 1, 2017 we provide only limited support for Oracle Database and MS SQL Server based products. There will be no updates for these platforms. Should you have any questions, please contact our helpdesk.";
-$MESS["SUP_PHP_L560"] = "As of January 1, 2018 we will no longer support PHP versions older than 5.6. You are currently using  PHP version #VERS#. Please update your PHP version or contact your hosting provider's helpdesk. If you don't do that, your Bitrix24 installation may not funtion properly.";
+$MESS["SUP_PHP_L560"] = "As of January 1, 2018 we will no longer support PHP versions older than 5.6. You are currently using PHP version #VERS#. Please update your PHP version or contact your hosting provider's helpdesk. If you don't do that, your Bitrix24 installation may not function properly.";
 $MESS["SUP_PHP_L560F"] = "You are using PHP version #VERS#, but the system requires version 5.6.0 or higher. Please update your PHP installation or contact the technical support.";
+$MESS["SUP_PHP_L710"] = "As of June 30, 2019 only limited support will be provided for our products running on PHP versions below 7.1. You are currently using PHP #VERS#. Please update your PHP installation or contact your hosting service provider for assistance.";
 ?>

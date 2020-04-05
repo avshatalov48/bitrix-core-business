@@ -612,10 +612,7 @@ class CSocNetLog extends CAllSocNetLog
 				"FROM" => "INNER JOIN b_sonet_log_tag SLT ON L.ID = SLT.LOG_ID"
 			);
 
-			if (array_key_exists("@TAG", $arFilter))
-			{
-				$strDistinct = " DISTINCT ";
-			}
+			$strDistinct = " DISTINCT ";
 		}
 		if (
 			array_key_exists("USER_ID|COMMENT_USER_ID", $arFilter)
@@ -644,8 +641,8 @@ class CSocNetLog extends CAllSocNetLog
 		}
 
 		$arFields = array_merge($arFields1, $arFields);
-
 		$arSqls = CSocNetGroup::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql);
+
 		$listEvents = GetModuleEvents("socialnetwork", "OnBuildSocNetLogSql");
 		while ($arEvent = $listEvents->Fetch())
 		{
@@ -1110,6 +1107,18 @@ class CSocNetLog extends CAllSocNetLog
 		$DB->Query("DELETE FROM b_sonet_log_favorites WHERE LOG_ID = ".$ID, true);
 		$DB->Query("DELETE FROM b_sonet_log_tag WHERE LOG_ID = ".$ID, true);
 
+		$logFields = array();
+		$res = \Bitrix\Socialnetwork\LogTable::getList(array(
+			'filter' => array(
+				'ID' => $ID
+			),
+			'select' => array('EVENT_ID', 'SOURCE_ID')
+		));
+		if ($fields = $res->fetch())
+		{
+			$logFields = $fields;
+		}
+
 		$bSuccess = $DB->Query("DELETE FROM b_sonet_log WHERE ID = ".$ID, true);
 
 		if ($bSuccess)
@@ -1119,7 +1128,7 @@ class CSocNetLog extends CAllSocNetLog
 			$db_events = GetModuleEvents("socialnetwork", "OnSocNetLogDelete");
 			while ($arEvent = $db_events->Fetch())
 			{
-				ExecuteModuleEventEx($arEvent, array($ID));
+				ExecuteModuleEventEx($arEvent, array($ID, $logFields));
 			}
 
 			LogIndex::deleteIndex(array(

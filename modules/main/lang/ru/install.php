@@ -63,6 +63,7 @@ $MESS["SC_NO_ORA_LIB_ER"] = "Функции Oracle 8 не доступны в PH
 $MESS["SC_NO_MYS_LIB_ER"] = "Функции MySQL не доступны в PHP.";
 $MESS["SC_NO_PERE_LIB_ER"] = "Поддержка регулярных выражений не доступна в PHP.";
 $MESS["SC_NO_JSON_LIB_ER"] = "Поддержка JSON не доступна в PHP.";
+$MESS["SC_NO_OPENSSL_LIB_ER"] = "Поддержка Openssl не доступна в PHP.";
 $MESS["SC_NO_HASH"] = "Нет поддержки hash функций в PHP.";
 $MESS["SC_VALUE"] = "Значение";
 $MESS["SC_DISK_BITRIX"] = "Ядро сайта";

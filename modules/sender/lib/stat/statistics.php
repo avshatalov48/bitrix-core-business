@@ -15,8 +15,11 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\MailingChainTable;
 use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\PostingClickTable;
-use Bitrix\Sender\PostingReadTable;
 use Bitrix\Sender\MailingSubscriptionTable;
+use Bitrix\Sender\Entity;
+use Bitrix\Sender\Message;
+
+use Bitrix\Main\Web\Uri;
 
 Loc::loadMessages(__FILE__);
 
@@ -275,8 +278,9 @@ class Statistics
 	protected function getMappedFilter()
 	{
 		$filter = array(
-			'!STATUS' => PostingTable::STATUS_NEW,
-			'=MAILING.IS_TRIGGER' => 'N'
+			'!=STATUS' => PostingTable::STATUS_NEW,
+			'=MAILING.IS_TRIGGER' => 'N',
+			'=MAILING_CHAIN.MESSAGE_CODE' => Message\iBase::CODE_MAIL
 		);
 
 		$fieldsMap = array(
@@ -500,6 +504,43 @@ class Statistics
 			$list[] = $click;
 		}
 
+		// TODO: temporary block! Remove
+		if (!empty($list))
+		{
+			$letter = Entity\Letter::createInstanceByPostingId($this->filter->get('postingId'));
+			$linkParams = $letter->getMessage()->getConfiguration()->get('LINK_PARAMS');
+			if (!$linkParams)
+			{
+				return $list;
+			}
+
+			$parametersTmp = [];
+			parse_str($linkParams, $parametersTmp);
+			if (!is_array($parametersTmp) || empty($parametersTmp))
+			{
+				return $list;
+			}
+			$linkParams = array_keys($parametersTmp);
+
+			$groupedList = [];
+			foreach ($list as $index => $item)
+			{
+				$item['URL'] = (new Uri($item['URL']))
+					->deleteParams($linkParams)
+					->getLocator();
+				if (!isset($groupedList[$item['URL']]))
+				{
+					$groupedList[$item['URL']] = 0;
+				}
+				$groupedList[$item['URL']] += $item['CNT'];
+			}
+			$list = [];
+			foreach ($groupedList as $url => $cnt)
+			{
+				$list[] = ['URL' => $url, 'CNT' => $cnt];
+			}
+		}
+
 		return $list;
 	}
 
@@ -636,15 +677,18 @@ class Statistics
 		$filter = $this->getMappedFilter();
 		$listDb = PostingTable::getList(array(
 			'select' => array(
-				'DATE_SENT',
+				'MAX_DATE_SENT',
 				'CHAIN_ID' => 'MAILING_CHAIN_ID',
 				'TITLE' => 'MAILING_CHAIN.TITLE',
-				'SUBJECT' => 'MAILING_CHAIN.SUBJECT',
 				'MAILING_ID',
 				'MAILING_NAME' => 'MAILING.NAME',
 			),
 			'filter' => $filter,
-			'order' => array('DATE_SENT' => 'DESC'),
+			'runtime' => array(
+				new ExpressionField('MAX_DATE_SENT', 'MAX(%s)', 'DATE_SENT'),
+			),
+			//'group' => array('CHAIN_ID', 'TITLE', 'SUBJECT', 'MAILING_ID', 'MAILING_NAME'),
+			'order' => array('MAX_DATE_SENT' => 'DESC'),
 			'limit' => $limit,
 			'cache' => array('ttl' => $this->getCacheTtl(), 'cache_joins' => true)
 		));
@@ -652,9 +696,9 @@ class Statistics
 		while ($item = $listDb->fetch())
 		{
 			$dateSentFormatted = '';
-			if ($item['DATE_SENT'])
+			if ($item['MAX_DATE_SENT'])
 			{
-				$dateSentFormatted = \FormatDate('x', $item['DATE_SENT']->getTimestamp());
+				$dateSentFormatted = \FormatDate('x', $item['MAX_DATE_SENT']->getTimestamp());
 			}
 
 			$list[] = array(
@@ -662,7 +706,7 @@ class Statistics
 				'NAME' => $item['TITLE'] ? $item['TITLE'] : $item['SUBJECT'],
 				'MAILING_ID' => $item['MAILING_ID'],
 				'MAILING_NAME' => $item['MAILING_NAME'],
-				'DATE_SENT' => (string) $item['DATE_SENT'],
+				'DATE_SENT' => (string) $item['MAX_DATE_SENT'],
 				'DATE_SENT_FORMATTED' => $dateSentFormatted,
 			);
 		}

@@ -1,0 +1,12 @@
+.landing-ui-field-filter .landing-ui-field-input {
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+
+/* Filter root */
+.landing-ui-field-filter .main-ui-filter-search {
+	min-width: 409px!important;
+	margin: 0;
+}

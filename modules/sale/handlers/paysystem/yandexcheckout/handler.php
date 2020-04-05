@@ -97,7 +97,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 		$params = array(
 			'URL' => $yandexPaymentData['confirmation']['confirmation_url'],
 			'CURRENCY' => $payment->getField('CURRENCY'),
-			'SUM' => $payment->getSum(),
+			'SUM' => PriceMaths::roundPrecision($payment->getSum()),
 		);
 		$this->setExtraParams($params);
 
@@ -124,7 +124,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 		if (!$this->isFillPaymentMethodFields($request))
 		{
 			$params = array(
-				'SUM' => $payment->getSum(),
+				'SUM' => PriceMaths::roundPrecision($payment->getSum()),
 				'CURRENCY' => $payment->getField('CURRENCY'),
 				'FIELDS' => $this->getPaymentMethodFields(),
 				'PAYMENT_METHOD' => $this->service->getField('PS_MODE')
@@ -222,6 +222,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param array $headers
 	 * @param array $params
 	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentException
 	 */
 	private function send($url, array $headers, array $params = array())
 	{
@@ -289,14 +290,16 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return array
+	 * @throws Main\ArgumentNullException
 	 */
 	private function getYandexPaymentQueryParams(Payment $payment, Request $request)
 	{
 		$query = array(
 			'amount' => array(
-				'value' => $payment->getSum(),
+				'value' => (string)PriceMaths::roundPrecision($payment->getSum()),
 				'currency' => $payment->getField('CURRENCY')
 			),
+			'capture' => true,
 			'confirmation' => array(
 				'type' => 'redirect',
 				'return_url' => $this->getBusinessValue($payment, 'YANDEX_CHECKOUT_RETURN_URL')
@@ -305,6 +308,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 				'BX_PAYMENT_NUMBER' => $payment->getId(),
 				'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
 				'BX_HANDLER' => 'YANDEX_CHECKOUT',
+				'cms_name' => 'api_1c-bitrix',
 			)
 		);
 
@@ -347,6 +351,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	/**
 	 * @param array $data
 	 * @return mixed
+	 * @throws Main\ArgumentException
 	 */
 	private static function encode(array $data)
 	{
@@ -381,6 +386,9 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return PaySystem\ServiceResult
+	 * @throws Main\ObjectException
+	 * @throws \Exception
+	 *
 	 */
 	public function processRequest(Payment $payment, Request $request)
 	{
@@ -391,48 +399,42 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 		$data = static::decode($inputStream);
 		if ($data !== false)
 		{
-			$paymentData = $data['object'];
+			$response = $data['object'];
 
-			if ($paymentData['status'] === static::PAYMENT_STATUS_WAITING_FOR_CAPTURE)
+			if ($response['status'] === static::PAYMENT_STATUS_SUCCEEDED)
 			{
-				if ($paymentData['paid'] === true
-					&& $this->isSumCorrect($payment, $paymentData)
-				)
-				{
-					$confirm = $this->confirm($payment);
-					if (!$confirm->isSuccess())
-					{
-						$result->addErrors($confirm->getErrors());
-						return $result;
-					}
+				$description = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TRANSACTION').$response['id'];
+				$fields = array(
+					"PS_STATUS_CODE" => substr($response['status'], 0, 5),
+					"PS_STATUS_DESCRIPTION" => $description,
+					"PS_SUM" => $response['amount']['value'],
+					"PS_STATUS" => 'N',
+					"PS_CURRENCY" => $response['amount']['currency'],
+					"PS_RESPONSE_DATE" => new Main\Type\DateTime()
+				);
 
-					$result->setPsData($confirm->getPsData());
-					if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y'
-						&& $confirm->getOperationType() === PaySystem\ServiceResult::MONEY_COMING
-					)
+				if ($this->isSumCorrect($payment, $response))
+				{
+					$fields["PS_STATUS"] = 'Y';
+
+					if ($this->getBusinessValue($payment, 'PS_CHANGE_STATUS_PAY') === 'Y')
 					{
 						$result->setOperationType(PaySystem\ServiceResult::MONEY_COMING);
 					}
 				}
 				else
 				{
-					$cancel = $this->cancel($payment);
-					if (!$cancel->isSuccess())
-					{
-						$result->addErrors($cancel->getErrors());
-						return $result;
-					}
-
-					$result->setPsData($cancel->getPsData());
+					$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_SUM');
+					$fields['PS_STATUS_DESCRIPTION'] .= ' '.$error;
+					$result->addError(new Main\Error($error));
 				}
+
+				$result->setPsData($fields);
 			}
 			else
 			{
-				$result->addError(
-					new Main\Error(
-						Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS')
-					)
-				);
+				$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS').': '.$response['status'];
+				$result->addError(new Main\Error($error));
 			}
 		}
 		else
@@ -455,6 +457,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param Payment $payment
 	 * @param array $paymentData
 	 * @return bool
+	 * @throws Main\ArgumentNullException
 	 */
 	private function isSumCorrect(Payment $payment, array $paymentData)
 	{
@@ -465,6 +468,8 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentNullException
+	 * @throws \Exception
 	 */
 	public function refund(Payment $payment, $refundableSum)
 	{
@@ -503,6 +508,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	/**
 	 * @param Payment $payment
 	 * @return PaySystem\ServiceResult
+	 * @throws \Exception
 	 */
 	public function cancel(Payment $payment)
 	{
@@ -525,6 +531,9 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	/**
 	 * @param Payment $payment
 	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ObjectException
+	 * @throws \Exception
 	 */
 	public function confirm(Payment $payment)
 	{
@@ -535,7 +544,7 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 		$headers['Idempotence-Key'] = $this->getIdempotenceKey();
 		$params = array(
 			'amount' => array(
-				'value' => $payment->getSum(),
+				'value' => (string)PriceMaths::roundPrecision($payment->getSum()),
 				'currency' => $payment->getField('CURRENCY')
 			)
 		);
@@ -593,13 +602,14 @@ class YandexCheckoutHandler extends PaySystem\ServiceHandler implements PaySyste
 	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return array
+	 * @throws Main\ArgumentNullException
 	 */
 	private function getRefundQueryParams(Payment $payment, $refundableSum)
 	{
 		return array(
 			'payment_id' => $payment->getField('PS_INVOICE_ID'),
 			'amount' => array(
-				'value' => $refundableSum,
+				'value' => (string)PriceMaths::roundPrecision($refundableSum),
 				'currency' => $payment->getField('CURRENCY'),
 			),
 		);

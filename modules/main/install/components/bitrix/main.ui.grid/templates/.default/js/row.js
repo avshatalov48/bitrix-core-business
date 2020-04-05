@@ -868,12 +868,12 @@
 
 		showActionsMenu: function(event)
 		{
+			BX.fireEvent(document.body, 'click');
+
 			this.getActionsMenu().popupWindow.show();
 
 			if (event)
 			{
-				BX.fireEvent(document.body, 'click');
-
 				this.getActionsMenu().popupWindow.popupContainer.style.top = ((event.pageY - 25) + BX.PopupWindow.getOption("offsetTop")) + "px";
 				this.getActionsMenu().popupWindow.popupContainer.style.left = ((event.pageX + 20) + BX.PopupWindow.getOption("offsetLeft")) + "px";
 			}

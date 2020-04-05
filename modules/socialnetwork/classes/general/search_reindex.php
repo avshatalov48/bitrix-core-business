@@ -407,7 +407,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 						$arFields["IBLOCK_SECTION_ID"],
 						$arFields["ID"],
 						$arFields["ID"],
-						urlencode($arFields["NAME"]),
+						rawurlencode($arFields["NAME"]),
 					),
 					$path_template
 				);

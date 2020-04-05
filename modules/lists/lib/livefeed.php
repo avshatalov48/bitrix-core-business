@@ -44,7 +44,7 @@ class CListsLiveFeed
 					{
 						$ix = randString(5);
 						return '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" href="/company/personal/user/'.$userId.'/"
-						bx-post-author-id="'.$userId.'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, true, false).'</a>
+						bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, true, false).'</a>
 						<script type="text/javascript">if (BX.tooltip) BX.tooltip(\''.$userId.'\', "bp_'.$userId.'_'.$ix.'", "");</script>';
 					}
 					return $matches[0];

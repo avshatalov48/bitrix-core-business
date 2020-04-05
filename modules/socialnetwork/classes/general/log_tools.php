@@ -1,4 +1,6 @@
 <?
+use Bitrix\Socialnetwork\ComponentHelper;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetLogTools
@@ -384,6 +386,7 @@ class CSocNetLogTools
 			"LAST_NAME" => $arFields["LAST_NAME"],
 			"SECOND_NAME" => $arFields["SECOND_NAME"],
 			"LOGIN" => $arFields["LOGIN"],
+			"PERSONAL_GENDER" => $arFields["PERSONAL_GENDER"],
 			"USE_THUMBNAIL_LIST" => "N",
 			"PATH_TO_SONET_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
 			"PATH_TO_SONET_USER_PROFILE" => $arParams["PATH_TO_USER"],
@@ -541,7 +544,8 @@ class CSocNetLogTools
 					"NAME" => $arFields["~CREATED_BY_NAME"],
 					"LAST_NAME" => $arFields["~CREATED_BY_LAST_NAME"],
 					"SECOND_NAME" => $arFields["~CREATED_BY_SECOND_NAME"],
-					"LOGIN" => $arFields["~CREATED_BY_LOGIN"]
+					"LOGIN" => $arFields["~CREATED_BY_LOGIN"],
+					"PERSONAL_GENDER" => (!empty($arFields["~CREATED_BY_PERSONAL_GENDER"]) ? $arFields["~CREATED_BY_PERSONAL_GENDER"] : '')
 				);
 				$arParams["NAME_TEMPLATE"] .= $suffix;
 				$arCreatedBy["TOOLTIP_FIELDS"] = CSocNetLogTools::FormatEvent_FillTooltip($arFieldsTooltip, $arParams);
@@ -3549,7 +3553,10 @@ class CSocNetLogTools
 				BXClearCache(True, "/".SITE_ID."/blog/".$arBlog["URL"]."/rss_out/".$arPost["POST_ID"]."/C/");
 				BXClearCache(True, "/".SITE_ID."/blog/last_messages/");
 				BXClearCache(True, "/".SITE_ID."/blog/commented_posts/");
-				BXClearCache(True, "/".SITE_ID."/blog/popular_posts/");
+				BXClearCache(True, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'posts_popular',
+					'SITE_ID' => SITE_ID
+				)));
 			}
 			else
 				$strError = GetMessage("SONET_ADD_COMMENT_SOURCE_ERROR");
@@ -3694,7 +3701,10 @@ class CSocNetLogTools
 				BXClearCache(True, "/".SITE_ID."/blog/".$arBlog["URL"]."/rss_out/".$arPost["POST_ID"]."/C/");
 				BXClearCache(True, "/".SITE_ID."/blog/last_messages/");
 				BXClearCache(True, "/".SITE_ID."/blog/commented_posts/");
-				BXClearCache(True, "/".SITE_ID."/blog/popular_posts/");
+				BXClearCache(True, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'posts_popular',
+					'SITE_ID' => SITE_ID
+				)));
 			}
 			else
 				$strError = GetMessage("SONET_ADD_COMMENT_SOURCE_ERROR");
@@ -4138,7 +4148,10 @@ class CSocNetLogTools
 		BXClearCache(True, "/".SITE_ID."/blog/".$arBlog["URL"]."/rss_out/".$postID."/C/");
 		BXClearCache(True, "/".SITE_ID."/blog/last_messages/");
 		BXClearCache(True, "/".SITE_ID."/blog/commented_posts/");
-		BXClearCache(True, "/".SITE_ID."/blog/popular_posts/");
+		BXClearCache(True, ComponentHelper::getBlogPostCacheDir(array(
+			'TYPE' => 'posts_popular',
+			'SITE_ID' => SITE_ID
+		)));
 	}
 
 	function OnAfterPhotoUpload($arFields, $arComponentParams, $arComponentResult)
@@ -5775,7 +5788,8 @@ class CSocNetLogTools
 				);
 				$res = $feed->getEntity()->canEdit(intval($arParams["USER_ID"]));
 			}
-			catch (Exception $e){
+			catch (Exception $e)
+			{
 			}
 		}
 
@@ -5810,8 +5824,8 @@ class CSocNetLogTools
 				);
 				$res = $feed->getEntity()->canEditOwn(intval($arParams["USER_ID"]));
 			}
-			catch (Exception $e){
-
+			catch (Exception $e)
+			{
 			}
 		}
 
@@ -6393,19 +6407,11 @@ class CSocNetLogComponent
 			$arDepartmentId = array($arDepartmentId);
 		}
 
-		$bFound = $arResult = $arDefaultSite = false;
+		$bFound = $arResult = false;
 
 		$dbSitesList = CSite::GetList($b = "SORT", $o = "asc", array("ACTIVE" => "Y")); // cache used
 		while ($arSite = $dbSitesList->GetNext())
 		{
-			if (
-				!$arDefaultSite
-				&& $arSite['DEF'] == 'Y'
-			)
-			{
-				$arDefaultSite = $arSite;
-			}
-
 			$siteRootDepartmentId = COption::GetOptionString("main", "wizard_departament", false, $arSite["LID"], true);
 			if ($siteRootDepartmentId)
 			{
@@ -6439,7 +6445,11 @@ class CSocNetLogComponent
 
 		if (!$bFound)
 		{
-			$arResult = $arDefaultSite;
+			if ($defSiteId = \CSite::getDefSite())
+			{
+				$res = CSite::getByID($defSiteId);
+				$arResult = $res->fetch();
+			}
 		}
 
 		return $arResult;
@@ -6793,23 +6803,7 @@ class CSocNetLogComponent
 
 	public static function getDateTimeFormatted($timestamp, $arFormatParams)
 	{
-		$arFormat = Array(
-			"tommorow" => "tommorow, ".$arFormatParams["TIME_FORMAT"],
-			"today" => "today, ".$arFormatParams["TIME_FORMAT"],
-			"yesterday" => "yesterday, ".$arFormatParams["TIME_FORMAT"],
-			"" => (
-				date("Y", $timestamp) == date("Y")
-					? $arFormatParams["DATE_TIME_FORMAT_WITHOUT_YEAR"]
-					: $arFormatParams["DATE_TIME_FORMAT"]
-			)
-		);
-
-		return (
-			strcasecmp(LANGUAGE_ID, 'EN') !== 0
-			&& strcasecmp(LANGUAGE_ID, 'DE') !== 0
-				? ToLower(FormatDate($arFormat, $timestamp, time()+CTimeZone::GetOffset()))
-				: FormatDate($arFormat, $timestamp, time()+CTimeZone::GetOffset())
-		);
+		return \CComponentUtil::getDateTimeFormatted($timestamp, $arFormatParams["DATE_TIME_FORMAT"], CTimeZone::GetOffset());
 	}
 
 	public static function getCommentRights($arParams)
@@ -7066,7 +7060,7 @@ class CSocNetLogComponent
 
 		if ($arLog = $rsLog->Fetch())
 		{
-			$hasSource = \Bitrix\Socialnetwork\ComponentHelper::hasCommentSource(array(
+			$hasSource = ComponentHelper::hasCommentSource(array(
 				"LOG_EVENT_ID" => $arLog["EVENT_ID"],
 				"LOG_ENTITY_ID" => $arLog["ENTITY_ID"]
 			));

@@ -1,0 +1,42 @@
+<svg width="100" height="124" viewBox="0 0 100 124" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>001 copy 3</title>
+<desc>Created using Figma</desc>
+<g id="Canvas" transform="translate(-9367 117)">
+<g id="001 copy 3">
+<g id="Rectangle 8">
+<use xlink:href="#path0_fill" transform="translate(9367 -117)" fill="#FFFFFF"/>
+<mask id="mask0_outline_ins">
+<use xlink:href="#path0_fill" fill="white" transform="translate(9367 -117)"/>
+</mask>
+<g mask="url(#mask0_outline_ins)">
+<use xlink:href="#path1_stroke_2x" transform="translate(9367 -117)" fill="#49515C" fill-opacity="0.31216"/>
+</g>
+</g>
+<g id="Rectangle 8 Copy" opacity="0.298528">
+<use xlink:href="#path2_fill" transform="translate(9371 -106)" fill="#55D0E0"/>
+</g>
+<g id="Rectangle 8 Copy 2" opacity="0.298528">
+<use xlink:href="#path2_fill" transform="translate(9371 -24)" fill="#55D0E0"/>
+</g>
+<g id="Rectangle 8">
+<use xlink:href="#path3_fill" transform="translate(9367 -117)" fill="#ADB2B8"/>
+</g>
+<g id="Rectangle 10">
+<use xlink:href="#path4_fill" transform="translate(9371 -115)" fill="#FFFFFF"/>
+</g>
+<g id="Rectangle 10 Copy">
+<use xlink:href="#path4_fill" transform="translate(9376 -115)" fill="#FFFFFF"/>
+</g>
+<g id="Rectangle 10 Copy 2">
+<use xlink:href="#path4_fill" transform="translate(9381 -115)" fill="#FFFFFF"/>
+</g>
+</g>
+</g>
+<defs>
+<path id="path0_fill" fill-rule="evenodd" d="M 0 2C 0 0.895429 0.89543 0 2 0L 98 0C 99.1046 0 100 0.89543 100 2L 100 122C 100 123.105 99.1046 124 98 124L 2 124C 0.895429 124 0 123.105 0 122L 0 2Z"/>
+<path id="path1_stroke_2x" d="M 2 1L 98 1L 98 -1L 2 -1L 2 1ZM 99 2L 99 122L 101 122L 101 2L 99 2ZM 98 123L 2 123L 2 125L 98 125L 98 123ZM 1 122L 1 2L -1 2L -1 122L 1 122ZM 2 123C 1.44771 123 1 122.552 1 122L -1 122C -1 123.657 0.343143 125 2 125L 2 123ZM 99 122C 99 122.552 98.5523 123 98 123L 98 125C 99.6569 125 101 123.657 101 122L 99 122ZM 98 1C 98.5523 1 99 1.44771 99 2L 101 2C 101 0.343147 99.6569 -1 98 -1L 98 1ZM 2 -1C 0.343147 -1 -1 0.343143 -1 2L 1 2C 1 1.44771 1.44771 1 2 1L 2 -1Z"/>
+<path id="path2_fill" fill-rule="evenodd" d="M 0 0.999999C 0 0.447715 0.447715 0 1 0L 91 0C 91.5523 0 92 0.447715 92 1L 92 26C 92 26.5523 91.5523 27 91 27L 1 27C 0.447715 27 0 26.5523 0 26L 0 0.999999Z"/>
+<path id="path3_fill" fill-rule="evenodd" d="M 0 2C 0 0.895431 0.89543 0 2 0L 98 0C 99.1046 0 100 0.895431 100 2L 100 8L 0 8L 0 2Z"/>
+<path id="path4_fill" fill-rule="evenodd" d="M 0 1.5C 0 0.671573 0.671573 0 1.5 0L 1.5 0C 2.32843 0 3 0.671573 3 1.5L 3 1.5C 3 2.32843 2.32843 3 1.5 3L 1.5 3C 0.671573 3 0 2.32843 0 1.5L 0 1.5Z"/>
+</defs>
+</svg>

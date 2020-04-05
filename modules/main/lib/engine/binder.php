@@ -182,6 +182,20 @@ class Binder
 	}
 
 	/**
+	 * Sets list of method params.
+	 * @param array $params List of parameters.
+	 *
+	 * @return $this
+	 */
+	final public function setMethodParams(array $params)
+	{
+		$this->methodParams = $params;
+		$this->args = array_values($params);
+
+		return $this;
+	}
+
+	/**
 	 * Returns list of method params which possible use in call_user_func_array().
 	 * @return array
 	 */
@@ -222,6 +236,11 @@ class Binder
 				$primaryId = $this->findParameterInSourceList($parameterName, $status);
 				if ($status === self::STATUS_NOT_FOUND)
 				{
+					if ($parameter->isDefaultValueAvailable())
+					{
+						return $parameter->getDefaultValue();
+					}
+
 					throw new ArgumentException(
 						"Could not find value for parameter {{$parameterName}} to build auto wired argument {{$parameter->getClass()->name} {$parameter->getName()}}"
 					);

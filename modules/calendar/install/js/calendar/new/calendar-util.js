@@ -4,6 +4,12 @@
 	{
 		this.calendar = calendar;
 		this.config = config || {};
+
+		if (!this.config.userSettings)
+		{
+			this.config.userSettings = {};
+		}
+
 		this.additionalParams = additionalParams;
 		this.dayLength = 86400000;
 
@@ -13,22 +19,25 @@
 
 		this.accessNames = {};
 		if (this.config.accessNames)
+		{
 			this.handleAccessNames(this.config.accessNames);
+		}
 
 		this.DATE_FORMAT_BX = BX.message("FORMAT_DATE");
 		this.DATETIME_FORMAT_BX = BX.message("FORMAT_DATETIME");
-		if ((this.DATETIME_FORMAT_BX.substr(0, this.DATE_FORMAT_BX.length) == this.DATE_FORMAT_BX))
-			this.TIME_FORMAT_BX = BX.util.trim(this.DATETIME_FORMAT_BX.substr(this.DATE_FORMAT_BX.length));
-		else
-			this.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
-		this.TIME_FORMAT_SHORT_BX = this.TIME_FORMAT_BX.replace(':SS', '');
-
 		this.DATE_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATE"));
 		this.DATETIME_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
-		if ((this.DATETIME_FORMAT.substr(0, this.DATE_FORMAT.length) == this.DATE_FORMAT))
+		if ((this.DATETIME_FORMAT_BX.substr(0, this.DATE_FORMAT_BX.length) == this.DATE_FORMAT_BX))
+		{
 			this.TIME_FORMAT = BX.util.trim(this.DATETIME_FORMAT.substr(this.DATE_FORMAT.length));
+			this.TIME_FORMAT_BX = BX.util.trim(this.DATETIME_FORMAT_BX.substr(this.DATE_FORMAT_BX.length));
+		}
 		else
+		{
+			this.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
 			this.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
+		}
+		this.TIME_FORMAT_SHORT_BX = this.TIME_FORMAT_BX.replace(':SS', '');
 		this.TIME_FORMAT_SHORT = this.TIME_FORMAT.replace(':s', '');
 
 		this.KEY_CODES = {
@@ -493,6 +502,21 @@
 			return this.getUserOption('showWeekNumbers', 'N') == 'Y';
 		},
 
+		getWeekNumber: function(timestamp)
+		{
+			var weekNumber;
+			if (this.getWeekStart() == 'SU')
+			{
+				timestamp += this.dayLength * 2;
+			}
+			else if(this.getWeekStart() == 'MO')
+			{
+				timestamp += this.dayLength;
+			}
+			weekNumber = BX.date.format('W', timestamp / 1000);
+			return weekNumber;
+		},
+
 		getScrollbarWidth: function()
 		{
 			// add outer div
@@ -824,6 +848,11 @@
 			return this.accessNames[code] || code;
 		},
 
+		setAccessName: function(code, name)
+		{
+			this.accessNames[code] = name;
+		},
+
 		getSectionAccessTasks: function()
 		{
 			return this.config.sectionAccessTasks;
@@ -1022,7 +1051,7 @@
 		{
 			this.readOnly = this.config.readOnly;
 
-			if (!this.readOnly)
+			if (this.readOnly === undefined)
 			{
 				var sectionList = this.calendar.sectionController.getSectionListForEdit();
 				if (!sectionList || !sectionList.length)
@@ -1035,11 +1064,11 @@
 
 		getLoader: function(size)
 		{
-			var style = size ? 'style="width: '+ parseInt(size) +'px; height: '+ parseInt(size) +'px;"' : '';
-			return BX.create('DIV', {props:{className: 'calendar-loader'},html: '<svg class="calendar-loader-circular"' +
-			style + ' viewBox="25 25 50 50">' +
-				'<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>' +
-				'<circle class="calendar-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>' +
+			return BX.create('DIV', {props:{className: 'calendar-loader'}, html: '<svg class="calendar-loader-circular"' +
+			(size ? 'style="width: '+ parseInt(size) +'px; height: '+ parseInt(size) +'px;"' : '') +
+			' viewBox="25 25 50 50">' +
+			'<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>' +
+			'<circle class="calendar-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>' +
 			'</svg>'});
 		},
 
@@ -1071,8 +1100,14 @@
 				if (_this.calendar.viewSlider && _this.calendar.viewSlider.isOpened()
 					|| _this.calendar.editSlider && _this.calendar.editSlider.isOpened())
 				{
-					popupWindow.params.zIndex = zIndex;
-					popupWindow.popupContainer.style.zIndex = zIndex;
+					if (popupWindow.params.zIndex && popupWindow.params.zIndex < zIndex
+						||
+						popupWindow.popupContainer.style.zIndex && zIndex < zIndex
+					)
+					{
+						popupWindow.params.zIndex = zIndex;
+						popupWindow.popupContainer.style.zIndex = zIndex;
+					}
 				}
 			});
 		},
@@ -1109,6 +1144,36 @@
 				b = parseInt(color.substring(4, 6), 16),
 				light = (r * 0.8 + g + b * 0.2) / 510 * 100;
 			return light < 50;
+		},
+
+		getAvilableViews: function()
+		{
+			return this.config.avilableViews || ['day','week','month','list'];
+		},
+
+		isMeetingsEnabled: function()
+		{
+			return this.config.bSocNet && this.config.bIntranet;
+		},
+
+		isAccessibilityEnabled: function()
+		{
+			return this.config.bSocNet && this.config.bIntranet;
+		},
+
+		isPrivateEventsEnabled: function()
+		{
+			return this.config.bSocNet && this.config.bIntranet;
+		},
+
+		useViewSlider: function()
+		{
+			return this.isMeetingsEnabled();
+		},
+
+		showEventDescriptionInSimplePopup: function()
+		{
+			return !this.isMeetingsEnabled();
 		}
 	};
 

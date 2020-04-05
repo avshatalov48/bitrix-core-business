@@ -7,14 +7,6 @@
 		this.requestedEntriesIndex = {};
 		this.entriesRaw = [];
 		this.loadedEntriesIndex = {};
-
-		var
-			initYear = parseInt(this.calendar.util.config.init_year),
-			initMonth = parseInt(this.calendar.util.config.init_month);
-
-		this.fillChunkIndex(new Date(initYear, initMonth - 2, 1), new Date(initYear, initMonth + 1, 0));
-
-		this.handleEntriesList(data.entries);
 	}
 
 	EntryController.prototype = {
@@ -48,14 +40,14 @@
 				{
 					if ((entriesRaw[i]['~TYPE'] == 'tasks' && !activeSectionIndex['tasks'])
 						||
-						(entriesRaw[i]['~TYPE'] != 'tasks' && !activeSectionIndex[parseInt(entriesRaw[i]['SECT_ID'])])
+						(entriesRaw[i]['~TYPE'] != 'tasks' && entriesRaw[i]['SECT_ID']
+						&& !activeSectionIndex[parseInt(entriesRaw[i]['SECT_ID'])])
 					)
 					{
 						continue;
 					}
 
 					entry = new Entry(this.calendar, entriesRaw[i]);
-
 					if (params.viewRange)
 					{
 						if (entry.applyViewRange(params.viewRange))
@@ -80,8 +72,11 @@
 
 			if ((action == 'edit' || action == 'delete') && !this.calendar.util.readOnlyMode())
 			{
-				if (entry.isMeeting() && entry.id !== entry.parentId)
+				if ((entry.isMeeting() && entry.id !== entry.parentId)
+				|| entry.isResourcebooking())
+				{
 					return false;
+				}
 
 				var section = this.calendar.sectionController.getSection(entry.sectionId);
 				return section && section.canDo && section.canDo('edit');
@@ -144,9 +139,44 @@
 				},
 				handler: BX.delegate(function(response)
 				{
-					this.handleEntriesList(response.entries);
-					this.calendar.getView().displayEntries();
-					//this.calendar.reload();
+					if (response.location_busy_warning)
+					{
+						alert(BX.message('EC_LOCATION_RESERVE_ERROR'));
+
+						this.handleEntriesList(response.entries);
+						this.calendar.getView().displayEntries();
+
+						var
+							reload = true,
+							entry = response.entries.find(function(el){return el.ID == response.id;});
+
+						if (entry)
+						{
+							var uid = this.getUniqueId(entry);
+							if (uid)
+							{
+								entry = this.calendar.getView().getEntryById(uid);
+								if (entry)
+								{
+									this.calendar.entryController.editEntry({
+										entry: entry,
+										tryLocation: data.location
+									});
+									reload = false;
+								}
+							}
+						}
+
+						if (reload)
+						{
+							this.calendar.reload();
+						}
+					}
+					else
+					{
+						this.handleEntriesList(response.entries);
+						this.calendar.getView().displayEntries();
+					}
 				}, this)
 			});
 		},
@@ -173,7 +203,6 @@
 			}
 
 			var attendees = [];
-
 			if (entry.isMeeting())
 				entry.data['~ATTENDEES'].forEach(function(user){attendees.push(user['USER_ID']);});
 
@@ -187,7 +216,7 @@
 					date_to: entry.isFullDay() ? this.calendar.util.formatDate(entry.to) : this.calendar.util.formatDateTime(entry.to),
 					skip_time: entry.isFullDay() ? 'Y' : 'N',
 					attendees: attendees,
-
+					location: entry.location || '',
 					recursive: entry.isRecursive() ? 'Y' : 'N',
 					is_meeting: entry.isMeeting() ? 'Y' : 'N',
 					section: entry.sectionId,
@@ -202,6 +231,11 @@
 						alert(BX.message('EC_BUSY_ALERT'));
 					}
 
+					if (response.location_busy_warning)
+					{
+						alert(BX.message('EC_LOCATION_RESERVE_ERROR'));
+					}
+
 					this.calendar.reload();
 				}, this)
 			});
@@ -212,7 +246,7 @@
 			if (!params)
 				params = {};
 
-			if (!entry || !entry.id || entry.isTask())
+			if (!this.calendar.entryController.canDo(entry, 'delete') || entry.isTask())
 				return false;
 
 			if (entry.wasEverRecursive() && !params.confirmed)
@@ -425,163 +459,115 @@
 		loadEntries: function (params)
 		{
 			// Show loader
-			if (this.calendar.mainCont)
+			if (this.calendar.currentViewName !== 'list')
 			{
-				if (this.entryLoaderNode)
-				{
-					BX.remove(this.entryLoaderNode);
-				}
-
-				this.entryLoaderNode = this.calendar.viewsCont.appendChild(BX.adjust(
-					this.calendar.util.getLoader(200), {
-						props: {className: 'calendar-entry-loader'}
-					}));
+				this.calendar.showLoader();
 			}
 
 			var sections = this.calendar.sectionController.getSectionsInfo();
 
-			this.calendar.request({
-				type: 'post',
-				data: {
-					action: 'load_entries',
-					month_from: params.startDate ? (params.startDate.getMonth() + 1) : '',
-					year_from: params.startDate ? params.startDate.getFullYear() : '',
-					month_to: params.finishDate ? params.finishDate.getMonth() + 1 : '',
-					year_to: params.finishDate ? params.finishDate.getFullYear() : '',
-					active_sect: sections.active,
-					hidden_sect: sections.hidden,
-					sup_sect: sections.superposed,
-					loadNext: params.loadNext ? 'Y' : 'N',
-					loadPrevious: params.loadPrevious ? 'Y' : 'N',
-					loadLimit: params.loadLimit || 0,
-					cal_dav_data_sync: this.calendar.reloadGoogle ? 'Y' : 'N'
-				},
-				handler: BX.delegate(function(response)
+			if (this.calendar.isExternalMode())
+			{
+				this.calendar.triggerEvent('loadEntries',
 				{
-					if (this.entryLoaderNode)
+					params: params,
+					onLoadCallback : BX.delegate(function(json)
 					{
-						BX.addClass(this.entryLoaderNode, 'hide');
-						setTimeout(BX.delegate(function(){BX.remove(this.entryLoaderNode);}, this), 300);
-					}
-					//var sectionsNow = this.calendar.sectionController.getSectionsInfo();
-					//if (!_this.CompareArrays(sections.superposed, sectionsNow.superposed) ||
-					//	!_this.CompareArrays(sections.active, sectionsNow.active) ||
-					//	!_this.CompareArrays(sections.hidden, sectionsNow.hidden)
-					//)
-					//{
-					//	return;
-					//}
-					//this.entriesRaw = response.entries;
+						this.calendar.hideLoader();
 
-					this.handleEntriesList(response.entries);
+						this.handleEntriesList(json.entries);
 
-					if (!params.finishDate && this.entriesRaw.length > 0)
-					{
-						var finishDate = this.entriesRaw[this.entriesRaw.length - 1].DATE_FROM;
-						finishDate = BX.parseDate(finishDate);
-						if (finishDate)
+						if (!params.finishDate && this.entriesRaw.length > 0)
 						{
-							finishDate.setFullYear(finishDate.getFullYear(), finishDate.getMonth(), 0);
-							params.finishDate = finishDate;
+							var finishDate = this.entriesRaw[this.entriesRaw.length - 1].DATE_FROM;
+							finishDate = BX.parseDate(finishDate);
+							if (finishDate)
+							{
+								finishDate.setFullYear(finishDate.getFullYear(), finishDate.getMonth(), 0);
+								params.finishDate = finishDate;
+							}
 						}
-					}
 
-					if (params.startDate && params.finishDate)
+						if (params.startDate && params.finishDate)
+						{
+							this.fillChunkIndex(params.startDate, params.finishDate, {
+								index: this.pulledEntriesIndex,
+								sections: sections.allActive
+							});
+						}
+
+						if (params.finishCallback && typeof params.finishCallback == 'function')
+						{
+							params.finishCallback(json);
+						}
+					}, this),
+					onErrorCallback : BX.delegate(function(error)
 					{
-						this.fillChunkIndex(params.startDate, params.finishDate, {
-							index: this.pulledEntriesIndex,
-							sections: sections.allActive
-						});
-					}
-
-					if (params.finishCallback && typeof params.finishCallback == 'function')
+						this.calendar.hideLoader();
+					}, this)
+				});
+			}
+			else
+			{
+				this.calendar.request({
+					type: 'post',
+					data: {
+						action: 'load_entries',
+						month_from: params.startDate ? (params.startDate.getMonth() + 1) : '',
+						year_from: params.startDate ? params.startDate.getFullYear() : '',
+						month_to: params.finishDate ? params.finishDate.getMonth() + 1 : '',
+						year_to: params.finishDate ? params.finishDate.getFullYear() : '',
+						active_sect: sections.active,
+						hidden_sect: sections.hidden,
+						sup_sect: sections.superposed,
+						loadNext: params.loadNext ? 'Y' : 'N',
+						loadPrevious: params.loadPrevious ? 'Y' : 'N',
+						loadLimit: params.loadLimit || 0,
+						cal_dav_data_sync: this.calendar.reloadGoogle ? 'Y' : 'N'
+					},
+					handler: BX.delegate(function(response)
 					{
-						params.finishCallback(response);
-					}
+						this.calendar.hideLoader();
+						//var sectionsNow = this.calendar.sectionController.getSectionsInfo();
+						//if (!_this.CompareArrays(sections.superposed, sectionsNow.superposed) ||
+						//	!_this.CompareArrays(sections.active, sectionsNow.active) ||
+						//	!_this.CompareArrays(sections.hidden, sectionsNow.hidden)
+						//)
+						//{
+						//	return;
+						//}
+						//this.entriesRaw = response.entries;
 
-					this.calendar.reloadGoogle = false;
-				}, this)
-			});
+						this.handleEntriesList(response.entries);
 
-			return;
+						if (!params.finishDate && this.entriesRaw.length > 0)
+						{
+							var finishDate = this.entriesRaw[this.entriesRaw.length - 1].DATE_FROM;
+							finishDate = BX.parseDate(finishDate);
+							if (finishDate)
+							{
+								finishDate.setFullYear(finishDate.getFullYear(), finishDate.getMonth(), 0);
+								params.finishDate = finishDate;
+							}
+						}
 
-			//if (m == undefined)
-			//	m = this.activeDate.month;
-			//if (y == undefined)
-			//	y = this.activeDate.year;
-			//if (params == undefined)
-			//	params = {};
-			//var
-			//	sect, ind,
-			//	_this = this,
-			//	sections = this.GetCurrentSections();
-			//var req = this.Request({
-			//	getData: this.GetReqData('load_events', {
-			//		month: parseInt(m, 10) + 1,
-			//		year: y,
-			//		active_sect: sections.active,
-			//		hidden_sect: sections.hidden,
-			//		sup_sect: sections.superposed,
-			//		cal_dav_data_sync: this.bSyncGoogle ? 'Y' : 'N'
-			//	}),
-			//	errorText: EC_MESS.LoadEventsErr,
-			//	handler: function(oRes)
-			//	{
-			//		var sectionsNow = _this.GetCurrentSections();
-			//
-			//		if (!_this.CompareArrays(sections.superposed, sectionsNow.superposed) ||
-			//			!_this.CompareArrays(sections.active, sectionsNow.active) ||
-			//			!_this.CompareArrays(sections.hidden, sectionsNow.hidden)
-			//		)
-			//		{
-			//			return;
-			//		}
-			//
-			//		if (_this.bCalDAV && _this.bSyncGoogle && oRes.connections && oRes.connections.length > 0)
-			//		{
-			//			_this.arConnections = oRes.connections;
-			//			for (ind in _this.arSections)
-			//			{
-			//				if (_this.arSections.hasOwnProperty(ind))
-			//				{
-			//					sect = _this.arSections[ind];
-			//					if (sect.CAL_DAV_CAL && sect.CAL_DAV_CON && sect.DOM.pStatus)
-			//					{
-			//						for (i in _this.arConnections)
-			//						{
-			//							if (_this.arConnections.hasOwnProperty(i) && _this.arConnections[i].id == sect.CAL_DAV_CON)
-			//							{
-			//								sect['~CAL_DAV_LAST_SYNC'] = _this.arConnections[i].last_result;
-			//								if (sect['~CAL_DAV_LAST_SYNC'].indexOf("[200]") >= 0)
-			//								{
-			//									sect.DOM.pStatus.className = 'bxec-spr bxec-cal-dav-google';
-			//									sect.DOM.pStatus.title = '';
-			//								}
-			//								else
-			//								{
-			//									sect.DOM.pStatus.className = 'bxec-spr bxec-cal-dav-google-fail';
-			//									sect.DOM.pStatus.title = EC_MESS.SyncError + ': ' + el['~CAL_DAV_LAST_SYNC'];
-			//								}
-			//								break;
-			//							}
-			//						}
-			//					}
-			//				}
-			//			}
-			//		}
-			//
-			//		_this.bSyncGoogle = false;
-			//		_this.HandleLoadedEvents({
-			//			events: oRes.events,
-			//			attendees: oRes.attendees,
-			//			month: m,
-			//			year: y,
-			//			Params: params
-			//		});
-			//	}
-			//});
+						if (params.startDate && params.finishDate)
+						{
+							this.fillChunkIndex(params.startDate, params.finishDate, {
+								index: this.pulledEntriesIndex,
+								sections: sections.allActive
+							});
+						}
 
-			this.loadEventsLastRequestId = req.reqId;
+						if (params.finishCallback && typeof params.finishCallback == 'function')
+						{
+							params.finishCallback(response);
+						}
+
+						this.calendar.reloadGoogle = false;
+					}, this)
+				});
+			}
 		},
 
 		handleEntriesList: function(entries)
@@ -771,17 +757,20 @@
 	{
 		this.calendar = calendar;
 		this.data = data;
+		this.id = data.ID || 0;
+
+		if (!this.data.DT_SKIP_TIME)
+		{
+			this.data.DT_SKIP_TIME = this.data.SKIP_TIME ? 'Y' : 'N';
+		}
 
 		this.fullDay = data.DT_SKIP_TIME == 'Y';
-		this.id = data.ID || 0;
 		this.parentId = data.PARENT_ID || 0;
 		this.textColor = data.TEXT_COLOR;
 		this.accessibility = data.ACCESSIBILITY;
 		this.important = data.IMPORTANCE == 'high';
 		this.private = !!data.PRIVATE_EVENT;
-
 		this.sectionId = this.isTask() ? 'tasks' : parseInt(data.SECT_ID);
-
 		this.name = data.NAME;
 		this.parts = [];
 
@@ -824,6 +813,15 @@
 	Entry.prototype = {
 		prepareData: function()
 		{
+			if (!this.data.DT_LENGTH)
+			{
+				this.data.DT_LENGTH = this.data.DURATION || 0;
+			}
+			if (this.fullDay && !this.data.DT_LENGTH)
+			{
+				this.data.DT_LENGTH = 86400;
+			}
+
 			if (this.isTask())
 			{
 				this.from = BX.parseDate(this.data.DATE_FROM) || new Date();
@@ -832,6 +830,11 @@
 			else
 			{
 				this.from = BX.parseDate(this.data.DATE_FROM) || new Date();
+				if (this.fullDay)
+				{
+					this.from.setHours(0, 0, 0, 0);
+				}
+
 				if (this.data.DT_SKIP_TIME !== "Y")
 				{
 					this.from = new Date(this.from.getTime() - (parseInt(this.data['~USER_OFFSET_FROM']) || 0) * 1000);
@@ -895,6 +898,17 @@
 			return this.calendar.sectionController.getSection(this.sectionId).name || '';
 		},
 
+		getDescription: function(callback)
+		{
+			if (this.data.DESCRIPTION && this.data['~DESCRIPTION'] && BX.type.isFunction(callback))
+			{
+				setTimeout(BX.delegate(function()
+				{
+					callback(this.data['~DESCRIPTION']);
+				}, this), 50);
+			}
+		},
+
 		applyViewRange: function(viewRange)
 		{
 			var
@@ -928,6 +942,11 @@
 		isMeeting: function()
 		{
 			return !!this.data.IS_MEETING;
+		},
+
+		isResourcebooking: function()
+		{
+			return this.data.EVENT_TYPE === '#resourcebooking#';
 		},
 
 		isTask: function()

@@ -1,5 +1,4 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arFieldsSorted = array(
 	"LOGIN",
@@ -191,7 +190,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 					$val = $sManagers;
 
 
-					$strCard .= '<div class="bx-user-info-data-name '.$strUserNameClass.'"><a href="'.($arResult["CurrentUser"] && !in_array($arResult["CurrentUser"]["EXTERNAL_AUTH_ID"], array('email')) ? $arTmpUser["DETAIL_URL"] : 'javascript:void(0);').'">'.$strNameFormatted.'</a></div>';
+					$strCard .= '<div class="'.$arResult["stylePrefix"].'-info-data-name '.$strUserNameClass.'"><a href="'.($arResult["CurrentUser"] && !in_array($arResult["CurrentUser"]["EXTERNAL_AUTH_ID"], array('email')) ? $arTmpUser["DETAIL_URL"] : 'javascript:void(0);').'">'.$strNameFormatted.'</a></div>';
 
 
 
@@ -375,12 +374,12 @@ if (in_array("PERSONAL_PHOTO", $arParams["SHOW_FIELDS"]))
 
 if (array_key_exists("PERSONAL_PHOTO", $arTmpUser) && strlen($arTmpUser["PERSONAL_PHOTO"]) > 0)
 {
-	$photoClass = "bx-user-info-data-photo";
+	$photoClass = $arResult["stylePrefix"]."-info-data-photo";
 	$strPhoto = $arTmpUser["PERSONAL_PHOTO"];
 }
 else
 {
-	$photoClass = "bx-user-info-data-photo no-photo";
+	$photoClass = $arResult["stylePrefix"]."-info-data-photo no-photo";
 	$strPhoto = "";
 }
 
@@ -403,15 +402,15 @@ if (IsModuleInstalled('extranet') || IsModuleInstalled('mail'))
 
 	if ($bCrmEmailUser)
 	{
-		$strUserNameClass = " bx-user-info-emailcrm";
+		$strUserNameClass = " ".$arResult["stylePrefix"]."-info-emailcrm";
 	}
 	elseif ($bEmailUser)
 	{
-		$strUserNameClass = " bx-user-info-email";
+		$strUserNameClass = " ".$arResult["stylePrefix"]."-info-email";
 	}
 	elseif ($bExtranetUser)
 	{
-		$strUserNameClass = " bx-user-info-extranet";
+		$strUserNameClass = " ".$arResult["stylePrefix"]."-info-extranet";
 	}
 	else
 	{
@@ -423,14 +422,14 @@ $strNameFormatted = CUser::FormatName($arParams['NAME_TEMPLATE'], $arTmpUser, $b
 
 $strPhoto = '<a href="'.$arTmpUser["DETAIL_URL"].'" class="'.$photoClass.'">'.$strPhoto.'</a>';
 
-$data_cont_class = ($GLOBALS["USER"]->IsAuthorized() && $arResult["CurrentUserPerms"]["Operations"]["videocall"] ? "bx-user-info-data-cont-video" : "bx-user-info-data-cont");
+$data_cont_class = ($GLOBALS["USER"]->IsAuthorized() && $arResult["CurrentUserPerms"]["Operations"]["videocall"] ? $arResult["stylePrefix"]."-info-data-cont-video" : $arResult["stylePrefix"]."-info-data-cont");
 
 $strCard = '<div class="'.$data_cont_class.'" id="bx_user_info_data_cont_'.$arTmpUser["ID"].'">';
 
-$strCard .= '<div class="bx-user-info-data-name '.$strUserNameClass.'"><a href="'.($arResult["CurrentUser"] && !in_array($arResult["CurrentUser"]["EXTERNAL_AUTH_ID"], array('email')) ? $arTmpUser["DETAIL_URL"] : 'javascript:void(0);').'">'.$strNameFormatted.'</a></div>';
+$strCard .= '<div class="'.$arResult["stylePrefix"].'-info-data-name '.$strUserNameClass.'"><a href="'.($arResult["CurrentUser"] && !in_array($arResult["CurrentUser"]["EXTERNAL_AUTH_ID"], array('email')) ? $arTmpUser["DETAIL_URL"] : 'javascript:void(0);').'">'.$strNameFormatted.'</a></div>';
 
-$strCard .= ($bExtranetUser ? '<div class="bx-user-info-extranet-description">'.GetMessage("MAIN_UL_EXTRANET_USER").'</div>' : '');
-$strCard .= '<div class="bx-user-info-data-info">'.$strUserFields.$strTmpUserRatings.'</div>';
+$strCard .= ($bExtranetUser ? '<div class="'.$arResult["stylePrefix"].'-info-extranet-description">'.GetMessage("MAIN_UL_EXTRANET_USER").'</div>' : '');
+$strCard .= '<div class="'.$arResult["stylePrefix"].'-info-data-info">'.$strUserFields.$strTmpUserRatings.'</div>';
 $strCard .= '</div>';
 
 static $includedOnce = false;

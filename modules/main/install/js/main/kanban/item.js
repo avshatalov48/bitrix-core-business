@@ -499,50 +499,6 @@ BX.Kanban.DraftItem = function(options)
 	this.draftTextArea = null;
 };
 
-/**
- *
- * @param {BX.Kanban.Column} column
- * @param {BX.Kanban.Item} [targetItem]
- * @returns {BX.Kanban.DraftItem|null}
- * @static
- */
-BX.Kanban.DraftItem.addToColumn = function(column, targetItem)
-{
-	if (!(column instanceof BX.Kanban.Column))
-	{
-		return null;
-	}
-
-	var id = "kanban-new-item-" + column.getId();
-	if (column.getGrid().getItem(id))
-	{
-		return null;
-	}
-
-	var targetId = null;
-	if (targetItem instanceof BX.Kanban.Item && targetItem.getColumn() === column)
-	{
-		targetId = targetItem;
-	}
-
-	var newItem = column.getGrid().addItem({
-		id: id,
-		type: "BX.Kanban.DraftItem",
-		columnId: column.getId(),
-		draggable: false,
-		droppable: false,
-		countable: false,
-		targetId: targetId
-	});
-
-	if (newItem)
-	{
-		newItem.focusDraftTextArea();
-	}
-
-	return newItem;
-};
-
 BX.Kanban.DraftItem.prototype = {
 	__proto__: BX.Kanban.Item.prototype,
 	constructor: BX.Kanban.DraftItem,
@@ -656,8 +612,15 @@ BX.Kanban.DraftItem.prototype = {
 		var newItem = this.getGrid().addItem(result);
 		if (newItem && this.getGrid().getDragMode() === BX.Kanban.DragMode.NONE)
 		{
-			var nextItem = newItem.getColumn().getNextItemSibling(newItem);
-			BX.Kanban.DraftItem.addToColumn(newItem.getColumn(), nextItem);
+			var draftItemExists = this.getGrid().getColumns().some(function(column) {
+				return column.getDraftItem() !== null;
+			});
+
+			if (!draftItemExists)
+			{
+				var nextItem = newItem.getColumn().getNextItemSibling(newItem);
+				newItem.getColumn().addDraftItem(nextItem);
+			}
 		}
 	},
 
@@ -670,7 +633,7 @@ BX.Kanban.DraftItem.prototype = {
 	{
 		this.asyncEventStarted = true;
 		BX.removeCustomEvent(this.getGrid(), "Kanban.Grid:onItemDragStart", BX.proxy(this.applyDraftEditMode, this));
-		this.getGrid().removeItem(this);
+		this.getColumn().removeDraftItem();
 	},
 
 	focusDraftTextArea: function()

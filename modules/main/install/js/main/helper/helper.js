@@ -68,6 +68,7 @@ BX.Helper =
 
 			if(event.data.action === "SetCounter")
 			{
+				BX.Helper.setNotification(event.data.num);
 				BX.Helper.showNotification(event.data.num);
 			}
 
@@ -83,7 +84,7 @@ BX.Helper =
 
 			if(event.data.action === "getMenuStructure")
 			{
-				if (typeof BX.Bitrix24.LeftMenuClass === "object")
+				if (BX.getClass("BX.Bitrix24.LeftMenuClass"))
 				{
 					if (typeof BX.Bitrix24.LeftMenuClass.getStructureForHelper === "function")
 					{
@@ -277,8 +278,6 @@ BX.Helper =
 			numBlock = "";
 		}
 		this.notifyBlock.innerHTML = numBlock;
-
-		this.setNotification(num);
 		this.notifyNum = num;
 	},
 
@@ -334,6 +333,7 @@ BX.Helper =
 			{
 				if (!isNaN(res.num))
 				{
+					this.setNotification(res.num);
 					this.showNotification(res.num);
 
 					if (res.id)

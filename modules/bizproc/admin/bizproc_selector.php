@@ -149,10 +149,8 @@ function BPSHideShow(id)
 			<select id="BPSId1S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
 				<?foreach($arWorkflowParameters as $fieldId => $documentField):?>
 					<?if($arFilter===false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
-						if($_POST['fieldType']!='user' && $_POST['fieldType']!='file' && in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], array('user', 'file')))
-							$fieldId .= '_printable';
-						elseif ($_POST['fieldType']=='string' || $_POST['fieldType']=='text')
-							$fieldId .= '_printable';
+						if ($_POST['fieldType']=='text')
+							$fieldId .= ' > printable';
 						?>
 						<option value="{=<?=htmlspecialcharsbx($arWorkflowTemplate[0]['Name'])?>:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
 					<?endif?>
@@ -170,10 +168,8 @@ function BPSHideShow(id)
 			<select id="BPSId3S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
 				<?foreach($arWorkflowVariables as $fieldId => $documentField):?>
 					<?if($arFilter===false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
-						if($_POST['fieldType']!='user' && $_POST['fieldType']!='file' && in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], array('user', 'file')))
-							$fieldId .= '_printable';
-						elseif ($_POST['fieldType']=='string' || $_POST['fieldType']=='text')
-							$fieldId .= '_printable';
+						if ($_POST['fieldType']=='text')
+							$fieldId .= ' > printable';
 						?>
 						<option value="{=Variable:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
 					<?endif?>
@@ -191,10 +187,8 @@ function BPSHideShow(id)
 			<select id="BPSId6S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
 				<?foreach($arWorkflowConstants as $fieldId => $documentField):?>
 					<?if($arFilter===false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
-						if($_POST['fieldType']!='user' && $_POST['fieldType']!='file' && in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], array('user', 'file')))
-							$fieldId .= '_printable';
-						elseif ($_POST['fieldType']=='string' || $_POST['fieldType']=='text')
-							$fieldId .= '_printable';
+						if ($_POST['fieldType']=='text')
+							$fieldId .= ' > printable';
 						?>
 						<option value="{=Constant:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
 					<?endif?>

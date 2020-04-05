@@ -8,7 +8,8 @@ Asset::getInstance()->addCss("/bitrix/themes/.default/calendar.css");
 Asset::getInstance()->addJs('/bitrix/js/main/utils.js');
 Asset::getInstance()->addJs('/bitrix/js/main/popup_menu.js');
 Asset::getInstance()->addJs('/bitrix/js/main/admin_tools.js');
-CUtil::InitJSCore(["window", "ajax", 'bp_selector', 'clipboard']);
+\Bitrix\Main\Loader::includeModule('rest');
+CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace']);
 Asset::getInstance()->addJs('/bitrix/js/main/public_tools.js');
 Asset::getInstance()->addJs('/bitrix/js/bizproc/bizproc.js');
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/admin_lib.php");
@@ -105,6 +106,7 @@ function BCPProcessImport()
 
 			if (_form)
 			{
+				window.BPTemplateIsModified = false;
 				_name.value = workflowTemplateName;
 				_descr.value = workflowTemplateDescription;
 				_auto.value = encodeURIComponent(workflowTemplateAutostart);
@@ -334,50 +336,6 @@ window.onbeforeunload = function()
 {
 	return BPTemplateIsModified ? '<?=GetMessageJS('BIZPROC_WFEDIT_BEFOREUNLOAD')?>' : null;
 };
-
-function BPImportToClipboard()
-{
-	var dataString = JSON.stringify({
-		template: rootActivity.Serialize(),
-		parameters: arWorkflowParameters,
-		variables: arWorkflowVariables,
-		constants: arWorkflowConstants
-	});
-
-	BX.clipboard.copy(encodeURIComponent(dataString));
-}
-
-function BPExportFromString(rawString)
-{
-	try
-	{
-		var data = JSON.parse(decodeURIComponent(rawString));
-	}
-	catch (e)
-	{
-		data = {}
-	}
-
-	if (data.parameters && BX.type.isPlainObject(data.parameters))
-	{
-		arWorkflowParameters = data.parameters;
-	}
-	if (data.variables && BX.type.isPlainObject(data.variables))
-	{
-		arWorkflowVariables = data.variables;
-	}
-	if (data.constants && BX.type.isPlainObject(data.constants))
-	{
-		arWorkflowConstants = data.constants;
-	}
-
-	if (data.template && BX.type.isPlainObject(data.template))
-	{
-		arWorkflowTemplate = data.template;
-		ReDraw();
-	}
-}
-
 </script>
 
 <? if (!$arResult['TEMPLATE_CHECK_STATUS']):

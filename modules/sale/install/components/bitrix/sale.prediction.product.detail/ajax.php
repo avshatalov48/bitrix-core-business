@@ -1,4 +1,7 @@
 <?php
+define('STOP_STATISTICS', true);
+define('PUBLIC_AJAX_MODE', true);
+define('NOT_CHECK_PERMISSIONS', true);
 
 if (empty($_POST['parameters']))
 {

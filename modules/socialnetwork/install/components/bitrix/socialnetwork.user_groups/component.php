@@ -207,6 +207,23 @@ if ($arResult["USE_UI_FILTER"])
 			));
 		}
 
+		if (
+			isset($filterData['OWNER'])
+			&& !empty($filterData['OWNER'])
+			&& preg_match('/^U(\d+)$/is', $filterData['OWNER'], $matches)
+			&& !empty($matches[1])
+			&& intval($matches[1]) > 0
+		)
+		{
+			$filtered = true;
+			$arResult["filter_owner"] = intval($matches[1]);
+
+			\Bitrix\Main\FinderDestTable::merge(array(
+				"CONTEXT" => "SONET_GROUP_LIST_FILTER_OWNER",
+				"CODE" => $filterData['OWNER']
+			));
+		}
+
 		if (isset($filterData['EXTRANET']))
 		{
 			$arResult["filter_extranet"] = $filterData['EXTRANET'];
@@ -794,6 +811,25 @@ if (StrLen($arResult["FatalError"]) <= 0)
 				{
 					$arUserGroupFilter["USER_ID"] = $arResult["filter_member"];
 					$arUserGroupFilter["<=ROLE"] = UserToGroupTable::ROLE_USER;
+				}
+			}
+
+			if (
+				isset($arResult["filter_owner"])
+				&& $arResult["filter_owner"] > 0
+			)
+			{
+				if (!empty($arUserGroupFilter["USER_ID"]))
+				{
+					$arUserGroupFilter2 = array(
+						"USER_ID" => $arResult["filter_owner"],
+						"<=ROLE" => UserToGroupTable::ROLE_OWNER
+					);
+				}
+				else
+				{
+					$arUserGroupFilter["USER_ID"] = $arResult["filter_owner"];
+					$arUserGroupFilter["<=ROLE"] = UserToGroupTable::ROLE_OWNER;
 				}
 			}
 

@@ -98,7 +98,7 @@ BX.Bizproc.UserSelector = (function(BX)
 				name: this.id,
 				showSearchInput: true,
 				bindMainPopup: {node: this.bindTo, offsetTop: '5px', offsetLeft: '15px'},
-				departmentSelectDisable: true,
+				departmentSelectDisable: false,
 				sendAjaxSearch: true,
 				allowAddUser: false,
 				extranetUser:  false,
@@ -115,8 +115,15 @@ BX.Bizproc.UserSelector = (function(BX)
 						{
 							return;
 						}
+
+						var id = item['id'];
+						if (id.indexOf('U') === 0)
+							id = id.substr(1);
+						if (id.indexOf('IU') === 0)
+							id = id.substr(2);
+
 						var user = {
-							id: parseInt(item['entityId']),
+							id: id,
 							name: BX.util.htmlspecialcharsback(item['name']),
 							title: BX.util.htmlspecialcharsback(item['desc']),
 							photo: item['avatar']

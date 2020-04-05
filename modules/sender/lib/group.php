@@ -9,6 +9,8 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type;
+use Bitrix\Sender\Internals\Model\GroupCounterTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -33,15 +35,48 @@ class GroupTable extends Entity\DataManager
 				'primary' => true,
 				'autocomplete' => true,
 			),
+			'CODE' => array(
+				'data_type' => 'string',
+				'validation' => function ()
+				{
+					return array(
+						//new Entity\Validator\Unique
+					);
+				}
+			),
 			'NAME' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'title' => Loc::getMessage('SENDER_ENTITY_GROUP_FIELD_TITLE_NAME')
 			),
+			'DATE_INSERT' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'default_value' => new Type\DateTime(),
+			),
+			'DATE_USE' => array(
+				'data_type' => 'datetime',
+			),
+			'DATE_USE_EXCLUDE' => array(
+				'data_type' => 'datetime',
+			),
 			'ACTIVE' => array(
-				'data_type' => 'string',
+				'data_type' => 'boolean',
 				'required' => true,
 				'default_value' => 'Y',
+				'values' => array('N', 'Y'),
+			),
+			'HIDDEN' => array(
+				'data_type' => 'boolean',
+				'required' => true,
+				'default_value' => 'N',
+				'values' => array('N', 'Y'),
+			),
+			'SYSTEM' => array(
+				'data_type' => 'boolean',
+				'required' => true,
+				'default_value' => 'N',
+				'values' => array('N', 'Y'),
 			),
 			'DESCRIPTION' => array(
 				'data_type' => 'string',
@@ -57,6 +92,17 @@ class GroupTable extends Entity\DataManager
 			'ADDRESS_COUNT' => array(
 				'data_type' => 'integer',
 				'default_value' => 0,
+				'required' => true,
+			),
+			'USE_COUNT' => array(
+				'data_type' => 'integer',
+				'default_value' => 0,
+				'required' => true,
+			),
+			'USE_COUNT_EXCLUDE' => array(
+				'data_type' => 'integer',
+				'default_value' => 0,
+				'required' => true,
 			),
 			'GROUP_CONNECTOR' => array(
 				'data_type' => 'Bitrix\Sender\GroupConnectorTable',
@@ -92,6 +138,7 @@ class GroupTable extends Entity\DataManager
 
 		$primary = array('GROUP_ID' => $data['primary']['ID']);
 		GroupConnectorTable::delete($primary);
+		GroupCounterTable::delete($primary);
 
 		return $result;
 	}

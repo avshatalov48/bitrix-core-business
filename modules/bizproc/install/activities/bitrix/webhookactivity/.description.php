@@ -11,7 +11,6 @@ $arActivityDescription = array(
 		"ID" => "other",
 	),
 	"ROBOT_SETTINGS" => array(
-		'CATEGORY' => 'other',
-		"IS_AUTO" => true,
+		'CATEGORY' => 'other'
 	),
 );

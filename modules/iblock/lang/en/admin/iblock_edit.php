@@ -100,7 +100,6 @@ $MESS["IB_E_FIELD_PICTURE_WIDTH"] = "Maximum width";
 $MESS["IB_E_FIELD_PICTURE_HEIGHT"] = "Maximum height";
 $MESS["IB_E_FIELD_PICTURE_IGNORE_ERRORS"] = "Ignore scaling error.";
 $MESS["IB_E_FIELD_PICTURE_METHOD"] = "Preserve quality when scaling (may require more server resources)";
-$MESS["IB_E_FIELD_PICTURE_COMPRESSION"] = "Quality (JPEG only, 1-100, about 75 by default)";
 $MESS["IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT"] = "Apply watermark as text";
 $MESS["IB_E_FIELD_PICTURE_WATERMARK_TEXT"] = "Watermark text";
 $MESS["IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT"] = "Font file:";
@@ -270,4 +269,5 @@ $MESS["IBLOCK_BACK_TO_ADMIN"] = "Back to information block list";
 $MESS["IB_E_CANONICAL_PAGE_URL"] = "Element canonical URL:<br>(specify the protocol, server address and path)";
 $MESS["IB_E_FIELD_IBLOCK_SECTION_KEEP_IBLOCK_SECTION_ID"] = "Enable to select main section for binding.";
 $MESS["IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE"] = "Allow to switch editing mode (text/html)";
+$MESS["IB_E_FIELD_PICTURE_COMPRESSION_EXT"] = "Quality (JPEG only; from 1 to 100; #DEFAULT_VALUE# by default)";
 ?>

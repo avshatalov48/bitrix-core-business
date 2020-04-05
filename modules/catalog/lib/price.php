@@ -72,7 +72,7 @@ class PriceTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('PRICE_ENTITY_CURRENCY_FIELD')
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('PRICE_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'QUANTITY_FROM' => new Main\Entity\IntegerField('QUANTITY_FROM', array(
@@ -129,5 +129,26 @@ class PriceTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 40),
 		);
+	}
+
+	/**
+	 * Delete all rows for product.
+	 * @internal
+	 *
+	 * @param int $id       Product id.
+	 * @return void
+	 */
+	public static function deleteByProduct($id)
+	{
+		$id = (int)$id;
+		if ($id <= 0)
+			return;
+
+		$conn = Main\Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from '.$helper->quote(self::getTableName()).' where '.$helper->quote('PRODUCT_ID').' = '.$id
+		);
+		unset($helper, $conn);
 	}
 }

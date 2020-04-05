@@ -806,14 +806,14 @@ if(
 			}
 
 			$arDocumentStates = null;
-			if($arElement["NAME"])
+			/*if($arElement["NAME"])
 			{
 				CBPDocument::AddDocumentToHistory(
 					BizProcDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], $arResult["ELEMENT_ID"]),
 					$arElement["NAME"],
 					$GLOBALS["USER"]->GetID()
 				);
-			}
+			}*/
 		}
 
 		if(!$strError)

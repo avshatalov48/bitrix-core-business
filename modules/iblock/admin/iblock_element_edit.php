@@ -1043,7 +1043,11 @@ do{ //one iteration loop
 						{
 							if ($arShowTabs['sku'])
 							{
-								$arFilter = array('IBLOCK_ID' => $arMainCatalog['IBLOCK_ID'],'=PROPERTY_'.$arMainCatalog['SKU_PROPERTY_ID'] => '-'.$str_TMP_ID);
+								Catalog\Product\Sku::enableDeferredCalculation();
+								$arFilter = array(
+									'IBLOCK_ID' => $arMainCatalog['IBLOCK_ID'],
+									'=PROPERTY_'.$arMainCatalog['SKU_PROPERTY_ID'] => '-'.$str_TMP_ID
+								);
 								$rsOffersItems = CIBlockElement::GetList(
 									array(),
 									$arFilter,
@@ -1060,6 +1064,11 @@ do{ //one iteration loop
 										$arMainCatalog['SKU_PROPERTY_ID']
 									);
 								}
+								unset($arOfferItem, $rsOffersItems, $arFilter);
+
+								Catalog\Product\Sku::disableDeferredCalculation();
+								Catalog\Product\Sku::calculate();
+
 								$boolFlagClear = CIBlockOffersTmp::Delete($str_TMP_ID);
 								$boolFlagClearAll = CIBlockOffersTmp::DeleteOldID($IBLOCK_ID);
 							}
@@ -1087,10 +1096,6 @@ do{ //one iteration loop
 						if ($arShowTabs['catalog'])
 						{
 							include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/admin/templates/product_edit_action.php");
-						}
-						elseif ($arShowTabs['sku'])
-						{
-							CPrice::DeleteByProduct($arCatalogItem['PRODUCT_ID']);
 						}
 						if ($arShowTabs['product_set'])
 						{

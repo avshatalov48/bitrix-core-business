@@ -39,6 +39,7 @@ if ($server->getRequestMethod() == "POST"
 		'NAME' => $request->get('NAME'),
 		'HANDLER' => $request->getPost('HANDLER'),
 		'OFD' => $request->getPost('OFD'),
+		'EMAIL' => $request->getPost('EMAIL'),
 		'NUMBER_KKM' => $request->getPost('NUMBER_KKM'),
 		'KKM_ID' => $request->get('KKM_ID') ?: '',
 		'ACTIVE' => ($request->get('ACTIVE') == 'Y') ? 'Y' : 'N',
@@ -62,13 +63,16 @@ if ($server->getRequestMethod() == "POST"
 		}
 	}
 
-	$cashbox['SETTINGS'] = $handler::extractSettingsFromRequest($request);
-
-	$result = $handler::validateFields($cashbox);
-	if (!$result->isSuccess())
+	if (class_exists($handler))
 	{
-		foreach ($result->getErrors() as $error)
-			$errorMessage .= $error->getMessage()."<br>\n";
+		$cashbox['SETTINGS'] = $handler::extractSettingsFromRequest($request);
+
+		$result = $handler::validateFields($cashbox);
+		if (!$result->isSuccess())
+		{
+			foreach ($result->getErrors() as $error)
+				$errorMessage .= $error->getMessage()."<br>\n";
+		}
 	}
 
 	/** @var Cashbox\Ofd $ofd */
@@ -348,6 +352,27 @@ $tabControl->EndCustomField('NUMBER_KKM', '');
 
 $isOffline = isset($cashbox['USE_OFFLINE']) ? $cashbox['USE_OFFLINE'] : 'N';
 $tabControl->AddCheckBoxField("USE_OFFLINE", GetMessage("SALE_CASHBOX_USE_OFFLINE").':', false, 'Y', $isOffline === 'Y');
+
+$tabControl->BeginCustomField('EMAIL', GetMessage("SALE_CASHBOX_EMAIL"));
+$email = $request->get('EMAIL') ? $request->get('EMAIL') : $cashbox['EMAIL'];
+?>
+	<tr id="tr_EMAIL">
+		<td width="40%">
+			<span class="adm-required-field">
+				<?=Loc::getMessage("SALE_CASHBOX_EMAIL");?>:
+			</span>
+		</td>
+		<td width="60%">
+			<input type="text" ID="EMAIL" name="EMAIL" value="<?=htmlspecialcharsbx($email);?>">
+			<span id="hint_EMAIL"></span>
+
+		</td>
+	</tr>
+	<script>
+		BX.hint_replace(BX('hint_EMAIL'), '<?=Loc::getMessage('SALE_CASHBOX_EMAIL_HINT');?>');
+	</script>
+<?
+$tabControl->EndCustomField('EMAIL');
 
 if ($restrictionsHtml !== ''):
 	$tabControl->BeginNextFormTab();

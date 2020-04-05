@@ -2442,6 +2442,9 @@ class CIBlockCMLImport
 			);
 			while($arParent = $rsParents->Fetch())
 			{
+				if (!$arParent["RIGHT_MARGIN"])
+					continue;
+
 				$counter["CRC"]++;
 
 				$arXMLElement = $this->_xml_file->GetAllChildrenArray($arParent);
@@ -3793,7 +3796,25 @@ class CIBlockCMLImport
 				$arProduct["VAT_INCLUDED"] = $TAX_IN_SUM;
 			}
 
-			CCatalogProduct::Add($arProduct);
+			if (CCatalogProduct::Add($arProduct))
+			{
+				//TODO: replace this code after upload measure ratio from 1C
+				$iterator = \Bitrix\Catalog\MeasureRatioTable::getList(array(
+					'select' => array('ID'),
+					'filter' => array('=PRODUCT_ID' => $arElement['ID'])
+				));
+				$ratioRow = $iterator->fetch();
+				if (empty($ratioRow))
+				{
+					$ratioResult = \Bitrix\Catalog\MeasureRatioTable::add(array(
+						'PRODUCT_ID' => $arElement['ID'],
+						'RATIO' => 1,
+						'IS_DEFAULT' => 'Y'
+					));
+					unset($ratioResult);
+				}
+				unset($ratioRow, $iterator);
+			}
 
 			if(isset($arElement["PRICES"]))
 				$this->SetProductPrice($arElement["ID"], $arElement["PRICES"], $arElement["DISCOUNTS"]);
@@ -4134,7 +4155,25 @@ class CIBlockCMLImport
 
 				$arProduct["VAT_INCLUDED"] = $TAX_IN_SUM;
 
-				CCatalogProduct::Add($arProduct);
+				if (CCatalogProduct::Add($arProduct))
+				{
+					//TODO: replace this code after upload measure ratio from 1C
+					$iterator = \Bitrix\Catalog\MeasureRatioTable::getList(array(
+						'select' => array('ID'),
+						'filter' => array('=PRODUCT_ID' => $arElement['ID'])
+					));
+					$ratioRow = $iterator->fetch();
+					if (empty($ratioRow))
+					{
+						$ratioResult = \Bitrix\Catalog\MeasureRatioTable::add(array(
+							'PRODUCT_ID' => $arElement['ID'],
+							'RATIO' => 1,
+							'IS_DEFAULT' => 'Y'
+						));
+						unset($ratioResult);
+					}
+					unset($ratioRow, $iterator);
+				}
 
 				$this->SetProductPrice($arElement["ID"], $arElement["PRICES"], $arElement["DISCOUNTS"]);
 				\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($IBLOCK_ID, $arElement["ID"]);
@@ -4147,8 +4186,7 @@ class CIBlockCMLImport
 			)
 			{
 				CCatalogProduct::Update($arElement["ID"], array(
-					"QUANTITY" => array_sum($arElement["STORE_AMOUNT"]) - $arElementTmp["QUANTITY_RESERVED"],
-					"SUBSCRIBE" => $arElementTmp["SUBSCRIBE_ORIG"]	// TODO: remove hack for subscribe after refactoring CCatalogProduct::Update
+					"QUANTITY" => array_sum($arElement["STORE_AMOUNT"]) - $arElementTmp["QUANTITY_RESERVED"]
 				));
 			}
 			elseif(
@@ -4158,8 +4196,7 @@ class CIBlockCMLImport
 			)
 			{
 				CCatalogProduct::Update($arElement["ID"], array(
-					"QUANTITY" => $arElement["QUANTITY"] - $arElementTmp["QUANTITY_RESERVED"],
-					"SUBSCRIBE" => $arElementTmp["SUBSCRIBE_ORIG"]	// TODO: remove hack for subscribe after refactoring CCatalogProduct::Update
+					"QUANTITY" => $arElement["QUANTITY"] - $arElementTmp["QUANTITY_RESERVED"]
 				));
 			}
 		}
@@ -4551,7 +4588,11 @@ class CIBlockCMLImport
 		}
 
 		if($arSection["ID"])
+		{
+			$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($this->next_step["IBLOCK_ID"], $arSection["ID"]);
+			$ipropValues->clearValues();
 			$this->_xml_file->Add(array("PARENT_ID" => 0, "LEFT_MARGIN" => $arSection["ID"]));
+		}
 
 		if($XML_SECTIONS_PARENT)
 		{

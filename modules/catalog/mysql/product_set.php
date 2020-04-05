@@ -608,6 +608,8 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		$query = "update b_catalog_product set ".$update." where ID = ".$productID;
 		$DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
 
+		Catalog\SubscribeTable::onProductSetAvailableUpdate($productID, $fields);
+
 		foreach (GetModuleEvents('catalog', 'OnProductSetAvailableUpdate', true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($productID, $fields));
 

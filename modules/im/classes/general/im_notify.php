@@ -539,10 +539,7 @@ class CIMNotify
 					'list' => array_keys($messages),
 					'counter' => (int)self::GetCounter($chatId)
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 
 			\Bitrix\Pull\MobileCounter::send($this->user_id, $appId);
@@ -577,7 +574,7 @@ class CIMNotify
 			FROM b_im_message M
 			LEFT JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID
 			WHERE 
-				M.NOTIFY_SUB_TAG IN (".implode(",", array_map(function($subTag) { return "'".$subTag."'";}, $subTagList)).") 
+				M.NOTIFY_SUB_TAG IN (".implode(",", array_map(function($subTag) { global $DB; return "'".$DB->ForSQL($subTag)."'";}, $subTagList)).") 
 				AND M.NOTIFY_READ='N' 
 				AND M.NOTIFY_TYPE != '".IM_NOTIFY_CONFIRM."'";
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -616,10 +613,7 @@ class CIMNotify
 							'list' => array_values($messagesList),
 							'counter' => (int)$counters[$chatId]
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
 			}
@@ -717,10 +711,7 @@ class CIMNotify
 					'list' => array_keys($messages),
 					'counter' => (int)self::GetCounter($chatId)
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 
 			\Bitrix\Pull\MobileCounter::send($this->user_id, $appId);
@@ -858,10 +849,7 @@ class CIMNotify
 					'confirmMessages' => $resultMessages,
 					'counter' => (int)self::GetCounter($arRes['CHAT_ID']),
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -965,10 +953,7 @@ class CIMNotify
 				'params' => Array(
 					'id' => Array($ID => $arRes['NOTIFY_TYPE'])
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1044,10 +1029,7 @@ class CIMNotify
 				'params' => Array(
 					'id' => $messages
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1115,10 +1097,7 @@ class CIMNotify
 							'confirmMessages' => $resultMessages,
 							'counter' => (int)$counters[$messages[$messageId]['USER_ID']],
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
 			}
@@ -1179,10 +1158,7 @@ class CIMNotify
 				'params' => Array(
 					'id' => $messages
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

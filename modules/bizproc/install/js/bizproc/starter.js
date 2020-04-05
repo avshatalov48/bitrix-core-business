@@ -145,6 +145,7 @@
 					buttonNode,
 					menuItems,
 					{
+						closeByEsc: true,
 						zIndex: 200,
 						autoHide: true
 					}
@@ -226,6 +227,17 @@
 				var formDecorator = new ParametersFormDecorator(form);
 				formDecorator.init();
 
+				var startButton = new BX.PopupWindowButton({
+					text      :  BX.message('BIZPROC_JS_BP_STARTER_START'),
+					className : 'popup-window-button-accept',
+					events    : {
+						click : function(e)
+						{
+							BX.fireEvent(form, 'submit');
+						}
+					}
+				});
+
 				popup = new BX.PopupWindow("bp-starter-parameters-popup-" + me.id, null, {
 					content: wrapper,
 					width: 600,
@@ -240,17 +252,7 @@
 						}
 					},
 					buttons: [
-						new BX.PopupWindowButton({
-							text      :  BX.message('BIZPROC_JS_BP_STARTER_START'),
-							className : 'popup-window-button-accept',
-							events    : {
-								click : function(e)
-								{
-									BX.fireEvent(form, 'submit');
-								}
-							}
-						}),
-
+						startButton,
 						new BX.PopupWindowButtonLink({
 							text      :  BX.message('BIZPROC_JS_BP_STARTER_CANCEL'),
 							className : 'popup-window-button-link-cancel',
@@ -267,10 +269,16 @@
 				BX.bind(form, 'submit', function(e)
 				{
 					e.preventDefault();
-					me.submitParametersForm(form, function(data)
+
+					startButton.addClassName('popup-window-button-wait');
+					me.submitParametersForm(form, function(response)
 					{
-						popup.close();
-						Manager.fireEvent(me, 'onAfterStartWorkflow', data);
+						startButton.removeClassName('popup-window-button-wait');
+						if (response.success)
+						{
+							popup.close();
+							Manager.fireEvent(me, 'onAfterStartWorkflow', response.data);
+						}
 					});
 				});
 
@@ -305,6 +313,17 @@
 				var formDecorator = new ParametersFormDecorator(form);
 				formDecorator.init();
 
+				var startButton = new BX.PopupWindowButton({
+					text      :  BX.message('BIZPROC_JS_BP_STARTER_SAVE'),
+					className : 'popup-window-button-accept',
+					events    : {
+						click : function(e)
+						{
+							BX.fireEvent(form, 'submit');
+						}
+					}
+				});
+
 				var popup = new BX.PopupWindow("bp-starter-parameters-popup-" + me.id, null, {
 					content: wrapper,
 					width: 600,
@@ -319,17 +338,7 @@
 						}
 					},
 					buttons: [
-						new BX.PopupWindowButton({
-							text      :  BX.message('BIZPROC_JS_BP_STARTER_SAVE'),
-							className : 'popup-window-button-accept',
-							events    : {
-								click : function(e)
-								{
-									BX.fireEvent(form, 'submit');
-								}
-							}
-						}),
-
+						startButton,
 						new BX.PopupWindowButtonLink({
 							text      :  BX.message('BIZPROC_JS_BP_STARTER_CANCEL'),
 							className : 'popup-window-button-link-cancel',
@@ -345,12 +354,18 @@
 				BX.bind(form, 'submit', function(e)
 				{
 					e.preventDefault();
-					me.submitParametersForm(form, function(data)
+
+					startButton.addClassName('popup-window-button-wait');
+					me.submitParametersForm(form, function(response)
 					{
-						popup.close();
-						if (params.callback)
+						startButton.removeClassName('popup-window-button-wait');
+						if (response.success)
 						{
-							params.callback(data);
+							popup.close();
+							if (params.callback)
+							{
+								params.callback(response.data);
+							}
 						}
 					});
 				});
@@ -430,6 +445,12 @@
 
 		submitParametersForm: function(form, callback)
 		{
+			if (form.__requestInProgress)
+			{
+				return;
+			}
+			form.__requestInProgress = true;
+
 			var formData = new FormData(form);
 
 			BX.ajax({
@@ -440,16 +461,15 @@
 				preparePost: false,
 				onsuccess: function (response)
 				{
-					if (response.success)
-					{
-						if (callback)
-						{
-							callback(response.data)
-						}
-					}
-					else
+					delete form.__requestInProgress;
+					if (!response.success)
 					{
 						window.alert(response.errors.join('\n'));
+					}
+
+					if (callback)
+					{
+						callback(response)
 					}
 				},
 				onfailure: onAjaxFailure

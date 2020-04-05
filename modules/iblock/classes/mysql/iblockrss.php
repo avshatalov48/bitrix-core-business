@@ -1,7 +1,7 @@
 <?
 class CIBlockRSS extends CAllIBlockRSS
 {
-	function GetCache($cacheKey)
+	public static function GetCache($cacheKey)
 	{
 		global $DB;
 
@@ -60,7 +60,9 @@ class CIBlockRSS extends CAllIBlockRSS
 
 		if (strlen($serverName) <=0 && !isset($arIBLOCK["SERVER_NAME"]))
 		{
-			$dbSite = CSite::GetList(($b="sort"), ($o="asc"), array("LID" => $arIBLOCK["LID"]));
+			$b="sort";
+			$o="asc";
+			$dbSite = CSite::GetList($b, $o, array("LID" => $arIBLOCK["LID"]));
 			if ($arSite = $dbSite->Fetch())
 				$serverName = $arSite["SERVER_NAME"];
 		}
@@ -250,7 +252,7 @@ class CIBlockRSS extends CAllIBlockRSS
 	}
 
 	// Agent
-	function PreGenerateRSS($IBLOCK_ID, $yandex = true)
+	public static function PreGenerateRSS($IBLOCK_ID, $yandex = true)
 	{
 		global $DB;
 

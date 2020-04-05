@@ -1,0 +1,56 @@
+.landing-ui-field-checkbox .landing-ui-field-input {
+	border: 0;
+	padding: 0;
+	min-height: auto;
+}
+
+.landing-ui-field-checkbox .landing-ui-field-header:empty {
+	display: none;
+}
+
+.landing-ui-field-checkbox[data-depth="1"] .landing-ui-field-checkbox-item {
+	padding-left: 20px;
+}
+
+.landing-ui-field-checkbox[data-depth="2"] .landing-ui-field-checkbox-item {
+	padding-left: 40px;
+}
+
+.landing-ui-field-checkbox[data-depth="3"] .landing-ui-field-checkbox-item {
+	padding-left: 60px;
+}
+
+.landing-ui-field-checkbox[data-compact="true"] {
+	margin-bottom: 0;
+	min-height: auto;
+	line-height: normal;
+}
+
+.landing-ui-field-checkbox-item {
+	display: flex;
+	width: 100%;
+	align-items: baseline;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.landing-ui-field-checkbox-item-checkbox {
+	transform: translateY(6%);
+}
+
+.landing-ui-field-checkbox-item-label {
+	position: relative;
+	display: flex;
+	width: 100%;
+	color: #333333!important;
+	font-weight: normal!important;
+	margin-bottom: 0;
+	margin-left: -20px;
+	padding-left: 30px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	line-height: 18px!important;
+}
+

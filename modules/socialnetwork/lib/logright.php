@@ -55,7 +55,7 @@ class LogRightTable extends Entity\DataManager
 		$connection = Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$now = $connection->getSqlHelper()->getCurrentDateTimeFunction();
+		$now = $helper->getCurrentDateTimeFunction();
 		if (
 			!$value
 			|| strtolower($value) == strtolower($now)

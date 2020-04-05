@@ -37,6 +37,7 @@ class Text
 		);
 
 		$parser = new \CTextParser();
+		$parser->serverName = Common::getPublicDomain();
 		$parser->maxAnchorLength = intval($params['LINK_LIMIT'])? $params['LINK_LIMIT']: 55;
 		$parser->maxStringLen = intval($params['TEXT_LIMIT']);
 		$parser->allow = $allowTags;

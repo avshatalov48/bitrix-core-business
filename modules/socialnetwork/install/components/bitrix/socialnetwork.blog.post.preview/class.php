@@ -32,6 +32,8 @@ class CSocialnetworkBlogPostPreview extends \CBitrixComponent
 
 	protected function prepareData()
 	{
+		global $CACHE_MANAGER;
+
 		if (strlen(trim($this->arParams["NAME_TEMPLATE"])) <= 0)
 			$this->arParams["NAME_TEMPLATE"] = \CSite::GetNameFormat();
 
@@ -78,18 +80,15 @@ class CSocialnetworkBlogPostPreview extends \CBitrixComponent
 			);
 			$this->arResult["POST"]['AUTHOR_UNIQID'] = 'u_'.$this->randString();
 
-			$this->arResult["POST"]["DATE_FORMATTED"] = CSocNetLogComponent::getDateTimeFormatted(
+			$this->arResult["POST"]["DATE_FORMATTED"] = CComponentUtil::GetDateTimeFormatted(
 				MakeTimeStamp($this->arResult["POST"]["DATE_PUBLISH"]),
-				array(
-					"DATE_TIME_FORMAT" => $this->arParams["DATE_TIME_FORMAT"],
-					"DATE_TIME_FORMAT_WITHOUT_YEAR" => $this->arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"],
-					"TIME_FORMAT" => $this->arParams["TIME_FORMAT"]
-			));
-
+				$this->arParams["DATE_TIME_FORMAT"],
+				CTimeZone::GetOffset()
+			);
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS['CACHE_MANAGER']->RegisterTag('blog_post_'.$this->arParams['postId']);
+				$CACHE_MANAGER->RegisterTag('blog_post_'.$this->arParams['postId']);
 			}
 		}
 	}

@@ -58,12 +58,12 @@ $APPLICATION->RestartBuffer();
 	$APPLICATION->AddHeadString('
 				<style>
 				body {background: #F8FAFB !important;}
-				.feed-comments-block {margin: 0;}
+				.iframe-comments-cont .feed-comments-block {margin: 0; padding-top: 10px; }
 				</style>
 			', false, true);
 	?></head>
 <body style="overflow-y: hidden;">
-	<div id="wrapper">
+	<div id="wrapper" class="iframe-comments-cont">
 	<?php
 		// A < E < I < M < Q < U < Y
 		// A - NO ACCESS, E - READ, I - ANSWER

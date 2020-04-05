@@ -25,6 +25,8 @@ class MainMailConfirmComponent extends CBitrixComponent
 		$this->arParams['USER_FULL_NAME'] = static::getUserNameFormated();
 		$this->arParams['MAILBOXES'] = static::prepareMailboxes();
 
+		$this->arParams['IS_SMTP_AVAILABLE'] = \Bitrix\Main\Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($USER->getId());
+
 		$this->includeComponentTemplate();
 
 		return $this->arParams['MAILBOXES'];
@@ -116,23 +118,28 @@ class MainMailConfirmComponent extends CBitrixComponent
 			);
 		}
 
-		$confirmed = (array) \CUserOptions::getOption('mail', 'confirmed_from_emails', null)
-			+ (array) \CUserOptions::getOption('mail', 'confirmed_from_emails', null, 0);
-		foreach ($confirmed as $item)
+		$res = \Bitrix\Main\Mail\Internal\SenderTable::getList(array(
+			'filter' => array(
+				'IS_CONFIRMED' => true,
+				array(
+					'LOGIC' => 'OR',
+					'=USER_ID' => $USER->getId(),
+					'IS_PUBLIC' => true,
+				),
+			),
+		));
+		while ($item = $res->fetch())
 		{
-			if (!is_array($item))
-				continue;
+			$item['NAME']  = trim($item['NAME']);
+			$item['EMAIL'] = strtolower($item['EMAIL']);
+			$key = hash('crc32b', strtolower($item['NAME']) . $item['EMAIL']);
 
-			if (check_email($item['email'], true))
-			{
-				$item['name']  = trim($item['name']);
-				$item['email'] = strtolower($item['email']);
-				$key = hash('crc32b', strtolower($item['name']).$item['email']);
-				$mailboxes[$key] = array(
-					'name'  => $item['name'] ?: static::getUserNameFormated(),
-					'email' => $item['email'],
-				);
-			}
+			$mailboxes[$key] = array(
+				'id'    => $item['ID'],
+				'name'  => $item['NAME'] ?: static::getUserNameFormated(),
+				'email' => $item['EMAIL'],
+				'smtp'  => !empty($item['OPTIONS']['smtp']) ? $item['OPTIONS']['smtp'] : null,
+			);
 		}
 
 		$mailboxes = array_values($mailboxes);

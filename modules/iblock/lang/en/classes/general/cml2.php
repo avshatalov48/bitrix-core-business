@@ -183,4 +183,14 @@ $MESS["IBLOCK_XML2_EXTERNAL"] = "External";
 $MESS["IBLOCK_XML2_HBLOCK_NAME_IS_INVALID"] = "A dictionary name must start with an alphabetical character and can include only letters and digits.";
 $MESS["IBLOCK_XML2_MODULE_CATALOG_IS_ABSENT"] = "Commercial catalog module is not installed. You cannot import quotes and prices.";
 $MESS["IBLOCK_XML2_BX_CANONICAL_URL"] = "BitrixURLCanonical";
+$MESS["IBLOCK_XML2_USER_TYPE_DATE"] = "Dates";
+$MESS["IBLOCK_XML2_USER_TYPE_DATETIME"] = "DatesTime";
+$MESS["IBLOCK_XML2_PARAMS_PACKAGE"] = "PackageParameter";
+$MESS["IBLOCK_XML2_ID_1C_SITE"] = "SiteID";
+$MESS["IBLOCK_XML2_ID_SITE_1C"] = "SystemID";
+$MESS["IBLOCK_XML2_FOR_CATALOG"] = "ForProducts";
+$MESS["IBLOCK_XML2_FOR_OFFERS"] = "ForSKUs";
+$MESS["IBLOCK_XML2_MULTI_STORE_IMPORT_ERROR"] = "The number of warehouses imported exceeds maximum allowed for this edition.";
+$MESS["IBLOCK_XML2_LINK"] = "Link";
+$MESS["IBLOCK_XML2_FULL_DESCRIPTION"] = "FullDescription";
 ?>

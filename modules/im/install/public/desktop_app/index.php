@@ -64,9 +64,15 @@ else
 			$diskEnabled = false;
 		}
 	}
+
 	if(!$diskEnabled && IsModuleInstalled('webdav'))
 	{
 		$APPLICATION->IncludeComponent('bitrix:webdav.disk', '', array('AJAX_PATH' => '/desktop_app/disk.ajax.php'), false, Array("HIDE_ICONS" => "Y"));
+	}
+
+	if (CModule::IncludeModule('timeman'))
+	{
+		CJSCore::init('im_timecontrol');
 	}
 }
 

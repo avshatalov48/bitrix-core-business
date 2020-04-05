@@ -1,0 +1,42 @@
+.landing-ui-card-tabs {
+	padding: 0;
+	margin: 0;
+}
+
+.landing-ui-card-tabs-headers {
+	display: flex;
+	border-bottom: 1px rgba(83, 92, 105, .19) solid;
+}
+
+.landing-ui-card-tabs-headers-item {
+	color: rgba(83, 92, 105, .90);
+	margin-right: 24px;
+	border-bottom: 2px transparent solid;
+	transition: border 200ms ease, color 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-card-tabs-headers-item:last-child {
+	margin-right: 0;
+}
+
+.landing-ui-card-tabs-headers-item:hover {
+	color: rgba(83, 92, 105, 1);
+}
+
+.landing-ui-card-tabs-headers-item.landing-ui-active {
+	border-bottom: 2px #4471D3 solid;
+	color: #4471D3;
+}
+
+.landing-ui-card-tabs-tabs {
+	padding-top: 10px;
+}
+
+.landing-ui-card-tabs-tabs-item.landing-ui-show {
+	display: block;
+}
+
+.landing-ui-card-tabs-tabs-item.landing-ui-hide {
+	display: none;
+}

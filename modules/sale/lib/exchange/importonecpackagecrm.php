@@ -10,10 +10,10 @@ use Bitrix\Sale\Exchange;
 use Bitrix\Sale\Exchange\Entity\OrderImport;
 use Bitrix\Sale\Result;
 
-class ImportOneCPackageCRM extends ImportOneCPackage
+final class ImportOneCPackageCRM extends ImportOneCPackage
 {
 	/**
-	 * @param OneC\DocumentImport[] $documents
+	 * @param OneC\DocumentBase[] $documents
 	 * @return Result
 	 */
 	protected function checkDocuments(array $documents)
@@ -105,7 +105,7 @@ class ImportOneCPackageCRM extends ImportOneCPackage
 	}
 
 	/**
-	 * @param OneC\DocumentImport[] $documents
+	 * @param OneC\DocumentBase[] $documents
 	 * @return Result
 	 */
 	protected function convert(array $documents)

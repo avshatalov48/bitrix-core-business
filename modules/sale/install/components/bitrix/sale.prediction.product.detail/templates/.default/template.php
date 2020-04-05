@@ -31,7 +31,7 @@ if (isset($arResult['REQUEST_ITEMS']))
 			var giftAjaxData = {
 				'parameters':'<?=CUtil::JSEscape($signedParameters)?>',
 				'template': '<?=CUtil::JSEscape($signedTemplate)?>',
-				'site_id': '<?=CUtil::JSEscape(SITE_ID)?>'
+				'site_id': '<?=CUtil::JSEscape($component->getSiteId())?>'
 			};
 
 			bx_sale_prediction_product_detail_load(

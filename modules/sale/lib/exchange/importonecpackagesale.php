@@ -3,10 +3,16 @@
 namespace Bitrix\Sale\Exchange;
 
 
+use Bitrix\Main\Error;
+use Bitrix\Sale\Cashbox\Cashbox1C;
+use Bitrix\Sale\Cashbox\Internals\CashboxCheckTable;
+use Bitrix\Sale\Exchange\Entity\OrderImport;
+use Bitrix\Sale\Exchange\Entity\PaymentImport;
 use Bitrix\Sale\Exchange\OneC\OrderDocument;
 use Bitrix\Sale\Exchange\OneC\ShipmentDocument;
+use Bitrix\Sale\Result;
 
-class ImportOneCPackageSale extends ImportOneCPackage
+final class ImportOneCPackageSale extends ImportOneCPackage
 {
 	protected function convert(array $documents)
 	{
@@ -77,4 +83,106 @@ class ImportOneCPackageSale extends ImportOneCPackage
 
 		return parent::convert($documents);
 	}
+
+	/**
+	 * @param OneC\OrderDocument $document
+	 * @return null|string
+	 */
+	protected function getDefaultTrackingNumber(OneC\OrderDocument $document)
+	{
+		$fields = $document->getFieldValues();
+		return isset($fields['REK_VALUES']['1C_TRACKING_NUMBER'])?$fields['REK_VALUES']['1C_TRACKING_NUMBER']:null;
+	}
+
+	/**
+	 * @param OneC\OrderDocument $document
+	 * @return null|int
+	 */
+	protected function getDefaultPaySystem(OneC\OrderDocument $document)
+	{
+		$fields = $document->getFieldValues();
+		return isset($fields['REK_VALUES']['PAY_SYSTEM_ID'])?$fields['REK_VALUES']['PAY_SYSTEM_ID']:null;
+	}
+
+	/**
+	 * @param OneC\OrderDocument $document
+	 * @return null|int
+	 */
+	protected function getDefaultDeliverySystem(OneC\OrderDocument $document)
+	{
+		$fields = $document->getFieldValues();
+		return isset($fields['REK_VALUES']['DELIVERY_SYSTEM_ID'])?$fields['REK_VALUES']['DELIVERY_SYSTEM_ID']:null;
+	}
+
+	/**
+	 * @param OrderImport $orderImport
+	 * @param array $items
+	 * @return Result
+	 * @deprecated
+	 */
+	protected function UpdateCashBoxChecks(OrderImport $orderImport, array $items)
+	{
+		$result = new Result();
+		$bCheckUpdated = false;
+
+		$order = $orderImport->getEntity();
+
+		foreach ($items as $item)
+		{
+			/** @var PaymentImport $item */
+
+			if($item->getOwnerTypeId() == EntityType::PAYMENT_CASH ||
+				$item->getOwnerTypeId() == EntityType::PAYMENT_CASH_LESS ||
+				$item->getOwnerTypeId() == EntityType::PAYMENT_CARD_TRANSACTION
+			)
+			{
+				/** @var  $params */
+				$params = $item->getFieldValues();
+				static::load($item, $params['TRAITS'], $order);
+
+				if($item->getEntityId()>0)
+				{
+					$entity = $item->getEntity();
+
+					if(isset($params['CASH_BOX_CHECKS']))
+					{
+						$fields = $params['CASH_BOX_CHECKS'];
+
+						if($fields['ID']>0)
+						{
+							$res = CashboxCheckTable::getById($fields['ID']);
+							if ($data = $res->fetch())
+							{
+								if($data['STATUS']<>'Y')
+								{
+									$applyResult = Cashbox1C::applyCheckResult($params['CASH_BOX_CHECKS']);
+									$bCheckUpdated = $applyResult->isSuccess();
+								}
+							}
+							else
+							{
+								$item->setCollisions(EntityCollisionType::PaymentCashBoxCheckNotFound, $entity);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/** @var OneC\CollisionOrder $collision */
+		$collision = $orderImport->getCurrentCollision(EntityType::ORDER);
+		$collisionTypes = $collision->getCollision($orderImport);
+
+		if(count($collisionTypes)>0 && $bCheckUpdated)
+		{
+			return $result;
+		}
+		else
+		{
+			$result->addError(new Error('', 'CASH_BOX_CHECK_IGNORE'));
+		}
+
+		return $result;
+	}
+
 }

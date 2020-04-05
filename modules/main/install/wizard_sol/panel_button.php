@@ -12,7 +12,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CWizardSolPanel
 {
-	function ShowPanel()
+	public static function ShowPanel()
 	{
 		global $USER, $APPLICATION;
 

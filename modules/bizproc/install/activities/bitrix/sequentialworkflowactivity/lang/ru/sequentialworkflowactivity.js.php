@@ -7,4 +7,5 @@ $MESS['SEQWF_SNIP_DEL'] = 'Удалить это действие';
 $MESS['SEQWF_SNIP_TITLE'] = 'Свойства избранного действия';
 $MESS['SEQWF_SNIP_DD'] = 'Перетащите сюда действие для сохранения';
 $MESS['SEQWF_SNIP'] = 'Мои действия';
+$MESS['SEQWF_MARKETPLACE_ADD'] = 'Добавить еще...';
 ?>

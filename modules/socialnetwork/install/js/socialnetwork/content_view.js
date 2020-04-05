@@ -523,6 +523,13 @@ BX.UserContentView.Counter.prototype.init = function(params)
 	this.popupScroll();
 
 	BX.bind(this.node, 'mouseover' , BX.delegate(function() {
+		if (
+			this.popup !== null
+			&& this.popup.isShown()
+		)
+		{
+			return;
+		}
 		clearTimeout(this.popupTimeoutId);
 		this.popupContentPage = 1;
 

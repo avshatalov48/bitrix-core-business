@@ -656,7 +656,7 @@ class CPullChannel
 					$arSend[$userId] = Array(
 						'id' => $userId,
 						'status' => $users[$userId]['STATUS'],
-						'color' => $users[$userId]['COLOR']? \Bitrix\Im\Color::getColor($users[$userId]['COLOR']): '',
+						'color' => $users[$userId]['COLOR']? \Bitrix\Im\Color::getColor($users[$userId]['COLOR']): \Bitrix\Im\Color::getColorByNumber($userId),
 						'idle' => $users[$userId]['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $users[$userId]['IDLE']: false,
 						'mobile_last_date' => $users[$userId]['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $users[$userId]['MOBILE_LAST_DATE']: false,
 						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),
@@ -670,7 +670,7 @@ class CPullChannel
 					$arSend[$userId] = Array(
 						'id' => $userId,
 						'status' => 'online',
-						'color' => '',
+						'color' => '#556574',
 						'idle' => false,
 						'mobile_last_date' => false,
 						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),

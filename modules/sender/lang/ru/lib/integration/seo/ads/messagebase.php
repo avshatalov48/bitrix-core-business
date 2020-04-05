@@ -1,0 +1,13 @@
+<?
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_FB"] = "Реклама Facebook+Instagram";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_GA"] = "Реклама Google AdWords";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_YA"] = "Реклама Яндекс.Директ";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_NAME_ADS_VK"] = "Реклама ВКонтакте";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_SYNC_WARN"] = "Ежедневная синхронизация аудиторий и сегментов станет доступна в ближайшее время.";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_ACCOUNT_ID"] = "Рекламный кабинет";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_ID"] = "Аудитория";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_EMAIL_ID"] = "Аудитория для email";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_PHONE_ID"] = "Аудитория для телефонов";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUTO_REMOVE_DAY_NUMBER"] = "Удалить из аудитории через дней";
+$MESS["SENDER_INTEGRATION_SEO_MESSAGE_ERROR_NO_AUDIENCE"] = "Аудитория не выбрана.";
+?>

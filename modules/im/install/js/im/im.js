@@ -14,7 +14,7 @@ BX.IM = function(domNode, params)
 	this.mobileVersion = false;
 	this.mobileAction = 'none';
 
-	this.revision = 116; // api revision - check include.php
+	this.revision = 120; // api version - im/lib/revision.php
 	this.ieVersion = BX.browser.DetectIeVersion();
 	this.errorMessage = '';
 	this.animationSupport = true;
@@ -1533,23 +1533,13 @@ BX.IM.prototype.showHardwareSettings = function()
 					var hasAudioInputDevices = false;
 					var hasAudioOutputDevices = false;
 					var hasVideoInputDevices = false;
+
+					var deviceLabel = device.label == '' ? BX.message('IM_SETTINGS_HARDWARE_DEFAULT_MICROPHONE') : device.label;
+
 					if(device.kind == 'audioinput')
 					{
 						hasAudioInputDevices = true;
-						option = BX.create('option', {text: device.label, attrs:{value: device.deviceId}});
-
-						if(device.label == '')
-						{
-							//chrome 51 workaround
-							if(device.deviceId == 'default')
-							{
-								device.label = BX.message('IM_SETTINGS_HARDWARE_DEFAULT_MICROPHONE');
-							}
-							else
-							{
-								return;
-							}
-						}
+						option = BX.create('option', {text: deviceLabel, attrs:{value: device.deviceId}});
 
 						if(device.label === audioTrackLabel || device.deviceId === self.webrtc.defaultMicrophone)
 						{
@@ -1560,7 +1550,7 @@ BX.IM.prototype.showHardwareSettings = function()
 					else if(device.kind == 'videoinput')
 					{
 						hasVideoInputDevices = true;
-						option = BX.create('option', {text: device.label, attrs:{value: device.deviceId}});
+						option = BX.create('option', {text: deviceLabel, attrs:{value: device.deviceId}});
 						if(device.label === videoTrackLabel || device.deviceId === self.webrtc.defaultCamera)
 						{
 							option.selected = true;
@@ -1570,7 +1560,7 @@ BX.IM.prototype.showHardwareSettings = function()
 					else if(device.kind == 'audiooutput')
 					{
 						hasAudioOutputDevices = true;
-						option = BX.create('option', {text: device.label, attrs:{value: device.deviceId}});
+						option = BX.create('option', {text: deviceLabel, attrs:{value: device.deviceId}});
 						if(device.deviceId === self.webrtc.defaultSpeaker)
 						{
 							option.selected = true;
@@ -4315,7 +4305,7 @@ BX.Messenger = function(BXIM, params)
 	this.params = params || {};
 
 	this.realSearchAvailable = !this.BXIM.userExtranet || !this.BXIM.bitrixIntranet && !this.BXIM.bitrix24net;
-	this.realSearch = false;
+	this.realSearch = !this.BXIM.options.contactListLoad;
 	this.realSearchFound = true;
 
 	this.updateStateCount = 1;
@@ -4584,7 +4574,7 @@ BX.Messenger = function(BXIM, params)
 	this.openBotFlag = false;
 	this.openCallFlag = false;
 
-	this.contactListLoad = false;
+	this.contactListLoad = !this.BXIM.options.contactListLoad;
 	this.popupContactListSize = 254;
 	this.popupContactListSearchInput = null;
 	this.popupContactListSearchClose = null;
@@ -5088,7 +5078,7 @@ BX.Messenger.prototype.openMessenger = function(userId, params)
 
 	if (userId !== false && BX.MessengerCommon.isPage() && BX.MessengerWindow.currentTab != 'im' && BX.MessengerWindow.currentTab != 'im-ol')
 	{
-		BX.MessengerWindow.changeTab('im');
+		BX.MessengerWindow.changeTab('im', false, true);
 	}
 
 	if (this.popupMessengerEditForm)
@@ -5862,6 +5852,7 @@ BX.Messenger.prototype.openMessenger = function(userId, params)
 			}, this));
 		}, this));
 	}
+	BX.bind(this.popupMessengerTextarea, "paste", BX.delegate(this.onPaste, this));
 	BX.bind(this.popupMessengerTextarea, "focus", BX.delegate(function() {
 		this.textareaCheckText();
 		this.setClosingByEsc(false);
@@ -6428,7 +6419,7 @@ BX.Messenger.prototype.tooltip = function(bind, text, params)
 	});
 	if (params.angle)
 	{
-		this.popupTooltip.setAngle({offset:23, position: params.bindOptions.position == top? 'bottom': 'top'});
+		this.popupTooltip.setAngle({offset:23, position: params.bindOptions.position == 'top'? 'bottom': 'top'});
 	}
 	this.popupTooltip.show();
 
@@ -7553,6 +7544,7 @@ BX.Messenger.prototype.renameChatDialog = function()
 
 		BX.remove(this.renameChatDialogInput);
 		this.renameChatDialogInput = null;
+
 		this.popupMessengerPanelChatTitle.innerHTML = this.chat[chatId].name;
 		this.renameChatDialogFlag = false;
 	}, this));
@@ -7560,7 +7552,7 @@ BX.Messenger.prototype.renameChatDialog = function()
 	BX.bind(this.renameChatDialogInput, "keydown", BX.delegate(function(e) {
 		if (e.keyCode == 27 && !BX.MessengerCommon.isDesktop())
 		{
-			this.renameChatDialogInput.value = this.chat[chatId].name;
+			this.renameChatDialogInput.value = BX.util.htmlspecialcharsback(this.chat[chatId].name);
 			this.popupMessengerTextarea.focus();
 			return BX.PreventDefault(e);
 		}
@@ -9224,7 +9216,6 @@ BX.Messenger.prototype.openPopupMenu = function(bind, type, setAngle, params)
 
 		var fileId = params.fileId;
 		var chatId = params.chatId;
-		var urlContext = BX.MessengerCommon.isDesktop()? 'desktop': 'default';
 		var enableLink = true;
 		//if (!BX.MessengerCommon.isDesktop())
 		//	enableLink = false;
@@ -9235,7 +9226,7 @@ BX.Messenger.prototype.openPopupMenu = function(bind, type, setAngle, params)
 		var deleteSelf = this.disk.files[chatId][fileId].authorId != this.BXIM.userId;
 
 		menuItems = [
-			enableLink? { text: BX.message("IM_F_DOWNLOAD"), href: this.disk.files[chatId][fileId].urlDownload[urlContext], 'target': '_blank', onclick: BX.delegate(function(){  this.closeMenuPopup(); }, this)}: null,
+			enableLink? { text: BX.message("IM_F_DOWNLOAD"), href: this.disk.files[chatId][fileId].urlDownload, 'target': '_blank', onclick: BX.delegate(function(){  this.closeMenuPopup(); }, this)}: null,
 			{text: BX.message("IM_F_DOWNLOAD_DISK"), onclick: BX.delegate(function(){
 				this.disk.saveToDisk(chatId, fileId, {boxId: 'im-file-history-panel'});
 				this.closeMenuPopup();
@@ -11703,6 +11694,11 @@ BX.Messenger.prototype.sendMessage = function(recipientId)
 	if (this.popupMessengerTextarea.value.length == 0)
 		return false;
 
+	if (this.popupMessengerTextarea.value.length > 20006)
+	{
+		this.popupMessengerTextarea.value = this.popupMessengerTextarea.value.substr(0, 20000)+' (...)';
+	}
+
 	if (this.BXIM.language=='ru' && BX.correctText && this.BXIM.settings.correctText)
 	{
 		this.popupMessengerTextarea.value = BX.correctText(this.popupMessengerTextarea.value);
@@ -13575,6 +13571,12 @@ BX.Messenger.prototype.editMessage = function(messageId)
 	BX.addClass(this.popupMessengerEditForm, 'bx-messenger-editform-show');
 
 	this.popupMessengerEditMessageId = messageId;
+
+	if (this.popupMessengerEditTextarea.value.length > 20006)
+	{
+		this.popupMessengerEditTextarea.value = this.popupMessengerEditTextarea.value.substr(0, 20000)+' (...)';
+	}
+
 	this.popupMessengerEditTextarea.value = BX.MessengerCommon.prepareTextBack(this.message[messageId].text, true);
 
 	this.popupMessengerEditTextarea.value = this.popupMessengerEditTextarea.value.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, BX.delegate(function(whole, userId, text)
@@ -13726,6 +13728,257 @@ BX.Messenger.prototype.toggleLinesNewGroup = function(active)
 	BX.MessengerCommon.userListRedraw();
 
 	return active;
+}
+
+BX.Messenger.prototype.onPaste = function(event)
+{
+	if (!event.clipboardData)
+	{
+		return true;
+	}
+
+	var text = event.clipboardData.getData("Text");
+	if (text && !text.match(/\.(jpg|jpeg|png|gif)$/i))
+	{
+		return true;
+	}
+
+	this.imageUploaderFiles = [];
+
+	var hasUploadFile = false;
+	var uploadFilesLeft = event.clipboardData.files.length;
+	for (var i=0; i < event.clipboardData.files.length; ++i)
+	{
+		var file = event.clipboardData.files[i];
+		if (!file || !file.type.match(/(jpg|jpeg|png|gif)/i))
+		{
+			continue;
+		}
+
+		hasUploadFile = true;
+
+		if (BX.browser.IsSafari())
+		{
+			fileName = file.name;
+		}
+		else
+		{
+			var convertType = file.name.replace(/^(.*)\.(jpg|jpeg|png|gif)$/im, function(whole, name, type){ return type; });
+			var fileName = text? text.replace(/^(.*)\.(jpg|jpeg|png|gif)$/im, function(whole, name){return name+'.'+convertType;}): 'image_'+BX.date.format("Y-m-d_H:i:s")+'.'+convertType;
+		}
+
+		if (file.size > 1*1024*1024)
+		{
+			this.imageUploader();
+		}
+
+		var fileReader = new FileReader();
+
+		fileReader.onerror = function (error)
+		{
+			console.error('BX.Messenger.onPaste -> fileReader.onerror:', error);
+
+			if (this.popupImageUploader)
+			{
+				this.popupImageUploader.close();
+			}
+		}.bind(this)
+
+		fileReader.onabort = function (error)
+		{
+			console.error('BX.Messenger.onPaste -> fileReader.onabort:', error);
+
+			if (this.popupImageUploader)
+			{
+				this.popupImageUploader.close();
+			}
+		}.bind(this);
+
+		fileReader.onloadend = function (result)
+		{
+			this.imageUploaderFiles.push({
+				'name': fileName,
+				'source': result.target.result,
+			})
+
+			if (uploadFilesLeft == 1)
+			{
+				if (this.popupImageUploader)
+				{
+					this.imageUploaderUpdateImage();
+				}
+				else
+				{
+					this.imageUploader();
+				}
+			}
+			else
+			{
+				uploadFilesLeft--;
+			}
+		}.bind(this)
+
+		fileReader.readAsDataURL(file);
+	}
+
+	if (hasUploadFile)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	return true;
+}
+
+BX.Messenger.prototype.imageUploader = function()
+{
+	if (this.popupImageUploader)
+		this.popupImageUploader.close();
+
+	var titleBar = BX.message('IM_UPLOAD_IMAGE_TITLE');
+	if (this.imageUploaderFiles.length > 1 && BX.message('IM_UPLOAD_IMAGE_TITLE_2'))
+	{
+		titleBar = BX.message('IM_UPLOAD_IMAGE_TITLE_2').replace('#NUMBER#', this.imageUploaderFiles.length);
+	}
+
+	this.popupImageUploader = new BX.PopupWindow('bx-messenger-image-uploader', null, {
+		lightShadow: true,
+		closeByEsc: true,
+		closeIcon : {},
+		contentNoPaddings : true,
+		contentColor : "white",
+		events : {
+			onPopupClose : function() {this.destroy(); },
+			onPopupDestroy : function() {
+				this.popupImageUploader = null;
+				this.imageUploaderTextarea = null;
+				this.imageUploaderFiles = [];
+			}.bind(this)
+		},
+		buttons: [
+			new BX.PopupWindowButton({
+				text : BX.message('IM_UPLOAD_IMAGE_BUTTON_UPLOAD'),
+				className : "popup-window-button-accept",
+				events : { click : BX.delegate(function() {
+					this.disk.uploadFromClipboard(this.imageUploaderFiles, this.imageUploaderTextarea.value);
+					BX.proxy_context.popupWindow.close();
+				}, this) }
+			}),
+			new BX.PopupWindowButton({
+				text : BX.message('IM_UPLOAD_IMAGE_BUTTON_CLOSE'),
+				className : "popup-window-button-decline",
+				events : { click : function() { this.popupWindow.close(); } }
+			})
+		],
+		zIndex: 2000,
+		titleBar: titleBar,
+		content: '<div class="im-messenger-image-uploader">'+
+			'<div class="im-messenger-image-uploader-preview bx-messenger-custom-scroll">'+
+				this.imageUploaderPreperaImageNode()+
+			'</div>'+
+			'<div class="im-messenger-image-uploader-textarea">'+
+				'<textarea class="im-messenger-image-uploader-textarea-input" placeholder="'+BX.message('IM_UPLOAD_IMAGE_COMMENT')+'"></textarea>'+
+			'</div>'+
+		'</div>'
+	});
+	this.popupImageUploader.show();
+
+	BX.addClass(this.popupImageUploader.popupContainer, "bx-messenger-mark");
+
+	this.imageUploaderButtonUpload = BX.findChildByClassName(this.popupImageUploader.buttonsContainer, 'popup-window-button-accept');
+	if (this.imageUploaderButtonUpload && this.imageUploaderButtonUpload.innerHTML == BX.message('IM_UPLOAD_IMAGE_BUTTON_UPLOAD'))
+	{
+		this.imageUploaderButtonUpload.innerHTML = BX.message('IM_UPLOAD_IMAGE_BUTTON_UPLOAD')+' ('+(BX.browser.IsMac()? "&#8984;+Enter": "Ctrl+Enter")+')';
+	}
+	this.imageUploaderTextarea = BX.findChildByClassName(this.popupImageUploader.contentContainer, 'im-messenger-image-uploader-textarea-input');
+	this.imageUploaderTextarea.focus();
+
+	BX.bind(this.imageUploaderTextarea, 'keydown', function(event)
+	{
+		if (
+			(event.metaKey == true || event.ctrlKey == true)
+			&& (event.keyCode == 13 || event.keyCode == 32)
+		)
+		{
+			this.disk.uploadFromClipboard(this.imageUploaderFiles, this.imageUploaderTextarea.value);
+			this.popupImageUploader.close();
+		}
+	}.bind(this));
+
+	if (this.imageUploaderFiles.length <= 0)
+	{
+		var previewNode = BX.findChildByClassName(this.popupImageUploader.contentContainer, 'im-messenger-image-uploader-preview');
+
+		this.imageUploaderLoader = new BX.Loader({size: 42});
+		this.imageUploaderLoader.show(previewNode);
+	}
+
+	return true;
+};
+
+BX.Messenger.prototype.imageUploaderPreperaImageNode = function()
+{
+	if (this.imageUploaderFiles.length <= 0)
+	{
+		return '';
+	}
+
+	var className = '';
+	if (this.imageUploaderFiles.length == 1)
+	{
+		return '<div class="im-messenger-image-uploader-preview-box">' +
+					'<img src="'+this.imageUploaderFiles[0].source+'" class="im-messenger-image-uploader-preview-image">' +
+				'</div>';
+	}
+	else if (this.imageUploaderFiles.length == 2)
+	{
+		className = 'im-messenger-image-uploader-preview-group-box-twin';
+	}
+	else if (this.imageUploaderFiles.length == 3)
+	{
+		className = 'im-messenger-image-uploader-preview-group-box-one-line';
+	}
+	else if (this.imageUploaderFiles.length <= 6)
+	{
+		className = 'im-messenger-image-uploader-preview-group-box-two-line';
+	}
+	else
+	{
+		className = 'im-messenger-image-uploader-preview-group-box';
+	}
+
+	var result = '';
+	this.imageUploaderFiles.forEach(function(item) {
+		result += '<div class="im-messenger-image-uploader-preview-group-image">' +
+					'<img src="'+item.source+'" class="im-messenger-image-uploader-preview-group-image-source">' +
+				'</div>';
+	});
+
+	return '<div class="im-messenger-image-uploader-preview-box '+className+'">'+result+'</div>';
+}
+
+BX.Messenger.prototype.imageUploaderUpdateImage = function()
+{
+	if (!this.popupImageUploader || this.imageUploaderFiles.length <= 0)
+	{
+		return false;
+	}
+
+	var previewNode = BX.findChildByClassName(this.popupImageUploader.contentContainer, 'im-messenger-image-uploader-preview');
+	if (!previewNode)
+	{
+		return false;
+	}
+
+	if (this.imageUploaderLoader)
+	{
+		this.imageUploaderLoader.destroy();
+		this.imageUploaderLoader = null;
+	}
+
+	previewNode.innerHTML = this.imageUploaderPreperaImageNode();
+
+	return true;
 }
 
 BX.Messenger.prototype.insertQuoteMessage = function(node)
@@ -15333,6 +15586,18 @@ BX.Messenger.prototype.linesSendTransfer = function(chatId)
 	else
 		BX.MessengerCommon.dialogCloseCurrent(false);
 
+	if (this.linesTransferUser.toString().substr(0, 5) == 'queue')
+	{
+		var transferQueueId = this.linesTransferUser.substr(5);
+		for (var i = 0; i < this.BXIM.messenger.openlines.queue.length; i++)
+		{
+			if (this.BXIM.messenger.openlines.queue[i].id == transferQueueId)
+			{
+				this.BXIM.messenger.openlines.queue[i].transfer_count = parseInt(this.BXIM.messenger.openlines.queue[i].transfer_count)+1;
+			}
+		}
+	}
+
 	BX.ajax({
 		url: this.BXIM.pathToAjax+'?LINES_TRANSFER&V='+this.BXIM.revision,
 		method: 'POST',
@@ -15352,6 +15617,8 @@ BX.Messenger.prototype.linesSendTransfer = function(chatId)
 BX.IM.Desktop = function(BXIM, params)
 {
 	this.BXIM = BXIM;
+
+	this.initDate = new Date();
 
 	this.clientVersion = false;
 	this.markup = BX('placeholder-messanger');
@@ -15448,7 +15715,7 @@ BX.IM.Desktop = function(BXIM, params)
 					}
 					else if (this.messenger.renameChatDialogInput && this.messenger.renameChatDialogInput.value.length > 0)
 					{
-						this.messenger.renameChatDialogInput.value = this.messenger.chat[this.messenger.currentTab.toString().substr(4)].name;
+						this.messenger.renameChatDialogInput.value = BX.util.htmlspecialcharsback(this.messenger.chat[this.messenger.currentTab.toString().substr(4)].name);
 						this.messenger.popupMessengerTextarea.focus();
 					}
 					else if (this.messenger.popupContactListSearchInput && (this.messenger.popupContactListSearchInput.value.length > 0 || this.messenger.chatList))
@@ -16292,7 +16559,21 @@ BX.IM.Desktop.prototype.onWakeAction = function ()
 
 	BX.MessengerCommon.checkInternetConnection(function()
 	{
-		BX.desktop.windowReload();
+		var initDate = BXIM.desktop.initDate;
+		var curDate = new Date();
+		if (
+			initDate.getDate()+''+initDate.getMonth()+''+initDate.getFullYear()
+			== curDate.getDate()+''+curDate.getMonth()+''+curDate.getFullYear()
+		)
+		{
+			BX.PULL.setPrivateVar('_pullTimeConfig', 0);
+			BX.PULL.expireConfig();
+			BX.PULL.init();
+		}
+		else
+		{
+			BX.desktop.windowReload();
+		}
 	},
 	BX.delegate(function()
 	{
@@ -17053,6 +17334,7 @@ BX.IM.WebRTC.prototype.restoreFoldedCallView = function()
 				self.phoneCallId = '';
 				self.callActive = false;
 				self.phoneCallExternal = false;
+				self.callSelfDisabled = false;
 				clearInterval(self.BXIM.webrtc.phoneConnectedInterval);
 				BX.localStorage.set('viExternalCard', false);
 				if(self.phoneCallView)
@@ -20480,6 +20762,7 @@ BX.IM.WebRTC.prototype.bindPhoneViewCallbacks = function(callView)
 			this.callActive = false;
 			this.callInit = false;
 			this.phoneCallExternal = false;
+			this.callSelfDisabled = false;
 			clearInterval(this.BXIM.webrtc.phoneConnectedInterval);
 
 			BX.localStorage.set('viExternalCard', false);
@@ -20976,6 +21259,7 @@ BX.IM.WebRTC.prototype.bindPhoneViewCallbacksExternalCall = function(phoneCallVi
 		this.phoneCallId = '';
 		this.callActive = false;
 		this.phoneCallExternal = false;
+		this.callSelfDisabled = false;
 		clearInterval(this.BXIM.webrtc.phoneConnectedInterval);
 		BX.localStorage.set('viExternalCard', false);
 	}.bind(this));
@@ -21552,7 +21836,6 @@ BX.IM.DiskManager.prototype.drawHistoryFiles = function(chatId, fileId, params)
 	}
 	params = params || {};
 
-	var urlContext = BX.MessengerCommon.isDesktop()? 'desktop': 'default';
 	var enableLink = true;
 	//if (!BX.MessengerCommon.isDesktop())
 	//	enableLink = false;
@@ -21579,11 +21862,11 @@ BX.IM.DiskManager.prototype.drawHistoryFiles = function(chatId, fileId, params)
 		]});
 
 		var preview = null;
-		if (file.type == 'image' && (file.preview || file.urlPreview[urlContext]))
+		if (file.type == 'image' && (file.preview || file.urlPreview))
 		{
-			if (file.urlPreview[urlContext])
+			if (file.urlPreview)
 			{
-				var imageNode = BX.create("img", { attrs:{'src': file.urlPreview[urlContext]}, props : { className: "bx-messenger-file-image-text"}});
+				var imageNode = BX.create("img", { attrs:{'src': file.urlPreview}, props : { className: "bx-messenger-file-image-text"}});
 			}
 			else if (file.preview && typeof(file.preview) != 'string')
 			{
@@ -21594,11 +21877,11 @@ BX.IM.DiskManager.prototype.drawHistoryFiles = function(chatId, fileId, params)
 				var imageNode = BX.create("img", { attrs:{'src': file.preview}, props : { className: "bx-messenger-file-image-text"}});
 			}
 
-			if (enableLink && file.urlShow[urlContext])
+			if (enableLink && file.urlShow)
 			{
 				preview = BX.create("div", {props : { className: "bx-messenger-file-preview"},  children: [
 					BX.create("span", {props : { className: "bx-messenger-file-image"},  children: [
-						BX.create("a", {attrs: {'href': file.urlShow[urlContext], 'target': '_blank'}, props : { className: "bx-messenger-file-image-src"},  children: [
+						BX.create("a", {attrs: {'href': file.urlShow, 'target': '_blank'}, props : { className: "bx-messenger-file-image-src"},  children: [
 							imageNode
 						]})
 					]}),
@@ -21624,9 +21907,9 @@ BX.IM.DiskManager.prototype.drawHistoryFiles = function(chatId, fileId, params)
 		}
 
 		var title = BX.create("span", { attrs: {'title': file.name}, props : { className: "bx-messenger-file-title"}, html: fileName});
-		if (enableLink && (file.urlShow[urlContext] || file.urlDownload[urlContext]))
+		if (enableLink && (file.urlShow || file.urlDownload))
 		{
-			title = BX.create("a", { props : { className: "bx-messenger-file-title-href"}, attrs: {'href': file.urlShow[urlContext]? file.urlShow[urlContext]: file.urlDownload[urlContext], 'target': '_blank'}, children: [title]});
+			title = BX.create("a", { props : { className: "bx-messenger-file-title-href"}, attrs: {'href': file.urlShow? file.urlShow: file.urlDownload, 'target': '_blank'}, children: [title]});
 		}
 		title = BX.create("div", { props : { className: "bx-messenger-file-attrs"}, children: [
 			title,
@@ -22206,6 +22489,20 @@ BX.IM.DiskManager.prototype.uploadFromDisk = function(tab, path, selected, text)
 		}, this)
 	});
 	this.fileTmpId++;
+}
+BX.IM.DiskManager.prototype.uploadFromClipboard = function(list, text)
+{
+	var result = list.map(function(item) {
+		var dataBlob = BX.UploaderUtils.dataURLToBlob(item.source);
+		dataBlob.name = item.name;
+
+		return dataBlob;
+	});
+
+	this.formAgents['imDialog'].messageText = text? text: '';
+	this.formAgents['imDialog'].onChange(result);
+
+	return true;
 }
 BX.IM.DiskManager.prototype.chatAvatarInit = function()
 {

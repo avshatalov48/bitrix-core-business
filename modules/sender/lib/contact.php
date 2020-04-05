@@ -9,8 +9,9 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Type;
+use Bitrix\Main\Type as MainType;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,26 +38,65 @@ class ContactTable extends Entity\DataManager
 			),
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 				'required' => true,
 			),
 			'DATE_UPDATE' => array(
 				'data_type' => 'datetime',
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
-			'USER_ID' => array(
+			'TYPE_ID' => array(
 				'data_type' => 'integer',
+				'default_value' => Recipient\Type::EMAIL,
+				'required' => true,
+			),
+			'CODE' => array(
+				'data_type' => 'string',
+				'required' => true,
 			),
 			'NAME' => array(
 				'data_type' => 'string',
 			),
-			'EMAIL' => array(
+			'USER_ID' => array(
+				'data_type' => 'integer',
+			),
+			/*
+			// TODO: rename to EMAIL !!!!!!!
+			'EMAIL11111111' => array(
+				'column_name' => 'CODE',
 				'data_type' => 'string',
-				'required' => true,
 				'validation' => array(__CLASS__, "validateEmail")
 			),
-			'PHONE' => array(
+			*/
+			'BLACKLISTED' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
+			'IS_READ' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
+			'IS_CLICK' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
+			'IS_UNSUB' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+				'required' => true,
+			),
+			'IP' => array(
 				'data_type' => 'string',
+			),
+			'AGENT' => array(
+				'data_type' => 'integer',
 			),
 			'CONTACT_LIST' => array(
 				'data_type' => 'Bitrix\Sender\ContactListTable',
@@ -89,19 +129,26 @@ class ContactTable extends Entity\DataManager
 	}
 
 	/**
-	 * @return mixed
+	 * Check email.
+	 *
+	 * @return bool|string
 	 */
 	public static function checkEmail($value)
 	{
 		if(empty($value) || check_email($value))
+		{
 			return true;
+		}
 		else
+		{
 			return Loc::getMessage('SENDER_ENTITY_CONTACT_VALID_EMAIL');
+		}
 	}
 
 	/**
-	 * Handler of before add event
-	 * @param Entity\Event $event Event object
+	 * Handler of before add event.
+	 *
+	 * @param Entity\Event $event Event object.
 	 * @return Entity\EventResult
 	 */
 	public static function onBeforeAdd(Entity\Event $event)
@@ -110,15 +157,32 @@ class ContactTable extends Entity\DataManager
 		$data = $event->getParameters();
 		if(isset($data['fields']['EMAIL']))
 		{
-			$result->modifyFields(array('EMAIL' => strtolower($data['fields']['EMAIL'])));
+			$result->modifyFields(array('EMAIL' => Recipient\Normalizer::normalizeEmail($data['fields']['EMAIL'])));
+		}
+
+		if(isset($data['fields']['CODE']))
+		{
+			$typeId = isset($data['fields']['TYPE_ID']) ? $data['fields']['TYPE_ID'] : null;
+			$isValid = Recipient\Validator::validate($data['fields']['CODE'], $typeId);
+			if (!$isValid)
+			{
+				$result->addError(new Entity\EntityError(Loc::getMessage('SENDER_ENTITY_CONTACT_VALID_CODE')));
+			}
+			else
+			{
+				$result->modifyFields(array(
+					'CODE' => Recipient\Normalizer::normalize($data['fields']['CODE'], $typeId)
+				));
+			}
 		}
 
 		return $result;
 	}
 
 	/**
-	 * Handler of before update event
-	 * @param Entity\Event $event Event object
+	 * Handler of before update event.
+	 *
+	 * @param Entity\Event $event Event object.
 	 * @return Entity\EventResult
 	 */
 	public static function onBeforeUpdate(Entity\Event $event)
@@ -127,14 +191,37 @@ class ContactTable extends Entity\DataManager
 		$data = $event->getParameters();
 		if(isset($data['fields']['EMAIL']))
 		{
-			$result->modifyFields(array('EMAIL' => strtolower($data['fields']['EMAIL'])));
+			$result->modifyFields(array('EMAIL' => Recipient\Normalizer::normalizeEmail($data['fields']['EMAIL'])));
+		}
+
+		if(isset($data['fields']['CODE']))
+		{
+			$typeId = isset($data['fields']['TYPE_ID']) ? $data['fields']['TYPE_ID'] : null;
+			if (!$typeId)
+			{
+				$row = static::getRowById($data['primary']['ID']);
+				$typeId = $row['TYPE_ID'];
+			}
+			$isValid = Recipient\Validator::validate($data['fields']['CODE'], $typeId);
+			if (!$isValid)
+			{
+				$result->addError(new Entity\EntityError(Loc::getMessage('SENDER_ENTITY_CONTACT_VALID_CODE')));
+			}
+			else
+			{
+				$result->modifyFields(array(
+					'CODE' => Recipient\Normalizer::normalize($data['fields']['CODE'], $typeId)
+				));
+			}
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @param Entity\Event $event
+	 * On after delete.
+	 *
+	 * @param Entity\Event $event Event.
 	 * @return Entity\EventResult
 	 */
 	public static function onAfterDelete(Entity\Event $event)
@@ -151,7 +238,9 @@ class ContactTable extends Entity\DataManager
 
 
 	/**
-	 * @param $ar
+	 * Add if not exist.
+	 *
+	 * @param array $ar Data.
 	 * @return bool|int
 	 * @throws \Bitrix\Main\ArgumentException
 	 */
@@ -169,7 +258,10 @@ class ContactTable extends Entity\DataManager
 		$ar['EMAIL'] = strtolower($ar['EMAIL']);
 		$contactDb = ContactTable::getList(array(
 			'select' => array('ID'),
-			'filter' => array('EMAIL' => $ar['EMAIL'])
+			'filter' => array(
+				'=CODE' => $ar['EMAIL'],
+				'=TYPE_ID' => Recipient\Type::EMAIL
+			)
 		));
 		if($contact = $contactDb->fetch())
 		{
@@ -177,6 +269,10 @@ class ContactTable extends Entity\DataManager
 		}
 		else
 		{
+			$ar['TYPE_ID'] = Recipient\Type::EMAIL;
+			$ar['CODE'] = $ar['EMAIL'];
+			unset($ar['EMAIL']);
+
 			$resultAdd = static::add($ar);
 			if($resultAdd->isSuccess())
 				$id = $resultAdd->getId();
@@ -191,12 +287,13 @@ class ContactTable extends Entity\DataManager
 	}
 
 	/**
+	 * Check connectors.
 	 *
+	 * @return void
 	 */
 	public static function checkConnectors()
 	{
-		$connectorList = \Bitrix\Sender\ConnectorManager::getConnectorList();
-		/** @var \Bitrix\Sender\Connector $connector */
+		$connectorList = Connector\Manager::getConnectorList();
 		foreach($connectorList as $connector)
 		{
 			if($connector->requireConfigure()) continue;
@@ -205,13 +302,15 @@ class ContactTable extends Entity\DataManager
 	}
 
 	/**
-	 * @param Connector $connector
-	 * @param null $pageNumber
-	 * @param int $timeout
+	 * Add from connector.
+	 *
+	 * @param Connector\Base $connector Connector instance.
+	 * @param null|integer $pageNumber Page number.
+	 * @param int $timeout Timeout.
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public static function addFromConnector(Connector $connector, $pageNumber = null, $timeout = 0)
+	public static function addFromConnector(Connector\Base $connector, $pageNumber = null, $timeout = 0)
 	{
 		$startTime = getmicrotime();
 		$withoutNav = empty($pageNumber);
@@ -237,7 +336,7 @@ class ContactTable extends Entity\DataManager
 		else
 		{
 			$dataDb = new \CDBResult();
-			$dataDb->InitFromArray(array());
+			$dataDb->initFromArray(array());
 		}
 
 		if(!is_subclass_of($dataDb, 'CDBResultMysql'))
@@ -250,12 +349,12 @@ class ContactTable extends Entity\DataManager
 		{
 			if(!$withoutNav)
 			{
-				$dataDb->NavStart($rowsInPage, false, $pageNumber);
-				$countAll = $dataDb->SelectedRowsCount();
+				$dataDb->navStart($rowsInPage, false, $pageNumber);
+				$countAll = $dataDb->selectedRowsCount();
 			}
 
 			$listId = null;
-			while ($arData = $dataDb->Fetch())
+			while ($row = $dataDb->fetch())
 			{
 				if($withoutNav)
 				{
@@ -275,19 +374,19 @@ class ContactTable extends Entity\DataManager
 				$id = null;
 				$contactDb = ContactTable::getList(array(
 					'select' => array('ID'),
-					'filter' => array('EMAIL' => $arData['EMAIL'])
+					'filter' => array('EMAIL' => $row['EMAIL'])
 				));
-				if($arContact = $contactDb->fetch())
+				if($contactRow = $contactDb->fetch())
 				{
-					$id = $arContact['ID'];
+					$id = $contactRow['ID'];
 					$countUpdated++;
 				}
 				else
 				{
 					$resultAdd = static::add(array(
-						'NAME' => $arData['NAME'],
-						'EMAIL' => $arData['EMAIL'],
-						'USER_ID' => $arData['USER_ID']
+						'NAME' => $row['NAME'],
+						'EMAIL' => $row['EMAIL'],
+						'USER_ID' => $row['USER_ID']
 					));
 					if ($resultAdd->isSuccess())
 					{
@@ -346,163 +445,5 @@ class ContactTable extends Entity\DataManager
 			'COUNT_NEW' => $countAdded,
 			'COUNT_ERROR' => $countError,
 		);
-	}
-}
-
-class ListTable extends Entity\DataManager
-{
-	/**
-	 * @return string
-	 */
-	public static function getTableName()
-	{
-		return 'b_sender_list';
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getMap()
-	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'autocomplete' => true,
-				'primary' => true,
-			),
-			'CODE' => array(
-				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateCode'),
-				'title' => Loc::getMessage('SENDER_ENTITY_LIST_FIELD_TITLE_CODE'),
-			),
-			'NAME' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'title' => Loc::getMessage('SENDER_ENTITY_LIST_FIELD_TITLE_NAME'),
-			),
-			'SORT' => array(
-				'data_type' => 'integer',
-				'default_value' => 100,
-				'required' => true,
-				'title' => Loc::getMessage('SENDER_ENTITY_LIST_FIELD_TITLE_SORT'),
-			),
-			'CONTACT_LIST' => array(
-				'data_type' => 'Bitrix\Sender\ContactListTable',
-				'reference' => array('=this.ID' => 'ref.LIST_ID'),
-			),
-		);
-	}
-
-	/**
-	 * Returns validators for CODE field.
-	 *
-	 * @return array
-	 */
-	public static function validateCode()
-	{
-		return array(
-			new Entity\Validator\Length(null, 60),
-		);
-	}
-
-	/**
-	 * @param Entity\Event $event
-	 * @return Entity\EventResult
-	 */
-	public static function onAfterDelete(Entity\Event $event)
-	{
-		$result = new Entity\EventResult;
-		$data = $event->getParameters();
-
-		$primary = array('LIST_ID' => $data['primary']['ID']);
-		ContactListTable::delete($primary);
-
-		return $result;
-	}
-
-	/**
-	 * @param $code
-	 * @param $name
-	 * @return bool|int
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	public static function addIfNotExist($code, $name)
-	{
-		$id = false;
-		if( !($arList = static::getList(array('filter' => array('CODE' => $code)))->fetch() ))
-		{
-			$resultAdd = static::add(array('CODE' => $code, 'NAME' => $name));
-			if ($resultAdd->isSuccess())
-			{
-				$id = $resultAdd->getId();
-			}
-		}
-		else
-		{
-			$id = $arList['ID'];
-		}
-
-		return $id;
-	}
-}
-
-class ContactListTable extends Entity\DataManager
-{
-	/**
-	 * @return string
-	 */
-	public static function getTableName()
-	{
-		return 'b_sender_contact_list';
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getMap()
-	{
-		return array(
-			'CONTACT_ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-			),
-			'LIST_ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-			),
-			'LIST' => array(
-				'data_type' => 'Bitrix\Sender\ListTable',
-				'reference' => array('=this.LIST_ID' => 'ref.ID'),
-			),
-			'CONTACT' => array(
-				'data_type' => 'Bitrix\Sender\ContactTable',
-				'reference' => array('=this.CONTACT_ID' => 'ref.ID'),
-			),
-		);
-	}
-
-	/**
-	 * @param $contactId
-	 * @param $listId
-	 * @return bool
-	 */
-	public static function addIfNotExist($contactId, $listId)
-	{
-		$result = false;
-		$arPrimary = array('CONTACT_ID' => $contactId, 'LIST_ID' => $listId);
-		if( !($arList = static::getRowById($arPrimary) ))
-		{
-			$resultAdd = static::add($arPrimary);
-			if ($resultAdd->isSuccess())
-			{
-				$result = true;
-			}
-		}
-		else
-		{
-			$result = true;
-		}
-
-		return $result;
 	}
 }

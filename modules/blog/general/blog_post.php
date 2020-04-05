@@ -1095,7 +1095,7 @@ class CAllBlogPost
 		return $postID;
 	}
 
-	function AddSocNetPerms($ID, $perms = array(), $arPost = array())
+	public static function AddSocNetPerms($ID, $perms = array(), $arPost = array())
 	{
 		global $CACHE_MANAGER;
 
@@ -1207,7 +1207,7 @@ class CAllBlogPost
 		return CBlogPost::AddSocNetPerms($ID, $perms, $arPost);
 	}
 
-	function __AddSocNetPerms($ID, $entityType = "", $entityID = 0, $entity)
+	public static function __AddSocNetPerms($ID, $entityType = "", $entityID = 0, $entity)
 	{
 		global $DB;
 
@@ -1254,34 +1254,7 @@ class CAllBlogPost
 		{
 			$prefix = "SG".$entity_id."_";
 			$letter = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $entity_id, $feature, $operation);
-			switch($letter)
-			{
-				case SONET_ROLES_ALL:
-					$arResult[] = 'O'.$prefix.SONET_ROLES_ALL;
-					$arResult[] = 'O'.$prefix.SONET_ROLES_AUTHORIZED;
-					$arResult[] = $prefix.SONET_ROLES_USER;
-					$arResult[] = $prefix.SONET_ROLES_MODERATOR;
-					$arResult[] = $prefix.SONET_ROLES_OWNER;
-					break;
-				case SONET_ROLES_AUTHORIZED:
-					$arResult[] = 'O'.$prefix.SONET_ROLES_AUTHORIZED;
-					$arResult[] = $prefix.SONET_ROLES_USER;
-					$arResult[] = $prefix.SONET_ROLES_MODERATOR;
-					$arResult[] = $prefix.SONET_ROLES_OWNER;
-					break;
-				case SONET_ROLES_USER:
-					$arResult[] = $prefix.SONET_ROLES_USER;
-					$arResult[] = $prefix.SONET_ROLES_MODERATOR;
-					$arResult[] = $prefix.SONET_ROLES_OWNER;
-					break;
-				case SONET_ROLES_MODERATOR:
-					$arResult[] = $prefix.SONET_ROLES_MODERATOR;
-					$arResult[] = $prefix.SONET_ROLES_OWNER;
-					break;
-				case SONET_ROLES_OWNER:
-					$arResult[] = $prefix.SONET_ROLES_OWNER;
-					break;
-			}
+			$arResult = array_merge($arResult, self::getFullGroupRoleSet($letter, $prefix));
 		}
 		else
 		{
@@ -1306,6 +1279,42 @@ class CAllBlogPost
 		}
 
 		return $arResult;
+	}
+
+	public static function getFullGroupRoleSet($role = "", $prefix = "")
+	{
+		$result = array();
+
+		switch($role)
+		{
+			case SONET_ROLES_ALL:
+				$result[] = 'O'.$prefix.SONET_ROLES_ALL;
+				$result[] = 'O'.$prefix.SONET_ROLES_AUTHORIZED;
+				$result[] = $prefix.SONET_ROLES_USER;
+				$result[] = $prefix.SONET_ROLES_MODERATOR;
+				$result[] = $prefix.SONET_ROLES_OWNER;
+				break;
+			case SONET_ROLES_AUTHORIZED:
+				$result[] = 'O'.$prefix.SONET_ROLES_AUTHORIZED;
+				$result[] = $prefix.SONET_ROLES_USER;
+				$result[] = $prefix.SONET_ROLES_MODERATOR;
+				$result[] = $prefix.SONET_ROLES_OWNER;
+				break;
+			case SONET_ROLES_USER:
+				$result[] = $prefix.SONET_ROLES_USER;
+				$result[] = $prefix.SONET_ROLES_MODERATOR;
+				$result[] = $prefix.SONET_ROLES_OWNER;
+				break;
+			case SONET_ROLES_MODERATOR:
+				$result[] = $prefix.SONET_ROLES_MODERATOR;
+				$result[] = $prefix.SONET_ROLES_OWNER;
+				break;
+			case SONET_ROLES_OWNER:
+				$result[] = $prefix.SONET_ROLES_OWNER;
+				break;
+		}
+
+		return $result;
 	}
 
 	public static function GetSocNetPerms($ID)

@@ -499,11 +499,12 @@ class RestService extends \IRestService
 			array('sort'=>'asc', 'id'=>'asc', 'enum_sort'=>'asc', 'value_id'=>'asc'),
 			array('ACTIVE'=>'Y', 'EMPTY'=>'N', "ID" => $params['FIELD_ID'])
 		);
-		if ($property = $queryProperty->fetch())
+		while ($property = $queryProperty->fetch())
 		{
 			if ($property['PROPERTY_TYPE'] == 'F')
 			{
-				$file = new \CListFile($params['IBLOCK_ID'], 0, $params['ELEMENT_ID'], '', $property['VALUE']);
+				$file = new \CListFile($params['IBLOCK_ID'], 0, $params['ELEMENT_ID'],
+					"PROPERTY_".$params['FIELD_ID'], $property['VALUE']);
 				$urls[] = \CHTTP::urlAddParams($file->GetImgSrc(array('url_template' =>
 					'/company/lists/#list_id#/file/#section_id#/#element_id#/#field_id#/#file_id#/')), array('download' => 'y'));
 			}
@@ -714,7 +715,7 @@ class RestService extends \IRestService
 						foreach($fieldValue as $key => $value)
 						{
 							$value = str_replace(' ', '', str_replace(',', '.', $value));
-							if (!is_numeric($value))
+							if ($value && !is_numeric($value))
 								$errors .= 'Value of the "'.$fieldData['NAME'].'" field is not correct. ';
 							$element['PROPERTY_VALUES'][$fieldData['ID']][$key]['VALUE'] = floatval($value);
 						}
@@ -1324,6 +1325,14 @@ class RestService extends \IRestService
 		$object = new \CList($iblockId);
 		$fields = $object->getFields();
 
+		foreach ($fields as $field)
+		{
+			if (strlen($field["CODE"]) > 0)
+			{
+				$availableFields[] = "PROPERTY_".$field["CODE"];
+			}
+		}
+
 		$availableFields = array_merge($availableFields, array_keys($fields));
 
 		return $availableFields;
@@ -1446,8 +1455,8 @@ class RestService extends \IRestService
 			}
 		}
 
-		\CBPDocument::addDocumentToHistory(
+		/*\CBPDocument::addDocumentToHistory(
 			\BizProcDocument::getDocumentComplexId($params['IBLOCK_TYPE_ID'], $params['ELEMENT_ID']),
-			$params['ELEMENT_NAME'], $userId);
+			$params['ELEMENT_NAME'], $userId);*/
 	}
 }

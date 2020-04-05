@@ -12,6 +12,11 @@ class Chat
 
 	const LIMIT_SEND_EVENT = 30;
 
+	public static function getChatTypes()
+	{
+		return Array(self::TYPE_GROUP, self::TYPE_OPEN_LINE, self::TYPE_OPEN, self::TYPE_THREAD);
+	}
+
 	public static function getRelation($chatId, $params = [])
 	{
 		$chatId = intval($chatId);
@@ -178,10 +183,7 @@ class Chat
 					'dialogId' => 'chat'.$chatId,
 					'mute' => $action == 'Y'
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -236,17 +238,34 @@ class Chat
 		return \Bitrix\Im\Dialog::hasAccess('chat'.$chatId);
 	}
 
-	public static function getMessages($chatId, $options)
+	public static function getMessages($chatId, $userId = null, $options = Array())
 	{
-		$returnJson = $options['JSON'] == 'Y';
+		$userId = \Bitrix\Im\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
 
 		$chatData = \Bitrix\Im\Model\ChatTable::getList(Array(
 			'select' => Array(
 				'CHAT_ID' => 'ID',
 				'CHAT_TYPE' => 'TYPE',
-				'RELATION_START_ID' => 'RELATION.START_ID'
+				'RELATION_USER_ID' => 'RELATION.USER_ID',
+				'RELATION_START_ID' => 'RELATION.START_ID',
+				'RELATION_LAST_ID' => 'RELATION.LAST_ID'
 			),
-			'filter' => Array('=ID' => $chatId)
+			'filter' => Array('=ID' => $chatId),
+			'runtime' => Array(
+				new \Bitrix\Main\Entity\ReferenceField(
+					'RELATION',
+					'\Bitrix\Im\Model\RelationTable',
+					array(
+						"=ref.CHAT_ID" => "this.ID",
+						"=ref.USER_ID" => new \Bitrix\Main\DB\SqlExpression('?', $userId)
+					),
+					array("join_type"=>"LEFT")
+				)
+			)
 		))->fetch();
 		if (!$chatData)
 		{
@@ -254,6 +273,7 @@ class Chat
 		}
 
 		$chatData['RELATION_START_ID'] = intval($chatData['RELATION_START_ID']);
+		$chatData['RELATION_LAST_ID'] = intval($chatData['RELATION_LAST_ID']);
 
 		$filter = Array(
 			'=CHAT_ID' => $chatId
@@ -289,11 +309,21 @@ class Chat
 			}
 		}
 
+		if (isset($options['LIMIT']))
+		{
+			$options['LIMIT'] = intval($options['LIMIT']);
+			$limit = $options['LIMIT'] >= 50? 50: $options['LIMIT'];
+		}
+		else
+		{
+			$limit = 50;
+		}
+
 		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
 			'filter' => $filter,
 			'select' => Array('ID', 'AUTHOR_ID', 'DATE_CREATE', 'MESSAGE'),
 			'order' => $order,
-			'limit' => intval($options['LIMIT']) <= 50? intval($options['LIMIT']): 50
+			'limit' => $limit
 		));
 
 		$users = Array();
@@ -307,7 +337,8 @@ class Chat
 				'CHAT_ID' => (int)$chatId,
 				'AUTHOR_ID' => (int)$message['AUTHOR_ID'],
 				'DATE' => $message['DATE_CREATE'],
-				'TEXT' => (string)$message['MESSAGE']
+				'TEXT' => (string)$message['MESSAGE'],
+				'UNREAD' => $chatData['RELATION_USER_ID'] > 0 && $chatData['RELATION_LAST_ID'] < $message['ID']
 			);
 			if ($message['AUTHOR_ID'] && !isset($users[$message['AUTHOR_ID']]))
 			{
@@ -363,12 +394,10 @@ class Chat
 
 				foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
 				{
-					foreach ($result['FILES'][$key][$field] as $type => $url)
+					$url = $result['FILES'][$key][$field];
+					if (is_string($url) && $url && strpos($url, 'http') !== 0)
 					{
-						if (is_string($url) && $url && strpos($url, 'http') !== 0)
-						{
-							$result['FILES'][$key][$field][$type] = \Bitrix\Im\Common::getPublicDomain().$url;
-						}
+						$result['FILES'][$key][$field] = \Bitrix\Im\Common::getPublicDomain().$url;
 					}
 				}
 
@@ -376,8 +405,6 @@ class Chat
 
 			$result = array_change_key_case($result, CASE_LOWER);
 		}
-
-
 
 		return $result;
 	}

@@ -68,7 +68,8 @@ if($this->startResultCache(false, false, ($arParams["MENU_CACHE_USE_USERS"] === 
 			$currentLevel = 1,
 			$arParams["MAX_LEVEL"],
 			$arParams["ALLOW_MULTI_SELECT"],
-			$arParams["CACHE_SELECTED_ITEMS"]
+			$arParams["CACHE_SELECTED_ITEMS"],
+			false
 		);
 
 		if($arParams["SHOW_LAST_LEVEL_BUTTONS"]!="Y")

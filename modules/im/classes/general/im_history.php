@@ -491,9 +491,8 @@ class CIMHistory
 			FROM b_im_relation R1
 			INNER JOIN b_im_message M ON M.CHAT_ID = R1.CHAT_ID
 			WHERE
-				R1.USER_ID = ".$this->user_id."
-			AND R1.MESSAGE_TYPE <> '".IM_MESSAGE_PRIVATE."'
-			AND R1.CHAT_ID = ".$chatId."
+				R1.CHAT_ID = ".$chatId."
+				AND R1.USER_ID = ".$this->user_id."
 				".$limitById."
 			GROUP BY M.CHAT_ID, R1.ID
 		";
@@ -638,10 +637,10 @@ class CIMHistory
 			FROM b_im_relation R1
 			INNER JOIN b_im_message M ON M.CHAT_ID = R1.CHAT_ID
 			WHERE
-				R1.USER_ID = ".$this->user_id."
-			AND R1.CHAT_ID = ".$chatId."
-			AND R1.MESSAGE_TYPE <> '".IM_MESSAGE_PRIVATE."'
-			AND M.DATE_CREATE >= ".$sqlDateStart." AND M.DATE_CREATE <=  ".$sqlDateEnd."
+				R1.CHAT_ID = ".$chatId."
+			AND	R1.USER_ID = ".$this->user_id."
+			AND M.DATE_CREATE >= ".$sqlDateStart." 
+			AND M.DATE_CREATE <=  ".$sqlDateEnd."
 				".$limitById."
 			ORDER BY M.DATE_CREATE DESC, M.ID DESC
 		";

@@ -261,8 +261,13 @@ class Basket extends BasketBase
 				/** @var \Bitrix\Sale\BasketPropertyItem $basketPropertyItem */
 				foreach ($basketPropertyCollection as $basketPropertyItem)
 				{
-					if ($basketPropertyItem->getField('CODE') == "PRODUCT.XML_ID" || $basketPropertyItem->getField('CODE') == "CATALOG.XML_ID")
+					if ($basketPropertyItem->getField('CODE') == "PRODUCT.XML_ID"
+						|| $basketPropertyItem->getField('CODE') == "CATALOG.XML_ID"
+						|| $basketPropertyItem->getField('CODE') == "SUM_OF_CHARGE"
+					)
+					{
 						continue;
+					}
 
 					if (strval(trim($basketPropertyItem->getField('VALUE'))) == "")
 						continue;

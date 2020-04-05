@@ -1,0 +1,9 @@
+.landing-ui-card-library-uploader .landing-ui-card-library-list {
+	display: flex;
+}
+
+.landing-ui-card-library-uploader-iframe {
+	width: 100%;
+	min-height: 600px;
+	border: none;
+}

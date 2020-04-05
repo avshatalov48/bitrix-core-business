@@ -1,6 +1,10 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
+
 class User
 {
 	private static $instance = Array();
@@ -484,10 +488,10 @@ class User
 
 	public static function uploadAvatar($avatarUrl = '')
 	{
-		if (strlen($avatarUrl) <= 4)
+		if (!$ar = parse_url($avatarUrl))
 			return '';
 
-		if (!in_array(\GetFileExtension($avatarUrl), Array('png', 'jpg', 'gif')))
+		if (!preg_match('#\.(png|jpg|jpeg|gif)$#i', $ar['path']))
 			return '';
 
 		$orm = \Bitrix\Im\Model\ExternalAvatarTable::getList(Array(
@@ -587,6 +591,7 @@ class User
 		{
 			return false;
 		}
+		$filter['ACTIVE'] = 'Y';
 
 		$intranetInstalled = \Bitrix\Main\Loader::includeModule('intranet');
 		$voximplantInstalled = \Bitrix\Main\Loader::includeModule('voximplant');
@@ -658,27 +663,25 @@ class User
 			}
 
 			$users[$user["ID"]] = Array(
-				'ID' => $user["ID"],
+				'ID' => (int)$user["ID"],
 				'NAME' => \CUser::FormatName($nameTemplate, $user, true, false),
-				'ACTIVE' => $user['ACTIVE'] == 'Y',
 				'FIRST_NAME' => $user['NAME'],
 				'LAST_NAME' => $user['LAST_NAME'],
 				'WORK_POSITION' => $user['WORK_POSITION'],
 				'COLOR' => $color,
 				'AVATAR' => !empty($tmpFile['src'])? $tmpFile['src']: '',
-				'BIRTHDAY' => $user['PERSONAL_BIRTHDAY'] instanceof \Bitrix\Main\Type\Date? $user['PERSONAL_BIRTHDAY']->format('d-m'): false,
 				'GENDER' => $user['PERSONAL_GENDER'] == 'F'? 'F': 'M',
-				'PHONE_DEVICE' => $voximplantInstalled && $user['UF_VI_PHONE'] == 'Y',
+				'BIRTHDAY' => $user['PERSONAL_BIRTHDAY'] instanceof \Bitrix\Main\Type\Date? $user['PERSONAL_BIRTHDAY']->format('d-m'): false,
 				'EXTRANET' => \CIMContactList::IsExtranet($user),
-				'TZ_OFFSET' => intval($user['TIME_ZONE_OFFSET']),
 				'NETWORK' => $user['EXTERNAL_AUTH_ID'] == \CIMContactList::NETWORK_AUTH_ID || $user['EXTERNAL_AUTH_ID'] == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID && $bots[$user["ID"]]['TYPE'] == \Bitrix\Im\Bot::TYPE_NETWORK,
 				'BOT' => $user['EXTERNAL_AUTH_ID'] == \Bitrix\Im\Bot::EXTERNAL_AUTH_ID,
-				'PROFILE' => \CIMContactList::GetUserPath($user["ID"]),
+				'CONNECTOR' => $user['EXTERNAL_AUTH_ID'] == "imconnector",
 				'EXTERNAL_AUTH_ID' => $user['EXTERNAL_AUTH_ID']? $user['EXTERNAL_AUTH_ID']: 'default',
 				'STATUS' => $user['STATUS'],
 				'IDLE' => $user['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $user['IDLE']: false,
 				'LAST_ACTIVITY_DATE' => $user['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $user['MOBILE_LAST_DATE']: false,
 				'MOBILE_LAST_DATE' => $user['LAST_ACTIVITY_DATE'] instanceof \Bitrix\Main\Type\DateTime? $user['LAST_ACTIVITY_DATE']: false,
+				'DEPARTMENTS' => is_array($user['UF_DEPARTMENT']) && !empty($user['UF_DEPARTMENT'])? $user['UF_DEPARTMENT']: [],
 				'ABSENT' => \CIMContactList::formatAbsentResult($user["ID"]),
 			);
 
@@ -716,21 +719,24 @@ class User
 
 		if ($params['JSON'])
 		{
-
-			foreach ($users as $key => $value)
+			foreach ($users as $key => $userData)
 			{
-				if ($value instanceof \Bitrix\Main\Type\DateTime)
+				foreach ($userData as $field => $value)
 				{
-					$users[$key] = date('c', $value->getTimestamp());
+					if ($value instanceof \Bitrix\Main\Type\DateTime)
+					{
+						$users[$key][$field] = date('c', $value->getTimestamp());
+					}
+					else if (is_string($value) && $value && in_array($field, Array('AVATAR')) && strpos($value, 'http') !== 0)
+					{
+						$users[$key][$field] = \Bitrix\Im\Common::getPublicDomain().$value;
+					}
+					else if (is_array($value))
+					{
+						$users[$key][$field] = array_change_key_case($value, CASE_LOWER);
+					}
 				}
-				else if (is_string($value) && $value && in_array($key, Array('AVATAR')) && strpos($value, 'http') !== 0)
-				{
-					$users[$key] = \Bitrix\Im\Common::getPublicDomain().$value;
-				}
-				else if (is_array($value))
-				{
-					$users[$key] = array_change_key_case($value, CASE_LOWER);
-				}
+				$users[$key] = array_change_key_case($users[$key], CASE_LOWER);;
 			}
 		}
 
@@ -762,25 +768,291 @@ class User
 			}
 		}
 
-		$extranetUsers = Array($params['CURRENT_USER'] => $params['CURRENT_USER']);
+		$filterByUsers = [];
 
-		$groups = \Bitrix\Im\Integration\Socialnetwork\Extranet::getGroup(Array(), $params['CURRENT_USER']);
-		if (is_array($groups))
+		if (User::getInstance($params['CURRENT_USER'])->isExtranet())
 		{
-			foreach ($groups as $group)
+			$groups = \Bitrix\Im\Integration\Socialnetwork\Extranet::getGroup(Array(), $params['CURRENT_USER']);
+			if (is_array($groups))
 			{
-				foreach ($group['USERS'] as $userId)
+				foreach ($groups as $group)
 				{
-					$extranetUsers[$userId] = $userId;
+					foreach ($group['USERS'] as $userId)
+					{
+						$filterByUsers[$userId] = $userId;
+					}
+				}
+				$filterByUsers[$params['CURRENT_USER']] = $params['CURRENT_USER'];
+			}
+		}
+
+		if (
+			$params['FILTER']['BUSINESS'] == 'Y'
+			&& \Bitrix\Main\Loader::includeModule('bitrix24')
+			&& !\CBitrix24BusinessTools::isLicenseUnlimited()
+		)
+		{
+			$businessUsers = \CBitrix24BusinessTools::getUnlimUsers();
+
+			if (User::getInstance($params['CURRENT_USER'])->isExtranet())
+			{
+				$extranetBusinessResult = [];
+				foreach ($filterByUsers as $userId)
+				{
+					if (in_array($userId, $businessUsers))
+					{
+						$extranetBusinessResult[$userId] = $userId;
+					}
+				}
+				$filterByUsers = $extranetBusinessResult;
+			}
+			else
+			{
+				foreach ($businessUsers as $userId)
+				{
+					$filterByUsers[$userId] = $userId;
 				}
 			}
 		}
 
-		if (User::getInstance()->isExtranet())
+		if ($filterByUsers)
 		{
-			$filter['=ID'] = array_keys($extranetUsers);
+			$filter['=ID'] = array_keys($filterByUsers);
 		}
 
 		return $filter;
+	}
+
+	public static function getBusiness($userId = null, $options = array())
+	{
+		$userId = \Bitrix\Im\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+		$pagination = isset($options['LIST'])? true: false;
+
+		$limit = isset($options['LIST']['LIMIT'])? intval($options['LIST']['LIMIT']): 50;
+		$offset = isset($options['LIST']['OFFSET'])? intval($options['LIST']['OFFSET']): 0;
+
+		$list = Array();
+
+		$businessUsersAvailable = false;
+		if (\Bitrix\Main\Loader::includeModule('bitrix24') && !\CBitrix24BusinessTools::isLicenseUnlimited())
+		{
+			$businessUsers = \CBitrix24BusinessTools::getUnlimUsers();
+
+			if (User::getInstance($userId)->isExtranet())
+			{
+				$extranetBusinessResult = [];
+				$groups = \Bitrix\Im\Integration\Socialnetwork\Extranet::getGroup(Array(), $userId);
+				if (is_array($groups))
+				{
+					foreach ($groups as $group)
+					{
+						foreach ($group['USERS'] as $uid)
+						{
+							if (in_array($uid, $businessUsers))
+							{
+								$extranetUserList[$uid] = $uid;
+							}
+						}
+					}
+				}
+				$list = $extranetBusinessResult;
+			}
+			else
+			{
+				foreach ($businessUsers as $userId)
+				{
+					$list[$userId] = $userId;
+				}
+			}
+
+			$businessUsersAvailable = true;
+		}
+
+		$count = count($list);
+
+		$list = array_slice($list, $offset, $limit);
+
+		if ($options['USER_DATA'] == 'Y')
+		{
+			$result = Array();
+
+			$getOptions = Array();
+			if ($options['JSON'] == 'Y')
+			{
+				$getOptions['JSON'] = 'Y';
+			}
+
+			foreach ($list as $userId)
+			{
+				$result[] = \Bitrix\Im\User::getInstance($userId)->getArray($getOptions);
+			}
+		}
+		else
+		{
+			$result = array_values($list);
+		}
+
+		if ($pagination)
+		{
+			$result = Array('TOTAL' => $count, 'RESULT' => $result, 'AVAILABLE' => $businessUsersAvailable);
+
+			if ($options['JSON'] == 'Y')
+			{
+				$result = array_change_key_case($result, CASE_LOWER);
+			}
+		}
+		else
+		{
+			if (!$businessUsersAvailable)
+			{
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+	public static function getMessages($userId = null, $options = Array())
+	{
+		$userId = \Bitrix\Im\Common::getUserId($userId);
+		if (!$userId)
+		{
+			return false;
+		}
+
+
+
+		$filter = Array(
+			'=AUTHOR_ID' => $userId
+		);
+
+		if (isset($options['FIRST_ID']))
+		{
+			$order = array();
+
+			if (intval($options['FIRST_ID']) > 0)
+			{
+				$filter['>ID'] = $options['FIRST_ID'];
+			}
+		}
+		else
+		{
+			$order = Array('ID' => 'DESC');
+
+			if (isset($options['LAST_ID']) && intval($options['LAST_ID']) > 0)
+			{
+				$filter['<ID'] = intval($options['LAST_ID']);
+			}
+		}
+
+		if (isset($options['LIMIT']))
+		{
+			$options['LIMIT'] = intval($options['LIMIT']);
+			$limit = $options['LIMIT'] >= 50? 50: $options['LIMIT'];
+		}
+		else
+		{
+			$limit = 50;
+		}
+
+
+		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
+			'filter' => $filter,
+			'select' => Array(
+				'ID', 'CHAT_ID', 'DATE_CREATE', 'MESSAGE',
+				'CHAT_TITLE' => 'CHAT.TITLE'
+			),
+			'order' => $order,
+			'limit' => $limit
+		));
+
+		$messages = Array();
+		$messagesChat = Array();
+		while($message = $orm->fetch())
+		{
+			$messages[$message['ID']] = Array(
+				'ID' => (int)$message['ID'],
+				'DATE' => $message['DATE_CREATE'],
+				'TEXT' => (string)$message['MESSAGE'],
+			);
+
+			$messagesChat[$message['ID']] = Array(
+				'ID' => (int)$message['ID'],
+				'CHAT_ID' => (int)$message['CHAT_ID']
+			);
+		}
+
+		$params = \CIMMessageParam::Get(array_keys($messages));
+
+		$fileIds = Array();
+		foreach ($params as $messageId => $param)
+		{
+			$messages[$messageId]['params'] = empty($param)? null: $param;
+
+			if (isset($param['FILE_ID']))
+			{
+				foreach ($param['FILE_ID'] as $fileId)
+				{
+					$fileIds[$messagesChat[$messageId]['CHAT_ID']][$fileId] = $fileId;
+				}
+			}
+		}
+
+		$messages = \CIMMessageLink::prepareShow($messages, $params);
+
+		$files = array();
+		foreach ($fileIds as $chatId => $fileId)
+		{
+			if ($result = \CIMDisk::GetFiles($chatId, $fileId))
+			{
+				$files = array_merge($files, $result);
+			}
+		}
+
+		$result = Array(
+			'MESSAGES' => $messages,
+			'FILES' => $files,
+		);
+
+		if ($options['JSON'])
+		{
+			foreach ($result['MESSAGES'] as $key => $value)
+			{
+				if ($value['DATE'] instanceof \Bitrix\Main\Type\DateTime)
+				{
+					$result['MESSAGES'][$key]['DATE'] = date('c', $value['DATE']->getTimestamp());
+				}
+
+				$result['MESSAGES'][$key] = array_change_key_case($result['MESSAGES'][$key], CASE_LOWER);
+			}
+			$result['MESSAGES'] = array_values($result['MESSAGES']);
+
+			foreach ($result['FILES'] as $key => $value)
+			{
+				if ($value['date'] instanceof \Bitrix\Main\Type\DateTime)
+				{
+					$result['FILES'][$key]['date'] = date('c', $value['date']->getTimestamp());
+				}
+
+				foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
+				{
+					$url = $result['FILES'][$key][$field];
+					if (is_string($url) && $url && strpos($url, 'http') !== 0)
+					{
+						$result['FILES'][$key][$field] = \Bitrix\Im\Common::getPublicDomain().$url;
+					}
+				}
+
+			}
+
+			$result = array_change_key_case($result, CASE_LOWER);
+		}
+
+		return $result;
 	}
 }

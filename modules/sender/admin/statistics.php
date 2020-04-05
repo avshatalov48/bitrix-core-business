@@ -71,14 +71,14 @@ else
 	);
 }
 
-if ($action == 'get_data' && empty($arResult['ERROR']))
+if ($action == 'getData' && empty($arResult['ERROR']))
 {
 	echo Json::encode($arResult['DATA']);
 	\CMain::FinalActions();
 	exit;
 }
 
-CJSCore::Init(array("sender_stat"));
+CJSCore::Init(array("sender_stat", "sender_page"));
 $lAdmin = new CAdminList("tbl_sender_statistics");
 $lAdmin->BeginCustomContent();
 if(!empty($arResult['ERROR'])):
@@ -95,11 +95,18 @@ $showLastPostingHtml = function (array $chain)
 				<?=htmlspecialcharsbx($chain['DATE_SENT_FORMATTED'])?>
 			</span>
 			<?=Loc::getMessage('SENDER_STATS_IN')?>
-			<a href="/bitrix/admin/sender_mailing_chain_admin.php?MAILING_ID=<?=htmlspecialcharsbx($chain['MAILING_ID'])?>&lang=<?=LANGUAGE_ID?>" class="bx-sender-releases-section">
+			<a href="/bitrix/admin/sender_campaign.php?edit&ID=<?=htmlspecialcharsbx($chain['MAILING_ID'])?>&lang=<?=LANGUAGE_ID?>"
+				onclick="BX.Sender.Page.open(this.href); return false;"
+				class="bx-sender-releases-section"
+			>
 				<?=htmlspecialcharsbx($chain['MAILING_NAME'])?>
 			</a>
 		</p>
-		<a href="/bitrix/admin/sender_mailing_stat.php?MAILING_ID=<?=htmlspecialcharsbx($chain['MAILING_ID'])?>&ID=<?=htmlspecialcharsbx($chain['ID'])?>&lang=<?=LANGUAGE_ID?>" class="bx-sender-releases-title">
+
+		<a href="/bitrix/admin/sender_letters.php?stat&ID=<?=htmlspecialcharsbx($chain['MAILING_ID'])?>&ID=<?=htmlspecialcharsbx($chain['ID'])?>&lang=<?=LANGUAGE_ID?>"
+			onclick="BX.Sender.Page.open(this.href); return false;"
+			class="bx-sender-releases-title"
+		>
 			<?=htmlspecialcharsbx($chain['NAME'])?>
 		</a>
 	</div>
@@ -132,7 +139,7 @@ $showLastPostingHtml = function (array $chain)
 	});
 </script>
 
-<div id="BX_SENDER_STATISTICS" class="bx-sender-stat-wrapper">
+<div id="BX_SENDER_STATISTICS" class="">
 
 	<div class="bx-sender-stat">
 		<div data-bx-block="Counters" class="bx-sender-block">
@@ -155,7 +162,7 @@ $showLastPostingHtml = function (array $chain)
 				</div>
 			</div>
 
-			<div class="bx-sender-mailfilter-result">
+			<div class="bx-sender-mailfilter-result" style="margin: 0 0 0 25px;">
 				<div class="bx-sender-mailfilter-result-item">
 					<p class="bx-sender-mailfilter-result-title"><?=Loc::getMessage('SENDER_STATS_COUNTER_READ')?></p>
 					<span data-bx-point="counters/READ/PERCENT_VALUE_DISPLAY" class="bx-sender-mailfilter-result-total bx-sender-mailfilter-result-total-proc">
@@ -194,33 +201,41 @@ $showLastPostingHtml = function (array $chain)
 			<div data-bx-block="Efficiency" class="bx-sender-block-top-padding">
 				<p class="bx-sender-title"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_TITLE')?></p>
 				<div class="bx-gadget-speed-speedo-block">
-					<div class="bx-gadget-speed-ruler">
-						<span class="bx-gadget-speed-ruler-start">0%</span>
-						<span class="bx-gadget-speed-ruler-end">30%</span>
-					</div>
 					<div class="bx-gadget-speed-graph">
-						<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-veryslow">
+						<div class="bx-gadget-speed-ruler">
+							<!--<span class="bx-gadget-speed-ruler-start">0%</span>-->
+							<!--<span class="bx-gadget-speed-ruler-end">30%</span>-->
+						</div>
+
+						<div class="bx-gadget-speed-graph-box">
+							<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-veryslow"></span>
 							<span class="bx-gadget-speed-graph-text"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_LEVEL_1')?></span>
-						</span>
+						</div>
 
-						<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-slow">
+						<div class="bx-gadget-speed-graph-box">
+							<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-slow"></span>
 							<span class="bx-gadget-speed-graph-text"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_LEVEL_2')?></span>
-						</span>
+						</div>
 
-						<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-notfast">
+						<div class="bx-gadget-speed-graph-box">
+							<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-notfast"></span>
 							<span class="bx-gadget-speed-graph-text"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_LEVEL_3')?></span>
-						</span>
+						</div>
 
-						<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-fast">
+						<div class="bx-gadget-speed-graph-box">
+							<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-fast"></span>
 							<span class="bx-gadget-speed-graph-text"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_LEVEL_4')?></span>
-						</span>
+						</div>
 
-						<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-varyfast">
+						<div class="bx-gadget-speed-graph-box">
+							<span class="bx-gadget-speed-graph-part bx-gadget-speed-graph-varyfast"></span>
 							<span class="bx-gadget-speed-graph-text"><?=Loc::getMessage('SENDER_STATS_EFFICIENCY_LEVEL_5')?></span>
-						</span>
+						</div>
 
-						<div data-bx-view-data-eff="" class="bx-gadget-speed-pointer" style="left: 0;">
-							<div data-bx-view-data-eff-val="" class="bx-gadget-speed-value">0%</div>
+						<div data-bx-view-data-eff="" class="bx-gadget-speed-pointer" id="site-speed-pointer" style="left: 0;">
+							<div class="bx-gadget-speed-value" id="site-speed-pointer-index">
+								<span data-bx-view-data-eff-val="" class="bx-gadget-speed-value-percent">0%</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -246,20 +261,23 @@ $showLastPostingHtml = function (array $chain)
 						<?endforeach;?>
 					</div>
 					<div class="bx-sender-new-releases">
-						<a href="/bitrix/admin/sender_mailing_wizard.php?IS_TRIGGER=N&lang=ru" class="adm-btn adm-btn-save bx-sender-btn">
-							<?=Loc::getMessage('SENDER_STATS_CREATE_NEW')?>
+						<a href="/bitrix/admin/sender_letters.php?edit=&ID=0&code=mail&lang=<?=LANGUAGE_ID?>"
+							onclick="BX.Sender.Page.open(this.href); return false;"
+							class="adm-btn adm-btn-save bx-sender-btn"
+						>
+							<?=Loc::getMessage('SENDER_STATS_CREATE_NEW_LETTER')?>
 						</a>
 					</div>
 				</div>
 			</div>
 		</div>
 
-
-		<div data-bx-block="CountersDynamic">
+		<div class="bx-sender-block-left-padding">
+			<div data-bx-block="CountersDynamic">
 				<?
 				foreach ($arResult['COUNTERS_DYNAMIC_NAMES'] as $name):
 					$name = htmlspecialcharsbx($name);
-				?>
+					?>
 					<div class="bx-sender-block" data-bx-chart="<?=$name?>">
 						<p class="bx-sender-title"><?=Loc::getMessage('SENDER_STATS_CHART_' . $name)?></p>
 						<div data-bx-view-loader="" class="bx-sender-insert bx-sender-insert-loader">
@@ -280,7 +298,8 @@ $showLastPostingHtml = function (array $chain)
 					</div>
 					<?
 				endforeach;
-			?>
+				?>
+			</div>
 		</div>
 
 	</div>

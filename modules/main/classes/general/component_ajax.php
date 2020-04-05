@@ -422,7 +422,7 @@ class CComponentAjax
 					preg_match_all('/action=(["\']{1})(.*?)\1/i', $arData[$key], $arAction);
 					$url = $arAction[2][0];
 
-					if ($url === '' || $this->__isAjaxURL($url))
+					if ($url === '' || $this->__isAjaxURL($url) || $this->__isAjaxURL(urldecode($url)))
 					{
 						$arData[$key] = CAjax::GetForm($arData[$key+1], 'comp_'.$this->componentID, $this->componentID, true, $this->bShadow);
 					}
@@ -487,11 +487,11 @@ class CComponentAjax
 		{
 			$data .= "
 <script type=\"text/javascript\">
-top.bxcompajaxframeonload = function() {
-	top.BX.CaptureEventsGet();
-	top.BX.CaptureEvents(top, 'load');
-	top.BX.evalPack(".CUtil::PhpToJsObject($arScripts).");
-	setTimeout('top.BX.ajax.__runOnload();', 300);
+parent.bxcompajaxframeonload = function() {
+    parent.BX.CaptureEventsGet();
+    parent.BX.CaptureEvents(parent, 'load');
+    parent.BX.evalPack(".CUtil::PhpToJsObject($arScripts).");
+    setTimeout('parent.BX.ajax.__runOnload();', 300);
 }</script>
 ";
 		}
@@ -577,7 +577,7 @@ top.bxcompajaxframeonload = function() {
 
 		$additional_data = '<script type="text/javascript" bxrunfirst="true">'."\n";
 		$additional_data .= 'var arAjaxPageData = '.CUtil::PhpToJSObject($arAdditionalData).";\r\n";
-		$additional_data .= 'top.BX.ajax.UpdatePageData(arAjaxPageData)'.";\r\n";
+		$additional_data .= 'parent.BX.ajax.UpdatePageData(arAjaxPageData)'.";\r\n";
 
 		$additional_data .= '</script><script type="text/javascript">';
 

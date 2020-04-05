@@ -361,19 +361,22 @@ class Recent
 
 		$action = $action === true? 'Y': 'N';
 
-		$isChat = false;
 		$id = $dialogId;
 		if (substr($dialogId, 0, 4) == 'chat')
 		{
-			$isChat = true;
+			$itemTypes = \Bitrix\Im\Chat::getChatTypes();
 			$id = substr($dialogId, 4);
+		}
+		else
+		{
+			$itemTypes = IM_MESSAGE_PRIVATE;
 		}
 
 		$element = \Bitrix\Im\Model\RecentTable::getList(Array(
 			'select' => Array('USER_ID', 'ITEM_TYPE', 'ITEM_ID', 'PINNED'),
 			'filter' => Array(
 				'=USER_ID' => $userId,
-				($isChat? '!=': '=').'ITEM_TYPE' => 'P',
+				'=ITEM_TYPE' => $itemTypes,
 				'=ITEM_ID' => $id
 			)
 		))->fetch();
@@ -405,10 +408,7 @@ class Recent
 					'dialogId' => $dialogId,
 					'active' => $action == 'Y'
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

@@ -20,7 +20,7 @@ if ($arParams["SET_TITLE"] == "Y")
 		<tr>
 			<td>
 				<?=Loc::getMessage("SOA_ORDER_SUC", array(
-					"#ORDER_DATE#" => $arResult["ORDER"]["DATE_INSERT"],
+					"#ORDER_DATE#" => $arResult["ORDER"]["DATE_INSERT"]->format('d.m.Y H:i'),
 					"#ORDER_ID#" => $arResult["ORDER"]["ACCOUNT_NUMBER"]
 				))?>
 				<? if (!empty($arResult['ORDER']["PAYMENT_ID"])): ?>

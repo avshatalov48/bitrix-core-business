@@ -15,4 +15,5 @@ $MESS["GD_SONET_GROUP_LINKS_ACT_EXIT"] = "Leave Group";
 $MESS["GD_SONET_GROUP_LINKS_ACT_SUBSCRIBE"] = "Subscription";
 $MESS["GD_SONET_GROUP_LINKS_ACT_DELETE"] = "Delete Group";
 $MESS["GD_SONET_GROUP_LINKS_ACT_VREQU"] = "Workgroup membership invites and requests";
+$MESS["GD_SONET_GROUP_LINKS_ACT_VREQU_IN"] = "Workgroup membership requests";
 ?>

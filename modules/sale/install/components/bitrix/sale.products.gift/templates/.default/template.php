@@ -706,15 +706,15 @@ $containerName = 'sale-products-gift-container';
 		RELATIVE_QUANTITY_MANY: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_MANY'])?>',
 		RELATIVE_QUANTITY_FEW: '<?=CUtil::JSEscape($arParams['MESS_RELATIVE_QUANTITY_FEW'])?>',
 		BTN_MESSAGE_COMPARE_REDIRECT: '<?=GetMessageJS('CT_SPG_CATALOG_BTN_MESSAGE_COMPARE_REDIRECT')?>',
-		SITE_ID: '<?=SITE_ID?>'
+		SITE_ID: '<?=$component->getSiteId()?>'
 	});
 
 	var <?=$obName?> = new JCSaleProductsGiftComponent({
-		siteId: '<?=CUtil::JSEscape(SITE_ID)?>',
+		siteId: '<?=$component->getSiteId()?>',
 		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
 		deferredLoad: true,
 		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
-	   currentProductId: <?=CUtil::JSEscape((int)$arResult['POTENTIAL_PRODUCT_TO_BUY']['ID'])?>,
+		currentProductId: <?=CUtil::JSEscape((int)$arResult['POTENTIAL_PRODUCT_TO_BUY']['ID'])?>,
 		template: '<?=CUtil::JSEscape($signedTemplate)?>',
 		parameters: '<?=CUtil::JSEscape($signedParams)?>',
 		container: '<?=$containerName?>'

@@ -283,6 +283,7 @@ if (StrLen($arParams["ENTITY_TYPE"]) <= 0)
 	$arParams["ENTITY_TYPE"] = Trim($_REQUEST["flt_entity_type"]);
 
 $arParams["TAG"] = (isset($_REQUEST["TAG"]) ? trim($_REQUEST["TAG"]) : "");
+$arParams["FIND"] = (isset($_REQUEST["FIND"]) ? trim($_REQUEST["FIND"]) : "");
 
 $arParams["AVATAR_SIZE_COMMON"] = (isset($arParams["AVATAR_SIZE_COMMON"]) && intval($arParams["AVATAR_SIZE_COMMON"]) > 0) ? intval($arParams["AVATAR_SIZE_COMMON"]) : 100;
 $arParams["AVATAR_SIZE"] = (isset($arParams["AVATAR_SIZE"]) && intval($arParams["AVATAR_SIZE"]) > 0) ? intval($arParams["AVATAR_SIZE"]) : 100;
@@ -908,6 +909,16 @@ if (
 	elseif (strlen($arParams["TAG"]) > 0)
 	{
 		$arFilter["=TAG"] = $arParams["TAG"];
+
+		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
+		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";
+		$arParams["USE_FOLLOW"] = "N";
+		$arResult["IS_FILTERED"] = true;
+	}
+	elseif (strlen($arParams["FIND"]) > 0)
+	{
+		$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled("CONTENT") ? '*' : '*%';
+		$arFilter[$operation."CONTENT"] = \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($arParams["FIND"]);
 
 		$arParams["SET_LOG_COUNTER"] = $arParams["SET_LOG_PAGE_CACHE"] = "N";
 		$arResult["SHOW_UNREAD"] = $arParams["SHOW_UNREAD"] = "N";

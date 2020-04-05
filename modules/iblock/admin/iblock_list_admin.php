@@ -368,6 +368,11 @@ if($lAdmin->EditAction())
 	if(is_array($_FILES['FIELDS']))
 		CAllFile::ConvertFilesToPost($_FILES['FIELDS'], $_POST['FIELDS']);
 
+	if ($bCatalog)
+	{
+		Catalog\Product\Sku::enableDeferredCalculation();
+	}
+
 	foreach($_POST['FIELDS'] as $ID=>$arFields)
 	{
 		if(!$lAdmin->IsUpdated($ID))
@@ -667,22 +672,20 @@ if($lAdmin->EditAction())
 							$arCatalogProduct['QUANTITY'] = $arFields['CATALOG_QUANTITY'];
 					}
 
-					$product = Catalog\ProductTable::getList(array(
-						'select' => array('ID', 'SUBSCRIBE_ORIG'),
+					$product = Catalog\Model\Product::getList(array(
+						'select' => array('ID'),
 						'filter' => array('=ID' => $ID)
 					))->fetch();
 					if (empty($product))
 					{
 						$arCatalogProduct['ID'] = $ID;
-						CCatalogProduct::Add($arCatalogProduct, false);
+						$result = Catalog\Model\Product::add(array('fields' => $arCatalogProduct));
 					}
 					else
 					{
 						if (!empty($arCatalogProduct))
 						{
-							if ($strUseStoreControl != 'Y')
-								$arCatalogProduct['SUBSCRIBE'] = $product['SUBSCRIBE_ORIG'];
-							CCatalogProduct::Update($ID, $arCatalogProduct);
+							$result = Catalog\Model\Product::update($ID, array('fields' => $arCatalogProduct));
 						}
 					}
 					unset($product);
@@ -865,6 +868,12 @@ if($lAdmin->EditAction())
 			unset($arCatalogGroupList);
 		}
 	}
+
+	if ($bCatalog)
+	{
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
+	}
 }
 
 // Handle actions here
@@ -877,6 +886,11 @@ if(($arID = $lAdmin->GroupAction()))
 		{
 			$arID[] = $arRes['TYPE'].$arRes['ID'];
 		}
+	}
+
+	if ($bCatalog)
+	{
+		Catalog\Product\Sku::enableDeferredCalculation();
 	}
 
 	foreach($arID as $ID)
@@ -1240,6 +1254,12 @@ if(($arID = $lAdmin->GroupAction()))
 		$_SESSION['CHANGE_PRICE_PARAMS']['UNITS'] = $changePriceParams['UNITS'];
 		$_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'] = $changePriceParams['FORMAT_RESULTS'];
 		$_SESSION['CHANGE_PRICE_PARAMS']['INITIAL_PRICE_TYPE'] = $changePriceParams['INITIAL_PRICE_TYPE'];
+	}
+
+	if ($bCatalog)
+	{
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
 	}
 
 	if (isset($return_url) && strlen($return_url)>0)

@@ -14,19 +14,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\ComponentHelper;
 
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 if (!Loader::includeModule("blog"))
 {
-	if ($arParams["IS_REST"] == "Y")
-	{
-		$APPLICATION->ThrowException(GetMessage("BLOG_MODULE_NOT_INSTALL"), "BLOG_MODULE_NOT_INSTALL");
-	}
-	else
-	{
-		ShowError(GetMessage("BLOG_MODULE_NOT_INSTALL"));
-	}
+	ShowError(GetMessage("BLOG_MODULE_NOT_INSTALL"));
 
 	return false;
 }
@@ -111,25 +105,12 @@ if (
 		{
 			if(!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], $feature))
 			{
-				if ($arParams["IS_REST"] == "Y")
-				{
-					$APPLICATION->ThrowException(GetMessage("BLOG_SONET_GROUP_MODULE_NOT_AVAIBLE"), "BLOG_FEATURE_NOT_AVAIBLE");
-				}
-				else
-				{
-					ShowError(GetMessage("BLOG_SONET_GROUP_MODULE_NOT_AVAIBLE"));
-				}
-
+				ShowError(GetMessage("BLOG_SONET_GROUP_MODULE_NOT_AVAIBLE"));
 				return false;
 			}
 		}
 		else
 		{
-			if ($arParams["IS_REST"] == "Y")
-			{
-				$APPLICATION->ThrowException(GetMessage("B_B_MES_NO_GROUP"), "SONET_GROUP_NOT_FOUND");
-			}
-
 			return false;
 		}
 	}
@@ -236,6 +217,7 @@ $arParams["IMAGE_MAX_HEIGHT"] = 400;
 $arParams["POST_PROPERTY_SOURCE"] = $arParams["POST_PROPERTY"] = (is_array($arParams["POST_PROPERTY"]) ? $arParams["POST_PROPERTY"] : array($arParams["POST_PROPERTY"]));
 $arParams["POST_PROPERTY"][] = "UF_BLOG_POST_DOC";
 $arParams["POST_PROPERTY"][] = "UF_BLOG_POST_IMPRTNT";
+$arParams["POST_PROPERTY"][] = "UF_IMPRTANT_DATE_END";
 
 if(
 	Loader::includeModule("webdav")
@@ -519,10 +501,7 @@ else
 
 if (IntVal($_GET["delete_blog_post_id"]) > 0 && $_GET["ajax_blog_post_delete"] == "Y")
 {
-	if (
-		check_bitrix_sessid()
-		|| $arParams["IS_REST"] == "Y"
-	)
+	if (check_bitrix_sessid())
 	{
 		$delId = IntVal($_GET["delete_blog_post_id"]);
 		if($arPost = CBlogPost::GetByID($delId))
@@ -547,9 +526,22 @@ if (IntVal($_GET["delete_blog_post_id"]) > 0 && $_GET["ajax_blog_post_delete"] =
 			if($perms >= Bitrix\Blog\Item\Permissions::FULL)
 			{
 				CBlogPost::DeleteLog($delId);
-				BXClearCache(True, "/".SITE_ID."/blog/popular_posts/");
-				BXClearCache(true, "/blog/socnet_post/".intval($delId / 100)."/".$delId."/");
-				BXClearCache(true, "/blog/socnet_post/gen/".intval($delId / 100)."/".$delId);
+				BXClearCache(True, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'posts_popular',
+					'SITE_ID' => SITE_ID
+				)));
+				BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'post',
+					'POST_ID' => $delId
+				)));
+				BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'post_general',
+					'POST_ID' => $delId
+				)));
+				BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'posts_last_blog',
+					'SITE_ID' => SITE_ID
+				)));
 				BXClearCache(true, CComponentEngine::MakeComponentPath("bitrix:socialnetwork.blog.blog"));
 
 				if (!CBlogPost::Delete($delId))
@@ -579,15 +571,6 @@ if (IntVal($_GET["delete_blog_post_id"]) > 0 && $_GET["ajax_blog_post_delete"] =
 	$arResult["delete_blog_post"] = "Y";
 	$this->IncludeComponentTemplate();
 
-	if (
-		$arParams["IS_REST"] == "Y"
-		&& strlen($arResult["ERROR_MESSAGE"]) > 0
-	)
-	{
-		$APPLICATION->ThrowException($arResult["ERROR_MESSAGE"], "ERROR_IN_ACTION");
-		return false;
-	}
-
 	return true;
 }
 
@@ -598,7 +581,24 @@ if (IntVal($_GET["delete_blog_post_id"]) > 0 && $_GET["ajax_blog_post_delete"] =
 		'height' => $arParams["IMAGE_MAX_HEIGHT"]
 	));
 }*/
-
+$isPostBeingEdited = $arParams["ID"] > 0;
+if ($isPostBeingEdited)
+{
+	$periodsOfShowingImportantPost = ["ALWAYS", "CUSTOM"];
+}
+else
+{
+	$periodsOfShowingImportantPost = ["ALWAYS", "ONE_DAY", "TWO_DAYS", "WEEK", "MONTH", "CUSTOM"];
+}
+$arResult["REMAIN_IMPORTANT_TILL"] = [];
+foreach ($periodsOfShowingImportantPost as $period)
+{
+	$attributesForPopupList = [
+		"VALUE" => $period,
+		"TEXT_KEY"  => ("IMPORTANT_FOR_$period"),
+	];
+	$arResult["REMAIN_IMPORTANT_TILL"][] = $attributesForPopupList;
+}
 if (
 	(
 		$arParams["ID"] == 0
@@ -621,7 +621,7 @@ if (
 		$arResult["OK_MESSAGE"] = GetMessage("BPE_HIDDEN_POSTED");
 	}
 
-	$bAllowToAll = \Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination();
+	$bAllowToAll = ComponentHelper::getAllowToAllDestination();
 
 	$bDefaultToAll = (
 		$bAllowToAll
@@ -634,10 +634,7 @@ if (
 		&& (!isset($_POST["changePostFormTab"]) || $_POST["changePostFormTab"] != 'tasks')
 	)
 	{
-		if(
-			check_bitrix_sessid()
-			|| $arParams["IS_REST"] == "Y"
-		)
+		if(check_bitrix_sessid())
 		{
 			if ($_POST["decode"] == "Y")
 			{
@@ -649,7 +646,7 @@ if (
 				&& !empty($arParams["GROUP_ID"])
 			)
 			{
-				$arBlog = \Bitrix\Socialnetwork\ComponentHelper::createUserBlog(array(
+				$arBlog = ComponentHelper::createUserBlog(array(
 					"BLOG_GROUP_ID" => (is_array($arParams["GROUP_ID"])) ? IntVal($arParams["GROUP_ID"][0]) : IntVal($arParams["GROUP_ID"]),
 					"USER_ID" => $arParams["USER_ID"],
 					"SITE_ID" => SITE_ID,
@@ -675,10 +672,7 @@ if (
 		|| $_GET["del_image_id"]
 	)
 	{
-		if (
-			check_bitrix_sessid()
-			|| $arParams["IS_REST"] == "Y"
-		)
+		if (check_bitrix_sessid())
 		{
 			if(IntVal($_GET["del_image_id"]) > 0)
 			{
@@ -781,7 +775,11 @@ if (
 	else
 	{
 		// Save calendar event from Socialnetwork live feed form
-		if ($_POST["save"] == "Y" && $_POST["changePostFormTab"] == "calendar" && (check_bitrix_sessid() || $arParams["IS_REST"] == "Y"))
+		if (
+			$_POST["save"] == "Y"
+			&& $_POST["changePostFormTab"] == "calendar"
+			&& check_bitrix_sessid()
+		)
 		{
 			if (isset($_POST['EVENT_PERM']))
 			{
@@ -857,7 +855,11 @@ if (
 			LocalRedirect($redirectUrl);
 		}
 
-		if($_POST["save"] == "Y" && $_POST["changePostFormTab"] == "lists" && (check_bitrix_sessid() || $arParams["IS_REST"] == "Y"))
+		if (
+			$_POST["save"] == "Y"
+			&& $_POST["changePostFormTab"] == "lists"
+			&& check_bitrix_sessid()
+		)
 		{
 			$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("user_id" => $arBlog["OWNER_ID"]));
 			LocalRedirect($redirectUrl);
@@ -873,10 +875,7 @@ if (
 			&& (!isset($_POST["changePostFormTab"]) || $_POST["changePostFormTab"] != 'tasks')
 		) // Save on button click
 		{
-			if (
-				check_bitrix_sessid()
-				|| $arParams["IS_REST"] == "Y"
-			)
+			if (check_bitrix_sessid())
 			{
 				if(strlen($arResult["ERROR_MESSAGE"]) <= 0)
 				{
@@ -1114,170 +1113,38 @@ if (
 					$CATEGORY_ID = implode(",", $CATEGORYtmp);
 
 					$arFields["CATEGORY_ID"] = $CATEGORY_ID;
-					$arFields["SOCNET_RIGHTS"] = Array();
-
-					if(
-						empty($_POST["SPERM"])
-						&& $arParams["IS_REST"] == "Y"
-						&& $bAllowToAll
-					)
-					{
-						$_POST["SPERM"] = array("UA" => array("UA"));
-					}
+					$arFields["SOCNET_RIGHTS"] = array();
 
 					$bError = false;
 
 					if (!empty($_POST["SPERM"]))
 					{
-						\Bitrix\Socialnetwork\ComponentHelper::processBlogPostNewMailUser($_POST, $arResult);
-						$socNetPermsListOld = $oldSonetGroupIdList = array();
+						ComponentHelper::processBlogPostNewMailUser($_POST, $arResult);
 
-						if ($arParams["ID"] > 0)
-						{
-							$socNetPermsListOld = CBlogPost::GetSocNetPerms($arParams["ID"]);
-							if (!empty($socNetPermsListOld['SG']))
-							{
-								$oldSonetGroupIdList = array_keys($socNetPermsListOld['SG']);
-							}
-						}
-
-						$authorInDest = (
-							!empty($arPost)
-							&& !empty($arPost['AUTHOR_ID'])
-							&& !empty($socNetPermsListOld)
-							&& !empty($socNetPermsListOld['U'])
-							&& isset($socNetPermsListOld['U'][$arPost['AUTHOR_ID']])
-							&& in_array('U'.$arPost['AUTHOR_ID'], $socNetPermsListOld['U'][$arPost['AUTHOR_ID']])
+						$resultFields = array(
+							'ERROR_MESSAGE' => false,
+							'PUBLISH_STATUS' => $arFields['PUBLISH_STATUS']
 						);
 
-						foreach ($_POST["SPERM"] as $v => $k)
+						$destParams = array(
+							'POST_ID' => $arParams["ID"],
+							'PERM' => $_POST["SPERM"],
+							'IS_REST' => false,
+							'IS_EXTRANET_USER' => $arResult["bExtranetUser"]
+						);
+						if ($arParams["ID"] <= 0)
 						{
-							if (
-								strlen($v) > 0
-								&& is_array($k)
-								&& !empty($k)
-							)
-							{
-								foreach ($k as $vv)
-								{
-									if (
-										strlen($vv) > 0
-										&& (
-											!isset($arPost['AUTHOR_ID'])
-											|| $vv != 'U'.$arPost['AUTHOR_ID']
-											|| $authorInDest
-										)
-									)
-									{
-										$arFields["SOCNET_RIGHTS"][] = $vv;
-									}
-								}
-							}
+							$destParams['AUTHOR_ID'] = $user_id;
 						}
 
-						if (!empty($_POST["SPERM"]["SG"]))
+						$arFields["SOCNET_RIGHTS"] = ComponentHelper::convertBlogPostPermToDestinationList($destParams, $resultFields);
+
+						$arFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
+						if (!empty($resultFields['ERROR_MESSAGE']))
 						{
-							$bOnesg = false;
-							$bFirst = true;
-							$oGrId = 0;
-							$bCurrentUserAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
-
-							$canPublish = true;
-
-							foreach($_POST["SPERM"]["SG"] as $v)
-							{
-								if(strlen($v) > 0)
-								{
-									$v = str_replace("SG", "", $v);
-									$oGrId = IntVal($v);
-
-									if (
-										isset($arPost)
-										&& $arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
-										&& in_array($oGrId, $oldSonetGroupIdList)
-									)
-									{
-										continue;
-									}
-
-									$canPublish = (
-										$canPublish
-										&& (
-											$bCurrentUserAdmin
-											|| CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $oGrId, "blog", "write_post")
-											|| CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $oGrId, "blog", "moderate_post")
-											|| CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $oGrId, "blog", "full_post")
-										)
-									);
-
-									if($bFirst)
-									{
-										$bOnesg = true;
-										$bFirst = false;
-									}
-									else
-									{
-										$bOnesg = false;
-									}
-								}
-							}
-
-							if (!$canPublish)
-							{
-								if ($bOnesg)
-								{
-									if (
-										$arParams["ID"] <= 0
-										|| (isset($arPost) && $arPost["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH)
-									)
-									{
-										$arFields["PUBLISH_STATUS"] = BLOG_PUBLISH_STATUS_READY;
-									}
-									else
-									{
-										$bError = true;
-										$arResult["ERROR_MESSAGE"] = GetMessage("SBPE_EXISTING_POST_PREMODERATION");
-									}
-								}
-								else
-								{
-									$bError = true;
-									$arResult["ERROR_MESSAGE"] = GetMessage("SBPE_MULTIPLE_PREMODERATION");
-								}
-							}
-						}
-					}
-
-					if (
-						in_array("UA", $arFields["SOCNET_RIGHTS"])
-						&& !$bAllowToAll
-					)
-					{
-						foreach ($arFields["SOCNET_RIGHTS"] as $key => $value)
-						{
-							if ($value == "UA")
-							{
-								unset($arFields["SOCNET_RIGHTS"][$key]);
-								break;
-							}
-						}
-					}
-
-					if ($arResult["bExtranetUser"])
-					{
-						if (
-							empty($arFields["SOCNET_RIGHTS"])
-							|| in_array("UA", $arFields["SOCNET_RIGHTS"])
-						)
-						{
+							$arResult["ERROR_MESSAGE"] = $resultFields['ERROR_MESSAGE'];
 							$bError = true;
-							$arResult["ERROR_MESSAGE"] .= GetMessage("BLOG_BPE_EXTRANET_ERROR");
 						}
-					}
-					elseif (empty($arFields["SOCNET_RIGHTS"]))
-					{
-						$bError = true;
-						$arResult["ERROR_MESSAGE"] .= GetMessage("BLOG_BPE_DESTINATION_EMPTY");
 					}
 
 					$mentionList = $mentionListOld = array();
@@ -1411,7 +1278,44 @@ if (
 						}
 
 						$arFields["SEARCH_GROUP_ID"] = \Bitrix\Main\Config\Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID);
-
+						if (isset($_POST["postShowingDuration"]) && in_array($_POST["postShowingDuration"], $periodsOfShowingImportantPost))
+						{
+							if ($_POST["postShowingDuration"] !== "CUSTOM")
+							{
+								$userDateTimeNow = \Bitrix\Main\Type\DateTime::createFromTimestamp(time() + CTimeZone::GetOffset());
+								if ($_POST["postShowingDuration"] == "ALWAYS")
+								{
+									$arFields["UF_IMPRTANT_DATE_END"] = null;
+								}
+								else
+								{
+									switch ($_POST["postShowingDuration"])
+									{
+										case "ONE_DAY":
+											$showEndTime = $userDateTimeNow->setTime(23, 59, 59);
+											break;
+										case "TWO_DAYS":
+											$showEndTime = $userDateTimeNow->setTime(23, 59, 59)->add("1D");
+											break;
+										case "WEEK":
+											$showEndTime = $userDateTimeNow->setTime(23, 59, 59)->add("7D");
+											break;
+										case "MONTH":
+											$showEndTime = $userDateTimeNow->setTime(23, 59, 59)->add("1M");
+											break;
+										default:
+											break;
+									}
+									$arFields["UF_IMPRTANT_DATE_END"] = \Bitrix\Main\Type\DateTime::createFromTimestamp($showEndTime->getTimestamp() - CTimeZone::GetOffset());
+								}
+							}
+							else
+							{
+								$postEndingServerTime = \Bitrix\Main\Type\DateTime::createFromUserTime($arFields["UF_IMPRTANT_DATE_END"]);
+								$postEndingServerTime->add("-T1S");
+								$arFields["UF_IMPRTANT_DATE_END"] = $postEndingServerTime;
+							}
+						}
 						if ($arParams["ID"] > 0)
 						{
 							if (
@@ -1465,6 +1369,22 @@ if (
 							}
 
 							$arOldPost = CBlogPost::GetByID($arParams["ID"]);
+
+							if(
+								$arParams["MOBILE"] == "Y"
+								&& in_array("UF_BLOG_POST_URL_PRV", $arParams["POST_PROPERTY"])
+								&& empty($arFields["UF_BLOG_POST_URL_PRV"])
+								&& (
+									empty($arPostFields['UF_BLOG_POST_URL_PRV'])
+									|| empty($arPostFields['UF_BLOG_POST_URL_PRV']['VALUE'])
+								)
+								&& !empty($arFields["DETAIL_TEXT"])
+								&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($arFields["DETAIL_TEXT"]))
+							)
+							{
+								$arFields["UF_BLOG_POST_URL_PRV"] = $urlPreviewValue;
+							}
+
 							preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/ies".BX_UTF_PCRE_MODIFIER, $arOldPost["DETAIL_TEXT"], $arMentionOld);
 							$mentionListOld = (!empty($arMentionOld) ? $arMentionOld[1] : array());
 
@@ -1474,9 +1394,18 @@ if (
 
 							if($newID = CBlogPost::Update($arParams["ID"], $arFields))
 							{
-								BXClearCache(true, "/blog/socnet_post/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
-								BXClearCache(true, "/blog/socnet_post/gen/".intval($arParams["ID"] / 100)."/".$arParams["ID"]);
-								BXClearCache(True, "/".SITE_ID."/blog/popular_posts/");
+								BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+									'TYPE' => 'post',
+									'POST_ID' => $arParams["ID"]
+								)));
+								BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+									'TYPE' => 'post_general',
+									'POST_ID' => $arParams["ID"]
+								)));
+								BXClearCache(True, ComponentHelper::getBlogPostCacheDir(array(
+									'TYPE' => 'posts_popular',
+									'SITE_ID' => SITE_ID
+								)));
 
 								$arFields["AUTHOR_ID"] = $arOldPost["AUTHOR_ID"];
 								if (
@@ -1528,6 +1457,32 @@ if (
 							);
 							if($arDuplPost = $dbDuplPost->Fetch())
 							{
+								$liveFeedEntity = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
+									'ENTITY_TYPE' => 'BLOG_POST',
+									'ENTITY_ID' => $arDuplPost['ID'],
+								));
+								$logRights = $liveFeedEntity->getLogRights();
+								foreach($logRights as $key => $groupCode)
+								{
+									if (
+										$groupCode == 'SA'
+										|| $groupCode == 'U'.$arFields["AUTHOR_ID"]
+										|| preg_match('/^US(\d+)$/i', $groupCode, $matches)
+										|| preg_match('/^OSG(\d+)/i', $groupCode, $matches)
+										|| preg_match('/^SG(\d+)_/i', $groupCode, $matches)
+									)
+									{
+										unset($logRights[$key]);
+									}
+									elseif ($groupCode == 'G2')
+									{
+										$logRights[$key] = 'UA';
+									}
+								}
+
+								$diff1 = array_diff($logRights, $arFields["SOCNET_RIGHTS"]);
+								$diff2 = array_diff($arFields["SOCNET_RIGHTS"], $logRights);
+
 								if(
 									empty($ar[0]) // no files
 									&& !$bNeedAddGrat // no gratitudes
@@ -1535,6 +1490,8 @@ if (
 									&& IntVal($arDuplPost["AUTHOR_ID"]) == IntVal($arFields["AUTHOR_ID"])
 									&& md5($arDuplPost["DETAIL_TEXT"]) == md5($arFields["DETAIL_TEXT"])
 									&& md5($arDuplPost["TITLE"]) == md5($arFields["TITLE"])
+									&& empty($diff1)
+									&& empty($diff2)
 								)
 								{
 									$bError = true;
@@ -1547,7 +1504,7 @@ if (
 								&& $arParams["MOBILE"] == "Y"
 								&& in_array("UF_BLOG_POST_URL_PRV", $arParams["POST_PROPERTY"])
 								&& empty($arFields["UF_BLOG_POST_URL_PRV"])
-								&& ($urlPreviewValue = \Bitrix\Socialnetwork\ComponentHelper::getUrlPreviewValue($arFields["DETAIL_TEXT"]))
+								&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($arFields["DETAIL_TEXT"]))
 							)
 							{
 								$arFields["UF_BLOG_POST_URL_PRV"] = $urlPreviewValue;
@@ -1792,9 +1749,16 @@ if (
 
 						if($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
 						{
-							BXClearCache(true, "/".SITE_ID."/blog/last_messages_list/");
+							BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+								'TYPE' => 'posts_last',
+								'SITE_ID' => SITE_ID
+							)));
+							BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+								'TYPE' => 'posts_last_blog',
+								'SITE_ID' => SITE_ID
+							)));
 
-							\Bitrix\Socialnetwork\ComponentHelper::notifyBlogPostCreated(array(
+							ComponentHelper::notifyBlogPostCreated(array(
 								'post' => array(
 									'ID' => $newID,
 									'TITLE' => $arFields["TITLE"],
@@ -1859,33 +1823,33 @@ if (
 							}
 						}
 
-						if ($arParams["IS_REST"] != "Y")
+						if (strlen($_POST["apply"]) <= 0)
 						{
-							if (strlen($_POST["apply"]) <= 0)
+							if($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || strlen($_POST["draft"]) > 0)
 							{
-								if($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT || strlen($_POST["draft"]) > 0)
-								{
-									$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DRAFT"], array("user_id" => $arBlog["OWNER_ID"]));
-								}
-								elseif($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY)
-								{
-									$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"]))."?moder=y";
-								}
-								else
-								{
-									$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("user_id" => $arBlog["OWNER_ID"]));
-								}
+								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DRAFT"], array("user_id" => $arBlog["OWNER_ID"]));
+							}
+							elseif($arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY)
+							{
+								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"]))."?moder=y";
 							}
 							else
 							{
-								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"]));
+								$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("user_id" => $arBlog["OWNER_ID"]));
 							}
-							$as = new CAutoSave(); // It is necessary to clear autosave buffer
-							$as->Reset();
-							LocalRedirect($redirectUrl);
 						}
 						else
-							return $newID;
+						{
+							$redirectUrl = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_EDIT"], array("post_id"=>$newID, "user_id" => $arBlog["OWNER_ID"]));
+						}
+						$as = new CAutoSave(); // It is necessary to clear autosave buffer
+						$as->Reset();
+
+						if (Loader::includeModule('pull'))
+						{
+							\Bitrix\Pull\Event::send();
+						}
+						LocalRedirect($redirectUrl);
 					}
 					else
 					{
@@ -1900,18 +1864,11 @@ if (
 						}
 					}
 				}
-
-				if (
-					strlen($arResult["ERROR_MESSAGE"]) > 0
-					&& $arParams["IS_REST"] == "Y"
-				)
-				{
-					$APPLICATION->ThrowException($arResult["ERROR_MESSAGE"], "ERROR_IN_ACTION");
-					return false;
-				}
 			}
 			else
+			{
 				$arResult["ERROR_MESSAGE"] = GetMessage("BPE_SESS");
+			}
 		}
 		elseif($_POST["reset"])
 		{
@@ -2238,21 +2195,24 @@ if (
 
 	if ($arResult["SHOW_FULL_FORM"])
 	{
+		$dataAdditional = array();
 		$arResult["DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
 			"DEST_CONTEXT" => "BLOG_POST",
 			"ALLOW_EMAIL_INVITATION" => $arResult["ALLOW_EMAIL_INVITATION"]
-		));
+		), $dataAdditional);
 
 		$arResult["PostToShow"]["FEED_DESTINATION"]['LAST'] = array();
 		CSocNetLogDestination::fillLastDestination(
 			$arResult["DEST_SORT"],
 			$arResult["PostToShow"]["FEED_DESTINATION"]['LAST'],
 			array(
-				"EMAILS" => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N')
+				"EMAILS" => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
+				"DATA_ADDITIONAL" => $dataAdditional
 			)
 		);
+
 		$limitReached = false;
-		$arResult["PostToShow"]["FEED_DESTINATION"]['SONETGROUPS'] = \Bitrix\Socialnetwork\ComponentHelper::getSonetGroupAvailable(array(
+		$arResult["PostToShow"]["FEED_DESTINATION"]['SONETGROUPS'] = ComponentHelper::getSonetGroupAvailable(array(
 			'limit' => 100
 		), $limitReached);
 
@@ -2503,7 +2463,7 @@ if (
 
 			if ($arResult["ALLOW_EMAIL_INVITATION"])
 			{
-				\Bitrix\Socialnetwork\ComponentHelper::fillSelectedUsersToInvite($_POST, $arParams, $arResult);
+				ComponentHelper::fillSelectedUsersToInvite($_POST, $arParams, $arResult);
 				CSocNetLogDestination::fillEmails($arResult["PostToShow"]["FEED_DESTINATION"]);
 			}
 		}
@@ -2565,18 +2525,6 @@ if (
 else
 {
 	$arResult["FATAL_MESSAGE"] = GetMessage("BLOG_ERR_NO_RIGHTS");
-}
-
-if (
-	(
-		strlen($arResult["ERROR_MESSAGE"]) > 0
-		|| strlen($arResult["FATAL_MESSAGE"]) > 0
-	)
-	&& $arParams["IS_REST"] == "Y"
-)
-{
-	$APPLICATION->ThrowException((strlen($arResult["ERROR_MESSAGE"]) > 0 ? $arResult["ERROR_MESSAGE"] : $arResult["FATAL_MESSAGE"]), "BLOG_EDIT_COMPONENT_ERROR");
-	return false;
 }
 
 CSocNetTools::InitGlobalExtranetArrays();

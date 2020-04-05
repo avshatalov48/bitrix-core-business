@@ -246,11 +246,12 @@
 
 				this.auxObject = {
 					formName: this.id,
-					inputName: params.inputId,
+					inputNode: BX(params.inputId),
 					tagInputName: params.tagId
 				};
 
 				BX.bind(this.input, "bxchange", BX.proxy(BX.SocNetLogDestination.BXfpSearch, this.auxObject));
+				this.input.setAttribute('data-bxchangehandler', 'Y');
 			}
 			else if(parameters.showSearchInput)
 			{
@@ -343,6 +344,7 @@
 							if (typeof this.options.eventOpen != 'undefined')
 							{
 								BX.addCustomEvent(window, this.options.eventOpen, BX.delegate(function(params) {
+
 									if (
 										typeof params.id == 'undefined'
 										|| params.id != this.id
@@ -362,35 +364,26 @@
 												inputNode: inputNode
 											}));
 
-											if (
-												true
-												|| !this.auxObject
-												|| (
-													(
-														!BX.type.isNotEmptyString(this.auxObject.inputName)
-														|| !BX(this.auxObject.inputName)
-													)
-													&& !BX(this.auxObject.inputNode)
-												)
-											)
-											{
-												this.auxObject = {
-													formName: this.id,
-													inputName: null,
-													inputNode: inputNode,
-													tagInputName: params.tagId
-												};
+											this.auxObject = {
+												formName: this.id,
+												inputNode: inputNode,
+												tagInputName: params.tagId
+											};
 
-												BX.SocNetLogDestination.obElementBindMainPopup[this.id].node = inputNode;
-												BX.SocNetLogDestination.obElementBindSearchPopup[this.id].node = inputNode;
-												BX.SocNetLogDestination.obItemsSelected[this.id] = {};
-											}
+											BX.SocNetLogDestination.obElementBindMainPopup[this.id].node = inputNode;
+											BX.SocNetLogDestination.obElementBindSearchPopup[this.id].node = inputNode;
 
-											if (this.auxObject)
+											if (inputNode.getAttribute('data-bxchangehandler') !== 'Y')
 											{
 												BX.bind(inputNode, "bxchange", BX.proxy(BX.SocNetLogDestination.BXfpSearch, this.auxObject));
+												BX.SocNetLogDestination.obItemsSelected[this.id] = {};
+												inputNode.setAttribute('data-bxchangehandler', 'Y');
 											}
 
+											if (typeof params.value != 'undefined')
+											{
+												BX.SocNetLogDestination.obItemsSelected[this.id] = params.value;
+											}
 										}
 
 										this.openDialog({
@@ -467,11 +460,15 @@
 			}
 
 			__mergeData(BX.SocNetLogDestination.obItems[this.id]['users'], data.ITEMS.USERS);
+			__mergeData(BX.SocNetLogDestination.obItems[this.id]['emails'], data.ITEMS.EMAILS);
+			__mergeData(BX.SocNetLogDestination.obItems[this.id]['crmemails'], data.ITEMS.CRMEMAILS);
 			__mergeData(BX.SocNetLogDestination.obItems[this.id]['sonetgroups'], data.ITEMS.SONETGROUPS);
 			__mergeData(BX.SocNetLogDestination.obItems[this.id]['department'], data.ITEMS.DEPARTMENT);
 			BX.SocNetLogDestination.obItems[this.id]["departmentRelation"] = BX.SocNetLogDestination.buildDepartmentRelation(BX.SocNetLogDestination.obItems[this.id]['department']);
 
 			BX.SocNetLogDestination.obItemsLast[this.id]['users'] = (typeof data['ITEMS_LAST']['USERS'] != 'undefined' ? data['ITEMS_LAST']['USERS'] : {});
+			BX.SocNetLogDestination.obItemsLast[this.id]['emails'] = (typeof data['ITEMS_LAST']['EMAILS'] != 'undefined' ? data['ITEMS_LAST']['EMAILS'] : {});
+			BX.SocNetLogDestination.obItemsLast[this.id]['crmemails'] = (typeof data['ITEMS_LAST']['CRMEMAILS'] != 'undefined' ? data['ITEMS_LAST']['CRMEMAILS'] : {});
 			BX.SocNetLogDestination.obItemsLast[this.id]['sonetgroups'] = (typeof data['ITEMS_LAST']['SONETGROUPS'] != 'undefined' ? data['ITEMS_LAST']['SONETGROUPS'] : {});
 			BX.SocNetLogDestination.obItemsLast[this.id]['department'] = (typeof data['ITEMS_LAST']['DEPARTMENT'] != 'undefined' ? data['ITEMS_LAST']['DEPARTMENT'] : {});
 			BX.SocNetLogDestination.obItemsLast[this.id]['groups'] = (typeof data['ITEMS_LAST']['GROUPS'] != 'undefined' ? data['ITEMS_LAST']['GROUPS'] : {});

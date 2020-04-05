@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Sale;
 
+use Bitrix\Sale\Internals\CollectableEntity;
+
 class EventActions
 {
 	const ADD = "ADD";
@@ -52,11 +54,14 @@ class EventActions
 
 	const EVENT_ON_CHECK_PRINT = "OnSalePaymentCheckPrint";
 
+	const EVENT_ON_CHECK_PRINT_ERROR = "OnSalePaymentCheckPrintError";
+
 	const EVENT_ON_TAX_GET_LIST = "OnSaleTaxGetList";
 
 	const ENTITY_ORDER = '\Bitrix\Sale\Order';
 	const ENTITY_SHIPMENT = '\Bitrix\Sale\Shipment';
 	const ENTITY_PAYMENT = '\Bitrix\Sale\Payment';
+	const ENTITY_COLLECTABLE_ENTITY = CollectableEntity::class;
 
 	/**
 	 * @return array
@@ -100,8 +105,13 @@ class EventActions
 			),
 
 			static::EVENT_ON_CHECK_PRINT => array(
-				"ENTITY" => static::ENTITY_PAYMENT,
+				"ENTITY" => static::ENTITY_COLLECTABLE_ENTITY,
 				"METHOD" => array('\Bitrix\Sale\Notify', "sendPrintableCheck"),
+			),
+
+			static::EVENT_ON_CHECK_PRINT_ERROR => array(
+				"ENTITY" => static::ENTITY_COLLECTABLE_ENTITY,
+				"METHOD" => array('\Bitrix\Sale\Notify', "sendCheckError"),
 			),
 
 		);

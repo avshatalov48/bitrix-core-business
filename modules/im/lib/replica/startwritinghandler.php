@@ -104,10 +104,7 @@ class StartWritingHandler extends \Bitrix\Replica\Client\BaseHandler
 						'userId' => $userId,
 						'userName' => $userName
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				);
 				if ($chatData['ENTITY_TYPE'] == 'LINES')
 				{
@@ -139,10 +136,7 @@ class StartWritingHandler extends \Bitrix\Replica\Client\BaseHandler
 						'userId' => $userId,
 						'userName' => $userName
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
 		}

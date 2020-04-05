@@ -470,7 +470,7 @@ class DeliveryPaySystemTable extends \Bitrix\Main\Entity\DataManager
 	{
 		$con = \Bitrix\Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
-		$entityId = $sqlHelper->forSql($entityId);
+		$entityId = (int)$entityId;
 		$linkDirection = $sqlHelper->forSql($linkDirection);
 
 		$sql = "INSERT INTO ".
@@ -487,7 +487,7 @@ class DeliveryPaySystemTable extends \Bitrix\Main\Entity\DataManager
 			else
 				$first = false;
 
-			$id = $sqlHelper->forSql($id);
+			$id = (int)$id;
 
 			if($entityType == self::ENTITY_TYPE_DELIVERY)
 				$sql .= " (".$entityId.", ".$id;

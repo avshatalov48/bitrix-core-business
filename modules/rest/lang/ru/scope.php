@@ -1,0 +1,30 @@
+<?
+$MESS["REST_SCOPE_LISTS"] = "Списки";
+$MESS["REST_SCOPE_BIZPROC"] = "Бизнес-процессы";
+$MESS["REST_SCOPE_CRM"] = "CRM";
+$MESS["REST_SCOPE_ENTITY"] = "Хранилище данных";
+$MESS["REST_SCOPE_IM"] = "Чат и уведомления";
+$MESS["REST_SCOPE_TASK"] = "Задачи";
+$MESS["REST_SCOPE_USER"] = "Пользователи";
+$MESS["REST_SCOPE_DEPARTMENT"] = "Структура компании";
+$MESS["REST_SCOPE_LOG"] = "Живая лента";
+$MESS["REST_SCOPE_CALENDAR"] = "Календарь";
+$MESS["REST_SCOPE_SONET_GROUP"] = "Рабочие группы";
+$MESS["REST_SCOPE_TASKS_EXTENDED"] = "Задачи (расширенные права)";
+$MESS["REST_SCOPE_MAILSERVICE"] = "Почтовые сервисы";
+$MESS["REST_SCOPE_TELEPHONY"] = "Телефония";
+$MESS["REST_SCOPE_DISK"] = "Диск";
+$MESS["REST_SCOPE_PULL"] = "Мгновенные сообщения системы (без доступа к служебному каналу пользователя)";
+$MESS["REST_SCOPE_PULL_CHANNEL"] = "Служебный канал для мгновенных сообщений системы (подписка на информацию об обновлении всех элементов системы доступных пользователю)";
+$MESS["REST_SCOPE_MOBILE"] = "Мобильное приложение";
+$MESS["REST_SCOPE_IMBOT"] = "Создание и управление Чат-ботами";
+$MESS["REST_SCOPE_CALL"] = "Телефония (совершение звонков)";
+$MESS["REST_SCOPE_IMOPENLINES"] = "Открытые линии";
+$MESS["REST_SCOPE_PLACEMENT"] = "Встраивание приложений";
+$MESS["REST_SCOPE_TIMEMAN"] = "Учет рабочего времени";
+$MESS["REST_SCOPE_MESSAGESERVICE"] = "Служба сообщений";
+$MESS["REST_SCOPE_PAY_SYSTEM"] = "Платежные системы";
+$MESS["REST_SCOPE_LANDING"] = "Сайты";
+$MESS["REST_SCOPE_FACEID"] = "Распознавание лиц";
+$MESS["REST_SCOPE_FORUM"] = "Форум";
+?>

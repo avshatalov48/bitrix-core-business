@@ -18,6 +18,11 @@ class CSalePredictionProductDetailComponent extends CBitrixComponent
 			$params['SGP_CUR_BASE_PAGE'] = $APPLICATION->GetCurPage();
 		}
 
+		if (isset($params['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($params['CUSTOM_SITE_ID']);
+		}
+
 		$this->arResult['_ORIGINAL_PARAMS'] = $params;
 
 		if(empty($params["POTENTIAL_PRODUCT_TO_BUY"]))
@@ -67,7 +72,7 @@ class CSalePredictionProductDetailComponent extends CBitrixComponent
 			));
 
 			$manager = Bitrix\Sale\Discount\Prediction\Manager::getInstance();
-			$basket = \Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), SITE_ID)->getOrderableItems();
+			$basket = \Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId())->getOrderableItems();
 
 			global $USER;
 			if ($USER instanceof \CUser && $USER->getId())

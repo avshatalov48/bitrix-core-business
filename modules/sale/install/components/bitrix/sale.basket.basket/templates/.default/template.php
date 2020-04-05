@@ -257,7 +257,7 @@ if (empty($arResult['ERROR_MESSAGE']))
 			params: <?=CUtil::PhpToJSObject($arParams)?>,
 			template: '<?=CUtil::JSEscape($signedTemplate)?>',
 			signedParamsString: '<?=CUtil::JSEscape($signedParams)?>',
-			siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
+			siteId: '<?=$component->getSiteId()?>',
 			ajaxUrl: '<?=CUtil::JSEscape($component->getPath().'/ajax.php')?>',
 			templateFolder: '<?=CUtil::JSEscape($templateFolder)?>'
 		});

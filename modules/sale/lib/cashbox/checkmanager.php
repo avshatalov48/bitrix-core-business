@@ -177,6 +177,7 @@ final class CheckManager
 
 		$order = null;
 		$payment = null;
+		$shipment = null;
 
 		$dbRes = CashboxCheckTable::getList(array('select' => array('*'), 'filter' => array('ID' => $checkId)));
 		$check = $dbRes->fetch();
@@ -205,6 +206,17 @@ final class CheckManager
 				if ($payment === null)
 				{
 					$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_PAYMENT_LOAD')));
+					return $result;
+				}
+			}
+
+			$shipmentCollection = $order->getShipmentCollection();
+			if ($check['SHIPMENT_ID'] > 0)
+			{
+				$shipment = $shipmentCollection->getItemById($check['SHIPMENT_ID']);
+				if ($shipment === null)
+				{
+					$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_SHIPMENT_LOAD')));
 					return $result;
 				}
 			}
@@ -238,14 +250,29 @@ final class CheckManager
 
 				CashboxCheckTable::update($checkId, $updatedFields);
 
-				if ($order !== null && $payment !== null)
+				if ($order !== null
+					&& ($payment !== null || $shipment !== null)
+				)
 				{
 					$r = new Result();
 					$errorCode = isset($data['ERROR']['CODE']) ? $data['ERROR']['CODE'] : 0;
 					$r->addWarning(new Main\Error($errorMessage, $errorCode));
-					EntityMarker::addMarker($order, $payment, $r);
 
-					$payment->setField('MARKED', 'Y');
+					if ($payment !== null)
+					{
+						EntityMarker::addMarker($order, $payment, $r);
+						$payment->setField('MARKED', 'Y');
+
+						Sale\Notify::callNotify($payment, Sale\EventActions::EVENT_ON_CHECK_PRINT_ERROR);
+					}
+					elseif ($shipment !== null)
+					{
+						EntityMarker::addMarker($order, $shipment, $r);
+						$shipment->setField('MARKED', 'Y');
+
+						Sale\Notify::callNotify($shipment, Sale\EventActions::EVENT_ON_CHECK_PRINT_ERROR);
+					}
+
 					$order->save();
 				}
 
@@ -276,10 +303,14 @@ final class CheckManager
 
 			if ($updateResult->isSuccess())
 			{
-				if ($payment !== null)
+				if ($payment !== null || $shipment !== null)
 				{
 					$isSend = false;
-					$event = new Main\Event('sale', static::EVENT_ON_CHECK_PRINT_SEND, array('PAYMENT' => $payment, 'CHECK' => $check));
+					$event = new Main\Event(
+						'sale',
+						static::EVENT_ON_CHECK_PRINT_SEND,
+						array('PAYMENT' => $payment, 'SHIPMENT' => $shipment, 'CHECK' => $check)
+					);
 					$event->send();
 
 					$eventResults = $event->getResults();
@@ -291,7 +322,16 @@ final class CheckManager
 					}
 
 					if (!$isSend)
-						Sale\Notify::callNotify($payment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
+					{
+						if ($payment !== null)
+						{
+							Sale\Notify::callNotify($payment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
+						}
+						elseif ($shipment !== null)
+						{
+							Sale\Notify::callNotify($shipment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
+						}
+					}
 				}
 			}
 			else
@@ -921,13 +961,27 @@ final class CheckManager
 	 */
 	public static function getLastPrintableCheckInfo(Sale\Internals\CollectableEntity $entity)
 	{
-		if (!($entity instanceof Sale\Payment))
+		if (!($entity instanceof Sale\Payment)
+			&& !($entity instanceof Sale\Shipment)
+		)
+		{
 			return array();
+		}
+
+		$filter = array('STATUS' => 'Y');
+		if ($entity instanceof Sale\Payment)
+		{
+			$filter['PAYMENT_ID'] = $entity->getId();
+		}
+		elseif ($entity instanceof Sale\Shipment)
+		{
+			$filter['SHIPMENT_ID'] = $entity->getId();
+		}
 
 		$dbRes = CashboxCheckTable::getList(
 			array(
 				'select' => array('*'),
-				'filter' => array('PAYMENT_ID' => $entity->getId(), 'STATUS' => 'Y'),
+				'filter' => $filter,
 				'order' => array('DATE_PRINT_END' => 'DESC'),
 				'limit' => 1
 			)

@@ -43,7 +43,7 @@ if ($USER->CanDoOperation('catalog_price'))
 
 		for ($i = 0; $i <= $CAT_ROW_COUNTER; $i++)
 		{
-			${"CAT_BASE_PRICE_".$i} = str_replace(",", ".", ${"CAT_BASE_PRICE_".$i});
+			${"CAT_BASE_PRICE_".$i} = str_replace([' ', ','], ['', '.'], ${"CAT_BASE_PRICE_".$i});
 
 			if (intval(${"CAT_BASE_QUANTITY_FROM_".$i}) > 0
 				|| intval(${"CAT_BASE_QUANTITY_TO_".$i}) > 0

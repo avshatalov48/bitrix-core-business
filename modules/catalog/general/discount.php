@@ -1089,7 +1089,8 @@ class CAllCatalogDiscount
 			'DISCOUNT_PRICE' => 0,
 			'CURRENCY' => $priceRow['CURRENCY'],
 			'CAN_BUY' => 'Y',
-			'DELAY' => 'N'
+			'DELAY' => 'N',
+			'PRICE_TYPE_ID' => (int)$priceRow['CATALOG_GROUP_ID']
 		);
 
 		$basketItem->setFieldsNoDemand($fields);
@@ -1107,11 +1108,6 @@ class CAllCatalogDiscount
 		{
 			$discount = Sale\Discount::buildFromBasket($basket, new Context\UserGroup($userGroups));
 		}
-
-		$discount->setBasketItemData(
-			$basketItem->getBasketCode(),
-			array('PRICE_TYPE_ID' => (int)$priceRow['CATALOG_GROUP_ID'])
-		);
 
 		$discount->setExecuteModuleFilter(array('all', 'catalog'));
 		$discount->calculate();
@@ -1937,42 +1933,6 @@ class CAllCatalogDiscount
 		$currency = CCurrency::checkCurrencyID($currency);
 		if ($priceData['CURRENCY'] === false || $currency === false || !is_array($discountList))
 			return $result;
-		if (empty($discountList))
-		{
-			if ($getWithVat && $priceData['VAT_INCLUDED'] == 'N')
-			{
-				$priceData['PRICE'] *= (1 + $priceData['VAT_RATE']);
-				$priceData['VAT_INCLUDED'] = 'Y';
-			}
-			elseif (!$getWithVat && $priceData['VAT_INCLUDED'] == 'Y')
-			{
-				$priceData['PRICE'] /= (1 + $priceData['VAT_RATE']);
-				$priceData['VAT_INCLUDED'] = 'N';
-			}
-			$convertPrice = (
-				$priceData['CURRENCY'] == $currency
-				? $priceData['PRICE']
-				: CCurrencyRates::ConvertCurrency($priceData['PRICE'], $priceData['CURRENCY'], $currency)
-			);
-			$roundPrice = Catalog\Product\Price::roundPrice(
-				$priceData['CATALOG_GROUP_ID'],
-				$convertPrice,
-				$currency
-			);
-
-			$result = array(
-				'PRICE_TYPE_ID' => $priceData['CATALOG_GROUP_ID'],
-				'BASE_PRICE' => $roundPrice,
-				'UNROUND_DISCOUNT_PRICE' => $convertPrice,
-				'CURRENCY' => $currency,
-				'DISCOUNT_PRICE' => $roundPrice,
-				'DISCOUNT' => 0,
-				'PERCENT' => 0,
-				'VAT_RATE' => $priceData['VAT_RATE'],
-				'VAT_INCLUDED' => $priceData['VAT_INCLUDED']
-			);
-			return $result;
-		}
 
 		//$discountVat = ((string)Option::get('catalog', 'discount_vat') != 'N');
 		$discountVat = true;
@@ -2057,27 +2017,41 @@ class CAllCatalogDiscount
 		}
 		unset($vatRate);
 		unset($priceData['ORIG_VAT_INCLUDED']);
+		$unroundBasePrice = $calculatePrice;
 		$unroundPrice = $currentPrice;
-		$currentPrice = Catalog\Product\Price::roundPrice(
-			$priceData['CATALOG_GROUP_ID'],
-			$currentPrice,
-			$currency
-		);
-		if ((roundEx($calculatePrice, 2) - roundEx($unroundPrice, 2)) < 0.01)
+		if (Catalog\Product\Price\Calculation::isComponentResultMode())
 		{
-			$calculatePrice = $currentPrice;
+			$calculatePrice = Catalog\Product\Price::roundPrice(
+				$priceData['CATALOG_GROUP_ID'],
+				$calculatePrice,
+				$currency
+			);
+			$currentPrice = Catalog\Product\Price::roundPrice(
+				$priceData['CATALOG_GROUP_ID'],
+				$currentPrice,
+				$currency
+			);
+			if (
+				empty($discountList)
+				|| Catalog\Product\Price\Calculation::compare($result['BASE_PRICE'], $result['PRICE'], '<=')
+			)
+			{
+				$result['BASE_PRICE'] = $result['PRICE'];
+			}
 		}
-		$currentDiscount = ($calculatePrice > $currentPrice ? $calculatePrice - $currentPrice : 0);
+		$currentDiscount = ($calculatePrice - $currentPrice);
 
 		$result = array(
+			'PRICE_TYPE_ID' => $priceData['CATALOG_GROUP_ID'],
 			'BASE_PRICE' => $calculatePrice,
 			'DISCOUNT_PRICE' => $currentPrice,
+			'UNROUND_BASE_PRICE' => $unroundBasePrice,
 			'UNROUND_DISCOUNT_PRICE' => $unroundPrice,
 			'CURRENCY' => $currency,
 			'DISCOUNT' => $currentDiscount,
 			'PERCENT' => (
 				$calculatePrice > 0 && $currentDiscount > 0
-				? roundEx((100*$currentDiscount)/$calculatePrice, CATALOG_VALUE_PRECISION)
+				? roundEx((100*$currentDiscount)/$calculatePrice, 0)
 				: 0
 			),
 			'VAT_RATE' => $priceData['VAT_RATE'],

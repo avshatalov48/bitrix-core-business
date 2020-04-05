@@ -493,7 +493,6 @@
 				BX.PopupMenu.destroy(menuId);
 			});
 		}
-
 	};
 
 	if (window.BXEventCalendar)

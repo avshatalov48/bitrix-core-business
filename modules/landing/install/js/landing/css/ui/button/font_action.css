@@ -1,0 +1,15 @@
+.landing-ui-button-editor-action-font-popup-content {
+	margin: 15px;
+}
+
+.landing-ui-button-editor-action-font-popup {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	transition: opacity 400ms ease-out;
+}
+
+.landing-ui-button-editor-action-font-popup.landing-ui-fade {
+	opacity: .55;
+}

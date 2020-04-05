@@ -174,6 +174,11 @@ class CIMShare
 			if (!empty($results))
 			{
 				$task['DEADLINE'] = $results[0]->getDate();
+				$userOffset = CTimeZone::GetOffset();
+				if ($userOffset != 0)
+				{
+					$task['DEADLINE']->add(($userOffset*-1).' SECONDS');
+				}
 			}
 		}
 
@@ -218,6 +223,13 @@ class CIMShare
 				$dateFrom = $results[0]->getDate();
 			}
 		}
+
+		$userOffset = CTimeZone::GetOffset();
+		if ($userOffset != 0)
+		{
+			$dateFrom->add(($userOffset*-1).' SECONDS');
+		}
+
 		$dateTo = clone $dateFrom;
 		$dateTo->add('30 MINUTES');
 

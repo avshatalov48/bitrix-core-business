@@ -48,7 +48,7 @@ final class ForumPost extends Provider
 				$this->setSourceFields($message);
 				$this->setSourceDescription($message['POST_MESSAGE']);
 				$this->setSourceTitle('');
-				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($messageId));
+				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
 				$this->setSourceDiskObjects($this->getDiskObjects($messageId, $this->cloneDiskObjects));
 			}
 		}

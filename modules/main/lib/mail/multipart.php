@@ -30,9 +30,25 @@ class Multipart extends Part
 	 */
 	public function __construct()
 	{
-		$this->eol = Mail::getMailEol();
+		parent::__construct();
 		$this->uniqueString = substr(uniqid(mt_rand(100, 999)), 0, 10);
 		$this->setContentType(self::MIXED);
+	}
+
+	/**
+	 * Set EOL.
+	 *
+	 * @param string $eol
+	 * @return $this
+	 */
+	public function setEol($eol)
+	{
+		parent::setEol($eol);
+		foreach ($this->parts as $part)
+		{
+			$part->setEol($this->getEol());
+		}
+		return $this;
 	}
 
 	/**
@@ -56,6 +72,7 @@ class Multipart extends Part
 	 */
 	public function addPart(Part $part)
 	{
+		$part->setEol($this->getEol());
 		$this->parts[] = $part;
 		return $this;
 	}

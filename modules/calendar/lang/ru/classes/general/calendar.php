@@ -678,8 +678,6 @@ $MESS["EC_D_REC_EV_ONLY_THIS_EVENT"] = "Только в этом";
 $MESS["EC_D_REC_EV_NEXT"] = "В этом и следующих";
 $MESS["EC_D_REC_EV_ALL"] = "Во всех";
 $MESS["EC_BUSY_ALERT"] = "Один или несколько участников заняты в указанное время и не могут быть приглашены.";
-
-
 $MESS["EC_REMIND_VIEW_0"] = "В момент события";
 $MESS["EC_REMIND_VIEW_5"] = "За 5 минут до начала";
 $MESS["EC_REMIND_VIEW_10"] = "За 10 минут до начала";
@@ -692,4 +690,6 @@ $MESS["EC_REMIND_VIEW_2880"] = "За 2 дня до начала";
 $MESS["EC_REMIND_VIEW_MIN_COUNT"] = "За #COUNT# минут(-ы) до начала";
 $MESS["EC_REMIND_VIEW_HOUR_COUNT"] = "За #COUNT# час(-а) до начала";
 $MESS["EC_REMIND_VIEW_DAY_COUNT"] = "За #COUNT# дня(дней) до начала";
+$MESS["EC_YEAR_HOLIDAYS_DEFAULT"] = '1.01,2.01,7.01,23.02,8.03,1.05,9.05,12.06,4.11';
+$MESS["EC_YEAR_WORKDAYS_DEFAULT"] = '31.12';
 ?>

@@ -107,6 +107,13 @@ elseif (
 				CAdminNotify::Delete($adminNotify['ID']);
 			unset($adminNotify);
 		}
+		$adminNotifyIterator = CAdminNotify::GetList(array(), array('MODULE_ID' => 'catalog', 'TAG' => 'CATALOG_REINDEX'));
+		if ($adminNotifyIterator)
+		{
+			if ($adminNotify = $adminNotifyIterator->Fetch())
+				CAdminNotify::Delete($adminNotify['ID']);
+			unset($adminNotify);
+		}
 		unset($adminNotifyIterator);
 	}
 	unset($emptyAvailable);

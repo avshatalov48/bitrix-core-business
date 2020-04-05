@@ -1,0 +1,91 @@
+.sender-mail-link-editor-wrap {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.sender-mail-link-editor-wrap .bx-sender-message-editor-field-input {
+	margin: 0 14px 0 0;
+	flex: 1;
+}
+
+.sender-mail-text-editor-utm {
+	display: inline-block;
+	height: 18px;
+	border-bottom: 1px dashed rgba(128,134,142,.5);
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868E;
+	transition: border-bottom .3s;
+	cursor: pointer;
+}
+
+.sender-mail-text-editor-utm:hover {
+	border-bottom: 1px dashed transparent;
+}
+
+.sender-mail-link-editor-textarea {
+	display: block;
+	padding: 12px;
+	width: 100%;
+	min-height: 120px;
+	border: none;
+	border-bottom: 1px solid #C6CDD3;
+	font: 14px/19px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	resize: none;
+	outline: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+}
+
+.sender-mail-link-editor-count {
+	display: flex;
+	align-items: center;
+	padding: 10px 13px;
+	min-height: 40px;
+	background: #F8FAFB;
+	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	box-sizing: border-box;
+}
+
+.sender-mail-link-editor-count-inner {
+	margin: 0 0 0 auto;
+}
+
+.sender-mail-link-editor-count-name {
+	display: inline-block;
+	color: #B0B7BD;
+}
+
+.sender-mail-link-editor-count-number {
+	display: inline-block;
+	color: #89929E;
+}
+
+.sender-popup-container {
+	padding: 10px;
+}
+
+.sender-popup-editor-row {
+	margin: 0 0 15px 0;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.sender-popup-editor-caption {
+	margin: 0 5px 5px 0;
+	color: #80868E;
+}
+
+.sender-popup-editor-hint {}
+
+.sender-popup-editor-input-box {}
+
+.sender-popup-editor-input {
+	display: block;
+	padding: 10px 12px;
+	width: 100%;
+	height: 38px;
+	border: 1px solid #C6CDD3;
+	border-radius: 2px;
+	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	box-sizing: border-box;
+}

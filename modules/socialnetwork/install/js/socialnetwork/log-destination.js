@@ -388,6 +388,17 @@ BX.SocNetLogDestination.init = function(arParams)
 		title: BX.message('LM_POPUP_TAB_LAST_USERS')
 	});
 
+	if (BX.SocNetLogDestination.obAllowSearchNetworkUsers[arParams.name])
+	{
+		BX.SocNetLogDestination.arDialogGroups[arParams.name].push({
+			bCrm: false,
+			groupCode: 'network',
+			className: 'bx-lm-element-user',
+			descLessMode: false,
+			title: BX.message('LM_POPUP_TAB_LAST_NETWORK')
+		});
+	}
+
 	BX.SocNetLogDestination.arDialogGroups[arParams.name].push({
 		bCrm: false,
 		groupCode: 'crmemails',
@@ -1468,7 +1479,7 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 	else
 	{
 		var items = {
-			'groups': {}, 'users': {}, 'crmemails': {}, 'sonetgroups': {}, 'projects': {}, 'department': {},
+			'groups': {}, 'users': {}, 'network': {}, 'crmemails': {}, 'sonetgroups': {}, 'projects': {}, 'department': {},
 			'contacts': {}, 'companies': {}, 'leads': {}, 'deals': {}
 		};
 		var count = 0;
@@ -1614,6 +1625,8 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 				}
 			}
 
+			var tmpString = '';
+
 			for (i in BX.SocNetLogDestination.obItems[name][group])
 			{
 				if (!BX.SocNetLogDestination.obItems[name][group].hasOwnProperty(i))
@@ -1633,11 +1646,18 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 					searchString = arSearchStringAlternatives[key];
 					partsSearchText = searchString.toLowerCase().split(" ");
 					partsItem = BX.SocNetLogDestination.obItems[name][group][i].name.toLowerCase().split(" ");
+
 					for (k in partsItem)
 					{
 						if (partsItem.hasOwnProperty(k))
 						{
-							partsItem[k] = BX.util.htmlspecialcharsback(partsItem[k]).replace(/(["\xAB\xBB])/g, ''); // strip quotes
+							partsItem[k] = BX.util.htmlspecialcharsback(partsItem[k]);
+							tmpString = partsItem[k].replace(/(["\xAB\xBB])/g, ''); // strip quotes
+
+							if (tmpString.length != partsItem[k].length)
+							{
+								partsItem.push(tmpString);
+							}
 						}
 					}
 
@@ -1944,7 +1964,7 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 					SEARCH_SONET_GROUPS : (BX.SocNetLogDestination.obAllowSonetGroupsAjaxSearch[name] ? 'Y' : 'N'),
 					USE_PROJECTS: (BX.SocNetLogDestination.obProjectsEnable[name] ? 'Y' : 'N'),
 					SEARCH_SONET_FEATUES : BX.SocNetLogDestination.obAllowSonetGroupsAjaxSearchFeatures[name],
-					SITE_ID : BX.message('SITE_ID')
+					SITE_ID : BX.message['SITE_ID'] || ''
 				};
 				BX.SocNetLogDestination.oXHR = BX.ajax({
 					url: BX.SocNetLogDestination.obPathToAjax[name],
@@ -2018,7 +2038,21 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 											{
 												bFound = true;
 												BX.SocNetLogDestination.oAjaxUserSearchResult[name][textAjax.toLowerCase()].push(i);
-												BX.SocNetLogDestination.obItems[name].users[i] = data.USERS[i];
+												if (
+													typeof data.USERS[i].isNetwork != 'undefined'
+													&& data.USERS[i].isNetwork == 'Y'
+												)
+												{
+													if (typeof BX.SocNetLogDestination.obItems[name].network == 'undefined')
+													{
+														BX.SocNetLogDestination.obItems[name].network = {};
+													}
+													BX.SocNetLogDestination.obItems[name].network[i] = data.USERS[i];
+												}
+												else
+												{
+													BX.SocNetLogDestination.obItems[name].users[i] = data.USERS[i];
+												}
 											}
 										}
 									}
@@ -2180,13 +2214,18 @@ BX.SocNetLogDestination.searchNetwork = function(text, name, nameTemplate, finde
 			BX.SocNetLogDestination.hideSearchWaiter(name);
 			if (data && typeof data.USERS != 'undefined')
 			{
+				if (typeof BX.SocNetLogDestination.obItems[name].network == 'undefined')
+				{
+					BX.SocNetLogDestination.obItems[name].network = {};
+				}
+
 				for (var i in data.USERS)
 				{
 					if (data.USERS.hasOwnProperty(i))
 					{
 						bFound = true;
 						BX.SocNetLogDestination.oAjaxUserSearchResult[name][textAjax.toLowerCase()].push(i);
-						BX.SocNetLogDestination.obItems[name].users[i] = data.USERS[i];
+						BX.SocNetLogDestination.obItems[name].network[i] = data.USERS[i];
 					}
 				}
 

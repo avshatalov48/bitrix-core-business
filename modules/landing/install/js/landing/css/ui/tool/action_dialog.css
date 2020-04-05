@@ -1,0 +1,42 @@
+.landing-ui-dialog-action {
+	position: fixed!important;
+	top: 100px!important;
+}
+
+.landing-ui-dialog-action-content {
+	min-width: 400px;
+}
+
+.landing-ui-dialog-action.landing-ui-show {
+	animation: showActionDialog 300ms both;
+}
+
+.landing-ui-dialog-action.landing-ui-hide {
+	animation: hideActionDialog 400ms both;
+}
+
+
+@keyframes showActionDialog {
+	0% {
+		top: 80px;
+		opacity: 0;
+	}
+
+	100% {
+		top: 100px;
+		opacity: 1;
+	}
+}
+
+
+@keyframes hideActionDialog {
+	0% {
+		top: 100px;
+		opacity: 1;
+	}
+
+	100% {
+		top: 80px;
+		opacity: 0;
+	}
+}

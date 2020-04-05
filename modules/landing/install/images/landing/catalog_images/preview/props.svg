@@ -1,0 +1,17 @@
+<svg width="124px" height="40px" viewBox="0 0 124 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="В-отрисовку" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02_Дизайн-слайдер-вкладки-Copy-2" transform="translate(-37.000000, -1694.000000)">
+            <g id="Group-28" transform="translate(35.000000, 1635.000000)">
+                <g id="Group-17" transform="translate(2.000000, 2.000000)">
+                    <g id="Group-19" transform="translate(0.000000, 57.000000)">
+                        <rect id="Rectangle-19" x="0" y="0" width="124" height="40"></rect>
+                        <path d="M8,15 L20,15 C20.5522847,15 21,15.4477153 21,16 L21,28 C21,28.5522847 20.5522847,29 20,29 L8,29 C7.44771525,29 7,28.5522847 7,28 L7,16 C7,15.4477153 7.44771525,15 8,15 Z" id="Rectangle-19-Copy-7" fill="#A8ADB4" opacity="0.300000012"></path>
+                        <path d="M25,15 L37,15 C37.5522847,15 38,15.4477153 38,16 L38,28 C38,28.5522847 37.5522847,29 37,29 L25,29 C24.4477153,29 24,28.5522847 24,28 L24,16 C24,15.4477153 24.4477153,15 25,15 Z" id="Rectangle-19-Copy-8" fill="#A8ADB4" opacity="0.300000012"></path>
+                        <rect id="Rectangle-19-Copy-9" fill="#A8ADB4" opacity="0.300000012" x="41" y="15" width="14" height="14" rx="1"></rect>
+                        <rect id="Rectangle-19-Copy-10" fill="#A8ADB4" opacity="0.300000012" x="7" y="9" width="32" height="2" rx="1"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

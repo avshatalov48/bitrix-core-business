@@ -141,11 +141,18 @@ if(
 					&& $_POST["SECTION_PROPERTY"][$p["ID"]]["SHOW"] === "Y"
 				)
 				{
+					$filterHint = trim($_POST["SECTION_PROPERTY"][$p["ID"]]["FILTER_HINT"]);
+					if ($filterHint)
+					{
+						$filterHint = $TextParser->SanitizeHtml($filterHint);
+					}
+
 					CIBlockSectionPropertyLink::Set(0, $p["ID"], array(
 						"SMART_FILTER" => $_POST["SECTION_PROPERTY"][$p["ID"]]["SMART_FILTER"],
 						"DISPLAY_TYPE" => $_POST["SECTION_PROPERTY"][$p["ID"]]["DISPLAY_TYPE"],
 						"DISPLAY_EXPANDED" => $_POST["SECTION_PROPERTY"][$p["ID"]]["DISPLAY_EXPANDED"],
 						"IBLOCK_ID" => $IBLOCK_ID,
+						"FILTER_HINT" => $filterHint,
 					));
 				}
 				else

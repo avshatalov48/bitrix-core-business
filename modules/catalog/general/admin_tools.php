@@ -985,6 +985,8 @@ class CCatalogAdminProductSetEdit
 		foreach ($arSets as $key => $arOneSet)
 		{
 			$blockName = self::$strMainPrefix.'_'.$arOneSet['ITEM_ID'];
+			if ((int)$key == 0)
+				$blockName .= '_'.randString(8);
 			$strNamePrefix = self::$strMainPrefix.'['.$key.']';
 			$strIDPrefix = $blockName.'_'.$key;
 			?><table id="<? echo $strIDPrefix; ?>_TBL" class="internal" style="margin: 0 auto;">
@@ -1060,7 +1062,7 @@ class CCatalogAdminProductSetEdit
 				'BTN_ID' => $strIDPrefix.'_ITEMS_ADD',
 				'CELLS' => $arCellInfo['CELLS'],
 				'CELL_PARAMS' => $arCellInfo['CELL_PARAMS']
-			)
+			);
 			?>
 <script type="text/javascript">
 if (!window.ob<?=$blockName; ?>)

@@ -31,4 +31,11 @@ $MESS["BLOG_POST_EDIT_T_CREATE_TASK_SUCCESS_TITLE"] = "Task has been created";
 $MESS["BLOG_POST_EDIT_T_CREATE_TASK_SUCCESS_DESCRIPTION"] = "You can now view and edit the task.";
 $MESS["BLOG_POST_EDIT_T_CREATE_TASK_BUTTON_TITLE"] = "View task";
 $MESS["MPF_DRAG_ATTACHMENTS2"] = "Upload files?";
+$MESS["IMPORTANT_TILL_TITLE"] = "show announcement:";
+$MESS["IMPORTANT_FOR_ALWAYS"] = "always";
+$MESS["IMPORTANT_FOR_ONE_DAY"] = "one day";
+$MESS["IMPORTANT_FOR_TWO_DAYS"] = "two days";
+$MESS["IMPORTANT_FOR_WEEK"] = "one week";
+$MESS["IMPORTANT_FOR_MONTH"] = "one month";
+$MESS["IMPORTANT_FOR_CUSTOM"] = "until";
 ?>

@@ -63,7 +63,7 @@ class CBPAllWorkflowPersister
 			}
 			elseif (!$silent)
 			{
-				throw new Exception(GetMessage("BPCGWP_WF_LOCKED"));
+				throw new Exception(GetMessage("BPCGWP_WF_LOCKED"), \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED);
 			}
 			$buffer = $arResult["WORKFLOW"];
 		}
@@ -111,7 +111,7 @@ class CBPAllWorkflowPersister
 				}
 				else
 				{
-					throw new Exception(GetMessage('BPCGWP_WF_LOCKED'));
+					throw new Exception(GetMessage('BPCGWP_WF_LOCKED'), \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED);
 				}
 			}
 			else

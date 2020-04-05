@@ -1,0 +1,17 @@
+<svg width="120px" height="74px" viewBox="0 0 120 74" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="В-отрисовку" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02_Дизайн-слайдер-вкладки-Copy-2" transform="translate(-488.000000, -1785.000000)">
+            <g id="Group-23" transform="translate(488.000000, 1785.000000)">
+                <rect id="Rectangle-24" fill="#FFFFFF" x="0" y="0" width="120" height="74" rx="2"></rect>
+                <g id="Rectangle-12" transform="translate(34.000000, 8.000000)">
+                    <rect fill="#2FC6F6" fill-rule="evenodd" opacity="0.25" x="5" y="5" width="44" height="41"></rect>
+                    <rect id="Rectangle-12-Copy" opacity="0.197293931" x="0" y="0" width="53" height="50" rx="2"></rect>
+                    <path d="M6.375,52 C5.61560847,52 5,51.3284271 5,50.5 C5,49.6715729 5.61560847,49 6.375,49 L47.625,49 C48.3843915,49 49,49.6715729 49,50.5 C49,51.3284271 48.3843915,52 47.625,52 L6.375,52 Z" id="Rectangle-12-Copy-2" fill="#525C69" fill-rule="evenodd" opacity="0.200000003"></path>
+                    <path d="M6.375,59 C5.61560847,59 5,58.3284271 5,57.5 C5,56.6715729 5.61560847,56 6.375,56 L47.625,56 C48.3843915,56 49,56.6715729 49,57.5 C49,58.3284271 48.3843915,59 47.625,59 L6.375,59 Z" id="Rectangle-12-Copy-3" fill="#525C69" fill-rule="evenodd" opacity="0.200000003"></path>
+                    <circle id="Oval-4" fill="#3AA8CB" fill-rule="evenodd" cx="36" cy="16" r="5"></circle>
+                    <polygon id="Path-2" fill="#3AA8CB" fill-rule="evenodd" points="8 43 8 34.5294118 18.6875 25 31.75 36.6470588 36.5 32.4117647 45.4260197 40.3705687 46 43"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

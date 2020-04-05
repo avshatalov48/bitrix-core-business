@@ -11,6 +11,7 @@ $MESS ['GD_SONET_GROUP_LINKS_ACT_BAN'] = "Черный список";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_USER1'] = "Участники";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_REQU'] = "Пригласить в группу";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_VREQU'] = "Приглашения и запросы на вступление в группу";
+$MESS ['GD_SONET_GROUP_LINKS_ACT_VREQU_IN'] = "Запросы на вступление в группу";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_VREQU_OUT'] = "Приглашения в группу";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_JOIN'] = "Вступить в группу";
 $MESS ['GD_SONET_GROUP_LINKS_ACT_EXIT'] = "Покинуть группу";

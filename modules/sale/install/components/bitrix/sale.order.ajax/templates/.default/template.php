@@ -564,7 +564,7 @@ else
 			locations: <?=CUtil::PhpToJSObject($arResult['LOCATIONS'])?>,
 			params: <?=CUtil::PhpToJSObject($arParams)?>,
 			signedParamsString: '<?=CUtil::JSEscape($signedParams)?>',
-			siteID: '<?=CUtil::JSEscape($component->getSiteId())?>',
+			siteId: '<?=$component->getSiteId()?>',
 			ajaxUrl: '<?=CUtil::JSEscape($component->getPath().'/ajax.php')?>',
 			templateFolder: '<?=CUtil::JSEscape($templateFolder)?>',
 			propertyValidation: true,

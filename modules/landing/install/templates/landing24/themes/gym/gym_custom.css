@@ -1,0 +1,399 @@
+/*
+For colors, than white in dark themes and vice versa
+Use color from standart H
+*/
+h2.g-theme-light-color-dark, h4.g-theme-light-color-dark {color: #000;}
+
+
+/* Fix for complex button with icon. Need no bg color */
+.u-btn-inset > .u-btn-darkgray {
+	background-color: transparent;
+}
+
+/* for overwrite P color */
+.g-color-primary,
+.g-color-primary *,
+.g-color-primary p {
+	color: #6b7de0;
+}
+
+
+
+/* ***********
+FONT-SIZES
+*********** */
+
+
+.g-font-size-0 p {
+	font-size: inherit;
+}
+
+.g-font-size-5 p {
+	font-size: 0.35714rem !important;
+}
+
+.g-font-size-8 p {
+	font-size: 0.57143rem !important;
+}
+
+.g-font-size-9 p {
+	font-size: 0.64286rem !important;
+}
+
+.g-font-size-10 p {
+	font-size: 0.71429rem !important;
+}
+
+.g-font-size-11 p {
+	font-size: 0.78571rem !important;
+}
+
+.g-font-size-12 p {
+	font-size: 0.85714rem !important;
+}
+
+.g-font-size-13 p {
+	font-size: 0.92857rem !important;
+}
+
+.g-font-size-14 p {
+	font-size: 1rem !important;
+}
+
+.g-font-size-15 p {
+	font-size: 1.07143rem !important;
+}
+
+.g-font-size-16 p {
+	font-size: 1.14286rem !important;
+}
+
+.g-font-size-17 p {
+	font-size: 1.21429rem !important;
+}
+
+.g-font-size-18 p {
+	font-size: 1.28571rem !important;
+}
+
+.g-font-size-20 p {
+	font-size: 1.42857rem !important;
+}
+
+.g-font-size-22 p {
+	font-size: 1.57143rem !important;
+}
+
+.g-font-size-23 p {
+	font-size: 1.64286rem !important;
+}
+
+.g-font-size-24 p {
+	font-size: 1.71429rem !important;
+}
+
+.g-font-size-25 p {
+	font-size: 1.78571rem !important;
+}
+
+.g-font-size-26 p {
+	font-size: 1.85714rem !important;
+}
+
+.g-font-size-27 p {
+	font-size: 1.92857rem !important;
+}
+
+.g-font-size-28 p {
+	font-size: 2rem !important;
+}
+
+.g-font-size-30 p {
+	font-size: 2.14286rem !important;
+}
+
+.g-font-size-32 p {
+	font-size: 2.28571rem !important;
+}
+
+.g-font-size-33 p {
+	font-size: 2.35714rem !important;
+}
+
+.g-font-size-35 p {
+	font-size: 2.5rem !important;
+}
+
+.g-font-size-36 p {
+	font-size: 2.57143rem !important;
+}
+
+.g-font-size-38 p {
+	font-size: 2.71429rem !important;
+}
+
+.g-font-size-40 p {
+	font-size: 2.85714rem !important;
+}
+
+.g-font-size-42 p {
+	font-size: 3rem !important;
+}
+
+.g-font-size-45 p {
+	font-size: 3.21429rem !important;
+}
+
+.g-font-size-46 p {
+	font-size: 3.28571rem !important;
+}
+
+.g-font-size-48 p {
+	font-size: 3.42857rem !important;
+}
+
+.g-font-size-50 p {
+	font-size: 3.57143rem !important;
+}
+
+.g-font-size-55 p {
+	font-size: 3.92857rem !important;
+}
+
+.g-font-size-56 p {
+	font-size: 4rem !important;
+}
+
+.g-font-size-60 p {
+	font-size: 4.28571rem !important;
+}
+
+.g-font-size-65 p {
+	font-size: 4.64286rem !important;
+}
+
+.g-font-size-70 p {
+	line-height: 70px;
+	font-size: 5rem !important;
+}
+
+.g-font-size-75 p {
+	font-size: 5.35714rem !important;
+}
+
+.g-font-size-76 p {
+	font-size: 5.42857rem !important;
+}
+
+.g-font-size-80 p {
+	font-size: 5.71429rem !important;
+}
+
+.g-font-size-86 p {
+	font-size: 6.14286rem !important;
+}
+
+.g-font-size-90 p {
+	font-size: 6.42857rem !important;
+}
+
+.g-font-size-120 p {
+	font-size: 8.57143rem !important;
+}
+
+.g-font-size-180 p {
+	font-size: 12.85714rem !important;
+}
+
+.g-font-size-200 p {
+	line-height: 210px;
+	font-size: 14.28571rem !important;
+}
+
+
+
+
+/* ***********
+THEMES CUSTOM COLORS
+*********** */
+
+.landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover, .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
+	color: #6b7de0 !important;
+}
+
+.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item .nav-link-color-hover:hover {
+	background-color: #6b7de0 !important;
+}
+
+.g-bg-white .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link-color-hover {
+	background-color: #6b7de0 !important;
+}
+
+.g-bg-black-opacity-0_3.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover {
+	font-weight: normal;
+}
+
+.g-bg-black-opacity-0_3.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
+	font-weight: normal;
+}
+
+.g-bg-black-opacity-0_7.js-header-change-moment.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item .nav-link:hover {
+	font-weight: normal;
+}
+
+.g-bg-black-opacity-0_7.js-header-change-moment.g-py-7 .landing-block-node-menu-list.navbar-nav .nav-item.active .nav-link {
+	font-weight: normal;
+}
+
+.g-color-primary--hover:hover * {
+	color: #6b7de0 !important;
+}
+
+.navbar-nav .nav-link {
+	color: #000;
+}
+
+.g-bg-gray-dark-v1 .navbar-nav .nav-item .nav-link {
+	color: #fff !important;
+}
+
+.g-bg-black-opacity-0_7--after .g-mb-90 .landing-block-node-card .landing-block-node-card-text p {
+	color: #999 !important;
+}
+
+.u-btn-inset::before {
+	border-color: #6b7de0 !important;
+}
+
+
+
+/* B24 BUTTON */
+.landing-b24button-use-style .b24-widget-button-popup, .landing-b24button-use-style .b24-widget-button-popup-triangle, .landing-b24button-use-style .b24-widget-button-pulse {
+	border-color: #6b7de0 !important;
+}
+
+.landing-b24button-use-style .b24-widget-button-inner-block, .landing-b24button-use-style .b24-widget-button-inner-mask {
+	background-color: #6b7de0 !important;
+}
+
+.landing-b24button-use-style .b24-widget-button-social-item {
+	background-color: #6b7de0 !important;
+}
+
+
+
+.dark-theme.g-bg-white .hamburger-inner, .dark-theme .hamburger-inner::after, .dark-theme .hamburger-inner::before {
+	background-color: #000;
+}
+
+/* RESTAURANT */
+.u-theme-restaurant-shadow-v1 {
+	box-shadow: inset 2px 2px 2px #566adc;
+}
+
+/* BUTTON HOVERS */
+
+.u-btn-white:hover {
+	border-color: white;
+	background-color: white;
+}
+
+.u-btn-black:hover {
+	border-color: #1a1a1a !important;
+	background-color: #1a1a1a !important;
+}
+
+.u-btn-darkgray:hover {
+	border-color: #4d4d4d !important;
+	background-color: #4d4d4d !important;
+}
+
+.u-btn-red:hover {
+	border-color: #ff3333 !important;
+	background-color: #ff3333 !important;
+}
+
+.u-btn-lightred:hover {
+	border-color: #ec7568 !important;
+	background-color: #ec7568 !important;
+}
+
+.u-btn-darkred:hover {
+	border-color: #d01337 !important;
+	background-color: #d01337 !important;
+}
+
+.u-btn-blue:hover {
+	border-color: #5faee3 !important;
+	background-color: #5faee3 !important;
+}
+
+.u-btn-indigo:hover {
+	border-color: #5b7cbd !important;
+	background-color: #5b7cbd !important;
+}
+
+.u-btn-purple:hover {
+	border-color: #b48fd8 !important;
+	background-color: #b48fd8 !important;
+}
+
+.u-btn-darkpurple:hover {
+	border-color: #8157cb !important;
+	background-color: #8157cb !important;
+}
+
+.u-btn-pink:hover {
+	border-color: #ed4a82 !important;
+	background-color: #ed4a82 !important;
+}
+
+.u-btn-orange:hover {
+	border-color: #ea984e !important;
+	background-color: #ea984e !important;
+}
+
+.u-btn-deeporange:hover {
+	border-color: #fe7b51 !important;
+	background-color: #fe7b51 !important;
+}
+
+.u-btn-yellow:hover {
+	border-color: #efd34c !important;
+	background-color: #efd34c !important;
+}
+
+.u-btn-aqua:hover {
+	border-color: #57dfeb !important;
+	background-color: #57dfeb !important;
+}
+
+.u-btn-cyan:hover {
+	border-color: #0ae4ff !important;
+	background-color: #0ae4ff !important;
+}
+
+.u-btn-teal:hover {
+	border-color: #22e3be !important;
+	background-color: #22e3be !important;
+}
+
+.u-btn-brown:hover {
+	border-color: #b09980 !important;
+	background-color: #b09980 !important;
+}
+
+.u-btn-bluegray:hover {
+	border-color: #6f7885 !important;
+	background-color: #6f7885 !important;
+}
+
+.u-btn-facebook:hover {
+	border-color: #4c70ba !important;
+	background-color: #4c70ba !important;
+}
+
+.u-btn-twitter:hover {
+	border-color: #22c2ff !important;
+	background-color: #22c2ff !important;
+}

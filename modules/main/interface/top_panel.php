@@ -244,17 +244,6 @@ if ($USER->IsAuthorized()):
 				"action" => "close",
 			)
 		);
-
-		$helperHeroOption = CUserOptions::GetOption("main", "helper_hero_admin");
-		$showHelperHero = true;
-		if (!empty($helperHeroOption))
-		{
-			if (
-				isset($helperHeroOption["show"])
-				|| (isset($helperHeroOption["time"]) && time() - $helperHeroOption["time"] < 3600)
-			)
-				$showHelperHero = false;
-		}
 		?>
 		<span class="adm-header-help-btn" id="bx_top_panel_button_helper" <?if (!isset($helperHeroOption["show"])):?>onclick="BX.userOptions.save('main', 'helper_hero_admin',  'show', 'Y');"<?endif?>>
 		   <span class="adm-header-help-btn-icon"></span>
@@ -272,10 +261,6 @@ if ($USER->IsAuthorized()):
 				needCheckNotify: 'N',
 				isAdmin: 'Y'
 			});
-			<?if ($showHelperHero):?>
-			BX.Helper.showAnimatedHero();
-			BX.userOptions.save('main', 'helper_hero_admin',  'time', '<?=time()?>');
-			<?endif?>
 		</script>
 		<?
 	}

@@ -3,6 +3,9 @@
 	display: table;
 	padding: 0 23px;
 }
+.new-from-email-dialog-row-group {
+	display: table-row-group;
+}
 .new-from-email-dialog-row {
 	display: table-row;
 }
@@ -65,10 +68,12 @@
 	margin: 0 0 3px 0;
 	padding: 0 10px 0 4px;
 	height: 30px;
-	-webkit-box-flex: 1;
-	-ms-flex-positive: 1;
 	flex-grow: 1;
+	flex-shrink: 0;
+	flex-basis: 0;
 	width: auto;
+	box-sizing: border-box;
+	max-width: 100%;
 	border: none;
 	font: 15px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	-webkit-transition: none;
@@ -115,4 +120,28 @@
 	text-align: center;
 	border-radius: 50%;
 	font-size: 12px;
+}
+
+.new-from-email-dialog-smtp-link {
+	border-bottom: 1px dashed;
+}
+
+.new-from-email-dialog-smtp-link:hover {
+	border-bottom-color: transparent;
+}
+
+.new-from-email-dialog-smtp-server-block {
+	margin-right: 80px;
+}
+
+.new-from-email-dialog-smtp-port-block {
+	float: right;
+	width: 72px;
+}
+
+.new-from-email-dialog-smtp-warning {
+	padding: 10px;
+	background: rgb(253,225,200);
+	color: rgb(219,90,22);
+	white-space: normal;
 }

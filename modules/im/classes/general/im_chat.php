@@ -111,10 +111,19 @@ class CIMChat
 		}
 
 		$limitById = '';
+		$limitFetchMessages = 20;
 		$relations = \CIMChat::GetRelationById($toChatId);
-		if (isset($relations[$fromUserId]) && $relations[$fromUserId]['START_ID'] > 0)
+		if (isset($relations[$fromUserId]))
 		{
-			$limitById = 'AND M.ID >= '.intval($relations[$fromUserId]['START_ID']);
+			if ($relations[$fromUserId]['START_ID'] > 0)
+			{
+				$limitById = 'AND M.ID >= '.intval($relations[$fromUserId]['START_ID']);
+			}
+
+			if ($relations[$fromUserId]['STATUS'] != IM_STATUS_READ && $relations[$fromUserId]['COUNTER'] > $limitFetchMessages)
+			{
+				$limitFetchMessages = $relations[$fromUserId]['COUNTER'];
+			}
 		}
 
 		if (!$bTimeZone)
@@ -192,8 +201,6 @@ class CIMChat
 		if (!$bTimeZone)
 			CTimeZone::Enable();
 
-		CIMStatus::Set($fromUserId, Array('IDLE' => null));
-
 		$chatType = $chatData['TYPE'];
 		$chatRelationUserId = 0;
 
@@ -201,11 +208,12 @@ class CIMChat
 		$arMessages = Array();
 		$arMessageId = Array();
 		$arUsersMessage = Array();
+		$arUnreadMessages = Array();
 		$readedList = Array();
 
 		if ($strSql)
 		{
-			$strSql = $DB->TopSql($strSql, 20);
+			$strSql = $DB->TopSql($strSql, $limitFetchMessages);
 			//LEFT JOIN b_im_message_param MP on MP.MESSAGE_ID = M.ID and MP.PARAM_NAME = 'FOR_USER_ID'
 			//and (MP.PARAM_VALUE is null or MP.PARAM_VALUE = '".$fromUserId."')
 
@@ -244,6 +252,10 @@ class CIMChat
 				if ($arRes['AUTHOR_ID'] > 0)
 				{
 					$arUsers[] = $arRes['AUTHOR_ID'];
+				}
+				if (isset($relations[$fromUserId]) && $relations[$fromUserId]['LAST_ID'] < $arRes['ID'])
+				{
+					$arUnreadMessages['chat'.$arRes['CHAT_ID']][] = $arRes['ID'];
 				}
 				$arUsersMessage[$arRes['CHAT_ID']][] = $arRes['ID'];
 
@@ -297,6 +309,7 @@ class CIMChat
 			'chatId' => $toChatId,
 			'message' => $arMessages,
 			'usersMessage' => $arUsersMessage,
+			'unreadMessage' => $arUnreadMessages,
 			'users' => Array(),
 			'userInGroup' => Array(),
 			'readedList' => $readedList,
@@ -879,10 +892,7 @@ class CIMChat
 					'params' => Array(
 						"status" => $prevAllow == 'Y' && $allow == 'N'? 'blocked': 'allowed'
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					)
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
 		}
@@ -942,10 +952,7 @@ class CIMChat
 				'params' => Array(
 					"id" => $chatId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				)
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -964,10 +971,7 @@ class CIMChat
 				'params' => Array(
 					"id" => 0
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				)
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1349,10 +1353,7 @@ class CIMChat
 							'lastId' => $arRes['END_ID'],
 							'counter' => $relation['COUNTER']
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						)
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 
 					$arRelation = self::GetRelationById($chatId);
@@ -1370,10 +1371,7 @@ class CIMChat
 							'date' => date('c', time()),
 							'chatMessageStatus' => $relation['CHAT_MESSAGE_STATUS'],
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						)
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					);
 					if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES')
 					{
@@ -1463,10 +1461,7 @@ class CIMChat
 							'counter' => $relation['COUNTER']
 						),
 						'push' => Array('badge' => 'Y'),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						)
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 
 					$arRelation = self::GetRelationById($chatId);
@@ -1482,10 +1477,7 @@ class CIMChat
 							'userId' => $this->user_id,
 							'chatMessageStatus' => $relation['CHAT_MESSAGE_STATUS'],
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					);
 					if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES')
 					{
@@ -1819,10 +1811,7 @@ class CIMChat
 					'chatId' => $chatId,
 					'userId' => $userId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1845,10 +1834,7 @@ class CIMChat
 					'chatId' => $chatId,
 					'description' => \Bitrix\Im\Text::parse($description)
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1896,10 +1882,7 @@ class CIMChat
 					'chatId' => $chatId,
 					'status' => $statuses
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1968,10 +1951,7 @@ class CIMChat
 						'chatId' => $chatId,
 						'color' => IM\Color::getColor($color),
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				);
 				\Bitrix\Pull\Event::add(array_keys($ar), $arPushMessage);
 				if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN || $arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE)
@@ -2018,10 +1998,7 @@ class CIMChat
 					'chatId' => $chatId,
 					'avatar' => self::GetAvatarImage($fileId),
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -2114,10 +2091,7 @@ class CIMChat
 						'chatId' => $chatId,
 						'name' => $title,
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				);
 				\Bitrix\Pull\Event::add(array_keys($ar), $pushMessage);
 				if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN || $arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE)
@@ -2930,10 +2904,7 @@ class CIMChat
 					'users' => $arUsers,
 					'newUsers' => $arUserId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			);
 			if ($chatEntityType == 'LINES')
 			{
@@ -3212,10 +3183,7 @@ class CIMChat
 				'userId' => $userId,
 				'message' => $bSelf? '': htmlspecialcharsbx($message),
 			),
-			'extra' => Array(
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			),
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		);
 		if ($arRes['CHAT_ENTITY_TYPE'] == 'LINES' )
 		{
@@ -3416,10 +3384,7 @@ class CIMChat
 				'params' => Array(
 					'dialogId' => 'chat'.$chatId,
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

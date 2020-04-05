@@ -71,6 +71,7 @@ $MESS ['SMOB_PUSH_MES_ORDER_DEDUCTED'] = 'Заказ № #ACCOUNT_NUMBER# от #
 $MESS ['SMOB_PUSH_MES_ORDER_CANCELED'] = 'Заказ № #ACCOUNT_NUMBER# от #DATE_INSERT# отменен';
 $MESS ['SMOB_PUSH_MES_ORDER_CREATED'] = 'Создан заказ № #ACCOUNT_NUMBER# от #DATE_INSERT# на сумму #PRICE# #CURRENCY#';
 $MESS ['SMOB_PUSH_MES_ORDER_MARKED'] = 'Заказ № #ACCOUNT_NUMBER# от #DATE_INSERT# помечен как проблемный';
+$MESS ['SMOB_PUSH_MES_ORDER_CHECK_ERROR'] = 'Ошибка при печати чека № #CHECK_ID# для заказа № #ACCOUNT_NUMBER#';
 $MESS ['SMOB_PUSH_SETTINGS'] = 'Настройка PUSH уведомлений';
 $MESS ['SMOB_FILTER_ORDER_ID'] = 'Код заказа';
 $MESS ['SMOB_FILTER_USER_ID'] = 'Код покупателя';

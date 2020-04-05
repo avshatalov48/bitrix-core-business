@@ -742,6 +742,27 @@ class CBPCalc
 		return $interval === false? null : $interval->format($format);
 	}
 
+	private function FunctionDate($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$format = array_shift($ar);
+		$date = array_shift($ar);
+
+		if (!$format || !is_string($format))
+		{
+			return null;
+		}
+
+		$ts = $date ? $this->makeTimestamp($date) : time();
+
+		if (!$ts)
+		{
+			return null;
+		}
+
+		return date($format, $ts);
+	}
+
 	private function FunctionFalse()
 	{
 		return false;
@@ -902,7 +923,7 @@ class CBPCalc
 				{
 					$ix = randString(5);
 					$attr = (!empty($attr) ? 'href="'.$attr.'"' : 'href="#" onClick="return false;"');
-					$result[] = '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" '.$attr.' bx-post-author-id="'.$userId.'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, false).'</a><script type="text/javascript">BX.tooltip(\''.$userId.'\', "bp_'.$userId.'_'.$ix.'", "");</script>';
+					$result[] = '<a class="feed-post-user-name" id="bp_'.$userId.'_'.$ix.'" '.$attr.' bx-post-author-id="'.$userId.'" bx-post-author-gender="'.$ar['PERSONAL_GENDER'].'">'.CUser::FormatName(CSite::GetNameFormat(false), $ar, false).'</a><script type="text/javascript">BX.tooltip(\''.$userId.'\', "bp_'.$userId.'_'.$ix.'", "");</script>';
 				}
 			}
 
@@ -963,6 +984,7 @@ class CBPCalc
 	private $arAvailableFunctions = array(
 		'abs' => array('args' => true, 'func' => 'FunctionAbs'),
 		'and' => array('args' => true, 'func' => 'FunctionAnd'),
+		'date' => array('args' => true, 'func' => 'FunctionDate'),
 		'dateadd' => array('args' => true, 'func' => 'FunctionDateAdd'),
 		'datediff' => array('args' => true, 'func' => 'FunctionDateDiff'),
 		'false' => array('args' => false, 'func' => 'FunctionFalse'),

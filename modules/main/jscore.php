@@ -82,7 +82,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_viewer.js',
 		'css' => $pathCSS.'/core_viewer.css',
 		'lang' => $pathLang.'/js_core_viewer.php',
-		'rel' => array('ls', 'ajax', 'popup'),
+		'rel' => array('ls', 'ajax', 'popup', 'loader'),
 		'lang_additional' => array('DISK_MYOFFICE' => COption::GetOptionString('disk', 'demo_myoffice', false))
 	),
 	'window' => array(

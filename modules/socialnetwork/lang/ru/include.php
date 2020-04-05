@@ -1,5 +1,6 @@
 <?
 $MESS["SONET_FEATURES_forum"] = "Форум";
+$MESS["SONET_FEATURES_forum_GROUP"] = "Обсуждения";
 $MESS["SONET_FEATURES_news"] = "Новости";
 $MESS["SONET_FEATURES_blog"] = "Сообщения";
 $MESS["SONET_FEATURES_microblog"] = "Микроблог";

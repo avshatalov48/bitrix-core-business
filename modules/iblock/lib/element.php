@@ -86,14 +86,14 @@ class ElementTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('ELEMENT_ENTITY_ID_FIELD'),
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('ELEMENT_ENTITY_TIMESTAMP_X_FIELD'),
 			)),
 			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
 				'title' => Loc::getMessage('ELEMENT_ENTITY_MODIFIED_BY_FIELD'),
 			)),
 			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('ELEMENT_ENTITY_DATE_CREATE_FIELD'),
 			)),
 			'CREATED_BY' => new Main\Entity\IntegerField('CREATED_BY', array(

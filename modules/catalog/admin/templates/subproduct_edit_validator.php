@@ -40,7 +40,7 @@ if ($USER->CanDoOperation('catalog_price'))
 
 		for ($i = 0; $i <= $SUBCAT_ROW_COUNTER; $i++)
 		{
-			${"SUBCAT_BASE_PRICE_".$i} = str_replace(",", ".", ${"SUBCAT_BASE_PRICE_".$i});
+			${"SUBCAT_BASE_PRICE_".$i} = str_replace([' ', ','], ['', '.'], ${"SUBCAT_BASE_PRICE_".$i});
 
 			if (intval(${"SUBCAT_BASE_QUANTITY_FROM_".$i}) > 0
 				|| intval(${"SUBCAT_BASE_QUANTITY_TO_".$i}) > 0

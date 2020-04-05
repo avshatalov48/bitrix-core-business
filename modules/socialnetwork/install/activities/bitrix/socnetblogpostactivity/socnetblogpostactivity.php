@@ -107,7 +107,10 @@ class CBPSocnetBlogPostActivity
 			);
 			CBlogPost::Notify($postFields, $blog, $arParamsNotify);
 
-			BXClearCache(true, "/".$siteId."/blog/last_messages_list/");
+			BXClearCache(true, \Bitrix\Socialnetwork\ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'posts_last',
+				'SITE_ID' => $siteId
+			)));
 
 			$arFieldsIM = Array(
 				"TYPE" => "POST",

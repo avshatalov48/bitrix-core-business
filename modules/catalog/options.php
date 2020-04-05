@@ -240,6 +240,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 
 	$oldSimpleSearch = Option::get('catalog', 'product_form_simple_search');
 	$newSimpleSearch = $oldSimpleSearch;
+	$oldProcessingEvents = Option::get('catalog', 'enable_processing_deprecated_events');
+	$newProcessingEvents = $oldProcessingEvents;
 	$checkboxFields = array(
 		'save_product_without_price',
 		'save_product_with_empty_price_range',
@@ -247,7 +249,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 		'default_product_vat_included',
 		'product_form_show_offers_iblock',
 		'product_form_simple_search',
-		'product_form_show_offer_name'
+		'product_form_show_offer_name',
+		'enable_processing_deprecated_events'
 	);
 
 	foreach ($checkboxFields as $oneCheckbox)
@@ -261,6 +264,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 
 		if ($oneCheckbox === 'product_form_simple_search')
 			$newSimpleSearch = $value;
+		elseif ($oneCheckbox === 'enable_processing_deprecated_events')
+			$newProcessingEvents = $value;
 	}
 	unset($value, $oneCheckbox);
 
@@ -272,6 +277,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 			RegisterModuleDependences('search', 'BeforeIndex', 'catalog', '\Bitrix\Catalog\Product\Search', 'onBeforeIndex');
 	}
 	unset($oldSimpleSearch, $newSimpleSearch);
+
+	if ($oldProcessingEvents != $newProcessingEvents)
+	{
+		if ($newProcessingEvents == 'Y')
+			Catalog\Compatible\EventCompatibility::registerEvents();
+		else
+			Catalog\Compatible\EventCompatibility::unRegisterEvents();
+	}
+	unset($oldProcessingEvents, $newProcessingEvents);
 
 	$strUseStoreControlBeforeSubmit = (string)Option::get('catalog', 'default_use_store_control');
 	$strUseStoreControl = (isset($_POST['use_store_control']) && (string)$_POST['use_store_control'] === 'Y' ? 'Y' : 'N');
@@ -1193,6 +1207,7 @@ $currentSettings['discsave_apply'] = (string)Option::get('catalog', 'discsave_ap
 $currentSettings['get_discount_percent_from_base_price'] = (string)Option::get(($saleIsInstalled ? 'sale' : 'catalog'), 'get_discount_percent_from_base_price');
 $currentSettings['save_product_with_empty_price_range'] = (string)Option::get('catalog', 'save_product_with_empty_price_range');
 $currentSettings['default_product_vat_included'] = (string)Option::get('catalog', 'default_product_vat_included');
+$currentSettings['enable_processing_deprecated_events'] = (string)Option::get('catalog', 'enable_processing_deprecated_events');
 
 $strShowCatalogTab = Option::get('catalog', 'show_catalog_tab_with_offers');
 $strSaveProductWithoutPrice = Option::get('catalog', 'save_product_without_price');
@@ -1268,6 +1283,16 @@ function RestoreDefaults()
 <?echo bitrix_sessid_post()?><?
 	$tabControl->BeginNextTab();
 	?>
+<tr class="heading">
+	<td colspan="2"><?=Loc::getMessage("BX_CAT_SYSTEM_SETTINGS"); ?></td>
+</tr>
+<tr>
+	<td width="40%"><label for="enable_processing_deprecated_events_y"><?=Loc::getMessage("BX_CAT_ENABLE_PROCESSING_DEPRECATED_EVENTS"); ?></label></td>
+	<td width="60%">
+		<input type="hidden" name="enable_processing_deprecated_events" id="enable_processing_deprecated_events_n" value="N">
+		<input type="checkbox" name="enable_processing_deprecated_events" id="enable_processing_deprecated_events_y" value="Y"<?=($currentSettings['enable_processing_deprecated_events'] == 'Y' ? ' checked' : ''); ?>>
+	</td>
+</tr>
 <tr class="heading">
 	<td colspan="2"><? echo Loc::getMessage("CAT_PRODUCT_CARD") ?></td>
 </tr>

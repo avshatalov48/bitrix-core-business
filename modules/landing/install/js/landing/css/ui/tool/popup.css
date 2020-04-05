@@ -1,0 +1,40 @@
+.landing-ui-popup {
+	opacity: 0;
+}
+
+.landing-ui-popup.landing-ui-show {
+	animation: showPopupAnimation 200ms ease both;
+}
+
+.landing-ui-popup.landing-ui-hide {
+	visibility: visible;
+	animation: hidePopupAnimation 200ms ease both;
+}
+
+@keyframes showPopupAnimation {
+	0% {
+		opacity: 0;
+		transform: translateY(2%);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0%);
+	}
+}
+
+@keyframes hidePopupAnimation {
+	0% {
+		opacity: 1;
+		transform: translateY(0%);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(2%);
+	}
+}
+
+.landing-ui-popup .popup-window-angly {
+	pointer-events: none;
+}

@@ -81,6 +81,14 @@ abstract class ElementList extends Base
 			$params['PAGE_ELEMENT_COUNT'] = $params['ELEMENT_COUNT'];
 		}
 
+		// PREDICT_ELEMENT_COUNT - hidden parameter to get elements count from "PRODUCT_ROW_VARIANTS" instead of "PAGE_ELEMENT_COUNT"
+		if (isset($params['PREDICT_ELEMENT_COUNT']) && $params['PREDICT_ELEMENT_COUNT'] === 'Y' && !empty($params['PRODUCT_ROW_VARIANTS']))
+		{
+			$isBigData = $this->request->get('bigData') === 'Y';
+			$params['PRODUCT_ROW_VARIANTS'] = static::parseJsonParameter($params['PRODUCT_ROW_VARIANTS']);
+			$params['PAGE_ELEMENT_COUNT'] = static::predictElementCountByVariants($params['PRODUCT_ROW_VARIANTS'], $isBigData);
+		}
+
 		$params['PAGE_ELEMENT_COUNT'] = (int)$params['PAGE_ELEMENT_COUNT'];
 		$params['ELEMENT_COUNT'] = (int)$params['ELEMENT_COUNT'];
 		$params['LINE_ELEMENT_COUNT'] = (int)$params['LINE_ELEMENT_COUNT'];
@@ -191,6 +199,36 @@ abstract class ElementList extends Base
 		$this->getSpecificIblockParams($params);
 
 		return $params;
+	}
+
+	protected static function predictElementCountByVariants($variants, $isBigData = false)
+	{
+		$count = 0;
+		$templateVariantsMap = static::getTemplateVariantsMap();
+
+		if (!empty($variants))
+		{
+			foreach ($variants as $variant)
+			{
+				foreach ($templateVariantsMap as $variantInfo)
+				{
+					if ((int)$variantInfo['VARIANT'] === (int)$variant['VARIANT'])
+					{
+						if (
+							($isBigData && $variant['BIG_DATA'])
+							|| (!$isBigData && !$variant['BIG_DATA'])
+						)
+						{
+							$count += (int)$variantInfo['COUNT'];
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		return $count;
 	}
 
 	private function makeMagicWithPageNavigation()
@@ -1067,7 +1105,18 @@ abstract class ElementList extends Base
 	protected function prepareDeferredParams()
 	{
 		$this->arParams['~PRODUCT_ROW_VARIANTS'] = $this->arParams['~DEFERRED_PRODUCT_ROW_VARIANTS'];
-		$this->arParams['PAGE_ELEMENT_COUNT'] = $this->arParams['DEFERRED_PAGE_ELEMENT_COUNT'];
+		$this->arParams['PRODUCT_ROW_VARIANTS'] = static::parseJsonParameter($this->arParams['~PRODUCT_ROW_VARIANTS']);
+
+		if (isset($this->arParams['PREDICT_ELEMENT_COUNT']) && $this->arParams['PREDICT_ELEMENT_COUNT'] === 'Y')
+		{
+			$this->arParams['PAGE_ELEMENT_COUNT'] = static::predictElementCountByVariants($this->arParams['PRODUCT_ROW_VARIANTS']);
+		}
+		else
+		{
+			$this->arParams['PAGE_ELEMENT_COUNT'] = $this->arParams['DEFERRED_PAGE_ELEMENT_COUNT'];
+		}
+
+		$this->arParams['PAGE_ELEMENT_COUNT'] = (int)$this->arParams['PAGE_ELEMENT_COUNT'];
 	}
 
 	/**
@@ -1140,16 +1189,12 @@ abstract class ElementList extends Base
 			$params['ADD_TO_BASKET_ACTION'] = 'ADD';
 		}
 
-		if (isset($params['~PRODUCT_ROW_VARIANTS']) && is_string($params['~PRODUCT_ROW_VARIANTS']))
+		if (
+			(empty($params['PRODUCT_ROW_VARIANTS']) || !is_array($params['PRODUCT_ROW_VARIANTS']))
+			&& isset($params['~PRODUCT_ROW_VARIANTS'])
+		)
 		{
-			try
-			{
-				$params['PRODUCT_ROW_VARIANTS'] = Json::decode(str_replace("'", '"', $params['~PRODUCT_ROW_VARIANTS']));
-			}
-			catch (\Exception $e)
-			{
-				$params['PRODUCT_ROW_VARIANTS'] = array();
-			}
+			$params['PRODUCT_ROW_VARIANTS'] = static::parseJsonParameter($params['~PRODUCT_ROW_VARIANTS']);
 		}
 
 		if (empty($params['PRODUCT_ROW_VARIANTS']))
@@ -1177,6 +1222,22 @@ abstract class ElementList extends Base
 		{
 			$this->getTemplateSingleIblockParams($params);
 		}
+	}
+
+	protected static function parseJsonParameter($jsonString)
+	{
+		$parameter = [];
+
+		if (!empty($jsonString) && is_string($jsonString))
+		{
+			try
+			{
+				$parameter = Json::decode(str_replace("'", '"', $jsonString));
+			}
+			catch (\Exception $e) {}
+		}
+
+		return $parameter;
 	}
 
 	/**
@@ -2098,8 +2159,8 @@ abstract class ElementList extends Base
 				$this->arResult['MODULES']['catalog']
 				&& $item['CATALOG']
 				&& (
-					$item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_PRODUCT
-					|| $item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_SET
+					$item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
+					|| $item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SET
 				)
 			)
 			{

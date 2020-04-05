@@ -114,7 +114,9 @@ if (!$readOnly && ($listIds = $adminList->GroupAction()))
 	$listIds = array_filter($listIds);
 	if (!empty($listIds))
 	{
-		$action = $request['action_button'];
+		$action = $request['action'];
+		if (!empty($request['action_button']))
+			$action = $request['action_button'];
 		switch ($action)
 		{
 			case 'delete':

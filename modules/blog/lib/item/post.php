@@ -27,19 +27,27 @@ class Post
 		$this->fields = array();
 	}
 
-	public static function getById($postId = 0)
+	public static function getById($postId = 0, $params = array())
 	{
 		static $cachedFields = array();
 
 		$postItem = false;
 		$postId = intval($postId);
 
+		$useStaticCache = (
+			!empty($params['USE_STATIC_CACHE'])
+			&& $params['USE_STATIC_CACHE'] === true
+		);
+
 		if ($postId > 0)
 		{
 			$postItem = new Post;
 			$postFields = array();
 
-			if (isset($cachedFields[$postId]))
+			if (
+				$useStaticCache
+				&& isset($cachedFields[$postId])
+			)
 			{
 				$postFields = $cachedFields[$postId];
 			}

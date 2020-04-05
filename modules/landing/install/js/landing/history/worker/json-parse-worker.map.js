@@ -1,0 +1,1 @@
+{"version":3,"sources":["json-parse-worker.js"],"names":["self","addEventListener","event","result","JSON","parse","data","err","postMessage","close"],"mappings":"AAAAA,KAAKC,iBAAiB,UAAW,SAASC,GACzC,IAAIC,EAEJ,IACCA,EAASC,KAAKC,MAAMH,EAAMI,MACzB,MAAOC,GACRJ,EAAS,KAGVK,YAAYL,GACZM","file":""}

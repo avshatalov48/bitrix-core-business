@@ -8,7 +8,7 @@ use Bitrix\Sale\Exchange\Entity\UserImportBase;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Exchange\OneC;
 
-class ImportOneCContragent extends ImportOneCBase
+final class ImportOneCContragent extends ImportOneCBase
 {
 	protected function resolveDocumentTypeId(array $fields)
 	{
@@ -16,7 +16,7 @@ class ImportOneCContragent extends ImportOneCBase
 	}
 
 	/**
-	 * @param OneC\DocumentImport[] $documents
+	 * @param OneC\DocumentBase[] $documents
 	 * @return Result
 	 */
 	protected function convert(array $documents)
@@ -105,7 +105,6 @@ class ImportOneCContragent extends ImportOneCBase
 	protected function logger(array $items)
 	{
 		$xmlStreem = $this->getRawData();
-
 		foreach ($items as $item)
 		{
 			if($item->hasLogging())

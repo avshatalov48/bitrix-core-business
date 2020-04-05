@@ -170,7 +170,7 @@ class CCatalogProductSetAll
 		switch ($intSetType)
 		{
 			case self::TYPE_SET:
-				CCatalogProduct::SetProductType($intProductID, CCatalogProduct::TYPE_PRODUCT);
+				CCatalogProduct::SetProductType($intProductID, Catalog\ProductTable::TYPE_PRODUCT);
 				break;
 			case self::TYPE_GROUP:
 				if (!static::isProductHaveSet($intProductID, self::TYPE_GROUP))

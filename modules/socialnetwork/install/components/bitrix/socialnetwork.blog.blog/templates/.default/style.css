@@ -18,16 +18,19 @@
 .feed-post-text-block table.data-table, .feed-com-text table.data-table {border-collapse: collapse;}
 .feed-post-text-block table.data-table td, .feed-com-text table.data-table td, .feed-post-text-block table.data-table th, .feed-com-text table.data-table th {border: 1px solid grey; padding: 3px;}
 
-table.blogquote, table.blogcode { font-size:1em; margin:0.5em 1em; width:80%; border:1px solid;}
+table.blogquote, table.blogcode { font-size:1em; margin:0.5em 1em; width:100%; border:1px solid;}
 table.blogquote td,
 table.blogcode td {
-	padding: 6px 40px 8px 32px;
+	padding: 4px 40px 8px 27px;
 }
 table.blogcode td {font-family:"Courier New"; white-space:pre-wrap;}
 table.blogcode pre {font-family:"Courier New"; font-size: 12px; margin: 0; line-height: 15px; white-space:pre-wrap;}
 
 div.blog-post-quote, div.blog-post-code {padding-top: 0.6em; padding-bottom: 0.6em;}
+div.feed-com-block div.blog-post-quote, div.feed-com-block div.blog-post-code {padding-right: 20px;}
+
 div.blog-post-quote span, div.blog-post-code span {padding-left:0.6em;}
+div.blog-post-quote span, div.blog-post-code span.bx-font {padding-left:0;}
 div.blog-post-quote table.blogquote, div.blog-post-code table.blogcode {margin: 0;}
 
 .blog-p-user-name {
@@ -46,14 +49,30 @@ div.blog-post-quote table.blogquote, div.blog-post-code table.blogcode {margin: 
 /*div.blog-post-quote table span, div.blog-post-code table span {display: block;}*/
 div.blog-post-code table.blogcode { border-color: #E8E8E8; color: #7D7D7D; background-color: #F7F7F7;}
 div.blog-post-quote table.blogquote {
-	background: url(images/quote-gray.png) no-repeat 12px 11px #fefff4;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%2214%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%2011.813C2.563%2010.6%203.844%209.171%203.844%207.531c-1.104-.121-2.01-.551-2.719-1.29C.417%205.5.063%204.646.063%203.675c0-1.033.348-1.903%201.046-2.612C1.807.354%202.677%200%203.72%200c1.146%200%202.146.46%203%201.382C7.573%202.303%208%203.422%208%204.738%208%208.685%205.74%2011.773%201.219%2014L0%2011.813z%22%20opacity%3D%22.303%22/%3E%3C/svg%3E');
+	background-position: 12px 9px;
+	background-repeat: no-repeat;
 	border-color: #edede6;
-	color: #555;
+	color: #525C69;
 }
 
 div.feed-com-block table.blogquote,
 div.feed-com-block table.blogcode {
-	background-color: #f7f8ee;
+	background-color: #F3F6F7;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #E0E2E3;
+	border-radius: 8px;
+}
+
+div.feed-com-block table.blogquote table.blogquote {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #E3E5E5;
+}
+
+table.blogquote a.blog-p-user-name {
+	color: #333333;
 }
 
 .feed-add-post-block .feed-cancel-com {margin-top: 25px;}
@@ -117,7 +136,7 @@ div.feed-com-block table.blogcode {
 */
 
 .feed-com-reply {
-	border-bottom: 1px solid transparent;
+	/*border-bottom: 1px solid transparent;*/
 	color: #999;
 	margin-left: 12px;
 	font-size: 11px;
@@ -125,7 +144,7 @@ div.feed-com-block table.blogcode {
 }
 
 .feed-com-reply:hover {
-	border-bottom: 1px solid;
+	/*border-bottom: 1px solid;*/
 }
 .feed-answer-writing { display: inline-block; background: url('images/writing-recent.gif?1') no-repeat scroll 5px 2px transparent; height: 15px; width: 21px; margin-right: 6px; vertical-align: middle;}
 
@@ -155,7 +174,16 @@ div.feed-com-block table.blogcode {
 .bx-spbc-notifier-item-delete { position:relative; z-index: 4; cursor: pointer; display: block; float:right; width: 15px; height: 15px; background: url('images/answer_sprite.png') -24px 4px no-repeat; margin-top: -4px; margin-right: -2px;}
 
 /* share */
-.feed-add-post-destination-block-post {border-top: 1px solid #ebeded; border-bottom: 1px solid #ebeded; padding-top: 20px; padding-bottom: 20px; margin-top: 20px; margin-bottom: 20px; width: 100%; position: static; }
+.feed-add-post-destination-block-post {
+/*	border-top: 1px solid #ebeded;*/
+	border-bottom: 1px solid #ebeded;
+/*	padding-top: 20px;*/
+	padding-bottom: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	width: 100%;
+	position: static;
+}
 .feed-add-post-buttons-post {
 	padding-top: 12px;
 }

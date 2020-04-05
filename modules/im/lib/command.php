@@ -187,10 +187,7 @@ class Command
 				'params' => Array(
 					'commandId' => $commandId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				)
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

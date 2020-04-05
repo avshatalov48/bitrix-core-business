@@ -1,0 +1,46 @@
+.landing-ui-panel-preview {
+	left: 280px;
+	right: 0;
+	width: auto;
+}
+
+
+.landing-ui-panel-preview .landing-ui-panel-content-body-content {
+	background: #616161;
+	overflow-y: hidden;
+}
+
+.landing-ui-panel-preview .landing-ui-panel-content-header {
+	position: relative;
+}
+
+.landing-ui-panel-preview .landing-ui-panel-content-title {
+	text-align: center;
+	max-height: 61px;
+}
+
+
+.landing-ui-panel-preview-iframe {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	height: 100%!important;
+	border: 0;
+	transition: width 200ms ease, opacity 200ms ease;
+	-webkit-box-shadow: 0 0 12px 0 rgba(33,33,33,.6);
+	box-shadow: 0 0 12px 0 rgba(33,33,33,.6);
+}
+
+
+.landing-ui-panel-preview-size {
+	position: absolute;
+	top: 50%;
+	right: 20px;
+	transform: translateY(-50%);
+}
+
+
+.landing-ui-panel-preview-size .landing-ui-field-input {
+	width: 40px;
+}

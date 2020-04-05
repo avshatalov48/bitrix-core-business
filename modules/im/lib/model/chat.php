@@ -158,11 +158,6 @@ class ChatTable extends Entity\DataManager
 				'required' => false,
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
-			'RELATION' => array(
-				'data_type' => 'Bitrix\Im\Model\RelationTable',
-				'reference' => array('=this.ID' => 'ref.CHAT_ID'),
-				'join_type' => 'LEFT',
-			),
 		);
 	}
 	public static function validateTitle()

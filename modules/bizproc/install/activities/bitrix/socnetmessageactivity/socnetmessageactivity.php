@@ -127,14 +127,20 @@ class CBPSocNetMessageActivity
 	{
 		$arErrors = array();
 
-		if (!array_key_exists("MessageUserTo", $arTestProperties) || count($arTestProperties["MessageUserTo"]) <= 0)
+		if (empty($arTestProperties["MessageUserTo"]))
+		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageUserTo", "message" => GetMessage("BPSNMA_EMPTY_TO"));
+		}
 		if (!array_key_exists("MessageText", $arTestProperties) || strlen($arTestProperties["MessageText"]) <= 0)
+		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageText", "message" => GetMessage("BPSNMA_EMPTY_MESSAGE"));
+		}
 
 		$from = array_key_exists("MessageUserFrom", $arTestProperties) ? $arTestProperties["MessageUserFrom"] : null;
 		if ($user && $from !== $user->getBizprocId() && !$user->isAdmin())
+		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageUserFrom", "message" => GetMessage("BPSNMA_EMPTY_FROM"));
+		}
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
 	}

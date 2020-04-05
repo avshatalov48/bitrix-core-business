@@ -56,6 +56,12 @@ Class report extends CModule
 		RegisterModule("report");
 		RegisterModuleDependences('report', 'OnReportDelete', 'report', '\Bitrix\Report\Sharing', 'OnReportDelete');
 
+		// visual reports
+		$eventManager = \Bitrix\Main\EventManager::getInstance();
+		$eventManager->registerEventHandler('report', 'onReportCategoryCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onCategoriesCollect');
+		$eventManager->registerEventHandler('report', 'onReportsCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onReportsCollect');
+		$eventManager->registerEventHandler('report', 'onReportViewCollect', 'report', '\Bitrix\Report\VisualConstructor\EventHandler', 'onViewsCollect');
+
 		return true;
 	}
 

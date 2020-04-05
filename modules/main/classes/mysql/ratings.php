@@ -61,7 +61,8 @@ class CRatings extends CAllRatings
 			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 
 			// Calculation position in rating
-			if ($arRating['POSITION'] == 'Y') {
+			if ($arRating['POSITION'] == 'Y')
+			{
 				$strSql =  "
 					UPDATE
 						b_rating_results RR,
@@ -211,10 +212,33 @@ class CRatings extends CAllRatings
 
 		$strSql =  "
 			UPDATE
+				b_rating_voting_reaction RVR,
+				(
+					SELECT
+						ENTITY_TYPE_ID, 
+						ENTITY_ID,
+						SUM(case when VALUE > 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_POSITIVE_VOTES
+					FROM b_rating_vote
+					WHERE RATING_VOTING_ID IN (
+						SELECT DISTINCT RV0.RATING_VOTING_ID FROM b_rating_vote RV0 WHERE RV0.USER_ID=$ID
+					)
+					GROUP BY RATING_VOTING_ID
+				) as RP
+			SET
+				RVR.TOTAL_VOTES = RP.TOTAL_POSITIVE_VOTES
+			WHERE
+				RVR.ENTITY_TYPE_ID = RP.ENTITY_TYPE_ID
+				AND RVR.ENTITY_ID = RP.ENTITY_ID
+		";
+		$DB->Query($strSql, false, $err_mess.__LINE__);
+
+		$strSql =  "
+			UPDATE
 				b_rating_voting RV,
 				(
 					SELECT
-						RATING_VOTING_ID, SUM(case when USER_ID <> $ID then VALUE else '0' end) as TOTAL_VALUE,
+						RATING_VOTING_ID, 
+						SUM(case when USER_ID <> $ID then VALUE else '0' end) as TOTAL_VALUE,
 						SUM(case when USER_ID <> $ID then '1' else '0' end) as TOTAL_VOTES,
 						SUM(case when VALUE > 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_POSITIVE_VOTES,
 						SUM(case when VALUE < 0 AND USER_ID <> $ID then '1' else '0' end) as TOTAL_NEGATIVE_VOTES
@@ -232,7 +256,7 @@ class CRatings extends CAllRatings
 			WHERE
 				RV.ID = RP.RATING_VOTING_ID
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql, false, $err_mess.__LINE__);
 
 		$DB->Query("DELETE FROM b_rating_vote WHERE USER_ID=$ID", false, $err_mess.__LINE__);
 		$DB->Query("DELETE FROM b_rating_user WHERE ENTITY_ID=$ID", false, $err_mess.__LINE__);
@@ -605,7 +629,8 @@ class CRatings extends CAllRatings
 		$ratingValueAdd = IntVal($authorityValueAdd);
 		$ratingValueDelete = IntVal($authorityValueDelete);
 		$sRatingWeightType = COption::GetOptionString("main", "rating_weight_type", "auto");
-		if ($sRatingWeightType == 'auto') {
+		if ($sRatingWeightType == 'auto')
+		{
 			$ratingValueAdd = $ratingValueAdd*COption::GetOptionString("main", "rating_vote_weight", 1);
 			$ratingValueDelete = $ratingValueDelete*COption::GetOptionString("main", "rating_vote_weight", 1);
 		}
@@ -666,6 +691,7 @@ class CRatings extends CAllRatings
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
 				and RV.USER_ID = U.ID
 				".($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 ")."
+				".self::getReactionFilterSQL($arParam, $bplus)."
 			GROUP BY RV.USER_ID
 			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, RANK DESC, RV.ID DESC": "RANK DESC, RV.VALUE DESC, RV.ID DESC");
 	}
@@ -689,7 +715,26 @@ class CRatings extends CAllRatings
 				and RV.ENTITY_ID =  ".intval($arParam['ENTITY_ID'])."
 				and RV.USER_ID = U.ID
 				".($bplus? " and RV.VALUE > 0 ": " and RV.VALUE < 0 ")."
+				".self::getReactionFilterSQL($arParam, $bplus)."
 			GROUP BY RV.USER_ID
 			ORDER BY ".($bIntranetInstalled? "RV.VALUE DESC, RANK DESC, RV.ID DESC": "RANK DESC, RV.VALUE DESC, RV.ID DESC");
+	}
+
+	private static function getReactionFilterSQL($arParam, $bplus)
+	{
+		global $DB;
+
+		$result = (
+			$bplus
+			&& !empty($arParam["REACTION"])
+				? (
+					$arParam["REACTION"] == self::REACTION_DEFAULT
+						? " and (RV.REACTION IS NULL OR RV.REACTION = '".$DB->ForSql($arParam["REACTION"])."') "
+						: " and RV.REACTION = '".$DB->ForSql($arParam["REACTION"])."' "
+				)
+			: ""
+		);
+
+		return $result;
 	}
 }

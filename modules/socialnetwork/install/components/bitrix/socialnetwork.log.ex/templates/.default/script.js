@@ -805,44 +805,50 @@ window.__socOnUCFormResponse = function(obj, data)
 	else
 	{
 		if (!(data["commentID"] > 0) || !!data["strMessage"])
+		{
 			return_data['errorMessage'] = data["strMessage"];
+		}
 		else if (data['return_data'])
+		{
 			return_data = data['return_data'];
-		else {
+		}
+		else
+		{
 			var
 				arComment = data["arCommentFormatted"],
 				arComm = data["arComment"],
 				ratingNode = (!!window["__logBuildRating"] ? window["__logBuildRating"](data["arComment"], data["arCommentFormatted"]) : null),
-				thisId = (!!arComm["SOURCE_ID"] ? arComm["SOURCE_ID"] : arComm["ID"]),
-				res = {
-					"ID" : thisId, // integer
-					"ENTITY_XML_ID" : obj.id[0], // string
-					"FULL_ID" : [obj.id[0], thisId],
-					"NEW" : "N", //"Y" | "N"
-					"APPROVED" : "Y", //"Y" | "N"
-					"POST_TIMESTAMP" : data["timestamp"] - BX.message('USER_TZ_OFFSET'),
-					"POST_TIME" : arComment["LOG_TIME_FORMAT"],
-					"POST_DATE" : arComment["LOG_TIME_FORMAT"],
-					"~POST_MESSAGE_TEXT" : arComment["MESSAGE"],
-					"POST_MESSAGE_TEXT" : arComment["MESSAGE_FORMAT"],
-					"PANELS" : {
-						"MODERATE" : false
-					},
-					"URL" : {
-						"LINK" : (
-							(typeof arComm["URL"] != 'undefined' && arComm["URL"] != null && arComm["URL"].length > 0)
-								? arComm["URL"]
-								: BX.message('sonetLEPath').replace("#log_id#", arComm["LOG_ID"]) + '?commentId=' + arComm["ID"] + '#com' + (parseInt(arComm["SOURCE_ID"]) > 0 ? arComm["SOURCE_ID"] : arComm["ID"])
-						)
-					},
-					"AUTHOR" : {
-						"ID" : arComment["USER_ID"],
-						"NAME" : arComment["CREATED_BY"]["FORMATTED"],
-						"URL" : arComment["CREATED_BY"]["URL"],
-						"AVATAR" : arComment["AVATAR_SRC"] },
-					"BEFORE_ACTIONS" : (!!ratingNode ? ratingNode : ''),
-					"AFTER" : arComment["UF"]
-				};
+				thisId = (!!arComm["SOURCE_ID"] ? arComm["SOURCE_ID"] : arComm["ID"]);
+
+			res = {
+				"ID" : thisId, // integer
+				"ENTITY_XML_ID" : obj.id[0], // string
+				"FULL_ID" : [obj.id[0], thisId],
+				"NEW" : "N", //"Y" | "N"
+				"APPROVED" : "Y", //"Y" | "N"
+				"POST_TIMESTAMP" : data["timestamp"] - BX.message('USER_TZ_OFFSET'),
+				"POST_TIME" : arComment["LOG_TIME_FORMAT"],
+				"POST_DATE" : arComment["LOG_TIME_FORMAT"],
+				"~POST_MESSAGE_TEXT" : arComment["MESSAGE"],
+				"POST_MESSAGE_TEXT" : arComment["MESSAGE_FORMAT"],
+				"PANELS" : {
+					"MODERATE" : false
+				},
+				"URL" : {
+					"LINK" : (
+						(typeof arComm["URL"] != 'undefined' && arComm["URL"] != null && arComm["URL"].length > 0)
+							? arComm["URL"]
+							: BX.message('sonetLEPath').replace("#log_id#", arComm["LOG_ID"]) + '?commentId=' + arComm["ID"] + '#com' + (parseInt(arComm["SOURCE_ID"]) > 0 ? arComm["SOURCE_ID"] : arComm["ID"])
+					)
+				},
+				"AUTHOR" : {
+					"ID" : arComment["USER_ID"],
+					"NAME" : arComment["CREATED_BY"]["FORMATTED"],
+					"URL" : arComment["CREATED_BY"]["URL"],
+					"AVATAR" : arComment["AVATAR_SRC"] },
+				"BEFORE_ACTIONS" : (!!ratingNode ? ratingNode : ''),
+				"AFTER" : arComment["UF"]
+			};
 
 				if (
 					typeof (data["hasEditCallback"]) != 'undefined'
@@ -883,14 +889,14 @@ window.__socOnUCFormResponse = function(obj, data)
 			node.setAttribute("data-follow", "Y");
 		}
 
-		var node = BX("feed-comments-all-cnt-" + eId, true),
+		node = BX("feed-comments-all-cnt-" + eId, true),
 			val = (!!node ? (node.innerHTML.length > 0 ? parseInt(node.innerHTML) : 0) : false);
 		if (val !== false)
 			node.innerHTML = (val + 1);
 	}
 
 	obj.OnUCFormResponseData = return_data;
-}
+};
 
 window.__socOnLightEditorShow = function(content, data){
 	var res = {};
@@ -1162,6 +1168,9 @@ BitrixLF.prototype.getNextPage = function()
 
 	this.bLockCounterAnimate = true;
 
+	arCommentsMoreButtonID = [];
+	this.arMoreButtonID = [];
+
 	if (
 		!this.nextPageFirst
 		&& oNode
@@ -1194,7 +1203,7 @@ BitrixLF.prototype.getNextPage = function()
 			oLF.bLockCounterAnimate = false;
 
 			if (
-				typeof data != 'undefined'
+				data
 				&& typeof (data.PROPS) != 'undefined'
 				&& typeof (data.PROPS.CONTENT) != 'undefined'
 				&& data.PROPS.CONTENT.length > 0
@@ -1234,11 +1243,13 @@ BitrixLF.prototype.getNextPage = function()
 				}
 				else
 				{
-					oLF.bStopTrackNextPage = false;
 					if (BX(contentBlockId))
 					{
 						BX(contentBlockId).style.display = 'block';
 					}
+					setTimeout(function() {
+						oLF.bStopTrackNextPage = false;
+					}, 300);
 					setTimeout(function() {
 						oLF.recalcMoreButton();
 						oLF.registerViewAreaList();
@@ -1280,6 +1291,9 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 	this.bLoadStarted = true;
 	this.showRefreshFade();
 
+	arCommentsMoreButtonID = [];
+	this.arMoreButtonID = [];
+
 	if (
 		typeof params == 'undefined'
 		|| typeof params.useBXMainFilter == 'undefined'
@@ -1320,7 +1334,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 			oLF.hideRefreshFade();
 
 			if (
-				typeof data != 'undefined'
+				data
 				&& typeof (data.PROPS) != 'undefined'
 			)
 			{
@@ -1376,6 +1390,7 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 				{
 					oLF.clearContainerExternal(false);
 					oLF.processAjaxBlock(data.PROPS);
+					oLF.recalcMoreButton();
 					oLF.registerViewAreaList();
 
 					oLF.bStopTrackNextPage = false;
@@ -1505,11 +1520,8 @@ BitrixLF.prototype.recalcMoreButton = function()
 
 		for (i = 0; i < this.arMoreButtonID.length; i++)
 		{
+
 			arPos = BX.pos(BX(this.arMoreButtonID[i].bodyBlockID));
-			if (arPos.height < 280)
-			{
-				BX(this.arMoreButtonID[i].moreButtonBlockID).style.display = "none";
-			}
 
 			if (typeof this.arMoreButtonID[i].outerBlockID != 'undefined')
 			{
@@ -1527,6 +1539,17 @@ BitrixLF.prototype.recalcMoreButton = function()
 					}
 				}
 			}
+
+			if (arPos.height < 300)
+			{
+				BX(this.arMoreButtonID[i].moreButtonBlockID).style.display = "none";
+
+				if (typeof this.arMoreButtonID[i].informerBlockID != 'undefined')
+				{
+					BX.addClass(BX(this.arMoreButtonID[i].informerBlockID), 'feed-post-informers-separator');
+				}
+				delete this.arMoreButtonID[i];
+			}
 		}
 	}
 
@@ -1535,38 +1558,24 @@ BitrixLF.prototype.recalcMoreButton = function()
 		for (i = 0; i < arCommentsMoreButtonID.length; i++)
 		{
 			arPos = BX.pos(BX(arCommentsMoreButtonID[i].bodyBlockID));
-			if (arPos.height < 200)
+			if (
+				arPos.height < 200
+				&& typeof arCommentsMoreButtonID[i].moreButtonBlockID != 'undefined'
+				&& BX(arCommentsMoreButtonID[i].moreButtonBlockID)
+			)
 			{
 				BX(arCommentsMoreButtonID[i].moreButtonBlockID).style.display = "none";
+				delete arCommentsMoreButtonID[i];
 			}
 		}
 	}
+
 };
 
 BitrixLF.prototype.showRefreshError = function()
 {
 	this.bLockCounterAnimate = false;
 	this.clearContainerExternal(false);
-/*
-	var f = function() 
-	{
-		if (BX('sonet_log_counter_2_wrap'))
-		{
-			BX.unbind(BX('sonet_log_counter_2_error'), 'click', f);
-			BX('sonet_log_counter_2_error').style.display = 'none';
-			BX('sonet_log_counter_2_container').style.display = 'block';
-			BX.removeClass(BX("sonet_log_counter_2_wrap"), "feed-new-message-informer-anim");
-		}		
-	};
-
-	if (BX('sonet_log_counter_2_wrap'))
-	{
-		BX.addClass(BX("sonet_log_counter_2_wrap"), "feed-new-message-informer-anim");
-		BX.bind(BX('sonet_log_counter_2_error'), 'click', f);
-		BX('sonet_log_counter_2_container').style.display = 'none';
-		BX('sonet_log_counter_2_error').style.display = 'block';
-	}
-*/
 };
 
 BitrixLF.prototype.LazyLoadCheckVisibility = function(image) // to check if expanded or not
@@ -1813,7 +1822,8 @@ BitrixLF.prototype.createTask = function(params)
 					},
 					onsuccess: BX.proxy(function(data) {
 						if (
-							typeof data.TITLE != 'undefined'
+							data
+							&& typeof data.TITLE != 'undefined'
 							&& typeof data.DESCRIPTION != 'undefined'
 							&& typeof data.DISK_OBJECTS != 'undefined'
 							&& data.TITLE.length > 0
@@ -2072,6 +2082,21 @@ BitrixLF.prototype.clickTag = function(tagValue)
 	return result;
 };
 
+BitrixLF.prototype.expandPost = function(textBlock)
+{
+	if (BX(textBlock))
+	{
+		var postBlock = BX.findParent(BX(textBlock), { className: 'feed-post-cont-wrap' }, BX('log_internal_container') );
+		if (postBlock)
+		{
+			var informersBlock = BX.findChild(postBlock, { className: 'feed-post-informers' }, true);
+			if (informersBlock)
+			{
+				BX.addClass(informersBlock, 'feed-post-informers-separator');
+			}
+		}
+	}
+};
 
 if (typeof oLF == 'undefined')
 {

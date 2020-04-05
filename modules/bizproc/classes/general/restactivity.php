@@ -101,12 +101,16 @@ class CBPRestActivity
 		if (!Loader::includeModule('rest') || !\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 			return CBPActivityExecutionStatus::Closed;
 
-		$propertiesData = array();
+		$propertiesData = [];
 		if (!empty($activityData['PROPERTIES']))
 		{
 			foreach ($activityData['PROPERTIES'] as $name => $property)
 			{
 				$propertiesData[$name] = $this->{$name};
+				if ($propertiesData[$name] === null)
+				{
+					$propertiesData[$name] = '';
+				}
 			}
 		}
 

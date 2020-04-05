@@ -11,10 +11,8 @@ class CSaleOrderLoader
 	const DEBUG_FILE = "1c_order_exchange.log";
 	const DEBUG_MODE = true;
 
-	/** @var Sale\Exchange\ImportOneCPackage  */
+	/** @var Sale\Exchange\ImportOneCBase  */
 	public $importer;
-	/** @var Sale\Exchange\ImportOneCContragent */
-	public $importerContragent;
 
 	var $strError = "";
 	var $SumFormat = ".";
@@ -2088,20 +2086,21 @@ class CSaleOrderLoader
 	{
 		$value = $dataXml->GetArray();
 		$xmlStream = $this->getXMLStream($fileStream);
+		$importer = $this->importer;
 
-		if(!empty($value[GetMessage("CC_BSC1_CONTAINER")]) ||
-			empty($value[GetMessage("CC_BSC1_DOCUMENT")])
- 		)
+		if($importer instanceof Sale\Exchange\ImportOneCBase)
 		{
-			if(!empty($value[GetMessage("CC_BSC1_CONTAINER")]))
+			if($importer instanceof Sale\Exchange\ImportOneCSubordinateSale)
+			{
+				$documentData = array($value[GetMessage("CC_BSC1_DOCUMENT")]);
+			}
+			elseif($importer instanceof Sale\Exchange\ImportOneCPackage)
 			{
 				$documentData = $value[GetMessage("CC_BSC1_CONTAINER")]['#'][GetMessage("CC_BSC1_DOCUMENT")];
-				$importer = $this->importer;
 			}
 			else
 			{
 				$documentData = array($value[GetMessage("CC_BSC1_AGENT")]["#"]);
-				$importer = $this->importerContragent;
 			}
 
 			/** @var Sale\Result $r */

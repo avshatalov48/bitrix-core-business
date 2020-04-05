@@ -46,9 +46,19 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 				$currentUrl = '#CURRENT_URL#';
 			}
 			?>
-			<a href="<?=$arParams['PATH_TO_AUTHORIZE']?>?login=yes&backurl=<?=$currentUrl; ?>"><?=GetMessage('TSB1_LOGIN')?></a>
-			&nbsp;
-			<a href="<?=$arParams['PATH_TO_REGISTER']?>?register=yes&backurl=<?=$currentUrl; ?>"><?=GetMessage('TSB1_REGISTER')?></a>
+			<a href="<?=$arParams['PATH_TO_AUTHORIZE']?>?login=yes&backurl=<?=$currentUrl; ?>">
+				<?=GetMessage('TSB1_LOGIN')?>
+			</a>
+			<?
+			if ($arParams['SHOW_REGISTRATION'] === 'Y')
+			{
+				?>
+				<a href="<?=$arParams['PATH_TO_REGISTER']?>?register=yes&backurl=<?=$currentUrl; ?>">
+					<?=GetMessage('TSB1_REGISTER')?>
+				</a>
+				<?
+			}
+			?>
 		<?endif?>
 	</div>
 <?endif?>

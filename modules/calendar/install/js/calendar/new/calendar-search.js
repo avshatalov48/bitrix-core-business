@@ -27,7 +27,7 @@
 		if (this.filter)
 		{
 			this.filterApi = this.filter.getApi();
-			BX.addCustomEvent('BX.Main.Filter:beforeApply', BX.delegate(this.beforeFilterApply, this));
+			//BX.addCustomEvent('BX.Main.Filter:beforeApply', BX.delegate(this.beforeFilterApply, this));
 			BX.addCustomEvent('BX.Main.Filter:apply', BX.delegate(this.applyFilter, this));
 		}
 	}
@@ -35,12 +35,6 @@
 	Search.prototype = {
 		getFilter: function()
 		{
-			//if(!this.filter)
-			//{
-			//	this.filter = BX.Main.filterManager.getById('calendar-filter');
-			//	this.filterApi = this.filter.getApi();
-			//}
-
 			return this.filter;
 		},
 
@@ -116,7 +110,7 @@
 				// 1. Set list view
 				//this.calendar.setView('list', {animation: false});
 				//setTimeout(BX.delegate(function ()
-				//{
+
 				//	this.calendar.getView().applyFilterMode();
 				//	// 2. Show animation
 				//}, this), 100);
@@ -126,14 +120,20 @@
 		applyFilter: function(id, data, ctx, promise, params)
 		{
 			// Turn of autoresoving mode
-			params.autoResolve = false;
+			if (params)
+			{
+				params.autoResolve = false;
+			}
 			if (this.isFilterEmpty())
 			{
 				if (this.calendar.getView().resetFilterMode)
 				{
 					this.calendar.getView().resetFilterMode({resetSearchFilter: false});
 				}
-				promise.fulfill();
+				if (promise)
+				{
+					promise.fulfill();
+				}
 			}
 			else
 			{
@@ -149,19 +149,14 @@
 					},
 					handler: BX.delegate(function(response)
 					{
-						//this.calendar.setView('list', {animation: false});
 						if (response && response.entries)
 						{
-							//if (this.calendar.currentViewName !== 'list')
-							//{
-							//}
 							if (!this.calendar.getView().filterMode)
 							{
 								setTimeout(BX.delegate(function ()
 								{
 									this.calendar.getView().applyFilterMode();
 									this.displaySearchResult(response);
-									//setTimeout(BX.delegate(function(){this.displaySearchResult(response);}, this), 200);
 								}, this), 100);
 							}
 							else
@@ -170,7 +165,10 @@
 							}
 						}
 
-						promise.fulfill();
+						if (promise)
+						{
+							promise.fulfill();
+						}
 					}, this)
 				});
 			}

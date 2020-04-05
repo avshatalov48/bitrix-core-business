@@ -752,7 +752,7 @@ class CAllSearch extends CDBResult
 				$r["TAGS_FORMATED"] = tags_prepare($r["TAGS"], SITE_ID);
 				if ($r["BODY"])
 				{
-					$r["BODY_FORMATED"] = $this->PrepareSearchResult(htmlspecialcharsEx($arBody["BODY"]));
+					$r["BODY_FORMATED"] = $this->PrepareSearchResult(htmlspecialcharsEx($r["BODY"]));
 					$r["BODY_FORMATED_TYPE"] = "html";
 				}
 				else

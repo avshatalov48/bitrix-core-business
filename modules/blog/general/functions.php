@@ -189,13 +189,20 @@ class blogTextParser extends CTextParser
 	public function convert4mail($text, $arImages = Array())
 	{
 		$text = parent::convert4mail($text);
+/*
+		$serverName = (
+			(defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+				? SITE_SERVER_NAME
+				: COption::GetOptionString("main", "server_name", "")
+		);
+		if (strlen($serverName) <=0 )
+		{
+			$serverName = $_SERVER["SERVER_NAME"];
+		}
 
-		$serverName = ((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-		if (strlen($serverName) <=0)
-				$serverName = $_SERVER["SERVER_NAME"];
-
-		$this->arImages = $arImages;
 		$this->serverName = $serverName;
+*/
+		$this->arImages = $arImages;
 
 		$text = preg_replace_callback(
 			"/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
@@ -489,21 +496,15 @@ class blogTextParser extends CTextParser
 		{
 			$res = (
 				!$this->bPublic
-					? '<a class="blog-p-user-name' . $classAdditional . '" id="bp_' . $anchorId . '" href="' . CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)) . '">' .
-					(
-					!$this->bMobile
-					&& $ajaxPage
-						? '<script type="text/javascript">BX.tooltip(\''.$userId.'\', "bp_'.$anchorId.'", "'.CUtil::JSEscape($ajaxPage).'");</script>'
-						: ''
-					)
+					? '<a class="blog-p-user-name' . $classAdditional . '"'.
+						' id="bp_'.$anchorId.'"'.
+						' href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'"'.
+						' bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.
+					'>'
 					: ''
 				) .
 				$userName .
-				(
-				!$this->bPublic
-					? '</a>'
-					: ''
-				);
+				(!$this->bPublic ? '</a>' : '');
 		}
 
 		return $res;

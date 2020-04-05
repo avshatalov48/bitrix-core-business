@@ -44,7 +44,7 @@
 	 * @param dateTypes.NEXT_WEEK
 	 * @param {object} numberTypes Number field types from Bitrix\Main\UI\Filter\NumberType
 	 */
-	BX.Main.Filter = function(params, options, types, dateTypes, numberTypes)
+	BX.Main.Filter = function(params, options, types, dateTypes, numberTypes, additionalDateTypes)
 	{
 		this.params = params;
 		this.search = null;
@@ -53,6 +53,7 @@
 		this.fields = null;
 		this.types = types;
 		this.dateTypes = dateTypes;
+		this.additionalDateTypes = additionalDateTypes;
 		this.numberTypes = numberTypes;
 		this.settings = new BX.Filter.Settings(options, this);
 		this.filter = null;
@@ -201,7 +202,10 @@
 						sort: index,
 						name: presetData.TITLE,
 						fields: this.preparePresetSettingsFields(presetData.FIELDS),
-						for_all: presetData.FOR_ALL
+						for_all: (
+							(forAll && !BX.type.isBoolean(presetData.FOR_ALL)) ||
+							(forAll && presetData.FOR_ALL === true)
+						)
 					}
 				}
 			}, this);
@@ -561,8 +565,7 @@
 				fieldKeys.forEach(function(current) {
 					current = current
 						.replace('_datesel', '')
-						.replace('_numsel', '')
-						.replace('_days', '');
+						.replace('_numsel', '');
 					field = BX.clone(this.getFieldByName(current));
 
 					if (BX.type.isPlainObject(field))
@@ -897,9 +900,18 @@
 
 		/**
 		 * Synchronizes field list in popup and filter field list
+		 * @param {?{cache: boolean}} [options]
 		 */
-		syncFields: function()
+		syncFields: function(options)
 		{
+			if (BX.type.isPlainObject(options))
+			{
+				if (options.cache === false)
+				{
+					this.fieldsPopupItems = null;
+				}
+			}
+
 			var fields = this.getPreset().getFields();
 			var items = this.getFieldsPopupItems();
 			var currentId, isNeedCheck;
@@ -1227,10 +1239,10 @@
 				this.fieldsPopup.contentContainer.style.width = "630px";
 				this.fieldsPopup.contentContainer.style.height = "330px";
 				this.getFieldsListPopupContent().then(function(res) {
-					this.fieldsPopup.contentContainer.style = null;
+					this.fieldsPopup.contentContainer.removeAttribute("style");
 					this.fieldsPopupLoader.hide();
 					this.fieldsPopup.setContent(res);
-					this.syncFields();
+					this.syncFields({cache: false});
 				}.bind(this));
 			}
 
@@ -1765,6 +1777,7 @@
 		prepareControlDateValue: function(values, name, field)
 		{
 			var select = BX.Filter.Utils.getByClass(field, this.settings.classSelect);
+			var yearsSwitcher = field.querySelector(".main-ui-select[data-name*=\"_allow_year\"]");
 			var selectName = name + this.settings.datePostfix;
 			var fromName = name + this.settings.fromPostfix;
 			var toName = name + this.settings.toPostfix;
@@ -1772,7 +1785,8 @@
 			var monthName = name + this.settings.monthPostfix;
 			var quarterName = name + this.settings.quarterPostfix;
 			var yearName = name + this.settings.yearPostfix;
-			var selectValue, stringFields, controls, controlName;
+			var yearsSwitcherName = name + "_allow_year";
+			var selectValue, stringFields, controls, controlName, yearsSwitcherValue;
 
 			values[selectName] = '';
 			values[fromName] = '';
@@ -1783,8 +1797,13 @@
 			values[yearName] = '';
 
 			selectValue = JSON.parse(BX.data(select, 'value'));
-
 			values[selectName] = selectValue.VALUE;
+
+			if (yearsSwitcher)
+			{
+				yearsSwitcherValue = JSON.parse(BX.data(yearsSwitcher, 'value'));
+				values[yearsSwitcherName] = yearsSwitcherValue.VALUE;
+			}
 
 			switch (selectValue.VALUE) {
 				case this.dateTypes.EXACT : {
@@ -1855,6 +1874,10 @@
 					break;
 				}
 
+				case this.additionalDateTypes.PREV_DAY :
+				case this.additionalDateTypes.NEXT_DAY :
+				case this.additionalDateTypes.MORE_THAN_DAYS_AGO :
+				case this.additionalDateTypes.AFTER_DAYS :
 				case this.dateTypes.NEXT_DAYS :
 				case this.dateTypes.PREV_DAYS : {
 					var control = BX.Filter.Utils.getByClass(field, this.settings.classNumberInput);
@@ -1879,6 +1902,15 @@
 							values[toName] = current.value;
 						}
 					}, this);
+					break;
+				}
+
+				case "CUSTOM_DATE" : {
+					var customValues = {};
+					this.prepareControlCustomDateValue(customValues, name, field);
+					values[name + '_days'] = customValues[name + '_days'];
+					values[monthName] = customValues[name + '_months'];
+					values[yearName] = customValues[name + '_years'];
 					break;
 				}
 

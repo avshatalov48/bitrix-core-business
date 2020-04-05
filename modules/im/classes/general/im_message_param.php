@@ -297,10 +297,7 @@ class CIMMessageParam
 			'module_id' => 'im',
 			'command' => 'messageParamsUpdate',
 			'params' => $arPullMessage,
-			'extra' => Array(
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			),
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		));
 
 		if ($messageData['MESSAGE_TYPE'] == IM_MESSAGE_OPEN || $messageData['MESSAGE_TYPE'] == IM_MESSAGE_OPEN_LINE)
@@ -309,10 +306,7 @@ class CIMMessageParam
 				'module_id' => 'im',
 				'command' => 'messageParamsUpdate',
 				'params' => $arPullMessage,
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

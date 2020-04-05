@@ -935,7 +935,7 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 		$format = substr($format, 1);
 	}
 
-	$arFormatParts = preg_split("/(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|yesterday|today|tomorrow|tommorow|X|x|F|f|Q|M|l|D)/", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
+	$arFormatParts = preg_split("/(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tomorrow|tommorow|X|x|F|f|Q|M|l|D)/", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
 
 	$result = "";
 	foreach($arFormatParts as $format_part)
@@ -966,6 +966,10 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_OTHER" => "FD_SECOND_DIFF_MOD_OTHER",
 			));
 			break;
+		case "sshort":
+			$seconds_ago = intval($now - $timestamp);
+			$result .= GetMessage("FD_SECOND_SHORT", array("#VALUE#" => $seconds_ago));
+			break;
 		case "iago":
 			$minutes_ago = intval(($now - $timestamp) / 60);
 			$result .= _FormatDateMessage($minutes_ago, array(
@@ -987,6 +991,10 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_2_4" => "FD_MINUTE_DIFF_MOD_2_4",
 				"MOD_OTHER" => "FD_MINUTE_DIFF_MOD_OTHER",
 			));
+			break;
+        case "ishort":
+			$minutes_ago = intval(($now - $timestamp) / 60);
+			$result .= GetMessage("FD_MINUTE_SHORT", array("#VALUE#" => $minutes_ago));
 			break;
 		case "isago":
 			$minutes_ago = intval(($now - $timestamp) / 60);
@@ -1033,6 +1041,10 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_OTHER" => "FD_HOUR_DIFF_MOD_OTHER",
 			));
 			break;
+		case "Hshort":
+			$hours_ago = intval(($now - $timestamp) / 60 / 60);
+			$result .= GetMessage("FD_HOUR_SHORT", array("#VALUE#" => $hours_ago));
+			break;
 		case "yesterday":
 			$result .= GetMessage("FD_YESTERDAY");
 			break;
@@ -1065,6 +1077,10 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_OTHER" => "FD_DAY_DIFF_MOD_OTHER",
 			));
 			break;
+		case "dshort":
+			$days_ago = intval(($now - $timestamp) / 60 / 60 / 24);
+			$result .= GetMessage("FD_DAY_SHORT", array("#VALUE#" => $days_ago));
+			break;
 		case "mago":
 			$months_ago = intval(($now - $timestamp) / 60 / 60 / 24 / 31);
 			$result .= _FormatDateMessage($months_ago, array(
@@ -1087,6 +1103,10 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_OTHER" => "FD_MONTH_DIFF_MOD_OTHER",
 			));
 			break;
+		case "mshort":
+			$months_ago = intval(($now - $timestamp) / 60 / 60 / 24 / 31);
+			$result .= GetMessage("FD_MONTH_SHORT", array("#VALUE#" => $months_ago));
+			break;
 		case "Yago":
 			$years_ago = intval(($now - $timestamp) / 60 / 60 / 24 / 365);
 			$result .= _FormatDateMessage($years_ago, array(
@@ -1107,6 +1127,17 @@ function FormatDate($format = "", $timestamp = false, $now = false)
 				"MOD_1" => "FD_YEARS_DIFF_MOD_1",
 				"MOD_2_4" => "FD_YEARS_DIFF_MOD_2_4",
 				"MOD_OTHER" => "FD_YEARS_DIFF_MOD_OTHER",
+			));
+			break;
+		case "Yshort":
+			$years_ago = intval(($now - $timestamp) / 60 / 60 / 24 / 365);
+			$result .= _FormatDateMessage($years_ago, array(
+				"0" => "FD_YEARS_SHORT_0",
+				"1" => "FD_YEARS_SHORT_1",
+				"10_20" => "FD_YEARS_SHORT_10_20",
+				"MOD_1" => "FD_YEARS_SHORT_MOD_1",
+				"MOD_2_4" => "FD_YEARS_SHORT_MOD_2_4",
+				"MOD_OTHER" => "FD_YEARS_SHORT_MOD_OTHER",
 			));
 			break;
 		case "F":
@@ -2344,6 +2375,7 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 	$str = preg_replace($search, $replace, $str);
 
 	$str = preg_replace("#<[/]{0,1}(b|i|u|em|small|strong)>#i", "", $str);
+	$str = preg_replace("#<div[^>]*>#i", "\r\n", $str);
 	$str = preg_replace("#<[/]{0,1}(font|div|span)[^>]*>#i", "", $str);
 
 	//ищем списки
@@ -6518,6 +6550,27 @@ function NormalizePhone($number, $minLength = 10)
 
 function bxmail($to, $subject, $message, $additional_headers="", $additional_parameters="", \Bitrix\Main\Mail\Context $context=null)
 {
+	if (empty($context))
+	{
+		$context = new \Bitrix\Main\Mail\Context();
+	}
+
+	$event = new \Bitrix\Main\Event(
+		'main',
+		'OnBeforePhpMail',
+		array(
+			'arguments' => (object) array(
+				'to' => &$to,
+				'subject' => &$subject,
+				'message' => &$message,
+				'additional_headers' => &$additional_headers,
+				'additional_parameters' => &$additional_parameters,
+				'context' => &$context,
+			),
+		)
+	);
+	$event->send();
+
 	if(function_exists("custom_mail"))
 		return custom_mail($to, $subject, $message, $additional_headers, $additional_parameters, $context);
 

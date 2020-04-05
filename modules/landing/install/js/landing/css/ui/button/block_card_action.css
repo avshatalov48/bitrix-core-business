@@ -1,0 +1,8 @@
+.landing-ui-button-card-action {
+	line-height: 18px;
+}
+
+
+.landing-ui-button-card-action[data-id="remove"] .landing-ui-button-text::before {
+	right: 12px;
+}

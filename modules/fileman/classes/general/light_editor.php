@@ -7,6 +7,7 @@ class CLightHTMLEditor // LHE
 		global $USER, $APPLICATION;
 		$basePath = '/bitrix/js/fileman/light_editor/';
 		$this->Id = (isset($arParams['id']) && strlen($arParams['id']) > 0) ? $arParams['id'] : 'bxlhe'.substr(uniqid(mt_rand(), true), 0, 4);
+		$this->Id = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $this->Id);
 
 		$this->cssPath = $basePath."light_editor.css";
 		$APPLICATION->SetAdditionalCSS($this->cssPath);
@@ -91,6 +92,7 @@ class CLightHTMLEditor // LHE
 		// Tables
 		//$this->arJSPath[] = $this->GetActualPath($basePath.'le_table.js');
 		$this->jsObjName = (isset($arParams['jsObjName']) && strlen($arParams['jsObjName']) > 0) ? $arParams['jsObjName'] : 'LightHTMLEditor'.$this->Id;
+		$this->jsObjName = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $this->jsObjName);
 
 		if ($this->bResizable)
 		{
@@ -244,7 +246,7 @@ class CLightHTMLEditor // LHE
 				<?endif;?>
 
 				if (
-					<?= ($this->bRecreate ? 'true' : 'false')?> || 
+					<?= ($this->bRecreate ? 'true' : 'false')?> ||
 					JCLightHTMLEditor.items['<?= $this->Id?>'] == undefined ||
 					!document.body.contains(JCLightHTMLEditor.items['<?= $this->Id?>'].pFrame)
 				)

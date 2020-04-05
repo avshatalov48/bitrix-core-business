@@ -1,7 +1,7 @@
 <?
-$MESS["INS_TITLE"] = "Bitrix Site Manager #VERS# Installation";
+$MESS["INS_TITLE"] = "Bitrix Site Manager Installation";
 $MESS["INS_TITLE2"] = "System Installation";
-$MESS["INS_TITLE3"] = "Bitrix Site Manager #VERS#";
+$MESS["INS_TITLE3"] = "Bitrix Site Manager";
 $MESS["INS_TITLE1"] = "<font class=\"bitrixtitle\">Bitrix Site Manager #VERS#</font> <font class=\"install\">Installation</font>";
 $MESS["SC_NOTES1"] = "<font color=\"#009900\"><b>Green text</b></font> indicate values that meet the system requirements.<br><font color=\"#FF0000\"><b>Red text</b></font> indicate values that <b>do not</b> meet the system requirements.";
 $MESS["SC_SUBTITLE_REQUIED"] = "Required system parameters";
@@ -322,4 +322,5 @@ $MESS["ERR_DATABASE_NAME"] = "Incorrect database name.";
 $MESS["INSTALL_DEVSRV"] = "Development only:";
 $MESS["INSTALL_DEVSRV_NOTE"] = "This installation will be used only for development purpose; no real visitors will see it.";
 $MESS["INST_UTF8_DEFAULT_ENCODING"] = "The values of the default_charset and mbstring.internal_encoding parameters don't match. It is recommended that you delete the mbstring.internal_encoding parameter.";
+$MESS["SC_NO_OPENSSL_LIB_ER"] = "OpenSSL is not available on your PHP.";
 ?>

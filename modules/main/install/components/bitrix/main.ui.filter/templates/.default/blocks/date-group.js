@@ -15,6 +15,7 @@
 				'data-type': 'type' in data ? data.type : '',
 				'data-name': 'name' in data ? data.name : '',
 				'data-time': data.enableTime
+
 			},
 			content: []
 		};

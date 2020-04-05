@@ -22,8 +22,8 @@ final class GoogleApiSync
 			$userId = 0,
 			$calendarList = array(),
 			$defaultReminderData = array(),
-			$calendarColors = array(),
-			$eventColors = array(),
+			$calendarColors = false,
+			$eventColors = false,
 			$eventMapping = array(
 				'DAV_XML_ID'	=>	'iCalUID',
 				'NAME'			=>	'summary',
@@ -139,21 +139,49 @@ final class GoogleApiSync
 
 	private function setColors()
 	{
-		if (empty($this->calendarColors) || empty($this->eventColors))
+		if ($this->calendarColors === false || $this->eventColors === false)
 		{
-			$colorData = $this->syncTransport->getColors();
-			if (!is_array($colorData) || empty($colorData['calendar']) || empty($colorData['event']))
+			$cacheTime = 86400 * 7;
+			$colorData = null;
+
+			if ($cacheTime)
 			{
-				return;
-			}
-			foreach ($colorData['calendar'] as $key => $calendarColor)
-			{
-				$this->calendarColors[$key] = $calendarColor;
+				$cache = \Bitrix\Main\Data\Cache::createInstance();
+				$cacheId = "google_colors";
+				$cachePath = 'googlecolors';
+
+				if ($cache->initCache($cacheTime, $cacheId, $cachePath))
+				{
+					$res = $cache->getVars();
+					$colorData = $res["colorData"];
+				}
 			}
 
-			foreach ($colorData['event'] as $key => $eventColor)
+			if (!$cacheTime || empty($colorData))
 			{
-				$this->eventColors[$key] = $eventColor;
+				$colorData = $this->syncTransport->getColors();
+				if ($cacheTime && isset($cache, $cacheId, $cachePath))
+				{
+					$cache->startDataCache($cacheTime, $cacheId, $cachePath);
+					$cache->endDataCache(array(
+						"colorData" => $colorData
+					));
+				}
+			}
+
+			$this->calendarColors = array();
+			$this->eventColors = array();
+			if (is_array($colorData) && !empty($colorData['calendar']) && !empty($colorData['event']))
+			{
+				foreach ($colorData['calendar'] as $key => $color)
+				{
+					$this->calendarColors[$key] = $color;
+				}
+
+				foreach ($colorData['event'] as $key => $color)
+				{
+					$this->eventColors[$key] = $color;
+				}
 			}
 		}
 	}
@@ -165,7 +193,8 @@ final class GoogleApiSync
 	 */
 	private function getCalendarColor($colorId, $background = true)
 	{
-		return $this->calendarColors[$colorId][($background ? 'background' : 'foreground')];
+		$calendarColors = is_array($this->calendarColors) ? $this->calendarColors : array();
+		return $calendarColors[$colorId][($background ? 'background' : 'foreground')];
 	}
 
 	/**
@@ -175,7 +204,8 @@ final class GoogleApiSync
 	 */
 	private function getEventColor($colorId, $background = true)
 	{
-		return $this->eventColors[$colorId][($background ? 'background' : 'foreground')];
+		$eventColors = is_array($this->eventColors) ? $this->eventColors : array();
+		return $eventColors[$colorId][($background ? 'background' : 'foreground')];
 	}
 
 	/**
@@ -210,7 +240,6 @@ final class GoogleApiSync
 
 		if (!empty($calendarList['items']))
 		{
-
 			foreach($calendarList['items'] as $calendarItem)
 			{
 				$calendarItem['backgroundColor'] = $this->getCalendarColor($calendarItem['colorId']);
@@ -373,11 +402,12 @@ final class GoogleApiSync
 					$minutes = 24 * 60 * $remindRule['count'];
 				}
 				$newEvent['reminders']['overrides'][] = array(
-					'minutes'	=> $minutes,
-					'method'	=> 'popup', //todo - should able to be changed in settings
+					'minutes' => $minutes,
+					'method' => 'popup', //todo - should able to be changed in settings
 				);
 			}
 		}
+
 		if ($eventData['DT_SKIP_TIME'] == "Y")
 		{
 			$startDate = new Type\Date($eventData['DATE_FROM']);
@@ -394,7 +424,7 @@ final class GoogleApiSync
 		}
 		else
 		{
-			if (!empty($eventData['TZ_FROM']))
+			if (!empty($eventData['TZ_FROM']) && $eventData['TZ_FROM'] != 'false')
 			{
 				$dateTimeZoneFrom = new \DateTimeZone($eventData['TZ_FROM']);
 			}
@@ -406,7 +436,7 @@ final class GoogleApiSync
 			$newEvent['start']['dateTime'] = $eventStartDateTime->format(\DateTime::RFC3339);
 			$newEvent['start']['timeZone'] = $dateTimeZoneFrom->getName();
 
-			if (!empty($eventData['TZ_TO']))
+			if (!empty($eventData['TZ_TO']) && $eventData['TZ_TO'] != 'false')
 			{
 				$dateTimeZoneTo = new \DateTimeZone($eventData['TZ_TO']);
 			}
@@ -414,6 +444,7 @@ final class GoogleApiSync
 			{
 				$dateTimeZoneTo = new \DateTimeZone("UTC");
 			}
+
 			$eventEndDateTime = new Type\DateTime($eventData['DATE_TO'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $dateTimeZoneTo);
 			$newEvent['end']['dateTime'] = $eventEndDateTime->format(\DateTime::RFC3339);
 			$newEvent['end']['timeZone'] = $dateTimeZoneTo->getName();

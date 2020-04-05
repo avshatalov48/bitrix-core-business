@@ -105,6 +105,7 @@ final class Manager
 					'HANDLER' => $cashbox['HANDLER'],
 					'ENABLED' => $cashbox['PRESENTLY_ENABLED'],
 					'DATE_LAST_CHECK' => new DateTime(),
+					'EMAIL' => Main\Config\Option::get('main', 'email_from'),
 				)
 			);
 

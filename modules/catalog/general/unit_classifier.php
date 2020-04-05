@@ -9,7 +9,7 @@ class CCatalogMeasureClassifier
 {
 	protected static $unitsClassifier = null;
 
-	private function initMeasureClassifier()
+	private static function initMeasureClassifier()
 	{
 		if (null !== self::$unitsClassifier)
 			return;
@@ -3812,7 +3812,7 @@ class CCatalogMeasureClassifier
 	 * @deprecated deprecated since catalog 14.5.0 - not needed, compatibility only
 	 * @return array
 	 */
-	protected function measureStore()
+	protected static function measureStore()
 	{
 		return static::getMeasureClassifier();
 	}

@@ -1,5 +1,8 @@
 <?
 /** @global CMain $APPLICATION */
+
+use Bitrix\Iblock;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 IncludeModuleLangFile(__FILE__);
@@ -166,8 +169,9 @@ while($arFProps = $dbrFProps->GetNext())
 
 foreach($arProps as $prop)
 {
-	if($prop["FILTRABLE"]=="Y" && $prop["PROPERTY_TYPE"]!="F")
-		$arFilterFields[] = "find_el_property_".$prop["ID"];
+	if ($prop["FILTRABLE"] != "Y" || $prop["PROPERTY_TYPE"] == Iblock\PropertyTable::TYPE_FILE)
+		continue;
+	$arFilterFields[] = "find_el_property_".$prop["ID"];
 }
 
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
@@ -219,8 +223,28 @@ if (!empty($filter_status) && strcasecmp($filter_status, "NOT_REF")) $arFilter["
 
 foreach($arProps as $prop)
 {
-	if($prop["FILTRABLE"]=="Y" && $prop["PROPERTY_TYPE"]!="F" && !empty(${"find_el_property_".$prop["ID"]}))
-		$arFilter["?PROPERTY_".$prop["ID"]] = ${"find_el_property_".$prop["ID"]};
+	if ($prop["FILTRABLE"] != 'Y' || $prop["PROPERTY_TYPE"] == Iblock\PropertyTable::TYPE_FILE)
+		continue;
+
+	if (!empty($prop['PROPERTY_USER_TYPE']) && isset($prop["PROPERTY_USER_TYPE"]["AddFilterFields"]))
+	{
+		call_user_func_array($prop["PROPERTY_USER_TYPE"]["AddFilterFields"], array(
+			$prop,
+			array("VALUE" => "find_el_property_".$prop["ID"]),
+			&$arFilter,
+			&$filtered,
+		));
+	}
+	else
+	{
+		$value = ${"find_el_property_".$prop["ID"]};
+		if(is_array($value) || strlen($value))
+		{
+			if($value === "NOT_REF")
+				$value = false;
+			$arFilter["?PROPERTY_".$prop["ID"]] = $value;
+		}
+	}
 }
 
 $arFilter["CHECK_PERMISSIONS"]="Y";
@@ -353,13 +377,10 @@ if($IBLOCK_ID <= 0)
 	$lAdmin->EndPrologContent();
 }
 
-$elementsName = array();
-
 while($arRes = $rsData->GetNext())
 {
 	$index = ($get_xml_id ? $arRes["XML_ID"]: $arRes["ID"]);
 
-	$elementsName[$index] = $arRes["~NAME"];
 	$arRes["MODIFIED_BY"] = (int)$arRes["MODIFIED_BY"];
 	$arRes["CREATED_BY"] = (int)$arRes["CREATED_BY"];
 	$arRes["WF_LOCKED_BY"] = (int)$arRes["WF_LOCKED_BY"];
@@ -373,7 +394,7 @@ while($arRes = $rsData->GetNext())
 
 	$row =& $lAdmin->AddRow($arRes["ID"], $arRes);
 
-	$row->AddViewField("NAME", $arRes["NAME"].'<input type="hidden" name="n'.$arRes["ID"].'" id="index_'.$arRes["ID"].'" value="'.$index.'">');
+	$row->AddViewField("NAME", $arRes["NAME"].'<input type="hidden" name="n'.$arRes["ID"].'" id="index_'.$arRes["ID"].'" value="'.$index.'"><div style="display:none" id="name_'.$arRes["ID"].'">'.$arRes["NAME"].'</div>');
 	if ($arRes["MODIFIED_BY"] > 0)
 		$row->AddViewField("USER_NAME", '[<a target="_blank" href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["MODIFIED_BY"].'">'.$arRes["MODIFIED_BY"].'</a>]&nbsp;'.$arRes["USER_NAME"]);
 	else
@@ -506,7 +527,7 @@ while($arRes = $rsData->GetNext())
 		array(
 			"DEFAULT" => "Y",
 			"TEXT" => GetMessage("IBLOCK_ELSEARCH_SELECT"),
-			"ACTION"=>"javascript:SelEl('".CUtil::JSEscape($index)."')",
+			"ACTION"=>"javascript:SelEl('".CUtil::JSEscape($index)."', '".htmlspecialcharsbx(htmlspecialcharsbx(CUtil::JSEscape($arRes["~NAME"]), ENT_QUOTES))."')",
 		),
 	));
 }
@@ -531,12 +552,6 @@ if($m)
 }
 
 $lAdmin->AddAdminContextMenu(array(), false);
-
-?>
-<script type="text/javascript">
-var elementsName = <?=CUtil::PhpToJSObject($elementsName); ?>;
-</script>
-<?
 
 $lAdmin->CheckListMode();
 
@@ -627,12 +642,9 @@ function deleteFilter(el)
 	return false;
 }
 
-function SelEl(id)
+function SelEl(id, name)
 {
-	var el,
-		name;
-
-	name = BX.util.htmlspecialchars(elementsName[id]);
+	var el;
 	<?
 		if ('' != $lookup)
 		{
@@ -687,7 +699,7 @@ function SelAll()
 		{
 			v = e.value;
 			n = BX('index_'+v).value;
-			SelEl(n);
+			SelEl(n, BX('name_'+v).innerHTML);
 		}
 		else if(e)
 		{
@@ -697,7 +709,7 @@ function SelAll()
 				{
 					v = e[i].value;
 					n = BX('index_'+v).value;
-					SelEl(n);
+					SelEl(n, BX('name_'+v).innerHTML);
 				}
 			}
 		}

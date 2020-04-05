@@ -45,7 +45,11 @@ abstract class ProviderBuilderBase
 	public static function create($providerClass, $context)
 	{
 		$builder = new static();
-		$builder->providerClass = $providerClass;
+
+		if ($providerClass && !is_string($providerClass))
+		{
+			$builder->providerClass = $providerClass;
+		}
 		$builder->context = $context;
 
 		return $builder;
@@ -375,11 +379,20 @@ abstract class ProviderBuilderBase
 
 	/**
 	 * @internal
-	 * @return mixed
+	 * @return string|null
 	 */
 	public function getProviderClass()
 	{
 		return $this->providerClass;
+	}
+
+	/**
+	 * @internal
+	 * @return string|null
+	 */
+	public function getCallbackFunction()
+	{
+		return $this->callbackFunction;
 	}
 
 	/**

@@ -271,6 +271,10 @@ foreach ($arVisibleColumns as $column)
 		$columnUserName = "USER.".$column;
 		$buyersFilter['select'][$column] = $columnUserName;
 	}
+	elseif ($column === 'COUNT_ORDER')
+	{
+		$buyersFilter['select'][] = 'COUNT_FULL_PAID_ORDER';
+	}
 	elseif ($column !== 'GROUPS_ID')
 	{
 		$buyersFilter['select'][] = $column;
@@ -278,8 +282,13 @@ foreach ($arVisibleColumns as $column)
 }
 
 if (in_array($by, $userFields))
+{
 	$by = "USER.$by";
-
+}
+elseif ($by === 'COUNT_ORDER')
+{
+	$by = 'COUNT_FULL_PAID_ORDER';
+}
 $buyersFilter['order'] = array($by => $order);
 
 $buyersData = \Bitrix\Sale\BuyerStatistic::getList($buyersFilter);

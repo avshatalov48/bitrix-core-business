@@ -139,4 +139,15 @@ $MESS["FD_LAST_SEEN_NOW"] = "just now";
 $MESS["FD_LAST_SEEN_TODAY"] = "today at #TIME#";
 $MESS["FD_LAST_SEEN_YESTERDAY"] = "yesterday at #TIME#";
 $MESS["FD_LAST_SEEN_MORE_YEAR"] = "more than a year ago";
+$MESS["FD_SECOND_SHORT"] = "#VALUE# s";
+$MESS["FD_MINUTE_SHORT"] = "#VALUE# m";
+$MESS["FD_HOUR_SHORT"] = "#VALUE# h";
+$MESS["FD_DAY_SHORT"] = "#VALUE# d";
+$MESS["FD_MONTH_SHORT"] = "#VALUE# mon";
+$MESS["FD_YEARS_SHORT_0"] = "#VALUE# y";
+$MESS["FD_YEARS_SHORT_1"] = "#VALUE# y";
+$MESS["FD_YEARS_SHORT_10_20"] = "#VALUE# y";
+$MESS["FD_YEARS_SHORT_MOD_1"] = "#VALUE# y";
+$MESS["FD_YEARS_SHORT_MOD_2_4"] = "#VALUE# y";
+$MESS["FD_YEARS_SHORT_MOD_OTHER"] = "#VALUE# y";
 ?>

@@ -1549,9 +1549,7 @@ REQ
 		static $res = false;
 		if (!$res)
 		{
-			$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
-			if($jpgQuality <= 0 || $jpgQuality > 100)
-				$jpgQuality = 95;
+			$jpgQuality = self::getDefaultJpegQuality();
 
 			$res = array(
 				"IBLOCK_SECTION" => array(
@@ -3400,9 +3398,7 @@ REQ
 				break;
 
 			case IMAGETYPE_JPEG:
-				$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
-				if ($jpgQuality <= 0 || $jpgQuality > 100)
-					$jpgQuality = 95;
+				$jpgQuality = self::getDefaultJpegQuality();
 
 				imagejpeg($picture, $filePath, $jpgQuality);
 				break;
@@ -3931,5 +3927,13 @@ REQ
 	public static function isEnabledClearTagCache()
 	{
 		return (self::$enableClearTagCache >= 0);
+	}
+
+	public static function getDefaultJpegQuality()
+	{
+		$jpgQuality = (int)Main\Config\Option::get('main', 'image_resize_quality', '95');
+		if ($jpgQuality <= 0 || $jpgQuality > 100)
+			$jpgQuality = 95;
+		return $jpgQuality;
 	}
 }

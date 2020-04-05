@@ -21,7 +21,9 @@ IncludeModuleLangFile(__FILE__);
  */
 class ShipmentImport extends EntityImport
 {
-    public function __construct($parentEntityContext = null)
+	protected static $currentSettingsStores = null;
+
+	public function __construct($parentEntityContext = null)
     {
         parent::__construct($parentEntityContext);
     }
@@ -536,4 +538,95 @@ class ShipmentImport extends EntityImport
 
         return Exchange\EntityType::SHIPMENT;
     }
+
+	public function initFields()
+	{
+		$this->setFields(
+			array(
+				'TRAITS' => $this->getFieldsTraits(),
+				'ITEMS' => $this->getFieldsItems(),
+				'STORIES' => $this->getFieldsStories()
+			)
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getFieldsItems()
+	{
+		$result = array();
+		$shipment = $this->getEntity();
+		if($shipment instanceof Shipment)
+		{
+			$order = $shipment->getParentOrder();
+			/** @var Sale\BasketItem $basket */
+			foreach ($order->getBasket() as $basket)
+			{
+				/** @var Sale\ShipmentItem $shipmentItem */
+				$shipmentItem = $shipment->getShipmentItemCollection()
+					->getItemByBasketCode($basket->getBasketCode());
+
+				if($shipmentItem !== null)
+				{
+					$itemFields = $basket->getFieldValues();
+					$itemFields['QUANTITY'] = $shipmentItem->getQuantity();
+
+					$attributes = array();
+					$attributeFields = OrderImport::getAttributesItem($basket);
+					if(count($attributeFields)>0)
+						$attributes['ATTRIBUTES'] = $attributeFields;
+
+					$result[] = array_merge($itemFields, $attributes);
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 * @internal
+	 */
+	protected function getFieldsStories()
+	{
+		$result = array();
+		$entity = $this->getEntity();
+		if($entity instanceof Shipment)
+		{
+			$shipmentItemCollection = $entity->getShipmentItemCollection();
+			if($shipmentItemCollection->count()>0)
+			{
+				/** @var Sale\ShipmentItem $shipmentItem */
+				foreach ($shipmentItemCollection as $shipmentItem)
+				{
+					$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+					if ($shipmentItemStoreCollection->count()>0)
+					{
+						/** @var Sale\ShipmentItemStore $shipmentItemStore */
+						foreach ($shipmentItemStoreCollection as $shipmentItemStore)
+						{
+							$result[] = array('ID'=>$shipmentItemStore->getStoreId());
+						}
+					}
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @param Sale\IBusinessValueProvider $entity
+	 * @return Sale\Order
+	 */
+	static protected function getBusinessValueOrderProvider(\Bitrix\Sale\IBusinessValueProvider $entity)
+	{
+		if(!($entity instanceof Shipment))
+			throw new Main\ArgumentException("entity must be instanceof Shipment");
+
+		/** @var Sale\ShipmentCollection $collection */
+		$collection = $entity->getCollection();
+
+		return $collection->getOrder();
+	}
 }

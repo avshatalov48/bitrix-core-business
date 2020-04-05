@@ -9,6 +9,7 @@ $MESS["SENDER_STATS_EFFICIENCY_LEVEL_5"] = "Отлично";
 
 $MESS["SENDER_STATS_RECENT_POSTINGS"] = "Недавние выпуски";
 $MESS["SENDER_STATS_CREATE_NEW"] = "Создать новый выпуск";
+$MESS["SENDER_STATS_CREATE_NEW_LETTER"] = "Создать новую рассылку";
 
 $MESS["SENDER_STATS_FILTER_PERIOD_FOR"] = "за";
 $MESS["SENDER_STATS_FILTER_FROM_AUTHOR"] = "от";

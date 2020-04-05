@@ -1160,7 +1160,7 @@ class CBitrixComponentTemplate
 	public function createFrame($id = null, $autoContainer = true)
 	{
 		$this->frameMode = true;
-		if ($id === null)
+		if (!is_string($id) || strlen($id) === 0)
 		{
 			$id = $this->randString();
 		}

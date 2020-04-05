@@ -280,7 +280,11 @@ JSCODE;
 			$APPLICATION->AddHeadString("<script type=\"text/javascript\">app.bindloadPageBlank();</script>", false, false);
 		}
 
-		$APPLICATION->AddHeadString(Mobile::getInstance()->getViewPort());
+		if (!array_key_exists("doNotUseViewPort", $_REQUEST))
+		{
+			$APPLICATION->AddHeadString(Mobile::getInstance()->getViewPort());
+		}
+
 	}
 
 	/**

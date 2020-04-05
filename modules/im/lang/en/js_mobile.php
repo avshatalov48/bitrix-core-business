@@ -30,7 +30,8 @@ $MESS["IM_MENU_MESS_LIKE"] = "Like";
 $MESS["IM_MENU_MESS_DISLIKE"] = "Dislike";
 $MESS["IM_MENU_MESS_REPLY"] = "Reply";
 $MESS["IM_MENU_MESS_QUOTE"] = "Quote";
-$MESS["IM_MENU_MESS_LIKE_LIST"] = "Who read";
+$MESS["IM_MENU_MESS_LIKE_LIST"] = "Liked by";
+$MESS["IM_MENU_MESS_LIKE_LIST_2"] = "Liked by";
 $MESS["IM_MENU_LIST"] = "Users";
 $MESS["IM_MENU_MESS_EDIT"] = "Edit";
 $MESS["IM_MENU_MESS_DEL"] = "Delete";
@@ -58,4 +59,6 @@ $MESS["IM_FUNCTION_FOR_BROWSER"] = "Unfortunately this function is only availabl
 $MESS["IM_LS_M_M"] = "Last seen #LAST_SEEN#";
 $MESS["IM_LS_M_F"] = "Last seen #LAST_SEEN#";
 $MESS["IM_MENU_MESS_VIEW_LIST"] = "Viewed by";
+$MESS["IM_MENU_UNREAD"] = "Mark as unread";
+$MESS["IM_M_MENU_TRANSFER"] = "Transfer";
 ?>

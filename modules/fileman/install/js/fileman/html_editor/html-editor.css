@@ -1921,6 +1921,10 @@ border-radius: 2px; cursor: pointer;
 	border: 1px solid #FFF;
 }
 
+.bxhtmled-smile-tab img {
+	max-height: 20px;
+}
+
 .bxhtmled-smile-tab-active {
 	background-image: -webkit-linear-gradient(top, #afdcef, #c2e3f1) !important;
 	background-image:    -moz-linear-gradient(top, #afdcef, #c2e3f1) !important;
@@ -1935,8 +1939,6 @@ border-radius: 2px; cursor: pointer;
 	width: 22px;
 }
 
-
-
 .bxhtmled-smile-slider-wrap {
 	overflow: hidden;
 	position: relative;
@@ -1948,8 +1950,9 @@ border-radius: 2px; cursor: pointer;
 
 .bxhtmled-smiles-wrap {
 	float: left;
+	max-height: 500px;
+	overflow: auto;
 }
-
 
 .bxhtmled-list li{margin-bottom: 2px;}
 .bxhtmled-list-del-item {

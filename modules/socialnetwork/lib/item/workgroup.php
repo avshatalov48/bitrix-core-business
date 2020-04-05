@@ -176,6 +176,7 @@ class Workgroup
 			isset($groupFields['UF_SG_DEPT'])
 			&& isset($groupFields['UF_SG_DEPT']['VALUE'])
 			&& !empty($groupFields['UF_SG_DEPT']['VALUE'])
+			&& Loader::includeModule('intranet')
 		)
 		{
 			$newDeptList = array_map('intval', $groupFields['UF_SG_DEPT']['VALUE']);
@@ -186,6 +187,11 @@ class Workgroup
 				{
 					$newUserList[] = $departmentMember["ID"];
 				}
+			}
+
+			foreach($newDeptList as $deptId)
+			{
+				$newUserList[] = \CIntranetUtils::getDepartmentManagerId($deptId);
 			}
 			$newUserList = array_map('intval', array_unique($newUserList));
 		}

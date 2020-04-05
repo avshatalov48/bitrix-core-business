@@ -855,7 +855,13 @@ class CBPDocument
 						bindTo: controlNode,
 						addCallback: function(user)
 						{
-							controlNode.value += user['name'] + ' ['+user['id']+']; ';
+							var prefix = '';
+							if (controlNode.value.length > 0 && !/;\s*$/.test(controlNode.value))
+							{
+								prefix = '; ';
+							}
+
+							controlNode.value += prefix + user['name'] + ' ['+user['id']+']; ';
 						}
 					});
 					controlNode.__userSelector.onBindClick();

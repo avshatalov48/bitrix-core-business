@@ -163,4 +163,6 @@ $MESS["SALE_EXPORT_PROP_VALUES"] = "ЗначенияСвойств";
 $MESS["SALE_EXPORT_PROP_VALUE"] = "ЗначенияСвойства";
 $MESS["SALE_EXPORT_CASHBOX_CHECKS"] = "ИнформацияОЧеках";
 $MESS["SALE_EXPORT_CASHBOX_CHECK"] = "ИнформацияОЧеке";
+$MESS["SALE_EXPORT_AGENT"] = "Контрагент";
+$MESS["SALE_EXPORT_XML_ID"] = "Ид";
 ?>

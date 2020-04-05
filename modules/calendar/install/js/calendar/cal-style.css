@@ -1094,7 +1094,7 @@ div.bxec-dav-new td.bxec-dav-lab{text-align: right;}
 div.bxec-dav-new td.bxec-dav-inp{text-align: left;}
 div.bxec-dav-new table td label{margin: 2px 2px 0 0!important;}
 
-div.bxec-dav-list{padding: 0!important; height: 200px!important; overflow: auto!important;}
+div.bxec-dav-list{padding: 0!important; max-height: 500px!important; overflow: auto!important;}
 div.bxec-dav-item {margin: 0; position: relative; padding: 0; border: 1px solid #fff!important; background: #F3F3F3;}
 div.bxec-dav-item-1{ background: #fff;}
 
@@ -2161,10 +2161,6 @@ div.bxec-dav-list div.bxec-dav-item-edited div.bxec-dav-item-name,
 }
 .bxec-popup .feed-add-post-form-but-wrap{
 	border-bottom-width: 0 !important;
-}
-
-.bxec-popup .feed-add-post-form{
-	margin-bottom: 0 !important;
 }
 
 .bxec-popup .diskuf-selectdialog{

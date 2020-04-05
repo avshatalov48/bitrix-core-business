@@ -130,7 +130,7 @@ if ($_REQUEST['action'])
 			else
 				$url = 'local_arc_name='.htmlspecialcharsbx($name);
 			if ($url)
-				echo '<script>document.location = "/restore.php?Step=1&'.$url.'";</script>';
+				echo '<script>document.location = "/restore.php?Step=1&lang='.LANGUAGE_ID.'&'.$url.'";</script>';
 		}
 		die();
 	}

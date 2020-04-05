@@ -1,0 +1,23 @@
+.report-configuration-head {
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: 38px;
+    border-radius: 2px 2px 0 0;
+}
+
+.report-configuration-head .report-configuration-row {
+    align-items: center;
+    padding: 0;
+    width: 100%;
+    border: none;
+}
+
+.report-configuration-head .report-configuration-item {
+    flex: 1;
+    padding: 0;
+    margin: 0;
+}
+.report-configuration-head .report-configuration-item:first-child {
+    flex: auto;
+}

@@ -72,6 +72,10 @@ $userId = CCalendar::GetCurUserId();
 
 $viewComments = CCalendar::IsPersonal($event['CAL_TYPE'], $event['OWNER_ID'], $userId) || CCalendarSect::CanDo('calendar_view_full', $event['SECT_ID'], $userId);
 
+if ($event['EVENT_TYPE'] === '#resourcebooking#')
+{
+	$viewComments = false;
+}
 
 $codes = array();
 if ($event['IS_MEETING'])
@@ -128,9 +132,9 @@ if (!isset($arHost) || !$arHost)
 	$arHost['URL'] = CCalendar::GetUserUrl($arHost["ID"], $arParams["PATH_TO_USER"]);
 }
 
-if ($event['IS_MEETING'] && $arHost['ID'] !== $event['MEETING_HOST'])
+if ($event['IS_MEETING'] && $event['MEETING']['MEETING_CREATOR'] && $event['MEETING']['MEETING_CREATOR'] !== $event['MEETING_HOST'])
 {
-	$arCreator = CCalendar::GetUser($event['MEETING_HOST'], true);
+	$arCreator = CCalendar::GetUser($event['MEETING']['MEETING_CREATOR'], true);
 	$arCreator['DISPLAY_NAME'] = CCalendar::GetUserName($arCreator);
 	$arCreator['URL'] = CCalendar::GetUserUrl($arCreator["ID"], $arCreator["PATH_TO_USER"]);
 }
@@ -463,7 +467,7 @@ $arParams['UF'] = $UF;
 						<?if (!empty($location)):?>
 						<div class="calendar-slider-detail-place">
 							<div class="calendar-slider-detail-place-title"><?= Loc::getMessage('EC_VIEW_SLIDER_LOCATION')?></div>
-							<div class="calendar-slider-detail-place-name"><?= $location?></div>
+							<div class="calendar-slider-detail-place-name"><?= htmlspecialcharsbx($location)?></div>
 						</div>
 						<?endif;?>
 					</div>
@@ -480,6 +484,7 @@ $arParams['UF'] = $UF;
 					</div>
 				</div>
 			</div>
+			<?if ($viewComments): ?>
 			<div class="calendar-slider-comments">
 				<div class="calendar-slider-comments-title"><?= Loc::getMessage('EC_VIEW_SLIDER_COMMENTS')?></div>
 				<div class="calendar-slider-comments-main"  id="<?=$id?>comments-cont" style="opacity: 1;">
@@ -515,8 +520,7 @@ $arParams['UF'] = $UF;
 					?>
 				</div>
 			</div>
+			<?endif;?>
 		</div>
-
-
 	</div>
 </div>

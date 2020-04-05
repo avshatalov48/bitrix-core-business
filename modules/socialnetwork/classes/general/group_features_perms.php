@@ -214,8 +214,12 @@ class CAllSocNetFeaturesPerms
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetFeaturesPermsUpdate");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_sonet_features2perms", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
@@ -230,7 +234,9 @@ class CAllSocNetFeaturesPerms
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetFeaturesPermsUpdate");
 			while ($arEvent = $events->Fetch())
+			{
 				ExecuteModuleEventEx($arEvent, array($ID, $arFields));
+			}
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
@@ -253,7 +259,9 @@ class CAllSocNetFeaturesPerms
 			}
 		}
 		else
+		{
 			$ID = False;
+		}
 
 		return $ID;
 	}

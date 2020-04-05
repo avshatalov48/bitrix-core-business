@@ -44,7 +44,7 @@ else
 }
 
 $arParams['AJAX_CALL'] = $_GET["MUL_MODE"];
-
+$arResult["stylePrefix"] = ($_REQUEST["MODE"] == 'UI' ? 'bx-ui-tooltip' : 'bx-user');
 if ($bSocialNetwork)
 {
 	if (!array_key_exists("SHOW_FIELDS", $arParams) || !$arParams["SHOW_FIELDS"])
@@ -527,7 +527,7 @@ if (strlen($arResult["FatalError"]) <= 0)
 
 			if (strlen($strToolbar2) > 0)
 			{
-				$strToolbar2 = "<div class='bx-user-info-data-separator'></div><ul>".$strToolbar2."</ul>";
+				$strToolbar2 = "<div class='".$arResult["stylePrefix"]."-info-data-separator'></div><ul>".$strToolbar2."</ul>";
 			}
 
 			$arResult = array(

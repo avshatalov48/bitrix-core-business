@@ -208,8 +208,8 @@ class MessageParamHandler extends \Bitrix\Replica\Client\BaseHandler
 					"TO_USER_ID" => $message['AUTHOR_ID'],
 					"FROM_USER_ID" => $newRecord["PARAM_VALUE"],
 					"NOTIFY_TYPE" => IM_NOTIFY_FROM,
-					"NOTIFY_MODULE" => "main",
-					"NOTIFY_EVENT" => "rating_vote",
+					"NOTIFY_MODULE" => "im",
+					"NOTIFY_EVENT" => "like",
 					"NOTIFY_TAG" => "RATING|IM|".($isChat? 'G':'P')."|".($isChat? $chat['ID']: $newRecord["PARAM_VALUE"])."|".$id,
 					"NOTIFY_MESSAGE" => GetMessage($isChat? 'IM_MESSAGE_LIKE': 'IM_MESSAGE_LIKE_PRIVATE', Array(
 						'#MESSAGE#' => $message['MESSAGE'],
@@ -232,10 +232,7 @@ class MessageParamHandler extends \Bitrix\Replica\Client\BaseHandler
 					'module_id' => 'im',
 					'command' => 'messageLike',
 					'params' => $arPullMessage,
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
 		}

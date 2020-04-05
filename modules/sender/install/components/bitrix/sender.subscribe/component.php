@@ -1,6 +1,8 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+use Bitrix\Sender\Recipient;
+
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 
@@ -108,7 +110,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 				$arExistedSubscription = array();
 				$subscriptionDb = \Bitrix\Sender\MailingSubscriptionTable::getSubscriptionList(array(
 					'select' => array('EXISTED_MAILING_ID' => 'MAILING.ID'),
-					'filter' => array('=CONTACT.EMAIL' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]), '!MAILING.ID' => null),
+					'filter' => array(
+						'=CONTACT.TYPE_ID' => Recipient\Type::EMAIL,
+						'=CONTACT.CODE' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
+						'!MAILING.ID' => null
+					),
 				));
 				while(($subscription = $subscriptionDb->fetch()))
 				{
@@ -122,7 +128,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 			else
 			{
 				// do not send if no selected mailings and subscriber existed
-				$contactDb = \Bitrix\Sender\ContactTable::getList(array('filter' => array('=EMAIL' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]))));
+				$contactDb = \Bitrix\Sender\ContactTable::getList(array('filter' => array(
+					'=TYPE_ID' => Recipient\Type::EMAIL,
+					'=CODE' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
+				)));
 				if($contact = $contactDb->fetch())
 					$sendEmailToSubscriber = false;
 			}
@@ -144,7 +153,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 		}
 		else
 		{
-			\Bitrix\Sender\Subscription::add($_POST["SENDER_SUBSCRIBE_EMAIL"], $mailingIdList, SITE_ID);
+			\Bitrix\Sender\Subscription::add($_POST["SENDER_SUBSCRIBE_EMAIL"], $mailingIdList);
 			$APPLICATION->set_cookie("SENDER_SUBSCR_EMAIL", $_POST["SENDER_SUBSCRIBE_EMAIL"], $cookieLifeTime);
 			$arResult['MESSAGE'] = array('TYPE' => 'NOTE', 'CODE' => 'message_success');
 			$subscr_EMAIL = $_POST["SENDER_SUBSCRIBE_EMAIL"];
@@ -205,8 +214,12 @@ if($arParams["USE_PERSONALIZATION"])
 		if($subscr_EMAIL <> "")
 		{
 			$subscriptionDb = \Bitrix\Sender\MailingSubscriptionTable::getSubscriptionList(array(
-				'select' => array('ID' => 'CONTACT_ID', 'EMAIL' => 'CONTACT.EMAIL', 'EXISTED_MAILING_ID' => 'MAILING.ID'),
-				'filter' => array('=CONTACT.EMAIL' => $subscr_EMAIL, '!MAILING.ID' => null),
+				'select' => array('ID' => 'CONTACT_ID', 'EMAIL' => 'CONTACT.CODE', 'EXISTED_MAILING_ID' => 'MAILING.ID'),
+				'filter' => array(
+					'=CONTACT.TYPE_ID' => Recipient\Type::EMAIL,
+					'=CONTACT.CODE' => $subscr_EMAIL,
+					'!MAILING.ID' => null
+				),
 			));
 			while(($subscription = $subscriptionDb->fetch()))
 			{

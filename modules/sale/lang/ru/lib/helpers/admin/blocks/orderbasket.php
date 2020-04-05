@@ -78,4 +78,5 @@ $MESS ['SALE_ORDER_BASKET_ACTUALIZE_DATA'] = "Пересчитать";
 $MESS ['SALE_ORDER_BASKET_ADD_COUPON_ERROR'] = "Ошибка добавления купона";
 $MESS["SALE_ORDER_BASKET_COUPONS_NOTE"] = "Для использования купонов, действующих на конкретный тип цен, необходимо ввести купон и пересчитать заказ";
 $MESS["SALE_ORDER_BASKET_NO_NAME"] = "Без названия";
+$MESS["SALE_ORDER_BASKET_PRODUCT_UNACTIVE"] = "Товар не активен";
 ?>

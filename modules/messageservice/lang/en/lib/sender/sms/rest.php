@@ -1,0 +1,7 @@
+<?
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_NAME"] = "SMS via REST API";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_CAN_USE"] = "Messaging service's REST API is unavailable";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_APP_NOT_FOUND"] = "Message sending application is not registered or was uninstalled";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_SESSION"] = "REST session blocked";
+$MESS["MESSAGESERVICE_SENDER_SMS_REST_ERROR_PAYMENT_ALLOW"] = "App was not paid";
+?>

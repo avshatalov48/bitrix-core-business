@@ -128,9 +128,16 @@ class Select extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$selectorValue = null;
-		$typeValue = array();
-		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
+		$typeValue = [];
+		if (!is_array($value))
+		{
+			$value = (array) $value;
+		}
+
+		if (\CBPHelper::isAssociativeArray($value))
+		{
+			$value = array_keys($value);
+		}
 
 		foreach ($value as $v)
 		{
@@ -370,8 +377,10 @@ class Select extends Base
 	 */
 	public static function formatValueMultiple(FieldType $fieldType, $value, $format = 'printable')
 	{
-		if (is_array($value) && \CBPHelper::isAssociativeArray($value))
+		if (\CBPHelper::isAssociativeArray($value))
+		{
 			$value = array_keys($value);
+		}
 		return parent::formatValueMultiple($fieldType, $value, $format);
 	}
 
@@ -383,7 +392,7 @@ class Select extends Base
 	 */
 	public static function formatValueSingle(FieldType $fieldType, $value, $format = 'printable')
 	{
-		if (is_array($value) && \CBPHelper::isAssociativeArray($value))
+		if (\CBPHelper::isAssociativeArray($value))
 		{
 			$keys = array_keys($value);
 			$value = isset($keys[0]) ? $keys[0] : null;
@@ -399,8 +408,10 @@ class Select extends Base
 	 */
 	public static function convertValueMultiple(FieldType $fieldType, $value, $toTypeClass)
 	{
-		if (is_array($value) && \CBPHelper::isAssociativeArray($value))
+		if (\CBPHelper::isAssociativeArray($value))
+		{
 			$value = array_keys($value);
+		}
 		return parent::convertValueMultiple($fieldType, $value, $toTypeClass);
 	}
 

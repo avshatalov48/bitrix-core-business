@@ -418,6 +418,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->C
 	COption::SetOptionString($module_id, "GROUP_DEFAULT_RIGHT", $letter, "Right for groups by default");
 
 	$nID = COperation::GetIDByName('edit_subordinate_users');
+	$nID2 = COperation::GetIDByName('view_subordinate_users');
 	$arTasksInModule = Array();
 	foreach($arGROUPS as $value)
 	{
@@ -425,7 +426,8 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->C
 		$arTasksInModule[$value["ID"]] = Array('ID' => $tid);
 
 		$subOrdGr = false;
-		if (strlen($tid) > 0 && in_array($nID,CTask::GetOperations($tid)) && isset($_POST['subordinate_groups_'.$value["ID"]]))
+		$operations = CTask::GetOperations($tid);
+		if (strlen($tid) > 0 && (in_array($nID, $operations) || in_array($nID2, $operations)) && isset($_POST['subordinate_groups_'.$value["ID"]]))
 			$subOrdGr = $_POST['subordinate_groups_'.$value["ID"]];
 
 		CGroup::SetSubordinateGroups($value["ID"], $subOrdGr);
@@ -543,6 +545,7 @@ if ($GROUP_DEFAULT_TASK == '')
 		<?
 		$arTasksInModule = CTask::GetTasksInModules(true,$module_id,'module');
 		$nID = COperation::GetIDByName('edit_subordinate_users');
+		$nID2 = COperation::GetIDByName('view_subordinate_users');
 		$arTasks = $arTasksInModule['main'];
 		echo SelectBoxFromArray("GROUP_DEFAULT_TASK", $arTasks, htmlspecialcharsbx($GROUP_DEFAULT_TASK));
 
@@ -553,7 +556,7 @@ if ($GROUP_DEFAULT_TASK == '')
 		for ($i=0;$i<$l;$i++)
 		{
 			$arOpInTask = CTask::GetOperations($arTaskIds[$i]);
-			if (in_array($nID,$arOpInTask))
+			if (in_array($nID, $arOpInTask) || in_array($nID2, $arOpInTask))
 			{
 				$arSubordTasks[] = $arTaskIds[$i];
 				?><script>

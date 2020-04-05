@@ -4365,6 +4365,7 @@ class CUserFieldEnum
 	{
 		global $DB, $CACHE_MANAGER, $APPLICATION;
 		$aMsg = array();
+		$originalValues = $values;
 
 		foreach($values as $i=>$row)
 		{
@@ -4469,9 +4470,12 @@ class CUserFieldEnum
 
 				if($value["DEF"]!="Y")
 					$value["DEF"]="N";
+
 				$value["USER_FIELD_ID"] = $FIELD_ID;
-				$DB->Add("b_user_field_enum", $value);
-				unset($values[$key]);
+				$id = $DB->Add("b_user_field_enum", $value);
+
+				$originalValues[$id] = $originalValues[$key];
+				unset($originalValues[$key], $values[$key]);
 			}
 		}
 		$rsEnum = $this->GetList(array(), array("USER_FIELD_ID"=>$FIELD_ID));
@@ -4501,6 +4505,9 @@ class CUserFieldEnum
 		}
 		if(CACHED_b_user_field_enum!==false)
 			$CACHE_MANAGER->CleanDir("b_user_field_enum");
+
+		$event = new \Bitrix\Main\Event('main', 'onAfterSetEnumValues', [$FIELD_ID, $originalValues]);
+		$event->send();
 
 		return true;
 	}

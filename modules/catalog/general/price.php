@@ -7,6 +7,14 @@ Loc::loadMessages(__FILE__);
 
 class CAllPrice
 {
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 *
+	 * @param string $ACTION
+	 * @param array &$arFields
+	 * @param int $ID
+	 * @return bool
+	 */
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
@@ -102,23 +110,17 @@ class CAllPrice
 		}
 		unset($currencyExist, $priceExist, $currency);
 
-		if (isset($arFields['QUANTITY_FROM']))
+		if (isset($arFields['QUANTITY_FROM']) && $arFields['QUANTITY_FROM'] !== false)
 		{
-			if ($arFields['QUANTITY_FROM'] !== false)
-			{
 				$arFields['QUANTITY_FROM'] = (int)$arFields['QUANTITY_FROM'];
 				if ($arFields['QUANTITY_FROM'] <= 0)
 					$arFields['QUANTITY_FROM'] = false;
-			}
 		}
-		if (isset($arFields['QUANTITY_TO']))
+		if (isset($arFields['QUANTITY_TO']) && $arFields['QUANTITY_TO'] !== false)
 		{
-			if ($arFields['QUANTITY_TO'] !== false)
-			{
-				$arFields['QUANTITY_TO'] = (int)$arFields['QUANTITY_TO'];
-				if ($arFields['QUANTITY_TO'] <= 0)
-					$arFields['QUANTITY_TO'] = false;
-			}
+			$arFields['QUANTITY_TO'] = (int)$arFields['QUANTITY_TO'];
+			if ($arFields['QUANTITY_TO'] <= 0)
+				$arFields['QUANTITY_TO'] = false;
 		}
 
 		return true;
@@ -175,70 +177,111 @@ class CAllPrice
 		return $price;
 	}
 
-	public static function Update($ID, $arFields, $boolRecalc = false)
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::add
+	 *
+	 * @param array $fields
+	 * @param bool $recount
+	 * @return bool|int
+	 */
+	public static function Add($fields, $recount = false)
 	{
-		global $DB;
-
-		$ID = (int)$ID;
-		if ($ID <= 0)
+		if (!is_array($fields))
 			return false;
 
-		$boolBase = false;
-		$arFields['RECALC'] = ($boolRecalc === true);
+		if (!isset($fields['PRICE']))
+			$fields['PRICE'] = 0;
+		self::normalizeFields($fields);
 
-		foreach (GetModuleEvents("catalog", "OnBeforePriceUpdate", true) as $arEvent)
-		{
-			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields))===false)
-				return false;
-		}
+		$data = array(
+			'fields' => $fields
+		);
+		$recount = ($recount === true);
+		if ($recount)
+			$data['actions'] = array('OLD_RECOUNT' => true);
 
-		if (!CPrice::CheckFields("UPDATE", $arFields, $ID))
-			return false;
+		$result = Catalog\Model\Price::add($data);
+		unset($data);
 
-		if (isset($arFields['RECALC']) && $arFields['RECALC'] === true)
-		{
-			CPrice::ReCountFromBase($arFields, $boolBase);
-			if (!$boolBase && $arFields['EXTRA_ID'] <= 0)
-				return false;
-		}
+		$id = false;
+		if (!$result->isSuccess())
+			self::convertErrors($result);
+		else
+			$id = (int)$result->getId();
+		unset($result);
 
-		$strUpdate = $DB->PrepareUpdate("b_catalog_price", $arFields);
-		if (!empty($strUpdate))
-		{
-			$strSql = "UPDATE b_catalog_price SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		}
-
-		if ($boolBase)
-			CPrice::ReCountForBase($arFields);
-
-		foreach (GetModuleEvents("catalog", "OnPriceUpdate", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-
-		return $ID;
+		return $id;
 	}
 
-	public static function Delete($ID)
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::update
+	 *
+	 * @param $id
+	 * @param array $fields
+	 * @param bool $recount
+	 * @return bool|int
+	 */
+	public static function Update($id, $fields, $recount = false)
 	{
-		global $DB;
-		$ID = (int)$ID;
-		if ($ID <= 0)
+		$id = (int)$id;
+		if ($id <= 0 || !is_array($fields))
 			return false;
 
-		foreach (GetModuleEvents("catalog", "OnBeforePriceDelete", true) as $arEvent)
+		self::normalizeFields($fields);
+
+		$data = array(
+			'fields' => $fields
+		);
+		$recount = ($recount === true);
+		if ($recount)
+			$data['actions'] = array('OLD_RECOUNT' => true);
+
+		$result = Catalog\Model\Price::update($id, $data);
+		unset($data);
+
+		if (!$result->isSuccess())
 		{
-			if (ExecuteModuleEventEx($arEvent, array($ID))===false)
-				return false;
+			$id = false;
+			self::convertErrors($result);
 		}
 
-		$mxRes = $DB->Query("DELETE FROM b_catalog_price WHERE ID = ".$ID, true);
-
-		foreach (GetModuleEvents("catalog", "OnPriceDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID));
-
-		return $mxRes;
+		return $id;
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::delete
+	 *
+	 * @param $id
+	 * @return bool
+	 */
+	public static function Delete($id)
+	{
+		$id = (int)$id;
+		if ($id <= 0)
+			return false;
+
+		$result = Catalog\Model\Price::delete($id);
+		$success = $result->isSuccess();
+		if (!$success)
+			self::convertErrors($result);
+		unset($result);
+
+		return $success;
+	}
+
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::getList
+	 *
+	 * @param $productID
+	 * @param bool $quantityFrom
+	 * @param bool $quantityTo
+	 * @param bool $boolExt
+	 * @return array|bool|false|mixed|null
+	 */
 	public static function GetBasePrice($productID, $quantityFrom = false, $quantityTo = false, $boolExt = true)
 	{
 		$productID = (int)$productID;
@@ -291,6 +334,18 @@ class CAllPrice
 		return false;
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::add and \Bitrix\Catalog\Model\Price::update
+	 *
+	 * @param int $ProductID
+	 * @param int|float $Price
+	 * @param string $Currency
+	 * @param bool $quantityFrom
+	 * @param bool $quantityTo
+	 * @param bool $bGetID
+	 * @return bool|int
+	 */
 	public static function SetBasePrice($ProductID, $Price, $Currency, $quantityFrom = false, $quantityTo = false, $bGetID = false)
 	{
 		$bGetID = ($bGetID == true);
@@ -417,13 +472,16 @@ class CAllPrice
 		return $DB->Query($strSql, true);
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Product::delete
+	 *
+	 * @param int $ProductID
+	 * @return bool
+	 */
 	public static function OnIBlockElementDelete($ProductID)
 	{
-		global $DB;
-		$ProductID = (int)$ProductID;
-		if ($ProductID <= 0)
-			return false;
-		return $DB->Query("DELETE FROM b_catalog_price WHERE PRODUCT_ID = ".$ProductID, true);
+		return true;
 	}
 
 	public static function DeleteByProduct($ProductID, $arExceptionIDs = array())
@@ -456,9 +514,18 @@ class CAllPrice
 		foreach (GetModuleEvents("catalog", "OnProductPriceDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ProductID,$arExceptionIDs));
 
+		Catalog\Product\Sku::calculatePrice($ProductID, null, null, array());
+
 		return $mxRes;
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::add and \Bitrix\Catalog\Model\Price::update
+	 *
+	 * @param array &$arFields
+	 * @return void
+	 */
 	public static function ReCountForBase(&$arFields)
 	{
 		static $arExtraList = array();
@@ -504,6 +571,14 @@ class CAllPrice
 		}
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::add and \Bitrix\Catalog\Model\Price::update
+	 *
+	 * @param array &$arFields
+	 * @param bool &$boolBase
+	 * @return void
+	 */
 	public static function ReCountFromBase(&$arFields, &$boolBase)
 	{
 		$arBaseGroup = CCatalogGroup::GetBaseGroup();
@@ -552,6 +627,49 @@ class CAllPrice
 					}
 				}
 			}
+		}
+	}
+
+	private static function convertErrors(Main\Entity\Result $result)
+	{
+		global $APPLICATION;
+
+		$oldMessages = array();
+		foreach ($result->getErrorMessages() as $errorText)
+			$oldMessages[] = array('text' => $errorText);
+		unset($errorText);
+
+		if (!empty($oldMessages))
+		{
+			$error = new CAdminException($oldMessages);
+			$APPLICATION->ThrowException($error);
+			unset($error);
+		}
+		unset($oldMessages);
+	}
+
+	private static function normalizeFields(array &$fields)
+	{
+		if (isset($fields['QUANTITY_FROM']))
+		{
+			if (is_string($fields['QUANTITY_FROM']) && $fields['QUANTITY_FROM'] === '')
+				$fields['QUANTITY_FROM'] = null;
+			elseif ($fields['QUANTITY_FROM'] === false || $fields['QUANTITY_FROM'] === 0)
+				$fields['QUANTITY_FROM'] = null;
+		}
+		if (isset($fields['QUANTITY_TO']))
+		{
+			if (is_string($fields['QUANTITY_TO']) && $fields['QUANTITY_TO'] === '')
+				$fields['QUANTITY_TO'] = null;
+			elseif ($fields['QUANTITY_TO'] === false || $fields['QUANTITY_TO'] === 0)
+				$fields['QUANTITY_TO'] = null;
+		}
+		if (isset($fields['EXTRA_ID']))
+		{
+			if (is_string($fields['EXTRA_ID']) && $fields['EXTRA_ID'] === '')
+				$fields['EXTRA_ID'] = null;
+			elseif ($fields['EXTRA_ID'] === false)
+				$fields['EXTRA_ID'] = null;
 		}
 	}
 }

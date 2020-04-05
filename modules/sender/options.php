@@ -45,6 +45,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && $POST
 			{
 				$val = ${$name};
 				TrimArr($val);
+				sort($val);
 				$val = serialize($val);
 			}
 			else if($arOption[2][0]=="text-list")
@@ -67,10 +68,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && $POST
 	}
 
 	CModule::IncludeModule('sender');
-	\Bitrix\Sender\MailingManager::actualizeAgent();
-	CAgent::RemoveAgent( \Bitrix\Sender\MailingManager::getAgentNamePeriod(), "sender");
-	if(COption::GetOptionString("sender", "reiterate_method")!=="cron")
-		CAgent::AddAgent( \Bitrix\Sender\MailingManager::getAgentNamePeriod(), "sender", "N", COption::GetOptionString("sender", "reiterate_interval"));
+	\Bitrix\Sender\Runtime\Job::actualizeAll();
 
 	$Update = $Update.$Apply;
 	ob_start();
@@ -120,7 +118,9 @@ $tabControl->BeginNextTab();
 				{
 					$aVal = explode(",", $val);
 				}
+				$aVal = is_array($aVal) ? $aVal : [];
 
+				sort($aVal);
 				$aValCount = count($aVal);
 				for($j=0; $j<$aValCount; $j++):
 					?><input type="text" size="<?echo $type[2]?>" value="<?echo htmlspecialcharsbx($aVal[$j])?>" name="<?echo htmlspecialcharsbx($Option[0])."[]"?>"><br><?

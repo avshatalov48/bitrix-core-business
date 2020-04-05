@@ -1,0 +1,16 @@
+.landing-ui-card.landing-ui-card-icon {
+	font-size: 32px;
+	margin: 0;
+	padding: 10px;
+	text-align: center;
+	cursor: pointer;
+	border: 1px transparent solid;
+}
+
+.landing-ui-card.landing-ui-card-icon:hover {
+	border: 1px rgba(0, 0, 0, .2) solid;
+}
+
+.landing-ui-card.landing-ui-card-icon .landing-ui-card-header {
+	display: none;
+}

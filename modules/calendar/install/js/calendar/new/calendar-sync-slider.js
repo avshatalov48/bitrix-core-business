@@ -897,7 +897,8 @@
 			}
 			else
 			{
-				BX(id + '_dav_sections_cont' + ind).style.display = 'none';
+				BX(id + '_dav_sections_cont_outer' + ind).style.display = 'none';
+				del.style.display = 'none';
 			}
 
 			con.nameInput = BX(id + '_caldav_name' + ind) || false;
@@ -959,7 +960,7 @@
 				handler: BX.delegate(function(response)
 				{
 					setTimeout(function(){
-						if (Calback && typeof Calback == 'function')
+						if (BX.type.isFunction(Calback))
 							Calback(true);
 					}, 100);
 
@@ -967,7 +968,14 @@
 						alert(BX.message('EC_BAN_EXCH_NO_SYNC'));
 					else
 						BX.reload();
-				}, this)
+				}, this),
+				onerror: BX.delegate(function(response)
+				{
+					setTimeout(function(){
+						if (BX.type.isFunction(Calback))
+							Calback(false);
+					}, 100);
+				}, this),
 			});
 			return true;
 		},

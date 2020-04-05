@@ -65,13 +65,15 @@ $arParams["PAGE_VAR"] = (empty($arParams["PAGE_VAR"]) ? "page" : $arParams["PAGE
 $arParams["USER_VAR"] = (empty($arParams["USER_VAR"]) ? "user_id" : $arParams["USER_VAR"]);
 $arParams["POST_VAR"] = (empty($arParams["POST_VAR"]) ? "id" : $arParams["POST_VAR"]);
 foreach(array(
-		"BLOG" => $arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#",
-		"BLOG_CATEGORY" => $arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#",
-		"BLOG_POSTS" => $arParams["PAGE_VAR"]."=blog_posts&".$arParams["USER_VAR"]."=#user_id#",
-		"POST" => $arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#",
-		"POST_EDIT" => $arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#",
-		"USER" => $arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#",
-		"SMILE" => "") as $url => $val) {
+	"BLOG" => $arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#",
+	"BLOG_CATEGORY" => $arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#",
+	"BLOG_POSTS" => $arParams["PAGE_VAR"]."=blog_posts&".$arParams["USER_VAR"]."=#user_id#",
+	"POST" => $arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#",
+	"POST_EDIT" => $arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#",
+	"USER" => $arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#",
+	"SMILE" => ""
+) as $url => $val)
+{
 	$arParams["~PATH_TO_".$url] = (empty($arParams["PATH_TO_".$url]) ? $APPLICATION->GetCurPage()."?".$val : $arParams["PATH_TO_".$url]);
 	$arParams["PATH_TO_".$url] = htmlspecialcharsbx($arParams["~PATH_TO_".$url]);
 }
@@ -95,7 +97,8 @@ $arParams["CACHE_TAGS"] = (!empty($arParams["CACHE_TAGS"]) ? $arParams["CACHE_TA
 /********************************************************************
 				/Input params
 ********************************************************************/
-global $CACHE_MANAGER;
+global $CACHE_MANAGER, $USER_FIELD_MANAGER;
+
 $cache_path = CComponentEngine::MakeComponentPath("bitrix:socialnetwork.blog.blog");
 $bGroupMode = ($arParams["SOCNET_GROUP_ID"] > 0);
 $feature = "blog";
@@ -103,20 +106,28 @@ $user_id = intval($USER->GetID());
 
 $arResult["ERROR_MESSAGE"] = Array();
 $arResult["OK_MESSAGE"] = Array();
-if (!(($bGroupMode && CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], $feature)) ||
-	CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], $feature))) {
+if (!(
+	($bGroupMode && CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], $feature))
+	|| CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], $feature)
+))
+{
 	$arResult["ERROR_MESSAGE"][] = array(
 		"id" => "SONET_MODULE_NOT_AVAIBLE",
 		"text" => GetMessage("BLOG_SONET_MODULE_NOT_AVAIBLE"));
-} else if (!($arParams["USER_ID"] > 0 || $bGroupMode)) {
+}
+else if (!($arParams["USER_ID"] > 0 || $bGroupMode))
+{
 	$arResult["ERROR_MESSAGE"][] = array(
 		"id" => "NO_BLOG",
 		"text" => GetMessage("BLOG_BLOG_BLOG_NO_BLOG"));
 	CHTTP::SetStatus("404 Not Found");
-} else {
+}
+else
+{
 	$arResult["perms"] = BLOG_PERMS_DENY;
 	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
-	if($bGroupMode) {
+	if($bGroupMode)
+	{
 		if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "full_post", $bCurrentUserIsAdmin) || $APPLICATION->GetGroupRight("blog") >= "W")
 			$arResult["perms"] = BLOG_PERMS_FULL;
 		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "moderate_post", $bCurrentUserIsAdmin))
@@ -127,19 +138,27 @@ if (!(($bGroupMode && CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arPa
 			$arResult["perms"] = BLOG_PERMS_PREMODERATE;
 		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "view_post", $bCurrentUserIsAdmin))
 			$arResult["perms"] = BLOG_PERMS_READ;
-	} else {
+	}
+	else
+	{
 		if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "view_post", $bCurrentUserIsAdmin))
+		{
 			$arResult["perms"] = BLOG_PERMS_READ;
+		}
 	}
 	if($arResult["perms"] < BLOG_PERMS_READ)
+	{
 		$arResult["MESSAGE"][] = array(
 			"id" => "ACCESS_DENIED",
-			"text" => GetMessage("BLOG_BLOG_BLOG_FRIENDS_ONLY"));
+			"text" => GetMessage("BLOG_BLOG_BLOG_FRIENDS_ONLY")
+		);
+	}
 }
 
 if (!empty($arResult["ERROR_MESSAGE"]))
 {
-	return $this->IncludeComponentTemplate();
+	$this->IncludeComponentTemplate();
+	return;
 }
 
 /********************************************************************
@@ -182,10 +201,13 @@ if ((intval($_GET["del_id"]) > 0 || intval($_GET["hide_id"]) > 0) && CModule::In
 				if ($bGroupMode)
 					CSocNetGroup::SetLastActivity($arParams["SOCNET_GROUP_ID"]);
 				LocalRedirect($APPLICATION->GetCurPageParam("del_id=".$del_id."&success=Y", Array("del_id", "hide_id", "sessid", "success")));
-			} else {
+			}
+			else
+			{
 				$arResult["ERROR_MESSAGE"][] = array(
 					"id" => "DELETE",
-					"text" => GetMessage("BLOG_BLOG_BLOG_MES_DEL_ERROR"));
+					"text" => GetMessage("BLOG_BLOG_BLOG_MES_DEL_ERROR")
+				);
 			}
 		}
 	}
@@ -204,10 +226,13 @@ if ((intval($_GET["del_id"]) > 0 || intval($_GET["hide_id"]) > 0) && CModule::In
 			{
 				CBlogPost::DeleteLog($hide_id);
 				LocalRedirect($APPLICATION->GetCurPageParam("hide_id=".$hide_id."&success=Y", Array("del_id", "hide_id", "sessid", "success")));
-			} else {
+			}
+			else
+			{
 				$arResult["ERROR_MESSAGE"][] = array(
 					"id" => "HIDE",
-					"text" => GetMessage("BLOG_BLOG_BLOG_MES_HIDE_ERROR"));
+					"text" => GetMessage("BLOG_BLOG_BLOG_MES_HIDE_ERROR")
+				);
 			}
 		}
 	}
@@ -302,7 +327,15 @@ if($arParams["CATEGORY_ID"])
 {
 	$arFilter["CATEGORY_ID_F"] = $arParams["CATEGORY_ID"];
 }
-
+$arPostUserFields = $USER_FIELD_MANAGER->GetUserFields("BLOG_POST");
+if (isset($arPostUserFields['UF_IMPRTANT_DATE_END']))
+{
+	$arFilter[] = array(
+		"LOGIC" => "OR",
+		"=UF_IMPRTANT_DATE_END" => false,
+		">=UF_IMPRTANT_DATE_END" => ConvertTimeStamp(time() + CTimeZone::GetOffset(), "FULL"),
+	);
+}
 $arResult["NAV_RESULT"] = "";
 $arResult["NAV_STRING"] = "";
 $arResult["POST"] = Array();
@@ -322,13 +355,20 @@ $cache_id = "blog_blog_".md5(serialize($arCacheID));
 /********************************************************************
 				Actions
 ********************************************************************/
-if(is_array($_REQUEST["options"]) && !empty($_REQUEST["options"]) &&
-	check_bitrix_sessid() && $USER->IsAuthorized() && CModule::IncludeModule("blog"))
+if(
+	is_array($_REQUEST["options"])
+	&& !empty($_REQUEST["options"])
+	&& check_bitrix_sessid()
+	&& $USER->IsAuthorized()
+	&& CModule::IncludeModule("blog")
+)
 {
-	foreach($_REQUEST["options"] as $val) {
+	foreach($_REQUEST["options"] as $val)
+	{
 		CBlogUserOptions::SetOption($val["post_id"], $val["name"], $val["value"], $USER->GetID());
 	}
-	if (defined("BX_COMP_MANAGED_CACHE")) {
+	if (defined("BX_COMP_MANAGED_CACHE"))
+	{
 		$CACHE_MANAGER->ClearByTag($val["name"].$val["post_id"]);
 		$CACHE_MANAGER->ClearByTag($val["name"].$val["post_id"]."_".$USER->GetID());
 		$CACHE_MANAGER->ClearByTag($val["name"]."_USER_".$USER->GetID());
@@ -341,13 +381,16 @@ if(is_array($_REQUEST["options"]) && !empty($_REQUEST["options"]) &&
 
 	$db_events = GetModuleEvents("socialnetwork", "OnAfterCBlogUserOptionsSet");
 	while ($arEvent = $db_events->Fetch())
+	{
 		ExecuteModuleEventEx($arEvent, Array($_REQUEST["options"], $cache_id, $cache_path));
+	}
 }
 /********************************************************************
 				/Actions
 ********************************************************************/
 
-if ($_REQUEST["return"] == "users") {
+if ($_REQUEST["return"] == "users")
+{
 	include(str_replace(array("\\", "//"), "/", __DIR__."/")."users.php");
 }
 elseif ($PAGEN == null && $arParams["CACHE_TIME"] > 0) // cache only the first page

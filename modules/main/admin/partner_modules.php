@@ -66,6 +66,25 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["module"]) 
 			$ht->Post("https://marketplace.1c-bitrix.ru/solutions/".$moduleId."/", $arF);
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&result=OPAD");
 		}
+		elseif($_POST["act"] == "unnotify_mp")
+		{
+			$arrayId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["array_id"]);
+			$moduleId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["module"]);
+			$cMpModulesResult = COption::GetOptionString("main", "last_mp_modules_result", "");
+			if (strlen($cMpModulesResult) > 0)
+			{
+				$arModulesResult = unserialize($cMpModulesResult);
+				foreach ($arModulesResult[$arrayId] as $key => $arModule)
+				{
+					if (trim(strtoupper($key)) == trim(strtoupper($moduleId)))
+					{
+						unset ($arModulesResult[$arrayId][$key]);
+					}
+				}
+			}
+			COption::SetOptionString("main", "last_mp_modules_result", serialize($arModulesResult));
+			die();
+		}
 	}
 }
 

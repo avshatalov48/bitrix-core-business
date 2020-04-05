@@ -2,6 +2,7 @@
 
 	function Calendar(config, data, additionalParams)
 	{
+		this.DEFAULT_VIEW = 'month';
 		this.id = config.id;
 		this.showTasks = config.showTasks;
 		this.calDavConnections = config.connections;
@@ -12,31 +13,33 @@
 			this.search = new window.BXEventCalendar.Search(this, {filterId: config.filterId, counters: config.counters});
 		}
 
+		this.externalMode = config.externalDataHandleMode;
 		this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		this.entryController = new window.BXEventCalendar.EntryController(this, data);
-		this.section = new window.BXEventCalendar.Section(this, data);
-		this.currentViewName = this.util.getUserOption('view');
+		//this.section = new window.BXEventCalendar.Section(this, data);
+		this.currentViewName = this.util.getUserOption('view') || this.DEFAULT_VIEW;
 		this.requests = {};
 		this.currentUser = config.user;
 		this.ownerUser = config.ownerUser || false;
 		this.viewRangeDate = new Date();
 		this.keyHandlerEnabled = true;
 
-		this.allowMeetings = true; // !!params.bSocNet && this.bIntranet;
-
 		// build basic dom structure
 		this.build();
 
-		if (config.startupEvent)
+		if (!this.externalMode)
 		{
-			this.showStartUpEntry(config.startupEvent);
-		}
+			if (config.startupEvent)
+			{
+				this.showStartUpEntry(config.startupEvent);
+			}
 
-		if (config.showNewEventDialog && !this.util.readOnlyMode() && this.entryController.canDo(true, 'add_event'))
-		{
-			setTimeout(BX.delegate(function(){
-				this.getView().showEditSlider();
-			}, this), 1000);
+			if (config.showNewEventDialog && !this.util.readOnlyMode() && this.entryController.canDo(true, 'add_event'))
+			{
+				setTimeout(BX.delegate(function(){
+					this.getView().showEditSlider();
+				}, this), 1000);
+			}
 		}
 	}
 
@@ -48,25 +51,37 @@
 			{
 				// Build top block
 				this.topBlock = BX.create('DIV', {props: {className: 'calendar-top-block'}});
-				this.topBlock = BX.create('DIV', {props: {className: 'calendar-top-block'}});
+
+				this.buildNavigation();
 
 				// Top title
 				this.viewTitleContainer = this.topBlock.appendChild(BX.create('DIV', {props: {className: 'calendar-top-title-container'}}));
 				this.viewTitle = this.viewTitleContainer.appendChild(BX.create('H2', {props: {className: 'calendar-top-title'}}));
 
-				this.buildNavigation();
 				this.mainCont.appendChild(this.topBlock);
 
 				// Main views container
 				this.viewsCont = BX.create('DIV', {props: {className: 'calendar-views-container calendar-disable-select'}});
 				BX.bind(this.viewsCont, 'click', BX.proxy(this.handleViewsClick, this));
-				//BX.bind(this.viewsCont, 'mousedown', BX.proxy(this.handleViewsMousedown, this));
 				this.dragDrop = new window.BXEventCalendar.DragDrop(this);
+
+				if (this.util.isFilterEnabled() && !this.search.isFilterEmpty())
+				{
+					this.currentViewName = 'list';
+				}
 				this.buildViews();
+
+				// Build switch view control
+				this.buildViewSwitcher();
 
 				// Search & counters
 				if (this.util.isFilterEnabled())
 				{
+					if (!this.search.isFilterEmpty())
+					{
+						this.search.applyFilter();
+					}
+
 					this.searchCont = BX(this.id + '-search-container');
 					if (this.searchCont)
 					{
@@ -75,10 +90,10 @@
 				}
 
 				// Top button container
-				this.buildTopButtons();
-
-				// Build switch view control
-				this.buildViewSwitcher();
+				if (!this.isExternalMode())
+				{
+					this.buildTopButtons();
+				}
 
 				this.mainCont.appendChild(this.viewsCont);
 				this.rightBlock = this.mainCont.appendChild(BX.create('DIV', {props: {className: 'calendar-right-container'}}));
@@ -86,19 +101,34 @@
 				BX.bind(document.body, "keyup", BX.proxy(this.keyUpHandler, this));
 				BX.addCustomEvent(this, 'doRefresh', BX.proxy(this.refresh, this));
 
+				this.topBlock.appendChild(BX.create('DIV', {style: {clear: 'both'}}));
+
 				this.util.applyHacksHandlersForPopupzIndex();
 			}
 		},
 
 		buildViews: function()
 		{
-			// Default views, but it's possible to add new views through js events
-			this.views = [
-				new window.BXEventCalendar.CalendarDayView(this),
-				new window.BXEventCalendar.CalendarWeekView(this),
-				new window.BXEventCalendar.CalendarMonthView(this),
-				new window.BXEventCalendar.CalendarListView(this)
-			];
+			var
+				avilableViews = this.util.getAvilableViews(),
+				viewConstuctor = {
+					day : window.BXEventCalendar.CalendarDayView,
+					week: window.BXEventCalendar.CalendarWeekView,
+					month: window.BXEventCalendar.CalendarMonthView,
+					list: window.BXEventCalendar.CalendarListView
+				};
+
+			this.views = [];
+			if (BX.type.isArray(avilableViews))
+			{
+				avilableViews.forEach(function(viewName){
+					if (viewName && viewConstuctor[viewName])
+					{
+						this.views.push(new viewConstuctor[viewName](this));
+					}
+				}, this);
+			}
+
 			BX.onCustomEvent(window, 'onCalendarBeforeBuildViews', [this.views, this]);
 			this.views.forEach(this.buildView, this);
 			this.viewTransition = new window.BXEventCalendar.ViewTransition(this);
@@ -121,7 +151,6 @@
 				props: {className: 'calendar-navigation-next'},
 				events: {click: BX.delegate(this.showNext, this)}
 			}));
-			this.topBlock.appendChild(BX.create('DIV', {style: {clear: 'both'}}));
 		},
 
 		showNext: function()
@@ -171,40 +200,19 @@
 		buildViewSwitcher: function()
 		{
 			this.viewSwitcherCont = BX(this.id + '-view-switcher-container');
-			if (!this.viewSwitcherCont)
+
+			var dropDownMode = !this.viewSwitcherCont;
+
+			if (dropDownMode)
 			{
-				this.viewSwitcherCont = this.mainCont.appendChild(BX.create('DIV', {
-					props: {className: 'calendar-view-switcher-container'},
-					attrs: {id: this.id + '-view-switcher-container'}
-				}));
+				this.viewSwitcherCont = this.topBlock.appendChild(BX.create('DIV', {props: {className: 'calendar-view-switcher-selector'}}));
 			}
 
-			var
-				wrap = this.viewSwitcherCont.appendChild(BX.create('DIV', {
-					props: {className: 'calendar-view-switcher-list'},
-					events: {
-						click: BX.delegate(function(e)
-						{
-							var target = e.target || e.srcElement;
-							if (target && target.getAttribute)
-							{
-								var viewName = target.getAttribute('data-bx-calendar-view');
-								this.setView(viewName, {animation: true});
-							}
-						}, this)
-					}
-				}));
-
-			this.views.forEach(function(view)
-			{
-				view.switchNode = wrap.appendChild(
-					BX.create('SPAN', {
-						props: {className: 'calendar-view-switcher-list-item' + (this.currentViewName == view.name ? ' calendar-view-switcher-list-item-active' : '')},
-						attrs: {'data-bx-calendar-view': view.name},
-						text: view.title || view.name
-					})
-				);
-			}, this);
+			this.viewSwitcher = new window.BXEventCalendar.ViewSwitcher({
+				calendar: this,
+				wrap: this.viewSwitcherCont,
+				dropDownMode: dropDownMode
+			});
 		},
 
 		setView: function(view, params)
@@ -212,7 +220,9 @@
 			if (view)
 			{
 				if (!params)
+				{
 					params = {};
+				}
 
 				var
 					currentView = this.getView(),
@@ -251,16 +261,6 @@
 							newView.adjustViewRangeToDate(params.newViewDate);
 						}
 						this.currentViewName = newView.getName();
-
-						if (newView.switchNode)
-						{
-							BX.addClass(newView.switchNode, 'calendar-view-switcher-list-item-active');
-						}
-
-						if (currentView.switchNode)
-						{
-							BX.removeClass(currentView.switchNode, 'calendar-view-switcher-list-item-active');
-						}
 					}
 
 					this.util.setUserOption('view', view);
@@ -477,9 +477,31 @@
 			this.keyHandlerEnabled = true;
 		},
 
+		isKeyHandlerEnabled: function()
+		{
+			var res = this.keyHandlerEnabled
+				&& !BX.hasClass(document.body, 'bx-im-fullscreen-block-scroll')
+				&& !BX.hasClass(document.body, 'side-panel-disable-scrollbar');
+
+			if (res)
+			{
+				var i, popups = document.body.querySelectorAll(".popup-window");
+				for (i = 0; i < popups.length; i++)
+				{
+					if (popups[i] && popups[i].style.display != 'none')
+					{
+						res = false;
+						break;
+					}
+				}
+			}
+
+			return res;
+		},
+
 		keyUpHandler: function(e)
 		{
-			if (this.keyHandlerEnabled)
+			if (this.isKeyHandlerEnabled())
 			{
 				var
 					KEY_CODES = this.util.getKeyCodes(),
@@ -544,8 +566,6 @@
 				{
 					this.syncButton = this.buttonsCont.appendChild(BX.create("DIV", {
 						props: {className: "webform-small-button webform-small-button-transparent calendar-sync-button"},
-						//props: {className: "webform-small-button webform-small-button-transparent calendar-sync-button calendar-sync-button-confirm"},
-						//props: {className: "webform-small-button webform-small-button-transparent calendar-sync-button calendar-sync-button-warning"},
 						html: '<span class="webform-small-button-icon"></span>'
 					}));
 					this.syncSlider = new window.BXEventCalendar.SyncSlider({
@@ -602,6 +622,35 @@
 		{
 			var entryObj = new window.BXEventCalendar.Entry(this, startupEntry);
 			this.getView().showViewSlider({entry: entryObj});
+		},
+
+		isExternalMode: function()
+		{
+			return this.externalMode;
+		},
+
+		showLoader: function()
+		{
+			if (this.viewsCont)
+			{
+				if (this.entryLoaderNode)
+				{
+					BX.remove(this.entryLoaderNode);
+				}
+				this.entryLoaderNode = this.viewsCont.appendChild(BX.adjust(
+					this.util.getLoader(200), {
+						props: {className: 'calendar-entry-loader'}
+					}));
+			}
+		},
+
+		hideLoader: function()
+		{
+			if (this.entryLoaderNode)
+			{
+				BX.addClass(this.entryLoaderNode, 'hide');
+				setTimeout(BX.delegate(function(){BX.remove(this.entryLoaderNode);}, this), 300);
+			}
 		}
 	};
 

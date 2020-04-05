@@ -4,7 +4,7 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
-	z-index: 300110;
+	z-index: 3000;
 	display: none;
 	background-color: rgba(0, 0, 0, .4);
 	transform: translateZ(0);
@@ -13,6 +13,14 @@
 
 .side-panel-overlay-open {
 	display: block;
+}
+
+.side-panel-overlay-hidden {
+	background-color: transparent !important;
+}
+
+.side-panel-overlay-hidden .side-panel-container {
+	box-shadow: -5px 0 22px -5px rgba(0, 0, 0, 0.3);
 }
 
 .side-panel-container {

@@ -897,7 +897,6 @@
 		{
 			BX.bind(this.colorIcon, 'click', BX.delegate(this.showSimplePicker, this));
 			BX.bind(this.colorChangeLink, 'click', BX.delegate(this.showSimplePicker, this));
-
 		},
 
 		showSimplePicker:function(value)
@@ -1029,6 +1028,7 @@
 					this.insertAccessRow(this.calendar.util.getAccessName(code), code, value[code]);
 				}
 			}
+			this.checkAccessTableHeight();
 		},
 
 		initAccessController: function()
@@ -1045,6 +1045,7 @@
 				{
 					BX.addClass(this.accessWrap, 'shown');
 				}
+				this.checkAccessTableHeight();
 			}, this));
 
 			BX.Access.Init();
@@ -1057,6 +1058,7 @@
 			BX.bind(this.accessButton, 'click', BX.proxy(function()
 			{
 				BX.Access.ShowForm({
+					showSelected: false,
 					callback: BX.proxy(function(selected)
 					{
 						var provider, code;
@@ -1068,13 +1070,15 @@
 								{
 									if (selected[provider].hasOwnProperty(code))
 									{
-										this.insertAccessRow(BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name, code);
+										this.calendar.util.setAccessName(code, BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name);
+										this.insertAccessRow(this.calendar.util.getAccessName(code), code);
 									}
 								}
 							}
 						}
+						this.checkAccessTableHeight();
 					}, this),
-					bind: this.accessButton
+					bind: this.calendar.id + '_calendar_section_' + Math.round(Math.random() * 100000)
 				});
 
 				if (BX.Access.popup && BX.Access.popup.popupContainer)
@@ -1116,7 +1120,8 @@
 						code = target.getAttribute('data-bx-calendar-access-remove');
 						if (this.accessControls[code])
 						{
-							BX.cleanNode(this.accessControls[code].rowNode, true);
+							BX.remove(this.accessControls[code].rowNode);
+							this.accessControls[code] = null;
 							delete this.access[code];
 						}
 					}
@@ -1127,42 +1132,68 @@
 
 		insertAccessRow: function(title, code, value)
 		{
-			if (value === undefined)
+			if (!this.accessControls[code])
 			{
-				value = this.calendar.util.getDefaultSectionAccessTask();
+				if (value === undefined)
+				{
+					value = this.calendar.util.getDefaultSectionAccessTask();
+				}
+
+				var
+					rowNode = BX.adjust(this.accessTable.insertRow(-1), {props : {className: 'calendar-section-slider-access-table-row'}}),
+					titleNode = BX.adjust(rowNode.insertCell(-1), {
+						props : {className: 'calendar-section-slider-access-table-cell'},
+						html: '<span class="calendar-section-slider-access-title">' + BX.util.htmlspecialchars(title) + ':</span>'}),
+					valueCell = BX.adjust(rowNode.insertCell(-1), {
+						props : {className: 'calendar-section-slider-access-table-cell'},
+						attrs: {'data-bx-calendar-access-selector': code}
+					}),
+					selectNode = valueCell.appendChild(BX.create('SPAN', {
+						props: {className: 'calendar-section-slider-access-value'}
+					})),
+					valueNode = selectNode.appendChild(BX.create('SPAN', {
+						text: this.accessTasks[value] ? this.accessTasks[value].title : ''
+					})),
+					removeIcon = selectNode.appendChild(BX.create('SPAN', {
+						props: {className: 'calendar-section-slider-access-remove'},
+						attrs: {'data-bx-calendar-access-remove': code}
+					}));
+
+				this.access[code] = value;
+
+				this.accessControls[code] = {
+					rowNode: rowNode,
+					titleNode: titleNode,
+					valueNode: valueNode,
+					removeIcon: removeIcon
+				};
+			}
+		},
+
+		checkAccessTableHeight: function()
+		{
+			if (this.checkTableTimeout)
+			{
+				this.checkTableTimeout = clearTimeout(this.checkTableTimeout);
 			}
 
-			var
-				rowNode = BX.adjust(this.accessTable.insertRow(-1), {props : {className: 'calendar-section-slider-access-table-row'}}),
-				titleNode = BX.adjust(rowNode.insertCell(-1), {
-					props : {className: 'calendar-section-slider-access-table-cell'},
-					html: '<span class="calendar-section-slider-access-title">' + BX.util.htmlspecialchars(title) + ':</span>'}),
-				valueCell = BX.adjust(rowNode.insertCell(-1), {
-					props : {className: 'calendar-section-slider-access-table-cell'},
-					attrs: {'data-bx-calendar-access-selector': code}
-				}),
-				selectNode = valueCell.appendChild(BX.create('SPAN', {
-					props: {className: 'calendar-section-slider-access-value'}
-				})),
-				valueNode = selectNode.appendChild(BX.create('SPAN', {
-					text: this.accessTasks[value] ? this.accessTasks[value].title : ''
-				})),
-				removeIcon = selectNode.appendChild(BX.create('SPAN', {
-					props: {className: 'calendar-section-slider-access-remove'},
-					attrs: {'data-bx-calendar-access-remove': code}
-				}));
-
-			this.accessControls[code] = {
-				rowNode: rowNode,
-				titleNode: titleNode,
-				valueNode: valueNode,
-				removeIcon: removeIcon
-			};
+			this.checkTableTimeout = setTimeout(BX.delegate(function(){
+				if (BX.hasClass(this.accessWrap, 'shown'))
+				{
+					if (this.accessWrap.offsetHeight - this.accessTable.offsetHeight < 36)
+					{
+						this.accessWrap.style.maxHeight = parseInt(this.accessTable.offsetHeight) + 100 + 'px';
+					}
+				}
+				else
+				{
+					this.accessWrap.style.maxHeight = '';
+				}
+			}, this), 300);
 		},
 
 		showAccessSelectorPopup: function(params)
 		{
-
 			if (this.accessPopupMenu && this.accessPopupMenu.popupWindow && this.accessPopupMenu.popupWindow.isShown())
 			{
 				return this.accessPopupMenu.close();
@@ -1170,7 +1201,6 @@
 
 			var
 				menuId = this.calendar.id + '_section_access_popup',
-				//menuId = this.calendar.id + '_section_access_popup_' + Math.round(Math.random() * 10000),
 				taskId,
 				_this = this,
 				menuItems = [];
@@ -1211,13 +1241,8 @@
 
 			this.accessPopupMenu.show();
 
-			//BX.addClass(_this.sectionField.select, 'active');
-			//this.denySliderClose();
-
 			BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
 			{
-				//_this.allowSliderClose();
-				//BX.removeClass(_this.sectionField.select, 'active');
 				BX.PopupMenu.destroy(menuId);
 			});
 		}
@@ -1248,15 +1273,23 @@
 	TrackingUsersForm.prototype = {
 		show: function ()
 		{
+			if (!this.innerWrap)
+			{
+				this.innerWrap = this.outerWrap.appendChild(BX.create('DIV'));
+			}
 			this.trackingUsers.forEach(function(user)
 			{
 				this.selectedCodes['U' + user.ID] = 'users';
 			}, this);
 
 			if (!this.isCreated)
+			{
 				this.create();
+			}
 
 			BX.addClass(this.outerWrap, 'show');
+			this.checkInnerWrapHeight();
+
 			BX.bind(document, 'keydown', BX.proxy(this.keyHandler, this));
 
 			this.updateSectionList();
@@ -1269,6 +1302,7 @@
 
 			this.isOpenedState = false;
 			BX.removeClass(this.outerWrap, 'show');
+			this.outerWrap.style.cssText = '';
 
 			if (this.closeCallback)
 				this.closeCallback();
@@ -1281,7 +1315,7 @@
 
 		create: function()
 		{
-			this.selectorWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-selector-wrap'}}));
+			this.selectorWrap = this.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-selector-wrap'}}));
 
 			// Attendees selector
 			this.destinationSelector = new window.BXEventCalendar.DestinationSelector(this.selectorId,
@@ -1297,10 +1331,10 @@
 			BX.addCustomEvent('OnDestinationUnselect', BX.proxy(this.updateSectionList, this));
 
 			// List of sections
-			this.sectionsWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-sections-wrap'}}));
+			this.sectionsWrap = this.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-sections-wrap'}}));
 
 			// Buttons
-			this.buttonsWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
+			this.buttonsWrap = this.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
 			this.saveBtn = this.buttonsWrap.appendChild(BX.create('DIV', {
 				props: {className: 'webform-small-button webform-small-button-blue'},
 				text: BX.message('EC_SEC_SLIDER_SAVE'),
@@ -1371,6 +1405,7 @@
 
 			this.sectionsWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '140px'}}));
 
+			this.checkInnerWrapHeight();
 			this.calendar.request({
 				data: {
 					action: 'get_tracking_sections',
@@ -1381,6 +1416,7 @@
 				{
 					BX.cleanNode(this.sectionsWrap);
 					this.sectionIndex = {};
+					this.checkInnerWrapHeight();
 
 					// Users calendars
 					response.users.forEach(function(user)
@@ -1491,6 +1527,28 @@
 			{
 				this.save();
 			}
+		},
+
+		checkInnerWrapHeight: function()
+		{
+			if (this.checkHeightTimeout)
+			{
+				this.checkHeightTimeout = clearTimeout(this.checkHeightTimeout);
+			}
+
+			this.checkHeightTimeout = setTimeout(BX.delegate(function(){
+				if (BX.hasClass(this.outerWrap, 'show'))
+				{
+					if (this.outerWrap.offsetHeight - this.innerWrap.offsetHeight < 36)
+					{
+						this.outerWrap.style.maxHeight = parseInt(this.innerWrap.offsetHeight) + 200 + 'px';
+					}
+				}
+				else
+				{
+					this.outerWrap.style.maxHeight = '';
+				}
+			}, this), 300);
 		}
 	};
 
@@ -1508,11 +1566,17 @@
 
 	TrackingTypesForm.prototype.create = function()
 	{
+		if (!this.innerWrap)
+		{
+			this.innerWrap = this.outerWrap.appendChild(BX.create('DIV'));
+		}
+
+
 		// List of sections
-		this.sectionsWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-sections-wrap'}}));
+		this.sectionsWrap = this.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-sections-wrap'}}));
 
 		// Buttons
-		this.buttonsWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
+		this.buttonsWrap = this.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
 		this.saveBtn = this.buttonsWrap.appendChild(BX.create('DIV', {
 			props: {className: 'webform-small-button webform-small-button-blue'},
 			text: BX.message('EC_SEC_SLIDER_SAVE'),
@@ -1531,17 +1595,13 @@
 	TrackingTypesForm.prototype.show = function()
 	{
 		if (!this.isCreated)
+		{
 			this.create();
+		}
 
 		this.updateSectionList();
 		this.isOpenedState = true;
 		BX.addClass(this.outerWrap, 'show');
-
-		//this.trackingGroups.forEach(function(groupId)
-		//{
-		//	this.selectedCodes['SG' + groupId] = "sonetgroups";
-		//}, this);
-		//TrackingUsersForm.prototype.show.apply(this, arguments);
 	};
 
 	TrackingTypesForm.prototype.updateSectionList = function()
@@ -1560,8 +1620,10 @@
 					sectionList: response.sections,
 					wrap: this.sectionsWrap
 				});
+				this.checkInnerWrapHeight();
 			}, this)
 		});
+		this.checkInnerWrapHeight();
 	};
 
 	TrackingTypesForm.prototype.save = function()
@@ -1694,8 +1756,10 @@
 					sectionList: response.sections,
 					wrap: this.sectionsWrap
 				});
+				this.checkInnerWrapHeight();
 			}, this)
 		});
+		this.checkInnerWrapHeight();
 	};
 
 	if (window.BXEventCalendar)

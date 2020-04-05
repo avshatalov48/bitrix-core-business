@@ -61,6 +61,8 @@ else
 	if(!is_array($values))
 		$values = array($values);
 	$values = array_map("strval", $values);
+	if(count($values) > 1)
+		$values = array_filter($values);
 	foreach ($arParams["arUserField"]["USER_TYPE"]["FIELDS"] as $key => $val)
 	{
 		$bSelected = in_array(strval($key), $values, true) && (

@@ -38,7 +38,7 @@ if (!empty($arParams["RECORDS"]))
 				{
 					?><tr>
 						<td valign="middle" colspan="2" style="border-collapse: collapse;border-spacing: 0;border-bottom: 2px solid #FFFFFF;line-height: 0;padding: 0 0 0 16px;vertical-align: middle;width: 39px;color: #2067b0;height: 38px;font-size: 12px;">
-							<a href="<?=$arParams["POST_URL"]?>" style="color: #146cc5;"><?=GetMessage('MPL_MAIL_MORE_COMMENTS', array("#NUM#" => ($arParams["COMMENTS_ALL_COUNT"] - $arParams["COMMENTS_COUNT"])))?></a>
+							<a href="<?=$arParams["POST_URL"]?>" style="color: #146cc5;"><?=GetMessage('MPL_MAIL_MORE_COMMENTS1', array("#NUM#" => ($arParams["COMMENTS_ALL_COUNT"] - $arParams["COMMENTS_COUNT"])))?></a>
 						</td>
 					</tr><?
 				}

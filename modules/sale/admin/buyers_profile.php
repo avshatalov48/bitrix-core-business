@@ -1117,7 +1117,9 @@ if(!empty($arUser))
 	CAdminMessage::ShowMessage($viewedError);
 
 
-	$newFilter = array();
+	$newFilter = array(
+		'FUSER_ID' => \Bitrix\Sale\Fuser::getIdByUserId($ID)
+	);
 	foreach($arFilter as $key => $value)
 	{
 		if($key == "DATE_FROM")

@@ -1,0 +1,21 @@
+<?php
+$MESS['LANDING_TPL_TITLE_EDIT'] = 'Настройки страницы';
+$MESS['LANDING_TPL_TITLE_ADD'] = 'Новая страница';
+$MESS['LANDING_TPL_BUTTON_ADD'] = 'Добавить';
+$MESS['LANDING_TPL_BUTTON_SAVE'] = 'Сохранить';
+$MESS['LANDING_TPL_BUTTON_CANCEL'] = 'Отменить';
+$MESS['LANDING_TPL_ADDITIONAL'] = 'Дополнительно';
+$MESS['LANDING_TPL_ADDITIONAL_METRIKA'] = 'Аналитика';
+$MESS['LANDING_TPL_ADDITIONAL_BG'] = 'Фон';
+$MESS['LANDING_TPL_ADDITIONAL_VIEW'] = 'Представление';
+$MESS['LANDING_TPL_ADDITIONAL_LAYOUT'] = 'Шаблон';
+$MESS['LANDING_TPL_ADDITIONAL_TAGS'] = 'Мета-теги';
+$MESS['LANDING_TPL_ADDITIONAL_HTMLCSS'] = 'HTML/CSS';
+$MESS['LANDING_TPL_ADDITIONAL_INDEX'] = 'Индексация';
+$MESS['LANDING_TPL_ADDITIONAL_SITEMAP'] = 'Карта сайта';
+$MESS['LANDING_TPL_FIELD_CODE'] = 'Адрес страницы';
+$MESS['LANDING_TPL_HOOK_METRIKA'] = 'Аналитика';
+$MESS['LANDING_TPL_ACTION_ADD_IN_SITEMAP'] = 'Добавить страницу в карту сайта';
+$MESS['LANDING_TPL_LAYOUT'] = 'Шаблон страницы';
+$MESS['LANDING_TPL_LAYOUT_USE'] = 'Изменить для этой страницы';
+$MESS['LANDING_TPL_LAYOUT_AREA'] = 'Область';

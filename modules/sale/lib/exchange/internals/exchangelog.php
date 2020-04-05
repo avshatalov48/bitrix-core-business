@@ -53,7 +53,7 @@ class ExchangeLogTable extends Main\Entity\DataManager
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
 				'require' => true,
-				'default_value' => new Main\Type\DateTime()
+				'default_value' => function(){return new \Bitrix\Main\Type\DateTime();}
 			),
 			'DIRECTION' => array(
 				'data_type' => 'string',

@@ -76,6 +76,7 @@ BX.SidePanel.Slider = function(url, options)
 	this.startParams = { translateX: 100, opacity: 0 };
 	this.endParams = { translateX: 0, opacity: 40 };
 	this.currentParams = null;
+	this.overlayAnimation = false;
 
 	//Compatibility
 	if (
@@ -748,6 +749,29 @@ BX.SidePanel.Slider.prototype =
 		return this.layout.overlay;
 	},
 
+	unhideOverlay: function()
+	{
+		this.getOverlay().classList.remove("side-panel-overlay-hidden");
+	},
+
+	hideOverlay: function()
+	{
+		this.getOverlay().classList.add("side-panel-overlay-hidden");
+	},
+
+	setOverlayAnimation: function(animate)
+	{
+		if (BX.type.isBoolean(animate))
+		{
+			this.overlayAnimation = animate;
+		}
+	},
+
+	getOverlayAnimation: function()
+	{
+		return this.overlayAnimation;
+	},
+
 	/**
 	 * @public
 	 * @returns {Element}
@@ -1188,7 +1212,10 @@ BX.SidePanel.Slider.prototype =
 	animateStep: function(state)
 	{
 		this.getContainer().style.transform = "translateX(" + state.translateX + "%)";
-		this.getOverlay().style.backgroundColor = "rgba(0, 0, 0, " + state.opacity / 100 + ")";
+		if (this.getOverlayAnimation())
+		{
+			this.getOverlay().style.backgroundColor = "rgba(0, 0, 0, " + state.opacity / 100 + ")";
+		}
 	},
 
 	/**
@@ -1202,8 +1229,16 @@ BX.SidePanel.Slider.prototype =
 		{
 			this.currentParams = this.endParams;
 
+			this.firePageEvent("onBeforeOpenComplete");
+			this.fireFrameEvent("onBeforeOpenComplete");
+
 			this.firePageEvent("onOpenComplete");
 			this.fireFrameEvent("onOpenComplete");
+
+			if (this.isFocusable())
+			{
+				this.focus();
+			}
 		}
 		else
 		{
@@ -1217,6 +1252,9 @@ BX.SidePanel.Slider.prototype =
 			this.getContainer().style.removeProperty("max-width");
 			this.getContainer().style.removeProperty("min-width");
 			this.getCloseBtn().style.removeProperty("opacity");
+
+			this.firePageEvent("onBeforeCloseComplete");
+			this.fireFrameEvent("onBeforeCloseComplete");
 
 			this.firePageEvent("onCloseComplete");
 			this.fireFrameEvent("onCloseComplete");
@@ -1545,14 +1583,18 @@ BX.SidePanel.Slider.prototype =
 		var frameDocument = this.getFrameWindow().document;
 
 		var bodyClass = "";
-		frameDocument.body.classList.forEach(function(className) {
+
+		var classList = frameDocument.body.classList;
+		for (var i = 0; i < classList.length; i++)
+		{
+			var className = classList[i];
 			bodyClass += "." + className;
-		});
+		}
 
 		var bodyStyle = "@media print { body" + bodyClass + " { " +
 			"background: #fff !important; " +
 			"-webkit-print-color-adjust: exact;" +
-			"tcolor-adjust: exact; " +
+			"color-adjust: exact; " +
 		"} }";
 
 		var style = frameDocument.createElement("style");

@@ -4,6 +4,7 @@ namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
+use Bitrix\Main\Type;
 use Bitrix\Sale\Internals\PaySystemRestHandlersTable;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Payment;
@@ -109,12 +110,16 @@ class RestHandler extends PaySystem\ServiceHandler
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return ServiceResult
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function processRequest(Payment $payment, Request $request)
 	{
 		$result = new ServiceResult();
 
-		$result->setPsData(array('PS_STATUS_CODE' => 'Y'));
+		$result->setPsData([
+			'PS_STATUS_CODE' => 'Y',
+			'PAY_VOUCHER_DATE' => new Type\Date()
+		]);
 		$result->setOperationType(ServiceResult::MONEY_COMING);
 
 		return $result;

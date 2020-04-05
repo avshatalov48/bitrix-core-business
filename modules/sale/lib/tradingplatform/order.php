@@ -84,13 +84,13 @@ class OrderTable extends Entity\DataManager
 
 	public static function deleteByOrderId($orderId)
 	{
-		if(intval($orderId) <= 0)
+		$orderId = (int)$orderId;
+
+		if($orderId <= 0)
 			return false;
 
 		$con = \Bitrix\Main\Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
-		$id = $sqlHelper->forSql($orderId);
-		$con->queryExecute("DELETE FROM b_sale_tp_order WHERE ORDER_ID=".$id);
+		$con->queryExecute("DELETE FROM b_sale_tp_order WHERE ORDER_ID=".$orderId);
 		return true;
 	}
 }

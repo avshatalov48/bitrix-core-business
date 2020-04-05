@@ -11,6 +11,21 @@ use Bitrix\Sale;
 class ProviderBuilderCompatibility extends ProviderBuilderBase
 {
 	/**
+	 * @param $providerClass
+	 * @param $context
+	 *
+	 * @return ProviderBuilderBase
+	 */
+	public static function create($providerClass, $context)
+	{
+		$builder = parent::create($providerClass, $context);
+		if (!$builder->providerClass && is_string($providerClass) && strval($providerClass) != '')
+		{
+			$builder->callbackFunction = $providerClass;
+		}
+		return $builder;
+	}
+	/**
 	 * @param Sale\BasketItemBase $basketItem
 	 */
 	public function addProductByBasketItem(Sale\BasketItemBase $basketItem)

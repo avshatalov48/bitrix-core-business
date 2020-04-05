@@ -62,7 +62,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 		return $path;
 	}
 
-	public function getChildMenuRecursive(&$arMenu, &$arResult, $menuType, $use_ext, $menuTemplate, $currentLevel, $maxLevel, $bMultiSelect, $bCheckSelected)
+	public function getChildMenuRecursive(&$arMenu, &$arResult, $menuType, $use_ext, $menuTemplate, $currentLevel, $maxLevel, $bMultiSelect, $bCheckSelected, $parentItem)
 	{
 		if ($currentLevel > $maxLevel)
 			return;
@@ -70,6 +70,9 @@ class CBitrixMenuComponent extends CBitrixComponent
 		for ($menuIndex = 0, $menuCount = count($arMenu); $menuIndex < $menuCount; $menuIndex++)
 		{
 			//Menu from iblock (bitrix:menu.sections)
+			$arMenu[$menuIndex]["CHAIN"] = (is_array($parentItem) && !empty($parentItem["CHAIN"]) ? $parentItem["CHAIN"] : array());
+			$arMenu[$menuIndex]["CHAIN"][] = $arMenu[$menuIndex]["TEXT"];
+
 			if (is_array($arMenu[$menuIndex]["PARAMS"]) && isset($arMenu[$menuIndex]["PARAMS"]["FROM_IBLOCK"]))
 			{
 				$iblockSectionLevel = intval($arMenu[$menuIndex]["PARAMS"]["DEPTH_LEVEL"]);
@@ -111,7 +114,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 						}
 
 						if(count($menu->arMenu) > 0)
-							$this->GetChildMenuRecursive($menu->arMenu, $arResult, $menuType, $use_ext, $menuTemplate, $currentLevel+1, $maxLevel, $bMultiSelect, $bCheckSelected);
+							$this->GetChildMenuRecursive($menu->arMenu, $arResult, $menuType, $use_ext, $menuTemplate, $currentLevel+1, $maxLevel, $bMultiSelect, $bCheckSelected, $arMenu[$menuIndex]);
 					}
 				}
 			}

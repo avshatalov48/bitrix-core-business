@@ -9,6 +9,7 @@ namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Event;
+use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Text\Encoding;
@@ -441,6 +442,11 @@ final class Manager
 
 				foreach($customClasses as $class => $file)
 				{
+					if(!File::isFileExists($file))
+					{
+						continue;
+					}
+
 					if(self::isHandlerClassValid($class))
 					{
 						$fields = isset($handlersFields[$class]) ? $handlersFields[$class] : array();

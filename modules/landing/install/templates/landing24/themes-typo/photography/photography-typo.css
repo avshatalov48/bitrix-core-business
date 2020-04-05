@@ -1,0 +1,25 @@
+/*------------------------------------
+  Default Typo
+------------------------------------*/
+html {
+  font-size: 14px;
+}
+
+body {
+  font-weight: 400;
+  font-size: 1rem;
+  font-family: "Roboto", Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-font-feature-settings: "liga", "kern";
+  text-rendering: optimizelegibility;
+}
+
+body {
+  font-size: 0.92857rem;
+}
+
+.cbp-filter-item .nav-link {
+  font-size: 13px;
+}

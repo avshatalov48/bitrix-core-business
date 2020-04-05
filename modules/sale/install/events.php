@@ -137,6 +137,14 @@ if(!($dbEvent->Fetch()))
 
 		$et = new CEventType;
 		$et->Add(array(
+			"LID" => $lid,
+			"EVENT_NAME" => "SALE_CHECK_PRINT_ERROR",
+			"NAME" => GetMessage("SALE_CHECK_PRINT_ERROR_TYPE_NAME"),
+			"DESCRIPTION" => GetMessage("SALE_CHECK_PRINT_ERROR_TYPE_DESC"),
+		));
+
+		$et = new CEventType;
+		$et->Add(array(
 			"LID"       => $lid,
 			"EVENT_NAME"    => "SALE_ORDER_SHIPMENT_STATUS_CHANGED",
 			"NAME"          => GetMessage("SALE_ORDER_SHIPMENT_STATUS_CHANGED_TYPE_NAME"),
@@ -155,7 +163,7 @@ if(!($dbEvent->Fetch()))
 			$arHTMLEvents = array(
 				"SALE_NEW_ORDER", "SALE_ORDER_CANCEL", "SALE_ORDER_DELIVERY", "SALE_ORDER_PAID",
 				"SALE_ORDER_REMIND_PAYMENT", "SALE_SUBSCRIBE_PRODUCT", "SALE_ORDER_TRACKING_NUMBER", "SALE_CHECK_PRINT",
-				"SALE_ORDER_SHIPMENT_STATUS_CHANGED"
+				"SALE_CHECK_PRINT_ERROR", "SALE_ORDER_SHIPMENT_STATUS_CHANGED",
 			);
 
 			foreach($arHTMLEvents as $eventName)

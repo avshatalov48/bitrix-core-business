@@ -151,7 +151,7 @@ class LastSearch
 
 		$result = array();
 
-		$cacheId = 'list_v1_'.$userId.'_'.Color::isEnabled();
+		$cacheId = 'list_v2_'.$userId.'_'.Color::isEnabled();
 		$cachePath = self::CACHE_PATH.\Bitrix\Im\Common::getCacheUserPostfix($userId);
 
 		$cache = \Bitrix\Main\Application::getInstance()->getCache();
@@ -195,7 +195,7 @@ class LastSearch
 				$id = $row['DIALOG_ID'];
 
 				$item = Array(
-					'ID' => $id,
+					'ID' => $isUser? (int)$id: $id,
 					'TYPE' => $isUser? 'user': 'chat',
 					'AVATAR' => Array(),
 					'TITLE' => Array(),

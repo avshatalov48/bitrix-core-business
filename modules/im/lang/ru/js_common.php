@@ -311,6 +311,7 @@ $MESS["IM_MENU_TO_CHAT"] = "Обсудить в новом чате";
 $MESS["IM_MENU_TO_TASK"] = "Создать задачу";
 $MESS["IM_MENU_TO_CALEND"] = "Создать событие в календаре";
 $MESS["IM_MENU_TO_POST"] = "Обсудить в Живой ленте";
+$MESS["IM_OL_CLIENT_NAME"] = "Клиент";
 $MESS["IM_OL_GUEST_NAME"] = "Гость";
 $MESS["IM_M_RECENT_MORE"] = "Более 30 дней назад";
 $MESS["IM_D_SEND_PUBLIC_ADMIN"] = "Для отправки файла пользователю вам необходимо разрешить публичные ссылки на документы в вашем Битрикс24.";
@@ -331,4 +332,7 @@ $MESS["IM_LS_M"] = "#POSITION#. Заходил #LAST_SEEN#";
 $MESS["IM_LS_F"] = "#POSITION#. Заходила #LAST_SEEN#";
 $MESS["IM_LS_SHORT_M"] = "Заходил #LAST_SEEN#";
 $MESS["IM_LS_SHORT_F"] = "Заходила #LAST_SEEN#";
+$MESS["IM_TRANSFER_SCOPE_USERS"] = "Сотрудники";
+$MESS["IM_TRANSFER_SCOPE_LINES"] = "Открытые линии";
+$MESS["IM_TRANSFER_SCOPE_DEPARTMENTS"] = "Подразделения";
 ?>

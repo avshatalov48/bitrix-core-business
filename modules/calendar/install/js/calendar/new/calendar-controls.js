@@ -1,4 +1,188 @@
 ;(function(window) {
+	function ViewSwitcher(params)
+	{
+		this.calendar = params.calendar;
+		this.wrap = params.wrap;
+		this.popupId = this.calendar.id + '_view_switcher';
+		if (params.dropDownMode)
+		{
+			this.createDropDown();
+		}
+		else
+		{
+			this.createSelector();
+		}
+
+		BX.addCustomEvent(this.calendar, "afterSetView", BX.proxy(this.onAfterSetView, this));
+	}
+
+	ViewSwitcher.prototype = {
+		createSelector:function ()
+		{
+			var
+				wrap = this.wrap.appendChild(BX.create('DIV', {
+					props: {className: 'calendar-view-switcher-list'},
+					events: {
+						click: BX.delegate(function(e)
+						{
+							var target = e.target || e.srcElement;
+							if (target && target.getAttribute)
+							{
+								var viewName = target.getAttribute('data-bx-calendar-view');
+								this.calendar.setView(viewName, {animation: true});
+							}
+						}, this)
+					}
+				}));
+
+			this.calendar.views.forEach(function(view)
+			{
+				view.switchNode = wrap.appendChild(
+					BX.create('SPAN', {
+						props: {className: 'calendar-view-switcher-list-item' + (this.calendar.currentViewName == view.name ? ' calendar-view-switcher-list-item-active' : '')},
+						attrs: {'data-bx-calendar-view': view.name},
+						text: view.title || view.name
+					})
+				);
+			}, this);
+		},
+
+		createDropDown: function ()
+		{
+			this.selectorText = BX.create("div", {props: {className:"calendar-view-switcher-text"}});
+			this.selectorTextInner = this.selectorText.appendChild(BX.create("div", {props: {className: "calendar-view-switcher-text-inner"}}));
+
+			BX.adjust(this.wrap, {
+				children: [
+					this.selectorText,
+					BX.create("div", {props: {className:"calendar-view-switcher-dropdown"}})
+				],
+				events: {click: BX.proxy(this.showPopup, this)}
+			});
+
+			if (BX.type.isArray(this.calendar.util.config.additionalViewModes))
+			{
+				this.viewModeTextInner = this.selectorText.appendChild(BX.create("div", {props: {className: "calendar-view-switcher-text-mode-inner"}}));
+			}
+
+			this.getMenuItems();
+		},
+
+		getMenuItems: function()
+		{
+			this.menuItems = [];
+			this.calendar.views.forEach(function(view)
+			{
+				this.menuItems.push({
+					text: view.title || view.name,
+					className: this.calendar.currentViewName == view.name ? 'menu-popup-item-accept' : ' ',
+					onclick: BX.delegate(function(){
+						this.calendar.setView(view.name, {animation: true});
+						this.menuPopup.close();
+					}, this)
+				});
+
+				if (this.calendar.currentViewName == view.name)
+				{
+					this.selectorTextInner.innerHTML = view.title || view.name;
+				}
+			}, this);
+
+			if (BX.type.isArray(this.calendar.util.config.additionalViewModes))
+			{
+				var i, mode;
+
+				this.menuItems.push({
+					text: '<span>' + BX.message('EC_VIEW_MODE_SHOW_BY') + '</span>',
+					className: 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label'
+				});
+
+				for (i = 0; i < this.calendar.util.config.additionalViewModes.length; i++)
+				{
+					mode = this.calendar.util.config.additionalViewModes[i];
+					this.menuItems.push({
+						dataset: mode,
+						text: BX.util.htmlspecialchars(mode.label),
+						className: mode.selected ? 'menu-popup-item-accept' : ' ',
+						onclick: BX.delegate(function(e, item){
+							this.calendar.triggerEvent('changeViewMode', item.dataset);
+							this.viewModeTextInner.innerHTML = '(' + BX.util.htmlspecialchars(item.dataset.label) + ')';
+							for (j = 0; j < this.calendar.util.config.additionalViewModes.length; j++)
+							{
+								this.calendar.util.config.additionalViewModes[j].selected = item.dataset.id == this.calendar.util.config.additionalViewModes[j].id;
+							}
+							this.menuPopup.close();
+						}, this)
+					});
+
+					if (mode.selected)
+					{
+						this.viewModeTextInner.innerHTML = '(' + BX.util.htmlspecialchars(mode.label) + ')';
+					}
+				}
+			}
+			this.calendar.triggerEvent('beforeViewModePopupOpened', this.menuItems);
+
+			return this.menuItems;
+		},
+
+		showPopup: function ()
+		{
+			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
+			{
+				return this.menuPopup.close();
+			}
+
+			this.getMenuItems();
+
+			this.menuPopup = BX.PopupMenu.create(
+				this.popupId,
+				this.selectorText,
+				this.menuItems,
+				{
+					closeByEsc : true,
+					autoHide : true,
+					zIndex: this.zIndex,
+					offsetTop: -3,
+					offsetLeft: this.selectorText.offsetWidth - 6,
+					angle: true
+				}
+			);
+
+			this.menuPopup.show();
+
+			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
+			{
+				BX.PopupMenu.destroy(this.popupId);
+			}, this));
+		},
+
+		onAfterSetView: function()
+		{
+			var
+				newView = this.calendar.getView(),
+				i, nodes = this.wrap.querySelectorAll('.calendar-view-switcher-list-item-active');
+
+			for (i = 0; i < nodes.length; i++)
+			{
+				BX.removeClass(nodes[i], 'calendar-view-switcher-list-item-active');
+			}
+
+			if (newView)
+			{
+				if (newView.switchNode)
+				{
+					BX.addClass(this.calendar.getView().switchNode, 'calendar-view-switcher-list-item-active');
+				}
+
+				if (this.selectorTextInner)
+				{
+					this.selectorTextInner.innerHTML = newView.title || newView.name;
+				}
+			}
+		}
+	};
+
 
 	function AddButton(params)
 	{
@@ -68,6 +252,7 @@
 			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
 			{
 				BX.PopupMenu.destroy(this.addButtonMorePopupId);
+				BX.PopupMenu.destroy(this.id);
 			}, this));
 		},
 
@@ -1220,9 +1405,11 @@
 		getTextValue: function(value)
 		{
 			if (!value)
+			{
 				value = this.value;
+			}
 
-			var res = value.text || '';
+			var res = value.str || value.text || '';
 			if (value && value.type == 'mr')
 			{
 				res = 'ECMR_' + value.value;
@@ -1666,6 +1853,7 @@
 
 	if (window.BXEventCalendar)
 	{
+		window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
 		window.BXEventCalendar.AddButton = AddButton;
 		window.BXEventCalendar.SelectInput = SelectInput;
 		window.BXEventCalendar.ReminderSelector = Reminder;
@@ -1678,6 +1866,7 @@
 	{
 		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
 		{
+			window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
 			window.BXEventCalendar.AddButton = AddButton;
 			window.BXEventCalendar.SelectInput = SelectInput;
 			window.BXEventCalendar.ReminderSelector = Reminder;

@@ -161,6 +161,14 @@ BX.SocialnetworkUICommon = {
 									url: data.URL,
 									extranet: (typeof data.EXTRANET != 'undefined' ? data.EXTRANET : 'N')
 								}, !favoritesValue]);
+
+								window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
+									code: 'afterSetFavorites',
+									data: {
+										groupId: data.ID,
+										value: (data.RESULT == 'Y')
+									}
+								});
 							},
 							failure: function(data)
 							{
@@ -259,43 +267,8 @@ BX.SocialnetworkUICommon = {
 
 				if (!!params.isOpened)
 				{
-					userRequestItem.onclick = BX.delegate(function() {
-
-						BX.SocialnetworkUICommon.Waiter.getInstance().show();
-						BX.SocialnetworkUICommon.SonetGroupMenu.getInstance().menuPopup.close();
-
-						BX.ajax({
-							url: params.urls.userRequestGroup,
-							method: 'POST',
-							dataType: 'json',
-							data: {
-								groupID: params.groupId,
-								MESSAGE: '',
-								ajax_request: 'Y',
-								save: 'Y',
-								sessid: BX.bitrix_sessid()
-							},
-							onsuccess: BX.delegate(function(responseData) {
-								BX.SocialnetworkUICommon.Waiter.getInstance().hide();
-								if (
-									typeof responseData.MESSAGE != 'undefined'
-									&& responseData.MESSAGE == 'SUCCESS'
-									&& typeof responseData.URL != 'undefined'
-								)
-								{
-									BX.onCustomEvent(window.top, 'sonetGroupEvent', [ {
-										code: 'afterJoinRequestSend',
-										data: {
-											groupId: this.groupId
-										}
-									} ]);
-									top.location.href = responseData.URL;
-								}
-							}, this),
-							onfailure: BX.delegate(function() {
-								BX.SocialnetworkUICommon.Waiter.getInstance().hide();
-							}, this)
-						});
+					userRequestItem.onclick = BX.proxy(function() {
+						this.sendJoinRequest(params);
 					}, this);
 				}
 				else
@@ -341,6 +314,51 @@ BX.SocialnetworkUICommon = {
 
 		popup.popupWindow.show();
 		sonetGroupMenu.menuPopup = popup;
+	},
+
+	sendJoinRequest: function(params) {
+		BX.SocialnetworkUICommon.Waiter.getInstance().show();
+
+		if (
+			BX.SocialnetworkUICommon.SonetGroupMenu.getInstance()
+			&& BX.SocialnetworkUICommon.SonetGroupMenu.getInstance().menuPopup
+		)
+		{
+			BX.SocialnetworkUICommon.SonetGroupMenu.getInstance().menuPopup.close();
+		}
+
+		BX.ajax({
+			url: params.urls.userRequestGroup,
+			method: 'POST',
+			dataType: 'json',
+			data: {
+				groupID: params.groupId,
+				MESSAGE: '',
+				ajax_request: 'Y',
+				save: 'Y',
+				sessid: BX.bitrix_sessid()
+			},
+			onsuccess: BX.delegate(function(responseData) {
+				BX.SocialnetworkUICommon.Waiter.getInstance().hide();
+				if (
+					typeof responseData.MESSAGE != 'undefined'
+					&& responseData.MESSAGE == 'SUCCESS'
+					&& typeof responseData.URL != 'undefined'
+				)
+				{
+					BX.onCustomEvent(window.top, 'sonetGroupEvent', [ {
+						code: 'afterJoinRequestSend',
+						data: {
+							groupId: this.groupId
+						}
+					} ]);
+					top.location.href = responseData.URL;
+				}
+			}, this),
+			onfailure: BX.delegate(function() {
+				BX.SocialnetworkUICommon.Waiter.getInstance().hide();
+			}, this)
+		});
 	},
 
 	setFavoritesAjax: function(params)

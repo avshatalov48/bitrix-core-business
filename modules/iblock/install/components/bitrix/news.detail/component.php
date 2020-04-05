@@ -162,8 +162,8 @@ if($arParams["SHOW_WORKFLOW"] || $this->startResultCache(false, array(($arParams
 		$arParams["ELEMENT_ID"] = CIBlockFindTools::GetElementID(
 			$arParams["ELEMENT_ID"],
 			$arParams["~ELEMENT_CODE"],
-			false,
-			false,
+			$arParams["STRICT_SECTION_CHECK"]? $arParams["SECTION_ID"]: false,
+			$arParams["STRICT_SECTION_CHECK"]? $arParams["~SECTION_CODE"]: false,
 			$arFilter
 		);
 

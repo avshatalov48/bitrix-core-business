@@ -65,4 +65,5 @@ $MESS["JS_CORE_VIEWER_IFRAME_ERROR_TITLE"] = "Не удалось открыть
 $MESS["JS_CORE_VIEWER_DOWNLOAD_B24_DESKTOP_FULL"] = "Скачать приложение";
 $MESS["JS_CORE_VIEWER_DOWNLOAD_DOCUMENT"] = "Скачать документ";
 $MESS["JS_CORE_VIEWER_IFRAME_ERROR_COULD_NOT_VIEW"] = "К сожалению, не удалось просмотреть документ.";
+$MESS["JS_CORE_VIEWER_ACTIONPANEL_MORE"] = "Ещё";
 ?>

@@ -442,6 +442,36 @@ a.sonet-invitation-dash-link:hover{ color: #696969; border-color: #696969; text-
 	font: 19px/32px OpenSans-Regular, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.bx-firefox .social-group-create-info-panel-title input::-moz-placeholder,
+.bx-firefox .social-group-create-info-panel-title input:-moz-placeholder {
+	color: #a8a8a8;
+	text-overflow: ellipsis;
+	opacity: 1;
+	transition: color 270ms ease;
+}
+
+.social-group-create-info-panel-title input:focus:-moz-placeholder,
+.social-group-create-info-panel-title input:focus::-moz-placeholder { color: rgba(0, 0, 0, 0) }
+
+.bx-ie .social-group-create-info-panel-title input:-ms-input-placeholder {
+	color: #a8a8a8;
+	text-overflow: ellipsis;
+	opacity: 1;
+	transition: color 270ms ease;
+}
+
+.bx-ie .social-group-create-info-panel-title input:focus:-ms-input-placeholder { color: rgba(0, 0, 0, 0) }
+
+.bx-chrome .social-group-create-info-panel-title input::-webkit-input-placeholder {
+	color: #a8a8a8;
+	text-overflow: ellipsis;
+	opacity: 1;
+	transition: color 270ms ease;
+}
+
+.social-group-create-info-panel-title input:focus::-moz-placeholder { color: rgba(0, 0, 0, 0) }
+
+
 .social-group-create-info-editor {
 	background: rgb(255, 255, 255);
 }

@@ -420,7 +420,7 @@ jsDD = {
 
 		if (jsDD.current_node.onbxdrag)
 		{
-			jsDD.current_node.onbxdrag(jsDD.x, jsDD.y);
+			jsDD.current_node.onbxdrag(jsDD.x, jsDD.y, e);
 		}
 
 		var containersScroll = jsDD.getContainersScrollPos(jsDD.x, jsDD.y);
@@ -467,7 +467,7 @@ jsDD = {
 			}
 
 			if (null != jsDD.current_node.onbxdragstop)
-				jsDD.current_node.onbxdragstop(jsDD.x, jsDD.y);
+				jsDD.current_node.onbxdragstop(jsDD.x, jsDD.y, e);
 
 			var containersScroll = jsDD.getContainersScrollPos(jsDD.x, jsDD.y);
 			var dest_index = jsDD.searchDest(jsDD.x+containersScroll.left, jsDD.y+containersScroll.top);

@@ -308,7 +308,7 @@ class ComponentHelper
 
 			$selectedFields = Array("ID", "BLOG_GROUP_ID", "BLOG_GROUP_SITE_ID", "BLOG_ID", "POST_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "POST_TEXT", "DATE_CREATE", "PUBLISH_STATUS", "HAS_PROPS", "SHARE_DEST");
 
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Application::getConnection();
 			if ($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection)
 			{
 				$selectedFields[] = "DATE_CREATE_TS";
@@ -412,7 +412,7 @@ class ComponentHelper
 		{
 			$selectedFields = Array("ID", "BLOG_GROUP_ID", "BLOG_GROUP_SITE_ID", "BLOG_ID", "POST_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "POST_TEXT", "DATE_CREATE", "PUBLISH_STATUS", "HAS_PROPS", "SHARE_DEST");
 
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Application::getConnection();
 			if ($connection instanceof \Bitrix\Main\DB\MysqlCommonConnection)
 			{
 				$selectedFields[] = "DATE_CREATE_TS";
@@ -1020,7 +1020,7 @@ class ComponentHelper
 			$params["PATH_TO_BLOG"] = "";
 		}
 
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
 		$fields = array(
@@ -1155,7 +1155,7 @@ class ComponentHelper
 		)
 		{
 			$url = (
-				!\Bitrix\Main\Application::isUtfMode()
+				!Application::isUtfMode()
 					? \Bitrix\Main\Text\Encoding::convertEncoding($res[1][0], 'UTF-8', \Bitrix\Main\Context::getCurrent()->getCulture()->getCharset())
 					: $res[1][0]
 			);
@@ -1246,7 +1246,7 @@ class ComponentHelper
 				}
 
 				$filter = array(
-					'UF_DEPARTMENT' => false
+					'UF_DEPARTMENT_SINGLE' => false
 				);
 
 				$externalAuthIdList = self::checkPredefinedAuthIdList(array('bot', 'email', 'imconnector'));
@@ -1462,359 +1462,372 @@ class ComponentHelper
 		$commentId = false;
 		$logId = false;
 
-		if (Loader::includeModule('blog'))
+		if (
+			Loader::includeModule('blog')
+			&& \CBlogPost::update($postId, array("SOCNET_RIGHTS" => $sonetRights, "HAS_SOCNET_ALL" => "N"))
+		)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$helper = $connection->getSqlHelper();
+			BXClearCache(true, self::getBlogPostCacheDir(array(
+				'TYPE' => 'post',
+				'POST_ID' => $postId
+			)));
+			BXClearCache(true, self::getBlogPostCacheDir(array(
+				'TYPE' => 'post_general',
+				'POST_ID' => $postId
+			)));
+			BXClearCache(True, self::getBlogPostCacheDir(array(
+				'TYPE' => 'posts_popular',
+				'SITE_ID' => $siteId
+			)));
 
-			if(\CBlogPost::update($postId, array("SOCNET_RIGHTS" => $sonetRights, "HAS_SOCNET_ALL" => "N")))
+			$logSiteListNew = array();
+			$user2NotifyList = array();
+			$sonetPermissionList = \CBlogPost::getSocnetPermsName($postId);
+			$extranet = Loader::includeModule("extranet");
+			$extranetSite = ($extranet ? \CExtranet::getExtranetSiteID() : false);
+			$tzOffset = \CTimeZone::getOffset();
+
+			$res = \CBlogPost::getList(
+				array(),
+				array("ID" => $postId),
+				false,
+				false,
+				array("ID", "BLOG_ID", "PUBLISH_STATUS", "TITLE", "AUTHOR_ID", "ENABLE_COMMENTS", "NUM_COMMENTS", "VIEWS", "CODE", "MICRO", "DETAIL_TEXT", "DATE_PUBLISH", "CATEGORY_ID", "HAS_SOCNET_ALL", "HAS_TAGS", "HAS_IMAGES", "HAS_PROPS", "HAS_COMMENT_IMAGES")
+			);
+			$post = $res->fetch();
+			if (!$post)
 			{
-				BXClearCache(true, "/blog/socnet_post/".intval($postId / 100)."/".$postId."/");
-				BXClearCache(true, "/blog/socnet_post/gen/".intval($postId / 100)."/".$postId);
-				BXClearCache(True, "/".$siteId."/blog/popular_posts/");
+				return false;
+			}
 
-				$logSiteListNew = array();
-				$user2NotifyList = array();
-				$sonetPermissionList = \CBlogPost::getSocnetPermsName($postId);
-				$extranet = Loader::includeModule("extranet");
-				$currentExtranetSite = ($extranet && \CExtranet::isExtranetSite());
-				$extranetSite = ($extranet ? \CExtranet::getExtranetSiteID() : false);
-				$tzOffset = \CTimeZone::getOffset();
+			$intranetUserIdList = ($extranet ? \CExtranet::getIntranetUsers() : false);
+			$auxLiveParamList = array();
 
-				$res = \CBlogPost::getList(
-					array(),
-					array("ID" => $postId),
-					false,
-					false,
-					array("ID", "BLOG_ID", "PUBLISH_STATUS", "TITLE", "AUTHOR_ID", "ENABLE_COMMENTS", "NUM_COMMENTS", "VIEWS", "CODE", "MICRO", "DETAIL_TEXT", "DATE_PUBLISH", "CATEGORY_ID", "HAS_SOCNET_ALL", "HAS_TAGS", "HAS_IMAGES", "HAS_PROPS", "HAS_COMMENT_IMAGES")
-				);
-				$post = $res->fetch();
-				if (!$post)
+			foreach($sonetPermissionList as $type => $v)
+			{
+				foreach($v as $vv)
 				{
-					return false;
-				}
-
-				$intranetUserIdList = ($extranet ? \CExtranet::getIntranetUsers() : false);
-				$auxLiveParamList = array();
-
-				foreach($sonetPermissionList as $type => $v)
-				{
-					foreach($v as $vv)
+					if (
+						$type == "SG"
+						&& in_array($type.$vv["ENTITY_ID"], $newRights)
+					)
 					{
-						$name = $link = '';
-						$id = 0;
+						$renderParts = new Livefeed\RenderParts\SonetGroup();
+						$renderData = $renderParts->getData($vv["ENTITY_ID"]);
 
-						if (
-							$type == "SG"
-							&& in_array($type.$vv["ENTITY_ID"], $newRights)
-						)
+						if($sonetGroup = \CSocNetGroup::getByID($vv["ENTITY_ID"]))
 						{
-							$renderParts = new Livefeed\RenderParts\SonetGroup();
-							$renderData = $renderParts->getData($vv["ENTITY_ID"]);
-
-							if($sonetGroup = \CSocNetGroup::getByID($vv["ENTITY_ID"]))
+							$res = \CSocNetGroup::getSite($vv["ENTITY_ID"]);
+							while ($groupSiteList = $res->fetch())
 							{
-								$res = \CSocNetGroup::getSite($vv["ENTITY_ID"]);
-								while ($groupSiteList = $res->fetch())
-								{
-									$logSiteListNew[] = $groupSiteList["LID"];
-								}
-
-								$auxLiveParamList[] = array(
-									"ENTITY_TYPE" => 'SG',
-									"ENTITY_ID" => $renderData['id'],
-									"NAME" => $renderData['name'],
-									"LINK" => $renderData['link'],
-									"VISIBILITY" => ($sonetGroup["VISIBLE"] == "Y" ? "all" : "group_members")
-								);
+								$logSiteListNew[] = $groupSiteList["LID"];
 							}
-						}
-						elseif ($type == "U")
-						{
-							if (
-								in_array("US".$vv["ENTITY_ID"], $vv["ENTITY"])
-								&& in_array("UA", $newRights)
-							)
-							{
-								$renderParts = new Livefeed\RenderParts\User();
-								$renderData = $renderParts->getData(0);
-
-								$auxLiveParamList[] = array(
-									"ENTITY_TYPE" => 'UA',
-									"ENTITY_ID" => 'UA',
-									"NAME" => $renderData['name'],
-									"LINK" => $renderData['link'],
-									"VISIBILITY" => 'all'
-								);
-							}
-							elseif(in_array($type.$vv["ENTITY_ID"], $newRights))
-							{
-								$renderParts = new Livefeed\RenderParts\User();
-								$renderData = $renderParts->getData($vv["ENTITY_ID"]);
-
-								$user2NotifyList[] = $vv["ENTITY_ID"];
-
-								if (
-									$extranet
-									&& is_array($intranetUserIdList)
-									&& !in_array($vv["ENTITY_ID"], $intranetUserIdList)
-								)
-								{
-									$logSiteListNew[] = $extranetSite;
-									$visibility = 'extranet';
-								}
-								else
-								{
-									$visibility = 'intranet';
-								}
-
-								$auxLiveParamList[] = array(
-									"ENTITY_TYPE" => 'U',
-									"ENTITY_ID" => $renderData['id'],
-									"NAME" => $renderData['name'],
-									"LINK" => $renderData['link'],
-									"VISIBILITY" => $visibility
-								);
-							}
-						}
-						elseif (
-							$type == "DR"
-							&& in_array($type.$vv["ENTITY_ID"], $newRights)
-						)
-						{
-							$renderParts = new Livefeed\RenderParts\Department();
-							$renderData = $renderParts->getData($vv["ENTITY_ID"]);
 
 							$auxLiveParamList[] = array(
-								"ENTITY_TYPE" => 'DR',
+								"ENTITY_TYPE" => 'SG',
 								"ENTITY_ID" => $renderData['id'],
 								"NAME" => $renderData['name'],
 								"LINK" => $renderData['link'],
-								"VISIBILITY" => 'intranet'
+								"VISIBILITY" => ($sonetGroup["VISIBLE"] == "Y" ? "all" : "group_members")
 							);
 						}
 					}
-				}
-
-				$userIP = \CBlogUser::getUserIP();
-				$auxText = CommentAux\Share::getPostText();
-				$mention = (
-					isset($params["MENTION"])
-					&& $params["MENTION"] == "Y"
-				);
-
-				$commentFields = Array(
-					"POST_ID" => $postId,
-					"BLOG_ID" => $blogId,
-					"POST_TEXT" => $auxText,
-					"DATE_CREATE" => convertTimeStamp(time() + $tzOffset, "FULL"),
-					"AUTHOR_IP" => $userIP[0],
-					"AUTHOR_IP1" => $userIP[1],
-					"PARENT_ID" => false,
-					"AUTHOR_ID" => $userId,
-					"SHARE_DEST" => implode(",", $newRights).($mention ? '|mention' : ''),
-				);
-
-				$userIdSent = array();
-
-				if($commentId = \CBlogComment::add($commentFields, false))
-				{
-					BXClearCache(true, "/blog/comment/".intval($postId / 100)."/".$postId."/");
-
-					if($post["AUTHOR_ID"] != $userId)
+					elseif ($type == "U")
 					{
-						$fieldsIM = array(
-							"TYPE" => "SHARE",
-							"TITLE" => htmlspecialcharsback($post["TITLE"]),
-							"URL" => \CComponentEngine::makePathFromTemplate(
-								htmlspecialcharsBack($params["PATH_TO_POST"]),
-								array(
-									"post_id" => $postId,
-									"user_id" => $post["AUTHOR_ID"]
-								)
-							),
-							"ID" => $postId,
-							"FROM_USER_ID" => $userId,
-							"TO_USER_ID" => array($post["AUTHOR_ID"]),
-						);
-						\CBlogPost::notifyIm($fieldsIM);
-						$userIdSent[] = array_merge($userIdSent, $fieldsIM["TO_USER_ID"]);
-					}
+						if (
+							in_array("US".$vv["ENTITY_ID"], $vv["ENTITY"])
+							&& in_array("UA", $newRights)
+						)
+						{
+							$renderParts = new Livefeed\RenderParts\User();
+							$renderData = $renderParts->getData(0);
 
-					if(!empty($user2NotifyList))
-					{
-						$fieldsIM = array(
-							"TYPE" => "SHARE2USERS",
-							"TITLE" => htmlspecialcharsback($post["TITLE"]),
-							"URL" => \CComponentEngine::makePathFromTemplate(
-								htmlspecialcharsBack($params["PATH_TO_POST"]),
-								array(
-									"post_id" => $postId,
-									"user_id" => $post["AUTHOR_ID"]
-								)),
-							"ID" => $postId,
-							"FROM_USER_ID" => $userId,
-							"TO_USER_ID" => $user2NotifyList,
-						);
-						\CBlogPost::notifyIm($fieldsIM);
-						$userIdSent[] = array_merge($userIdSent, $fieldsIM["TO_USER_ID"]);
+							$auxLiveParamList[] = array(
+								"ENTITY_TYPE" => 'UA',
+								"ENTITY_ID" => 'UA',
+								"NAME" => $renderData['name'],
+								"LINK" => $renderData['link'],
+								"VISIBILITY" => 'all'
+							);
+						}
+						elseif(in_array($type.$vv["ENTITY_ID"], $newRights))
+						{
+							$renderParts = new Livefeed\RenderParts\User();
+							$renderData = $renderParts->getData($vv["ENTITY_ID"]);
 
-						\CBlogPost::notifyMail(array(
-							"type" => "POST_SHARE",
-							"siteId" => $siteId,
-							"userId" => $user2NotifyList,
-							"authorId" => $userId,
-							"postId" => $post["ID"],
-							"postUrl" => \CComponentEngine::makePathFromTemplate(
-								'/pub/post.php?post_id=#post_id#',
-								array(
-									"post_id"=> $post["ID"]
-								)
+							$user2NotifyList[] = $vv["ENTITY_ID"];
+
+							if (
+								$extranet
+								&& is_array($intranetUserIdList)
+								&& !in_array($vv["ENTITY_ID"], $intranetUserIdList)
 							)
-						));
-					}
-				}
+							{
+								$logSiteListNew[] = $extranetSite;
+								$visibility = 'extranet';
+							}
+							else
+							{
+								$visibility = 'intranet';
+							}
 
-				$blogPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
-
-				/* update socnet log rights*/
-				$res = \CSocNetLog::getList(
-					array("ID" => "DESC"),
-					array(
-						"EVENT_ID" => $blogPostLivefeedProvider->getEventId(),
-						"SOURCE_ID" => $postId
-					),
-					false,
-					false,
-					array("ID", "ENTITY_TYPE", "ENTITY_ID", "USER_ID", "EVENT_ID")
-				);
-				if ($logEntry = $res->fetch())
-				{
-					$logId = $logEntry["ID"];
-					$logSiteList = array();
-					$res = \CSocNetLog::getSite($logId);
-					while ($logSite = $res->fetch())
-					{
-						$logSiteList[] = $logSite["LID"];
-					}
-					$logSiteListNew = array_merge($logSiteListNew, $logSiteList);
-
-					$socnetPerms = self::getBlogPostSocNetPerms(array(
-						'postId' => $postId,
-						'authorId' => $post["AUTHOR_ID"]
-					));
-
-					\CSocNetLogRights::deleteByLogID($logId);
-					\CSocNetLogRights::add($logId, $socnetPerms, true, false);
-
-					foreach($newRights as $GROUP_CODE)
-					{
-						if (preg_match('/^U(\d+)$/', $GROUP_CODE, $matches))
-						{
-							\CSocNetLogFollow::set($matches[1], "L".$logId, "Y", convertTimeStamp(time() + $tzOffset, "FULL", $siteId));
+							$auxLiveParamList[] = array(
+								"ENTITY_TYPE" => 'U',
+								"ENTITY_ID" => $renderData['id'],
+								"NAME" => $renderData['name'],
+								"LINK" => $renderData['link'],
+								"VISIBILITY" => $visibility
+							);
 						}
 					}
-
-					if (count(array_diff($logSiteListNew, $logSiteList)) > 0)
+					elseif (
+						$type == "DR"
+						&& in_array($type.$vv["ENTITY_ID"], $newRights)
+					)
 					{
-						\CSocNetLog::update($logId, array(
-							"ENTITY_TYPE" => $logEntry["ENTITY_TYPE"], // to use any real field
-							"SITE_ID" => $logSiteListNew
-						));
-					}
+						$renderParts = new Livefeed\RenderParts\Department();
+						$renderData = $renderParts->getData($vv["ENTITY_ID"]);
 
-					if ($commentId > 0)
-					{
-						$connection = \Bitrix\Main\Application::getConnection();
-						$helper = $connection->getSqlHelper();
-
-						$logCommentFields = array(
-							'ENTITY_TYPE' => SONET_ENTITY_USER,
-							'ENTITY_ID' => $post["AUTHOR_ID"],
-							'EVENT_ID' => 'blog_comment',
-							'=LOG_DATE' => $helper->getCurrentDateTimeFunction(),
-							'LOG_ID' => $logId,
-							'USER_ID' => $userId,
-							'MESSAGE' => $auxText,
-							"TEXT_MESSAGE" => $auxText,
-							'MODULE_ID' => false,
-							'SOURCE_ID' => $commentId,
-							'RATING_TYPE_ID' => 'BLOG_COMMENT',
-							'RATING_ENTITY_ID' => $commentId
+						$auxLiveParamList[] = array(
+							"ENTITY_TYPE" => 'DR',
+							"ENTITY_ID" => $renderData['id'],
+							"NAME" => $renderData['name'],
+							"LINK" => $renderData['link'],
+							"VISIBILITY" => 'intranet'
 						);
-
-						\CSocNetLogComments::add($logCommentFields, false, false);
 					}
-
-					\CSocNetLogFollow::deleteByLogID($logId, "Y", true);
-
-					/* subscribe share author */
-					\CSocNetLogFollow::set(
-						$userId,
-						"L".$logId,
-						"Y",
-						convertTimeStamp(time() + $tzOffset, "FULL")
-					);
 				}
+			}
 
-				/* update socnet groupd activity*/
-				foreach($newRights as $v)
+			$userIP = \CBlogUser::getUserIP();
+			$auxText = CommentAux\Share::getPostText();
+			$mention = (
+				isset($params["MENTION"])
+				&& $params["MENTION"] == "Y"
+			);
+
+			$commentFields = Array(
+				"POST_ID" => $postId,
+				"BLOG_ID" => $blogId,
+				"POST_TEXT" => $auxText,
+				"DATE_CREATE" => convertTimeStamp(time() + $tzOffset, "FULL"),
+				"AUTHOR_IP" => $userIP[0],
+				"AUTHOR_IP1" => $userIP[1],
+				"PARENT_ID" => false,
+				"AUTHOR_ID" => $userId,
+				"SHARE_DEST" => implode(",", $newRights).($mention ? '|mention' : ''),
+			);
+
+			$userIdSent = array();
+
+			if($commentId = \CBlogComment::add($commentFields, false))
+			{
+				BXClearCache(true, self::getBlogPostCacheDir(array(
+					'TYPE' => 'post_comments',
+					'POST_ID' => $postId
+				)));
+
+				if($post["AUTHOR_ID"] != $userId)
 				{
-					if(substr($v, 0, 2) == "SG")
+					$fieldsIM = array(
+						"TYPE" => "SHARE",
+						"TITLE" => htmlspecialcharsback($post["TITLE"]),
+						"URL" => \CComponentEngine::makePathFromTemplate(
+							htmlspecialcharsBack($params["PATH_TO_POST"]),
+							array(
+								"post_id" => $postId,
+								"user_id" => $post["AUTHOR_ID"]
+							)
+						),
+						"ID" => $postId,
+						"FROM_USER_ID" => $userId,
+						"TO_USER_ID" => array($post["AUTHOR_ID"]),
+					);
+					\CBlogPost::notifyIm($fieldsIM);
+					$userIdSent[] = array_merge($userIdSent, $fieldsIM["TO_USER_ID"]);
+				}
+
+				if(!empty($user2NotifyList))
+				{
+					$fieldsIM = array(
+						"TYPE" => "SHARE2USERS",
+						"TITLE" => htmlspecialcharsback($post["TITLE"]),
+						"URL" => \CComponentEngine::makePathFromTemplate(
+							htmlspecialcharsBack($params["PATH_TO_POST"]),
+							array(
+								"post_id" => $postId,
+								"user_id" => $post["AUTHOR_ID"]
+							)),
+						"ID" => $postId,
+						"FROM_USER_ID" => $userId,
+						"TO_USER_ID" => $user2NotifyList,
+					);
+					\CBlogPost::notifyIm($fieldsIM);
+					$userIdSent[] = array_merge($userIdSent, $fieldsIM["TO_USER_ID"]);
+
+					\CBlogPost::notifyMail(array(
+						"type" => "POST_SHARE",
+						"siteId" => $siteId,
+						"userId" => $user2NotifyList,
+						"authorId" => $userId,
+						"postId" => $post["ID"],
+						"postUrl" => \CComponentEngine::makePathFromTemplate(
+							'/pub/post.php?post_id=#post_id#',
+							array(
+								"post_id"=> $post["ID"]
+							)
+						)
+					));
+				}
+			}
+
+			$blogPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
+
+			/* update socnet log rights*/
+			$res = \CSocNetLog::getList(
+				array("ID" => "DESC"),
+				array(
+					"EVENT_ID" => $blogPostLivefeedProvider->getEventId(),
+					"SOURCE_ID" => $postId
+				),
+				false,
+				false,
+				array("ID", "ENTITY_TYPE", "ENTITY_ID", "USER_ID", "EVENT_ID")
+			);
+			if ($logEntry = $res->fetch())
+			{
+				$logId = $logEntry["ID"];
+				$logSiteList = array();
+				$res = \CSocNetLog::getSite($logId);
+				while ($logSite = $res->fetch())
+				{
+					$logSiteList[] = $logSite["LID"];
+				}
+				$logSiteListNew = array_merge($logSiteListNew, $logSiteList);
+
+				$socnetPerms = self::getBlogPostSocNetPerms(array(
+					'postId' => $postId,
+					'authorId' => $post["AUTHOR_ID"]
+				));
+
+				\CSocNetLogRights::deleteByLogID($logId);
+				\CSocNetLogRights::add($logId, $socnetPerms, true, false);
+
+				foreach($newRights as $GROUP_CODE)
+				{
+					if (preg_match('/^U(\d+)$/', $GROUP_CODE, $matches))
 					{
-						$groupId = intval(substr($v, 2));
-						if($groupId > 0)
-						{
-							\CSocNetGroup::setLastActivity($groupId);
-						}
+						\CSocNetLogFollow::set($matches[1], "L".$logId, "Y", convertTimeStamp(time() + $tzOffset, "FULL", $siteId));
 					}
 				}
 
-				\Bitrix\Blog\Broadcast::send(array(
-					"EMAIL_FROM" => \COption::getOptionString("main","email_from", "nobody@nobody.com"),
-					"SOCNET_RIGHTS" => $newRights,
-					"ENTITY_TYPE" => "POST",
-					"ENTITY_ID" => $post["ID"],
-					"AUTHOR_ID" => $post["AUTHOR_ID"],
-					"URL" => \CComponentEngine::makePathFromTemplate(
+				if (count(array_diff($logSiteListNew, $logSiteList)) > 0)
+				{
+					\CSocNetLog::update($logId, array(
+						"ENTITY_TYPE" => $logEntry["ENTITY_TYPE"], // to use any real field
+						"SITE_ID" => $logSiteListNew
+					));
+				}
+
+				if ($commentId > 0)
+				{
+					$connection = \Bitrix\Main\Application::getConnection();
+					$helper = $connection->getSqlHelper();
+
+					$logCommentFields = array(
+						'ENTITY_TYPE' => SONET_ENTITY_USER,
+						'ENTITY_ID' => $post["AUTHOR_ID"],
+						'EVENT_ID' => 'blog_comment',
+						'=LOG_DATE' => $helper->getCurrentDateTimeFunction(),
+						'LOG_ID' => $logId,
+						'USER_ID' => $userId,
+						'MESSAGE' => $auxText,
+						"TEXT_MESSAGE" => $auxText,
+						'MODULE_ID' => false,
+						'SOURCE_ID' => $commentId,
+						'RATING_TYPE_ID' => 'BLOG_COMMENT',
+						'RATING_ENTITY_ID' => $commentId
+					);
+
+					\CSocNetLogComments::add($logCommentFields, false, false);
+				}
+
+				\CSocNetLogFollow::deleteByLogID($logId, "Y", true);
+
+				/* subscribe share author */
+				\CSocNetLogFollow::set(
+					$userId,
+					"L".$logId,
+					"Y",
+					convertTimeStamp(time() + $tzOffset, "FULL")
+				);
+			}
+
+			/* update socnet groupd activity*/
+			foreach($newRights as $v)
+			{
+				if(substr($v, 0, 2) == "SG")
+				{
+					$groupId = intval(substr($v, 2));
+					if($groupId > 0)
+					{
+						\CSocNetGroup::setLastActivity($groupId);
+					}
+				}
+			}
+
+			\Bitrix\Blog\Broadcast::send(array(
+				"EMAIL_FROM" => \COption::getOptionString("main","email_from", "nobody@nobody.com"),
+				"SOCNET_RIGHTS" => $newRights,
+				"ENTITY_TYPE" => "POST",
+				"ENTITY_ID" => $post["ID"],
+				"AUTHOR_ID" => $post["AUTHOR_ID"],
+				"URL" => \CComponentEngine::makePathFromTemplate(
+					htmlspecialcharsBack($params["PATH_TO_POST"]),
+					array(
+						"post_id" => $post["ID"],
+						"user_id" => $post["AUTHOR_ID"]
+					)
+				),
+				"EXCLUDE_USERS" => $userIdSent
+			));
+
+			\Bitrix\Main\FinderDestTable::merge(array(
+				"CONTEXT" => "blog_post",
+				"CODE" => \Bitrix\Main\FinderDestTable::convertRights($newRights)
+			));
+
+			if (\Bitrix\Main\Loader::includeModule('crm'))
+			{
+				\CCrmLiveFeedComponent::processCrmBlogPostRights($logId, $logEntry, $post, 'share');
+			}
+
+			if (
+				intval($commentId) > 0
+				&& (
+					!isset($params["LIVE"])
+					|| $params["LIVE"] != "N"
+				)
+			)
+			{
+				$provider = \Bitrix\Socialnetwork\CommentAux\Base::init(\Bitrix\Socialnetwork\CommentAux\Share::getType(), array(
+					'liveParamList' => $auxLiveParamList
+				));
+
+				\CBlogComment::addLiveComment($commentId, array(
+					"PATH_TO_USER" => $params["PATH_TO_USER"],
+					"PATH_TO_POST" => \CComponentEngine::makePathFromTemplate(
 						htmlspecialcharsBack($params["PATH_TO_POST"]),
 						array(
 							"post_id" => $post["ID"],
 							"user_id" => $post["AUTHOR_ID"]
 						)
 					),
-					"EXCLUDE_USERS" => $userIdSent
+					"LOG_ID" => ($logId ? intval($logId) : 0),
+					"AUX" => 'share',
+					"AUX_LIVE_PARAMS" => $provider->getLiveParams(),
+					"CAN_USER_COMMENT" => (!empty($params["CAN_USER_COMMENT"]) && $params["CAN_USER_COMMENT"] == 'Y' ? 'Y' : 'N')
 				));
-
-				\Bitrix\Main\FinderDestTable::merge(array(
-					"CONTEXT" => "blog_post",
-					"CODE" => \Bitrix\Main\FinderDestTable::convertRights($newRights)
-				));
-
-				if (\Bitrix\Main\Loader::includeModule('crm'))
-				{
-					\CCrmLiveFeedComponent::processCrmBlogPostRights($logId, $logEntry, $post, 'share');
-				}
-
-				if (
-					intval($commentId) > 0
-					&& (
-						!isset($params["LIVE"])
-						|| $params["LIVE"] != "N"
-					)
-				)
-				{
-					$provider = \Bitrix\Socialnetwork\CommentAux\Base::init(\Bitrix\Socialnetwork\CommentAux\Share::getType(), array(
-						'liveParamList' => $auxLiveParamList
-					));
-
-					\CBlogComment::addLiveComment($commentId, array(
-						"PATH_TO_USER" => $params["PATH_TO_USER"],
-						"LOG_ID" => ($logId ? intval($logId) : 0),
-						"AUX" => 'share',
-						"AUX_LIVE_PARAMS" => $provider->getLiveParams()
-					));
-				}
 			}
 		}
 
@@ -1921,7 +1934,7 @@ class ComponentHelper
 
 		if ($logId > 0)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Application::getConnection();
 			$helper = $connection->getSqlHelper();
 
 			$logCommentFields = array(
@@ -2538,6 +2551,7 @@ class ComponentHelper
 				"SOURCE_ID" => $logEntry["SOURCE_ID"],
 				"USER_ID" => $comment["USER_ID"]
 			));
+
 			$res = $APPLICATION->includeComponent(
 				"bitrix:main.post.list",
 				"",
@@ -2548,6 +2562,7 @@ class ComponentHelper
 					"RECORDS" => array(
 						$listCommentId => array(
 							"ID" => $listCommentId,
+							"RATING_VOTE_ID" => $comment["RATING_TYPE_ID"].'_'.$listCommentId.'-'.(time()+rand(0, 1000)),
 							"NEW" => "Y",
 							"APPROVED" => "Y",
 							"POST_TIMESTAMP" => $result["timestamp"],
@@ -2662,7 +2677,7 @@ class ComponentHelper
 				);
 
 				$userName = \CUser::formatName(
-					empty($arParams["NAME_TEMPLATE"]) ? $nameFormat : $componentParams["NAME_TEMPLATE"],
+					empty($componentParams["NAME_TEMPLATE"]) ? $nameFormat : $componentParams["NAME_TEMPLATE"],
 					array(
 						'NAME' => $name,
 						'LAST_NAME' => $lastName,
@@ -3218,9 +3233,12 @@ class ComponentHelper
 				$notificationParamsList["mentionList"] = $matches[1];
 			}
 
-			\Bitrix\Socialnetwork\ComponentHelper::notifyBlogPostCreated($notificationParamsList);
+			self::notifyBlogPostCreated($notificationParamsList);
 
-			BXClearCache(true, "/blog/socnet_post/".intval($postId / 100)."/".$postId."/");
+			BXClearCache(true, self::getBlogPostCacheDir(array(
+				'TYPE' => 'post',
+				'POST_ID' => $postId
+			)));
 		}
 
 		$result = true;
@@ -3492,5 +3510,598 @@ class ComponentHelper
 		}
 
 		return Option::get('socialnetwork', 'workgroups_page', $siteDir.'workgroups/', $siteId);
+	}
+
+	public static function convertBlogPostPermToDestinationList($params = array(), &$resultFields)
+	{
+		$result = array();
+
+		if (!Loader::includeModule('blog'))
+		{
+			return $result;
+		}
+
+		$postId = (
+			isset($params['POST_ID'])
+			&& intval($params['POST_ID']) > 0
+				? intval($params['POST_ID'])
+				: false
+		);
+
+		$postFields = array();
+
+		if ($postId)
+		{
+			$postFields = \Bitrix\Blog\Item\Post::getById($postId)->getFields();
+		}
+
+		$authorId = (
+			!$postId
+			&& isset($params['AUTHOR_ID'])
+			&& intval($params['AUTHOR_ID']) > 0
+				? intval($params['AUTHOR_ID'])
+				: $postFields['AUTHOR_ID']
+		);
+
+		$extranetUser = (
+			isset($params['IS_EXTRANET_USER'])
+				? $params['IS_EXTRANET_USER']
+				: (Loader::includeModule("extranet") && !\CExtranet::isIntranetUser())
+		);
+
+		$siteId = (
+			!empty($params['SITE_ID'])
+				? $params['SITE_ID']
+				: SITE_ID
+		);
+
+		$socNetPermsListOld = array();
+
+		if ($postId > 0)
+		{
+			$socNetPermsListOld = \CBlogPost::getSocNetPerms($postId);
+		}
+
+		$authorInDest = (
+			!empty($postFields)
+			&& !empty($postFields['AUTHOR_ID'])
+			&& !empty($socNetPermsListOld)
+			&& !empty($socNetPermsListOld['U'])
+			&& isset($socNetPermsListOld['U'][$postFields['AUTHOR_ID']])
+			&& in_array('U'.$postFields['AUTHOR_ID'], $socNetPermsListOld['U'][$postFields['AUTHOR_ID']])
+		);
+
+		$permList = (
+			isset($params['PERM'])
+			&& is_array($params['PERM'])
+				? $params['PERM']
+				: array()
+		);
+
+		$allowToAll = self::getAllowToAllDestination();
+
+		if(
+			empty($permList)
+			&& isset($params["IS_REST"])
+			&& $params["IS_REST"]
+			&& $allowToAll
+		)
+		{
+			$permList = array("UA" => array("UA"));
+		}
+
+		foreach ($permList as $v => $k)
+		{
+			if (
+				strlen($v) > 0
+				&& is_array($k)
+				&& !empty($k)
+			)
+			{
+				foreach ($k as $vv)
+				{
+					if (
+						strlen($vv) > 0
+						&& (
+							empty($postFields['AUTHOR_ID'])
+							|| $vv != 'U'.$postFields['AUTHOR_ID']
+							|| $authorInDest
+						)
+					)
+					{
+						$result[] = $vv;
+					}
+				}
+			}
+		}
+
+		$result = self::checkBlogPostDestinationList(array(
+			'DEST' => $result,
+			'SITE_ID' => $siteId,
+			'AUTHOR_ID' => $authorId,
+			'IS_EXTRANET_USER' => $extranetUser,
+			'POST_ID' => $postId
+		), $resultFields);
+
+		return $result;
+	}
+
+	public static function checkBlogPostDestinationList($params = array(), &$resultFields)
+	{
+		$destinationList = (
+			isset($params["DEST"])
+			&& is_array($params["DEST"])
+				? $params["DEST"]
+				: array()
+		);
+
+		$siteId = (
+			!empty($params['SITE_ID'])
+				? $params['SITE_ID']
+				: SITE_ID
+		);
+
+		$authorId = (
+			isset($params['AUTHOR_ID'])
+			&& intval($params['AUTHOR_ID']) > 0
+				? intval($params['AUTHOR_ID'])
+				: false
+		);
+
+		if (!$authorId)
+		{
+			return false;
+		}
+
+		$extranetUser = (
+			isset($params['IS_EXTRANET_USER'])
+				? $params['IS_EXTRANET_USER']
+				: (Loader::includeModule("extranet") && !\CExtranet::isIntranetUser())
+		);
+
+		$postId = (
+			isset($params['POST_ID'])
+			&& intval($params['POST_ID']) > 0
+				? intval($params['POST_ID'])
+				: false
+		);
+
+		$postFields = $oldSonetGroupIdList = array();
+
+		if ($postId)
+		{
+			$socNetPermsListOld = \CBlogPost::getSocNetPerms($postId);
+			$postFields = \Bitrix\Blog\Item\Post::getById($postId)->getFields();
+			if (!empty($socNetPermsListOld['SG']))
+			{
+				$oldSonetGroupIdList = array_keys($socNetPermsListOld['SG']);
+			}
+		}
+
+		$userAdmin = \CSocNetUser::isUserModuleAdmin($authorId, $siteId);
+		$allowToAll = self::getAllowToAllDestination();
+
+		$newSonetGroupIdList = array();
+		foreach($destinationList as $code)
+		{
+			if (preg_match('/^SG(\d+)/i', $code, $matches))
+			{
+				$newSonetGroupIdList[] = $matches[1];
+			}
+		}
+
+		if (!empty($newSonetGroupIdList))
+		{
+			$oneSG = false;
+			$firstSG = true;
+
+			$canPublish = true;
+
+			foreach($newSonetGroupIdList as $groupId)
+			{
+				if (
+					!empty($postFields)
+					&& $postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+					&& in_array($groupId, $oldSonetGroupIdList)
+				)
+				{
+					continue;
+				}
+
+				$canPublish = (
+					$canPublish
+					&& (
+						$userAdmin
+						|| \CSocNetFeaturesPerms::canPerformOperation($authorId, SONET_ENTITY_GROUP, $groupId, "blog", "write_post")
+						|| \CSocNetFeaturesPerms::canPerformOperation($authorId, SONET_ENTITY_GROUP, $groupId, "blog", "moderate_post")
+						|| \CSocNetFeaturesPerms::canPerformOperation($authorId, SONET_ENTITY_GROUP, $groupId, "blog", "full_post")
+					)
+				);
+
+				if($firstSG)
+				{
+					$oneSG = true;
+					$firstSG = false;
+				}
+				else
+				{
+					$oneSG = false;
+				}
+			}
+
+			if (!$canPublish)
+			{
+				if ($oneSG)
+				{
+					if (
+						!$postId
+						|| (
+							!empty($postFields)
+							&& $postFields["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
+						)
+					)
+					{
+						$resultFields["PUBLISH_STATUS"] = BLOG_PUBLISH_STATUS_READY;
+					}
+					else
+					{
+						$resultFields["ERROR_MESSAGE"] = Loc::getMessage("SBPE_EXISTING_POST_PREMODERATION");
+					}
+				}
+				else
+				{
+					$resultFields["ERROR_MESSAGE"] = Loc::getMessage("SBPE_MULTIPLE_PREMODERATION");
+				}
+			}
+		}
+
+		if (
+			in_array("UA", $destinationList)
+			&& !$allowToAll
+		)
+		{
+			foreach ($destinationList as $key => $value)
+			{
+				if ($destinationList == "UA")
+				{
+					unset($destinationList[$key]);
+					break;
+				}
+			}
+		}
+
+		if ($extranetUser)
+		{
+			if (
+				empty($destinationList)
+				|| in_array("UA", $destinationList)
+			)
+			{
+				$resultFields["ERROR_MESSAGE"] .= Loc::getMessage("BLOG_BPE_EXTRANET_ERROR");
+			}
+		}
+		elseif (empty($destinationList))
+		{
+			$resultFields["ERROR_MESSAGE"] .= Loc::getMessage("BLOG_BPE_DESTINATION_EMPTY");
+		}
+
+		return $destinationList;
+	}
+
+	public static function getBlogPostCacheDir($params = array())
+	{
+		static $allowedTypes = array(
+			'post_general',
+			'post',
+			'posts_popular',
+			'post_comments',
+			'posts_last',
+			'posts_last_blog'
+		);
+
+		$result = false;
+
+		if (!is_array($params))
+		{
+			return $result;
+		}
+
+		$type = (
+			isset($params['TYPE'])
+				? $params['TYPE']
+				: false
+		);
+
+		if (
+			!$type
+			|| !in_array($type, $allowedTypes)
+		)
+		{
+			return $result;
+		}
+
+		$postId = (
+			isset($params['POST_ID'])
+			&& intval($params['POST_ID']) > 0
+				? intval($params['POST_ID'])
+				: false
+		);
+
+		if (
+			!$postId
+			&& in_array($type, array('post_general', 'post', 'post_comments'))
+		)
+		{
+			return $result;
+		}
+
+		$siteId = (
+			isset($params['SITE_ID'])
+				? $params['SITE_ID']
+				: SITE_ID
+		);
+
+		switch($type)
+		{
+			case 'post':
+				$result = "/blog/socnet_post/".intval($postId / 100)."/".$postId."/";
+				break;
+			case 'post_general':
+				$result = "/blog/socnet_post/gen/".intval($postId / 100)."/".$postId;
+				break;
+			case 'posts_popular':
+				$result = "/".$siteId."/blog/popular_posts/";
+				break;
+			case 'posts_last':
+				$result = "/".$siteId."/blog/last_messages_list/";
+				break;
+			case 'posts_last_blog':
+				$result = "/".$siteId."/blog/last_messages/";
+				break;
+			case 'post_comments':
+				$result = "/blog/comment/".intval($postId / 100)."/".$postId."/";
+				break;
+			default:
+				$result = false;
+		}
+
+		return $result;
+	}
+
+	public static function getLivefeedRatingData($params = array())
+	{
+		global $USER;
+
+		$result = array();
+
+		$logIdList = (
+			!empty($params['logId'])
+				? $params['logId']
+				: array()
+		);
+
+		if (!is_array($logIdList))
+		{
+			$logIdList = array($logIdList);
+		}
+
+		if (empty($logIdList))
+		{
+			return $result;
+		}
+
+		$ratingId = \CRatings::getAuthorityRating();
+		if (intval($ratingId) <= 0)
+		{
+			return $result;
+		}
+
+		$topCount = (
+			isset($params['topCount'])
+				? intval($params['topCount'])
+				: 0
+		);
+
+		if ($topCount <= 0)
+		{
+			$topCount = 2;
+		}
+
+		if ($topCount > 5)
+		{
+			$topCount = 5;
+		}
+
+		$avatarSize = (
+			isset($params['avatarSize'])
+				? intval($params['avatarSize'])
+				: 100
+		);
+
+		$connection = Application::getConnection();
+		$connection->queryExecute('SET @user_rank = 0');
+		$connection->queryExecute('SET @current_log_id = 0');
+
+		if (ModuleManager::isModuleInstalled('intranet'))
+		{
+			$res = $connection->query('SELECT
+			@user_rank := IF(
+				@current_log_id = tmp.LOG_ID,
+				@user_rank + 1,
+				1
+			) as USER_RANK,
+			@current_log_id := tmp.LOG_ID,
+			tmp.USER_ID as USER_ID,
+			tmp.LOG_ID as LOG_ID,
+			tmp.WEIGHT as WEIGHT
+		FROM (
+			SELECT
+				@rownum := @rownum + 1 as ROWNUM,
+				RS1.ENTITY_ID as USER_ID,
+				SL.ID as LOG_ID,
+				MAX(RS1.VOTES) as WEIGHT
+			FROM
+				b_rating_subordinate RS1,
+				b_rating_vote RV1
+			INNER JOIN b_sonet_log SL
+				ON SL.RATING_TYPE_ID = RV1.ENTITY_TYPE_ID
+				AND SL.RATING_ENTITY_ID = RV1.ENTITY_ID
+				AND SL.ID IN ('.implode(',', $logIdList).')
+			WHERE
+				RS1.ENTITY_ID = RV1.USER_ID
+				AND RS1.RATING_ID = '.intval($ratingId).'
+			GROUP BY
+				SL.ID, RS1.ENTITY_ID
+			ORDER BY
+				SL.ID,
+				WEIGHT DESC
+		) tmp');
+		}
+		else
+		{
+			$res = $connection->query('SELECT
+			@user_rank := IF(
+				@current_log_id = tmp.LOG_ID,
+				@user_rank + 1,
+				1
+			) as USER_RANK,
+			@current_log_id := tmp.LOG_ID,
+			tmp.USER_ID as USER_ID,
+			tmp.LOG_ID as LOG_ID,
+			tmp.WEIGHT as WEIGHT
+		FROM (
+			SELECT
+				@rownum := @rownum + 1 as ROWNUM,
+				RV1.USER_ID as USER_ID,
+				SL.ID as LOG_ID,
+				RV1.VALUE as WEIGHT
+			FROM
+				b_rating_vote RV1
+			INNER JOIN b_sonet_log SL
+				ON SL.RATING_TYPE_ID = RV1.ENTITY_TYPE_ID
+				AND SL.RATING_ENTITY_ID = RV1.ENTITY_ID
+				AND SL.ID IN ('.implode(',', $logIdList).')
+			ORDER BY
+				SL.ID,
+				WEIGHT DESC
+		) tmp');
+		}
+
+		$userWeightData = $logUserData = array();
+
+		$currentLogId = false;
+		$hasMine = false;
+
+		while ($voteFields = $res->fetch())
+		{
+			if (
+				!$hasMine
+				&& $voteFields['USER_ID'] == $USER->getId()
+			)
+			{
+				$hasMine = true;
+			}
+
+			if ($voteFields['LOG_ID'] != $currentLogId)
+			{
+				$cnt = 0;
+				$hasMine = false;
+				$logUserData[$voteFields['LOG_ID']] = array();
+			}
+
+			$currentLogId = $voteFields['LOG_ID'];
+
+			$cnt++;
+
+
+			if ($cnt > ($hasMine ? $topCount+1 : $topCount))
+			{
+				continue;
+			}
+
+			$logUserData[$voteFields['LOG_ID']][] = $voteFields['USER_ID'];
+			if (!isset($userWeightData[$voteFields['USER_ID']]))
+			{
+				$userWeightData[$voteFields['USER_ID']] = floatval($voteFields['WEIGHT']);
+			}
+		}
+
+		$userData = array();
+
+		if (!empty($userWeightData))
+		{
+			$res = Main\UserTable::getList(array(
+				'filter' => array(
+					'@ID' => array_keys($userWeightData)
+				),
+				'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'PERSONAL_PHOTO', 'PERSONAL_GENDER')
+			));
+
+			while ($userFields = $res->fetch())
+			{
+				$userData[$userFields["ID"]] = array(
+					'NAME_FORMATTED' => \CUser::formatName(
+						\CSite::getNameFormat(false),
+						$userFields,
+						true
+					),
+					'PERSONAL_PHOTO' => array(
+						'ID' => $userFields['PERSONAL_PHOTO'],
+						'SRC' => false
+					),
+					'PERSONAL_GENDER' => $userFields['PERSONAL_GENDER']
+				);
+
+				if (intval($userFields['PERSONAL_PHOTO']) > 0)
+				{
+					$imageFile = \CFile::getFileArray($userFields["PERSONAL_PHOTO"]);
+					if ($imageFile !== false)
+					{
+						$file = \CFile::resizeImageGet(
+							$imageFile,
+							array("width" => $avatarSize, "height" => $avatarSize),
+							BX_RESIZE_IMAGE_EXACT,
+							false
+						);
+						$userData[$userFields["ID"]]['PERSONAL_PHOTO']['SRC'] = $file['src'];
+					}
+				}
+			}
+		}
+
+		foreach($logUserData as $logId => $userIdList)
+		{
+			$result[$logId] = array();
+
+			foreach($userIdList as $userId)
+			{
+				$result[$logId][] = array(
+					'ID' => $userId,
+					'NAME_FORMATTED' => $userData[$userId]['NAME_FORMATTED'],
+					'PERSONAL_PHOTO' => $userData[$userId]['PERSONAL_PHOTO']['ID'],
+					'PERSONAL_PHOTO_SRC' => $userData[$userId]['PERSONAL_PHOTO']['SRC'],
+					'PERSONAL_GENDER' => $userData[$userId]['PERSONAL_GENDER'],
+					'WEIGHT' => $userWeightData[$userId]
+				);
+			}
+		}
+
+		foreach($result as $logId => $data)
+		{
+			usort(
+				$data,
+				function($a, $b)
+				{
+					if ($a['WEIGHT'] == $b['WEIGHT'])
+					{
+						return 0;
+					}
+					return ($a['WEIGHT'] > $b['WEIGHT']) ? -1 : 1;
+				}
+			);
+			$result[$logId] = $data;
+		}
+
+		return $result;
 	}
 }

@@ -12,7 +12,6 @@ $arActivityDescription = array(
 	),
 	'ROBOT_SETTINGS' => array(
 		'TITLE' => GetMessage('BPSFA_DESCR_ROBOT_TITLE'),
-		'CATEGORY' => 'employee',
-		'IS_AUTO' => true
+		'CATEGORY' => 'employee'
 	)
 );

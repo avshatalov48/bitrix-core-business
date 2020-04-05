@@ -2412,7 +2412,10 @@ $tabControl->BeginNextTab();
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_COMPRESSION")?>:&nbsp;<input
+					<?echo GetMessage(
+							"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
+							array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+						)?>:&nbsp;<input
 						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
 						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
@@ -2726,7 +2729,10 @@ $tabControl->BeginNextTab();
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_COMPRESSION")?>:&nbsp;<input
+					<?echo GetMessage(
+						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
+						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+					)?>:&nbsp;<input
 						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
 						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
@@ -3474,7 +3480,10 @@ $tabControl->BeginNextTab();
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_COMPRESSION")?>:&nbsp;<input
+					<?echo GetMessage(
+						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
+						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+					)?>:&nbsp;<input
 						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
 						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
@@ -3788,7 +3797,10 @@ $tabControl->BeginNextTab();
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_COMPRESSION")?>:&nbsp;<input
+					<?echo GetMessage(
+						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
+						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+					)?>:&nbsp;<input
 						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
 						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"

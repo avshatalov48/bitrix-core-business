@@ -61,7 +61,7 @@ class Helper
 		return '';
 	}
 
-	protected static function getMinTokenSize()
+	public static function getMinTokenSize()
 	{
 		static $ftMinTokenSize = null;
 		if($ftMinTokenSize === null)

@@ -31,8 +31,8 @@ $io = CBXVirtualIo::GetInstance();
 
 $path = $APPLICATION->UnJSEscape(trim($_REQUEST['path']));
 $site = $_REQUEST['site'];
-
 $site = CFileMan::__CheckSite($site);
+$show_perms_for = isset($_REQUEST['show_perms_for']) ? intval($_REQUEST['show_perms_for']) : 0;
 
 if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_GET["fu_action"]) > 0 && check_bitrix_sessid())
 {

@@ -1370,67 +1370,64 @@ try
 
 	// <editor-fold defaultstate="collapsed" desc="retrieve total counts">
 	$total = array();
-	if (!$isStExport)
-	{
-		$totalSelect = $select;
-		$totalColumns = array();
+	$totalSelect = $select;
+	$totalColumns = array();
 
-		if (is_array($totalSelect) && !empty($totalSelect))
+	if (is_array($totalSelect) && !empty($totalSelect))
+	{
+		foreach ($viewColumns as $num => $view)
 		{
-			foreach ($viewColumns as $num => $view)
+			// total's fields are the same as percentable fields
+			// they are also all numerics
+			if (CReport::isColumnTotalCountable($view, $arParams['REPORT_HELPER_CLASS']))
 			{
-				// total's fields are the same as percentable fields
-				// they are also all numerics
-				if (CReport::isColumnTotalCountable($view, $arParams['REPORT_HELPER_CLASS']))
+				// exclude from select all except those
+				if (is_array($view) && isset($view['resultName']))
 				{
-					// exclude from select all except those
-					if (is_array($view) && isset($view['resultName']))
-					{
-						$totalColumns[$view['resultName']] = true;
-					}
+					$totalColumns[$view['resultName']] = true;
 				}
 			}
 		}
+	}
 
-		// save only totalCountable visible fields
-		foreach ($totalSelect as $k => $v)
+	// save only totalCountable visible fields
+	foreach ($totalSelect as $k => $v)
+	{
+		if (!array_key_exists($k, $totalColumns))
 		{
-			if (!array_key_exists($k, $totalColumns))
-			{
-				unset($totalSelect[$k]);
-			}
+			unset($totalSelect[$k]);
+		}
+	}
+
+	// add SUM aggr
+	$_totalSelect = $totalSelect;
+	$totalSelect = array();
+
+	foreach ($_totalSelect as $k => $v)
+	{
+		$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, 'SUM(%s)', $k);
+	}
+
+	if (!empty($totalSelect))
+	{
+		// source query
+		$query_from = new Entity\Query($entity);
+		$query_from->setSelect($select);
+		$query_from->setFilter($filter);
+		$query_from->setGroup($group);
+
+		foreach ($runtime as $k => $v)
+		{
+			$query_from->registerRuntimeField($k, $v);
 		}
 
-		// add SUM aggr
-		$_totalSelect = $totalSelect;
-		$totalSelect = array();
+		// total query
+		$total_query = new Entity\Query($query_from);
+		$total_query->setSelect($totalSelect);
 
-		foreach ($_totalSelect as $k => $v)
-		{
-			$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, 'SUM(%s)', $k);
-		}
-
-		if (!empty($totalSelect))
-		{
-			// source query
-			$query_from = new Entity\Query($entity);
-			$query_from->setSelect($select);
-			$query_from->setFilter($filter);
-			$query_from->setGroup($group);
-
-			foreach ($runtime as $k => $v)
-			{
-				$query_from->registerRuntimeField($k, $v);
-			}
-
-			// total query
-			$total_query = new Entity\Query($query_from);
-			$total_query->setSelect($totalSelect);
-
-			$result = $total_query->exec();
-			$total = $result->fetch();
-			$total = ($total === false) ? array() : $total;
-		}
+		$result = $total_query->exec();
+		$total = $result->fetch();
+		$total = ($total === false) ? array() : $total;
 	}
 	// </editor-fold>
 

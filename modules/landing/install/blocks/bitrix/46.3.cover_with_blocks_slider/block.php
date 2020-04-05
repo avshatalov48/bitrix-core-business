@@ -1,0 +1,68 @@
+<section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_5--after g-py-100"
+		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img21.jpg);">
+	<div class="container u-bg-overlay__inner">
+		<div class="js-carousel"
+			 data-infinite="true"
+			 data-arrows-classes="hidden-down u-arrow-v1 g-pos-abs g-absolute-centered--y--md g-top-100x g-top-50x--md g-width-50 g-height-50 g-rounded-50x g-font-size-12 g-color-white g-bg-white-opacity-0_4 g-bg-white-opacity-0_7--hover g-mt-30 g-mt-0--md"
+			 data-arrow-left-classes="fa fa-chevron-left g-left-0"
+			 data-arrow-right-classes="fa fa-chevron-right g-right-0">
+			<div class="landing-block-node-card  js-slide">
+				<!-- Testimonial Block -->
+				<div class="text-center g-max-width-600 mx-auto">
+					<img class="landing-block-node-card-photo w-100 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x315/img1.jpg"
+						 alt="">
+
+					<div class="landing-block-node-card-text-container g-bg-white g-pa-40">
+						<h4 class="landing-block-node-card-title js-animation fadeInRightBig g-font-size-30 g-font-cormorant-infant font-italic g-font-weight-700 g-mb-20">
+							Monica and Eddie</h4>
+						<div class="landing-block-node-card-subtitle text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-25">
+							March
+							15, 2017
+						</div>
+						<blockquote class="landing-block-node-card-text js-animation fadeInRightBig g-font-size-default g-color-gray-light-v1 g-mb-40">
+							<p>Curabitur eget
+								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
+								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
+								auctor urna, ac tempus orci.
+							</p>
+						</blockquote>
+						<div class="landing-block-node-card-button-container">
+							<a class="landing-block-node-card-button js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-20 g-pa-15"
+							   href="#">View Photos</a>
+						</div>
+					</div>
+				</div>
+				<!-- End Testimonial Block -->
+			</div>
+
+			<div class="landing-block-node-card js-slide">
+				<!-- Testimonial Block -->
+				<div class="text-center g-max-width-600 mx-auto">
+					<img class="landing-block-node-card-photo w-100 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x315/img2.jpg"
+						 alt="">
+
+					<div class="landing-block-node-card-text-container g-bg-white g-pa-40">
+						<h4 class="landing-block-node-card-title js-animation fadeInRight g-font-size-30 g-font-cormorant-infant font-italic g-font-weight-700 g-mb-20">
+							Sofia and Carl</h4>
+						<div class="landing-block-node-card-subtitle text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-25">
+							November
+							01, 2017
+						</div>
+						<blockquote class="landing-block-node-card-text js-animation fadeInLeft g-font-size-default g-color-gray-light-v1 g-mb-40">
+							<p>Curabitur eget
+								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
+								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
+								auctor urna, ac tempus orci.
+							</p>
+						</blockquote>
+						<div class="landing-block-node-card-button-container">
+							<a class="landing-block-node-card-button js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-20 g-pa-15"
+							   href="#">View Photos</a>
+						</div>
+					</div>
+				</div>
+				<!-- End Testimonial Block-->
+			</div>
+		</div>
+	</div>
+</section>

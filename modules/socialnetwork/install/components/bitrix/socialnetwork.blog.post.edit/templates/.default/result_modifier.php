@@ -78,3 +78,27 @@ if (
 }
 
 $arResult["SHOW_BLOG_FORM_TARGET"] = isset($arParams["SHOW_BLOG_FORM_TARGET"]) && $arParams["SHOW_BLOG_FORM_TARGET"];
+if (isset($arResult["POST_PROPERTIES"]["DATA"])
+	&& isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"])
+	&& isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+	&& $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+{
+	$postImportantTillDate = new \Bitrix\Main\Type\DateTime($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"]);
+	$postImportantTillDate = $postImportantTillDate->add("1D");
+	$arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"] = $postImportantTillDate->format(\Bitrix\Main\Type\Date::convertFormatToPhp(\CSite::GetDateFormat('SHORT')));
+}
+foreach ($arResult["REMAIN_IMPORTANT_TILL"] as $key => $attributesForPopupList)
+{
+	if ($attributesForPopupList["VALUE"] === "CUSTOM")
+	{
+		$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "js-custom-date-end";
+	}
+	else
+	{
+		$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "";
+		if ($attributesForPopupList["VALUE"] === "ALWAYS")
+		{
+			$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]['TEXT_KEY'] = $arResult["REMAIN_IMPORTANT_TILL"][$key]["TEXT_KEY"];
+		}
+	}
+}

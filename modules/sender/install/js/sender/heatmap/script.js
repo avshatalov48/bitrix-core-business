@@ -19,7 +19,7 @@
 		this.id = params.id || (Math.floor(Math.random() * (99999999 - 1000000 + 1)) + 1000000);
 
 		this.valuePercent = 0;
-		this.currentSize = 50;
+		this.currentSize = null;
 		this.position = {left: 0, top: 0, isActual: false};
 		this.node = null;
 	};
@@ -49,8 +49,8 @@
 		},
 		resize: function (size)
 		{
-			this.position.isActual = this.currentSize == size;
-			this.currentSize = size;
+			this.position.isActual = this.currentSize === size;
+			this.currentSize = size || 50;
 			this.calcPosition();
 		},
 		calcPosition: function ()

@@ -1,0 +1,24 @@
+.main-ajax-action-text {
+	display: block;
+	padding: 60px 0;
+	border-bottom: 1px solid rgba(207,213,223, .5);
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	font: 16px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	color: #535c69;
+	text-align: center;
+	min-width: 400px;
+}
+
+.main-ajax-action-confirm {
+
+}
+
+.main-ajax-action-result-success {
+	color: green;
+}
+
+.main-ajax-action-result-error {
+	color: #eb314b;
+}

@@ -9,4 +9,5 @@ $MESS ['SONET_PATH_TO_GROUP_MODS'] = "Group Moderators Page Path Template";
 $MESS ['SONET_PATH_TO_GROUP_USERS'] = "Group Members Page Path Template";
 $MESS ['SONET_GROUP_ID'] = "Group ID";
 $MESS ['SONET_ITEMS_COUNT'] = "Count of Items in List";
+$MESS ['SONET_VARIABLE_ALIASES'] = "Variable Aliases";
 ?>

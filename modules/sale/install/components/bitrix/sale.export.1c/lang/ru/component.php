@@ -79,6 +79,8 @@ $MESS["CC_BSC1_SUMM"] = "Сумма";
 $MESS["CC_BSC1_COMMENT"] = "Комментарий";
 $MESS["CC_BSC1_REK_VALUES"] = "ЗначенияРеквизитов";
 $MESS["CC_BSC1_REK_VALUE"] = "ЗначениеРеквизита";
+$MESS["SALE_EXPORT_SUBORDINATES"] = "ПодчиненныеДокументы";
+$MESS["SALE_EXPORT_SUBORDINATE"] = "ПодчиненныйДокумент";
 $MESS["CC_BSC1_NAME"] = "Наименование";
 $MESS["CC_BSC1_VALUE"] = "Значение";
 $MESS["CC_BSC1_ITEMS"] = "Товары";
@@ -151,6 +153,7 @@ $MESS["CC_BSC1_DI_DS"] = "СлужбыДоставки";
 $MESS["CC_BSC1_DI_ELEMENT"] = "Элемент";
 $MESS["CC_BSC1_DI_ID"] = "Ид";
 $MESS["CC_BSC1_DI_NAME"] = "Название";
+$MESS["CC_BSC1_DI_IS_CASH"] = "ТипОплаты";
 $MESS["CP_BCI1_CHANGE_STATUS_FROM_1C"] = "Менять статусы заказов по информации из 1С";
 $MESS["CC_BSC1_1C_STATUS_ID"] = "Статуса заказа ИД";
 ?>

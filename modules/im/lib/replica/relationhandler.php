@@ -134,10 +134,7 @@ class RelationHandler extends \Bitrix\Replica\Client\BaseHandler
 								'userId' => intval($newRecord['USER_ID']),
 								'chatMessageStatus' => ''
 							),
-							'extra' => Array(
-								'im_revision' => IM_REVISION,
-								'im_revision_mobile' => IM_REVISION_MOBILE,
-							),
+							'extra' => \Bitrix\Im\Common::getPullExtra()
 						));
 					}
 				}

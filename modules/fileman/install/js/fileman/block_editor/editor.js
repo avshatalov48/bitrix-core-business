@@ -928,7 +928,7 @@ BXBlockEditor.prototype.getContent = function(withoutPHP)
 
 	// clean resources from editor resources
 	if(doc.head)
-	for(var i = 0;  i < doc.head.childNodes.length; i++)
+	for(var i = doc.head.childNodes.length - 1;  i >= 0; i--)
 	{
 		var node = doc.head.childNodes.item(i);
 		var nodeName = node.nodeName;
@@ -946,6 +946,11 @@ BXBlockEditor.prototype.getContent = function(withoutPHP)
 				{
 					//node.removeAttribute(this.CONST_ATTR_STYLIST_TAG);
 				}
+			}
+			
+			if (node.href && node.href.indexOf('/bitrix/js/fileman/block_editor/editor.css') > -1)
+			{
+				BX.remove(node);
 			}
 		}
 	}
@@ -1003,7 +1008,7 @@ BXBlockEditor.prototype.getContent = function(withoutPHP)
 
 
 	// get html
-	result = doc.documentElement.outerHTML;
+	var result = doc.documentElement.outerHTML;
 
 	// replace placeholder #bx_....# by PHP-chunk
 	if (!withoutPHP)

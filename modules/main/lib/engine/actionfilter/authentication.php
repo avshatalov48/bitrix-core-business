@@ -7,6 +7,7 @@ namespace Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
+use Bitrix\Main\Localization\Loc;
 
 final class Authentication extends Base
 {
@@ -40,7 +41,7 @@ final class Authentication extends Base
 				return new EventResult(EventResult::ERROR, null, null, $this);
 			}
 
-			$this->errorCollection[] = new Error('Need to authenticate', self::ERROR_INVALID_AUTHENTICATION);
+			$this->errorCollection[] = new Error(Loc::getMessage("MAIN_ENGINE_FILTER_AUTHENTICATION_ERROR"), self::ERROR_INVALID_AUTHENTICATION);
 
 			return new EventResult(EventResult::ERROR, null, null, $this);
 		}

@@ -2,10 +2,13 @@
 
 	function SectionController(calendar, data, config)
 	{
+		if (!data.sections)
+			data.sections = [];
+
 		this.calendar = calendar;
 		this.sections = [];
 		this.sectionIndex = {};
-		this.hiddenSections = config.hiddenSections;
+		this.hiddenSections = config.hiddenSections || [];
 
 		this.prepareData({sections: data.sections});
 
@@ -88,6 +91,11 @@
 						break;
 					}
 				}
+			}
+
+			if (!section && this.calendar.isExternalMode() && this.sections.length > 0)
+			{
+				section = this.sections[0];
 			}
 
 			return section;
@@ -299,9 +307,8 @@
 		updateData: function(data)
 		{
 			this.data = data || {};
-
 			this.color = data.COLOR;
-			this.textColor = data.TEXT_COLOR;
+			this.textColor = data.TEXT_COLOR || '';
 			this.name = data.NAME || '';
 			this.type = data.CAL_TYPE || '';
 

@@ -77,9 +77,6 @@ class ProductTable extends Main\Entity\DataManager
 	const PRICE_MODE_QUANTITY = 'Q';
 	const PRICE_MODE_RATIO = 'R';
 
-	const INITIAL_PRICE_BASE = 'B';
-	const INITIAL_PRICE_PURCHASING = 'P';
-
 	protected static $defaultProductSettings = array();
 
 	protected static $existProductCache = array();
@@ -129,7 +126,7 @@ class ProductTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('PRODUCT_ENTITY_WEIGHT_FIELD')
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('PRODUCT_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'PRICE_TYPE' => new Main\Entity\EnumField('PRICE_TYPE', array(

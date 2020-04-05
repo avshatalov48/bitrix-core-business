@@ -30,8 +30,10 @@ $arParams['COMMENTS_COUNT'] = intval($arParams['COMMENTS_COUNT']);
 $arParams['SHOW_DEACTIVATED'] = (isset($arParams['SHOW_DEACTIVATED']) && $arParams['SHOW_DEACTIVATED'] == 'Y' ? 'Y' : 'N');
 $arParams['CHECK_DATES'] = (isset($arParams['CHECK_DATES']) && $arParams['CHECK_DATES'] == 'N' ? 'N' : 'Y');
 $arParams['BLOG_USE'] = (isset($arParams['BLOG_USE']) && $arParams['BLOG_USE'] === 'Y' ? 'Y' : 'N');
-$arParams['FB_USE'] = (isset($arParams['FB_USE']) && $arParams['FB_USE'] === 'Y' ? 'Y' : 'N');
-$arParams['VK_USE'] = (isset($arParams['VK_USE']) && $arParams['VK_USE'] === 'Y' ? 'Y' : 'N');
+$arParams['FB_APP_ID'] = (isset($arParams['FB_APP_ID']) ? trim($arParams['FB_APP_ID']) : '');
+$arParams['FB_USE'] = (isset($arParams['FB_USE']) && $arParams['FB_USE'] === 'Y' && $arParams['FB_APP_ID'] !== '' ? 'Y' : 'N');
+$arParams['VK_API_ID'] = (isset($arParams['VK_API_ID']) ? trim($arParams['VK_API_ID']) : '');
+$arParams['VK_USE'] = (isset($arParams['VK_USE']) && $arParams['VK_USE'] === 'Y' && $arParams['VK_API_ID'] !== '' ? 'Y' : 'N');
 if ($arParams['BLOG_USE'] == 'Y')
 {
 	$arParams['BLOG_FROM_AJAX'] = (isset($arParams['BLOG_FROM_AJAX']) && $arParams['BLOG_FROM_AJAX'] == 'Y' ? 'Y' : 'N');
@@ -73,7 +75,6 @@ if ($arParams['FB_USE'] == 'Y')
 	if ($arParams['FB_TITLE'] === '')
 		$arParams['FB_TITLE'] = 'Facebook';
 	$arParams['FB_USER_ADMIN_ID'] = trim($arParams['FB_USER_ADMIN_ID']);
-	$arParams['FB_APP_ID'] = trim($arParams['FB_APP_ID']);
 	$arParams['FB_COLORSCHEME'] = (isset($arParams['FB_COLORSCHEME']) && $arParams['FB_COLORSCHEME'] == 'dark' ? 'dark' : 'light');
 	$arParams['FB_ORDER_BY'] = trim($arParams['FB_ORDER_BY']);
 }
@@ -88,7 +89,6 @@ else
 if ($arParams['VK_USE'] == 'Y')
 {
 	$arParams['VK_TITLE'] = trim($arParams['VK_TITLE']);
-	$arParams['VK_API_ID'] = trim($arParams['VK_API_ID']);
 }
 else
 {
@@ -478,6 +478,44 @@ if ($this->StartResultCache(false, ($arParams['CACHE_GROUPS'] === 'N' ? false: $
 
 			if($arParams["WIDTH"] > 0)
 				$arResult["WIDTH"] = $arParams["WIDTH"];
+
+			if ($arResult['BLOG_USE'] && !$arResult['BLOG_FROM_AJAX'])
+			{
+				$arResult['BLOG_AJAX_PARAMS'] = array(
+					'IBLOCK_ID' => $arResult['ELEMENT']['IBLOCK_ID'],
+					'ELEMENT_ID' => $arResult['ELEMENT']['ID'],
+					'URL_TO_COMMENT' => $arParams['~URL_TO_COMMENT'],
+					'WIDTH' => $arParams['WIDTH'],
+					'COMMENTS_COUNT' => $arParams['COMMENTS_COUNT'],
+					'BLOG_USE' => 'Y',
+					'BLOG_FROM_AJAX' => 'Y',
+					'FB_USE' => 'N',
+					'VK_USE' => 'N',
+					'BLOG_TITLE' => $arParams['~BLOG_TITLE'],
+					'BLOG_URL' => $arParams['~BLOG_URL'],
+					'PATH_TO_SMILE' => $arParams['~PATH_TO_SMILE'],
+					'EMAIL_NOTIFY' => $arParams['EMAIL_NOTIFY'],
+					'AJAX_POST' => $arParams['AJAX_POST'],
+					'SHOW_SPAM' => $arParams['SHOW_SPAM'],
+					'SHOW_RATING' => $arParams['SHOW_RATING'],
+					'RATING_TYPE' => $arParams['~RATING_TYPE'],
+					'CACHE_TYPE' => 'N',
+					'CACHE_TIME' => '0',
+					'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+					'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME'],
+					'SHOW_DEACTIVATED' => $arParams['SHOW_DEACTIVATED'],
+					'CHECK_DATES' => $arParams['CHECK_DATES']
+				);
+
+				if (isset($arParams["USER_CONSENT"]))
+					$arResult['BLOG_AJAX_PARAMS']["USER_CONSENT"] = $arParams["USER_CONSENT"];
+				if (isset($arParams["USER_CONSENT_ID"]))
+					$arResult['BLOG_AJAX_PARAMS']["USER_CONSENT_ID"] = $arParams["USER_CONSENT_ID"];
+				if (isset($arParams["USER_CONSENT_IS_CHECKED"]))
+					$arResult['BLOG_AJAX_PARAMS']["USER_CONSENT_IS_CHECKED"] = $arParams["USER_CONSENT_IS_CHECKED"];
+				if (isset($arParams["USER_CONSENT_IS_LOADED"]))
+					$arResult['BLOG_AJAX_PARAMS']["USER_CONSENT_IS_LOADED"] = $arParams["USER_CONSENT_IS_LOADED"];
+			}
 
 			$this->IncludeComponentTemplate();
 		}

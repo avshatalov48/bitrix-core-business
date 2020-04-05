@@ -835,17 +835,100 @@ select::-ms-expand {
 	width: 100%;
 }
 
-.main-ui-control-field-group .main-ui-control-field.main-ui-control-custom-date .main-ui-multi-select {
+.main-ui-filter-field-container .main-ui-control-field-group .main-ui-control-field.main-ui-control-custom-date .main-ui-multi-select {
 	height: 100%;
+	max-height: 203px;
+	display: block;
+	overflow: auto;
+}
+
+.main-ui-control-custom-date .main-ui-control-field-group .main-ui-control-field.main-ui-control-custom-date .main-ui-multi-select {
+	position: static!important;
+}
+
+.main-ui-control-custom-date .main-ui-control-value-delete {
+	height: auto!important;
+	top: 1px!important;
+	bottom: 1px!important;
+	right: 4px!important;
+	transform: none!important;
+	position: fixed!important;
 }
 
 .main-ui-control-custom-date .main-ui-multi-select[data-value="[]"]::before {
 	content: attr(data-placeholder);
 	position: absolute;
-	top: 50%;
+	top: 9px;
 	left: 9px;
-	transform: translateY(-50%);
 	color: rgb(117, 117, 117);
 	pointer-events: none !important;
 	z-index: 111;
+}
+
+.main-ui-filter-custom-date-group {
+	flex-direction: column;
+}
+
+.main-ui-filter-custom-date-group.main-ui-control-field-group > .main-ui-control-field {
+	margin-right: 0;
+	padding-bottom: 15px;
+}
+
+.main-ui-filter-custom-date-group.main-ui-control-field-group .main-ui-control-field:nth-last-of-type(2) {
+	margin-right: 10px;
+}
+
+.main-ui-filter-custom-date-group.main-ui-control-field-group .main-ui-control-field:nth-last-of-type(1) {
+	margin-right: 0!important;
+}
+
+.main-ui-filter-custom-date-group [data-type="CUSTOM_DATE"] {
+	padding-bottom: 0!important;
+	margin-bottom: 0!important;
+}
+
+.main-ui-select-inner-item[data-item="{\"SEPARATOR\":true}"] {
+	background-color: rgba(0, 0, 0, .05);
+	height: 1px!important;
+	line-height: 1px!important;
+	pointer-events: none!important;
+	min-height: auto!important;
+	margin-top: 4px!important;
+	margin-bottom: 4px!important;
+}
+
+.main-ui-select-inner-item[data-item="{\"SEPARATOR\":true}"] * {
+	display: none;
+}
+
+.main-ui-filter-date-with-years-switcher {
+	flex-wrap: wrap!important;
+}
+
+.main-ui-filter-remove-margin-right {
+	margin-right: 0!important;
+}
+
+.main-ui-filter-with-padding {
+	padding-top: 15px!important;
+}
+
+.main-ui-filter-year-switcher {
+	width: 100% !important;
+}
+
+
+.main-ui-filter-range-group {
+	max-width: calc(100% - 121px);
+	display: flex;
+	flex-wrap: nowrap;
+	flex-grow: 1;
+}
+
+.main-ui-filter-range-group *:last-child {
+	margin-right: 0!important;
+}
+
+.main-ui-select[data-value*="\"VALUE\":\"RANGE\"}"] {
+	max-width: 111px;
 }

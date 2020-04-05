@@ -517,6 +517,57 @@ form.comments-form .feed-add-post-buttons {
 	stroke-linecap: round;
 }
 
+.feed-add-post-expire-date {
+	position: relative;
+	overflow: hidden;
+}
+
+.feed-add-post-expire-date-wrap {
+	background-color: #f3f6f8;
+	padding: 17px 21px 16px;
+	margin: 8px 18px 9px 17px;
+}
+
+.feed-add-post-expire-date-inner {
+	font-size: 0;
+}
+
+.feed-add-post-expire-date-text {
+	color: #535c69;
+	margin-right: 9px;
+	font-size: 13px;
+	line-height: 22px;
+}
+
+.feed-add-post-expire-date-period {
+	color: #0b66c3;
+}
+
+.feed-add-post-expire-date-duration, .feed-add-post-expire-date-final {
+	border-bottom: 1px dashed #0b66c3;
+	cursor: pointer;
+	font-weight: bold;
+	padding: 0 1px;
+	font-size: 13px;
+	line-height: 22px;
+}
+
+.feed-add-post-expire-date-duration {
+	margin-right: 8px;
+}
+
+.feed-add-post-expire-date-options .menu-popup-item-text:first-letter {
+	text-transform: uppercase;
+}
+
+.feed-add-post-expire-date-final {
+	display: none;
+}
+
+.feed-add-post-expire-date-customize .feed-add-post-expire-date-final {
+	display: inline;
+}
+
 @keyframes rotate {
 	100% {
 		transform: rotate(360deg);

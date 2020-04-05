@@ -652,6 +652,8 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	display: inline-block;
 	padding: 0;
 	vertical-align: middle;
+	max-width: 110px!important;
+	text-align: left;
 }
 
 .webform-small-button .main-ui-filter-field-button-item {

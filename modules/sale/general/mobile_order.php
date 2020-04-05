@@ -913,7 +913,8 @@ class CSaleMobileOrderPush
 		"ORDER_DEDUCTED",
 		"ORDER_CANCELED",
 		"ORDER_CREATED",
-		"ORDER_MARKED"
+		"ORDER_MARKED",
+		"ORDER_CHECK_ERROR"
 	);
 
 	private static $arSubscriptions = array();
@@ -1052,6 +1053,10 @@ class CSaleMobileOrderPush
 
 			if($arStatus = $dbStatusListTmp->GetNext())
 				$strResult = str_replace("#STATUS_NAME#", $arStatus["NAME"], $strResult);
+		}
+		elseif($eventId == "ORDER_CHECK_ERROR")
+		{
+			$strResult = str_replace("#CHECK_ID#", $arParams["CHECK"]["ID"], $strResult);
 		}
 
 		return $strResult;

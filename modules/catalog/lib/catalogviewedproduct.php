@@ -39,7 +39,7 @@ class CatalogViewedProductTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('VIEWED_PRODUCT_ENTITY_FUSER_ID_FIELD')
 			)),
 			'DATE_VISIT' => new Main\Entity\DatetimeField('DATE_VISIT', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('VIEWED_PRODUCT_ENTITY_DATE_VISIT_FIELD')
 			)),
 			'PRODUCT_ID' => new Main\Entity\IntegerField('PRODUCT_ID', array(

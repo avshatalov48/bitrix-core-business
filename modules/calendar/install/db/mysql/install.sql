@@ -129,10 +129,7 @@ CREATE TABLE b_calendar_push (
   EXPIRES datetime NOT NULL,
   NOT_PROCESSED varchar(1) NOT NULL DEFAULT 'N',
   FIRST_PUSH_DATE datetime DEFAULT NULL,
-  PRIMARY KEY (ENTITY_TYPE,ENTITY_ID),
-  KEY CHANNEL_ID (CHANNEL_ID),
-  KEY NOT_PROCESSED (NOT_PROCESSED),
-  KEY FIRST_PUSH_DATE (FIRST_PUSH_DATE)
+  PRIMARY KEY (ENTITY_TYPE,ENTITY_ID)
 );
 
 create table b_calendar_access
@@ -141,4 +138,31 @@ create table b_calendar_access
 	TASK_ID int not null,
 	SECT_ID varchar(100) not null,
 	primary key (ACCESS_CODE, TASK_ID, SECT_ID)
+);
+
+create table b_calendar_resource
+(
+  ID int not null auto_increment,
+  EVENT_ID int null,
+  CAL_TYPE varchar(100) null,
+  RESOURCE_ID int not null,
+  PARENT_TYPE varchar(100) null,
+  PARENT_ID int not null,
+  UF_ID int null,
+  DATE_FROM_UTC datetime null,
+  DATE_TO_UTC datetime null,
+  DATE_FROM datetime null,
+  DATE_TO datetime null,
+  DURATION bigint null,
+  SKIP_TIME char(1) null,
+  TZ_FROM varchar(50) null,
+  TZ_TO varchar(50) null,
+  TZ_OFFSET_FROM int null,
+  TZ_OFFSET_TO int null,
+  CREATED_BY int not null,
+  DATE_CREATE  datetime null,
+  TIMESTAMP_X  datetime null,
+  SERVICE_NAME varchar(200) null,
+  primary key (ID),
+  INDEX ix_ufid_parenttype_parentid (UF_ID, PARENT_TYPE, PARENT_ID)
 );

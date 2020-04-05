@@ -1,0 +1,25 @@
+<?php
+$MESS['LANDING_TABLE_FIELD_LANDING_CODE'] = 'Адрес относительно сайта';
+$MESS['LANDING_TABLE_FIELD_RULE'] = 'Правило обработки';
+$MESS['LANDING_TABLE_FIELD_LANDING_ACTIVE'] = 'Статус страницы';
+$MESS['LANDING_TABLE_FIELD_LANDING_PUBLIC'] = 'Публичность';
+$MESS['LANDING_TABLE_FIELD_LANDING_TITLE'] = 'Название страницы';
+$MESS['LANDING_TABLE_FIELD_XML_ID'] = 'Внеший код';
+$MESS['LANDING_TABLE_FIELD_DESCRIPTION'] = 'Краткое описание';
+$MESS['LANDING_TABLE_FIELD_TPL_ID'] = 'Шаблон';
+$MESS['LANDING_TABLE_FIELD_SITE_ID'] = 'Сайт';
+$MESS['LANDING_TABLE_FIELD_LANDING_SITEMAP'] = 'Карта сайта';
+$MESS['LANDING_TABLE_FIELD_FOLDER'] = 'Является папкой';
+$MESS['LANDING_TABLE_FIELD_FOLDER_ID'] = 'Привязка к папке';
+$MESS['LANDING_TABLE_FIELD_CREATED_BY_ID'] = 'Идентификатор создавшего пользователя';
+$MESS['LANDING_TABLE_FIELD_MODIFIED_BY_ID'] = 'Идентификатор изменившего пользователя';
+$MESS['LANDING_TABLE_FIELD_DATE_CREATE'] = 'Дата создания';
+$MESS['LANDING_TABLE_FIELD_DATE_MODIFY'] = 'Дата изменения';
+$MESS['LANDING_TABLE_FIELD_DATE_PUBLIC'] = 'Дата публикации';
+$MESS['LANDING_TABLE_ERROR_SLASH_IS_NOT_ALLOWED'] = 'Слеш запрещен в адресе лендинга.';
+$MESS['LANDING_TABLE_ERROR_CANT_BE_EMPTY'] = 'Адрес страницы не может быть пуст.';
+$MESS['LANDING_TABLE_ERROR_SITE_NOT_FOUND'] = 'Сайт не найден.';
+$MESS['LANDING_TABLE_ERROR_PAGE_LIMIT_REACHED'] = 'Достигнут лимит страниц сайтов. Пожалуйста, обратитесь в техподдержку.';
+$MESS['LANDING_TABLE_ERROR_ISNOT_FOLDER'] = 'Указанная папкой страница не является папкой';
+$MESS['LANDING_TABLE_ERROR_SUBFOLDER_DISABLED'] = 'Вложенные подпапки не поддерживаются';
+$MESS['LANDING_TABLE_ERROR_PAGE_FOLDER_NOT_EMPTY'] = 'Папка не пуста';

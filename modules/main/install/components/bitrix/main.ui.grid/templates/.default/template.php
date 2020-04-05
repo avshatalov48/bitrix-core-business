@@ -14,7 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-CJSCore::Init(array('popup', 'ui', 'resize_observer', 'loader'));
+CJSCore::Init(array('popup', 'ui', 'resize_observer', 'loader', 'ui.actionpanel'));
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/dd.js');
 
@@ -630,6 +630,18 @@ endif; ?>
 ?><script>
 		BX(function() { BX.Main.dropdownManager.init(); });
 		BX(function() {
+
+			<? if(isset($arParams['TOP_ACTION_PANEL_RENDER_TO'])): ?>
+				var actionPanel = new BX.UI.ActionPanel({
+					params: {
+						gridId: '<?=$arParams["GRID_ID"]?>'
+					},
+					renderTo: document.getElementById("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
+					groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
+				});
+				actionPanel.draw();
+			<? endif; ?>
+
 			BX.Main.gridManager.push(
 				'<?=$arParams["GRID_ID"]?>',
 				new BX.Main.grid(

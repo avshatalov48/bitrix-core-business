@@ -11,4 +11,3 @@ $arActivityDescription = array(
 		"ID" => "document",
 	),
 );
-?>

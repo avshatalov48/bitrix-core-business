@@ -1,0 +1,4 @@
+<?
+$MESS["SENDER_CONTACT_IMPORT_LIST_FROM"] = "Список от ";
+$MESS["SENDER_CONTACT_IMPORT_LIST_FROM1"] = "Набор от %date%";
+?>

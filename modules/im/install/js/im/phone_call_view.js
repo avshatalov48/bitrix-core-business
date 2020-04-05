@@ -416,7 +416,7 @@
 				{
 					if(self.isFolded())
 					{
-						this.destroy();
+						// this.destroy();
 					}
 					else
 					{
@@ -1289,7 +1289,7 @@
 		if(!BX.type.isPlainObject(additionalParams))
 			additionalParams = {};
 
-		if(callState === BX.PhoneCallView.CallState.connected && this.autoFold === true && !this.isDesktop() && !this.isFolded())
+		if(callState === BX.PhoneCallView.CallState.connected && this.isAutoFoldAllowed())
 		{
 			this.fold();
 		}
@@ -1299,6 +1299,11 @@
 		}
 		BX.onCustomEvent(window, "CallCard::CallStateChanged", [callState, additionalParams]);
 		this.setOnSlave(desktopEvents.setCallState, [callState, additionalParams]);
+	};
+
+	BX.PhoneCallView.prototype.isAutoFoldAllowed = function()
+	{
+		return (this.autoFold === true && !this.isDesktop() && !this.isFolded() && defaults.restApps.length == 0);
 	};
 
 	BX.PhoneCallView.prototype.isHeld = function()
@@ -2958,11 +2963,11 @@
 
 	BX.PhoneCallView.prototype.unfold = function()
 	{
-		if(!this.isDesktop() && this.isFolded() && !this.popup)
+		if(!this.isDesktop() && this.isFolded())
 		{
 			BX.cleanNode(this.elements.main, true);
 			this.folded = false;
-			this.reinit();
+			this.elements = this.unfoldedElements;
 			this.show();
 		}
 	};
@@ -2981,8 +2986,10 @@
 		setTimeout(function()
 		{
 			self.folded = true;
-			self.unloadRestApps();
 			self.popup.close();
+			self.unfoldedElements = self.elements;
+			BX.removeClass(popupNode, 'im-phone-call-view-folding');
+			BX.removeClass(overlayNode, 'popup-window-overlay-im-phone-call-view-folding');
 			self.reinit();
 			self.enableDocumentScroll();
 		}, 300);
@@ -3050,6 +3057,15 @@
 
 			self.saveInitialSize(window.innerWidth, window.innerHeight)
 		}, 100, this));
+
+		BX.addCustomEvent("SidePanel.Slider:onOpen", function(event)
+		{
+			if (!event.getSlider().isSelfContained())
+			{
+				event.denyAction();
+				window.open(event.slider.url);
+			}
+		});
 
 		/*BX.bind(window, "keydown", function(e)
 		{
@@ -3510,6 +3526,7 @@
 						"'disk': {'enable': "+(this.disk? this.disk.enable: false)+"},"+
 						"'path' : "+JSON.stringify(this.BXIM.path)+
 					"});"+
+					"BXIM.messenger.contactListLoad = false;" +
 					"BX.PhoneCallView.setDefaults(" + JSON.stringify(defaults) + ");" +
 					"PCW = new BX.PhoneCallView({" +
 						"'slave': true, "+

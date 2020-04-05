@@ -5,12 +5,23 @@
  * @subpackage iblock
  */
 namespace Bitrix\Iblock\PropertyIndex;
-use Bitrix\Main\Localization\Loc;
+
+use Bitrix\Main\Loader,
+	Bitrix\Main\Localization\Loc,
+	Bitrix\Iblock;
+
 Loc::loadMessages(__FILE__);
 
 class Manager
 {
-	protected static $catalog = null;
+	private static $catalog = null;
+
+	private static $deferredIndexing = -1;
+
+	private static $elementQueue = array();
+
+	private static $indexerInstances = array();
+
 	/**
 	 * For offers iblock identifier returns it's products iblock.
 	 * Otherwise $iblockId returned.
@@ -23,7 +34,7 @@ class Manager
 	{
 		if (self::$catalog === null)
 		{
-			self::$catalog = \Bitrix\Main\Loader::includeModule("catalog");
+			self::$catalog = Loader::includeModule("catalog");
 		}
 
 		if (self::$catalog)
@@ -51,7 +62,7 @@ class Manager
 	{
 		if (self::$catalog === null)
 		{
-			self::$catalog = \Bitrix\Main\Loader::includeModule("catalog");
+			self::$catalog = Loader::includeModule("catalog");
 		}
 
 		if (self::$catalog)
@@ -72,7 +83,6 @@ class Manager
 	 * @param integer $iblockId Information block identifier.
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 */
 	public static function dropIfExists($iblockId)
 	{
@@ -90,14 +100,20 @@ class Manager
 	 *
 	 * @param integer $iblockId Information block identifier.
 	 *
-	 * @return \Bitrix\Iblock\PropertyIndex\Indexer
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @return Iblock\PropertyIndex\Indexer
 	 */
 	public static function createIndexer($iblockId)
 	{
-		$indexer = new Indexer($iblockId);
-		$indexer->init();
-		return $indexer;
+		$iblockId = (int)$iblockId;
+		$productIblock = self::resolveIblock($iblockId);
+		if (!isset(self::$indexerInstances[$productIblock]))
+		{
+			$indexer = new Indexer($productIblock);
+			$indexer->init();
+			self::$indexerInstances[$productIblock] = $indexer;
+			unset($indexer);
+		}
+		return self::$indexerInstances[$productIblock];
 	}
 
 	/**
@@ -109,14 +125,14 @@ class Manager
 	 */
 	public static function markAsInvalid($iblockId)
 	{
-		\Bitrix\Iblock\IblockTable::update($iblockId, array(
+		Iblock\IblockTable::update($iblockId, array(
 			"PROPERTY_INDEX" => "I",
 		));
 
 		$productIblock = self::resolveIblock($iblockId);
 		if ($iblockId != $productIblock)
 		{
-			\Bitrix\Iblock\IblockTable::update($productIblock, array(
+			Iblock\IblockTable::update($productIblock, array(
 				"PROPERTY_INDEX" => "I",
 			));
 		}
@@ -139,7 +155,7 @@ class Manager
 		}
 		else
 		{
-			$iblockList = \Bitrix\Iblock\IblockTable::getList(array(
+			$iblockList = Iblock\IblockTable::getList(array(
 				'select' => array('ID'),
 				'filter' => array('=PROPERTY_INDEX' => 'I'),
 			));
@@ -179,7 +195,7 @@ class Manager
 	public static function deleteIndex($iblockId)
 	{
 		self::dropIfExists($iblockId);
-		\Bitrix\Iblock\IblockTable::update($iblockId, array(
+		Iblock\IblockTable::update($iblockId, array(
 			"PROPERTY_INDEX" => "N",
 		));
 	}
@@ -194,7 +210,7 @@ class Manager
 	 */
 	public static function deleteElementIndex($iblockId, $elementId)
 	{
-		$elementId = intval($elementId);
+		$elementId = (int)$elementId;
 		$productIblock = self::resolveIblock($iblockId);
 		$indexer = self::createIndexer($productIblock);
 
@@ -221,29 +237,100 @@ class Manager
 	 */
 	public static function updateElementIndex($iblockId, $elementId)
 	{
-		$elementId = intval($elementId);
+		$elementId = (int)$elementId;
 		$productIblock = self::resolveIblock($iblockId);
+		if ($iblockId != $productIblock)
+			$elementId = self::resolveElement($iblockId, $elementId);
+		if (self::usedDeferredIndexing())
+		{
+			self::pushToQueue($productIblock, $elementId);
+		}
+		else
+		{
+			$indexer = self::createIndexer($productIblock);
+			if ($indexer->isExists())
+			{
+				self::elementIndexing($indexer, $elementId);
+			}
+			unset($indexer);
+		}
+	}
+
+	/**
+	 * Enable deferred indexing.
+	 *
+	 * @return void
+	 */
+	public static function enableDeferredIndexing()
+	{
+		self::$deferredIndexing++;
+	}
+
+	/**
+	 * Disable deferred indexing.
+	 *
+	 * @return void
+	 */
+	public static function disableDeferredIndexing()
+	{
+		self::$deferredIndexing--;
+	}
+
+	/**
+	 * Return true if allowed deferred indexing.
+	 *
+	 * @return bool
+	 */
+	public static function usedDeferredIndexing()
+	{
+		return (self::$deferredIndexing >= 0);
+	}
+
+	/**
+	 * Update iblock index if defered data exists.
+	 *
+	 * @param int $iblockId		Iblock.
+	 * @return void
+	 */
+	public static function runDeferredIndexing($iblockId)
+	{
+		$iblockId = (int)$iblockId;
+		$productIblock = self::resolveIblock($iblockId);
+		if (empty(self::$elementQueue[$productIblock]))
+			return;
 		$indexer = self::createIndexer($productIblock);
 		if ($indexer->isExists())
 		{
-			if ($iblockId != $productIblock)
-			{
-				$elementId = self::resolveElement($iblockId, $elementId);
-			}
+			sort(self::$elementQueue[$productIblock]);
 
-			$indexer->deleteElement($elementId);
-			$connection = \Bitrix\Main\Application::getConnection();
-			$elementCheck = $connection->query("
+			foreach (self::$elementQueue[$productIblock] as $elementId)
+				self::elementIndexing($indexer, $elementId);
+			unset($elementId);
+		}
+		unset($indexer);
+	}
+
+	private static function pushToQueue($iblockId, $elementId)
+	{
+		if (!isset(self::$elementQueue[$iblockId]))
+			self::$elementQueue[$iblockId] = array();
+		self::$elementQueue[$iblockId][$elementId] = $elementId;
+	}
+
+	private static function elementIndexing(Iblock\PropertyIndex\Indexer $indexer, $elementId)
+	{
+		$indexer->deleteElement($elementId);
+		$connection = \Bitrix\Main\Application::getConnection();
+		$elementCheck = $connection->query("
 				SELECT BE.ID
 				FROM b_iblock_element BE
-				WHERE BE.ACTIVE = 'Y'
-				".\CIBlockElement::wf_getSqlLimit("BE.", "N")."
-				AND BE.ID = ".intval($elementId)
-			);
-			if ($elementCheck->fetch())
-			{
-				$indexer->indexElement($elementId);
-			}
+				WHERE BE.ACTIVE = 'Y' AND BE.ID = ".$elementId.
+				\CIBlockElement::wf_getSqlLimit("BE.", "N")
+		);
+		if ($elementCheck->fetch())
+		{
+			$indexer->indexElement($elementId);
 		}
+		unset($elementCheck, $connection);
 	}
 }

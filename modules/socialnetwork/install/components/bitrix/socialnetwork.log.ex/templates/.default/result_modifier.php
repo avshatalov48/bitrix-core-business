@@ -34,5 +34,14 @@ else
 	}
 }
 
+$arResult['TOP_RATING_DATA'] = (
+	\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+	&& !empty($arResult["arLogTmpID"])
+		? \Bitrix\Socialnetwork\ComponentHelper::getLivefeedRatingData(array(
+			'logId' => array_unique($arResult["arLogTmpID"]),
+		))
+		: array()
+);
+
 $arResult["FORM_TARGET_ID"] = $formTargetId;
 $arResult["INFORMER_TARGET_ID"] = $informerTargetId;

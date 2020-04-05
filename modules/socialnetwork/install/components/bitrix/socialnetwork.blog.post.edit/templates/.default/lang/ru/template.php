@@ -31,4 +31,11 @@ $MESS["BLOG_POST_EDIT_T_CREATE_TASK_SUCCESS_TITLE"] = "Задача создан
 $MESS["BLOG_POST_EDIT_T_CREATE_TASK_SUCCESS_DESCRIPTION"] = "Вы можете перейти к просмотру и редактированию задачи";
 $MESS["BLOG_POST_EDIT_T_CREATE_TASK_BUTTON_TITLE"] = "Перейти к задаче";
 $MESS["MPF_DRAG_ATTACHMENTS2"] = "Загрузить файлы?";
+$MESS["IMPORTANT_TILL_TITLE"] = "сообщение будет важным:";
+$MESS["IMPORTANT_FOR_ALWAYS"] = "всегда";
+$MESS["IMPORTANT_FOR_ONE_DAY"] = "один день";
+$MESS["IMPORTANT_FOR_TWO_DAYS"] = "два дня";
+$MESS["IMPORTANT_FOR_WEEK"] = "неделю";
+$MESS["IMPORTANT_FOR_MONTH"] = "месяц";
+$MESS["IMPORTANT_FOR_CUSTOM"] = "до точной даты";
 ?>

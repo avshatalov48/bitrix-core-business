@@ -344,6 +344,7 @@ abstract class Cashbox
 
 		return array(
 			'NAME' => $map['NAME']['title'],
+			'EMAIL' => $map['EMAIL']['title'],
 			'HANDLER' => $map['HANDLER']['title']
 		);
 	}

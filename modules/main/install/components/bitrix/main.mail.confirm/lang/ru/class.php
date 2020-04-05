@@ -10,6 +10,7 @@ $MESS['MAIN_MAIL_CONFIRM_SAVE'] = 'Сохранить';
 $MESS['MAIN_MAIL_CONFIRM_CANCEL'] = 'Отменить';
 
 $MESS['MAIN_MAIL_CONFIRM_EMAIL_HINT'] = 'Введите имя и email в поля ниже. Вам будет отправлено письмо с кодом подтверждения.';
+$MESS['MAIN_MAIL_CONFIRM_EMAIL_HINT_SMTP'] = 'Введите имя и email в поля ниже. Подтвердите кодом из письма, отправленного на этот адрес, либо введите данные <a href="#" class="new-from-email-dialog-smtp-link">SMTP-сервера</a>.';
 $MESS['MAIN_MAIL_CONFIRM_CODE_HINT'] = 'На указанный email отправлено письмо с кодом. Пожалуйста, скопируйте код из письма и вставьте его в поле ниже.';
 
 $MESS['MAIN_MAIL_CONFIRM_NAME'] = 'Имя';
@@ -18,9 +19,22 @@ $MESS['MAIN_MAIL_CONFIRM_PUBLIC'] = 'Доступен всем';
 $MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT'] = 'Добавленный адрес смогут выбрать все менеджеры, работающие в CRM';
 $MESS['MAIN_MAIL_CONFIRM_CODE_PLACEHOLDER'] = 'Введите код подтверждения';
 
+$MESS['MAIN_MAIL_CONFIRM_SMTP_SERVER'] = 'Сервер';
+$MESS['MAIN_MAIL_CONFIRM_SMTP_LOGIN'] = 'Логин';
+$MESS['MAIN_MAIL_CONFIRM_SMTP_PASSWORD'] = 'Пароль';
+
 $MESS['MAIN_MAIL_CONFIRM_EMPTY_EMAIL'] = 'Введите email';
 $MESS['MAIN_MAIL_CONFIRM_INVALID_EMAIL'] = 'Недопустимый email';
 $MESS['MAIN_MAIL_CONFIRM_EMPTY_CODE'] = 'Введите код подтверждения';
 $MESS['MAIN_MAIL_CONFIRM_INVALID_CODE'] = 'Неверный код подтверждения';
 
+$MESS['MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER'] = 'Введите адрес SMTP-сервера';
+$MESS['MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER'] = 'Недопустимый адрес SMTP-сервера';
+$MESS['MAIN_MAIL_CONFIRM_EMPTY_SMTP_PORT'] = 'Введите порт SMTP-сервера';
+$MESS['MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT'] = 'Недопустимый порт SMTP-сервера';
+$MESS['MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN'] = 'Введите логин для авторизации на SMTP-сервере';
+$MESS['MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD'] = 'Введите пароль для авторизации на SMTP-сервере';
+
 $MESS['MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'] = 'Подтверждение email-адреса';
+
+$MESS['MAIN_MAIL_CONFIRM_SMTP_WARNING'] = 'Важно! Будьте внимательны при вводе данных SMTP-сервера. Письма не будут доставляться, если данные указаны некорректно.';

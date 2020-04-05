@@ -7,6 +7,13 @@ if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
 }
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
+
+if (IsModuleInstalled('crm'))
+{
+	CJSCore::Init('sidepanel');
+	\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/common.js');
+}
+
 if (strlen($arResult["FatalErrorMessage"]) > 0)
 {
 	?>

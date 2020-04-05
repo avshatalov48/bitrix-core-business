@@ -9,6 +9,7 @@ use \Bitrix\Bizproc\RestActivityTable;
 class CBPRuntime
 {
 	const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
+	const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
 
 	const REST_ACTIVITY_PREFIX = 'rest_';
 
@@ -56,6 +57,18 @@ class CBPRuntime
 			$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/activities/bitrix",
 			$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/bizproc/activities",
 		);
+
+		/* Experimental activity autoloader
+		$runtime = $this;
+		spl_autoload_register(function ($name) use ($runtime)
+		{
+			$name = strtolower($name);
+			if (strpos($name, 'cbp') === 0)
+			{
+				$runtime->IncludeActivityFile($name);
+			}
+		});
+		*/
 	}
 
 	/**
@@ -251,6 +264,14 @@ class CBPRuntime
 		return $workflow;
 	}
 
+	public function onWorkflowStatusChanged($workflowId, $status)
+	{
+		if ($status === \CBPWorkflowStatus::Completed || $status === \CBPWorkflowStatus::Terminated)
+		{
+			unset($this->arWorkflows[$workflowId]);
+		}
+	}
+
 	/*******************  SERVICES  *********************************************************/
 
 	/**
@@ -304,7 +325,9 @@ class CBPRuntime
 		$runtime = CBPRuntime::GetRuntime();
 		$workflow = $runtime->GetWorkflow($workflowId);
 		if ($workflow)
+		{
 			$workflow->SendExternalEvent($eventName, $arEventParameters);
+		}
 	}
 
 	/*******************  UTILITIES  ***************************************************************/
@@ -644,8 +667,7 @@ class CBPRuntime
 			//compatibility
 			'PATH_TO_ACTIVITY' => '',
 			'ROBOT_SETTINGS' => array(
-				'CATEGORY' => 'other',
-				'IS_AUTO' => true
+				'CATEGORY' => 'other'
 			)
 		);
 

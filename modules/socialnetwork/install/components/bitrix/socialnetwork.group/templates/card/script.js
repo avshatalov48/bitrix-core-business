@@ -268,7 +268,7 @@ SonetGroupCardSlider.prototype = {
 							value: (data.RESULT == 'Y')
 						}
 					};
-					window.top.BX.onCustomEvent(window.top, 'sonetGroupEvent', [eventData]);
+
 					window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
 				}
 				else if (BX.type.isNotEmptyString(data.ERROR))
@@ -329,8 +329,6 @@ SonetGroupCardSlider.prototype = {
 							value: (data.RESULT == 'Y')
 						}
 					};
-
-					window.top.BX.onCustomEvent(window.top, 'sonetGroupEvent', [eventData]);
 					window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
 
 					if (

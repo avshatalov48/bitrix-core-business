@@ -1148,7 +1148,7 @@ if ($_REQUEST['GET_CONTENT'] == 'Y')
 else if ($_REQUEST['DOWNLOAD'] == 'Y')
 	$dest = 'D';
 
-$fileNAme = sprintf(
+$fileName = sprintf(
 	'Schet No %s ot %s.pdf',
 	str_replace(
 		array(

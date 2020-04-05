@@ -138,4 +138,5 @@ $MESS["CAT_YANDEX_DISABLE_REFERERS"] = "Don't add referrer to product links:";
 $MESS["CAT_MAX_EXECUTION_TIME"] = "Step execution time:";
 $MESS["CAT_MAX_EXECUTION_TIME_NOTE"] = "0 - export all items at once<br>positive value - step execution time, seconds";
 $MESS["CAT_YANDEX_CHECK_PERMISSIONS"] = "Check access permissions for the group \"2\" (all users):";
+$MESS["CATI_NO_RIGHTS_FILE"] = "You have no access to write file #FILE#";
 ?>

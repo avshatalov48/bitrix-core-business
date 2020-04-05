@@ -2,7 +2,6 @@
 /*patchlimitationmutatormark1*/
 IncludeModuleLangFile(__FILE__);
 
-
 if (!function_exists('array_column'))
 {
 	function array_column($input, $column_key, $index_key = null)
@@ -57,5 +56,53 @@ CModule::AddAutoloadClasses(
 		"CCalendarLocation" => "classes/general/calendar_location.php",
 	)
 );
+
 /*patchlimitationmutatormark2*/
+
+CJSCore::RegisterExt('userfield_resourcebooking', array(
+	'js' => array(
+		'/bitrix/js/calendar/userfield/resourcebooking.js',
+		'/bitrix/js/calendar/userfield/crm_entity_editor_resourcebooking.js',
+	),
+	'css' => array('/bitrix/js/calendar/userfield/resourcebooking.css'),
+	'lang' => '/bitrix/modules/calendar/lang/'.LANGUAGE_ID.'/lib/userfield/resourcebooking.php',
+	'rel' => array('uf', 'popup')
+));
+
+$basePath = '/bitrix/js/calendar/new/';
+CJSCore::RegisterExt('event_calendar', array(
+	'js' => array(
+		$basePath.'calendar-core.js',
+		$basePath.'calendar-view.js',
+		$basePath.'calendar-view-transition.js',
+		$basePath.'calendar-entry.js',
+		$basePath.'calendar-section.js',
+		$basePath.'calendar-controls.js',
+		$basePath.'calendar-dialogs.js',
+		$basePath.'calendar-simple-popup.js',
+		$basePath.'calendar-simple-view-popup.js',
+		$basePath.'calendar-section-slider.js',
+		$basePath.'calendar-settings-slider.js',
+		$basePath.'calendar-edit-entry-slider.js',
+		$basePath.'calendar-view-entry-slider.js',
+		$basePath.'calendar-sync-slider.js',
+		$basePath.'calendar-util.js',
+		$basePath.'calendar-search.js'
+	),
+	'lang' => '/bitrix/modules/calendar/classes/general/calendar_js.php',
+	'css' => array(
+		$basePath.'calendar.css',
+		'/bitrix/components/bitrix/calendar.grid/templates/.default/style.css'
+	),
+	'rel' => array('ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest', 'dnd')
+));
+
+CJSCore::RegisterExt('calendar_planner', array(
+	'js' => array(
+		'/bitrix/js/calendar/planner.js'
+	),
+	'css' => '/bitrix/js/calendar/planner.css',
+	'lang' => '/bitrix/modules/calendar/classes/general/calendar_planner.php',
+	'rel' => array('date', 'dnd')
+));
 ?>

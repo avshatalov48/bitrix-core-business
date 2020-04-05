@@ -2205,12 +2205,12 @@ class CAllIBlockElement
 							else //Just single value property for Infoblock+
 							{
 								//Join properties table if needed
-								if(!array_key_exists($db_jprop["IBLOCK_ID"], $arJoinProps["BE_FPS"]))
-									$arJoinProps["BE_FPS"][$db_jprop["IBLOCK_ID"]] = array(
+								if(!array_key_exists($db_jprop["IBLOCK_ID"]."~".$db_prop["ID"], $arJoinProps["BE_FPS"]))
+									$arJoinProps["BE_FPS"][$db_jprop["IBLOCK_ID"]."~".$db_prop["ID"]] = array(
 										"CNT" => count($arJoinProps["BE_FPS"]),
 										"JOIN" => $iElCnt,
 									);
-								$ijPropCnt = $arJoinProps["BE_FPS"][$db_jprop["IBLOCK_ID"]]["CNT"];
+								$ijPropCnt = $arJoinProps["BE_FPS"][$db_jprop["IBLOCK_ID"]."~".$db_prop["ID"]]["CNT"];
 
 								$arSelect["JFPS".$ijPropCnt.".PROPERTY_".$db_jprop["ORIG_ID"]] = CIBlockElement::MkAlias($mal, "PROPERTY_".$PR_ID[1]."_".$PR_ID[2]."_VALUE", $this->arIBlockLongProps);
 								if($sGroupBy=="" && $db_jprop["WITH_DESCRIPTION"] == "Y")
@@ -4773,11 +4773,12 @@ class CAllIBlockElement
 	//////////////////////////////////////////////////////////////////////////
 	//
 	//////////////////////////////////////////////////////////////////////////
-	function RecalcSections($ID, $sectionId = null)
+	public static function RecalcSections($ID, $sectionId = null)
 	{
 		global $DB;
-		$ID = intval($ID);
+		$ID = (int)$ID;
 		$res = false;
+		$sectionId = (int)$sectionId;
 		if ($sectionId > 0)
 		{
 			$res = $DB->Query("
@@ -4791,7 +4792,7 @@ class CAllIBlockElement
 					INNER JOIN b_iblock_element E ON E.ID = SE.IBLOCK_ELEMENT_ID
 				WHERE
 					SE.IBLOCK_ELEMENT_ID = ".$ID."
-					AND SE.IBLOCK_SECTION_ID = ".intval($sectionId)."
+					AND SE.IBLOCK_SECTION_ID = ".$sectionId."
 					AND SE.ADDITIONAL_PROPERTY_ID IS NULL
 			");
 			$res = $res->Fetch();
@@ -4799,8 +4800,8 @@ class CAllIBlockElement
 			{
 				$oldInSections = $res["IN_SECTIONS"];
 				$newInSections = "Y";
-				$oldSectionId = intval($res["IBLOCK_SECTION_ID"]);
-				$newSectionId = intval($res["IBLOCK_SECTION_ID_NEW"]);
+				$oldSectionId = (int)$res["IBLOCK_SECTION_ID"];
+				$newSectionId = (int)$res["IBLOCK_SECTION_ID_NEW"];
 			}
 			else
 			{
@@ -4844,8 +4845,8 @@ class CAllIBlockElement
 					return;
 				}
 
-				$oldSectionId = intval($res["IBLOCK_SECTION_ID"]);
-				$newSectionId = intval($res["MIN_IBLOCK_SECTION_ID"]);
+				$oldSectionId = (int)$res["IBLOCK_SECTION_ID"];
+				$newSectionId = (int)$res["MIN_IBLOCK_SECTION_ID"];
 			}
 			else
 			{

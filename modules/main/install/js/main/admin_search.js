@@ -34,15 +34,13 @@ function JCAdminTitleSearch(arParams)
 
 	this.ShowResult = function(result)
 	{
-		var pos = BX.pos(_this.CONTAINER);
-		pos.width = pos.right - pos.left;
-		_this.RESULT.style.position = 'absolute';
-		_this.RESULT.style.top = '4px';//(pos.bottom + 2) - 46  + 'px';
-		_this.RESULT.style.left = (pos.left - 7) + 'px';
-		_this.RESULT.style.width = (pos.width + 14)+ 'px';
-		//_this.RESULT.style.zIndex = _this.CONTAINER.style.zIndex - 1;
+		this.AdjustResult();
+
 		if(result != null)
+		{
 			_this.RESULT.innerHTML = result;
+			setTimeout(this.AdjustResult, 50);
+		}
 
 		if(_this.RESULT.innerHTML.length > 0)
 		{
@@ -50,8 +48,20 @@ function JCAdminTitleSearch(arParams)
 			BX.addClass(_this.INPUT.parentNode,'adm-header-search-block-active-popup');
 		}
 		else
+		{
 			this.Hide();
+		}
 
+	};
+
+	this.AdjustResult = function(result)
+	{
+		var pos = BX.pos(_this.CONTAINER);
+		pos.width = pos.right - pos.left;
+		_this.RESULT.style.position = 'absolute';
+		_this.RESULT.style.top = '4px';
+		_this.RESULT.style.left = (pos.left - 7) + 'px';
+		_this.RESULT.style.width = (pos.width + 14)+ 'px';
 	};
 
 	this.onKeyPress = function(keyCode)

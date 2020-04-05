@@ -47,4 +47,5 @@ $MESS["IM_OPTIONS_TURN_SERVER_LOGIN"] = "Login";
 $MESS["IM_OPTIONS_TURN_SERVER_PASSWORD"] = "Password";
 $MESS["IM_OPTIONS_TURN_SERVER_PASSWORD_HINT"] = "publicly visible";
 $MESS["IM_OPTIONS_PATH_TO_USER_PROFILE"] = "User profile path template";
+$MESS["IM_CONTACT_LIST_LOAD"] = "Preload all portal users for faster search";
 ?>

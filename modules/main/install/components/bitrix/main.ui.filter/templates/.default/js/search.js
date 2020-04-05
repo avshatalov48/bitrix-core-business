@@ -385,6 +385,10 @@
 			if (utils.isKey(event, 'enter'))
 			{
 				this.apply();
+
+				this.firstInit = false;
+				this.lastSearchString = this.getSearchString();
+
 				parent.closePopup();
 			}
 

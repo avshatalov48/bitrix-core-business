@@ -4188,10 +4188,12 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 
 			locationString = this.getLocationString(this.regionHiddenBlockNode);
 			if (locationProperty && locationString.length)
-				addedHtml += '<strong>' + BX.util.htmlspecialchars(locationProperty.NAME) + ':</strong> ' + locationString + '<br>';
+				addedHtml += '<strong>' + BX.util.htmlspecialchars(locationProperty.NAME) + ':</strong> '
+					+ BX.util.htmlspecialchars(locationString) + '<br>';
 
 			if (zipProperty && zipValue.length)
-				addedHtml += '<strong>' + BX.util.htmlspecialchars(zipProperty.NAME) + ':</strong> ' + zipValue;
+				addedHtml += '<strong>' + BX.util.htmlspecialchars(zipProperty.NAME) + ':</strong> '
+					+ BX.util.htmlspecialchars(zipValue);
 
 			node.innerHTML += addedHtml;
 
@@ -5942,10 +5944,13 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 			{
 				currentProperty = this.locations[locationId][0].coordinates;
 
-				if (parseFloat(currentProperty.LONGITUDE) != 0 && parseFloat(currentProperty.LATITUDE) != 0)
+				var long = parseFloat(currentProperty.LONGITUDE),
+					lat = parseFloat(currentProperty.LATITUDE);
+
+				if (!isNaN(long) && !isNaN(lat) && long != 0 && lat != 0)
 				{
-					data.lat = parseFloat(currentProperty.LATITUDE);
-					data.lon = parseFloat(currentProperty.LONGITUDE);
+					data.lon = long;
+					data.lat = lat;
 				}
 			}
 

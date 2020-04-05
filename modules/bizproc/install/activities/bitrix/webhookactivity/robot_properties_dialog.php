@@ -5,9 +5,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 $map = $dialog->getMap();
 $handler = $map['Handler'];
 ?>
-<div class="crm-automation-popup-settings">
+<div class="bizproc-automation-popup-settings">
 	<textarea name="<?=htmlspecialcharsbx($handler['FieldName'])?>"
-			class="crm-automation-popup-textarea"
+			class="bizproc-automation-popup-textarea"
 			placeholder="<?=htmlspecialcharsbx($handler['Name'])?>"
 			data-role="inline-selector-target"
 	><?=htmlspecialcharsbx($dialog->getCurrentValue($handler['FieldName'], ''))?></textarea>

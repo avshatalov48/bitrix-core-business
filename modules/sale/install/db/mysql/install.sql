@@ -1758,6 +1758,7 @@ create table if not exists b_sale_cashbox (
 	ID INT(11) NOT NULL AUTO_INCREMENT,
 	NAME varchar(255) NOT NULL,
 	HANDLER varchar(255) NOT NULL,
+	EMAIL varchar(255) NOT NULL,
 	DATE_CREATE datetime NOT NULL,
 	DATE_LAST_CHECK datetime NULL,
 	SORT int default 100,

@@ -308,7 +308,8 @@ foreach($arResult["PresetFilters"] as $presetFilter)
 	{
 		$arResult["PresetFiltersNew"][$presetFilter["ID"]] = array(
 			"name" => $presetFilter["NAME"],
-			"fields" => $newFilter
+			"fields" => $newFilter,
+			"disallow_for_all" => ($presetFilter["ID"] == "my")
 		);
 	}
 }

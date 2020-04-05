@@ -116,12 +116,20 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 						}
 					}
 				}
+
+				if (!displayedUser)
+				{
+					return false;
+				}
+
 				if (displayedUser['PHOTO_SRC'])
 				{
 					BX('<?=$cmpId?>_face_3_photo_src').src = displayedUser['PHOTO_SRC'];
 				}
 				if (displayedUser['USER_ID'])
+				{
 					BX.tooltip(displayedUser['USER_ID'], "<?=$cmpId?>_face_3", "", 'intranet-user-selector-tooltip');
+				}
 			});
 		</script>
 	<?endif?>

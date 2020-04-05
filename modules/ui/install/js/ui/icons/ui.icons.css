@@ -24,7 +24,7 @@
 	max-width: 100%;
 	width: 100%;
 	height: 0;
-	background: url(images/sprite-files.min.svg) no-repeat center;
+	background: url(images/sprite-files.min.svg?v1.2) no-repeat center;
 	background-size: 100% auto;
 	--icon-file-col: 14;
 }

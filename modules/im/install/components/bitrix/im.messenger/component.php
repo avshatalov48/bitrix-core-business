@@ -131,13 +131,24 @@ if ($arParams["INIT"] == 'Y')
 	}
 	if ($arResult["CONTEXT"] == "DESKTOP")
 	{
-		$CIMContactList = new CIMContactList();
-		$arResult['CONTACT_LIST'] = $CIMContactList->GetList();
-
-		foreach ($arResult['CONTACT_LIST']['chats'] as $key => $value)
+		if (\COption::GetOptionInt('im', 'contact_list_load'))
 		{
-			$value['fake'] = true;
-			$arResult['CHAT']['chat'][$key] = $value;
+			$CIMContactList = new CIMContactList();
+			$arResult['CONTACT_LIST'] = $CIMContactList->GetList();
+
+			foreach ($arResult['CONTACT_LIST']['chats'] as $key => $value)
+			{
+				$value['fake'] = true;
+				$arResult['CHAT']['chat'][$key] = $value;
+			}
+		}
+		else
+		{
+			$arResult['CONTACT_LIST'] = Array(
+				'users' => Array(),
+				'groups' => Array(),
+				'userInGroup' => Array(),
+			);
 		}
 
 		if ($arParams['RECENT'] != 'Y')

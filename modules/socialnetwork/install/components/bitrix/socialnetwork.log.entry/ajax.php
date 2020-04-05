@@ -33,6 +33,8 @@ define("SITE_TEMPLATE_ID", $st_id);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
+global $DB, $USER, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
+
 use Bitrix\Main\Localization\Loc;
 
 $rsSite = CSite::GetByID($site_id);
@@ -73,11 +75,11 @@ if(CModule::IncludeModule("socialnetwork"))
 
 	$currentUserId = 0;
 	$currentUserExternalAuthId = '';
-	$bCurrentUserUserAuthorized = $GLOBALS["USER"]->IsAuthorized();
+	$bCurrentUserUserAuthorized = $USER->IsAuthorized();
 
 	if ($bCurrentUserUserAuthorized)
 	{
-		$currentUserId = $GLOBALS["USER"]->GetId();
+		$currentUserId = $USER->GetId();
 		$rsCurrentUser = CUser::GetByID($currentUserId);
 		if ($arCurrentUser = $rsCurrentUser->Fetch())
 		{
@@ -342,7 +344,7 @@ if(CModule::IncludeModule("socialnetwork"))
 								"ENTITY_TYPE" => $arLog["ENTITY_TYPE"],
 								"ENTITY_ID" => $arLog["ENTITY_ID"],
 								"EVENT_ID" => $arCommentEvent["EVENT_ID"],
-								"=LOG_DATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
+								"=LOG_DATE" => $DB->CurrentTimeFunction(),
 								"MESSAGE" => $comment_text,
 								"TEXT_MESSAGE" => $comment_text,
 								"MODULE_ID" => false,
@@ -356,7 +358,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							);
 						}
 
-						$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("SONET_COMMENT", $arFields);
+						$USER_FIELD_MANAGER->EditFormAddFields("SONET_COMMENT", $arFields);
 
 						if (
 							array_key_exists("UF_SONET_COM_FILE", $arFields)
@@ -594,7 +596,7 @@ if(CModule::IncludeModule("socialnetwork"))
 				$arResult["arComment"] = $arComment;
 
 				$dateFormated = FormatDate(
-					$GLOBALS['DB']->DateFormatToPHP(FORMAT_DATE),
+					$DB->DateFormatToPHP(FORMAT_DATE),
 					MakeTimeStamp(array_key_exists("LOG_DATE_FORMAT", $arComment) ? $arComment["LOG_DATE_FORMAT"] : $arComment["LOG_DATE"])
 				);
 
@@ -768,7 +770,7 @@ if(CModule::IncludeModule("socialnetwork"))
 
 				if (defined("BX_COMP_MANAGED_CACHE"))
 				{
-					$GLOBALS["CACHE_MANAGER"]->StartTagCache($cache_path);
+					$CACHE_MANAGER->StartTagCache($cache_path);
 				}
 
 				$arFilter = array("LOG_ID" => $log_tmp_id);
@@ -804,7 +806,7 @@ if(CModule::IncludeModule("socialnetwork"))
 				{
 					if (defined("BX_COMP_MANAGED_CACHE"))
 					{
-						$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_NAME_".intval($arComments["USER_ID"]));
+						$CACHE_MANAGER->RegisterTag("USER_NAME_".intval($arComments["USER_ID"]));
 					}
 
 					$arComments["UF"] = $arUFMeta;
@@ -829,7 +831,7 @@ if(CModule::IncludeModule("socialnetwork"))
 					$cache->EndDataCache($arCacheData);
 					if(defined("BX_COMP_MANAGED_CACHE"))
 					{
-						$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+						$CACHE_MANAGER->EndTagCache();
 					}
 				}
 			}
@@ -876,11 +878,9 @@ if(CModule::IncludeModule("socialnetwork"))
 			{
 				$commentId = ($arComment["EVENT"]["SOURCE_ID"] ? $arComment["EVENT"]["SOURCE_ID"] : $arComment["EVENT"]["ID"]);
 				$timestamp = ($arComment["LOG_DATE_TS"]);
-				$datetime_formatted = CSocNetLogComponent::getDateTimeFormatted($timestamp, array(
-					"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-					"DATE_TIME_FORMAT_WITHOUT_YEAR" => $arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"],
-					"TIME_FORMAT" => $arParams["TIME_FORMAT"]
-				));
+
+				$datetime_formatted = \CComponentUtil::getDateTimeFormatted($timestamp, $arParams["DATE_TIME_FORMAT"], $offset);
+
 				ob_start();
 				?><script>
 					top.arLogCom<?=$arLog["ID"]?><?=$commentId?> = '<?=$arComment["EVENT"]["ID"]?>';<?
@@ -925,7 +925,8 @@ if(CModule::IncludeModule("socialnetwork"))
 					"BEFORE" => "",
 					"AFTER" => $t,
 					"BEFORE_RECORD" => "",
-					"AFTER_RECORD" => ""
+					"AFTER_RECORD" => "",
+					"RATING_VOTE_ID" => $rating_entity_type.'_'.$commentId.'-'.(time()+rand(0, 1000)),
 				);
 				$count++;
 			}
@@ -1034,7 +1035,7 @@ if(CModule::IncludeModule("socialnetwork"))
 			}
 			else
 			{
-				if($e = $GLOBALS["APPLICATION"]->GetException())
+				if($e = $APPLICATION->GetException())
 				{
 					$arResult["strMessage"] = $e->GetString();
 				}
@@ -1234,7 +1235,7 @@ if(CModule::IncludeModule("socialnetwork"))
 
 				if (
 					!$bSuccess
-					&& ($e = $GLOBALS["APPLICATION"]->GetException())
+					&& ($e = $APPLICATION->GetException())
 				)
 				{
 					$errorMessage = $e->GetString();

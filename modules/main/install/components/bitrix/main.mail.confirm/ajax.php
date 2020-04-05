@@ -52,80 +52,156 @@ class MainMailConfirmAjax
 
 		$name   = trim($_REQUEST['name']);
 		$email  = strtolower(trim($_REQUEST['email']));
+		$smtp   = $_REQUEST['smtp'];
 		$code   = strtolower(trim($_REQUEST['code']));
 		$public = $_REQUEST['public'] == 'Y';
 
 		if (!check_email($email, true))
-			$error = getMessage(empty($email) ? 'MAIN_MAIL_CONFIRM_EMPTY_EMAIL' : 'MAIN_MAIL_CONFIRM_INVALID_EMAIL');
-
-		if ($error === false)
 		{
-			$pending = \CUserOptions::getOption('mail', 'pending_from_emails', null);
-			if (!is_array($pending))
-				$pending = array();
+			$error = getMessage(empty($email) ? 'MAIN_MAIL_CONFIRM_EMPTY_EMAIL' : 'MAIN_MAIL_CONFIRM_INVALID_EMAIL');
+			return;
+		}
 
-			foreach ($pending as $key => $item)
+		if (!empty($smtp))
+		{
+			if (!is_array($smtp))
 			{
-				if (time()-$item['time'] > 60*60*24*7)
-					unset($pending[$key]);
+				$error = getMessage('MAIN_MAIL_CONFIRM_AJAX_ERROR');
+				return;
 			}
 
-			\CUserOptions::setOption('mail', 'pending_from_emails', $pending);
+			$smtp = array(
+				'server'   => strtolower(trim($smtp['server'])),
+				'port'     => strtolower(trim($smtp['port'])),
+				'login'    => $smtp['login'],
+				'password' => $smtp['password'],
+			);
 
-			$key = hash('crc32b', strtolower($name).$email);
-
-			if (empty($code))
+			if (!preg_match('/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/i', $smtp['server']))
 			{
-				$pending[$key] = array(
-					'name'   => $name,
-					'email'  => $email,
-					'public' => $public,
-					'code'   => \Bitrix\Main\Security\Random::getStringByCharsets(5, '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ'),
-					'time'   => time(),
+				$error = getMessage(
+					empty($smtp['server'])
+						? 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER'
+						: 'MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER'
 				);
-				\CUserOptions::setOption('mail', 'pending_from_emails', $pending);
+				return;
+			}
 
-				$sendResult = \CEvent::sendImmediate(
-					'MAIN_MAIL_CONFIRM_CODE',
-					SITE_ID,
-					array(
-						'EMAIL_TO'        => $email,
-						'MESSAGE_SUBJECT' => getMessage('MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'),
-						'CONFIRM_CODE'    => $pending[$key]['code'],
-					)
+			if (!preg_match('/^[0-9]+$/i', $smtp['port']) || $smtp['port'] < 1 || $smtp['port'] > 65535)
+			{
+				$error = getMessage(
+					empty($smtp['port'])
+						? 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_PORT'
+						: 'MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT'
 				);
+				return;
+			}
+
+			if (empty($smtp['login']))
+			{
+				$error = getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN');
+				return;
+			}
+
+			if (empty($smtp['password']))
+			{
+				$error = getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD');
+				return;
+			}
+		}
+
+		$pending = array();
+		$expires = array();
+
+		$res = \Bitrix\Main\Mail\Internal\SenderTable::getList(array(
+			'filter' => array(
+				'=USER_ID' => $USER->getId(),
+				array(
+					'LOGIC' => 'OR',
+					'IS_CONFIRMED' => false,
+					'EMAIL'        => $email,
+				),
+			),
+		));
+		while ($item = $res->fetch())
+		{
+			if ($item['IS_CONFIRMED'])
+			{
+				if ($item['EMAIL'] == $email)
+				{
+					$alreadyConfirmed = true;
+				}
 			}
 			else
 			{
-				if (empty($pending[$key]) || strtolower($pending[$key]['code']) != $code)
-					$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_CODE');
-
-				if ($error === false)
+				if (time() - $item['OPTIONS']['confirm_time'] > 60*60*24*7)
 				{
-					$entry = \CUserOptions::getList(false, array(
-						'USER_ID'  => $public ? 0 : $USER->getId(),
-						'CATEGORY' => 'mail',
-						'NAME'     => 'confirmed_from_emails',
-						'COMMON'   => $public ? 'Y' : 'N',
-					))->fetch();
-					if (!empty($entry['VALUE']))
-						$confirmed = unserialize($entry['VALUE']);
+					$expires[] = $item['ID'];
+				}
+				else
+				{
+					if (!array_key_exists($item['EMAIL'], $pending))
+					{
+						$pending[$item['EMAIL']] = array();
+					}
 
-					if (empty($confirmed) || !is_array($confirmed))
-						$confirmed = array();
-
-					$confirmed[$key] = array(
-						'name'  => $name,
-						'email' => $email,
-					);
-					\CUserOptions::setOption('mail', 'confirmed_from_emails', $confirmed, $public);
-
-					unset($pending[$key]);
-					\CUserOptions::setOption('mail', 'pending_from_emails', $pending);
-
-					return array();
+					$pending[$item['EMAIL']][$item['ID']] = strtolower($item['OPTIONS']['confirm_code']);
 				}
 			}
+		}
+
+		\Bitrix\Main\Mail\Sender::delete($expires);
+
+		if (!empty($smtp))
+		{
+			$fields = array(
+				'NAME'         => $name,
+				'EMAIL'        => $email,
+				'USER_ID'      => $USER->getId(),
+				'IS_CONFIRMED' => true,
+				'IS_PUBLIC'    => $public,
+				'OPTIONS'      => array(
+					'smtp' => $smtp,
+				),
+			);
+			\Bitrix\Main\Mail\Internal\SenderTable::add($fields);
+		}
+		else if (empty($code))
+		{
+			$fields = array(
+				'NAME'         => $name,
+				'EMAIL'        => $email,
+				'USER_ID'      => $USER->getId(),
+				'IS_CONFIRMED' => false,
+				'IS_PUBLIC'    => $public,
+				'OPTIONS'      => array(
+					'confirm_code' => \Bitrix\Main\Security\Random::getStringByCharsets(5, '0123456789abcdefghjklmnpqrstuvwxyz'),
+					'confirm_time' => time(),
+				),
+			);
+			\Bitrix\Main\Mail\Internal\SenderTable::add($fields);
+
+			$sendResult = \CEvent::sendImmediate(
+				'MAIN_MAIL_CONFIRM_CODE',
+				SITE_ID,
+				array(
+					'EMAIL_TO'        => $email,
+					'MESSAGE_SUBJECT' => getMessage('MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'),
+					'CONFIRM_CODE'    => strtoupper($fields['OPTIONS']['confirm_code']),
+				)
+			);
+		}
+		else
+		{
+			if (!in_array($code, $pending[$email]))
+			{
+				$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_CODE');
+				return;
+			}
+
+			\Bitrix\Main\Mail\Sender::confirm(array_keys($pending[$email]));
+
+			return array();
 		}
 	}
 

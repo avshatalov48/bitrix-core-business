@@ -295,6 +295,21 @@ $MESS["SALE_CHECK_PRINT_HTML_TEXT"] = "
 Для получения подробной информации по заказу №#ORDER_ID# от #ORDER_DATE# пройдите на сайт http://#SERVER_NAME#/personal/order/detail/#ORDER_ACCOUNT_NUMBER_ENCODE#/
 ";
 
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_NAME"] = "Уведомление об ошибке при печати чека";
+$MESS["SALE_CHECK_PRINT_ERROR_TYPE_DESC"] = "#ORDER_ACCOUNT_NUMBER# - код заказа
+#ORDER_DATE# - дата заказа
+#ORDER_ID# - ID заказа
+#CHECK_ID# - номер чека";
+$MESS["SALE_CHECK_PRINT_ERROR_SUBJECT"] = "Ошибка при печати чека";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TITLE"] = "Ошибка при печати чека";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_SUB_TITLE"] = "Здравствуйте!";
+$MESS["SALE_CHECK_PRINT_ERROR_HTML_TEXT"] = "
+По какой-то причине чек №#CHECK_ID# по заказу №#ORDER_ACCOUNT_NUMBER# от #ORDER_DATE# не удалось распечатать!
+
+Перейдите по ссылке, чтобы устранить причину возникшей ситуации:
+http://#SERVER_NAME#/bitrix/admin/sale_order_view.php?ID=#ORDER_ID#
+";
+
 $MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_NAME"] = "Уведомление об изменении идентификатора почтового отправления";
 $MESS["SALE_ORDER_TRACKING_NUMBER_TYPE_DESC"] = "#ORDER_ID# - код заказа
 #ORDER_ACCOUNT_NUMBER_ENCODE# - код заказа(для ссылок)

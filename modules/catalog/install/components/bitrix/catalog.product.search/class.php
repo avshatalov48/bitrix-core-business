@@ -432,11 +432,57 @@ class ProductSearchComponent extends \CBitrixComponent
 							if (!isset($offersLink[$oneOfferId]))
 								continue;
 							$offersLink[$oneOfferId]['MEASURE_RATIO'] = $ratioData['RATIO'];
+							$offersLink[$oneOfferId]['DEFAULT_QUANTITY'] = $ratioData['RATIO'];
 							$offersLink[$oneOfferId]['MEASURE'] = $ratioData['MEASURE'];
 						}
 						unset($oneOfferId, $ratioData);
 					}
 					unset($ratioResult);
+
+					$priceIds = $this->getVisiblePrices();
+					foreach ($priceIds as $id)
+					{
+						$iterator = Catalog\PriceTable::getList(array(
+							'select' => array('PRODUCT_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'),
+							'filter' => array('@PRODUCT_ID' => $offersIds, '=CATALOG_GROUP_ID' => $id),
+						));
+						while ($row = $iterator->fetch())
+						{
+							$productId = (int)$row['PRODUCT_ID'];
+							$row['QUANTITY_FROM_SORT'] = ($row['QUANTITY_FROM'] === null ? 0 : (int)$row['QUANTITY_FROM']);
+							$row['QUANTITY_TO_SORT'] = ($row['QUANTITY_TO'] === null ? INF : (int)$row['QUANTITY_TO']);
+							$row['QUANTITY_FROM'] = (int)$row['QUANTITY_FROM'];
+							$row['QUANTITY_TO'] = (int)$row['QUANTITY_TO'];
+
+							$ratio = $offersLink[$productId]['MEASURE_RATIO'];
+							if ($ratio > $row['QUANTITY_TO_SORT'])
+								continue;
+							if ($ratio < $row['QUANTITY_FROM_SORT'])
+							{
+								$newRatio = $ratio * ((int)($row['QUANTITY_FROM_SORT']/$ratio));
+								if ($newRatio < $row['QUANTITY_FROM_SORT'])
+									$newRatio += $ratio;
+								if ($newRatio > $row['QUANTITY_TO_SORT'])
+									continue;
+								$ratio = $newRatio;
+							}
+
+							if (
+								!isset($offersLink[$productId]['PRICES'][$id])
+								|| ($offersLink[$productId]['PRICES'][$id]['QUANTITY_FROM'] > $row['QUANTITY_FROM'])
+							)
+							{
+								$offersLink[$productId]['DEFAULT_QUANTITY'] = $ratio;
+								$offersLink[$productId]['PRICES'][$id] = array(
+									'PRICE' => $row['PRICE'],
+									'CURRENCY' => $row['CURRENCY'],
+									'QUANTITY_FROM' => $row['QUANTITY_FROM'],
+									'QUANTITY_TO' => $row['QUANTITY_TO']
+								);
+							}
+						}
+						unset($row, $iterator);
+					}
 				}
 				unset($offersLink, $offersIds);
 			}
@@ -452,6 +498,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		$productName = trim($arProduct['NAME']);
 		if ($productId <= 0)
 			return false;
+
 		$arResult = array();
 		if (!empty($this->offers[$productId]))
 		{
@@ -581,6 +628,12 @@ class ProductSearchComponent extends \CBitrixComponent
 					$arSkuTmp['DETAIL_PICTURE'] = $arOffer['DETAIL_PICTURE'];
 				if (isset($arOffer['MEASURE_RATIO']))
 					$arSkuTmp['MEASURE_RATIO'] = $arOffer['MEASURE_RATIO'];
+				else
+					$arSkuTmp['MEASURE_RATIO'] = 1;
+				if (isset($arOffer['DEFAULT_QUANTITY']))
+					$arSkuTmp['DEFAULT_QUANTITY'] = $arOffer['DEFAULT_QUANTITY'];
+				else
+					$arSkuTmp['DEFAULT_QUANTITY'] = 1;
 				if (isset($arOffer['MEASURE']))
 					$arSkuTmp['MEASURE'] = $arOffer['MEASURE'];
 				$arSku[] = $arSkuTmp;
@@ -743,6 +796,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			));
 			while ($row = $iterator->fetch())
 				$arItemsResult[$row['ID']]['PRODUCT'] = $row;
+			unset($row, $iterator);
 
 			$offersExistsIds = \CCatalogSku::getExistOffers($arProductIds, $this->getIblockId());
 			$noOffersIds = array();
@@ -775,6 +829,7 @@ class ProductSearchComponent extends \CBitrixComponent
 						if (!isset($arItemsResult[$productId]['PRODUCT']))
 							continue;
 						$arItemsResult[$productId]['PRODUCT']['MEASURE_RATIO'] = $productRatio['RATIO'];
+						$arItemsResult[$productId]['PRODUCT']['DEFAULT_QUANTITY'] = $productRatio['RATIO'];
 						$arItemsResult[$productId]['PRODUCT']['MEASURE'] = $productRatio['MEASURE'];
 					}
 					unset($productRatio, $productId);
@@ -784,33 +839,46 @@ class ProductSearchComponent extends \CBitrixComponent
 				$priceIds = $this->getVisiblePrices();
 				foreach ($priceIds as $priceId)
 				{
-					$dbPrice = \CPrice::GetListEx(
-						array(),
-						array(
-							'PRODUCT_ID' => $noOffersIds, 'CATALOG_GROUP_ID' => $priceId
-						),
-						false,
-						false,
-						array('PRODUCT_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO')
-					);
-					while ($arPrice = $dbPrice->fetch())
+					$iterator = Catalog\PriceTable::getList(array(
+						'select' => array('PRODUCT_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO'),
+						'filter' => array('@PRODUCT_ID' => $noOffersIds, '=CATALOG_GROUP_ID' => $priceId)
+					));
+					while ($row = $iterator->fetch())
 					{
-						$arPrice['QUANTITY_FROM'] = (int)$arPrice['QUANTITY_FROM'];
-						$arPrice['QUANTITY_TO'] = (int)$arPrice['QUANTITY_TO'];
+						$productId = (int)$row['PRODUCT_ID'];
+						$row['QUANTITY_FROM_SORT'] = ($row['QUANTITY_FROM'] === null ? 0 : (int)$row['QUANTITY_FROM']);
+						$row['QUANTITY_TO_SORT'] = ($row['QUANTITY_TO'] === null ? INF : (int)$row['QUANTITY_TO']);
+						$row['QUANTITY_FROM'] = (int)$row['QUANTITY_FROM'];
+						$row['QUANTITY_TO'] = (int)$row['QUANTITY_TO'];
+
+						$ratio = $arItemsResult[$productId]['PRODUCT']['MEASURE_RATIO'];
+						if ($ratio > $row['QUANTITY_TO_SORT'])
+							continue;
+						if ($ratio < $row['QUANTITY_FROM_SORT'])
+						{
+							$newRatio = $ratio * ((int)($row['QUANTITY_FROM_SORT']/$ratio));
+							if ($newRatio < $row['QUANTITY_FROM_SORT'])
+								$newRatio += $ratio;
+							if ($newRatio > $row['QUANTITY_TO_SORT'])
+								continue;
+							$ratio = $newRatio;
+						}
+
 						if (
-							!isset($arItemsResult[$arPrice["PRODUCT_ID"]]['PRICES'][$priceId])
-							|| ($arItemsResult[$arPrice["PRODUCT_ID"]]['PRICES'][$priceId]['QUANTITY_FROM'] > $arPrice['QUANTITY_FROM'])
+							!isset($arItemsResult[$productId]['PRICES'][$priceId])
+							|| ($arItemsResult[$productId]['PRICES'][$priceId]['QUANTITY_FROM'] > $row['QUANTITY_FROM'])
 						)
 						{
-							$arItemsResult[$arPrice["PRODUCT_ID"]]['PRICES'][$priceId] = array(
-								'PRICE' => $arPrice['PRICE'],
-								'CURRENCY' => $arPrice['CURRENCY'],
-								'QUANTITY_FROM' => $arPrice['QUANTITY_FROM'],
-								'QUANTITY_TO' => $arPrice['QUANTITY_TO']
+							$arItemsResult[$productId]['PRODUCT']['DEFAULT_QUANTITY'] = $ratio;
+							$arItemsResult[$productId]['PRICES'][$priceId] = array(
+								'PRICE' => $row['PRICE'],
+								'CURRENCY' => $row['CURRENCY'],
+								'QUANTITY_FROM' => $row['QUANTITY_FROM'],
+								'QUANTITY_TO' => $row['QUANTITY_TO']
 							);
 						}
 					}
-					unset($arPrice, $dbPrice);
+					unset($row, $iterator);
 				}
 
 				if ($this->getStoreId())
@@ -847,40 +915,15 @@ class ProductSearchComponent extends \CBitrixComponent
 		$result = array();
 		if ($this->offers)
 		{
-			$ids = array();
-			foreach ($this->offers as $id => $offers)
-				foreach ($offers as $offer)
-					$ids[] = $offer['ID'];
-			if ($ids)
+			$priceIds = $this->getVisiblePrices();
+			foreach ($this->offers as $productId => $offers)
 			{
-				$priceIds = $this->getVisiblePrices();
-				foreach ($priceIds as $id)
+				foreach (array_keys($offers) as $index)
 				{
-					$dbPrice = \CPrice::getListEx(
-						array(),
-						array('PRODUCT_ID' => $ids, 'CATALOG_GROUP_ID' => $id),
-						false,
-						false,
-						array('PRODUCT_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO')
-					);
-					while ($arPrice = $dbPrice->fetch())
+					foreach ($priceIds as $id)
 					{
-						$arPrice['QUANTITY_FROM'] = (int)$arPrice['QUANTITY_FROM'];
-						$arPrice['QUANTITY_TO'] = (int)$arPrice['QUANTITY_TO'];
-						if (
-							!isset($result[$id][$arPrice["PRODUCT_ID"]])
-							|| ($result[$id][$arPrice["PRODUCT_ID"]]['QUANTITY_FROM'] > $arPrice['QUANTITY_FROM'])
-						)
-						{
-							$result[$id][$arPrice["PRODUCT_ID"]] = array(
-								'PRICE' => $arPrice['PRICE'],
-								'CURRENCY' => $arPrice['CURRENCY'],
-								'QUANTITY_FROM' => $arPrice['QUANTITY_FROM'],
-								'QUANTITY_TO' => $arPrice['QUANTITY_TO']
-							);
-						}
+						$result[$id][$index] = $this->offers[$productId][$index]['PRICES'];
 					}
-					unset($arPrice, $dbPrice);
 				}
 			}
 		}

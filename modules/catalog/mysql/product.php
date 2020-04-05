@@ -1,5 +1,7 @@
 <?
-use Bitrix\Main\Loader,
+/** @global \CMain $APPLICATION */
+use Bitrix\Main,
+	Bitrix\Main\Loader,
 	Bitrix\Main\Config\Option,
 	Bitrix\Catalog;
 
@@ -7,165 +9,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/product.
 
 class CCatalogProduct extends CAllCatalogProduct
 {
-	public function Add($arFields, $boolCheck = true)
-	{
-		global $DB;
-
-		$existProduct = false;
-		$boolCheck = ($boolCheck !== false);
-
-		if (empty($arFields['ID']))
-			return false;
-		$arFields['ID'] = (int)$arFields['ID'];
-		if ($arFields['ID'] <= 0)
-			return false;
-
-		if ($boolCheck)
-			$existProduct = Catalog\ProductTable::isExistProduct($arFields['ID']);
-
-		if ($existProduct)
-		{
-			return CCatalogProduct::Update($arFields['ID'], $arFields);
-		}
-		else
-		{
-			foreach (GetModuleEvents("catalog", "OnBeforeProductAdd", true) as $arEvent)
-			{
-				if (ExecuteModuleEventEx($arEvent, array(&$arFields))===false)
-					return false;
-			}
-
-			if (!CCatalogProduct::CheckFields("ADD", $arFields, 0))
-				return false;
-
-			$arInsert = $DB->PrepareInsert("b_catalog_product", $arFields);
-
-			$strSql = "INSERT INTO b_catalog_product(".$arInsert[0].") VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-			Catalog\ProductTable::clearProductCache($arFields['ID']);
-
-			foreach (GetModuleEvents("catalog", "OnProductAdd", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($arFields["ID"], $arFields));
-			// strange copy-paste bug
-			foreach (GetModuleEvents("sale", "OnProductAdd", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($arFields["ID"], $arFields));
-
-			Catalog\Product\Sku::updateAvailable($arFields['ID'], 0, $arFields);
-		}
-
-		return true;
-	}
-
-	public function Update($ID, $arFields)
-	{
-		global $DB;
-
-		$ID = (int)$ID;
-		if ($ID <= 0)
-			return false;
-
-		foreach (GetModuleEvents("catalog", "OnBeforeProductUpdate", true) as $arEvent)
-		{
-			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields))===false)
-				return false;
-		}
-
-		if (array_key_exists('ID', $arFields))
-			unset($arFields['ID']);
-
-		if (!CCatalogProduct::CheckFields("UPDATE", $arFields, $ID))
-			return false;
-
-		$strUpdate = $DB->PrepareUpdate("b_catalog_product", $arFields);
-
-		$boolSubscribe = false;
-		if (!empty($strUpdate))
-		{
-			if(Catalog\SubscribeTable::checkPermissionSubscribe($arFields['SUBSCRIBE']))
-			{
-				$strQuery = 'select ID, QUANTITY, AVAILABLE from b_catalog_product where ID = '.$ID;
-				$rsProducts = $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if ($arProduct = $rsProducts->Fetch())
-				{
-					$arFields["OLD_QUANTITY"] = (float)$arProduct['QUANTITY'];
-					Catalog\SubscribeTable::setOldProductAvailable($ID, $arProduct['AVAILABLE']);
-				}
-				if (isset($arFields["OLD_QUANTITY"]))
-				{
-					$boolSubscribe = $arFields["OLD_QUANTITY"] <= 0;
-				}
-			}
-
-			$strSql = "update b_catalog_product set ".$strUpdate." where ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-			if (
-				CBXFeatures::IsFeatureEnabled('CatCompleteSet')
-				&& (
-					isset($arFields['QUANTITY']) || isset($arFields['QUANTITY_TRACE']) || isset($arFields['CAN_BUY_ZERO']) || isset($arFields['WEIGHT'])
-				)
-			)
-			{
-				CCatalogProductSet::recalculateSetsByProduct($ID);
-			}
-
-			Catalog\Product\Sku::updateAvailable($ID, 0, $arFields);
-
-			if (isset(self::$arProductCache[$ID]))
-			{
-				unset(self::$arProductCache[$ID]);
-				if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
-				{
-					/** @var array $CATALOG_PRODUCT_CACHE */
-					global $CATALOG_PRODUCT_CACHE;
-					$CATALOG_PRODUCT_CACHE = self::$arProductCache;
-				}
-			}
-		}
-
-		foreach (GetModuleEvents("catalog", "OnProductUpdate", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-
-		//call subscribe
-		if ($boolSubscribe)
-		{
-			if (self::$saleIncluded === null)
-				self::$saleIncluded = Loader::includeModule('sale');
-			if (self::$saleIncluded)
-				CSaleBasket::ProductSubscribe($ID, 'catalog');
-		}
-
-		return true;
-	}
-
-	public function Delete($ID)
-	{
-		global $DB;
-
-		$ID = (int)$ID;
-		if ($ID <= 0)
-			return false;
-
-		$DB->Query('delete from b_catalog_price where PRODUCT_ID = '.$ID, true);
-		$DB->Query('delete from b_catalog_product2group where PRODUCT_ID = '.$ID, true);
-		$DB->Query('delete from b_catalog_product_sets where ITEM_ID = '.$ID.' or OWNER_ID = '.$ID, true);
-		$DB->Query('delete from b_catalog_measure_ratio where PRODUCT_ID = '.$ID, true);
-
-		Catalog\ProductTable::clearProductCache($ID);
-		if (isset(self::$arProductCache[$ID]))
-		{
-			unset(self::$arProductCache[$ID]);
-			if (defined('CATALOG_GLOBAL_VARS') && CATALOG_GLOBAL_VARS == 'Y')
-			{
-				/** @var array $CATALOG_PRODUCT_CACHE */
-				global $CATALOG_PRODUCT_CACHE;
-				$CATALOG_PRODUCT_CACHE = self::$arProductCache;
-			}
-		}
-		return $DB->Query("delete from b_catalog_product where ID = ".$ID, true);
-	}
-
 	public static function GetQueryBuildArrays($arOrder, $arFilter, $arSelect)
 	{
 		global $DB, $USER;
@@ -326,7 +169,7 @@ class CCatalogProduct extends CAllCatalogProduct
 						unset($scale);
 						break;
 					case "PRICE_SCALE":
-						$res = CIBlock::FilterCreate("CAT_P".$inum.".PRICE", $val, "number", $cOperationType);
+						$res = CIBlock::FilterCreate("CAT_P".$inum.".PRICE_SCALE", $val, "number", $cOperationType);
 						break;
 					case "QUANTITY":
 						$res = CIBlock::FilterCreate("CAT_PR.QUANTITY", $val, "number", $cOperationType);
@@ -571,6 +414,8 @@ class CCatalogProduct extends CAllCatalogProduct
 	{
 		global $DB;
 
+		$entityResult = new CCatalogResult('\Bitrix\Catalog\Model\Product');
+
 		if (!is_array($arOrder) && !is_array($arFilter))
 		{
 			$arOrder = (string)$arOrder;
@@ -622,6 +467,8 @@ class CCatalogProduct extends CAllCatalogProduct
 			"ELEMENT_XML_ID" => array("FIELD" => "I.XML_ID", "TYPE" => "string", "FROM" => "INNER JOIN b_iblock_element I ON (CP.ID = I.ID)"),
 			"ELEMENT_NAME" => array("FIELD" => "I.NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_iblock_element I ON (CP.ID = I.ID)")
 		);
+
+		$arSelectFields = $entityResult->prepareSelect($arSelectFields);
 
 		$arSqls = CCatalog::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 
@@ -683,7 +530,9 @@ class CCatalogProduct extends CAllCatalogProduct
 			if ($boolNavStartParams && $intTopCount > 0)
 				$strSql .= " LIMIT ".$intTopCount;
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$entityResult->setResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+
+			$dbRes = $entityResult;
 		}
 
 		return $dbRes;

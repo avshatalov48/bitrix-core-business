@@ -203,20 +203,22 @@ class CMailDomain2
 			return null;
 		}
 
-		$res = \Bitrix\Mail\Internals\DomainEmailTable::getList(array(
-			'filter' => array(
-				'=DOMAIN' => $domain,
-			),
-		));
-		if ($res !== false)
+		if (!$resync)
 		{
-			while ($item = $res->fetch())
-				$users[] = $item['LOGIN'];
+			$res = \Bitrix\Mail\Internals\DomainEmailTable::getList(array(
+				'filter' => array(
+					'=DOMAIN' => $domain,
+				),
+			));
+			if ($res !== false)
+			{
+				while ($item = $res->fetch())
+					$users[] = $item['LOGIN'];
+			}
 		}
 
 		if ($resync || empty($users))
 		{
-			$cached = $users;
 			$users = array();
 
 			$page = 0;
@@ -240,6 +242,19 @@ class CMailDomain2
 
 			if (!$error)
 			{
+				$cached = array();
+
+				$res = \Bitrix\Mail\Internals\DomainEmailTable::getList(array(
+					'filter' => array(
+						'=DOMAIN' => $domain,
+					),
+				));
+				if ($res !== false)
+				{
+					while ($item = $res->fetch())
+						$cached[] = $item['LOGIN'];
+				}
+
 				foreach (array_diff($cached, $users) as $login)
 				{
 					\Bitrix\Mail\Internals\DomainEmailTable::delete(array(

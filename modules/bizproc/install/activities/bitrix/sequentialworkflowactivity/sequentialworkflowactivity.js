@@ -275,6 +275,36 @@ SequentialWorkflowActivity = function()
 		
 	};
 
+	ob.DrawMarketplaceItem = function (divGroupList)
+	{
+		var dCont, bCat, cat;
+
+		dCont = divGroupList.appendChild(document.createElement('DIV'));
+		dCont.onclick = function(e) {
+			BX.PreventDefault(e);
+			BX.rest.Marketplace.open({}, 'auto_pb');
+		};
+
+		var t = dCont.appendChild(_crt(1, 3));
+
+		t.rows[0].style.height = '30px';
+		t.rows[0].cells[0].style.width = '30px';
+
+		t.rows[0].cells[0].style.background = 'url(/bitrix/images/bizproc/act_icon_plus.png) 3px 3px no-repeat';
+
+		//d.style.borderBottom = "1px #EBEBEB solid"
+		t.rows[0].cells[0].style.cursor = 'pointer';
+
+		t.rows[0].cells[1].style.cursor = 'pointer';
+		t.rows[0].cells[1].style.fontSize = '11px';
+		t.rows[0].cells[1].innerHTML = HTMLEncode(BPMESS['SEQWF_MARKETPLACE_ADD']);
+		t.rows[0].cells[1].align = 'left';
+
+		t.insertRow(-1);
+		t.rows[1].insertCell(-1).innerHTML = '<table width="100%" style="border-collapse: collapse" cellpadding="0" cellspacing="0" border="0"><tr><td width="5"></td><td style="border-bottom: 1px #EBEBEB solid; height: 1px; font-size: 1px;"><img src="/bitrix/images/1.gif" width="1" height="1"></td><td width="5"></td></tr></table>';
+		t.rows[1].cells[0].colSpan = "3";
+	};
+
 	ob.ShowActivities = function (div)
 	{
 		ob.swfToolboxDiv = div.appendChild(document.createElement('DIV'));
@@ -309,6 +339,16 @@ SequentialWorkflowActivity = function()
 					divGroupList = ob.DrawGroup(arAllActGroups[groupId]);
 
 				ob.DrawGroupItem(divGroupList, arAllActivities[act_i]);
+			}
+
+			if (groupId === 'rest' && BX.getClass('BX.rest.Marketplace'))
+			{
+				if (divGroupList === null)
+				{
+					divGroupList = ob.DrawGroup(arAllActGroups[groupId]);
+				}
+
+				ob.DrawMarketplaceItem(divGroupList);
 			}
 		}
 

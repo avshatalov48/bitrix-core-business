@@ -68,6 +68,11 @@ class SaleOrderAjax extends \CBitrixComponent
 	{
 		global $APPLICATION;
 
+		if (isset($arParams['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($arParams['CUSTOM_SITE_ID']);
+		}
+
 		$this->useCatalog = Loader::includeModule('catalog');
 
 		if (!isset($arParams['COMPATIBLE_MODE']) && $this->initComponentTemplate())
@@ -145,6 +150,8 @@ class SaleOrderAjax extends \CBitrixComponent
 		$arParams['ALLOW_AUTO_REGISTER'] = $arParams['ALLOW_AUTO_REGISTER'] === 'Y' ? 'Y' : 'N';
 		$arParams['CURRENT_PAGE'] = $APPLICATION->GetCurPage();
 
+		$siteId = $this->getSiteId();
+
 		$this->arResult = array(
 			'PERSON_TYPE' => array(),
 			'PAY_SYSTEM' => array(),
@@ -162,9 +169,9 @@ class SaleOrderAjax extends \CBitrixComponent
 			'VAT_SUM' => 0,
 			'bUsingVat' => false,
 			'BASKET_ITEMS' => array(),
-			'BASE_LANG_CURRENCY' => Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency(SITE_ID),
-			'WEIGHT_UNIT' => htmlspecialcharsbx(Option::get('sale', 'weight_unit', false, SITE_ID)),
-			'WEIGHT_KOEF' => htmlspecialcharsbx(Option::get('sale', 'weight_koef', 1, SITE_ID)),
+			'BASE_LANG_CURRENCY' => Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($siteId),
+			'WEIGHT_UNIT' => htmlspecialcharsbx(Option::get('sale', 'weight_unit', false, $siteId)),
+			'WEIGHT_KOEF' => htmlspecialcharsbx(Option::get('sale', 'weight_koef', 1, $siteId)),
 			'TaxExempt' => array(),
 			'DISCOUNT_PRICE' => 0,
 			'DISCOUNT_PERCENT' => 0,
@@ -189,7 +196,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			'PREPAY_ORDER_PROPS' => array(),
 		);
 
-		$this->arResult['AUTH']['new_user_registration_email_confirmation'] = Option::get('main', 'new_user_registration_email_confirmation', 'N', SITE_ID) === 'Y' ? 'Y' : 'N';
+		$this->arResult['AUTH']['new_user_registration_email_confirmation'] = Option::get('main', 'new_user_registration_email_confirmation', 'N', $siteId) === 'Y' ? 'Y' : 'N';
 		$this->arResult['AUTH']['new_user_registration'] = Option::get('main', 'new_user_registration', 'Y') === 'Y' ? 'Y' : 'N';
 		$this->arResult['AUTH']['new_user_email_required'] = Option::get('main', 'new_user_email_required', '') === 'Y' ? 'Y' : 'N';
 
@@ -1305,7 +1312,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				{
 					if ($this->arParams['SEND_NEW_USER_NOTIFY'] === 'Y')
 					{
-						CUser::SendUserInfo($USER->GetID(), SITE_ID, Loc::getMessage('INFO_REQ'), true);
+						CUser::SendUserInfo($USER->GetID(), $this->getSiteId(), Loc::getMessage('INFO_REQ'), true);
 					}
 
 					if ($this->isRequestViaAjax)
@@ -1345,7 +1352,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		$affiliateID = CSaleAffiliate::GetAffiliate();
 		if ($affiliateID > 0)
 		{
-			$dbAffiliate = CSaleAffiliate::GetList(array(), array("SITE_ID" => $this->context->getSite(), "ID" => $affiliateID));
+			$dbAffiliate = CSaleAffiliate::GetList(array(), array("SITE_ID" => $this->getSiteId(), "ID" => $affiliateID));
 			$arAffiliates = $dbAffiliate->Fetch();
 			if (count($arAffiliates) > 1)
 				$this->order->setField('AFFILIATE_ID', $affiliateID);
@@ -1538,7 +1545,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		$personType = $this->request->get('PERSON_TYPE');
 		if ($personType <= 0)
 		{
-			$personTypes = PersonType::load(SITE_ID);
+			$personTypes = PersonType::load($this->getSiteId());
 			foreach ($personTypes as $type)
 			{
 				$personType = $type['ID'];
@@ -1649,7 +1656,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				$iBlockList = array();
 				$catalogIterator = Bitrix\Catalog\CatalogIblockTable::getList(array(
 					'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SITE_ID' => 'IBLOCK_SITE.SITE_ID'),
-					'filter' => array('SITE_ID' => SITE_ID),
+					'filter' => array('SITE_ID' => $this->getSiteId()),
 					'runtime' => array(
 						'IBLOCK_SITE' => array(
 							'data_type' => 'Bitrix\Iblock\IblockSiteTable',
@@ -2741,7 +2748,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		$arStore = array();
 		$dbList = CCatalogStore::GetList(
 			array("SORT" => "DESC", "ID" => "DESC"),
-			array("ACTIVE" => "Y", "ID" => $arStoreId, "ISSUING_CENTER" => "Y", "+SITE_ID" => SITE_ID),
+			array("ACTIVE" => "Y", "ID" => $arStoreId, "ISSUING_CENTER" => "Y", "+SITE_ID" => $this->getSiteId()),
 			false,
 			false,
 			array("ID", "TITLE", "ADDRESS", "DESCRIPTION", "IMAGE_ID", "PHONE", "SCHEDULE", "GPS_N", "GPS_S", "ISSUING_CENTER", "SITE_ID")
@@ -3014,7 +3021,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			'filter' => array(
 				'ACTIVE' => 'Y',
 				'UTIL' => 'N',
-				'PERSON_TYPE_SITE.SITE_ID' => SITE_ID
+				'PERSON_TYPE_SITE.SITE_ID' => $this->getSiteId()
 			),
 			'order' => array(
 				'SORT' => 'ASC',
@@ -4784,7 +4791,7 @@ class SaleOrderAjax extends \CBitrixComponent
 					'PRESELECT_TREE_TRUNK' => 'Y',
 					'SUPPRESS_ERRORS' => 'Y',
 					'FILTER_BY_SITE' => 'Y',
-					'FILTER_SITE_ID' => SITE_ID
+					'FILTER_SITE_ID' => $this->getSiteId()
 				);
 
 				ob_start();
@@ -4829,7 +4836,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				'PRESELECT_TREE_TRUNK' => 'Y',
 				'SUPPRESS_ERRORS' => 'Y',
 				'FILTER_BY_SITE' => 'Y',
-				'FILTER_SITE_ID' => SITE_ID
+				'FILTER_SITE_ID' => $this->getSiteId()
 			);
 
 			ob_start();
@@ -5208,7 +5215,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		$orderData['ORDER_WEIGHT'] = $this->arResult['ORDER_WEIGHT'];
 		$orderData['WEIGHT_UNIT'] = $this->arResult['WEIGHT_UNIT'];
 		$orderData['WEIGHT_KOEF'] = $this->arResult['WEIGHT_KOEF'];
-		$orderData['SITE_ID'] = SITE_ID;
+		$orderData['SITE_ID'] = $this->getSiteId();
 		$orderData['USE_VAT'] = $this->arResult["USE_VAT"];
 		$orderData['VAT_RATE'] = $this->arResult["VAT_RATE"];
 		$orderData['VAT_SUM'] = $this->arResult["VAT_SUM"];
@@ -5737,6 +5744,7 @@ class SaleOrderAjax extends \CBitrixComponent
 							}
 
 							$arResult["PAY_SYSTEM_LIST"][$payment->getPaymentSystemId()] = $arPaySysAction;
+							$arResult["PAY_SYSTEM_LIST_BY_PAYMENT_ID"][$payment->getId()] = $arPaySysAction;
 						}
 						else
 							$arResult["PAY_SYSTEM_LIST"][$payment->getPaymentSystemId()] = array('ERROR' => true);

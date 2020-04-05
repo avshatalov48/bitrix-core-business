@@ -170,6 +170,11 @@ class CBlogNotifySchema
 				}
 			}
 
+			if ($perm == \Bitrix\Blog\Item\Permissions::DENY)
+			{
+				return Loc::getMessage('BLG_NS_IM_ANSWER_ERROR');
+			}
+
 			if (!\Bitrix\Blog\Item\Comment::checkDuplicate(array(
 				'MESSAGE' => $text,
 				'BLOG_ID' => $post['BLOG_ID'],

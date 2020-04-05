@@ -8,7 +8,9 @@
 
 namespace Bitrix\Sender\Internals;
 
-use \Bitrix\Main\Config\Option;
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Sender\Runtime;
 
 class CounterCalculation
 {
@@ -330,37 +332,12 @@ class CounterCalculation
 
 	public static function updateMailingSubscription()
 	{
-		// get list of all subscribers and unsubscribers
-		$existedSubList = array();
-		$existedSubDb = \Bitrix\Sender\MailingSubscriptionTable::getList(array(
-			'select' => array('EMAIL' => 'CONTACT.EMAIL', 'MAILING_ID')
-		));
-		while($existedSub = $existedSubDb->fetch())
-		{
-			$existedSubList[$existedSub['EMAIL']][] = $existedSub['MAILING_ID'];
-		}
-
-		// get list of all unsubscribers
 		$dataDb = \Bitrix\Sender\PostingUnsubTable::getList(array(
 			'select' => array(
-				'EMAIL' => 'UPDATE_RECIPIENT.EMAIL',
-				'MAILING_ID' => 'UPDATE_POSTING.MAILING_ID',
+				'CONTACT_ID' => 'POSTING_RECIPIENT.CONTACT_ID',
+				'MAILING_ID' => 'POSTING.MAILING_ID',
 			),
 			'filter' => array(),
-			'runtime' => array(
-				new \Bitrix\Main\Entity\ReferenceField(
-					'UPDATE_RECIPIENT',
-					'Bitrix\Sender\PostingRecipientTable',
-					array('=this.RECIPIENT_ID' => 'ref.ID'),
-					array('join_type' => 'INNER')
-				),
-				new \Bitrix\Main\Entity\ReferenceField(
-					'UPDATE_POSTING',
-					'Bitrix\Sender\PostingTable',
-					array('=this.POSTING_ID' => 'ref.ID'),
-					array('join_type' => 'INNER')
-				),
-			),
 			'order' => array('ID' => 'ASC'),
 		));
 		while($data = $dataDb->fetch())
@@ -370,13 +347,7 @@ class CounterCalculation
 				return true;
 			}
 
-			if(isset($existedSubList[$data['EMAIL']]) && in_array($data['MAILING_ID'], $existedSubList[$data['EMAIL']]) )
-			{
-				continue;
-			}
-
-			$contactId = \Bitrix\Sender\ContactTable::addIfNotExist(array('EMAIL' => $data['EMAIL']));
-			$primary = array('MAILING_ID' => $data['MAILING_ID'], 'CONTACT_ID' => $contactId);
+			$primary = array('MAILING_ID' => $data['MAILING_ID'], 'CONTACT_ID' => $data['CONTACT_ID']);
 			$fields = array('IS_UNSUB' => 'Y');
 			$row = \Bitrix\Sender\MailingSubscriptionTable::getRowById($primary);
 			if(!$row)
@@ -396,13 +367,13 @@ class CounterCalculation
 		switch(strtoupper($connection->getType()))
 		{
 			case 'MSSQL':
-				$query = "SELECT ID FROM b_sender_contact WHERE EMAIL LIKE '%[A-Z]%' COLLATE Latin1_General_BIN";
+				$query = "SELECT ID FROM b_sender_contact WHERE TYPE_ID=1 AND CODE LIKE '%[A-Z]%' COLLATE Latin1_General_BIN";
 				break;
 			case 'MYSQL':
-				$query = "SELECT ID FROM b_sender_contact WHERE EMAIL REGEXP BINARY '[A-Z]'";
+				$query = "SELECT ID FROM b_sender_contact WHERE TYPE_ID=1 AND CODE REGEXP BINARY '[A-Z]'";
 				break;
 			case 'ORACLE':
-				$query = "SELECT ID FROM b_sender_contact WHERE REGEXP_LIKE(EMAIL, '[A-Z]')";
+				$query = "SELECT ID FROM b_sender_contact WHERE TYPE_ID=1 AND REGEXP_LIKE(CODE, '[A-Z]')";
 				break;
 		}
 
@@ -416,7 +387,7 @@ class CounterCalculation
 					return true;
 				}
 
-				$connection->Query("UPDATE b_sender_contact SET EMAIL = LOWER(EMAIL) WHERE ID = " . intval($senderContact['ID']));
+				$connection->Query("UPDATE b_sender_contact SET CODE = LOWER(CODE) WHERE TYPE_ID=1 AND ID = " . intval($senderContact['ID']));
 			}
 		}
 
@@ -454,5 +425,55 @@ class CounterCalculation
 		}
 
 		return $postingUpdateFields;
+	}
+
+	/**
+	 * Index letters.
+	 *
+	 * @return string
+	 */
+	public static function updateRecipientsAgent()
+	{
+		$conn = Application::getConnection();
+
+		$hasData = false;
+		if ($conn->isTableExists('b_sender_posting_rcpnt_old'))
+		{
+			$limit = 100;
+			$timer = new Runtime\Timer(Runtime\Env::getJobExecutionTimeout(), 100);
+			while (!$timer->isElapsed())
+			{
+				$hasData = true;
+				$sql = "INSERT IGNORE INTO b_sender_posting_recipient "
+					. "(CONTACT_ID, POSTING_ID, STATUS, USER_ID, FIELDS, ROOT_ID, IS_READ, IS_CLICK, IS_UNSUB, DATE_DENY, DATE_SENT) "
+					. "SELECT c.ID as CONTACT_ID, "
+					. "ro.POSTING_ID, ro.STATUS, ro.USER_ID, ro.FIELDS, ro.ROOT_ID, ro.IS_READ, ro.IS_CLICK, ro.IS_UNSUB, ro.DATE_DENY, ro.DATE_SENT "
+					. "FROM b_sender_posting_rcpnt_old ro, b_sender_posting p, b_sender_contact c "
+					. "WHERE ro.POSTING_ID=p.ID "
+					. "and c.TYPE_ID=1 and c.CODE=ro.EMAIL "
+					. "order by ro.ID ASC "
+					. "limit $limit";
+				$conn->query($sql);
+				$conn->query("delete from b_sender_posting_rcpnt_old order by ID asc limit $limit");
+				if (!$conn->query('select ID from b_sender_posting_rcpnt_old limit 1')->fetch())
+				{
+					$hasData = false;
+					break;
+				}
+			}
+		}
+
+		if (!$hasData)
+		{
+			Application::getConnection()->query(
+				"DROP TABLE IF EXISTS b_sender_posting_rcpnt_old"
+			);
+
+			return '';
+		}
+		else
+		{
+			return '\Bitrix\Sender\Internals\CounterCalculation::updateRecipientsAgent();';
+		}
 	}
 }

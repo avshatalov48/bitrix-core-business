@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Main\Web;
 
+use Bitrix\Main\Config;
+
 class Cookie
 {
 	const SPREAD_SITES = 1;
@@ -15,43 +17,69 @@ class Cookie
 	protected $secure = false;
 	protected $value;
 
-	public function __construct($name, $value, $expires = null)
+	/**
+	 * Cookie constructor.
+	 * @param string $name The cooke name
+	 * @param string|null $value The cooke value
+	 * @param int $expires Timestamp
+	 * @param bool $addPrefix Name prefix, usually BITRIX_SM_
+	 */
+	public function __construct($name, $value, $expires = null, $addPrefix = true)
 	{
-		$this->path = "/";
-		$this->name = static::generateCookieName($name);
+		if($addPrefix)
+		{
+			$this->name = static::generateCookieName($name);
+		}
+		else
+		{
+			$this->name = $name;
+		}
 		$this->value = $value;
 		$this->expires = $expires;
 		if ($this->expires === null)
+		{
 			$this->expires = time() + 31104000; //60*60*24*30*12;
+		}
+		$this->path = "/";
 		$this->spread = static::SPREAD_DOMAIN | static::SPREAD_SITES;
 		$this->setDefaultsFromConfig();
 	}
 
 	protected static function generateCookieName($name)
 	{
-		$cookiePrefix = \Bitrix\Main\Config\Option::get("main", "cookie_name", "BITRIX_SM")."_";
+		static $cookiePrefix = null;
+
+		if($cookiePrefix === null)
+		{
+			$cookiePrefix = Config\Option::get("main", "cookie_name", "BITRIX_SM")."_";
+		}
 		if (strpos($name, $cookiePrefix) !== 0)
+		{
 			$name = $cookiePrefix.$name;
+		}
 		return $name;
 	}
 
 	protected function setDefaultsFromConfig()
 	{
-		$cookiesSettings = \Bitrix\Main\Config\Configuration::getValue("cookies");
+		$cookiesSettings = Config\Configuration::getValue("cookies");
 
-		$this->secure = (($cookiesSettings && isset($cookiesSettings["secure"])) ? $cookiesSettings["secure"] : false);
-		$this->httpOnly = (($cookiesSettings && isset($cookiesSettings["http_only"])) ? $cookiesSettings["http_only"] : true);
+		$this->secure = (isset($cookiesSettings["secure"])? $cookiesSettings["secure"] : false);
+		$this->httpOnly = (isset($cookiesSettings["http_only"])? $cookiesSettings["http_only"] : true);
 	}
 
 	public function setDomain($domain)
 	{
 		$this->domain = $domain;
+		return $this;
 	}
 
 	public function getDomain()
 	{
-		if (is_null($this->domain))
-			$this->domain = $this->getCookieDomain();
+		if ($this->domain === null)
+		{
+			$this->domain = static::getCookieDomain();
+		}
 
 		return $this->domain;
 	}
@@ -59,6 +87,7 @@ class Cookie
 	public function setExpires($expires)
 	{
 		$this->expires = $expires;
+		return $this;
 	}
 
 	public function getExpires()
@@ -69,6 +98,7 @@ class Cookie
 	public function setHttpOnly($httpOnly)
 	{
 		$this->httpOnly = $httpOnly;
+		return $this;
 	}
 
 	public function getHttpOnly()
@@ -78,7 +108,8 @@ class Cookie
 
 	public function setName($name)
 	{
-		$this->name = static::generateCookieName($name);
+		$this->name = $name;
+		return $this;
 	}
 
 	public function getName()
@@ -89,6 +120,7 @@ class Cookie
 	public function setPath($path)
 	{
 		$this->path = $path;
+		return $this;
 	}
 
 	public function getPath()
@@ -99,6 +131,7 @@ class Cookie
 	public function setSecure($secure)
 	{
 		$this->secure = $secure;
+		return $this;
 	}
 
 	public function getSecure()
@@ -109,6 +142,7 @@ class Cookie
 	public function setValue($value)
 	{
 		$this->value = $value;
+		return $this;
 	}
 
 	public function getValue()
@@ -119,6 +153,7 @@ class Cookie
 	public function setSpread($spread)
 	{
 		$this->spread = $spread;
+		return $this;
 	}
 
 	public function getSpread()
@@ -126,17 +161,25 @@ class Cookie
 		return $this->spread;
 	}
 
-	protected function getCookieDomain()
+	/**
+	 * Returns the domain from the sites settings to use with cookies.
+	 *
+	 * @return string
+	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getCookieDomain()
 	{
-		static $bCache = false;
-		static $cache  = false;
-		if ($bCache)
-			return $cache;
+		static $domain = null;
 
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$server = $context->getServer();
+		if($domain !== null)
+		{
+			return $domain;
+		}
 
-		$cacheFlags = \Bitrix\Main\Config\Configuration::getValue("cache_flags");
+		$server = \Bitrix\Main\Context::getCurrent()->getServer();
+
+		$cacheFlags = Config\Configuration::getValue("cache_flags");
 		$cacheTtl = (isset($cacheFlags["site_domain"]) ? $cacheFlags["site_domain"] : 0);
 
 		if ($cacheTtl === false)
@@ -150,7 +193,9 @@ class Cookie
 				"ORDER BY ".$sqlHelper->getLengthFunction("DOMAIN")." ";
 			$recordset = $connection->query($sql);
 			if ($record = $recordset->fetch())
-				$cache = $record['DOMAIN'];
+			{
+				$domain = $record['DOMAIN'];
+			}
 		}
 		else
 		{
@@ -174,23 +219,28 @@ class Cookie
 				);
 				while ($record = $recordset->fetch())
 				{
+					//it's a bit tricky, the cache is used somewhere else, that's why we have the LID key here.
 					$arLangDomain["DOMAIN"][] = $record;
 					$arLangDomain["LID"][$record["LID"]][] = $record;
 				}
 				$managedCache->set("b_lang_domain", $arLangDomain);
 			}
 
-			foreach ($arLangDomain["DOMAIN"] as $domain)
+			foreach ($arLangDomain["DOMAIN"] as $record)
 			{
-				if (strcasecmp(substr('.'.$server->getHttpHost(), -(strlen($domain['DOMAIN']) + 1)), ".".$domain['DOMAIN']) == 0)
+				if (strcasecmp(substr('.'.$server->getHttpHost(), -(strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
 				{
-					$cache = $domain['DOMAIN'];
+					$domain = $record['DOMAIN'];
 					break;
 				}
 			}
 		}
 
-		$bCache = true;
-		return $cache;
+		if($domain === null)
+		{
+			$domain = "";
+		}
+
+		return $domain;
 	}
 }

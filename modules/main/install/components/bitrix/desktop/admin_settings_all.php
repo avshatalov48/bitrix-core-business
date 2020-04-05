@@ -9,9 +9,8 @@ CComponentUtil::__IncludeLang("/bitrix/components/bitrix/desktop/", "/admin_sett
 
 if (false == check_bitrix_sessid() || !$GLOBALS["USER"]->IsAuthorized())
 {
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_after.php");
 	die();
 }
 

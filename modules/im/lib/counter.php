@@ -239,7 +239,7 @@ class Counter
 	{
 		return new EventResult(EventResult::SUCCESS, Array(
 			self::TYPE_MESSENGER => Array(
-				'NAME' => Loc::getMessage('IM_COUNTER_TYPE_MESSENGER'),
+				'NAME' => Loc::getMessage('IM_COUNTER_TYPE_MESSENGER_2'),
 				'DEFAULT' => true
 			),
 		), self::MODULE_ID);

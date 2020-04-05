@@ -599,6 +599,8 @@ class CCalendarLiveFeed
 			}
 			$arCodes = array_unique($arCodes);
 
+
+
 			if ($arRes = $dbRes->Fetch())
 			{
 				CSocNetLog::Update($arRes["ID"], $arSoFields);
@@ -625,10 +627,46 @@ class CCalendarLiveFeed
 	public static function OnEditCalendarEventEntry($params)
 	{
 		global $DB;
-
 		$eventId = intval($params['eventId']);
+
+		$currentEvent = CCalendarEvent::GetList(
+			array(
+				'arFilter' => array(
+					"PARENT_ID" => $eventId,
+					"IS_MEETING" => 1,
+					"DELETED" => "N"
+				),
+				'parseRecursion' => false,
+				'fetchAttendees' => true,
+				'fetchMeetings' => true,
+				'checkPermissions' => false,
+				'setDefaultLimit' => false
+			));
+
+		if ($currentEvent && count($currentEvent) > 0)
+		{
+			$currentEvent = $currentEvent[0];
+		}
 		$arFields = $params['arFields'];
 		$attendeesCodes = $params['attendeesCodes'];
+
+		$folowersList = array();
+		$unfolowersList = array();
+
+		if ($currentEvent['IS_MEETING'] && is_array($currentEvent['~ATTENDEES']))
+		{
+			foreach($currentEvent['~ATTENDEES'] as $att)
+			{
+				if ($att['STATUS'] !== 'N')
+				{
+					$folowersList[] = $att['USER_ID'];
+				}
+				else
+				{
+					$unfolowersList[] = $att['USER_ID'];
+				}
+			}
+		}
 
 		if (isset($attendeesCodes) && !is_array($attendeesCodes))
 			$attendeesCodes = explode(',', $attendeesCodes);
@@ -672,9 +710,20 @@ class CCalendarLiveFeed
 			$arCodes = array();
 			foreach($arAccessCodes as $value)
 			{
-				if (substr($value, 0, 2) === 'SG')
-					$arCodes[] = $value.'_K';
-				$arCodes[] = $value;
+				if (substr($value, 0, 1) === 'U')
+				{
+					$attendeeId = intval(substr($value, 1));
+					if (in_array($attendeeId, $folowersList))
+					{
+						$arCodes[] = $value;
+					}
+				}
+				else
+				{
+					if (substr($value, 0, 2) === 'SG')
+						$arCodes[] = $value.'_K';
+					$arCodes[] = $value;
+				}
 			}
 
 			if ($arFields['IS_MEETING'] && $arFields['MEETING_HOST'] && !in_array('U'.$arFields['MEETING_HOST'], $arCodes))
@@ -693,6 +742,11 @@ class CCalendarLiveFeed
 					CSocNetLog::Update($arRes["ID"], $arSoFields);
 					CSocNetLogRights::DeleteByLogID($arRes["ID"]);
 					CSocNetLogRights::Add($arRes["ID"], $arCodes);
+
+					foreach($unfolowersList as $value)
+					{
+						CSocNetLogFollow::Set(intval($value), "L".$arRes["ID"], 'N');
+					}
 				}
 			}
 			else
@@ -708,6 +762,11 @@ class CCalendarLiveFeed
 
 				$newlogId = CSocNetLog::Add($arSoFields, false);
 				CSocNetLogRights::Add($newlogId, $arCodes);
+
+				foreach($unfolowersList as $value)
+				{
+					CSocNetLogFollow::Set(intval($value), "L".$newlogId, 'N');
+				}
 			}
 
 			// Find if we already have socialnetwork livefeed entry for this event
@@ -892,5 +951,69 @@ class CCalendarLiveFeed
 		}
 	}
 
+	public static function OnChangeMeetingStatusEventEntry($params)
+	{
+		$codesList = array();
+		$unfolowersList = array();
+
+		if(isset($params['event']))
+		{
+			if ($params['event']['IS_MEETING'] && is_array($params['event']['~ATTENDEES']))
+			{
+				foreach($params['event']['~ATTENDEES'] as $att)
+				{
+					if ($att['USER_ID'] == $params['userId'] && $params['status'] === 'N'
+						||
+						($att['USER_ID'] !== $params['userId'] && $att['STATUS'] === 'N')
+					)
+					{
+						$unfolowersList[] = $att['USER_ID'];
+					}
+				}
+			}
+
+			foreach($params['event']['ATTENDEES_CODES'] as $code)
+			{
+				if (substr($code, 0, 1) === 'U')
+				{
+					$attendeeId = intval(substr($code, 1));
+					if (!in_array($attendeeId, $unfolowersList))
+					{
+						$codesList[] = $code;
+					}
+				}
+				else
+				{
+					if(substr($code, 0, 2) === 'SG')
+					{
+						$codesList[] = $code.'_K';
+					}
+					$codesList[] = $code;
+				}
+			}
+		}
+
+
+
+		if(($params['status'] == 'N' || $params['status'] == 'Y') && intval($params['userId']))
+		{
+			$dbRes = CSocNetLog::GetList(array("ID" => "DESC"), array("EVENT_ID" => "calendar", "SOURCE_ID" => $params['eventId']), false, false, array("ID"));
+
+			while($logEntry = $dbRes->Fetch())
+			{
+				CSocNetLogRights::DeleteByLogID($logEntry['ID']);
+				foreach($unfolowersList as $value)
+				{
+					CSocNetLogFollow::Set(intval($value), "L".$logEntry['ID'], 'N');
+				}
+				CSocNetLogFollow::Set(intval($params['userId']), "L".$logEntry['ID'], $params['status']);
+
+				if (!empty($codesList))
+				{
+					CSocNetLogRights::Add($logEntry['ID'], $codesList);
+				}
+			}
+		}
+	}
 }
 ?>

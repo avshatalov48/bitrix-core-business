@@ -2,6 +2,19 @@
 $MESS ['mnu_sender_sect'] = "Email-маркетинг";
 $MESS ['mnu_sender_sect_title'] = "Email-маркетинг";
 
+$MESS ['mnu_sender_sect1'] = "Маркетинг 24";
+$MESS ['mnu_sender_sect_title1'] = "Маркетинг 24";
+
+$MESS ['mnu_sender_segments'] = "Сегменты";
+$MESS ['mnu_sender_blacklist'] = "Черный список";
+$MESS ['mnu_sender_blacklist_alt'] = "Исключенные адреса для рассылок всех компаний";
+$MESS ['mnu_sender_letters'] = "Рассылки";
+$MESS ['mnu_sender_letters_alt'] = "Управление рассылками";
+$MESS ['mnu_sender_campaigns'] = "Кампании";
+$MESS ['mnu_sender_campaigns_alt'] = "Управление кампаниями";
+$MESS ['mnu_sender_ads'] = "Реклама";
+$MESS ['mnu_sender_ads_alt'] = "Управление рекламой";
+
 $MESS ['mnu_sender_report'] = "Статистика";
 $MESS ['mnu_sender_report_alt'] = "Статистика";
 

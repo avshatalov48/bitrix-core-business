@@ -213,6 +213,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 					'setFocusAfterShow' => true,
 					'iframeCss' => 'body { padding-left: 10px !important; font-size: 15px; }',
 					'useFileDialogs' => false,
+					'useLinkStat' => false,
 					'uploadImagesFromClipboard' => false,
 					'controlsMap' => array(
 						array('id' => 'Bold', 'compact' => true, 'sort' => 10),

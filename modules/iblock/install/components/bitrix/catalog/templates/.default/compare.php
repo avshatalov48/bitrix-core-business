@@ -29,7 +29,7 @@ $this->addExternalCss("/bitrix/css/main/bootstrap.css");
 		"NAME" => $arParams["COMPARE_NAME"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		"PRICE_CODE" => $arParams["PRICE_CODE"],
+		"PRICE_CODE" => $arParams["~PRICE_CODE"],
 		"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
 		"PRICE_VAT_INCLUDE" => $arParams["PRICE_VAT_INCLUDE"],

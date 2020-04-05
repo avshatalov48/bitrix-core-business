@@ -70,14 +70,14 @@ class GroupTable extends Main\Entity\DataManager
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
 				'title' => Loc::getMessage('GROUP_ENTITY_TIMESTAMP_X_FIELD'),
-				'default_value' => new Main\Type\DateTime()
+				'default_value' => function(){ return new Main\Type\DateTime(); }
 			)),
 			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
 				'title' => Loc::getMessage('GROUP_ENTITY_MODIFIED_BY_FIELD'),
 			)),
 			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
 				'title' => Loc::getMessage('GROUP_ENTITY_DATE_CREATE_FIELD'),
-				'default_value' => new Main\Type\DateTime()
+				'default_value' => function(){ return new Main\Type\DateTime(); }
 			)),
 			'CREATED_BY' => new Main\Entity\IntegerField('CREATED_BY', array(
 				'title' => Loc::getMessage('GROUP_ENTITY_CREATED_BY_FIELD'),

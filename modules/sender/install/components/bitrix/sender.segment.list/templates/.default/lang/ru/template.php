@@ -1,0 +1,9 @@
+<?
+$MESS["SENDER_SEGMENT_LIST_BTN_ADD"] = "Создать сегмент";
+$MESS["SENDER_SEGMENT_LIST_BTN_EDIT"] = "Редактировать";
+$MESS["SENDER_SEGMENT_LIST_BTN_EDIT_TITLE"] = "Редактировать";
+$MESS["SENDER_SEGMENT_LIST_BTN_VIEW"] = "Просмотреть";
+$MESS["SENDER_SEGMENT_LIST_BTN_VIEW_TITLE"] = "Просмотреть";
+$MESS["SENDER_SEGMENT_LIST_BTN_REMOVE"] = "Удалить";
+$MESS["SENDER_SEGMENT_LIST_BTN_REMOVE_TITLE"] = "Удалить";
+?>

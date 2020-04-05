@@ -386,6 +386,11 @@ BX.BXGCE.init = function(params) {
 						step: 2
 					});
 
+					if (BX('GROUP_NAME_input'))
+					{
+						BX('GROUP_NAME_input').focus();
+					}
+
 					this.recalcForm({
 						type: typeCode
 					});
@@ -458,10 +463,17 @@ BX.BXGCE.init = function(params) {
 		}
 	}
 
-	BX.bind(BX('sonet_group_create_popup_form_button_step_2_back'), 'click', BX.delegate(function() {
+	if (BX('GROUP_NAME_input'))
+	{
+		BX('GROUP_NAME_input').focus();
+	}
+
+	BX.bind(BX('sonet_group_create_popup_form_button_step_2_back'), 'click', BX.delegate(function(e) {
 		this.showStep({
 			step: 1
-		})
+		});
+
+		return e.preventDefault();
 	}, this));
 
 	BX.bind(BX("sonet_group_create_popup_form_button_submit"), "click", BXGCESubmitForm);

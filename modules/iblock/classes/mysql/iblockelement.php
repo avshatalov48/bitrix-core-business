@@ -444,6 +444,7 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FPS"] as $iblock_id => $db_prop)
 		{
+			list($iblock_id, $link) = explode("~", $iblock_id, 2);
 			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element_prop_s".$iblock_id." JFPS".$db_prop["CNT"]." ON JFPS".$db_prop["CNT"].".IBLOCK_ELEMENT_ID = BE".$db_prop["JOIN"].".ID\n";
 
 			if($db_prop["IBLOCK_ID"])

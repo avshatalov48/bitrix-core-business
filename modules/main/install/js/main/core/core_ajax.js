@@ -794,16 +794,35 @@ var prepareAjaxGetParameters = function(config)
 var prepareAjaxConfig = function(config)
 {
 	config = BX.type.isPlainObject(config) ? config : {};
-	config.data = BX.type.isPlainObject(config.data) ? config.data : {};
-	if (BX.message.SITE_ID)
+
+	if (config.data instanceof FormData)
 	{
-		config.data.SITE_ID = BX.message.SITE_ID;
+		config.preparePost = false;
+
+		config.data.append('sessid', BX.bitrix_sessid());
+		if (BX.message.SITE_ID)
+		{
+			config.data.append('SITE_ID', BX.message.SITE_ID);
+		}
+		if (typeof config.signedParameters !== 'undefined')
+		{
+			config.data.append('signedParameters', config.signedParameters);
+		}
 	}
-	config.data.sessid = BX.bitrix_sessid();
-	if (typeof config.signedParameters !== 'undefined')
+	else
 	{
-		config.data.signedParameters = config.signedParameters;
+		config.data = BX.type.isPlainObject(config.data) ? config.data : {};
+		if (BX.message.SITE_ID)
+		{
+			config.data.SITE_ID = BX.message.SITE_ID;
+		}
+		config.data.sessid = BX.bitrix_sessid();
+		if (typeof config.signedParameters !== 'undefined')
+		{
+			config.data.signedParameters = config.signedParameters;
+		}
 	}
+
 	if (!config.method)
 	{
 		config.method = 'POST'
@@ -876,6 +895,7 @@ BX.ajax.runAction = function(action, config)
 		url: url,
 		data: config.data,
 		timeout: config.timeout,
+		preparePost: config.preparePost,
 		headers: config.headers
 	});
 };
@@ -911,6 +931,7 @@ BX.ajax.runComponentAction = function (component, action, config)
 		url: url,
 		data: config.data,
 		timeout: config.timeout,
+		preparePost: config.preparePost,
 		headers: config.headers
 	});
 };

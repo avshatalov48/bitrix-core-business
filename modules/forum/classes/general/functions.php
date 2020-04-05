@@ -34,8 +34,6 @@ class forumTextParser extends CTextParser
 		parent::__construct();
 		$this->arFiles = array();
 		$this->arFilesParsed = array();
-		$this->serverName = (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0 ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
-		$this->serverName = (strlen($this->serverName) > 0 ? $this->serverName : $_SERVER["SERVER_NAME"]);
 
 		$this->arUserfields = array();
 		$this->ajaxPage = $GLOBALS["APPLICATION"]->GetCurPageParam("", array("bxajaxid", "logout"));
@@ -134,7 +132,7 @@ class forumTextParser extends CTextParser
 
 		$this->imageWidth = ($this->image_params["width"] > 0 ? $this->image_params["width"] : ($this->imageWidth > 0 ? $this->imageWidth : 300));
 		$this->imageHeight = ($this->image_params["height"] > 0 ? $this->image_params["height"] : ($this->imageHeight > 0 ? $this->imageHeight : 300));
-		
+
 		$this->userPath = str_replace(array("#UID#", "#uid#"), "#user_id#", (empty($this->userPath) && !empty($this->pathToUser) ? $this->pathToUser : $this->userPath));
 
 		$this->type = $type;
@@ -306,7 +304,7 @@ class forumTextParser extends CTextParser
 		else if ($this->bMobile)
 			return "<div class='blog-post-".$marker."' title=\"".($marker == "quote" ? GetMessage("FRM_QUOTE") : GetMessage("FRM_CODE"))."\"><table class='blog".$marker."'><tr><td>";
 		else
-			return '<table class="forum-'.$marker.'"><thead><tr><th>'.($marker == "quote" ? GetMessage("FRM_QUOTE") : GetMessage("FRM_CODE")).'</th></tr></thead><tbody><tr><td>';
+			return '<div class="entry-'.$marker.'"><table class="forum-'.$marker.'"><thead><tr><th>'.($marker == "quote" ? GetMessage("FRM_QUOTE") : GetMessage("FRM_CODE")).'</th></tr></thead><tbody><tr><td>';
 	}
 
 	function convert_close_tag($marker = "quote")
@@ -327,7 +325,7 @@ class forumTextParser extends CTextParser
 		else if ($this->bMobile)
 			return "</td></tr></table></div>";
 		else
-			return "</td></tr></tbody></table>";
+			return "</td></tr></tbody></table></div>";
 
 	}
 

@@ -867,10 +867,10 @@ class CAllIBlockProperty
 
 				if($XML_ID)
 				{
-					unset($ar_XML_ID[rtrim($res["XML_ID"], " ")]);
-					if(array_key_exists($XML_ID, $ar_XML_ID))
+					unset($ar_XML_ID[strtolower(rtrim($res["XML_ID"], " "))]);
+					if (isset($ar_XML_ID[strtolower($XML_ID)]))
 						$XML_ID = md5(uniqid(""));
-					$ar_XML_ID[$XML_ID] = $res["ID"];
+					$ar_XML_ID[strtolower($XML_ID)] = $res["ID"];
 				}
 
 				$strSql = "
@@ -914,15 +914,14 @@ class CAllIBlockProperty
 
 				if($XML_ID)
 				{
-					if(array_key_exists($XML_ID, $ar_XML_ID))
+					if (isset($ar_XML_ID[strtolower($XML_ID)]))
 						$XML_ID = md5(uniqid("", true));
-					$ar_XML_ID[$XML_ID] = 0;
 				}
 				else
 				{
 					$XML_ID = md5(uniqid("", true));
-					$ar_XML_ID[$XML_ID] = 0;
 				}
+				$ar_XML_ID[strtolower($XML_ID)] = 0;
 
 				$strSql = "
 					INSERT INTO b_iblock_property_enum

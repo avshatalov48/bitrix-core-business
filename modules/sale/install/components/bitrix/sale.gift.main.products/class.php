@@ -33,6 +33,12 @@ class CSaleGiftMainProductsComponent extends CBitrixComponent
 		global $APPLICATION;
 
 		$params = parent::onPrepareComponentParams($params);
+
+		if (isset($params['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($params['CUSTOM_SITE_ID']);
+		}
+
 		// remember src params for further ajax query
 		if (!isset($params['SGMP_CUR_BASE_PAGE']))
 		{
@@ -230,7 +236,7 @@ class CSaleGiftMainProductsComponent extends CBitrixComponent
 		global $USER;
 		$query->addFilter('=DISCOUNT_GROUP.ACTIVE', 'Y');
 		$query->addFilter('DISCOUNT_GROUP.GROUP_ID', $USER->getUserGroupArray());
-		$query->addFilter('=D.LID', SITE_ID);
+		$query->addFilter('=D.LID', $this->getSiteId());
 
 		$discounts = array();
 		$dbResult = $query->exec();

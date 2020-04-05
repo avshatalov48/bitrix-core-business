@@ -815,7 +815,9 @@
 			}
 			else
 			{
-				popup.close();
+				setTimeout(function() {
+					popup.close();
+				});
 			}
 
 			BX.removeClass(this.getNode(), this.classFocus);
@@ -837,8 +839,11 @@
 
 			if (!popup.isShown())
 			{
-				this.adjustPopupPosition();
-				popup.show();
+				setTimeout(function() {
+					this.adjustPopupPosition();
+					popup.show();
+				}.bind(this));
+
 
 				if (!BX.hasClass(document.documentElement, 'bx-ie'))
 				{

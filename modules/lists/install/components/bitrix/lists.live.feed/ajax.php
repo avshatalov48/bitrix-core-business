@@ -966,7 +966,7 @@ class LiveFeedAjaxController extends Controller
 				}
 			}
 
-			if(!empty($errorsTmp))
+			/*if(!empty($errorsTmp))
 			{
 				$documentStates = null;
 				CBPDocument::AddDocumentToHistory(
@@ -974,7 +974,7 @@ class LiveFeedAjaxController extends Controller
 					$elementData['NAME'],
 					$this->getUser()->getID()
 				);
-			}
+			}*/
 		}
 		else
 		{

@@ -7,7 +7,10 @@ class CCalendarReminder
 		{
 			$event = false;
 			$skipReminding = false;
+			$nowTime = time();
+			//$nowTime = CCalendar::Timestamp('01.01.2018 12:00:00');
 			$bTmpUser = CCalendar::TempUser(false, true);
+			$minReminderOffset = 30;
 
 			// We have to use this to set timezone offset to local user's timezone
 			CCalendar::SetOffset(false, CCalendar::GetOffset($userId));
@@ -17,7 +20,7 @@ class CCalendarReminder
 					'arFilter' => array(
 						"ID" => $eventId,
 						"DELETED" => "N",
-						"FROM_LIMIT" => CCalendar::Date(time() - 3600, false),
+						"FROM_LIMIT" => CCalendar::Date($nowTime - 3600, false),
 						"TO_LIMIT" => CCalendar::Date(CCalendar::GetMaxTimestamp(), false),
 						"ACTIVE_SECTION" => "Y"
 					),
@@ -123,7 +126,7 @@ class CCalendarReminder
 						$remAgentParams = array(
 							'eventId' => $eventId,
 							'userId' => $userId,
-							'viewPath' => $viewPath,
+							'viewPath' => CHTTP::urlDeleteParams($viewPath, array("EVENT_DATE")),
 							'calendarType' => $calendarType,
 							'ownerId' => $ownerId,
 							'maxIndex' => 10
@@ -150,8 +153,8 @@ class CCalendarReminder
 									$delta =  $delta * 60 * 24; //Day
 
 								// $startTs - UTC timestamp;  date("Z", $startTs) - offset of the server
-								$agentTime = $startTs + date("Z", $startTs);
-								if (($agentTime - $delta) >= (time() - 60 * 5)) // Inaccuracy - 5 min
+								$agentTime = $startTs + date("Z", $startTs)  - $delta;
+								if ($agentTime >= time() + $minReminderOffset)
 								{
 									self::AddAgent(CCalendar::Date($agentTime - $delta), $remAgentParams);
 								}
@@ -221,6 +224,7 @@ class CCalendarReminder
 		$reminders = $params['reminders'];
 		$arFields = $params['arFields'];
 		$userId = $params['userId'];
+		$minReminderOffset = 30; // In seconds
 
 		$path = $params['path'];
 		$path = CHTTP::urlDeleteParams($path, array("action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"));
@@ -250,13 +254,14 @@ class CCalendarReminder
 			elseif ($reminder['type'] == 'day')
 				$delta =  $delta * 60 * 24; //Day
 
-			// $startTs - UTC timestamp;  date('Z', $startTs) - offset of the server
-			$agentTime = $startTs + date('Z', $startTs);
+			// $startTs - UTC timestamp;
+			// date("Z", $startTs) - offset of the server
+			$agentTime = $startTs + date("Z", $startTs)  - $delta;
 			$remAgentParams['index'] = $i++;
 
-			if (($agentTime - $delta) >= (time() - 60 * 5)) // Inaccuracy - 5 min
+			if ($agentTime >= time() + $minReminderOffset)
 			{
-				self::AddAgent(CCalendar::Date($agentTime - $delta), $remAgentParams);
+				self::AddAgent(CCalendar::Date($agentTime), $remAgentParams);
 			}
 			elseif($arFields['RRULE'] != '')
 			{
@@ -287,7 +292,7 @@ class CCalendarReminder
 						$startTs = $startTs - CCalendar::GetTimezoneOffset($nextEvent["TZ_FROM"], $startTs); // UTC timestamp
 					}
 
-					if (($startTs + date("Z", $startTs)) < (time() - 60 * 5) && $events[1]) // Inaccuracy - 5 min)
+					if (($startTs + date("Z", $startTs)) < time() && $events[1])
 					{
 						$nextEvent = $events[1];
 					}
@@ -307,11 +312,12 @@ class CCalendarReminder
 						elseif ($reminder['type'] == 'day')
 							$delta =  $delta * 60 * 24; //Day
 
-						// $startTs - UTC timestamp;  date("Z", $startTs) - offset of the server
-						$agentTime = $startTs + date("Z", $startTs);
-						if (($agentTime - $delta) >= (time() - 60 * 5)) // Inaccuracy - 5 min
+						// $startTs - UTC timestamp;
+						// date("Z", $startTs) - offset of the server
+						$agentTime = $startTs + date("Z", $startTs)  - $delta;
+						if ($agentTime >= time() + $minReminderOffset)
 						{
-							self::AddAgent(CCalendar::Date($agentTime - $delta), $remAgentParams);
+							self::AddAgent(CCalendar::Date($agentTime), $remAgentParams);
 						}
 					}
 				}

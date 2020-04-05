@@ -24,18 +24,6 @@ window.__blogLinkEntity = function(entities, formId) {
 						BX.show(BX('blg-comment-' + entities[ii][1]));
 					}
 				});
-				BX.addCustomEvent(window["UC"]["f" + formId].eventNode, 'OnUCFormAfterHide', function(obj) {
-					if (!!obj && !!obj.id && obj.id[0] == ii)
-					{
-						var nodesNew = BX('record-' + obj.id[0] + '-new'),
-							nodes = BX.findChildren(BX('blg-comment-' + entities[ii][1]), {"className" : "feed-com-block-cover" }, false);
-						nodesNew = (!!nodesNew ? nodesNew.childNodes : []);
-						if (!(!!nodesNew && nodesNew.length > 0) && !(!!nodes && nodes.length > 0))
-						{
-							BX.hide(BX('blg-comment-' + entities[ii][1]));
-						}
-					}
-				});
 			}
 		}
 	}

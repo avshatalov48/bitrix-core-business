@@ -24,7 +24,7 @@
 
 		this.topmostWindow = null;
 		this.topmostWindowTimeout = null;
-		
+
 		this.path = {};
 		this.path.mainUserOptions = '/desktop_app/options.ajax.php';
 		this.path.pathToAjax = '/desktop_app/im.ajax.php';
@@ -43,7 +43,7 @@
 
 		this.minWidth = 515;
 		this.minHeight = 384;
-		
+
 		this.timeoutDelayOfLogout = null;
 
 		this.eventHandlers = {};
@@ -89,7 +89,7 @@
 			return true;
 		}
 		this.inited = true;
-		
+
 		this.setWindowResizable(true);
 		this.setWindowMinSize({ Width: BX.MessengerWindow.minWidth, Height: BX.MessengerWindow.minHeight });
 
@@ -197,7 +197,7 @@
 				this.logout(true, 'exit_event');
 			}, this));
 		}
-		
+
 		this.addCustomEvent("BXChangeTab", BX.delegate(function(tabId) {
 			this.changeTab(tabId)
 		}, this));
@@ -223,7 +223,7 @@
 			BX.create("div", { props : { className : "bx-desktop-update-box-text" }, html: BX.message('BXD_NEED_UPDATE')}),
 			BX.create("div", { props : { className : "bx-desktop-update-box-btn" }, events : { click :  BX.delegate(function(){this.checkUpdate(true)}, this)}, html: BX.message('BXD_NEED_UPDATE_BTN')})
 		]});
-		
+
 		BX.ready(function(){
 			document.body.innerHTML = '';
 			document.body.appendChild(updateContent);
@@ -289,7 +289,7 @@
 
 		return true;
 	}
-	
+
 	Desktop.prototype.loginSuccessCallback = function (sessid)
 	{
 		if (typeof(sessid) == "string")
@@ -330,7 +330,7 @@
 			{
 				if (reason)
 					console.log('Logout reason: '+reason);
-				
+
 				if (terminate)
 					BXDesktopSystem.Shutdown();
 				else
@@ -340,7 +340,7 @@
 			{
 				if (reason)
 					console.log('Logout reason (fail): '+reason);
-				
+
 				if (terminate)
 					BXDesktopSystem.Shutdown();
 				else
@@ -454,7 +454,7 @@
 
 		return true;
 	}
-	
+
 	Desktop.prototype.findWindow = function (name)
 	{
 		if (!this.ready()) return null;
@@ -636,6 +636,10 @@
 			{
 				windowTarget.BXDesktopWindow.ExecuteCommand(command);
 			}
+			else if (command == "focus")
+			{
+				windowTarget.BXDesktopWindow.ExecuteCommand('show.active');
+			}
 			else if (command == "close")
 			{
 				if (windowTarget.opener)
@@ -644,12 +648,12 @@
 					{
 						windowTarget.BXDesktopWindow.ExecuteCommand("close");
 					}
-					else 
+					else
 					{
 						windowTarget.close();
 					}
 				}
-				else 
+				else
 				{
 					windowTarget.BXDesktopWindow.ExecuteCommand("hide");
 				}
@@ -834,13 +838,13 @@
 		clipboardTextArea.focus();
 		document.execCommand("paste");
 		var text = clipboardTextArea.value;
-		
+
 		if (typeof (callback) == 'function')
 		{
 			var textNew = callback(clipboardTextArea.value);
 			if (typeof (textNew) != 'undefined')
 				text = clipboardTextArea.value = textNew;
-			
+
 			clipboardTextArea.selectionStart = 0;
 			document.execCommand("copy");
 		}
@@ -1144,7 +1148,7 @@
 
 		return BXDesktopSystem.IsActiveTab();
 	}
-	
+
 	Desktop.prototype.getActiveWindow = function ()
 	{
 		if (!this.ready())
@@ -1152,7 +1156,7 @@
 
 		return BXDesktopSystem.ActiveTab();
 	}
-	
+
 	Desktop.prototype.getContextWindow = function ()
 	{
 		if (!this.ready())
@@ -1174,7 +1178,7 @@
 			}
 		}
 	}
-	
+
 	Desktop.prototype.setActiveWindow = function (windowId)
 	{
 		if (!this.ready())

@@ -19,6 +19,8 @@ use	Bitrix\Sale\Internals\Input,
 
 Loc::loadMessages(__FILE__);
 
+$ID = intval($ID);
+
 $propertyId = $ID;
 $personTypeId = $PERSON_TYPE_ID;
 unset($ID, $PERSON_TYPE_ID);

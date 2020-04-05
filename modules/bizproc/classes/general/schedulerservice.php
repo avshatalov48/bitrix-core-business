@@ -60,8 +60,6 @@ class CBPSchedulerService
 
 	public function SubscribeOnTime($workflowId, $eventName, $expiresAt)
 	{
-		CTimeZone::Disable();
-
 		$workflowId = preg_replace('#[^a-z0-9.]#i', '', $workflowId);
 		$eventName = preg_replace('#[^a-z0-9._-]#i', '', $eventName);
 
@@ -70,20 +68,19 @@ class CBPSchedulerService
 		{
 			$minExpiresAt = time() + $minLimit;
 			if ($minExpiresAt > $expiresAt)
+			{
 				$expiresAt = $minExpiresAt;
+			}
 		}
 
-		$result = CAgent::AddAgent(
-			"CBPSchedulerService::OnAgent('".$workflowId."', '".$eventName."', array('SchedulerService' => 'OnAgent'));",
-			"bizproc",
-			"N",
-			10,
-			"",
-			"Y",
-			date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $expiresAt)
-		);
-		CTimeZone::Enable();
-		return $result;
+		return self::addAgent($workflowId, $eventName, $expiresAt);
+	}
+
+	private static function addAgent($workflowId, $eventName, $expiresAt, $counter = 0)
+	{
+		$params = '[\'SchedulerService\' => \'OnAgent\', \'Counter\' => '.((int) $counter).']';
+		$name = "CBPSchedulerService::OnAgent('{$workflowId}', '{$eventName}', {$params});";
+		return self::addAgentInternal($name, $expiresAt);
 	}
 
 	public function UnSubscribeOnTime($id)
@@ -91,15 +88,24 @@ class CBPSchedulerService
 		CAgent::Delete($id);
 	}
 
-	public static function OnAgent($workflowId, $eventName, $arEventParameters = array())
+	public static function OnAgent($workflowId, $eventName, $eventParameters = array())
 	{
 		try
 		{
-			CBPRuntime::SendExternalEvent($workflowId, $eventName, $arEventParameters);
+			CBPRuntime::SendExternalEvent($workflowId, $eventName, $eventParameters);
 		}
 		catch (Exception $e)
 		{
-			
+			if ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED)
+			{
+				$counter = isset($eventParameters['Counter']) ? (int) $eventParameters['Counter'] : 0;
+				$expiresAt = self::getExpiresTimeByCounter($counter);
+				if ($expiresAt)
+				{
+					++$counter;
+					self::addAgent($workflowId, $eventName, $expiresAt, $counter);
+				}
+			}
 		}
 	}
 
@@ -270,19 +276,102 @@ class CBPSchedulerService
 			'filter' => $filter
 		));
 
-		while ($row = $iterator->fetch())
+		while ($event = $iterator->fetch())
 		{
-			try
+			$event['EVENT_PARAMETERS'] = $eventParameters;
+			self::sendEventToWorkflow($event);
+		}
+	}
+
+	public static function repeatEvent($eventId, $counter = 0)
+	{
+		$iterator = SchedulerEventTable::getById($eventId);
+		$event = $iterator->fetch();
+
+		if ($event)
+		{
+			self::sendEventToWorkflow($event, $counter);
+		}
+	}
+
+	private static function sendEventToWorkflow($event, $counter = 0)
+	{
+		try
+		{
+			CBPRuntime::SendExternalEvent($event['WORKFLOW_ID'], $event['HANDLER'], $event['EVENT_PARAMETERS']);
+		}
+		catch (Exception $e)
+		{
+			if ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND)
 			{
-				CBPRuntime::SendExternalEvent($row['WORKFLOW_ID'], $row['HANDLER'], $eventParameters);
+				SchedulerEventTable::delete($event['ID']);
 			}
-			catch (Exception $e)
+			elseif ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED)
 			{
-				if ($e->getCode() === \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND)
-				{
-					SchedulerEventTable::delete($row['ID']); //Check this.
-				}
+				self::addEventRepeatAgent($event, $counter);
 			}
 		}
+	}
+
+	private static function filterEventParameters(array $parameters)
+	{
+		$filtered = [];
+		foreach ($parameters as $key => $parameter)
+		{
+			if (is_scalar($parameter))
+			{
+				$filtered[$key] = $parameter;
+			}
+			elseif (is_array($parameter))
+			{
+				$filtered[$key] = self::filterEventParameters($parameter);
+			}
+		}
+		return $filtered;
+	}
+
+	private static function addEventRepeatAgent($event, $counter = 0)
+	{
+		$expiresAt = self::getExpiresTimeByCounter($counter);
+
+		if ($expiresAt)
+		{
+			if ($counter === 0)
+			{
+				$filteredParameters = self::filterEventParameters($event['EVENT_PARAMETERS']);
+				SchedulerEventTable::update($event['ID'], ['EVENT_PARAMETERS' => $filteredParameters]);
+			}
+
+			++$counter;
+			$eventId = $event['ID'];
+			$name = "CBPSchedulerService::repeatEvent({$eventId}, {$counter});";
+			self::addAgentInternal($name, $expiresAt);
+		}
+	}
+
+	private static function addAgentInternal($name, $expiresAt)
+	{
+		CTimeZone::Disable();
+		$result = CAgent::AddAgent(
+			$name,
+			"bizproc",
+			"N",
+			10,
+			"",
+			"Y",
+			date($GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME), $expiresAt)
+		);
+		CTimeZone::Enable();
+		return $result;
+	}
+
+	private static function getExpiresTimeByCounter($counter = 0)
+	{
+		if ($counter >= 0 && $counter < 3)
+		{
+			$minute = 60;
+			return time() + [0 => (1 * $minute), 1 => (5 * $minute), 2 => (10 * $minute)][$counter];
+		}
+		return false;
 	}
 }

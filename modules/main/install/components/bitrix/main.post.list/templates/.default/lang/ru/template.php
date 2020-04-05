@@ -12,6 +12,7 @@ $MESS["B_B_MS_ADD_COMMENT"] = "Добавить комментарий";
 $MESS["BLOG_C_HIDE"] = "Свернуть комментарии";
 $MESS["BLOG_C_VIEW"] = "Смотреть предыдущие комментарии";
 $MESS["BLOG_C_VIEW1"] = "Ещё комментарии";
+$MESS["BLOG_C_VIEW2"] = "Предыдущие комментарии";
 $MESS["BLOG_C_REPLY"] = "Ответить";
 $MESS["BLOG_C_BUTTON_MORE"] = "Ещё";
 $MESS["JERROR_NO_MESSAGE"] = "Не введен текст комментария";

@@ -1,0 +1,10 @@
+.landing-ui-button-editor-action-color::before {
+	background-color: #000000;
+	content: '';
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	transform: translateY(3px);
+	margin-right: 8px;
+}

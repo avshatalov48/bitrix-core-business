@@ -1556,17 +1556,22 @@ class CAllMailMessage
 		if ($header->isMultipart())
 		{
 			$startP = 0;
-			$startRegex = sprintf('/^\s*--%s\r\n/', preg_quote($header->getBoundary(), '/'));
+			$startRegex = sprintf('/(^|\r\n)--%s\r\n/', preg_quote($header->getBoundary(), '/'));
 			if (preg_match($startRegex, $body, $matches, PREG_OFFSET_CAPTURE))
 			{
 				$startP = $matches[0][1] + \CUtil::binStrlen($matches[0][0]);
 			}
 
 			$endP = \CUtil::binStrlen($body);
-			$endRegex = sprintf('/\r\n--%s--\s*$/', preg_quote($header->getBoundary(), '/'));
+			$endRegex = sprintf('/\r\n--%s--(\r\n|$)/', preg_quote($header->getBoundary(), '/'));
 			if (preg_match($endRegex, $body, $matches, PREG_OFFSET_CAPTURE))
 			{
 				$endP = $matches[0][1];
+			}
+
+			if (!($startP < $endP))
+			{
+				$startP = 0;
 			}
 
 			$data = \CUtil::binSubstr($body, $startP, $endP-$startP);

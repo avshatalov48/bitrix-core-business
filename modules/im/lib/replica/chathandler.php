@@ -107,10 +107,7 @@ class ChatHandler extends \Bitrix\Replica\Client\BaseHandler
 							'chatId' => $newRecord['CHAT_ID'],
 							'name' => $newRecord['TITLE'],
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
 				if ($clearCacheOpen)
@@ -145,10 +142,7 @@ class ChatHandler extends \Bitrix\Replica\Client\BaseHandler
 							'chatId' => $newRecord['CHAT_ID'],
 							'avatar' => $avatarImage,
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
 				if ($clearCacheOpen)
@@ -182,10 +176,7 @@ class ChatHandler extends \Bitrix\Replica\Client\BaseHandler
 							'chatId' => $newRecord['CHAT_ID'],
 							'color' => \Bitrix\Im\Color::getColor($newRecord['COLOR']),
 						),
-						'extra' => Array(
-							'im_revision' => IM_REVISION,
-							'im_revision_mobile' => IM_REVISION_MOBILE,
-						),
+						'extra' => \Bitrix\Im\Common::getPullExtra()
 					));
 				}
 				if ($clearCacheOpen)

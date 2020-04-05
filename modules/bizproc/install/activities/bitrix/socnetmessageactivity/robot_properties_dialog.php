@@ -6,7 +6,7 @@ $map = $dialog->getMap();
 $messageText = $map['MessageText'];
 $fromAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
 	'valueInputName' => $map['MessageUserFrom']['FieldName'],
-	'selected'       => \Bitrix\Crm\Automation\Helper::prepareUserSelectorEntities(
+	'selected'       => \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
 		$dialog->getDocumentType(),
 		$dialog->getCurrentValue($map['MessageUserFrom']['FieldName'], $map['MessageUserFrom']['Default'])
 	),
@@ -15,7 +15,7 @@ $fromAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
 
 $toAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
 	'valueInputName' => $map['MessageUserTo']['FieldName'],
-	'selected'       => \Bitrix\Crm\Automation\Helper::prepareUserSelectorEntities(
+	'selected'       => \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
 		$dialog->getDocumentType(),
 		$dialog->getCurrentValue($map['MessageUserTo']['FieldName'], $map['MessageUserTo']['Default'])
 	),
@@ -23,21 +23,21 @@ $toAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
 	'required' => true,
 )));
 ?>
-<div class="crm-automation-popup-settings">
+<div class="bizproc-automation-popup-settings">
 	<textarea name="<?=htmlspecialcharsbx($messageText['FieldName'])?>"
-			class="crm-automation-popup-textarea"
+			class="bizproc-automation-popup-textarea"
 			placeholder="<?=htmlspecialcharsbx($messageText['Name'])?>"
 			data-role="inline-selector-target"
 	><?=htmlspecialcharsbx($dialog->getCurrentValue($messageText['FieldName'], $messageText['Default']))?></textarea>
 </div>
-<div class="crm-automation-popup-settings">
-	<span class="crm-automation-popup-settings-title crm-automation-popup-settings-title-autocomplete">
+<div class="bizproc-automation-popup-settings">
+	<span class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete">
 		<?=htmlspecialcharsbx($map['MessageUserFrom']['Name'])?>:
 	</span>
 	<div data-role="user-selector" data-config="<?= $fromAttributeValue ?>"></div>
 </div>
-<div class="crm-automation-popup-settings">
-	<span class="crm-automation-popup-settings-title crm-automation-popup-settings-title-autocomplete">
+<div class="bizproc-automation-popup-settings">
+	<span class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete">
 		<?=htmlspecialcharsbx($map['MessageUserTo']['Name'])?>:
 	</span>
 	<div data-role="user-selector" data-config="<?= $toAttributeValue ?>"></div>

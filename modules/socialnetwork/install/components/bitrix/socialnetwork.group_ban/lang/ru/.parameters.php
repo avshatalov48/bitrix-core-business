@@ -9,4 +9,5 @@ $MESS ['SONET_PATH_TO_GROUP_MODS'] = "Шаблон пути к странице 
 $MESS ['SONET_PATH_TO_GROUP_USERS'] = "Шаблон пути к странице членов группы";
 $MESS ['SONET_GROUP_ID'] = "Идентификатор группы";
 $MESS ['SONET_ITEMS_COUNT'] = "Количество записей в списке";
+$MESS ['SONET_VARIABLE_ALIASES'] = "Имена переменных";
 ?>

@@ -64,6 +64,7 @@ class CBPCalendar2Activity
 			}
 			CCalendar::SaveEvent(
 				array(
+					'userId' => CBPHelper::ExtractUsers($this->CalendarUser, $documentId, true),
 					'arFields' => $arFields,
 					'autoDetectSection' => true,
 					'autoCreateSection' => true

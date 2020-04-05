@@ -5,9 +5,9 @@ namespace Bitrix\Sale\Exchange\OneC;
 use Bitrix\Main;
 use Bitrix\Sale\Exchange\EntityType;
 
-class UserProfileDocument extends DocumentImport
+class UserProfileDocument extends DocumentBase
 {
-	private static $FIELD_INFOS = null;
+	protected static $FIELD_INFOS = null;
 
 	/**
 	 * @return array
@@ -28,7 +28,7 @@ class UserProfileDocument extends DocumentImport
 	/**
 	 * @return array
 	 */
-	public static function getFieldsInfo()
+	static public function getFieldsInfo()
 	{
 		if(!self::$FIELD_INFOS)
 		{
@@ -75,6 +75,162 @@ class UserProfileDocument extends DocumentImport
 				'OKPO' => array(
 					'TYPE' => 'string'
 				),
+				//region export fields
+				'SURNAME' => array(
+					'TYPE' => 'string'
+				),
+				'NAME' => array(
+					'TYPE' => 'string'
+				),
+				'MIDDLE_NAME' => array(
+					'TYPE' => 'string'
+				),
+				'BIRTHDAY' => array(
+					'TYPE' => 'string'
+				),
+				'SEX' => array(
+					'TYPE' => 'string'
+				),
+				'MONEY_ACCOUNTS' => array(
+					'TYPE' => 'array',
+					'FIELDS' => array(
+						'ACCOUNT_NUMBER' => array(
+							'TYPE' => 'string'
+						),
+						'BANK' => array(
+							'TYPE' => 'array',
+							'FIELDS' => array(
+								'ITEM_NAME' => array(
+									'TYPE' => 'string'
+								),
+								'ADDRESS' => array(
+									'TYPE' => 'array',
+									'FIELDS' => array(
+										'PRESENTATION' => array(
+											'TYPE' => 'string'
+										),
+										'ADDRESS_FIELD' => array(
+											'TYPE' => 'array',
+											'FIELDS' => array(
+												'POST_CODE' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'COUNTRY' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'REGION' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'STATE' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'SMALL_CITY' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'CITY' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'STREET' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'HOUSE' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'BUILDING' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												),
+												'FLAT' => array(
+													'TYPE' => 'array',
+													'FIELDS' => array(
+														'TYPE' => array(
+															'TYPE' => 'string'
+														),
+														'VALUE' => array(
+															'TYPE' => 'string'
+														)
+													)
+												)
+											)
+										)
+									)
+								)
+							)
+						)
+					)
+				),
+				//endregion
 				'REGISTRATION_ADDRESS' => array(
 					'TYPE' => 'array',
 					'FIELDS' => array(
@@ -492,15 +648,52 @@ class UserProfileDocument extends DocumentImport
 											'TYPE' => 'string'
 										)
 									)
+								),
+								//region export representatives.fields
+								'CONTRAGENT' => array(
+									'TYPE' => 'array',
+									'FIELDS' => array(
+										'RELATION' => array(
+											'TYPE' => 'string'
+										),
+										'ID' => array(
+											'TYPE' => 'string'
+										),
+										'ITEM_NAME' => array(
+											'TYPE' => 'string'
+										)
+									)
+								)
+								//endregion
+							)
+						)
+					)
+				),
+				'ROLE' => array(
+					'TYPE' => 'string'
+				),
+				'REK_VALUES' => array(
+					'TYPE' => 'array',
+					'FIELDS' => array(
+						'DELIVERY_ADDRESS' => array(
+							'TYPE' => 'array',
+							'FIELDS' => array(
+								'NAME' => array(
+									'TYPE' => 'string'
+								),
+								'VALUE' => array(
+									'TYPE' => 'string'
 								)
 							)
 						)
 					)
 				)
+
 			);
 		}
 		return self::$FIELD_INFOS;
 	}
+
 
 	/**
 	 * @param array $document
@@ -562,7 +755,7 @@ class UserProfileDocument extends DocumentImport
 	 * @param $fieldsInfo
 	 * @return array
 	 */
-	protected function resolveRelationArrayParams($value, $fieldsInfo)
+	static protected function resolveRelationArrayParams($value, $fieldsInfo)
 	{
 		$fields = array();
 		$message = self::getMessage();
@@ -585,7 +778,7 @@ class UserProfileDocument extends DocumentImport
 	 * @param $fieldsInfo
 	 * @return array
 	 */
-	protected function resolveArrayParams($value, $fieldsInfo)
+	static protected function resolveArrayParams($value, $fieldsInfo)
 	{
 		$fields = array();
 		$message = self::getMessage();
@@ -608,7 +801,7 @@ class UserProfileDocument extends DocumentImport
 	 * @param array $fieldsInfo
 	 * @return null
 	 */
-	protected function resolveFields(array $document, array $fieldsInfo)
+	static protected function resolveFields(array $document, array $fieldsInfo)
 	{
 		$fields = null;
 		$message = self::getMessage();

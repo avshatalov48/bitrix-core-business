@@ -9,6 +9,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+global $CACHE_MANAGER;
+
 if (!CModule::IncludeModule("socialnetwork"))
 {
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
@@ -132,7 +134,6 @@ $arDefaultUrlTemplates404 = array(
 	"user_tasks_report_construct" => "user/#user_id#/tasks/report/construct/#report_id#/#action#/",
 	"user_tasks_report_view" => "user/#user_id#/tasks/report/view/#report_id#/",
 	"user_tasks_templates" => "user/#user_id#/tasks/templates/",
-	"user_tasks_report_board" => "user/#user_id#/tasks/reportboard/",
 	"user_templates_template" => "user/#user_id#/tasks/templates/template/#action#/#template_id#/",
 
 	"user_tasks_import" => "user/#user_id#/tasks/import/",
@@ -626,7 +627,7 @@ else
 				"edit_section", "sessid", "post_id", "category", "topic_id", "result", "MESSAGE_TYPE", "q", "how", "tags", "where",
 				"log_id");
 		$arParamsKill = array_merge($arParamsKill, $arParams["VARIABLE_ALIASES"], array_values($arVariableAliases));
-		$arResult["PATH_TO_".strToUpper($url)] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arParamsKill);
+		$arResult["PATH_TO_".strToUpper($url)] = $APPLICATION->GetCurPageParam($value, $arParamsKill);
 	}
 	if (array_key_exists($arVariables["page"], $arDefaultUrlTemplatesN404))
 	{
@@ -809,43 +810,49 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] == "PUT")
 		&& CModule::IncludeModule("socialnetwork")
 	)
 	{
-		$bxSocNetSearch = new CSocNetSearch($arResult["VARIABLES"]["user_id"], $arResult["VARIABLES"]["group_id"],
-			array(
-				"BLOG_GROUP_ID" => $arParams["BLOG_GROUP_ID"],
-				"PATH_TO_GROUP_BLOG" => "",
-				"PATH_TO_GROUP_BLOG_POST" => "",
-				"PATH_TO_GROUP_BLOG_COMMENT" => "",
-				"PATH_TO_USER_BLOG" => $arResult["PATH_TO_USER_BLOG"],
-				"PATH_TO_USER_BLOG_POST" => $arResult["PATH_TO_USER_BLOG_POST"],
-				"PATH_TO_USER_BLOG_COMMENT" => $arResult["PATH_TO_USER_BLOG_POST"]."?commentId=#comment_id##com#comment_id#",
+		$arSocNetSearchParams = array(
+			"BLOG_GROUP_ID" => $arParams["BLOG_GROUP_ID"],
+			"PATH_TO_GROUP_BLOG" => "",
+			"PATH_TO_GROUP_BLOG_POST" => "",
+			"PATH_TO_GROUP_BLOG_COMMENT" => "",
+			"PATH_TO_USER_BLOG" => $arResult["PATH_TO_USER_BLOG"],
+			"PATH_TO_USER_BLOG_POST" => $arResult["PATH_TO_USER_BLOG_POST"],
+			"PATH_TO_USER_BLOG_COMMENT" => $arResult["PATH_TO_USER_BLOG_POST"]."?commentId=#comment_id##com#comment_id#",
 
-				"FORUM_ID" => $arParams["FORUM_ID"],
-				"PATH_TO_GROUP_FORUM_MESSAGE" => "",
-				"PATH_TO_USER_FORUM_MESSAGE" => $arResult["PATH_TO_USER_FORUM_MESSAGE"],
+			"FORUM_ID" => $arParams["FORUM_ID"],
+			"PATH_TO_GROUP_FORUM_MESSAGE" => "",
+			"PATH_TO_USER_FORUM_MESSAGE" => $arResult["PATH_TO_USER_FORUM_MESSAGE"],
 
-				"PHOTO_GROUP_IBLOCK_ID" => false,
-				"PATH_TO_GROUP_PHOTO_ELEMENT" => "",
-				"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"],
-				"PATH_TO_USER_PHOTO_ELEMENT" => $arResult["PATH_TO_USER_PHOTO_ELEMENT"],
-				"PHOTO_FORUM_ID" => $arParams["PHOTO_FORUM_ID"],
+			"PHOTO_GROUP_IBLOCK_ID" => false,
+			"PATH_TO_GROUP_PHOTO_ELEMENT" => "",
+			"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"],
+			"PATH_TO_USER_PHOTO_ELEMENT" => $arResult["PATH_TO_USER_PHOTO_ELEMENT"],
+			"PHOTO_FORUM_ID" => $arParams["PHOTO_FORUM_ID"],
 
-				"CALENDAR_GROUP_IBLOCK_ID" => false,
-				"PATH_TO_GROUP_CALENDAR_ELEMENT" => "",
+			"CALENDAR_GROUP_IBLOCK_ID" => false,
+			"PATH_TO_GROUP_CALENDAR_ELEMENT" => "",
 
-				"PATH_TO_GROUP_TASK_ELEMENT" => "",
-				"PATH_TO_USER_TASK_ELEMENT" => $arResult["PATH_TO_USER_TASKS_TASK"],
-				"TASK_FORUM_ID" => $arParams["TASK_FORUM_ID"],
+			"PATH_TO_GROUP_TASK_ELEMENT" => "",
+			"PATH_TO_USER_TASK_ELEMENT" => $arResult["PATH_TO_USER_TASKS_TASK"],
+			"TASK_FORUM_ID" => $arParams["TASK_FORUM_ID"],
 
-				"FILES_PROPERTY_CODE" => $arParams["NAME_FILE_PROPERTY"],
-				"FILES_FORUM_ID" => $arParams["FILES_FORUM_ID"],
-				"FILES_GROUP_IBLOCK_ID" => false,
-				"PATH_TO_GROUP_FILES_ELEMENT" => "",
-				"PATH_TO_GROUP_FILES" => "",
-				"FILES_USER_IBLOCK_ID" => $arParams["FILES_USER_IBLOCK_ID"],
-				"PATH_TO_USER_FILES_ELEMENT" => $arResult["PATH_TO_USER_FILES_ELEMENT"],
-				"PATH_TO_USER_FILES" => $arResult["PATH_TO_USER_FILES"],
-				"PATH_TO_WORKFLOW" => SITE_DIR."services/processes/#list_id#/bp_log/#workflow_id#/"
-		));
+			"PATH_TO_WORKFLOW" => SITE_DIR."services/processes/#list_id#/bp_log/#workflow_id#/"
+		);
+
+		if (!$diskEnabled)
+		{
+			$arSocNetSearchParams["FILES_PROPERTY_CODE"] = $arParams["NAME_FILE_PROPERTY"];
+			$arSocNetSearchParams["FILES_FORUM_ID"] = $arParams["FILES_FORUM_ID"];
+			$arSocNetSearchParams["FILES_GROUP_IBLOCK_ID"] = false;
+			$arSocNetSearchParams["PATH_TO_GROUP_FILES_ELEMENT"] = "";
+			$arSocNetSearchParams["PATH_TO_GROUP_FILES"] = "";
+			$arSocNetSearchParams["FILES_USER_IBLOCK_ID"] = $arParams["FILES_USER_IBLOCK_ID"];
+			$arSocNetSearchParams["PATH_TO_USER_FILES_ELEMENT"] = $arResult["PATH_TO_USER_FILES_ELEMENT"];
+			$arSocNetSearchParams["PATH_TO_USER_FILES"] = $arResult["PATH_TO_USER_FILES"];
+		}
+
+		$bxSocNetSearch = new CSocNetSearch($arResult["VARIABLES"]["user_id"], $arResult["VARIABLES"]["group_id"], $arSocNetSearchParams);
+
 		AddEventHandler("search", "BeforeIndex", Array($bxSocNetSearch, "BeforeIndex"));
 		AddEventHandler("iblock", "OnAfterIBlockElementUpdate", Array($bxSocNetSearch, "IBlockElementUpdate"));
 		AddEventHandler("iblock", "OnAfterIBlockElementAdd", Array($bxSocNetSearch, "IBlockElementUpdate"));
@@ -879,7 +886,11 @@ if(
 /********************************************************************
 				WebDav
 ********************************************************************/
-if (strPos($componentPage, "user_files") === false && strPos($componentPage, "group_files") === false)
+if (
+	!$diskEnabled
+	&& strPos($componentPage, "user_files") === false
+	&& strPos($componentPage, "group_files") === false
+)
 {
 	$sCurrUrl = strToLower(str_replace("//", "/", "/".$APPLICATION->GetCurPage()."/"));
 	$arBaseUrl = array(
@@ -913,14 +924,17 @@ if (strPos($componentPage, "user_files") === false && strPos($componentPage, "gr
 	}
 }
 
-if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "group_files")!== false)
-{
-	if (
-		$bExtranetEnabled
-		&& strPos($componentPage, "user_files") !== false
-		&& CModule::IncludeModule("iblock")
+if (
+	!$diskEnabled
+	&& (
+		strPos($componentPage, "user_files")!== false
+		|| strPos($componentPage, "group_files")!== false
 	)
-	{
+	&& $bExtranetEnabled
+	&& strPos($componentPage, "user_files") !== false
+	&& CModule::IncludeModule("iblock")
+)
+{
 		$bIsUserExtranet = false;
 
 		$obCache = new CPHPCache;
@@ -931,8 +945,8 @@ if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "gro
 		{
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->StartTagCache($path);
-				$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
+				$CACHE_MANAGER->StartTagCache($path);
+				$CACHE_MANAGER->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
 			}
 
 			$rsIBlock = CIBlock::GetList(array(), array("ACTIVE" => "Y", "CHECK_PERMISSIONS"=>"N", "CODE"=>"user_files%"));
@@ -1010,7 +1024,7 @@ if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "gro
 			$obCache->EndDataCache($arCachedResult);
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+				$CACHE_MANAGER->EndTagCache();
 			}
 		}
 		else
@@ -1035,8 +1049,8 @@ if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "gro
 		{
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->StartTagCache($path);
-				$GLOBALS["CACHE_MANAGER"]->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
+				$CACHE_MANAGER->StartTagCache($path);
+				$CACHE_MANAGER->RegisterTag("USER_CARD_".intval($arResult["VARIABLES"]["user_id"] / TAGGED_user_card_size));
 			}
 
 			if (
@@ -1071,7 +1085,7 @@ if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "gro
 			$obCache->EndDataCache($arCachedResult);
 			if(defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+				$CACHE_MANAGER->EndTagCache();
 			}
 		}
 		else
@@ -1086,7 +1100,6 @@ if (strPos($componentPage, "user_files")!== false || strPos($componentPage, "gro
 		{
 			$arParams["FILES_FORUM_ID"]= $arCachedResult["FILES_FORUM_ID"];
 		}
-	}
 }
 
 $path2 = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/include/webdav_2.php");
@@ -1340,7 +1353,7 @@ CUtil::InitJSCore(array("window", "ajax"));
 $this->IncludeComponentTemplate($componentPage, array_key_exists($componentPage, $arCustomPagesPath) ? $arCustomPagesPath[$componentPage] : "");
 
 //top panel button to reindex
-if($GLOBALS['USER']->IsAdmin())
+if($USER->IsAdmin())
 {
 	$GLOBALS['APPLICATION']->AddPanelButton(array(
 		"HREF"=> $arResult["PATH_TO_USER_REINDEX"],

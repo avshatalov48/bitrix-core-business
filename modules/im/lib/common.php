@@ -53,5 +53,17 @@ class Common
 
 		return $userId;
 	}
+
+	public static function getPullExtra()
+	{
+		return [
+			'revision_im_web' => \Bitrix\Im\Revision::getWeb(),
+			'revision_im_mobile' => \Bitrix\Im\Revision::getMobile(),
+			'revision_im_rest' => \Bitrix\Im\Revision::getRest(),
+			// deprecated
+			'im_revision' => \Bitrix\Im\Revision::getWeb(),
+			'im_revision_mobile' => \Bitrix\Im\Revision::getMobile(),
+		];
+	}
 }
 

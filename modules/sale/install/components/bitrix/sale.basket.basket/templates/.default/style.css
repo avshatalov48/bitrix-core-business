@@ -20,14 +20,14 @@
 	justify-content: space-between;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
+	opacity: 1;
+	transition: opacity 250ms ease;
 }
 
 .basket-checkout-container.basket-checkout-container-fixed {
 	position: fixed;
 	top: 0;
 	z-index: 100;
-	opacity: 1;
-	transition: opacity 250ms ease;
 }
 
 .basket-checkout-container.basket-checkout-container-fixed-hide {

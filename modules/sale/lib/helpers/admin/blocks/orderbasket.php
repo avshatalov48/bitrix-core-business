@@ -389,7 +389,8 @@ class OrderBasket
 			"SALE_ORDER_BASKET_PROD_MENU_EDIT", "SALE_ORDER_BASKET_PROD_MENU_DELETE", "SALE_ORDER_BASKET_BASE_CATALOG_PRICE",
 			"SALE_ORDER_BASKET_PROD_EDIT_ITEM_SAVE", "SALE_ORDER_BASKET_KG", "SALE_ORDER_BASKET_COUPON",
 			"SALE_ORDER_BASKET_COUPON_STATUS", "SALE_ORDER_BASKET_COUPON_APPLY", "SALE_ORDER_BASKET_COUPON_DELETE",
-			"SALE_ORDER_BASKET_POSITION_EXISTS", "SALE_ORDER_BASKET_ADD_COUPON_ERROR", "SALE_ORDER_BASKET_NO_NAME"
+			"SALE_ORDER_BASKET_POSITION_EXISTS", "SALE_ORDER_BASKET_ADD_COUPON_ERROR", "SALE_ORDER_BASKET_NO_NAME",
+			"SALE_ORDER_BASKET_PRODUCT_UNACTIVE"
 		);
 		$result = '<script type="text/javascript">';
 
@@ -2055,6 +2056,8 @@ class OrderBasket
 						if (!empty($providerData[$basketCode]))
 						{
 							\Bitrix\Sale\Helpers\Admin\OrderEdit::setProviderTrustData($item, $this->order, $providerData[$basketCode]);
+
+							$params["PRODUCT_ACTIVE"] = $providerData[$basketCode]['ACTIVE'];
 							$params["PROVIDER_DATA"] = serialize($providerData[$basketCode]);
 						}
 					}
@@ -2064,7 +2067,10 @@ class OrderBasket
 					$providerData = Provider::getTrustData($this->order->getSiteId(), 'sale', $item->getProductId());
 
 					if(is_array($providerData) && !empty($providerData))
+					{
+						$params["PRODUCT_ACTIVE"] = $providerData[$basketCode]['ACTIVE'];
 						$params["PROVIDER_DATA"] = serialize($providerData);
+					}
 				}
 
 				if(is_array($params["SET_ITEMS"]) && !empty($params["SET_ITEMS"]))

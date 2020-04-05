@@ -1120,7 +1120,8 @@ if (empty($arRunErrors))
 	Catalog\Product\Price\Calculation::setConfig(array(
 		'CURRENCY' => $BASE_CURRENCY,
 		'USE_DISCOUNTS' => true,
-		'RESULT_WITH_VAT' => true
+		'RESULT_WITH_VAT' => true,
+		'RESULT_MODE' => Catalog\Product\Price\Calculation::RESULT_MODE_COMPONENT
 	));
 
 	if ($selectedPriceType > 0)

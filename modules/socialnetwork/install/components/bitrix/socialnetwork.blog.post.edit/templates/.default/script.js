@@ -1197,6 +1197,16 @@
 	if (!!BX.SocNetGratSelector)
 		return;
 
+	BX.SocNetPostDateEndData =
+		{
+			isInitialized: false,
+			popupShowingPeriods: null,
+			customDateStyleModifier: 'feed-add-post-expire-date-customize',
+			popupTriggerSelector: '.js-important-till-popup-trigger',
+			customDatePopupOptionClass: 'js-custom-date-end',
+			customDateFinalSelector: '.js-date-post-showing-custom',
+			postExpireDateBlockSelector: '.js-post-expire-date-block'
+		};
 	BX.SocNetGratSelector =
 		{
 			popupWindow: null,
@@ -1223,7 +1233,147 @@
 			obElementBindMainPopup: {},
 			obElementBindSearchPopup: {}
 		};
+	BX.SocNetPostDateEndData.init = function ()
+	{
+		if (this.isInitialized)
+		{
+			return;
+		}
+		this.addEventHandlers();
+		if (!this.formDateTimeEditing.value)
+		{
+			this.customDateSelectedTitle.innerText = this.getCurrentDate();
+		}
+		this.isInitialized = true;
+	};
 
+	BX.SocNetPostDateEndData.addEventHandlers = function ()
+	{
+		this.postExpireDateBlock = document.querySelector(this.postExpireDateBlockSelector);
+		this.formUfInputDateCustom = document.querySelector('.js-form-post-end-time');
+		this.formDateDuration = document.querySelector('.js-form-post-end-period');
+		this.formDateTimeEditing = document.querySelector('.js-form-editing-post-end-time');
+		this.popupTrigger = document.querySelector(this.popupTriggerSelector);
+		if (this.popupTrigger)
+		{
+			this.popupTrigger.addEventListener("click", function (event)
+			{
+				BX.SocNetPostDateEndData.showPostEndPeriodsPopup();
+			});
+		}
+
+		this.customDateSelectedTitle = document.querySelector(this.customDateFinalSelector);
+		if (this.customDateSelectedTitle)
+		{
+			this.customDateSelectedTitle.addEventListener("click", (function (event) {
+				var curDate = new Date();
+				var curTimestamp = Math.round(curDate / 1000) - curDate.getTimezoneOffset() * 60;
+				if (this.formDateTimeEditing.value)
+				{
+					curDate = BX.parseDate(this.formDateTimeEditing.value);
+					curTimestamp = BX.date.convertToUTC(curDate);
+				}
+				BX.calendar({
+					node: this.customDateSelectedTitle,
+					form: "blogPostForm",
+					value: curTimestamp,
+					bTime: false,
+					'callback': function(){
+						return true;
+					},
+					'callback_after': BX.SocNetPostDateEndData.onEndDateSet.bind(BX.SocNetPostDateEndData)
+				});
+			}).bind(this));
+		}
+	};
+	BX.SocNetPostDateEndData.showPostEndPeriodsPopup = function()
+	{
+		if (!this.popupShowingPeriods)
+		{
+			this.createPopupShowingPeriods();
+		}
+		this.popupShowingPeriods.popupWindow.show();
+	};
+	BX.SocNetPostDateEndData.createPopupShowingPeriods = function()
+	{
+		if (!this.menuItems)
+		{
+			this.menuItems = this.createPopupItems();
+		}
+		this.popupShowingPeriods = BX.PopupMenu.create(
+			"feed-add-post-form-popup42",
+			BX("js-post-expire-date-wrapper"),
+			this.menuItems,
+			{
+				className: "feed-add-post-expire-date-options",
+				closeByEsc : true,
+				angle: true
+			}
+		);
+	};
+	BX.SocNetPostDateEndData.createPopupItems = function()
+	{
+		var menuPostDurationItems = [];
+		var selectOptions = BX.findChildren(document.querySelector('.js-post-showing-duration-options-container'), {'className': 'js-post-showing-duration-option'}, true);
+		if (selectOptions)
+		{
+			selectOptions.forEach(function(element){
+				menuPostDurationItems.push({
+					onclick: this.onPopupItemClick.bind(this),
+					dataset: {
+						value: element.getAttribute('data-value'),
+						class: element.getAttribute('data-class')
+					},
+					text: element.getAttribute('data-text'),
+					className: 'menu-popup-item menu-popup-no-icon ' + element.getAttribute('data-class')
+				});
+			}.bind(this));
+			return menuPostDurationItems;
+		}
+		return [];
+	};
+	BX.SocNetPostDateEndData.onPopupItemClick = function(event) {
+		var element = event.currentTarget;
+		if (element.getAttribute('data-class') == this.customDatePopupOptionClass)
+		{
+			this.postExpireDateBlock.classList.add(this.customDateStyleModifier);
+			if (this.formDateTimeEditing.value)
+			{
+				this.formUfInputDateCustom.value = this.formDateTimeEditing.value;
+				this.customDateSelectedTitle.innerText = this.formDateTimeEditing.value;
+			}
+			else
+			{
+				this.formUfInputDateCustom.value = this.getCurrentDate();
+			}
+		}
+		else
+		{
+			this.postExpireDateBlock.classList.remove(this.customDateStyleModifier);
+			this.formUfInputDateCustom.value = null;
+		}
+		this.popupTrigger.innerText = element.innerText.toLowerCase();
+		this.formDateDuration.value = element.getAttribute('data-value').toUpperCase();
+		this.popupShowingPeriods.popupWindow.close();
+	};
+	BX.SocNetPostDateEndData.onEndDateSet = function (value)
+	{
+		if (!value)
+		{
+			return;
+		}
+		this.formDateTimeEditing.value = this.getFormattedDate(value);
+		this.formUfInputDateCustom.value = this.getFormattedDate(value);
+		this.customDateSelectedTitle.innerText = this.getFormattedDate(value);
+	};
+	BX.SocNetPostDateEndData.getFormattedDate = function (value)
+	{
+		return BX.date.format(BX.date.convertBitrixFormat(BX.message('FORMAT_DATE')), value);
+	};
+	BX.SocNetPostDateEndData.getCurrentDate = function ()
+	{
+		return BX.SocNetPostDateEndData.getFormattedDate(new Date());
+	};
 	BX.SocNetGratSelector.init = function(arParams)
 	{
 		if(!arParams.name)
@@ -1588,24 +1738,38 @@
 					BX('POST_TITLE').value = "";
 				}
 
+				var submitButton = null;
+
 				if (
 					value == 'save'
 					&& BX("blog-submit-button-save")
 				)
 				{
-					BX.addClass(BX("blog-submit-button-save"), 'ui-btn-clock');
-					BX.addClass(BX("blog-submit-button-save"), 'ui-btn-disabled');
-					BX("blog-submit-button-save").disabled = true;
+					submitButton = BX("blog-submit-button-save");
 				}
-
-				if (
+				else if (
 					value == 'draft'
 					&& BX("blog-submit-button-draft")
 				)
 				{
-					BX.addClass(BX("blog-submit-button-draft"), 'ui-btn-clock');
-					BX.addClass(BX("blog-submit-button-draft"), 'ui-btn-disabled');
-					BX("blog-submit-button-draft").disabled = true;
+					submitButton = BX("blog-submit-button-draft");
+				}
+
+				if (submitButton)
+				{
+					BX.addClass(submitButton, 'ui-btn-clock');
+					BX.addClass(submitButton, 'ui-btn-disabled');
+					submitButton.disabled = true;
+
+					window.addEventListener('beforeunload', BX.proxy(function(event) { // is called on every sumbit, with or without dialog
+						var __submitButton = this.submitButton;
+						setTimeout(function() {
+							BX.removeClass(__submitButton, 'ui-btn-clock');
+							BX.removeClass(__submitButton, 'ui-btn-disabled');
+							__submitButton.disabled = false;
+							formParams[formID]["submitted"] = false;
+						}, 3000); // timeout needed to process a form on a back-end
+					}, { submitButton: submitButton}));
 				}
 
 				BX.submit(BX(formID), value);

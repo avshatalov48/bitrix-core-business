@@ -202,6 +202,7 @@ class CBPCanUserOperateOperation
 	const ViewWorkflow = 0;
 	const StartWorkflow = 1;
 	const CreateWorkflow = 4;
+	const CreateAutomation = 5;
 	const WriteDocument = 2;
 	const ReadDocument = 3;
 }

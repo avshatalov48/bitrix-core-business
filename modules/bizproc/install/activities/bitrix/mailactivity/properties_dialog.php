@@ -10,7 +10,7 @@ if (strlen($arCurrentValues["mail_message_type"]) <= 0)
 
 if ($arCurrentValues["mail_message_encoded"])
 {
-	$arCurrentValues["mail_text"] = htmlspecialcharsback($arCurrentValues["mail_text"]);
+	$arCurrentValues["mail_text"] = \CBPMailActivity::decodeMailText($arCurrentValues["mail_text"]);
 }
 /** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
 $map = $dialog->getMap();

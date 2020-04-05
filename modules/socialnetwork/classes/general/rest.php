@@ -1,4 +1,9 @@
 <?
+use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Rest\RestException;
+
 if(!CModule::IncludeModule('rest'))
 	return;
 
@@ -12,7 +17,14 @@ class CSocNetLogRestService extends IRestService
 			"log" => array(
 				"log.blogpost.get" => array("CSocNetLogRestService", "getBlogPost"),
 				"log.blogpost.add" => array("CSocNetLogRestService", "addBlogPost"),
+				"log.blogpost.update" => array("CSocNetLogRestService", "updateBlogPost"),
+				"log.blogpost.share" => array("CSocNetLogRestService", "shareBlogPost"),
 				"log.blogpost.getusers.important" => array("CSocNetLogRestService", "getBlogPostUsersImprtnt"),
+				CRestUtil::EVENTS => array(
+					'onLivefeedPostAdd' => self::createEventInfo('socialnetwork', 'OnAfterSocNetLogAdd', array('CSocNetLogBlogPostRestProxy', 'processEvent')),
+					'onLivefeedPostUpdate' => self::createEventInfo('socialnetwork', 'OnAfterSocNetLogUpdate', array('CSocNetLogBlogPostRestProxy', 'processEvent')),
+					'onLivefeedPostDelete' => self::createEventInfo('socialnetwork', 'OnSocNetLogDelete', array('CSocNetLogBlogPostRestProxy', 'processEvent')),
+				),
 			),
 			"sonet_group" => array(
 				"sonet_group.get" => array("CSocNetLogRestService", "getGroup"),
@@ -29,6 +41,11 @@ class CSocNetLogRestService extends IRestService
 		);
 	}
 
+	public static function createEventInfo($moduleName, $eventName, array $callback)
+	{
+		return array($moduleName, $eventName, $callback, array('category' => \Bitrix\Rest\Sqs::CATEGORY_DEFAULT));
+	}
+
 	public static function getBlogPost($arFields, $n, $server)
 	{
 		global $USER, $USER_FIELD_MANAGER;
@@ -40,17 +57,8 @@ class CSocNetLogRestService extends IRestService
 			return $result;
 		}
 
-		$tzOffset = CTimeZone::GetOffset();
+		$tzOffset = CTimeZone::getOffset();
 		$arOrder = array("LOG_UPDATE" => "DESC");
-
-		$arAccessCodes = $USER->GetAccessCodes();
-		foreach ($arAccessCodes as $i => $code)
-		{
-			if (!preg_match("/^(U|D|DR)/", $code)) //Users and Departments
-			{
-				unset($arAccessCodes[$i]);
-			}
-		}
 
 		if ($blogPostEventIdList === null)
 		{
@@ -65,12 +73,71 @@ class CSocNetLogRestService extends IRestService
 			$arEventIdFullset = array_merge($arEventIdFullset, CSocNetLogTools::FindFullSetByEventID($eventId));
 		}
 
+		$res = \CUser::getById($USER->getId());
+		if ($userFields = $res->Fetch())
+		{
+			$currentUserIntranet = (
+				!empty($userFields["UF_DEPARTMENT"])
+				&& is_array($userFields["UF_DEPARTMENT"])
+				&& intval($userFields["UF_DEPARTMENT"][0]) > 0
+			);
+
+			$extranetSiteId = false;
+			if (\Bitrix\Main\ModuleManager::isModuleInstalled('extranet'))
+			{
+				$extranetSiteId = Option::get("extranet", "extranet_site");
+			}
+
+			if (
+				empty($extranetSiteId)
+				|| $currentUserIntranet
+			)
+			{
+				$userSiteFields = \CSocNetLogComponent::getSiteByDepartmentId($userFields["UF_DEPARTMENT"]);
+				if (!empty($userSiteFields))
+				{
+					$siteId = $userSiteFields['LID'];
+				}
+			}
+			elseif (
+				!empty($extranetSiteId)
+				&& !$currentUserIntranet
+			)
+			{
+				$siteId = $extranetSiteId;
+			}
+			else
+			{
+				$siteId = \CSite::getDefSite();
+			}
+		}
+
 		$arFilter = array(
-			"LOG_RIGHTS" => $arAccessCodes,
 			"EVENT_ID" => array_unique($arEventIdFullset),
-			"SITE_ID" => array('s1', false),
+			"SITE_ID" => array($siteId, false),
 			"<=LOG_DATE" => "NOW"
 		);
+
+		if (
+			isset($arFields['POST_ID'])
+			&& intval($arFields['POST_ID']) > 0
+		)
+		{
+			$arFilter['SOURCE_ID'] = $arFields['POST_ID'];
+		}
+		else // list
+		{
+			$arAccessCodes = $USER->GetAccessCodes();
+			foreach ($arAccessCodes as $i => $code)
+			{
+				if (!preg_match("/^(U|D|DR|SG)/", $code)) //Users, Departments and Sonet groups
+				{
+					unset($arAccessCodes[$i]);
+				}
+			}
+			$arAccessCodes[] = 'UA';
+			$arFilter["LOG_RIGHTS"] = array_unique($arAccessCodes);
+		}
 
 		$arListParams = array(
 			"CHECK_RIGHTS" => "Y",
@@ -99,7 +166,10 @@ class CSocNetLogRestService extends IRestService
 		foreach ($arPostId as $key => $postId)
 		{
 			$cacheId = 'blog_post_socnet_rest_'.$postId.'_ru'.($tzOffset <> 0 ? '_'.$tzOffset : '');
-			$cacheDir = '/blog/socnet_post/gen/'.intval($postId / 100).'/'.$postId;
+			$cacheDir = ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'post',
+				'POST_ID' => $postId
+			));
 			$obCache = new CPHPCache;
 			if ($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
 			{
@@ -117,7 +187,10 @@ class CSocNetLogRestService extends IRestService
 			foreach ($arPostIdToGet as $key => $postId)
 			{
 				$cacheId = 'blog_post_socnet_rest_'.$postId.'_ru'.($tzOffset <> 0 ? '_'.$tzOffset : '');
-				$cacheDir = '/blog/socnet_post/gen/'.intval($postId / 100).'/'.$postId;
+				$cacheDir = ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'post_general',
+					'POST_ID' => $postId
+				));
 				$obCache = new CPHPCache;
 				$obCache->InitCache($cacheTtl, $cacheId, $cacheDir);
 
@@ -169,6 +242,14 @@ class CSocNetLogRestService extends IRestService
 							$arPost = array_merge($arPost, $arPostFields);
 						}
 
+						if (
+							!empty($arPost['UF_BLOG_POST_FILE'])
+							&& !empty($arPost['UF_BLOG_POST_FILE']['VALUE'])
+						)
+						{
+							$arPost['FILES'] = $arPost['UF_BLOG_POST_FILE']['VALUE'];
+						}
+
 						$result[$key] = $arPost;
 					}
 				}
@@ -184,93 +265,602 @@ class CSocNetLogRestService extends IRestService
 
 	public static function addBlogPost($arFields)
 	{
-		global $USER, $APPLICATION;
+		global $USER;
 
-		if (!is_array($_POST))
-		{
-			$_POST = array();
-		}
-
-		$_POST = array_merge($_POST, array("apply" => "Y", "decode" => "N"), $arFields);
-		if (isset($arFields["UF_BLOG_POST_IMPRTNT"]))
-		{
-			$GLOBALS["UF_BLOG_POST_IMPRTNT"] = $arFields["UF_BLOG_POST_IMPRTNT"];
-		}
-
-		$strPathToPost = COption::GetOptionString("socialnetwork", "userblogpost_page", false, SITE_ID);
-		$strPathToSmile = COption::GetOptionString("socialnetwork", "smile_page", false, SITE_ID);
-		$BlogGroupID = COption::GetOptionString("socialnetwork", "userbloggroup_id", false, SITE_ID);
-
-		$arBlogComponentParams = Array(
-			"IS_REST" => "Y",
-			"ID" => "new",
-			"PATH_TO_POST" => $strPathToPost,
-			"PATH_TO_SMILE" => $strPathToSmile,
-			"GROUP_ID" => $BlogGroupID,
-			"USER_ID" => $USER->GetID(),
-			"USE_SOCNET" => "Y",
-			"MICROBLOG" => "Y"
+		$siteId = (
+			is_set($arFields, "SITE_ID")
+			&& !empty($arFields["SITE_ID"])
+				? $arFields["SITE_ID"]
+				: SITE_ID
 		);
 
-		ob_start();
-		$result = $APPLICATION->IncludeComponent(
-			"bitrix:socialnetwork.blog.post.edit",
-			"",
-			$arBlogComponentParams,
-			false,
-			array("HIDE_ICONS" => "Y")
+		$authorId = (
+			isset($arFields["USER_ID"])
+			&& intval($arFields["USER_ID"]) > 0
+			&& $USER->isAdmin()
+				? $arFields["USER_ID"]
+				: $USER->getId()
 		);
-		ob_end_clean();
+
+		if (!Loader::includeModule('blog'))
+		{
+			throw new Exception('No blog module installed');
+		}
+
+		$blog = \Bitrix\Blog\Item\Blog::getByUser(array(
+			"GROUP_ID" => Option::get("socialnetwork", "userbloggroup_id", false, $siteId),
+			"SITE_ID" => $siteId,
+			"USER_ID" => $authorId,
+			"CREATE" => "Y",
+		));
+
+		if (!$blog)
+		{
+			throw new Exception('No blog found');
+		}
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$postFields = array(
+			"BLOG_ID" => $blog["ID"],
+			"AUTHOR_ID" => $authorId,
+			"=DATE_CREATE" => $helper->getCurrentDateTimeFunction(),
+			"=DATE_PUBLISH" => $helper->getCurrentDateTimeFunction(),
+			"MICRO" => "N",
+			"TITLE" => (strlen($arFields["POST_TITLE"]) > 0 ? $arFields["POST_TITLE"] : ''),
+			"DETAIL_TEXT" => $arFields["POST_MESSAGE"],
+			"DETAIL_TEXT_TYPE" => "text",
+			"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
+			"HAS_IMAGES" => "N",
+			"HAS_TAGS" => "N",
+			"HAS_SOCNET_ALL" => "N"
+		);
+
+		if (
+			!empty($arFields["DEST"])
+			&& is_array($arFields["DEST"])
+		)
+		{
+			$resultFields = array(
+				'ERROR_MESSAGE' => false,
+				'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS']
+			);
+
+			$postFields["SOCNET_RIGHTS"] = ComponentHelper::checkBlogPostDestinationList(array(
+				'DEST' => $arFields["DEST"],
+				'SITE_ID' => $siteId,
+				'AUTHOR_ID' => $authorId,
+			), $resultFields);
+
+			$postFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
+			if ($resultFields['ERROR_MESSAGE'])
+			{
+				throw new Exception($resultFields['ERROR_MESSAGE']);
+			}
+		}
+		elseif (!empty($arFields["SPERM"]))
+		{
+			$resultFields = array(
+				'ERROR_MESSAGE' => false,
+				'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS'],
+			);
+
+			$postFields["SOCNET_RIGHTS"] = ComponentHelper::convertBlogPostPermToDestinationList(array(
+				'PERM' => $arFields["SPERM"],
+				'IS_REST' => true,
+				'AUTHOR_ID' => $authorId,
+				'SITE_ID' => $siteId
+			), $resultFields);
+
+			$postFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
+			if (!empty($resultFields['ERROR_MESSAGE']))
+			{
+				throw new Exception($resultFields['ERROR_MESSAGE']);
+			}
+		}
+		elseif (
+			!Loader::includeModule("extranet")
+			|| \CExtranet::isIntranetUser()
+		)
+		{
+			$postFields["SOCNET_RIGHTS"] = array('UA');
+		}
+
+		if (empty($postFields["SOCNET_RIGHTS"]))
+		{
+			throw new Exception('No destination specified');
+		}
+
+		if (strlen($postFields["TITLE"]) <= 0)
+		{
+			$postFields["MICRO"] = "Y";
+			$postFields["TITLE"] = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", \blogTextParser::killAllTags($postFields["DETAIL_TEXT"]));
+			$postFields["TITLE"] = trim($postFields["TITLE"], " \t\n\r\0\x0B\xA0");
+		}
+
+		$result = \CBlogPost::add($postFields);
 
 		if (!$result)
 		{
-			throw new Exception('Error');
+			throw new Exception('Blog haven\'t been added');
 		}
-		else
-		{
 
+		if (
+			isset($arFields["FILES"])
+			&& Option::get('disk', 'successfully_converted', false)
+			&& Loader::includeModule('disk')
+			&& ($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($authorId))
+			&& ($folder = $storage->getFolderForUploadedFiles())
+		)
+		{
+			// upload to storage
+			$filesList = array();
+
+			foreach($arFields["FILES"] as $tmp)
+			{
+				$fileFields = \CRestUtil::saveFile($tmp);
+
+				if(is_array($fileFields))
+				{
+					$file = $folder->uploadFile(
+						$fileFields, // file array
+						array(
+							'NAME' => $fileFields["name"],
+							'CREATED_BY' => $authorId
+						),
+						array(),
+						true
+					);
+
+					if ($file)
+					{
+						$filesList[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$file->getId();
+					}
+				}
+			}
+
+			if (!empty($filesList)) // update post
+			{
+				\CBlogPost::update(
+					$result,
+					array(
+						"HAS_PROPS" => "Y",
+						"UF_BLOG_POST_FILE" => $filesList
+					)
+				);
+			}
+		}
+
+		$pathToPost = Option::get("socialnetwork", "userblogpost_page", false, $siteId);
+
+		$postFields['ID'] = $result;
+
+		$paramsNotify = array(
+			"bSoNet" => true,
+			"allowVideo" => Option::get("blog", "allow_video", "Y"),
+			"PATH_TO_POST" => $pathToPost,
+			"user_id" => $authorId,
+			"NAME_TEMPLATE" => \CSite::getNameFormat(null, $siteId)
+		);
+
+		$logId = \CBlogPost::notify($postFields, $blog, $paramsNotify);
+
+		$postUrl = \CComponentEngine::makePathFromTemplate(htmlspecialcharsBack($pathToPost), array(
+			"post_id" => $result,
+			"user_id" => $blog["OWNER_ID"]
+		));
+
+		if($postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
+		{
+			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'posts_last',
+				'SITE_ID' => $siteId
+			)));
+
+			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/ies".BX_UTF_PCRE_MODIFIER, $postFields["DETAIL_TEXT"], $matches);
+			$mentionList = (!empty($matches) ? $matches[1] : array());
+
+			ComponentHelper::notifyBlogPostCreated(array(
+				'post' => array(
+					'ID' => $result,
+					'TITLE' => $postFields["TITLE"],
+					'AUTHOR_ID' => $authorId
+				),
+				'siteId' => $siteId,
+				'postUrl' => $postUrl,
+				'socnetRights' => $postFields["SOCNET_RIGHTS"],
+				'socnetRightsOld' => array(),
+				'mentionListOld' => array(),
+				'mentionList' => $mentionList
+			));
+		}
+		elseif (
+			$postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY
+			&& !empty($postFields["SOCNET_RIGHTS"])
+		)
+		{
+			CBlogPost::NotifyImReady(array(
+				"TYPE" => "POST",
+				"POST_ID" => $result,
+				"TITLE" => $postFields["TITLE"],
+				"POST_URL" => $postUrl,
+				"FROM_USER_ID" => $authorId,
+				"TO_SOCNET_RIGHTS" => $postFields["SOCNET_RIGHTS"]
+			));
+		}
+
+		foreach($postFields["SOCNET_RIGHTS"] as $destination)
+		{
+			if (preg_match('/^SG(\d+)/i', $destination, $matches))
+			{
+				\CSocNetGroup::setLastActivity($matches[1]);
+			}
+		}
+
+		return $result;
+	}
+
+	public static function updateBlogPost($arFields)
+	{
+		global $USER, $USER_FIELD_MANAGER;
+
+		$postId = intval($arFields['POST_ID']);
+
+		if($postId <= 0)
+		{
+			throw new Exception('Wrong post ID');
+		}
+
+		if (!Loader::includeModule('blog'))
+		{
+			throw new Exception('Blog module not installed');
+		}
+
+		$currentUserId = (
+			isset($arFields["USER_ID"])
+			&& intval($arFields["USER_ID"]) > 0
+			&& $USER->isAdmin()
+				? $arFields["USER_ID"]
+				: $USER->getId()
+		);
+
+		$siteId = (
+			is_set($arFields, "SITE_ID")
+			&& !empty($arFields["SITE_ID"])
+				? $arFields["SITE_ID"]
+				: SITE_ID
+		);
+
+		$currentUserPerm = self::getBlogPostPerm(array(
+			'USER_ID' => $currentUserId,
+			'POST_ID' => $postId
+		));
+
+		if ($currentUserPerm <= \Bitrix\Blog\Item\Permissions::WRITE)
+		{
+			throw new Exception('No write perms');
+		}
+
+		$postFields = \Bitrix\Blog\Item\Post::getById($postId)->getFields();
+		if (empty($postFields))
+		{
+			throw new Exception('No post found');
+		}
+
+		$blog = \Bitrix\Blog\Item\Blog::getByUser(array(
+			"GROUP_ID" => Option::get("socialnetwork", "userbloggroup_id", false, $siteId),
+			"SITE_ID" => $siteId,
+			"USER_ID" => $postFields['AUTHOR_ID']
+		));
+
+		if (!$blog)
+		{
+			throw new Exception('No blog found');
+		}
+
+		$updateFields = array(
+			'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS']
+		);
+
+		if (isset($arFields["POST_TITLE"]))
+		{
+			$updateFields['TITLE'] = $arFields["POST_TITLE"];
+			$updateFields["MICRO"] = "N";
 			if (
-				isset($arFields["FILES"])
-				&& \Bitrix\Main\Config\Option::get('disk', 'successfully_converted', false)
-				&& CModule::includeModule('disk')
-				&& ($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($USER->GetID()))
+				strlen($updateFields["TITLE"]) <= 0
+				&& isset($arFields["POST_MESSAGE"])
+			)
+			{
+				$updateFields["MICRO"] = "Y";
+				$updateFields["TITLE"] = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", \blogTextParser::killAllTags($arFields["POST_MESSAGE"]));
+				$updateFields["TITLE"] = trim($updateFields["TITLE"], " \t\n\r\0\x0B\xA0");
+			}
+		}
+		if (strlen($arFields["POST_MESSAGE"]) > 0)
+		{
+			$updateFields['DETAIL_TEXT'] = $arFields["POST_MESSAGE"];
+		}
+
+		if (!empty($arFields["DEST"]))
+		{
+			$resultFields = array(
+				'ERROR_MESSAGE' => false,
+				'PUBLISH_STATUS' => $updateFields['PUBLISH_STATUS']
+			);
+
+			$updateFields["SOCNET_RIGHTS"] = ComponentHelper::checkBlogPostDestinationList(array(
+				'DEST' => $arFields["DEST"],
+				'SITE_ID' => $siteId,
+				'AUTHOR_ID' => $postFields['AUTHOR_ID'],
+			), $resultFields);
+
+			$updateFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
+			if ($resultFields['ERROR_MESSAGE'])
+			{
+				throw new Exception($resultFields['ERROR_MESSAGE']);
+			}
+		}
+
+		if($result = \CBlogPost::update($postId, $updateFields))
+		{
+			if (
+				!empty($arFields["FILES"])
+				&& Option::get('disk', 'successfully_converted', false)
+				&& Loader::includeModule('disk')
+				&& ($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($postFields['AUTHOR_ID']))
 				&& ($folder = $storage->getFolderForUploadedFiles())
 			)
 			{
-				// upload to storage
-				$arResultFile = array();
+				$filesList = array();
 
-				foreach($arFields["FILES"] as $tmp)
+				$postUF = $USER_FIELD_MANAGER->GetUserFields("BLOG_POST", $postId, LANGUAGE_ID);
+				if (
+					!empty($postUF['UF_BLOG_POST_FILE'])
+					&& !empty($postUF['UF_BLOG_POST_FILE']['VALUE'])
+				)
 				{
-					$arFile = CRestUtil::saveFile($tmp);
+					$filesList = array_merge($filesList, $postUF['UF_BLOG_POST_FILE']['VALUE']);
+				}
 
-					if(is_array($arFile))
+				$needToDelete = false;
+
+				foreach($arFields["FILES"] as $key => $tmp)
+				{
+					if (
+						$tmp == 'del'
+						&& in_array($key, $filesList)
+					)
 					{
-						$file = $folder->uploadFile(
-							$arFile, // file array
-							array(
-								'NAME' => $arFile["name"],
-								'CREATED_BY' => $USER->GetID()
-							),
-							array(),
-							true
-						);
-
-						if ($file)
+						foreach($filesList as $i => $v)
 						{
-							$arResultFile[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$file->getId();
+							if ($v == $key)
+							{
+								unset($filesList[$i]);
+								$needToDelete = true;
+							}
+						}
+					}
+					else
+					{
+						$fileFields = \CRestUtil::saveFile($tmp);
+
+						if(is_array($fileFields))
+						{
+							$file = $folder->uploadFile(
+								$fileFields,
+								array(
+									'NAME' => $fileFields["name"],
+									'CREATED_BY' => $postFields['AUTHOR_ID']
+								),
+								array(),
+								true
+							);
+
+							if ($file)
+							{
+								$filesList[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$file->getId();
+							}
 						}
 					}
 				}
 
-				if (!empty($arResultFile)) // update post
+				if (
+					!empty($filesList)
+					|| $needToDelete
+				)
 				{
-					CBlogPost::Update($result, array("HAS_PROPS" => "Y", "UF_BLOG_POST_FILE" => $arResultFile));
+					\CBlogPost::update($postId, array("HAS_PROPS" => "Y", "UF_BLOG_POST_FILE" => $filesList));
 				}
 			}
 
-			return $result;
+			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'post',
+				'POST_ID' => $postId
+			)));
+			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'post_general',
+				'POST_ID' => $postId
+			)));
+			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+				'TYPE' => 'posts_popular',
+				'SITE_ID' => $siteId
+			)));
+
+			$updateFields["AUTHOR_ID"] = $postFields["AUTHOR_ID"];
+			if (
+				$updateFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT
+				&& $postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+			)
+			{
+				\CBlogPost::deleteLog($postId);
+			}
+			elseif (
+				$updateFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+				&& $postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+			)
+			{
+				\CBlogPost::updateLog($postId, $updateFields, $blog, array(
+					"allowVideo" => Option::get("blog", "allow_video", "Y"),
+					"PATH_TO_SMILE" => false
+				));
+			}
 		}
+
+		return $result;
+	}
+
+	public static function shareBlogPost($arFields)
+	{
+		global $USER;
+
+		$postId = intval($arFields['POST_ID']);
+
+		if($postId <= 0)
+		{
+			throw new Exception('Wrong post ID');
+		}
+
+		if (!Loader::includeModule('blog'))
+		{
+			throw new Exception('Blog module not installed');
+		}
+
+		$siteId = (
+			is_set($arFields, "SITE_ID")
+			&& !empty($arFields["SITE_ID"])
+				? $arFields["SITE_ID"]
+				: SITE_ID
+		);
+
+		$blogId = false;
+
+		if (
+			!is_set($arFields, "BLOG_ID")
+			|| intval($arFields["BLOG_ID"]) <= 0
+		)
+		{
+			$res = \Bitrix\Blog\PostTable::getList(array(
+				'filter' => array(
+					'=ID' => $postId
+				),
+				'select' => array('BLOG_ID')
+			));
+			if (
+				($postFields = $res->fetch())
+				&& !empty($postFields['BLOG_ID'])
+			)
+			{
+				$blogId = intval($postFields['BLOG_ID']);
+			}
+		}
+		else
+		{
+			$blogId = intval($arFields["BLOG_ID"]);
+		}
+
+		$blogPostPermsNewList = $arFields['DEST'];
+
+		if(empty($blogPostPermsNewList))
+		{
+			throw new Exception('Wrong destinations');
+		}
+
+		if(!is_array($blogPostPermsNewList))
+		{
+			$blogPostPermsNewList = array($blogPostPermsNewList);
+		}
+
+		$currentUserId = (
+			isset($arFields["USER_ID"])
+			&& intval($arFields["USER_ID"]) > 0
+			&& $USER->isAdmin()
+				? $arFields["USER_ID"]
+				: $USER->getId()
+		);
+
+		$currentUserPerm = self::getBlogPostPerm(array(
+			'USER_ID' => $currentUserId,
+			'POST_ID' => $postId
+		));
+
+		if ($currentUserPerm <= \Bitrix\Blog\Item\Permissions::READ)
+		{
+			throw new Exception('No read perms');
+		}
+
+		$resultFields = array(
+			'ERROR_MESSAGE' => false,
+			'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH
+		);
+
+		$permsNew = ComponentHelper::checkBlogPostDestinationList(array(
+			'DEST' => $blogPostPermsNewList,
+			'SITE_ID' => $siteId,
+			'AUTHOR_ID' => $currentUserId,
+		), $resultFields);
+
+		if ($resultFields['ERROR_MESSAGE'])
+		{
+			throw new Exception($resultFields['ERROR_MESSAGE']);
+		}
+		elseif ($resultFields['PUBLISH_STATUS'] != BLOG_PUBLISH_STATUS_PUBLISH)
+		{
+			throw new Exception('No permissions to share by this user (ID ='.$currentUserId.')');
+		}
+
+		$permsFull = array();
+		$blogPostPermsOldList = CBlogPost::getSocNetPerms($postId);
+
+		foreach($blogPostPermsOldList as $type => $val)
+		{
+			foreach($val as $id => $values)
+			{
+				if($type != "U")
+				{
+					$permsFull[] = $type.$id;
+				}
+				else
+				{
+					$permsFull[] = (
+						in_array("US".$id, $values)
+							? "UA"
+							: $type.$id
+						);
+				}
+			}
+		}
+
+		foreach($permsNew as $key => $code)
+		{
+			if(!in_array($code, $permsFull))
+			{
+				$permsFull[] = $code;
+			}
+			else
+			{
+				unset($permsNew[$key]);
+			}
+		}
+
+		if (!empty($permsNew))
+		{
+			ComponentHelper::processBlogPostShare(
+				array(
+					"POST_ID" => $postId,
+					"BLOG_ID" => $blogId,
+					"SITE_ID" => $siteId,
+					"SONET_RIGHTS" => $permsFull,
+					"NEW_RIGHTS" => $permsNew,
+					"USER_ID" => $currentUserId
+				),
+				array(
+					'PATH_TO_POST' => Option::get("socialnetwork", "userblogpost_page", false, $siteId)
+				)
+			);
+		}
+
+		return true;
 	}
 
 	public static function getBlogPostUsersImprtnt($arFields)
@@ -360,6 +950,86 @@ class CSocNetLogRestService extends IRestService
 		}
 
 		return $arResult;
+	}
+
+	private static function getBlogPostPerm($arFields)
+	{
+		global $USER;
+
+		if (!Loader::includeModule('blog'))
+		{
+			throw new Exception('Blog module not installed');
+		}
+
+		$postId = $arFields['POST_ID'];
+
+		$currentUserId = (
+			isset($arFields["USER_ID"])
+			&& intval($arFields["USER_ID"]) > 0
+			&& $USER->isAdmin()
+				? $arFields["USER_ID"]
+				: $USER->getId()
+		);
+
+		$arPost = self::getBlogPostFields($postId);
+
+		if($arPost["AUTHOR_ID"] == $currentUserId)
+		{
+			$result = Bitrix\Blog\Item\Permissions::FULL;
+		}
+		else
+		{
+			if (CSocNetUser::isUserModuleAdmin($currentUserId, SITE_ID))
+			{
+				$result = Bitrix\Blog\Item\Permissions::FULL;
+			}
+			else
+			{
+				$postItem = \Bitrix\Blog\Item\Post::getById($postId);
+				$permsResult = $postItem->getSonetPerms(array(
+					"CHECK_FULL_PERMS" => true
+				));
+				$result = $permsResult['PERM'];
+				if (
+					$result <= \Bitrix\Blog\Item\Permissions::READ
+					&& $permsResult['READ_BY_OSG']
+				)
+				{
+					$result = Bitrix\Blog\Item\Permissions::READ;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	private static function getBlogPostFields($postId)
+	{
+		$tzOffset = \CTimeZone::getOffset();
+
+		$cacheTtl = 2592000;
+		$cacheId = 'blog_post_socnet_general_'.$postId.'_'.LANGUAGE_ID.($tzOffset <> 0 ? "_".$tzOffset : "")."_".Bitrix\Main\Context::getCurrent()->getCulture()->getDateTimeFormat();
+		$cacheDir = ComponentHelper::getBlogPostCacheDir(array(
+			'TYPE' => 'post_general',
+			'POST_ID' => $postId
+		));
+
+		$obCache = new CPHPCache;
+		if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
+		{
+			$arPost = $obCache->getVars();
+			$postItem = new \Bitrix\Blog\Item\Post;
+			$postItem->setFields($arPost);
+		}
+		else
+		{
+			$obCache->StartDataCache();
+			$postItem = \Bitrix\Blog\Item\Post::getById($postId);
+			$arPost = $postItem->getFields();
+			$obCache->EndDataCache($arPost);
+		}
+
+		return $arPost;
 	}
 
 	public static function createGroup($arFields)
@@ -887,6 +1557,108 @@ class CSocNetLogRestService extends IRestService
 		{
 			return '';
 		}
+	}
+}
+
+class CSocNetLogBlogPostRestProxy
+{
+	public static function processEvent(array $arParams, array $arHandler)
+	{
+		static $processedIdList = array();
+
+		if (!Loader::includeModule('blog'))
+		{
+			return false;
+		}
+
+		$eventName = $arHandler['EVENT_NAME'];
+
+		$appKey = $arHandler['APP_ID'].$arHandler['APPLICATION_TOKEN'];
+		if (!isset($processedIdList[$appKey]))
+		{
+			$processedIdList[$appKey] = array();
+		}
+
+		switch (strtolower($eventName))
+		{
+			case 'onlivefeedpostadd':
+			case 'onlivefeedpostupdate':
+			case 'onlivefeedpostdelete':
+				if (in_array(strtolower($eventName), array('onlivefeedpostadd')))
+				{
+					$fields = isset($arParams[0]) && is_array($arParams[0]) ? $arParams[0] : array();
+					$id = isset($fields['ID']) ? (int)$fields['ID'] : 0;
+				}
+				elseif (in_array(strtolower($eventName), array('onlivefeedpostupdate', 'onlivefeedpostdelete')))
+				{
+					$id = isset($arParams[0]) ? (int)$arParams[0] : 0;
+					$fields = isset($arParams[1]) && is_array($arParams[1]) ? $arParams[1] : array();
+				}
+
+				if($id <= 0)
+				{
+					throw new RestException("Could not find livefeed entity ID in fields of event \"{$eventName}\"");
+				}
+
+				if (
+					in_array(strtolower($eventName), array('onlivefeedpostupdate'))
+					&& in_array($id, $processedIdList[$appKey])
+				)
+				{
+					throw new RestException("ID {$id} has already been processed");
+				}
+
+				if (in_array(strtolower($eventName), array('onlivefeedpostadd', 'onlivefeedpostupdate')))
+				{
+					$processedIdList[$appKey][] = $id;
+				}
+
+				if (
+					strtolower($eventName) == 'onlivefeedpostupdate'
+					&& (
+						!isset($fields['SOURCE_ID'])
+						|| !isset($fields['EVENT_ID'])
+					)
+				)
+				{
+					$res = \Bitrix\Socialnetwork\LogTable::getList(array(
+						'filter' => array(
+							'ID' => $id
+						),
+						'select' => array('EVENT_ID', 'SOURCE_ID')
+					));
+
+					if ($logFields = $res->fetch())
+					{
+						$sourceId = isset($logFields['SOURCE_ID']) ? (int)$logFields['SOURCE_ID'] : 0;
+						$logEventId = isset($logFields['EVENT_ID']) ? $logFields['EVENT_ID'] : false;
+					}
+				}
+				else
+				{
+					$sourceId = isset($fields['SOURCE_ID']) ? (int)$fields['SOURCE_ID'] : 0;
+					$logEventId = isset($fields['EVENT_ID']) ? $fields['EVENT_ID'] : false;
+				}
+
+				if (in_array($logEventId, \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList()))
+				{
+					if($sourceId <= 0)
+					{
+						throw new RestException("Could not find livefeed source ID in fields of event \"{$eventName}\"");
+					}
+
+					return array('FIELDS' => array('POST_ID' => $sourceId));
+				}
+				else
+				{
+					throw new RestException("The event \"{$logEventId }\" is not processed by the log.blogpost REST events");
+				}
+				break;
+			default:
+				throw new RestException("Incorrect handler ID");
+		}
+
+		return false;
 	}
 }
 ?>

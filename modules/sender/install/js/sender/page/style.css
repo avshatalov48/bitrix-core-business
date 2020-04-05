@@ -1,0 +1,20 @@
+font.errortext {
+	padding: 25px;
+}
+
+.pagetitle-align-right-container {
+	margin-left: auto;
+}
+
+.pagetitle-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+}
+
+div.pagetitle-container.pagetitle-align-right-container{
+	margin: 0 17px 0 auto;
+}

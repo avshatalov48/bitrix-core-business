@@ -117,4 +117,9 @@ class CUrlRewriter
 
 		return UrlRewriter::reindexFile($site, $DOC_ROOT, $path, $max_file_size);
 	}
+
+	public static function CheckPath($path)
+	{
+		return UrlRewriter::checkPath($path);
+	}
 }

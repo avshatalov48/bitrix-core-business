@@ -10,4 +10,5 @@ $MESS["CC_BLL_LISTS_FOR_SONET_GROUP_DISABLED"] = "Lists are disabled for this gr
 $MESS["CC_BLL_UNKNOWN_ERROR"] = "Unknown error.";
 $MESS["CC_BLL_ACCESS_DENIED"] = "Insufficient permission to view and edit the list.";
 $MESS["CC_BLL_COMMENTS"] = "Comments";
+$MESS["CC_BLL_UPPER_LEVEL"] = "Upper level";
 ?>

@@ -3,6 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
+use \Bitrix\Socialnetwork\ComponentHelper;
 
 global $USER_FIELD_MANAGER, $CACHE_MANAGER;
 
@@ -300,7 +301,10 @@ if(
 				{
 					if(CBlogComment::Delete(IntVal($_GET["delete_comment_id"])))
 					{
-						BXClearCache(true, "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
+						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+							'TYPE' => 'post_comments',
+							'POST_ID' => $arParams["ID"]
+						)));
 						CBlogComment::DeleteLog(IntVal($_GET["delete_comment_id"]));
 
 						$arResult["ajax_comment"] = IntVal($_GET["delete_comment_id"]);
@@ -348,7 +352,10 @@ if(
 						"SEARCH_GROUP_ID" => \Bitrix\Main\Config\Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID)
 					)))
 					{
-						BXClearCache(true, "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
+						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+							'TYPE' => 'post_comments',
+							'POST_ID' => $arParams["ID"]
+						)));
 						$parserBlog = new blogTextParser(false, $arParams["PATH_TO_SMILE"], array("bPublic" => $arParams["bPublicPage"]));
 
 						$dbRes = CSocNetLog::GetList(
@@ -475,7 +482,10 @@ if(
 				{
 					if($commentID = CBlogComment::Update($arComment["ID"], Array("PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_READY)))
 					{
-						BXClearCache(true, "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
+						BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+							'TYPE' => 'post_comments',
+							'POST_ID' => $arParams["ID"]
+						)));
 						CBlogComment::DeleteLog($arComment["ID"]);
 						$arResult["ajax_comment"] = $arComment["ID"];
 					}
@@ -809,7 +819,7 @@ if(
 							$arParams["MOBILE"] == "Y"
 							&& in_array("UF_BLOG_COMM_URL_PRV", $arParams["COMMENT_PROPERTY"])
 							&& empty($arFields["UF_BLOG_COMM_URL_PRV"])
-							&& ($urlPreviewValue = \Bitrix\Socialnetwork\ComponentHelper::getUrlPreviewValue($arFields["POST_TEXT"]))
+							&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($arFields["POST_TEXT"]))
 						)
 						{
 							$arFields["UF_BLOG_COMM_URL_PRV"] = $urlPreviewValue;
@@ -818,7 +828,10 @@ if(
 
 						if($commentId = CBlogComment::Add($arFields))
 						{
-							BXClearCache(true, "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
+							BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+								'TYPE' => 'post_comments',
+								'POST_ID' => $arParams["ID"]
+							)));
 							$images = Array();
 
 							$DB->Query("UPDATE b_blog_image SET COMMENT_ID=".IntVal($commentId)." WHERE BLOG_ID=".IntVal($arBlog["ID"])." AND POST_ID=".IntVal($arPost["ID"])." AND IS_COMMENT = 'Y' AND (COMMENT_ID = 0 OR COMMENT_ID is null) AND USER_ID=".IntVal($user_id)."", true);
@@ -1233,11 +1246,29 @@ if(
 								);
 							}
 
+							if(
+								$arParams["MOBILE"] == "Y"
+								&& in_array("UF_BLOG_COMM_URL_PRV", $arParams["COMMENT_PROPERTY"])
+								&& empty($arFields["UF_BLOG_COMM_URL_PRV"])
+								&& (
+									empty($arPostFields['UF_BLOG_COMM_URL_PRV'])
+									|| empty($arPostFields['UF_BLOG_COMM_URL_PRV']['VALUE'])
+								)
+								&& !empty($arFields["POST_TEXT"])
+								&& ($urlPreviewValue = ComponentHelper::getUrlPreviewValue($arFields["POST_TEXT"]))
+							)
+							{
+								$arFields["UF_BLOG_COMM_URL_PRV"] = $urlPreviewValue;
+							}
+
 							$arFields["SEARCH_GROUP_ID"] = \Bitrix\Main\Config\Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID);
 
 							if($commentID = CBlogComment::Update($commentID, $arFields))
 							{
-								BXClearCache(true, "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/");
+								BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
+									'TYPE' => 'post_comments',
+									'POST_ID' => $arParams["ID"]
+								)));
 								$images = Array();
 								$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arBlog["ID"], "COMMENT_ID" => $commentID, "IS_COMMENT" => "Y"));
 								while ($aImg = $res->Fetch())
@@ -1351,7 +1382,7 @@ if(
 										}
 										$arSocNetRights = array_unique($arSocNetRights);
 
-										\Bitrix\Socialnetwork\ComponentHelper::processBlogPostShare(
+										ComponentHelper::processBlogPostShare(
 											array(
 												"POST_ID" => $arPost["ID"],
 												"BLOG_ID" => $arPost["BLOG_ID"],
@@ -1494,7 +1525,10 @@ if(
 				{
 					$cache_id .= "_".$arResult["TZ_OFFSET"];
 				}
-				$cache_path = "/blog/comment/".intval($arParams["ID"] / 100)."/".$arParams["ID"]."/";
+				$cache_path = ComponentHelper::getBlogPostCacheDir(array(
+					'TYPE' => 'post_comments',
+					'POST_ID' => $arParams["ID"]
+				));
 
 				if(IntVal($arResult["ajax_comment"]) > 0)
 				{
@@ -1729,7 +1763,7 @@ if(
 												$arCss = $APPLICATION->sPath2css;
 												$arJs = $APPLICATION->arHeadScripts;
 
-												$urlPreviewText = \Bitrix\Socialnetwork\ComponentHelper::getUrlPreviewContent($arPostField, array(
+												$urlPreviewText = ComponentHelper::getUrlPreviewContent($arPostField, array(
 													"LAZYLOAD" => $arParams["LAZYLOAD"],
 													"MOBILE" => (isset($arParams["MOBILE"]) && $arParams["MOBILE"] == "Y" ? "Y" : "N"),
 													"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
@@ -2115,7 +2149,6 @@ if(
 						}
 					}
 				}
-
 			}
 
 			if($arResult["newCount"] < $arParams["PAGE_SIZE_MIN"]) // 3

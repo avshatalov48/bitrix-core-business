@@ -59,7 +59,6 @@ abstract class Element extends Base
 		}
 
 		$params['USE_MAIN_ELEMENT_SECTION'] = isset($params['USE_MAIN_ELEMENT_SECTION']) && $params['USE_MAIN_ELEMENT_SECTION'] === 'Y';
-		$params['STRICT_SECTION_CHECK'] = isset($params['STRICT_SECTION_CHECK']) && $params['STRICT_SECTION_CHECK'] === 'Y';
 		$params['ADD_ELEMENT_CHAIN'] = isset($params['ADD_ELEMENT_CHAIN']) && $params['ADD_ELEMENT_CHAIN'] === 'Y';
 		$params['LINK_IBLOCK_TYPE'] = trim($params['LINK_IBLOCK_TYPE']);
 		$params['LINK_IBLOCK_ID'] = (int)$params['LINK_IBLOCK_ID'];
@@ -1239,55 +1238,36 @@ abstract class Element extends Base
 
 	protected function editTemplateProductSets(&$item)
 	{
-		$ids = array($item['ID']);
-		$offerSet = array();
+		$result = array();
+		if (!\CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
+			return $result;
+		if (!isset($item['PRODUCT']['TYPE']))
+			return $result;
 
-		foreach ($item['OFFERS'] as $offer)
+		$parentBundle = ($item['PRODUCT']['BUNDLE'] == 'Y');
+		if ($parentBundle)
+			$result[$item['ID']] = true;
+		if ($item['PRODUCT']['TYPE'] == Catalog\ProductTable::TYPE_SKU)
 		{
-			$ids[] = $offer['ID'];
-		}
-
-		if (!empty($ids) && \CBXFeatures::IsFeatureEnabled('CatCompleteSet'))
-		{
-			$offerSet = array_fill_keys($ids, false);
-			$productSetIterator = \CCatalogProductSet::getList(
-				array(),
-				array(
-					'@OWNER_ID' => $ids,
-					'=SET_ID' => 0,
-					'=TYPE' => \CCatalogProductSet::TYPE_GROUP
-				),
-				false,
-				false,
-				array('ID', 'OWNER_ID')
-			);
-			while ($set = $productSetIterator->Fetch())
+			foreach ($item['OFFERS'] as $offer)
 			{
-				$set['OWNER_ID'] = (int)$set['OWNER_ID'];
-				$offerSet[$set['OWNER_ID']] = true;
-				$item['OFFER_GROUP'] = true;
-			}
-
-			if ($offerSet[$item['ID']])
-			{
-				foreach ($offerSet as &$setOfferValue)
+				if (
+					$parentBundle
+					|| ($offer['PRODUCT']['BUNDLE'] == 'Y')
+				)
 				{
-					if ($setOfferValue === false)
-					{
-						$setOfferValue = true;
-					}
+					$result[$offer['ID']] = true;
 				}
-				unset($setOfferValue, $offerSet[$item['ID']]);
 			}
-
-			if ($item['OFFER_GROUP'])
-			{
-				$offerSet = array_filter($offerSet);
-				$item['OFFER_GROUP_VALUES'] = array_keys($offerSet);
-			}
+			unset($offer);
 		}
+		unset($parentBundle);
 
-		return $offerSet;
+		$item['OFFER_GROUP'] = !empty($result);
+		if (!empty($result))
+			$item['OFFER_GROUP_VALUES'] = array_keys($result);
+
+		return $result;
 	}
 
 	protected function editTemplateJsOffers(&$item, $offerSet)
@@ -1475,7 +1455,7 @@ abstract class Element extends Base
 
 		if ($item['MODULES']['catalog'] && $item['CATALOG'])
 		{
-			if ($item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_PRODUCT || $item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_SET)
+			if ($item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_PRODUCT || $item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SET)
 			{
 				\CIBlockPriceTools::setRatioMinPrice($item, false);
 				$item['MIN_BASIS_PRICE'] = $item['MIN_PRICE'];
@@ -1484,26 +1464,12 @@ abstract class Element extends Base
 			if (
 				\CBXFeatures::IsFeatureEnabled('CatCompleteSet')
 				&& (
-					$item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_PRODUCT
-					|| $item['CATALOG_TYPE'] == \CCatalogProduct::TYPE_SET
+					$item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
+					|| $item['CATALOG_TYPE'] == Catalog\ProductTable::TYPE_SET
 				)
 			)
 			{
-				$productSetIterator = \CCatalogProductSet::getList(
-					array(),
-					array(
-						'@OWNER_ID' => $item['ID'],
-						'=SET_ID' => 0,
-						'=TYPE' => \CCatalogProductSet::TYPE_GROUP
-					),
-					false,
-					false,
-					array('ID', 'OWNER_ID')
-				);
-				if ($set = $productSetIterator->Fetch())
-				{
-					$item['OFFER_GROUP'] = true;
-				}
+				$item['OFFER_GROUP'] = (isset($item['PRODUCT']['BUNDLE']) && $item['PRODUCT']['BUNDLE'] === 'Y');
 			}
 		}
 

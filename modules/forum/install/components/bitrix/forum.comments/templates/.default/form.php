@@ -104,6 +104,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 					'jsObjName' => $arParams["jsObjName"],
 					'bSetDefaultCodeView' => ($arParams['EDITOR_CODE_DEFAULT'] == 'Y'),
 					"documentCSS" => "body {color:#434343;}",
+					"iframeCss" => "html body {padding-left: 14px!important;}",
 					"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 					"fontSize" => "12px",
 					"ctrlEnterHandler" => 'commentsCtrlEnterHandler'.$arParams["FORM_ID"],

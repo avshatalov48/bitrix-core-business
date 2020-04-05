@@ -36,60 +36,13 @@ class CBPMailActivity extends CBPActivity
 
 	public function Execute()
 	{
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
-
-		$fromList = [];
 		$separator = $this->MailSeparator;
 		if (empty($separator))
+		{
 			$separator = static::DEFAULT_SEPARATOR;
-
-		list($mailUserFromArray, $mailUserFromArrayString) = static::extractEmails($this->MailUserFromArray);
-
-		$arMailUserFromArray = CBPHelper::ExtractUsers($mailUserFromArray, $documentId, false);
-		foreach ($arMailUserFromArray as $user)
-		{
-			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
-			if ($arUser = $dbUser->Fetch())
-			{
-				$userName = '';
-				$userEmail = preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
-
-				if (strlen($arUser["NAME"]) > 0 || strlen($arUser["LAST_NAME"]) > 0)
-				{
-					$userName = preg_replace("#['\r\n]+#", "", CUser::FormatName(COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID), $arUser));
-				}
-				$fromList[] = ['name' => $userName, 'email' => $userEmail];
-			}
 		}
 
-		$mailUserFromTmp = str_replace(', ', $separator, $this->MailUserFrom);
-		if (strlen($mailUserFromTmp) > 0)
-		{
-			$address = new Mail\Address($mailUserFromTmp);
-			if ($address->validate())
-			{
-				$fromList[] = [
-					'name' => $address->getName(),
-					'email' => $address->getEmail()
-				];
-			}
-		}
-
-		if (!empty($mailUserFromArrayString))
-		{
-			foreach ($mailUserFromArrayString as $s)
-			{
-				$address = new Mail\Address($s);
-				if ($address->validate())
-				{
-					$fromList[] = [
-						'name' => $address->getName(),
-						'email' => $address->getEmail()
-					];
-				}
-			}
-		}
+		$fromList = $this->getFromList($separator);
 
 		if (empty($fromList))
 		{
@@ -97,48 +50,16 @@ class CBPMailActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$strMailUserTo = "";
+		$strMailUserTo = $this->getMailUserTo($separator);
 
-		list($MailUserToArray, $MailUserToArrayString) = static::extractEmails($this->MailUserToArray);
-
-		$arMailUserToArray = CBPHelper::ExtractUsers($MailUserToArray, $documentId, false);
-		foreach ($arMailUserToArray as $user)
+		if (empty($strMailUserTo))
 		{
-			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
-			if ($arUser = $dbUser->Fetch())
-			{
-				if (strlen($strMailUserTo) > 0)
-					$strMailUserTo .= $separator;
-				$strMailUserTo .= preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
-			}
-		}
-
-		$mailUserToTmp = str_replace(', ', $separator, $this->MailUserTo);
-		if (strlen($mailUserToTmp) > 0)
-		{
-			if (strlen($strMailUserTo) > 0)
-				$strMailUserTo .= $separator;
-			$strMailUserTo .= preg_replace("#[\r\n]+#", "", $mailUserToTmp);
-		}
-
-		if (!empty($MailUserToArrayString))
-		{
-			foreach ($MailUserToArrayString as $s)
-			{
-				if (strlen($strMailUserTo) > 0)
-					$strMailUserTo .= $separator;
-				$strMailUserTo .= $s;
-			}
+			$this->WriteToTrackingService(GetMessage("BPMA_EMPTY_PROP2"), 0, CBPTrackingType::Error);
+			return CBPActivityExecutionStatus::Closed;
 		}
 
 		$charset = $this->MailCharset;
-
-		$mailText = $this->getRawProperty('MailText');
-		if ($this->MailMessageEncoded)
-		{
-			$mailText = htmlspecialcharsback($mailText);
-		}
-		$mailText = $this->ParseValue($mailText, 'text');
+		$mailText = $this->getMailText();
 
 		if (!$this->IsPropertyExists("DirrectMail") || $this->DirrectMail == "Y")
 		{
@@ -153,11 +74,12 @@ class CBPMailActivity extends CBPActivity
 
 			$context = new Mail\Context();
 			$context->setCategory(Mail\Context::CAT_EXTERNAL);
+			$context->setPriority(Mail\Context::PRIORITY_LOW);
 
 			Mail\Mail::send([
 				'CHARSET'      => $charset,
 				'CONTENT_TYPE' => $this->MailMessageType == "html" ? "html" : "plain",
-				'ATTACHMENT'   => $this->makeMailAttachments($this->getFileIds()),
+				'ATTACHMENT'   => $this->getAttachments(),
 				'TO'           => $strMailUserTo,
 				'SUBJECT'      => $mailSubject,
 				'BODY'         => $mailText,
@@ -172,9 +94,13 @@ class CBPMailActivity extends CBPActivity
 		{
 			$siteId = null;
 			if ($this->IsPropertyExists("MailSite"))
+			{
 				$siteId = $this->MailSite;
+			}
 			if (strlen($siteId) <= 0)
+			{
 				$siteId = SITE_ID;
+			}
 
 			$arFields = array(
 				"SENDER" => $this->encodeFrom($fromList[0], $charset),
@@ -407,7 +333,10 @@ class CBPMailActivity extends CBPActivity
 			{
 				\CUtil::decodeURIComponent($rawData);
 			}
-			$properties['MailText'] = htmlspecialcharsbx($rawData);
+			//TODO: fix for WAF, needs refactoring.
+			$rawData = \Bitrix\Bizproc\Automation\Helper::unConvertExpressions($rawData, $documentType);
+
+			$properties['MailText'] = self::encodeMailText($rawData);
 			$properties['MailMessageEncoded'] = 1;
 		}
 
@@ -417,37 +346,57 @@ class CBPMailActivity extends CBPActivity
 		return true;
 	}
 
-	private function getFileIds()
+	private function getFiles()
 	{
 		$files = [];
-		if ($this->FileType === static::FILE_TYPE_DISK && Loader::includeModule('disk'))
+		if ($this->FileType === static::FILE_TYPE_DISK)
 		{
-			$diskFiles = \CBPHelper::MakeArrayFlat((array)$this->File);
-			foreach ($diskFiles as $diskFileId)
+			if (Loader::includeModule('disk'))
 			{
-				/** @var Disk\File $file */
-				$file = Disk\File::loadById($diskFileId);
-				if ($file)
+				$diskFiles = \CBPHelper::MakeArrayFlat((array)$this->File);
+				foreach ($diskFiles as $diskFileId)
 				{
-					$files[] = $file->getFileId();
+					/** @var Disk\File $file */
+					$file = Disk\File::loadById($diskFileId);
+					if ($file)
+					{
+						$id = (int)$file->getFileId();
+						$name = $file->getName();
+
+						$files[$id] = ['id' => $id, 'name' => $name];
+					}
 				}
 			}
 		}
 		else
 		{
-			$files = \CBPHelper::MakeArrayFlat((array)$this->ParseValue($this->getRawProperty('File'), 'file'));
+			$fileIds = \CBPHelper::MakeArrayFlat((array)$this->ParseValue($this->getRawProperty('File'), 'file'));
+			$fileIds = array_filter($fileIds);
+
+			foreach ($fileIds as $id)
+			{
+				$files[$id] = ['id' => $id];
+			}
 		}
 
-		$files = array_unique(array_filter($files));
-
-		return $files;
+		return array_values($files);
 	}
 
-	private function makeMailAttachments(array $fileIds)
+	private function getFileIds()
 	{
+		$files = $this->getFiles();
+		return array_column($files, 'id');
+	}
+
+	private function getAttachments()
+	{
+		$files = $this->getFiles();
 		$attachments = [];
-		foreach ($fileIds as $fileId)
+		foreach ($files as $file)
 		{
+			$fileId = $file['id'];
+			$fileName = isset($file['name']) ? $file['name'] : '';
+
 			if (!is_int($fileId))
 				continue;
 
@@ -460,7 +409,7 @@ class CBPMailActivity extends CBPActivity
 
 			$attachments[] = array(
 				'ID'           => $contentId,
-				'NAME'         => $file['ORIGINAL_NAME'] ?: $file['name'],
+				'NAME'         => $fileName ?: $file['name'],
 				'PATH'         => $file['tmp_name'],
 				'CONTENT_TYPE' => $file['type'],
 			);
@@ -572,7 +521,138 @@ class CBPMailActivity extends CBPActivity
 
 			if (strlen($arCurrentActivity["Properties"][$k]) > 0)
 				$result[] = $arCurrentActivity["Properties"][$k];
-			return $compatible ? implode(', ', $result) : $result;
+			return $compatible ? implode(', ', array_filter($result)) : $result;
 		};
+	}
+
+	private function getFromList($separator = self::DEFAULT_SEPARATOR)
+	{
+		$fromList = [];
+
+		list($mailUserFromArray, $mailUserFromArrayString) = static::extractEmails($this->MailUserFromArray);
+
+		$arMailUserFromArray = CBPHelper::ExtractUsers($mailUserFromArray, $this->GetDocumentId(), false);
+		foreach ($arMailUserFromArray as $user)
+		{
+			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
+			if ($arUser = $dbUser->Fetch())
+			{
+				$userName = '';
+				$userEmail = preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
+
+				if (strlen($arUser["NAME"]) > 0 || strlen($arUser["LAST_NAME"]) > 0)
+				{
+					$userName = preg_replace(
+						"#['\r\n]+#",
+						"",
+						CUser::FormatName(
+							COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID),
+							$arUser,
+							false, false
+						)
+					);
+				}
+				$fromList[] = ['name' => $userName, 'email' => $userEmail];
+			}
+		}
+
+		$mailUserFromTmp = str_replace(', ', $separator, $this->MailUserFrom);
+		if (strlen($mailUserFromTmp) > 0)
+		{
+			$address = new Mail\Address($mailUserFromTmp);
+			if ($address->validate())
+			{
+				$fromList[] = [
+					'name' => $address->getName(),
+					'email' => $address->getEmail()
+				];
+			}
+		}
+
+		if (!empty($mailUserFromArrayString))
+		{
+			foreach ($mailUserFromArrayString as $s)
+			{
+				$address = new Mail\Address($s);
+				if ($address->validate())
+				{
+					$fromList[] = [
+						'name' => $address->getName(),
+						'email' => $address->getEmail()
+					];
+				}
+			}
+		}
+
+		return $fromList;
+	}
+
+	private function getMailUserTo($separator = self::DEFAULT_SEPARATOR)
+	{
+		$strMailUserTo = "";
+
+		list($MailUserToArray, $MailUserToArrayString) = static::extractEmails($this->MailUserToArray);
+
+		$arMailUserToArray = CBPHelper::ExtractUsers($MailUserToArray, $this->GetDocumentId(), false);
+		foreach ($arMailUserToArray as $user)
+		{
+			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
+			if ($arUser = $dbUser->Fetch())
+			{
+				if (strlen($strMailUserTo) > 0)
+				{
+					$strMailUserTo .= $separator;
+				}
+				$strMailUserTo .= preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
+			}
+		}
+
+		$mailUserToTmp = str_replace(', ', $separator, $this->MailUserTo);
+		if (strlen($mailUserToTmp) > 0)
+		{
+			if (strlen($strMailUserTo) > 0)
+				$strMailUserTo .= $separator;
+			$strMailUserTo .= preg_replace("#[\r\n]+#", "", $mailUserToTmp);
+		}
+
+		if (!empty($MailUserToArrayString))
+		{
+			foreach ($MailUserToArrayString as $s)
+			{
+				if (strlen($strMailUserTo) > 0)
+					$strMailUserTo .= $separator;
+				$strMailUserTo .= $s;
+			}
+		}
+
+		return $strMailUserTo;
+	}
+
+	private function getMailText()
+	{
+		$mailText = $this->getRawProperty('MailText');
+		if ($this->MailMessageEncoded)
+		{
+			$mailText = self::decodeMailText($mailText);
+		}
+		$mailText = $this->ParseValue($mailText, 'text');
+
+		return $mailText;
+	}
+
+	private static function encodeMailText($text)
+	{
+		return 'base64,' . base64_encode($text);
+	}
+
+	public static function decodeMailText($text)
+	{
+		if (strpos($text, 'base64,') === 0)
+		{
+			$text = substr($text, 7);
+			return base64_decode($text);
+		}
+		//compatible encode type
+		return htmlspecialcharsback($text);
 	}
 }

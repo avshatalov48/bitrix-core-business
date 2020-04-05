@@ -236,6 +236,13 @@
 .bx-messenger-content-item-content-without-padding:hover .bx-messenger-content-item-params {
 	background-color: rgba(14, 14, 14, 0.78);
 }
+.bx-messenger-content-item .bx-messenger-content-item-content.bx-messenger-content-item-content-transparent {
+	background-color: transparent;
+	border-color: transparent;
+	transition: none;
+}
+.bx-messenger-content-item .bx-messenger-content-item-content.bx-messenger-content-item-content-transparent  .bx-messenger-content-item-arrow { opacity: 0; }
+.bx-messenger-content-item .bx-messenger-content-item-content.bx-messenger-content-item-content-transparent  .bx-messenger-content-item-avatar { margin-top: 10px;}
 
 .bx-messenger-content-quote .bx-messenger-file-image { margin-left: 0; }
 
@@ -302,6 +309,51 @@
 	border: 1px solid #dedede;
 }
 
+.bx-messenger-file-image-type-video-button
+{
+	background: rgba(0,0,0,.5);
+	width: 50px;
+	height: 50px;
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+}
+.bx-messenger-file-image-type-video-button-play
+{
+	border-style: solid;
+    border-width: 15px 0 15px 25px;
+    border-color: transparent transparent transparent #fff;
+	width: 0;
+	height: 0;
+	margin-top: 10px;
+	margin-left: 16px;
+	position: absolute;
+}
+
+.bx-messenger-file-image-type-video-button-download-1
+{
+	background: #fff;
+	width: 6px;
+	height: 20px;
+	margin-top: 14px;
+	margin-left: 22px;
+	position: absolute;
+}
+.bx-messenger-file-image-type-video-button-download-2
+{
+	border-style: solid;
+	border-width: 12px 12px 0 12px;
+	border-color: #fff transparent transparent transparent;
+	width: 0;
+	height: 0;
+	margin-top: 28px;
+	margin-left: 13px;
+	position: absolute;
+}
+
 .bx-messenger-file-image-text,
 .bx-messenger-file-image-src .bx-bxu-proper-canvas{
 	max-height: 100vh;
@@ -320,13 +372,13 @@
 
 .bx-messenger-file-title {font: bold 13px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #0562b1;display: inline-block; white-space: nowrap;}
 .bx-messenger-file-title-href {
-	width: calc(100% - 50px);
+	width: calc(100% - 36px);
     display: inline-block;
     overflow: hidden;
     vertical-align: top;
 	text-overflow: ellipsis;
 }
-.bx-messenger-file-size {font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 7px;display: inline-block;}
+.bx-messenger-file-size {font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 6px;display: inline-block;}
 .bx-messenger-file-preview+.bx-messenger-file-attrs { display:none; }
 .bx-messenger-file-download {margin-top: -2px;}
 .bx-messenger-file-download-link {font: 11px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #63635c;cursor: pointer;margin-right: 10px;text-decoration: none;}

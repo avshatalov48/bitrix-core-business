@@ -36,16 +36,31 @@ class Entities
 			$filterParams["CODE_TYPE"] = $options['contextCode'];
 		}
 
-		$destSortData = \CSocNetLogDestination::getDestinationSort($filterParams);
-
+		$dataAdditional = array();
+		$destSortData = \CSocNetLogDestination::getDestinationSort($filterParams, $dataAdditional);
 		$result["DEST_SORT"] = $destSortData;
-
 		$lastItems = $items = array();
 		\CSocNetLogDestination::fillLastDestination(
 			$destSortData,
 			$lastItems,
 			array(
-				"EMAILS" => (isset($options["allowAddUser"]) ? $options["allowAddUser"] : 'N')
+				"EMAILS" => (
+					(
+						isset($options["allowAddUser"])
+						&& $options["allowAddUser"] == 'Y'
+					)
+					|| (
+						isset($options["allowSearchEmailUsers"])
+						&& $options["allowSearchEmailUsers"] == 'Y'
+					)
+					|| (
+						isset($options["allowEmailInvitation"])
+						&& $options["allowEmailInvitation"] == 'Y'
+					)
+						? 'Y'
+						: 'N'
+				),
+				"DATA_ADDITIONAL" => $dataAdditional
 			)
 		);
 
@@ -149,10 +164,25 @@ class Entities
 				}
 			}
 
-			if ($options["allowEmailInvitation"] == "Y")
+			if (
+				(
+					isset($options["allowAddUser"])
+					&& $options["allowAddUser"] == 'Y'
+				)
+				|| (
+					isset($options["allowSearchEmailUsers"])
+					&& $options["allowSearchEmailUsers"] == 'Y'
+				)
+				|| (
+					isset($options["allowEmailInvitation"])
+					&& $options["allowEmailInvitation"] == 'Y'
+				)
+			)
 			{
-//				\Bitrix\Socialnetwork\ComponentHelper::fillSelectedUsersToInvite($_POST, $arParams, $arResult);
+				$items['LAST'] = $result["ITEMS_LAST"];
 				\CSocNetLogDestination::fillEmails($items);
+				$result["ITEMS_LAST"] = $items['LAST'];
+				unset($items['LAST']);
 			}
 		}
 

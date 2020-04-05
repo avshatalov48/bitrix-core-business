@@ -214,7 +214,7 @@ Alternatively, you can use cron to send the e-mails. To do so, add <code>define(
 
 If the call to mail() has failed, you cannot send e-mail from your server using conventional methods.
 
-If your hosting provider offers alternative e-mail sending services, you can use them by calling the function \"custom_mail\". Define this function in <i>/bitrix/php_interface/dbconn.php</I>. If the system find this function definition, it will use the latter instead of PHP's \"mail\" with the same input parameters.";
+If your hosting provider offers alternative e-mail sending services, you can use them by calling the function \"custom_mail\". Define this function in <i>/bitrix/php_interface/init.php</I>. If the system find this function definition, it will use the latter instead of PHP's \"mail\" with the same input parameters.";
 $MESS["SC_HELP_CHECK_MAIL_BIG"] = "This will test bulk e-mails by sending the same message as in the previous text (the site check script) 10 times. Additionally, a newline character is inserted into the message subject, and the message is BCC'ed to noreply@bitrixsoft.com.
 
 Such messages may not send if the server is configured incorrectly.
@@ -343,7 +343,7 @@ $MESS["SC_ERR_NO_VALUE"] = "There is no system record #SQL# for the table #TABLE
 $MESS["SC_ERR_FIELD_DIFFERS"] = "Table #TABLE#: the field #FIELD# \"#CUR#\" does not match the description \"#NEW#\"";
 $MESS["SC_ERR_NO_INDEX"] = "Index #INDEX# is missing from the table #TABLE#";
 $MESS["SC_ERR_NO_TABLE"] = "The table #TABLE# does not exist.";
-$MESS["SC_CHECK_TABLES_STRUCT_ERRORS"] = "There are errors in database structure (missing tables: #NO_TABLES#, missing fields: #NO_FIELDS#, different fields: #DIFF_FIELDS#, missing indexes: #NO_INDEXES#). Total issues: #VAL#. #VAL1# can be fixed right away.";
+$MESS["SC_CHECK_TABLES_STRUCT_ERRORS"] = "There are errors in database structure. Total issues: #VAL#. #VAL1# can be fixed right away.";
 $MESS["SC_CHECK_TABLES_STRUCT_ERRORS_FIX"] = "The issues have been fixed, but some fields (#VAL#) have different types. You will have to fix them manually by reviewing the website check log.";
 $MESS["SC_HELP_CHECK_PERF"] = "Server performance evaluation as provided by <a href=\"http://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=20&CHAPTER_ID=04955\">Performance Monitor</a>.
 

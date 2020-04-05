@@ -73,6 +73,47 @@
 					this.pullNewRecords[ENTITY_XML_ID + '-' + ENTITY_ID] = "done";
 				}
 			}, this),
+			OnUCFormAfterShow : BX.delegate(function(obj/*, text, data*/) {
+				if (
+					typeof obj.id != 'undefined'
+					&& this.ENTITY_XML_ID == obj.id[0]
+				)
+				{
+					if (BX('record-' + this.ENTITY_XML_ID + '-new'))
+					{
+						var commentsBlockNode = BX.findParent(BX('record-' + this.ENTITY_XML_ID + '-new'), { className: 'feed-comments-block'});
+						if (commentsBlockNode)
+						{
+							BX.addClass(commentsBlockNode, 'feed-comments-block-editor-shown');
+
+							var outerNode = BX.findChild(commentsBlockNode, { className: 'feed-com-add-box-outer'}, true);
+							if (outerNode)
+							{
+								outerNode.style.display = (obj.id[1] == 0 ? 'block' : 'none');
+							}
+						}
+					}
+				}
+			}, this),
+			OnUCFormAfterHide : BX.delegate(function(obj) {
+				if (this.ENTITY_XML_ID == obj.id[0])
+				{
+					if (BX('record-' + this.ENTITY_XML_ID + '-new'))
+					{
+						var commentsBlockNode = BX.findParent(BX('record-' + this.ENTITY_XML_ID + '-new'), { className: 'feed-comments-block'});
+						if (commentsBlockNode)
+						{
+							BX.removeClass(commentsBlockNode, 'feed-comments-block-editor-shown');
+
+							var outerNode = BX.findChild(commentsBlockNode, { className: 'feed-com-add-box-outer'}, true);
+							if (outerNode)
+							{
+								outerNode.style.display = 'block';
+							}
+						}
+					}
+				}
+			}, this),
 			OnUCUserQuote : BX.delegate(function(ENTITY_XML_ID) {
 				if (this.ENTITY_XML_ID == ENTITY_XML_ID && this.quote && this.quote.popup)
 				{
@@ -723,7 +764,7 @@
 							return;
 						this.add([this.ENTITY_XML_ID, parseInt(params["ID"])], data);
 						var node = BX('record-' + id.join('-') + '-cover'),
-							node1 = BX.findChild(node, {className: 'feed-com-block'}, true, false);
+							node1 = BX.findChild(node, {className: 'feed-com-main-content'}, true, false);
 						BX.addClass(node, 'comment-new-answer');
 						BX.addClass(node1, 'feed-com-block-pointer-to-new feed-com-block-new');
 						this.pullNewRecords[id.join('-')] = "done";
@@ -778,7 +819,7 @@
 					params["NEW"] = "Y";
 				this.add(id, {"messageFields" : params});
 				var node = BX('record-' + id.join('-') + '-cover'),
-					node1 = BX.findChild(node, {className: 'feed-com-block'}, true, false);
+					node1 = BX.findChild(node, {className: 'feed-com-main-content'}, true, false);
 				if (BX('record-' + id[0] + '-corner'))
 				{
 					BX.addClass(BX('record-' + id[0] + '-corner'), (params["NEW"] == "Y" ? "feed-post-block-yellow-corner" :""));
@@ -905,7 +946,7 @@
 			{
 				var curPos = BX.pos(node);
 				window.scrollTo(0, curPos["top"]);
-				node = BX.findChild(node, {className: 'feed-com-block'}, true, false);
+				node = BX.findChild(node, {className: 'feed-com-main-content'}, true, false);
 				BX.removeClass(node, "feed-com-block-pointer-to-new feed-com-block-new");
 				BX.addClass(node, "feed-com-block-pointer");
 			}
@@ -1152,11 +1193,16 @@
 			&& typeof oLF != 'undefined'
 		)
 		{
+			var
+				commentEntityType = el.getAttribute('bx-mpl-comment-entity-type'),
+				postEntityType = el.getAttribute('bx-mpl-post-entity-type');
+
 			panels.push({
 				text : BX.message("BPC_MES_CREATE_TASK"),
 				onclick : function() {
 					oLF.createTask({
-						entityType: 'BLOG_COMMENT',
+						postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
+						entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
 						entityId: ID
 					});
 					this.popupWindow.close(); return false;
@@ -1347,19 +1393,28 @@
 				"SHOW_POST_FORM" : 'Y',
 				"VOTE_ID" : "",
 				"AUTHOR_TOOLTIP_PARAMS" : '',
-				"background:url('') no-repeat center;" : ""
+				"background:url('') no-repeat center;" : "",
+				"LIKE_REACT" : ''
 			};
 		if (!!res && !!data["messageFields"])
 		{
 			res["AUTHOR"] = (!!res["AUTHOR"] ? res["AUTHOR"] : {});
 			var timestamp = parseInt(res["POST_TIMESTAMP"]) + parseInt(BX.message('USER_TZ_OFFSET')) + parseInt(BX.message('SERVER_TZ_OFFSET'));
-
 			var dateFormat = [
-				['today', (params["TIME_FORMAT"].indexOf("today") < 0 ? 'today, '+params["TIME_FORMAT"] : params["TIME_FORMAT"])],
+				['today', params["TIME_FORMAT"]],
 				['yesterday', (params["TIME_FORMAT"].indexOf("yesterday") < 0 ? 'yesterday, '+params["TIME_FORMAT"] : params["TIME_FORMAT"])],
 				['', params["DATE_TIME_FORMAT"]]
 			];
-
+/*
+			var dateFormat = [
+				['s', 'sshort'],
+				['i', 'ishort'],
+				['H', 'Hshort'],
+				['d', 'dshort'],
+				['m', 'mshort'],
+				['Y', 'Yshort']
+			];
+*/
 			var authorStyle = '';
 			if (typeof res["AUTHOR"]["TYPE"] != 'undefined')
 			{
@@ -1392,7 +1447,9 @@
 				"APPROVED" : (res["APPROVED"] != "Y" ? "hidden" : "approved"),
 				"DATE" : BX.date.format(
 					dateFormat,
-					timestamp, false, true
+					timestamp,
+					parseInt(Date.now()/1000) + parseInt(BX.message('USER_TZ_OFFSET')) + parseInt(BX.message('SERVER_TZ_OFFSET')),
+					true
 				),
 				"TEXT" : commentText,
 				"CLASSNAME" : (res["CLASSNAME"] ? " " + res["CLASSNAME"] : ""),
@@ -1453,7 +1510,8 @@
 				"AUTHOR_EXTRANET_STYLE" : authorStyle,
 				"VOTE_ID" : (res["RATING"] && res["RATING"]["VOTE_ID"] ? res["RATING"]["VOTE_ID"] : ""),
 				"AUTHOR_TOOLTIP_PARAMS" : (typeof res["AUTHOR_TOOLTIP_PARAMS"] != 'undefined' ? res["AUTHOR_TOOLTIP_PARAMS"] : '{}'),
-				"background:url('') no-repeat center;" : ""
+				"background:url('') no-repeat center;" : "",
+				"LIKE_REACT" : (!!res["LIKE_REACT"] ? res["LIKE_REACT"] : '')
 			};
 		}
 		else
@@ -1550,7 +1608,7 @@
 							}
 						}
 
-						node1 = BX.findChild(node, {className: 'feed-com-block'}, true, false);
+						node1 = BX.findChild(node, {className: 'feed-com-main-content'}, true, false);
 						BX.removeClass(node1, 'feed-com-block-pointer-to-new feed-com-block-new');
 						BX.addClass(node1, 'feed-com-block-read');
 						commentsReadToCounter++;
@@ -1730,6 +1788,7 @@
 					{
 						author = {
 							id : parseInt(tmp.getAttribute("bx-post-author-id")),
+							gender : tmp.getAttribute("bx-post-author-gender"),
 							name : tmp.innerHTML
 						}
 					}

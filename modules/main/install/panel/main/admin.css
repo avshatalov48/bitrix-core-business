@@ -975,7 +975,7 @@ input.adm-header-search::-ms-clear {
 }
 
 .adm-main-menu-item-icon {
-	background:url("images/bx-admin-sprite-big1.png") no-repeat -100px -100px;
+	background:url("images/bx-admin-sprite-big1.png?2") no-repeat -100px -100px;
 	height:45px;
 	position:relative;
 	z-index:2;
@@ -990,6 +990,7 @@ input.adm-header-search::-ms-clear {
 .adm-marketPlace .adm-main-menu-item-icon {background-position: center -555px; height:44px;}
 .adm-settings .adm-main-menu-item-icon {background-position: center -657px; height:49px;}
 .adm-marketing .adm-main-menu-item-icon {background-position: center -1698px; height:48px;}
+.adm-landing .adm-main-menu-item-icon {background-position: center -1797px; height:48px;}
 
 .adm-default:hover .adm-main-menu-item-icon {background-position: center -1638px; height:47px;}
 .adm-desktop:hover .adm-main-menu-item-icon {background-position: center -46px; height:46px;}
@@ -1000,6 +1001,7 @@ input.adm-header-search::-ms-clear {
 .adm-marketPlace:hover .adm-main-menu-item-icon {background-position: center -606px; height:44px;}
 .adm-settings:hover .adm-main-menu-item-icon {background-position: center -713px; height:49px;}
 .adm-marketing:hover .adm-main-menu-item-icon {background-position: center -1752px; height:48px;}
+.adm-landing:hover .adm-main-menu-item-icon {background-position: center -1841px; height:48px;}
 
 .adm-main-menu-item-active.adm-default .adm-main-menu-item-icon {background-position: center -1638px; height:47px;}
 .adm-main-menu-item-active.adm-desktop .adm-main-menu-item-icon {background-position: center -46px; height:46px;}
@@ -1010,6 +1012,7 @@ input.adm-header-search::-ms-clear {
 .adm-main-menu-item-active.adm-marketPlace .adm-main-menu-item-icon {background-position: center -606px; height:44px;}
 .adm-main-menu-item-active.adm-settings .adm-main-menu-item-icon {background-position: center -713px; height:49px;}
 .adm-main-menu-item-active.adm-marketing .adm-main-menu-item-icon {background-position: center -1752px; height:48px;}
+.adm-main-menu-item-active.adm-landing .adm-main-menu-item-icon {background-position: center -1841px; height:48px;}
 
 .adm-main-menu-item-text {
 	font-size:11px;
@@ -1297,7 +1300,7 @@ input.adm-header-search::-ms-clear {
 }
 
 .adm-submenu-add-desktop-icon {
-	background:url("images/bx-admin-sprite-big1.png") no-repeat 9px -783px;
+	background:url("images/bx-admin-sprite-big1.png?2") no-repeat 9px -783px;
 	display:inline-block;
 	cursor:pointer;
 	height:28px;
@@ -1894,7 +1897,7 @@ a.adm-nav-page:hover,
 .adm-table-item-edit-wrap {display:inline-block; vertical-align:middle; margin:0 0 0 16px;}
 .adm-table-btn-edit,
 .adm-table-btn-delete {
-	background:url("images/bx-admin-sprite-big1.png") no-repeat 0 -948px;
+	background:url("images/bx-admin-sprite-big1.png?2") no-repeat 0 -948px;
 	cursor:pointer;
 	height:32px;
 	width:32px;
@@ -3330,7 +3333,7 @@ it's made to prevent appearing of artefacts from old admin button icons.
 /*======================================================MENU ICONS=========================================*/
 
 .adm-submenu-item-link-icon {
-	background:url("images/icons-sprite-14.png?1") no-repeat center -1512px;
+	background:url("images/icons-sprite-14.png?2") no-repeat center -1512px;
 }
 .fav_menu_icon {background-position:center -1540px;}
 .iblock_menu_icon_iblocks {background-position:center -56px;}
@@ -3423,6 +3426,8 @@ it's made to prevent appearing of artefacts from old admin button icons.
 .security_menu_ddos_icon {background-position: center -2398px;}
 .crm-cashbox-icon {background-position: center -2430px;}
 .promo_https_menu_icon {background-position: center -2461px;}
+.landing_menu_icon {background-position: center -2517px;}
+.sender_ads_menu_icon {background-position: center -2546px;}
 
 /*======================================================END MENU ICONS=========================================*/
 

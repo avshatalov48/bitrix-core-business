@@ -280,7 +280,7 @@
 		 */
 		destroy: function()
 		{
-			this.layout.remove();
+			BX.remove(this.layout);
 		}
 	};
 })();

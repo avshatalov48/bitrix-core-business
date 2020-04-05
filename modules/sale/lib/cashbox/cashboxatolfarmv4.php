@@ -91,6 +91,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 				'sum' => (float)$item['sum'],
 				'quantity' => $item['quantity'],
 				'payment_method' => $checkTypeMap[$check::getType()],
+				'payment_object' => 'commodity',
 				'vat' => array(
 					'type' => $vat
 				),

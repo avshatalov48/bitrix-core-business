@@ -48,7 +48,7 @@ class VatTable extends Main\Entity\DataManager
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
 				'required' => true,
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('VAT_ENTITY_TIMESTAMP_X_FIELD'),
 			)),
 			'ACTIVE' => new Main\Entity\BooleanField('ACTIVE', array(

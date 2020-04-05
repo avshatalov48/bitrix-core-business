@@ -230,10 +230,7 @@ class App
 				'params' => Array(
 					'iconId' => $appId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				)
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -398,10 +395,7 @@ class App
 						'iframeHeight' => $update['IFRAME_HEIGHT'],
 						'iframePopup' => $update['IFRAME_POPUP'],
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					)
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
 			else
@@ -412,10 +406,7 @@ class App
 					'params' => Array(
 						'iconId' => $appId
 					),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					)
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				));
 			}
 		}

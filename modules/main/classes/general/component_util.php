@@ -1434,8 +1434,10 @@ class CComponentUtil
 		return $DB->DateFormatToPHP(CSite::GetDateFormat("FULL"));
 	}
 
-	public static function GetDateTimeFormatted($timestamp, $dateTimeFormat = false, $offset = 0)
+	public static function GetDateTimeFormatted($timestamp, $dateTimeFormat = false, $offset = 0, $hideToday = false)
 	{
+		global $DB;
+
 		static $arFormatWOYear = array();
 		static $arFormatTime = array();
 		static $defaultDateTimeFormat = false;
@@ -1447,7 +1449,7 @@ class CComponentUtil
 		{
 			if (!$defaultDateTimeFormat)
 			{
-				$defaultDateTimeFormat = $GLOBALS["DB"]->DateFormatToPHP(FORMAT_DATETIME);
+				$defaultDateTimeFormat = $DB->DateFormatToPHP(FORMAT_DATETIME);
 			}
 			$dateTimeFormat = $defaultDateTimeFormat;
 		}
@@ -1465,9 +1467,9 @@ class CComponentUtil
 		}
 		$timeFormat = $arFormatTime[$dateTimeFormat];
 
-		$arFormat = Array(
+		$arFormat = array(
 			"tomorrow" => "tomorrow, ".$timeFormat,
-			"today" => "today, ".$timeFormat,
+			"today" => ($hideToday ? $timeFormat : "today, ".$timeFormat),
 			"yesterday" => "yesterday, ".$timeFormat,
 			"" => (
 				date("Y", $timestamp) == date("Y")

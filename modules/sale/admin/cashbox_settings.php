@@ -36,6 +36,13 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 				{
 					$result .= '<tr class="heading"><td colspan="2">'.$block['LABEL'].'</td></tr>';
 
+					if ($group === 'VAT')
+					{
+						$result .= '<tr><td colspan="2" style="text-align: center">';
+						$result .= BeginNote().Loc::getMessage('SALE_CASHBOX_VAT_ATTENTION').EndNote();
+						$result .= '</td></tr>';
+					}
+
 					$className = 'adm-detail-content-cell-l';
 					if (isset($block['REQUIRED']) && $block['REQUIRED'] === 'Y')
 						$className .= ' adm-required-field';

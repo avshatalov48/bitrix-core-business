@@ -1,0 +1,44 @@
+.landing-ui-panel-image {
+	width: 600px;
+	z-index: 500;
+}
+
+.landing-ui-panel-content-overlay.landing-ui-panel-image {
+	width: 100%;
+}
+
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-button-group,
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-input {
+	height: 62px;
+	border: none;
+}
+
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-button-group .landing-ui-field-header {
+	display: none;
+}
+
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-input .landing-ui-button {
+	background: none;
+	line-height: 62px;
+	height: 62px;
+	padding-bottom: 0;
+	border-right: none;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-input .landing-ui-button:hover {
+	background: #f7f7f7;
+	color: #000;
+}
+
+.landing-ui-panel-image .landing-ui-panel-content-header .landing-ui-field-input .landing-ui-button.landing-ui-active {
+	background: #f7f7f7;
+	color: #000;
+	box-shadow: none;
+}
+
+
+.landing-ui-panel-image .landing-ui-panel-content-footer {
+	display: none;
+}

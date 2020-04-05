@@ -1209,6 +1209,8 @@ class CAllSocNetLog
 	
 	function GetSimpleOrQuery($val, $key, $strOperation, $strNegative, $OrFields, &$arFields, &$arFilter)
 	{
+		global $DB;
+
 		if ($strNegative != "Y")
 		{
 			$arOrFields = explode("|", $OrFields);
@@ -1219,7 +1221,7 @@ class CAllSocNetLog
 				{
 					if ($i > 0)
 						$strOrFields .= " OR ";
-					$strOrFields .= "(".$field." ".$strOperation." '".$GLOBALS["DB"]->ForSql($val)."')";
+					$strOrFields .= "(".$field." ".$strOperation." '".$DB->ForSql($val)."')";
 				}
 				return $strOrFields;
 			}

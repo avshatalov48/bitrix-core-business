@@ -10,7 +10,8 @@ $pageId = "user_tasks";
 include("util_menu.php");
 include("util_profile.php");
 
-if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arResult["VARIABLES"]["user_id"], "tasks"))
+if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arResult["VARIABLES"]["user_id"], "tasks") &&
+	\CModule::IncludeModule('tasks'))
 {
 	\Bitrix\Tasks\Ui\Filter\Task::setUserId($arResult[ "VARIABLES" ][ "user_id" ]);
 	$state = \Bitrix\Tasks\Ui\Filter\Task::listStateInit()->getState();

@@ -26,11 +26,11 @@ ShowMessage($arResult['ERROR_MESSAGE']);
 		<table class="bx-auth-table">
 			<tr>
 				<td class="bx-auth-label"><?=GetMessage("AUTH_LOGIN")?></td>
-				<td><input class="bx-auth-input" type="text" name="USER_LOGIN" maxlength="255" value="<?=$arResult["LAST_LOGIN"]?>" /></td>
+				<td><input class="bx-auth-input form-control" type="text" name="USER_LOGIN" maxlength="255" value="<?=$arResult["LAST_LOGIN"]?>" /></td>
 			</tr>
 			<tr>
 				<td class="bx-auth-label"><?=GetMessage("AUTH_PASSWORD")?></td>
-				<td><input class="bx-auth-input" type="password" name="USER_PASSWORD" maxlength="255" autocomplete="off" />
+				<td><input class="bx-auth-input form-control" type="password" name="USER_PASSWORD" maxlength="255" autocomplete="off" />
 <?if($arResult["SECURE_AUTH"]):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -54,7 +54,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 				</tr>
 				<tr>
 					<td class="bx-auth-label"><?echo GetMessage("AUTH_CAPTCHA_PROMT")?>:</td>
-					<td><input class="bx-auth-input" type="text" name="captcha_word" maxlength="50" value="" size="15" /></td>
+					<td><input class="bx-auth-input form-control" type="text" name="captcha_word" maxlength="50" value="" size="15" /></td>
 				</tr>
 			<?endif;?>
 <?if ($arResult["STORE_PASSWORD"] == "Y"):?>
@@ -65,7 +65,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 <?endif?>
 			<tr>
 				<td></td>
-				<td class="authorize-submit-cell"><input type="submit" name="Login" value="<?=GetMessage("AUTH_AUTHORIZE")?>" /></td>
+				<td class="authorize-submit-cell"><input type="submit" class="btn btn-primary" name="Login" value="<?=GetMessage("AUTH_AUTHORIZE")?>" /></td>
 			</tr>
 		</table>
 

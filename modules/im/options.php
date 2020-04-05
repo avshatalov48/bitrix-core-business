@@ -161,8 +161,6 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 		$_POST['START_CHAT_MESSAGE'] = $_POST['START_CHAT_MESSAGE'] == 'first'? 'first': 'last';
 		$_POST['COLOR_ENABLE'] = isset($_POST['COLOR_ENABLE']);
 		$_POST['OPEN_CHAT_ENABLE'] = isset($_POST['OPEN_CHAT_ENABLE']);
-		$_POST['GENERAL_CHAT_MESSAGE_JOIN'] = isset($_POST['GENERAL_CHAT_MESSAGE_JOIN']);
-		$_POST['GENERAL_CHAT_MESSAGE_LEAVE'] = isset($_POST['GENERAL_CHAT_MESSAGE_LEAVE']);
 
 		$arSettings = CIMSettings::checkValues(CIMSettings::SETTINGS, Array(
 			'viewOffline' => !isset($_POST['VIEW_OFFLINE']),
@@ -195,8 +193,13 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 		COption::SetOptionString("im", "start_chat_message", $_POST['START_CHAT_MESSAGE']);
 		COption::SetOptionString("im", "color_enable", $_POST['COLOR_ENABLE']);
 		COption::SetOptionString("im", "open_chat_enable", $_POST['OPEN_CHAT_ENABLE']);
-		COption::SetOptionString("im", "general_chat_message_join", $_POST['GENERAL_CHAT_MESSAGE_JOIN']);
-		COption::SetOptionString("im", "general_chat_message_leave", $_POST['GENERAL_CHAT_MESSAGE_LEAVE']);
+
+		if (IsModuleInstalled('intranet'))
+		{
+			COption::SetOptionString("im", "contact_list_load", isset($_POST['CONTACT_LIST_LOAD']));
+			COption::SetOptionString("im", "general_chat_message_join", isset($_POST['GENERAL_CHAT_MESSAGE_JOIN']));
+			COption::SetOptionString("im", "general_chat_message_leave", isset($_POST['GENERAL_CHAT_MESSAGE_LEAVE']));
+		}
 
 		if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"])>0)
 		{
@@ -333,6 +336,10 @@ $arReference = Array(
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="OPEN_CHAT_ENABLE" <?=(COption::GetOptionString("im", 'open_chat_enable')?'checked="checked"' :'')?>></td>
 	</tr>
 	<?if(IsModuleInstalled('intranet')):?>
+	<tr>
+		<td class="adm-detail-content-cell-l" width="40%"><?=GetMessage("IM_CONTACT_LIST_LOAD")?>:</td>
+		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="CONTACT_LIST_LOAD" <?=(COption::GetOptionString("im", 'contact_list_load')?'checked="checked"' :'')?>></td>
+	</tr>
 	<tr>
 		<td class="adm-detail-content-cell-l" width="40%"><?=GetMessage("IM_GENERAL_CHAT_MESSAGE_JOIN")?>:</td>
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="GENERAL_CHAT_MESSAGE_JOIN" <?=(COption::GetOptionString("im", 'general_chat_message_join')?'checked="checked"' :'')?>></td>

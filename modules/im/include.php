@@ -1,21 +1,28 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
-define("IM_REVISION", 116);
-define("IM_REVISION_MOBILE", 8);
-
-define("IM_CALL_REVISION", 1);
-define("IM_CALL_REVISION_MOBILE", 1);
-
-define("IM_MOBILE_CACHE_VERSION", 17);
+/**
+ * @use \Bitrix\Im\Revision::getWeb()
+ * @deprecated
+ */
+define("IM_REVISION", 117);
+/**
+ * @use \Bitrix\Im\Revision::getMobile()
+ * @deprecated
+ */
+define("IM_REVISION_MOBILE", 8); // sync with im.recent/im.dialog components
 
 define("IM_MESSAGE_SYSTEM", "S");
 define("IM_MESSAGE_PRIVATE", "P");
 define("IM_MESSAGE_CHAT", "C");
 define("IM_MESSAGE_OPEN", "O");
 define("IM_MESSAGE_THREAD", "T");
-define("IM_MESSAGE_GROUP", "C");
 define("IM_MESSAGE_OPEN_LINE", "L");
+/**
+ * @use const IM_MESSAGE_CHAT
+ * @deprecated
+ */
+define("IM_MESSAGE_GROUP", "C");
 
 define("IM_NOTIFY_CONFIRM", 1);
 define("IM_NOTIFY_FROM", 2);
@@ -121,7 +128,7 @@ CJSCore::RegisterExt('im_common', array(
 	'js' => '/bitrix/js/im/common.js',
 	'css' => '/bitrix/js/im/css/common.css',
 	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_common.php',
-	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'restclient', 'phone_number')
+	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'restclient', 'phone_number', 'loader')
 ));
 
 CJSCore::RegisterExt('im_phone_call_view', array(
@@ -179,6 +186,11 @@ CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
 	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_desktop.php',
 	'rel' => array('im_page', 'im_call'),
+));
+
+CJSCore::RegisterExt('im_timecontrol', array(
+	'js' => '/bitrix/js/im/timecontrol.js',
+	'rel' => array('timecontrol'),
 ));
 
 $GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array('/bitrix/js/im/common.js', '/bitrix/js/im/window.js', '/bitrix/js/im/im.js'));

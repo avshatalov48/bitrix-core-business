@@ -1,7 +1,10 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group.php");
 
+use Bitrix\Socialnetwork\WorkgroupTable;
+use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\Item\Workgroup;
+use Bitrix\Socialnetwork\Item\WorkgroupSubject;
 use Bitrix\Socialnetwork\Integration;
 
 class CSocNetGroup extends CAllSocNetGroup
@@ -103,6 +106,14 @@ class CSocNetGroup extends CAllSocNetGroup
 						FROM b_lang
 						WHERE LID IN ('".implode("', '", $arSiteID)."')
 					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+
+					if (intval($arFields["SUBJECT_ID"]) > 0)
+					{
+						WorkgroupSubject::syncSiteId(array(
+							'subjectId' => $arFields["SUBJECT_ID"],
+							'siteId' => $arSiteID
+						));
+					}
 				}
 
 				if(defined("BX_COMP_MANAGED_CACHE"))
@@ -151,7 +162,8 @@ class CSocNetGroup extends CAllSocNetGroup
 		}
 		else
 		{
-			$arSiteID = Array();
+			$arSiteID = array();
+
 			if(is_set($arFields, "SITE_ID"))
 			{
 				if(is_array($arFields["SITE_ID"]))
@@ -203,7 +215,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				"WHERE ID = ".$ID." ";
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			if(count($arSiteID)>0)
+			if(!empty($arSiteID))
 			{
 				$strSql = "DELETE FROM b_sonet_group_site WHERE GROUP_ID=".$ID;
 				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
@@ -237,6 +249,58 @@ class CSocNetGroup extends CAllSocNetGroup
 					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 					$arLogID[] = $arResult["ID"];
+				}
+			}
+
+			if (
+				!empty($arSiteID)
+				|| intval($arFields["SUBJECT_ID"]) > 0
+			)
+			{
+				$subjectId = 0;
+				$groupSiteList = array();
+
+				if (intval($arFields["SUBJECT_ID"]) <= 0)
+				{
+					$res = WorkgroupTable::getList(array(
+						'filter' => array('=ID' => $ID),
+						'select' => array('SUBJECT_ID')
+					));
+					if ($workgroupFieldsList = $res->fetch())
+					{
+						$subjectId = intval($workgroupFieldsList["SUBJECT_ID"]);
+					}
+				}
+				else
+				{
+					$subjectId = intval($arFields["SUBJECT_ID"]);
+				}
+
+				if (empty($arSiteID))
+				{
+					$res = WorkgroupSiteTable::getList(array(
+						'filter' => array('=GROUP_ID' => $ID),
+						'select' => array('SITE_ID')
+					));
+					while ($workgroupSiteFieldsList = $res->fetch())
+					{
+						$groupSiteList[] = intval($workgroupSiteFieldsList["SITE_ID"]);
+					}
+				}
+				else
+				{
+					$groupSiteList = $arSiteID;
+				}
+
+				if (
+					$subjectId > 0
+					&& !empty($groupSiteList)
+				)
+				{
+					WorkgroupSubject::syncSiteId(array(
+						'subjectId' => $subjectId,
+						'siteId' => $groupSiteList
+					));
 				}
 			}
 

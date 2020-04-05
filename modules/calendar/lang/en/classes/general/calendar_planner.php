@@ -19,4 +19,5 @@ $MESS["EC_PL_STATUS_Q"] = "Attendance not confirmed";
 $MESS["EC_PL_GOTO_NOW"] = "Go to current date";
 $MESS["EC_PL_PROPOSE"] = "Vacant time";
 $MESS["EC_PL_PROPOSE_NO_RESULT"] = "Unfortunately we could not find the appropriate time for the event in the nearest future.";
+$MESS["EC_PL_RESOURCE_TITLE"] = "Resources";
 ?>

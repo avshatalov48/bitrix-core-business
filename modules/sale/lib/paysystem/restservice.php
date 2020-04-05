@@ -6,6 +6,7 @@ use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Rest\AccessException;
 use Bitrix\Rest\RestException;
 use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\Internals;
@@ -64,6 +65,8 @@ class RestService extends \IRestService
 	 */
 	public static function addPaySystem(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$handlerList = Manager::getHandlerList();
@@ -152,6 +155,8 @@ class RestService extends \IRestService
 	 */
 	public static function updatePaySystem(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$fields = array();
@@ -202,6 +207,8 @@ class RestService extends \IRestService
 	 */
 	public static function deletePaySystem(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$data = Manager::getById($params['ID']);
@@ -221,6 +228,8 @@ class RestService extends \IRestService
 	 */
 	public static function addHandler(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$dbRes = Internals\PaySystemRestHandlersTable::getList(array(
@@ -247,6 +256,8 @@ class RestService extends \IRestService
 	 */
 	public static function updateHandler(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$dbRes = Internals\PaySystemRestHandlersTable::getList(array(
@@ -270,6 +281,8 @@ class RestService extends \IRestService
 	 */
 	public static function deleteHandler(array $params)
 	{
+		static::checkPaySystemPermission();
+
 		$params = static::prepareParams($params);
 
 		$dbRes = Internals\PaySystemRestHandlersTable::getList(array(
@@ -298,6 +311,8 @@ class RestService extends \IRestService
 	 */
 	public static function getHandlerList()
 	{
+		static::checkPaySystemPermission();
+
 		$result = array();
 		$dbRes = Internals\PaySystemRestHandlersTable::getList();
 		while ($item = $dbRes->fetch())
@@ -308,13 +323,19 @@ class RestService extends \IRestService
 
 	/**
 	 * @return array
+	 * @throws AccessException
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getPaySystemList()
 	{
+		static::checkPaySystemPermission();
+
 		$result = array();
 		$dbRes = Manager::getList();
 		while ($item = $dbRes->fetch())
+		{
 			$result[] = $item;
+		}
 
 		return $result;
 	}
@@ -326,6 +347,8 @@ class RestService extends \IRestService
 	 */
 	public static function getSettingsByInvoice(array $params)
 	{
+		static::checkOrderPermission();
+
 		$params = static::prepareParams($params);
 		static::validateParams($params);
 
@@ -372,6 +395,8 @@ class RestService extends \IRestService
 	 */
 	public static function payInvoice(array $params)
 	{
+		static::checkOrderPermission();
+
 		$params = static::prepareParams($params);
 
 		if (!isset($params['INVOICE_ID']))
@@ -456,9 +481,67 @@ class RestService extends \IRestService
 	private static function validateParams(array $params)
 	{
 		if (empty($params['BX_REST_HANDLER']))
+		{
 			throw new RestException('Empty field BX_REST_HANDLER!', self::ERROR_VALIDATION_FAILURE);
+		}
 
 		if (empty($params['INVOICE_ID']))
+		{
 			throw new RestException('Empty field INVOICE_ID!', self::ERROR_VALIDATION_FAILURE);
+		}
+	}
+
+	/**
+	 * @throws AccessException
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	protected static function checkOrderPermission()
+	{
+		global $APPLICATION;
+
+		if (IsModuleInstalled('intranet') && Loader::includeModule('crm'))
+		{
+			$CCrmInvoice = new \CCrmInvoice();
+			if ($CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'WRITE')
+				&& $CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'ADD')
+			)
+			{
+				throw new AccessException();
+			}
+		}
+		else
+		{
+			$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+			if($saleModulePermissions == "D")
+			{
+				throw new AccessException();
+			}
+		}
+	}
+
+	/**
+	 * @throws AccessException
+	 */
+	protected static function checkPaySystemPermission()
+	{
+		global $APPLICATION, $USER;
+
+		if (IsModuleInstalled('intranet') && Loader::includeModule('crm'))
+		{
+			$CrmPerms = new \CCrmPerms($USER->GetID());
+			if (!$CrmPerms->HavePerm('CONFIG', BX_CRM_PERM_CONFIG, 'WRITE'))
+			{
+				throw new AccessException();
+			}
+		}
+		else
+		{
+			$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+			if ($saleModulePermissions < "W")
+			{
+				throw new AccessException();
+			}
+		}
 	}
 }

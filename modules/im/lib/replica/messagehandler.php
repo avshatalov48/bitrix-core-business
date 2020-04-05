@@ -34,10 +34,7 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 	 */
 	public function beforeLogInsert(array $record)
 	{
-		if (
-			$record["NOTIFY_TYPE"] <= 0
-			|| preg_match("/^RATING\\|IM/", $record["NOTIFY_TAG"])
-		)
+		if ($record["NOTIFY_TYPE"] <= 0)
 		{
 			return true;
 		}
@@ -173,10 +170,7 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 						'FILES' => $arFields['FILES'],
 						'NOTIFY' => true
 					)),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				);
 				$pullMessageTo = $pullMessage;
 
@@ -184,12 +178,9 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 				{
 					if (\CIMSettings::GetNotifyAccess($arFields["TO_USER_ID"], 'im', 'message', \CIMSettings::CLIENT_PUSH))
 					{
-						$pushParams = \CIMMessenger::PreparePushForPrivate(Array(
-							'FROM_USER_ID' => $arFields['FROM_USER_ID'],
-							'MESSAGE' => $newRecord['MESSAGE'],
-							'SYSTEM' => $arFields['SYSTEM'],
-							'FILES' => $arFields['FILES']
-						));
+						$pushParams = $pullMessage;
+						$pushParams['params']['message']['text_push'] = $newRecord['MESSAGE'];
+						$pushParams = \CIMMessenger::PreparePushForPrivate($pushParams);
 						$pullMessageTo = array_merge($pullMessage, $pushParams);
 					}
 				}
@@ -243,23 +234,14 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 						'FILES' => $arFields['FILES'],
 						'NOTIFY' => true
 					)),
-					'extra' => Array(
-						'im_revision' => IM_REVISION,
-						'im_revision_mobile' => IM_REVISION_MOBILE,
-					),
+					'extra' => \Bitrix\Im\Common::getPullExtra()
 				);
 
 				if ($chatData && \CPullOptions::GetPushStatus())
 				{
-					$pushParams = \CIMMessenger::PreparePushForChat(Array(
-						'CHAT_ID' => $chatId,
-						'CHAT_TITLE' => $chatData['TITLE'],
-						'CHAT_AVATAR' => $chatData['AVATAR'],
-						'FROM_USER_ID' => $newRecord['AUTHOR_ID'],
-						'MESSAGE' => $newRecord['MESSAGE'],
-						'SYSTEM' => $newRecord['AUTHOR_ID'] > 0? 'N': 'Y',
-						'FILES' => $arFields['FILES']
-					));
+					$pushParams = $pullMessage;
+					$pushParams['params']['message']['text_push'] = $newRecord['MESSAGE'];
+					$pushParams = \CIMMessenger::PreparePushForChat($pushParams);
 					$pullMessage = array_merge($pullMessage, $pushParams);
 				}
 
@@ -373,10 +355,7 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 			'module_id' => 'im',
 			'command' => $arFields['PARAMS']['IS_DELETED']==='Y'? 'messageDelete': 'messageUpdate',
 			'params' => $arPullMessage,
-			'extra' => Array(
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			),
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		));
 		foreach ($relations as $rel)
 		{
@@ -389,10 +368,7 @@ class MessageHandler extends \Bitrix\Replica\Client\BaseHandler
 				'module_id' => 'im',
 				'command' => $arFields['PARAMS']['IS_DELETED']==='Y'? 'messageDelete': 'messageUpdate',
 				'params' => $arPullMessage,
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				)
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 

@@ -144,7 +144,7 @@ final class Crawler
 				continue;
 			}
 
-			$relativeFolder = trim(substr($file->getPath(), strlen($rootFolder)), '/');
+			$relativeFolder = trim(substr($file->getPath(), strlen($rootFolder)), '\\/');
 			$classes[] = $namespace . '\\' . strtr($relativeFolder, array('/' => '\\')) . '\\' . $file->getBasename('.php');
 		}
 

@@ -2,10 +2,11 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
-use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
-use Bitrix\Iblock;
-use Bitrix\Currency;
+use Bitrix\Main\Loader,
+	Bitrix\Main\ModuleManager,
+	Bitrix\Iblock,
+	Bitrix\Catalog,
+	Bitrix\Currency;
 
 global $USER_FIELD_MANAGER;
 
@@ -18,6 +19,18 @@ $compatibleMode = !(isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValu
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
+$offersIblock = array();
+if ($catalogIncluded)
+{
+	$iterator = Catalog\CatalogIblockTable::getList(array(
+		'select' => array('IBLOCK_ID'),
+		'filter' => array('!=PRODUCT_IBLOCK_ID' => 0)
+	));
+	while ($row = $iterator->fetch())
+		$offersIblock[$row['IBLOCK_ID']] = true;
+	unset($row, $iterator);
+}
+
 $arIBlock = array();
 $iblockFilter = (
 	!empty($arCurrentValues['IBLOCK_TYPE'])
@@ -26,8 +39,14 @@ $iblockFilter = (
 );
 $rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
-	$arIBlock[$arr['ID']] = '['.$arr['ID'].'] '.$arr['NAME'];
-unset($arr, $rsIBlock, $iblockFilter);
+{
+	$id = (int)$arr['ID'];
+	if (isset($offersIblock[$id]))
+		continue;
+	$arIBlock[$id] = '['.$id.'] '.$arr['NAME'];
+}
+unset($id, $arr, $rsIBlock, $iblockFilter);
+unset($offersIblock);
 
 $arProperty = array();
 $arProperty_N = array();

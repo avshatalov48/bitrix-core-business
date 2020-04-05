@@ -1,0 +1,32 @@
+.landing-ui-card-link {
+	margin: 0;
+	padding: 0;
+}
+
+.landing-ui-card-header + .landing-ui-card-body {
+	margin-top: 0;
+}
+
+
+.landing-ui-card-link .landing-ui-button {
+	background: none;
+	width: 100%;
+	text-align: left;
+	border-right: none;
+	height: auto;
+	padding-top: 15px;
+	padding-left: 16px;
+	padding-bottom: 15px;
+	padding-right: 0;
+	border-bottom: 1px #eef2f4 solid;
+	font-weight: bold;
+}
+
+.landing-ui-card-link-child .landing-ui-button {
+	font-weight: normal;
+	padding-left: 32px;
+}
+
+.landing-ui-card-link:hover .landing-ui-button {
+	background: #f6f8f9;
+}

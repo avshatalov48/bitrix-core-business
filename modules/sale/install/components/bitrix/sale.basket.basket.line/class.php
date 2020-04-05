@@ -48,6 +48,15 @@ class SaleBasketLineComponent extends CBitrixComponent
 		if ($arParams['SHOW_AUTHOR'] != 'Y')
 			$arParams['SHOW_AUTHOR'] = 'N';
 
+		if ($arParams['SHOW_AUTHOR'] === 'Y')
+		{
+			$arParams['SHOW_REGISTRATION'] = isset($arParams['SHOW_REGISTRATION']) && $arParams['SHOW_REGISTRATION'] === 'N' ? 'N' : 'Y';
+		}
+		else
+		{
+			$arParams['SHOW_REGISTRATION'] = 'N';
+		}
+
 		$arParams['PATH_TO_REGISTER'] = (isset($arParams['PATH_TO_REGISTER']) ? trim($arParams['PATH_TO_REGISTER']) : '');
 		if ($arParams['PATH_TO_REGISTER'] === '')
 			$arParams['PATH_TO_REGISTER'] = (string)Main\Config\Option::get('main', 'custom_register_page');

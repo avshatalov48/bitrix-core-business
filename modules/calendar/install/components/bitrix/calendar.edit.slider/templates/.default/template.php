@@ -7,6 +7,8 @@ global $APPLICATION, $USER_FIELD_MANAGER;
 
 $id = $arParams['id'];
 $event = $arParams['event'];
+$isSocialnetworkEnabled = $arParams['bSocNet'];
+$isCrmEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('crm');
 
 $fieldsList = array(
 	'description' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_DESCRIPTION_COLUMN')),
@@ -18,6 +20,12 @@ $fieldsList = array(
 	'location' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')),
 	'private' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_PRIVATE_COLUMN'))
 );
+
+if (!$isSocialnetworkEnabled)
+{
+	unset($fieldsList['accessibility']);
+	unset($fieldsList['private']);
+}
 
 $UF = CCalendarEvent::GetEventUserFields($event);
 if (isset($UF['UF_CRM_CAL_EVENT']))
@@ -105,7 +113,7 @@ $arTabs = array(
 	array('name' => GetMessage('EC_EDEV_ADD_TAB'), 'title' => GetMessage('EC_EDEV_ADD_TAB_TITLE'), 'id' => $id."ed-tab-3")
 );
 
-if($arParams['bSocNet'])
+if($isSocialnetworkEnabled)
 {
 	CSocNetTools::InitGlobalExtranetArrays();
 	$DESTINATION = CCalendar::GetSocNetDestination(false, $arParams['event']['ATTENDEES_CODES']);
@@ -653,7 +661,10 @@ if($arParams['bSocNet'])
 						<!--endregion-->
 
 						<!--region Private-->
-						<?$field = "private";?>
+						<?$field = "private";
+						if (isset($fieldsList[$field]))
+						{
+						?>
 						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
 							<?if (!$fieldsList[$field]["pinned"])
 							{
@@ -684,50 +695,55 @@ if($arParams['bSocNet'])
 								ob_end_clean();
 							}?>
 						</div>
+						<?}?>
 						<!--endregion-->
 
 						<!--region accessibility-->
-						<?$field = "accessibility";?>
-						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
-							<?if (!$fieldsList[$field]["pinned"])
+						<? $field = "accessibility";
+							if (isset($fieldsList[$field]))
 							{
-								ob_start();
-							}?>
-							<div class="calendar-options-item calendar-options-item-border calendar-event-location">
-								<div class="calendar-options-item-column-left">
-									<div class="calendar-options-item-name js-calendar-field-name"><?= Loc::getMessage('EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN')?></div>
-								</div>
-								<div class="calendar-options-item-column-right">
-									<div class="calendar-options-item-column-one">
-										<div class="calendar-field-container calendar-field-container-select">
-											<div class="calendar-field-block">
-												<select class="calendar-field calendar-field-select" id="<?=$id?>_accessibility" name="accessibility">
-													<option value="busy"><?=GetMessage('EC_EDIT_SLIDER_ACC_B')?></option>
-													<option value="quest"><?=GetMessage('EC_EDIT_SLIDER_ACC_Q')?></option>
-													<option value="free"><?=GetMessage('EC_EDIT_SLIDER_ACC_F')?></option>
-													<?if (!CCalendar::IsBitrix24()
-														|| COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") != "Y"
-														|| \Bitrix\Bitrix24\Feature::isFeatureEnabled("absence")):?>
-														<option value="absent"><?=GetMessage('EC_EDIT_SLIDER_ACC_A')?> (<?=GetMessage('EC_EDIT_SLIDER_ACC_EX')?>)</option>
-													<?endif;?>
-												</select>
+							?>
+							<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
+								<?if (!$fieldsList[$field]["pinned"])
+								{
+									ob_start();
+								}?>
+								<div class="calendar-options-item calendar-options-item-border calendar-event-location">
+									<div class="calendar-options-item-column-left">
+										<div class="calendar-options-item-name js-calendar-field-name"><?= Loc::getMessage('EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN')?></div>
+									</div>
+									<div class="calendar-options-item-column-right">
+										<div class="calendar-options-item-column-one">
+											<div class="calendar-field-container calendar-field-container-select">
+												<div class="calendar-field-block">
+													<select class="calendar-field calendar-field-select" id="<?=$id?>_accessibility" name="accessibility">
+														<option value="busy"><?=GetMessage('EC_EDIT_SLIDER_ACC_B')?></option>
+														<option value="quest"><?=GetMessage('EC_EDIT_SLIDER_ACC_Q')?></option>
+														<option value="free"><?=GetMessage('EC_EDIT_SLIDER_ACC_F')?></option>
+														<?if (!CCalendar::IsBitrix24()
+															|| COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") != "Y"
+															|| \Bitrix\Bitrix24\Feature::isFeatureEnabled("absence")):?>
+															<option value="absent"><?=GetMessage('EC_EDIT_SLIDER_ACC_A')?> (<?=GetMessage('EC_EDIT_SLIDER_ACC_EX')?>)</option>
+														<?endif;?>
+													</select>
+												</div>
 											</div>
 										</div>
 									</div>
+									<span data-bx-fixfield="<?= $field?>" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
 								</div>
-								<span data-bx-fixfield="<?= $field?>" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
+								<?if (!$fieldsList[$field]["pinned"])
+								{
+									$fieldsList[$field]["html"] = ob_get_contents();
+									ob_end_clean();
+								}?>
 							</div>
-							<?if (!$fieldsList[$field]["pinned"])
-							{
-								$fieldsList[$field]["html"] = ob_get_contents();
-								ob_end_clean();
-							}?>
-						</div>
+						<?}?>
 						<!--endregion-->
 
 						<!--region crm-->
 						<?$field = "crm";
-						if (isset($fieldsList[$field]))
+						if ($isCrmEnabled && isset($fieldsList[$field]))
 						{
 							$crmUF = $UF['UF_CRM_CAL_EVENT'];
 						?>

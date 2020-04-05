@@ -36,7 +36,7 @@ if (SITE_TEMPLATE_ID == "bitrix24")
 if ($arParams["IS_CRM"] !== "Y")
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-	$bodyClass = $bodyClass ? $bodyClass." no-paddings" : "no-paddings";
+	$bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
 	$APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 	if (
 		SITE_TEMPLATE_ID == "bitrix24"
@@ -453,16 +453,25 @@ if (!$arResult["AJAX_CALL"])
 		<?
 	}
 
-	if ($arResult["AJAX_CALL"] && $arParams["SHOW_RATING"] == "Y")
+	if (
+		$arResult["AJAX_CALL"]
+		&& $arParams["SHOW_RATING"] == "Y"
+	)
 	{
+		$likeTemplate = (
+			\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+				? 'like_react'
+				: 'like'
+		);
+
 		if ($arParams["RATING_TYPE"] == "like")
 		{
 			?>
-			BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/<?=$arParams["RATING_TYPE"]?>/popup.css');
+			BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/<?=$likeTemplate?>/popup.css');
 			<?
 		}
 		?>
-		BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/<?=$arParams["RATING_TYPE"]?>/style.css');
+		BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/<?=($arParams["RATING_TYPE"] == "like" ? $likeTemplate : $arParams["RATING_TYPE"])?>/style.css');
 		<?
 	}
 
@@ -742,6 +751,7 @@ if (
 					"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] == "Y" ? "Y" : "N"),
 					"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 					"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+					'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
 				);
 
 				if ($arParams["USE_FOLLOW"] == "Y")
@@ -800,6 +810,7 @@ if (
 					"LAZYLOAD" => "Y",
 					"FROM_LOG" => (isset($arParams["LOG_ID"]) && intval($arParams["LOG_ID"]) > 0 ? "N" : "Y"),
 					"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
+					'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false)
 				));
 
 				if ($USER->isAuthorized())
@@ -1094,6 +1105,7 @@ $formParams = array(
 	"LHE" => array(
 		"id" => "id".$arParams["FORM_ID"],
 		"documentCSS" => "body {color:#434343;}",
+		"iframeCss" => "html body {padding-left: 14px!important; font-size: 13px!important; line-height: 18px!important;}",
 		"ctrlEnterHandler" => "__logSubmitCommentForm".$arParams["UID"],
 		"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 		"fontSize" => "12px",

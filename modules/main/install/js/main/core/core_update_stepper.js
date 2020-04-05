@@ -243,7 +243,10 @@ UpdateStepper = (function() {
 			}
 			this.data = result;
 			if (steps < count && count > 0)
+			{
 				this.show(steps, count);
+				BX.onCustomEvent(window, "onStepperProgress", [this]);
+			}
 			else
 			{
 				this.hide();

@@ -1,0 +1,3 @@
+<?
+$MESS["LANDING_HOOK_GTM_PLACEHOLDER"] = "Enter ID";
+?>

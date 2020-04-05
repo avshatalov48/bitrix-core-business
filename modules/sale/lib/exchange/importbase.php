@@ -33,7 +33,10 @@ abstract class ImportBase
 	/**
 	 * @return string
 	 */
-    abstract public static function getFieldExternalId();
+	static public function getFieldExternalId()
+	{
+		throw new Main\NotImplementedException('The method is not implemented.');
+	}
 
 	/**
 	 * @return Sale\Internals\Entity $entity|ImportBase|null
@@ -166,6 +169,25 @@ abstract class ImportBase
      */
     abstract public function refreshData(array $fields);
 
+	/**
+	 * @return array
+	 */
+	protected function getFieldsTraits()
+	{
+		$entity = $this->getEntity();
+		return $entity->getFieldValues();
+	}
+
+	abstract public function initFields();
+
+	/**
+	 * @param $fields
+	 */
+	public function initFieldsFromArray($fields)
+	{
+		$this->setFields($fields);
+	}
+
     /**
      * @param ISettings $settings
      */
@@ -292,5 +314,101 @@ abstract class ImportBase
 	public function hasLogging()
 	{
 		return $this->logging;
+	}
+
+	/**
+	 * @return array|null
+	 * @deprecated
+	 */
+	static private function getSaleExport()
+	{
+		static $exportProfiles = null;
+
+		if($exportProfiles === null)
+		{
+			$exportProfiles = \CSaleExport::getSaleExport();
+		}
+		return $exportProfiles;
+
+	}
+
+	/**
+	 * @param Sale\Order $order
+	 * @return array
+	 * @deprecated
+	 */
+	static public function getBusinessValue(\Bitrix\Sale\IBusinessValueProvider $entity)
+	{
+		$order = static::getBusinessValueOrderProvider($entity);
+
+		$orderFields = $order->getFieldValues();
+		$paymentList = array();
+		$shipmentList = array();
+
+		if($paymentCollection = $order->getPaymentCollection())
+		{
+			/** @var Sale\Payment $payment */
+			foreach ($paymentCollection as $payment)
+			{
+				$paymentList[$payment->getId()] = $payment->getPaymentSystemName();
+			}
+		}
+		if($shipmentCollection = $order->getShipmentCollection())
+		{
+			/** @var Sale\Shipment $shipment */
+			foreach ($shipmentCollection as $shipment)
+			{
+				$shipmentList[$shipment->getId()] = $shipment->getDeliveryName();
+			}
+		}
+
+		$arProp = \CSaleExport::prepareSaleProperty(
+			$orderFields,
+			false,
+			false,
+			$paymentList,
+			$shipmentList,
+			$locationStreetPropertyValue
+		);
+
+		$exportProfiles = static::getSaleExport();
+		$exportProfile = (array_key_exists($order->getPersonTypeId(), $exportProfiles) ? $exportProfiles[$order->getPersonTypeId()]: array());
+
+		$properties = \CSaleExport::prepareSalePropertyRekv(
+			$entity,
+			$exportProfile,
+			$arProp,
+			$locationStreetPropertyValue
+		);
+		$properties['REKV'] = static::modifyRekv($properties['REKV'], $exportProfile);
+
+		return $properties;
+	}
+
+	/**
+	 * @param $rekv
+	 * @param array $exportProfile
+	 * @return array
+	 */
+	static private function modifyRekv($rekv, array $exportProfile)
+	{
+		$result = array();
+		foreach ($rekv as $k=>$v)
+		{
+			if(isset($exportProfile[$k]) && strlen($exportProfile[$k]['NAME'])>0 && strlen($v)>0)
+			{
+				$result[$exportProfile[$k]['NAME']] = $v;
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @param Sale\IBusinessValueProvider $entity
+	 * @return Sale\Order
+	 */
+	static protected function getBusinessValueOrderProvider(\Bitrix\Sale\IBusinessValueProvider $entity)
+	{
+		throw new Main\NotImplementedException('The method is not implemented.');
 	}
 }

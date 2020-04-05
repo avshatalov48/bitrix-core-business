@@ -1,0 +1,4 @@
+.amcharts-legend-div {
+    overflow-y: auto!important;
+    max-height: 280px;
+}

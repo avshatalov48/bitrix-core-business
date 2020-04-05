@@ -1,0 +1,41 @@
+.landing-layout-flex {
+	display:flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	flex-direction: column;
+}
+
+.landing-layout-header {
+
+}
+
+.landing-layout-content {
+
+}
+
+.landing-layout-footer {
+	
+}
+
+.landing-flex-order-0 {
+	order: 0;
+}
+
+.landing-flex-order-1 {
+	order: 1;
+}
+
+@media (min-width: 1000px) {
+
+	.landing-layout-flex {
+		flex-direction: row;
+	}
+
+	.g-width-25x--lg {
+		width: 25% !important;
+	}
+
+	.g-width-75x--lg {
+		width: 75% !important;
+	}
+}

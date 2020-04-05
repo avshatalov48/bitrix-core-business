@@ -235,11 +235,15 @@ class Base
 		if (empty($this->uf_id))
 		{
 			// try to find ENTITY_ID by map
-			$entityList = Main\Application::getUserTypeManager()->getEntityList();
-			$ufId = is_array($entityList) ? array_search($this->className, $entityList) : false;
-			if ($ufId !== false)
+			$userTypeManager = Main\Application::getUserTypeManager();
+			if($userTypeManager)
 			{
-				$this->uf_id = $ufId;
+				$entityList = $userTypeManager->getEntityList();
+				$ufId = is_array($entityList) ? array_search($this->className, $entityList) : false;
+				if ($ufId !== false)
+				{
+					$this->uf_id = $ufId;
+				}
 			}
 		}
 

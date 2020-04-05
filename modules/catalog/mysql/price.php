@@ -4,56 +4,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/price.ph
 
 class CPrice extends CAllPrice
 {
-	public static function Add($arFields, $boolRecalc = false)
-	{
-		global $DB;
-
-		$boolBase = false;
-		$arFields['RECALC'] = ($boolRecalc === true);
-
-		foreach (GetModuleEvents("catalog", "OnBeforePriceAdd", true) as $arEvent)
-		{
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
-		}
-
-		if (!CPrice::CheckFields("ADD", $arFields, 0))
-			return false;
-
-		if (isset($arFields['RECALC']) && $arFields['RECALC'] === true)
-		{
-			CPrice::ReCountFromBase($arFields, $boolBase);
-			if (!$boolBase && $arFields['EXTRA_ID'] <= 0)
-			{
-				return false;
-			}
-		}
-
-		$arInsert = $DB->PrepareInsert("b_catalog_price", $arFields);
-
-		$strSql = "INSERT INTO b_catalog_price(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		$ID = (int)$DB->LastID();
-
-		if ($ID > 0 && $boolBase)
-		{
-			CPrice::ReCountForBase($arFields);
-		}
-
-		foreach (GetModuleEvents("catalog", "OnPriceAdd", true) as $arEvent)
-		{
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-		}
-
-		// strange copy-paste bug
-		foreach (GetModuleEvents("sale", "OnPriceAdd", true) as $arEvent)
-		{
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-		}
-
-		return $ID;
-	}
-
 	/**
 	 * @param array $arOrder
 	 * @param array $arFilter
@@ -65,6 +15,8 @@ class CPrice extends CAllPrice
 	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB, $USER;
+
+		$entityResult = new CCatalogResult('\Bitrix\Catalog\Model\Price');
 
 		// for old execution style
 		if (!is_array($arOrder) && !is_array($arFilter))
@@ -115,6 +67,8 @@ class CPrice extends CAllPrice
 			"TYPE" => "char",
 			"FROM" => "LEFT JOIN b_catalog_group2group CGG1 ON (P.CATALOG_GROUP_ID = CGG1.CATALOG_GROUP_ID AND CGG1.GROUP_ID IN (".$strUserGroups.") AND CGG1.BUY = 'Y')"
 		);
+
+		$arSelectFields = $entityResult->prepareSelect($arSelectFields);
 
 		$arSqls = CCatalog::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 
@@ -181,7 +135,9 @@ class CPrice extends CAllPrice
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$entityResult->setResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+
+			$dbRes = $entityResult;
 		}
 
 		return $dbRes;
@@ -198,6 +154,8 @@ class CPrice extends CAllPrice
 	public static function GetListEx($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
+
+		$entityResult = new CCatalogResult('\Bitrix\Catalog\Model\Price');
 
 		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "PRODUCT_ID", "EXTRA_ID", "CATALOG_GROUP_ID", "PRICE", "CURRENCY", "TIMESTAMP_X", "QUANTITY_FROM", "QUANTITY_TO", "TMP_ID");
@@ -229,6 +187,8 @@ class CPrice extends CAllPrice
 			"GROUP_GROUP_ID" => array("FIELD" => "CGG.GROUP_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_group2group CGG ON (P.CATALOG_GROUP_ID = CGG.CATALOG_GROUP_ID)"),
 			"GROUP_BUY" => array("FIELD" => "CGG.BUY", "TYPE" => "char", "FROM" => "INNER JOIN b_catalog_group2group CGG ON (P.CATALOG_GROUP_ID = CGG.CATALOG_GROUP_ID)")
 		);
+
+		$arSelectFields = $entityResult->prepareSelect($arSelectFields);
 
 		$arSqls = CCatalog::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 
@@ -292,7 +252,9 @@ class CPrice extends CAllPrice
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$entityResult->setResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+
+			$dbRes = $entityResult;
 		}
 
 		return $dbRes;

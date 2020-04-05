@@ -215,6 +215,10 @@ BX.Kanban.DropZoneArea.prototype =
 
 	hide: function()
 	{
+		this.getDropZones().forEach(function(/*BX.Kanban.DropZone*/dropZone) {
+			dropZone.unsetActive();
+		});
+
 		this.getContainer().classList.remove("main-kanban-dropzone-show");
 	},
 

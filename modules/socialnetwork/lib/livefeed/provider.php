@@ -651,6 +651,15 @@ abstract class Provider
 			$params = array();
 		}
 
+		if (
+			!isset($params["user_id"])
+			&& is_object($USER)
+			&& isset($_SESSION["SONET_ADMIN"])
+		) // don't track users on God Mode
+		{
+			return false;
+		}
+
 		$userId = (
 			isset($params["user_id"])
 			&& intval($params["user_id"]) > 0

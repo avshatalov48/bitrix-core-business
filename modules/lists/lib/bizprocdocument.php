@@ -1502,6 +1502,11 @@ class BizprocDocument extends CIBlockDocument
 		if (strlen($documentId) <= 0)
 			return false;
 
+		if (self::isAdmin())
+		{
+			return true;
+		}
+
 		if (!array_key_exists("IBlockId", $parameters)
 			&& (
 				!array_key_exists("IBlockPermission", $parameters)
@@ -1698,6 +1703,11 @@ class BizprocDocument extends CIBlockDocument
 		if (strlen($documentType) <= 0)
 			return false;
 
+		if (self::isAdmin())
+		{
+			return true;
+		}
+
 		if(is_numeric($documentType))
 			$parameters["IBlockId"] = intval($documentType);
 		else
@@ -1853,6 +1863,20 @@ class BizprocDocument extends CIBlockDocument
 		}
 
 		return $r;
+	}
+
+	protected function isAdmin()
+	{
+		global $USER;
+		if (is_object($USER) && $USER->IsAuthorized())
+		{
+			if ($USER->IsAdmin() || CModule::IncludeModule("bitrix24") && CBitrix24::IsPortalAdmin($USER->GetID()))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

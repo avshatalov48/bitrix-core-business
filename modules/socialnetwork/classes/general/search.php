@@ -152,7 +152,7 @@ class CSocNetSearch
 		}
 	}
 
-	function GetSearchParams($entity_type, $entity_id, $feature, $operation)
+	public static function GetSearchParams($entity_type, $entity_id, $feature, $operation)
 	{
 		return array(
 			"feature_id" => "S".$entity_type."_".$entity_id."_".$feature."_".$operation,
@@ -160,7 +160,7 @@ class CSocNetSearch
 		);
 	}
 
-	function GetSearchGroups($entity_type, $entity_id, $feature, $operation)
+	public static function GetSearchGroups($entity_type, $entity_id, $feature, $operation)
 	{
 		$arResult = array();
 

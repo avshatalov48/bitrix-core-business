@@ -2009,6 +2009,7 @@ class CUpdateClientPartner
 		CUpdateClientPartner::AddMessage2Log("exec CUpdateClientPartner::GetHTTPPage");
 
 		$ServerIP = COption::GetOptionString("main", "update_site", DEFAULT_UPDATE_SERVER);
+//		$ServerIP = 'www.1c-bitrix.ru';
 		$ServerPort = 80;
 
 		$proxyAddr = COption::GetOptionString("main", "update_site_proxy_addr", "");
@@ -2030,6 +2031,8 @@ class CUpdateClientPartner
 			$page = "smp_updater_register.php";
 		elseif ($page == "ACTIV")
 			$page = "us_updater_actions.php";
+		elseif ($page == "SEARCH_NEW")
+			$page = "smp_updater_search_new.php";
 
 		$strVars .= "&product=".(IsModuleInstalled("intranet") ? "CORPORTAL" : "BSM")."&verfix=2";
 
@@ -2158,6 +2161,7 @@ class CUpdateClientPartner
 		//CUpdateClientPartner::AddMessage2Log($content, "!1!");
 
 		//echo "content:<br>".$content."<br><br>";
+
 		return $content;
 	}
 

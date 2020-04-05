@@ -63,7 +63,7 @@
 
 			// ajax query
 			var queryData = this.getFilterQueryData();
-			queryData.action = 'get_data';
+			queryData.action = 'getData';
 			queryData.sessid = BX.bitrix_sessid();
 			BX.ajax({
 				url: this.filterUrl,
@@ -124,8 +124,11 @@
 	{
 		this.load = function (params)
 		{
+			this.nameTemplate = params.nameTemplate;
+			this.pathToUserProfile = params.pathToUserProfile;
+			this.actionUrl = params.actionUrl;
 			this.instance = new BX.Sender.Statistics();
-			this.instance.filterUrl = '/bitrix/admin/sender_mailing_stat.php';
+			this.instance.filterUrl = this.actionUrl;
 			this.instance.addBlocks(this.getBlocks(params));
 			this.instance.addFilters(this.getFilters(params));
 			this.instance.init(params);
@@ -133,7 +136,7 @@
 
 		this.getBlocks = function (params)
 		{
-			return ['Counters', 'ClickMap', 'ReadByTime'];
+			return ['Counters', 'ClickMap'/*, 'ReadByTime'*/];
 		};
 
 		this.getFilters = function (params)
@@ -162,10 +165,10 @@
 
 			return [
 				{
-					name: 'chainId',
+					name: 'letterId',
 					value: params.chainId,
 					node: BX('sender_stat_filter_chain_id'),
-					items: popupItems
+					items: []//popupItems
 				},
 				{
 					name: 'mailingId',
@@ -528,8 +531,11 @@
 		{
 			this.linkParams = params.posting.linkParams || '';
 			this.clickList = params.clickList;
+
 			this.frameNode = this.context.querySelector('[data-bx-click-map]');
 			BX.bind(this.frameNode, 'load',  BX.proxy(this.draw, this));
+
+			this.ajaxAction = new BX.AjaxAction(this.caller.filterUrl);
 
 			this.isNodeReloaded = false;
 			this.onScroll();
@@ -552,11 +558,10 @@
 		{
 			this.fadeOut();
 
-			var source = this.caller.filterUrl;
-			source += '?action=get_template&ID=' + this.caller.getFilter('chainId').value;
-			source += '&sessid=' + BX.bitrix_sessid();
-			source += '&r=' + 1*(new Date());
-			this.frameNode.src = source;
+			this.frameNode.src = this.ajaxAction.getRequestingUri('getClickMap', {
+				'lang': '',
+				'letterId': this.caller.getFilter('letterId').value
+			});
 			this.isNodeReloaded = true;
 		},
 		loadData: function (data)
@@ -739,22 +744,19 @@
 
 			this.requestData();
 		},
-
 		requestData: function ()
 		{
 			this.fadeOut();
 			this.isNodeReloaded = true;
-			BX.ajax({
-				url: this.caller.filterUrl,
-				method: 'POST',
-				data: {
-					chainId: this.caller.getFilter('chainId').value,
-					action: 'get_read_by_time',
-					sessid: BX.bitrix_sessid()
+
+			this.ajaxAction = new BX.AjaxAction(this.caller.filterUrl);
+			this.ajaxAction.request({
+				'action': 'getReadByTime',
+				'data': {
+					'letterId': this.caller.getFilter('letterId').value
 				},
-				dataType: 'json',
-				onsuccess: BX.proxy(function (data){
-					this.readByTimeList = data.readingByTimeList;
+				'onsuccess': BX.proxy(function (response) {
+					this.readByTimeList = response.readingByTimeList;
 					this.draw();
 				}, this)
 			});

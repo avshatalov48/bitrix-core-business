@@ -33,6 +33,9 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			'DOCUMENT_TYPE' => array(
 				'data_type' => 'string'
 			),
+			'DOCUMENT_STATUS' => array(
+				'data_type' => 'string'
+			),
 			'AUTO_EXECUTE' => array(
 				'data_type' => 'integer'
 			),
@@ -43,16 +46,20 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 				'data_type' => 'string'
 			),
 			'TEMPLATE' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'fetch_data_modification' => array(__CLASS__, "getFetchModificatorsForTemplateField"),
 			),
 			'PARAMETERS' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'fetch_data_modification' => array(__CLASS__, "getFetchModificatorsForParametersField"),
 			),
 			'VARIABLES' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'fetch_data_modification' => array(__CLASS__, "getFetchModificatorsForVariablesField"),
 			),
 			'CONSTANTS' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'fetch_data_modification' => array(__CLASS__, "getFetchModificatorsForConstantsField"),
 			),
 			'MODIFIED' => array(
 				'data_type' => 'datetime'
@@ -81,6 +88,74 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 		);
 	}
 
+	/**
+	 * @return array
+	 */
+	public static function getFetchModificatorsForTemplateField()
+	{
+		return array(
+			array(__CLASS__, "getFromSerializedForm"),
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getFetchModificatorsForParametersField()
+	{
+		return array(
+			array(__CLASS__, "getFromSerializedForm"),
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getFetchModificatorsForVariablesField()
+	{
+		return array(
+			array(__CLASS__, "getFromSerializedForm"),
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getFetchModificatorsForConstantsField()
+	{
+		return array(
+			array(__CLASS__, "getFromSerializedForm"),
+		);
+	}
+
+	public static function getFromSerializedForm($value)
+	{
+		static $useCompression;
+		if ($useCompression === null)
+		{
+			$useCompression = \CBPWorkflowTemplateLoader::useGZipCompression();
+		}
+
+		if (strlen($value) > 0)
+		{
+			if ($useCompression)
+			{
+				$value1 = @gzuncompress($value);
+				if ($value1 !== false)
+					$value = $value1;
+			}
+
+			$value = unserialize($value);
+			if (!is_array($value))
+				$value = array();
+		}
+		else
+		{
+			$value = array();
+		}
+		return $value;
+	}
+
 	/** @inheritdoc */
 	public static function add(array $data)
 	{
@@ -98,5 +173,4 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 	{
 		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
 	}
-
 }

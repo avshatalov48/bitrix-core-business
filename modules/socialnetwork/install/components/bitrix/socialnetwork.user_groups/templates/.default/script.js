@@ -652,7 +652,7 @@ BitrixSUG.prototype.processNavigation = function()
 	for (var i = 0; i < anchorsList.length; i++)
 	{
 		BX.bind(anchorsList[i], 'click', BX.delegate(function(e) {
-			var link = e.target.href;
+			var link = e.currentTarget.href;
 
 			if (
 				link

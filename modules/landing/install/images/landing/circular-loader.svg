@@ -1,0 +1,50 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="intranet-loader-circular" viewBox="25 25 50 50">
+	<circle id="cirkular-loader"
+            stroke-dasharray="50, 130"
+			stroke-dashoffset="0"
+			stroke-width="1.5"
+			stroke="#BFC3C8"
+			cx="50"
+			cy="50"
+			r="20"
+			fill="none"
+            transform ="rotate(0)"
+	/>
+
+	<animate
+		xlink:href="#cirkular-loader"
+		attributeName="stroke-dasharray"
+		dur="1.5s"
+		repeatCount="indefinite"
+		values="1,130; 89,130; 89,130;"
+		keyTimes="0; .5; 1"
+		keySplines="0.42,0,0.42,1; 0.42,0,0.42,1; 0.42,0,0.42,1;"
+		id="dasharray"
+	/>
+	<animate
+		xlink:href="#cirkular-loader"
+		attributeName="stroke-dashoffset"
+		dur="1.5s"
+		repeatCount="indefinite"
+		values="0; -35; -124"
+		keyTimes="0; 0.5; 1"
+		keySplines="0.42,0,0.42,1; 0.42,0,0.42,1; 0.42,0,0.42,1;"
+	/>
+	<animateTransform
+		xlink:href="#cirkular-loader"
+        attributeName="transform"
+        attributeType="XML"
+        dur="2s"
+        type="rotate"
+        from="0 0 0"
+        to="360 0 0"
+        repeatCount="indefinite"
+	/>
+
+    <style>
+        circle {
+            transform-origin: 50% 50%;
+            -moz-transform-origin: 50px 50px;
+        }
+    </style>
+</svg>

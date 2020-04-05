@@ -135,7 +135,7 @@ class SaleProductsGiftComponent extends ElementList
 			));
 
 			$collections = $this->giftManager->getCollectionsByProduct(
-				\Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), SITE_ID), $potentialBuy
+				\Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId()), $potentialBuy
 			);
 		}
 

@@ -503,9 +503,9 @@ class CUserCounter extends CAllUserCounter
 	}
 
 	// legacy function
-	public static function ClearByUser($user_id, $site_id = SITE_ID, $code = self::ALL_SITES, $bMultiple = false)
+	public static function ClearByUser($user_id, $site_id = SITE_ID, $code = self::ALL_SITES, $bMultiple = false, $sendPull = true)
 	{
-		return self::Clear($user_id, $code, $site_id, true, $bMultiple);
+		return self::Clear($user_id, $code, $site_id, $sendPull, $bMultiple);
 	}
 }
 

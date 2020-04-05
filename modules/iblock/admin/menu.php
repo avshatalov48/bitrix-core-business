@@ -453,7 +453,10 @@ else
 		$bHasSRight = true;
 	}
 
-	$rsIBlocks = CIBlock::GetList(array("SORT"=>"asc", "NAME"=>"ASC"), array("OPERATION" => "iblock_export"));
+	$rsIBlocks = CIBlock::GetList(array("SORT"=>"asc", "NAME"=>"ASC"), array(
+		"MIN_PERMISSION" => "X",
+		"OPERATION" => "iblock_export",
+	));
 	while($arIBlock = $rsIBlocks->Fetch())
 	{
 		if(!$arIBlock["ELEMENTS_NAME"])

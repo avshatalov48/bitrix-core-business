@@ -884,7 +884,9 @@ abstract class CBPActivity
 		$arUsedActivities = explode(",", $strUsedActivities);
 
 		foreach ($arUsedActivities as $activityCode)
+		{
 			$runtime->IncludeActivityFile($activityCode);
+		}
 
 		return unserialize($stream);
 	}
@@ -900,21 +902,25 @@ abstract class CBPActivity
 		foreach ($arT as $t)
 		{
 			if (!in_array($t, $arUsedActivities))
+			{
 				$arUsedActivities[] = $t;
+			}
 		}
 
 		if ($arNestedActivities = $activity->CollectNestedActivities())
 		{
 			foreach ($arNestedActivities as $nestedActivity)
+			{
 				self::SearchUsedActivities($nestedActivity, $arUsedActivities);
+			}
 		}
 	}
 
 	public function Save()
 	{
-		$arUsedActivities = array();
-		self::SearchUsedActivities($this, $arUsedActivities);
-		$strUsedActivities = implode(",", $arUsedActivities);
+		$usedActivities = [];
+		self::SearchUsedActivities($this, $usedActivities);
+		$strUsedActivities = implode(",", $usedActivities);
 		return $strUsedActivities.";".serialize($this);
 	}
 
@@ -1082,9 +1088,6 @@ abstract class CBPActivity
 				$trackingService = $this->workflow->GetService("TrackingService");
 				$trackingService->Write($this->GetWorkflowInstanceId(), CBPTrackingType::CloseActivity, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""));
 				$this->SetStatus(CBPActivityExecutionStatus::Closed, $arEventParameters);
-
-				//if ($this->parent)
-				//	$this->workflow->SetCurrentActivity($this->parent);
 
 				return;
 			}

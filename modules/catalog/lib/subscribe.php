@@ -299,7 +299,7 @@ class SubscribeTable extends Entity\DataManager
 	}
 
 	/**
-	 * @deprecated deprecated since catalog 17.5.5
+	 * @deprecated deprecated since catalog 17.6.0
 	 * Method for send a notification to subscribers about positive change available.
 	 *
 	 * @param integer $productId Id product.

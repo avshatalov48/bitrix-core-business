@@ -428,6 +428,11 @@
 	background-color: #ffffff;
 	padding-right: 0;
 }
+
+.feed-com-add-block .urlpreview.urlpreview__edit {
+	padding: 0 13px 12px 18px;
+}
+
 .feed-add-post-form-but-wrap:empty{
 	display: none;
 }
@@ -437,13 +442,13 @@
 	display: inline-block;
 	margin-right: 15px;
 	height: 25px;
-	opacity: 0.5;
+	opacity: 0.35;
 	width: 25px;
 	position: relative;
 }
 
 .feed-add-post-form-but:hover {
-	opacity: 1;
+	opacity: .85;
 }
 
 .feed-add-file {
@@ -508,7 +513,7 @@
 	background-repeat: no-repeat !important;
 	display: inline-block;
 	margin: 0 15px 0 0 !important;
-	opacity: 0.5;
+	opacity: 0.35;
 	filter: alpha(opacity=50);
 	width: 25px;
 	height: 25px;
@@ -519,7 +524,7 @@
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn:hover {
-	opacity: 1;
+	opacity: .7;
 }
 
 .feed-add-post-form-but-cnt .bxhtmled-top-bar-btn-disabled {
@@ -586,7 +591,8 @@
 }
 
 .feed-add-post-form-but-more-open {
-	right: 10px;
+	/*right: 10px;*/
+	right: 7px;
 	top: 3px;
 	position: absolute;
 }

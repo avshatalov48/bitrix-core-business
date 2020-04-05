@@ -255,7 +255,12 @@ abstract class CAllUser extends CDBResult
 				else
 				{
 					//Delete invalid stored auth cookie
-					$APPLICATION->set_cookie("UIDH", "", 0, '/', false, false, COption::GetOptionString("main", "auth_multisite", "N")=="Y", false, true);
+					$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
+
+					$cookie = new Main\Web\Cookie("UIDH", "", 0);
+					$cookie->setSpread($spread);
+					$cookie->setHttpOnly(true);
+					Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 				}
 			}
 			if(!$bFound)
@@ -623,21 +628,37 @@ abstract class CAllUser extends CDBResult
 
 				if($applicationId === null && ($bSave || COption::GetOptionString("main", "auth_multisite", "N") == "Y"))
 				{
+					$response = Main\Context::getCurrent()->getResponse();
+
 					$hash = $this->GetSessionHash();
 					$secure = (COption::GetOptionString("main", "use_secure_password_cookies", "N")=="Y" && CMain::IsHTTPS());
 
 					if($bSave)
 					{
 						$period = time()+60*60*24*30*60;
-						$spread = BX_SPREAD_SITES | BX_SPREAD_DOMAIN;
+						$spread = Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN;
 					}
 					else
 					{
 						$period = 0;
-						$spread = BX_SPREAD_SITES;
+						$spread = Main\Web\Cookie::SPREAD_SITES;
 					}
-					$APPLICATION->set_cookie("UIDH", $hash, $period, '/', false, $secure, $spread, false, true);
-					$APPLICATION->set_cookie("UIDL", $arUser["LOGIN"], $period, '/', false, $secure, $spread, false, true);
+
+					$cookie = new Bitrix\Main\Web\Cookie("UIDH", $hash, $period);
+
+					$cookie->setSecure($secure)
+						->setSpread($spread)
+						->setHttpOnly(true);
+
+					$response->addCookie($cookie);
+
+					$cookie = new Bitrix\Main\Web\Cookie("UIDL", $arUser["LOGIN"], $period);
+
+					$cookie->setSecure($secure)
+						->setSpread($spread)
+						->setHttpOnly(true);
+
+					$response->addCookie($cookie);
 
 					$stored_id = CUser::CheckStoredHash($arUser["ID"], $hash);
 					if($stored_id)
@@ -721,11 +742,16 @@ abstract class CAllUser extends CDBResult
 
 		$hash = $this->GetSessionHash();
 		$time = time()+60*60*24*30*60;
-		$secure = 0;
-		if(COption::GetOptionString("main", "use_secure_password_cookies", "N")=="Y" && CMain::IsHTTPS())
-			$secure=1;
+		$secure = (COption::GetOptionString("main", "use_secure_password_cookies", "N")=="Y" && CMain::IsHTTPS());
+		$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
 
-		$APPLICATION->set_cookie("UIDH", $hash, $time, '/', false, $secure, COption::GetOptionString("main", "auth_multisite", "N")=="Y");
+		$cookie = new Main\Web\Cookie("UIDH", $hash, $time);
+
+		$cookie->setSpread($spread)
+			->setSecure($secure)
+			->setHttpOnly(true);
+
+		Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 	}
 
 	/**
@@ -999,7 +1025,8 @@ abstract class CAllUser extends CDBResult
 			if($applicationId === null && $arParams["LOGIN"] <> '')
 			{
 				//the cookie is for authentication forms mostly, does not make sense for applications
-				$APPLICATION->set_cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*60, '/', false, false, COption::GetOptionString("main", "auth_multisite", "N")=="Y");
+				$cookie = new Bitrix\Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*60);
+				Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 			}
 		}
 
@@ -1112,7 +1139,7 @@ abstract class CAllUser extends CDBResult
 		return false;
 	}
 
-	public function ChangePassword($LOGIN, $CHECKWORD, $PASSWORD, $CONFIRM_PASSWORD, $SITE_ID=false, $captcha_word = "", $captcha_sid = 0)
+	public function ChangePassword($LOGIN, $CHECKWORD, $PASSWORD, $CONFIRM_PASSWORD, $SITE_ID=false, $captcha_word = "", $captcha_sid = 0, $authActions = true)
 	{
 		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
@@ -1201,7 +1228,7 @@ abstract class CAllUser extends CDBResult
 			// change the password
 			$ID = $res["ID"];
 			$obUser = new CUser;
-			$res = $obUser->Update($ID, array("PASSWORD"=>$arParams["PASSWORD"]));
+			$res = $obUser->Update($ID, array("PASSWORD"=>$arParams["PASSWORD"]), $authActions);
 			if(!$res && $obUser->LAST_ERROR <> '')
 				return array("MESSAGE"=>$obUser->LAST_ERROR."<br>", "TYPE"=>"ERROR");
 			CUser::SendUserInfo($ID, $arParams["SITE_ID"], GetMessage('CHANGE_PASS_SUCC'), true, 'USER_PASS_CHANGED');
@@ -1794,9 +1821,18 @@ abstract class CAllUser extends CDBResult
 			else
 				session_regenerate_id(true);
 
-			$multi = (COption::GetOptionString("main", "auth_multisite", "N") == "Y");
-			$APPLICATION->set_cookie("UIDH", "", 0, '/', false, false, $multi, false, true);
-			$APPLICATION->set_cookie("UIDL", "", 0, '/', false, false, $multi, false, true);
+			$response = Main\Context::getCurrent()->getResponse();
+			$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
+
+			$cookie = new Main\Web\Cookie("UIDH",  "", 0);
+			$cookie->setSpread($spread);
+			$cookie->setHttpOnly(true);
+			$response->addCookie($cookie);
+
+			$cookie = new Main\Web\Cookie("UIDL",  "", 0);
+			$cookie->setSpread($spread);
+			$cookie->setHttpOnly(true);
+			$response->addCookie($cookie);
 
 			Main\Composite\Engine::onUserLogout();
 		}
@@ -3090,12 +3126,12 @@ abstract class CAllUser extends CDBResult
 			$_SESSION['SESS_AUTH']['SET_LAST_ACTIVITY'] = time();
 		}
 
-		self::SetLastActivityDateByArray(array($userId));
+		self::SetLastActivityDateByArray(array($userId), $_SERVER['REMOTE_ADDR']);
 
 		return true;
 	}
 
-	public static function SetLastActivityDateByArray($arUsers)
+	public static function SetLastActivityDateByArray($arUsers, $ip = null)
 	{
 		global $DB;
 
@@ -3125,7 +3161,7 @@ abstract class CAllUser extends CDBResult
 			$DB->Query($strSqlPrefix.substr($strSqlValues, 1).$strSqlPostfix, false, "", array("ignore_dml"=>true));
 		}
 
-		$event = new \Bitrix\Main\Event("main", "OnUserSetLastActivityDate", array($arUsers));
+		$event = new \Bitrix\Main\Event("main", "OnUserSetLastActivityDate", array($arUsers, $ip));
 		$event->send();
 
 		return true;

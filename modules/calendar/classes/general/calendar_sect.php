@@ -1048,11 +1048,20 @@ class CCalendarSect
 				$period = 'RRULE:FREQ='.$rrule['FREQ'].';';
 				$period .= 'INTERVAL='.$rrule['INTERVAL'].';';
 				if ($rrule['FREQ'] == 'WEEKLY')
+				{
 					$period .= 'BYDAY='.implode(',', $rrule['BYDAY']).';';
+				}
 
-				$until = date("Ymd", $event['DATE_TO_TS_UTC']);
-				if ($until != '20380101')
-					$period .= 'UNTIL='.$until.';';
+				if (isset($rrule['COUNT']) && intval($rrule['COUNT']) > 0)
+				{
+					$period .= 'COUNT='.intval($rrule['COUNT']).';';
+				}
+				else
+				{
+					$until = date("Ymd", $event['DATE_TO_TS_UTC']);
+					if($until != '20380101')
+						$period .= 'UNTIL='.$until.';';
+				}
 				$period .= 'WKST=MO';
 				$period .= "\n";
 			}

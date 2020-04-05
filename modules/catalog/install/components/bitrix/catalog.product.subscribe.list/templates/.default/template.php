@@ -23,8 +23,9 @@ if(!$arResult['USER_ID'] && !isset($arParams['GUEST_ACCESS'])):?>
 		$identificationStyle = 'display: block;';
 	}
 	?>
+
 	<div class="row">
-		<div class="col-md-8 col-sm-7">
+		<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
 			<div class="alert alert-danger"><?=Loc::getMessage('CPSL_SUBSCRIBE_PAGE_TITLE_AUTHORIZE')?></div>
 		</div>
 		<? $authListGetParams = array(); ?>
@@ -32,66 +33,79 @@ if(!$arResult['USER_ID'] && !isset($arParams['GUEST_ACCESS'])):?>
 			<?$APPLICATION->authForm('', false, false, 'N', false);?>
 			<hr class="bxe-light">
 		</div>
-		<?$APPLICATION->setTitle(Loc::getMessage('CPSL_TITLE_PAGE_WHEN_ACCESSING'));?>
-		<div id="catalog-subscriber-identification-form" style="<?=$identificationStyle?>">
-		<div class="col-md-8 col-sm-7 catalog-subscriber-identification-form">
-			<h4><?=Loc::getMessage('CPSL_HEADLINE_FORM_SEND_CODE')?></h4>
-			<hr class="bxe-light">
-			<form method="post">
-				<?=bitrix_sessid_post()?>
-				<input type="hidden" name="siteId" value="<?=SITE_ID?>">
-				<?if($contactTypeCount > 1):?>
-					<div class="form-group">
-						<label for="contactType"><?=Loc::getMessage('CPSL_CONTACT_TYPE_SELECTION')?></label>
-						<select id="contactType" class="form-control" name="contactType">
-							<?foreach($arResult['CONTACT_TYPES'] as $contactTypeData):?>
-								<option value="<?=intval($contactTypeData['ID'])?>">
-									<?=htmlspecialcharsbx($contactTypeData['NAME'])?></option>
-							<?endforeach;?>
-						</select>
-					</div>
-				<?endif;?>
-				<div class="form-group">
-					<?
-						$contactLable = Loc::getMessage('CPSL_CONTACT_TYPE_NAME');
-						$contactTypeId = 0;
-						if($contactTypeCount == 1)
-						{
-							$contactType = current($arResult['CONTACT_TYPES']);
-							$contactLable = $contactType['NAME'];
-							$contactTypeId = $contactType['ID'];
-						}
-					?>
-					<label for="contactInputOut"><?=htmlspecialcharsbx($contactLable)?></label>
-					<input type="text" class="form-control" name="userContact" id="contactInputOut">
-					<input type="hidden" name="subscriberIdentification" value="Y">
-					<?if($contactTypeId):?>
-						<input type="hidden" name="contactType" value="<?=$contactTypeId?>">
-					<?endif;?>
+	</div>
+
+	<?$APPLICATION->setTitle(Loc::getMessage('CPSL_TITLE_PAGE_WHEN_ACCESSING'));?>
+
+
+	<div class="row" id="catalog-subscriber-identification-form" style="<?=$identificationStyle?>">
+		<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+
+			<div class="row">
+				<div class="col-lg-12 catalog-subscriber-identification-form">
+					<h4><?=Loc::getMessage('CPSL_HEADLINE_FORM_SEND_CODE')?></h4>
+					<hr class="bxe-light">
+					<form method="post">
+						<?=bitrix_sessid_post()?>
+						<input type="hidden" name="siteId" value="<?=SITE_ID?>">
+						<?if($contactTypeCount > 1):?>
+							<div class="form-group">
+								<label for="contactType"><?=Loc::getMessage('CPSL_CONTACT_TYPE_SELECTION')?></label>
+								<select id="contactType" class="form-control" name="contactType">
+									<?foreach($arResult['CONTACT_TYPES'] as $contactTypeData):?>
+										<option value="<?=intval($contactTypeData['ID'])?>">
+											<?=htmlspecialcharsbx($contactTypeData['NAME'])?></option>
+									<?endforeach;?>
+								</select>
+							</div>
+						<?endif;?>
+						<div class="form-group">
+							<?
+								$contactLable = Loc::getMessage('CPSL_CONTACT_TYPE_NAME');
+								$contactTypeId = 0;
+								if($contactTypeCount == 1)
+								{
+									$contactType = current($arResult['CONTACT_TYPES']);
+									$contactLable = $contactType['NAME'];
+									$contactTypeId = $contactType['ID'];
+								}
+							?>
+							<label for="contactInputOut"><?=htmlspecialcharsbx($contactLable)?></label>
+							<input type="text" class="form-control" name="userContact" id="contactInputOut">
+							<input type="hidden" name="subscriberIdentification" value="Y">
+							<?if($contactTypeId):?>
+								<input type="hidden" name="contactType" value="<?=$contactTypeId?>">
+							<?endif;?>
+						</div>
+						<button type="submit" class="btn btn-default"><?=Loc::getMessage('CPSL_BUTTON_SUBMIT_CODE')?></button>
+					</form>
 				</div>
-				<button type="submit" class="btn btn-default"><?=Loc::getMessage('CPSL_BUTTON_SUBMIT_CODE')?></button>
-			</form>
-		</div>
-		<div class="col-md-8 col-sm-7">
-			<h4><?=Loc::getMessage('CPSL_HEADLINE_FORM_FOR_ACCESSING')?></h4>
-			<hr class="bxe-light">
-			<form method="post">
-				<?=bitrix_sessid_post()?>
-				<div class="form-group">
-					<label for="contactInputCheck"><?=htmlspecialcharsbx($contactLable)?></label>
-					<input type="text" class="form-control" name="userContact" id="contactInputCheck" value=
-						"<?=!empty($_GET['contact']) ? htmlspecialcharsbx(urldecode($_GET['contact'])): ''?>">
+			</div>
+
+			<div class="row">
+				<div class="col-lg-12">
+					<h4><?=Loc::getMessage('CPSL_HEADLINE_FORM_FOR_ACCESSING')?></h4>
+					<hr class="bxe-light">
+					<form method="post">
+						<?=bitrix_sessid_post()?>
+						<div class="form-group">
+							<label for="contactInputCheck"><?=htmlspecialcharsbx($contactLable)?></label>
+							<input type="text" class="form-control" name="userContact" id="contactInputCheck" value=
+								"<?=!empty($_GET['contact']) ? htmlspecialcharsbx(urldecode($_GET['contact'])): ''?>">
+						</div>
+						<div class="form-group">
+							<label for="token"><?=Loc::getMessage('CPSL_CODE_LABLE')?></label>
+							<input type="text" class="form-control" name="subscribeToken" id="token">
+							<input type="hidden" name="accessCodeVerification" value="Y">
+						</div>
+						<button type="submit" class="btn btn-default"><?=Loc::getMessage('CPSL_BUTTON_SUBMIT_ACCESS')?></button>
+					</form>
 				</div>
-				<div class="form-group">
-					<label for="token"><?=Loc::getMessage('CPSL_CODE_LABLE')?></label>
-					<input type="text" class="form-control" name="subscribeToken" id="token">
-					<input type="hidden" name="accessCodeVerification" value="Y">
-				</div>
-				<button type="submit" class="btn btn-default"><?=Loc::getMessage('CPSL_BUTTON_SUBMIT_ACCESS')?></button>
-			</form>
-		</div>
+			</div>
+
 		</div>
 	</div>
+
 	<script type="text/javascript">
 		BX.ready(function() {
 			if(BX('cpsl-auth'))

@@ -1,0 +1,33 @@
+.landing-ui-card-field-group {
+	margin-left: 0;
+	margin-top: 0;
+	margin-right: 0;
+	margin-bottom: 26px;
+	padding: 0;
+}
+
+.landing-ui-card-field-group .landing-ui-card-header {
+	font-size: 13px;
+	color: rgba(0,0,0,.38);
+	line-height: 16px;
+	margin-bottom: 5px;
+}
+
+
+.landing-ui-card-field-group .landing-ui-card-body {
+	display: flex;
+	margin-top: 0;
+}
+
+.landing-ui-card-field-group-item .landing-ui-field-input {
+	text-align: left;
+}
+
+.landing-ui-card-field-group-item + .landing-ui-card-field-group-item .landing-ui-field-input {
+	margin-left: 4px;
+}
+
+.landing-ui-card-field-group-item .landing-ui-field-header {
+	font-size: 11px;
+	margin-bottom: 0;
+}

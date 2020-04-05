@@ -275,7 +275,8 @@
 					resizable: false,
 					lightShadow: true,
 					content: this.DOM.userListPopupWrap,
-					className: 'calendar-user-list-popup'
+					className: 'calendar-user-list-popup',
+					zIndex: 4000
 				});
 
 			this.userListPopup.setAngle({offset: 36});

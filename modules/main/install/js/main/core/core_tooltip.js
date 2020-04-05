@@ -234,6 +234,11 @@ BX.CTooltip = function(user_id, anchor, loader, rootClassName, bForceUseLoader, 
 
 		var bIE = (BX.browser.IsIE() && !BX.browser.IsIE10());
 
+		if (!BX.type.isPlainObject(this.params))
+		{
+			this.params = {};
+		}
+
 		if (null == _this.DIV && null == _this.ROOT_DIV)
 		{
 			_this.ROOT_DIV = document.body.appendChild(document.createElement('DIV'));
@@ -274,7 +279,7 @@ BX.CTooltip = function(user_id, anchor, loader, rootClassName, bForceUseLoader, 
 
 		_this.ROOT_DIV.style.left = parseInt(left) + "px";
 		_this.ROOT_DIV.style.top = parseInt(top) + "px";
-		_this.ROOT_DIV.style.zIndex = 1200;
+		_this.ROOT_DIV.style.zIndex = this.params.zIndex || 1200;
 
 		BX.bind(BX(_this.ROOT_DIV), "click", BX.eventCancelBubble);
 

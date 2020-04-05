@@ -9,7 +9,11 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Type;
+use Bitrix\Main\Type as MainType;
+
+use Bitrix\Sender\Posting\Builder as PostingBuilder;
+use Bitrix\Sender\Integration;
+
 
 Loc::loadMessages(__FILE__);
 
@@ -53,17 +57,23 @@ class PostingTable extends Entity\DataManager
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
 			'DATE_UPDATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
 			'STATUS' => array(
 				'data_type' => 'string',
 				'required' => true,
 				'default_value' => static::STATUS_NEW,
+			),
+			'DATE_SEND' => array(
+				'data_type' => 'datetime',
+			),
+			'DATE_PAUSE' => array(
+				'data_type' => 'datetime',
 			),
 			'DATE_SENT' => array(
 				'data_type' => 'datetime',
@@ -99,6 +109,10 @@ class PostingTable extends Entity\DataManager
 			'COUNT_SEND_DENY' => array(
 				'data_type' => 'integer',
 				'default_value' => 0
+			),
+			'LETTER' => array(
+				'data_type' => 'Bitrix\Sender\Internals\Model\LetterTable',
+				'reference' => array('=this.MAILING_CHAIN_ID' => 'ref.ID'),
 			),
 			'MAILING' => array(
 				'data_type' => 'Bitrix\Sender\MailingTable',
@@ -179,23 +193,33 @@ class PostingTable extends Entity\DataManager
 	 */
 	public static function addRecipient($ar, $checkDuplicate = false)
 	{
-		$ar['EMAIL'] = trim(strtolower($ar['EMAIL']));
-
 		if(!$checkDuplicate)
 		{
 			$needAdd = true;
 		}
 		else
 		{
-
-			if(!PostingRecipientTable::getRowById(array('EMAIL' => $ar['EMAIL'], 'POSTING_ID' => $ar['POSTING_ID'])))
+			$row = PostingRecipientTable::getRow(array(
+				'select' => array('ID'),
+				'filter' => array(
+					'=CONTACT_ID' => $ar['CONTACT_ID'],
+					'=POSTING_ID' => $ar['POSTING_ID']
+				)
+			));
+			if(!$row)
+			{
 				$needAdd = true;
+			}
 			else
+			{
 				$needAdd = false;
+			}
 		}
 
 		if($needAdd)
+		{
 			PostingRecipientTable::add($ar);
+		}
 	}
 
 
@@ -207,185 +231,7 @@ class PostingTable extends Entity\DataManager
 	 */
 	public static function initGroupRecipients($postingId, $checkDuplicate = true)
 	{
-		$posting = \Bitrix\Sender\PostingTable::getRowById(array('ID' => $postingId));
-		if(!$posting)
-			return false;
-
-		$checkRecipientDuplicate = $checkDuplicate;
-		if(!$checkDuplicate)
-		{
-			if($posting['STATUS'] == \Bitrix\Sender\PostingTable::STATUS_NEW)
-			{
-				$primary = array('POSTING_ID' => $postingId);
-				\Bitrix\Sender\PostingRecipientTable::delete($primary);
-				$checkRecipientDuplicate = false;
-			}
-		}
-
-		// fetch all unsubscribed emails of current mailing for excluding from recipients
-		$emailNotSendList = array();
-		$unSubEmailDb = \Bitrix\Sender\MailingSubscriptionTable::getUnSubscriptionList(array(
-			'select' => array('EMAIL' => 'CONTACT.EMAIL'),
-			'filter' => array('=MAILING_ID' => $posting['MAILING_ID'])
-		));
-		while($unSubEmail = $unSubEmailDb->fetch())
-		{
-			$emailNotSendList[] = strtolower($unSubEmail['EMAIL']);
-		}
-
-		$groupConnectorsDataCount = array();
-
-		$connection = \Bitrix\Main\Application::getConnection();
-		$conHelper = $connection->getSqlHelper();
-		$statusRecipientNone = \Bitrix\Sender\PostingRecipientTable::SEND_RESULT_NONE;
-
-		// fetch all connectors for getting emails
-		$groupConnectorList = array();
-		$groupConnectorDb = \Bitrix\Sender\MailingGroupTable::getList(array(
-			'select' => array(
-				'INCLUDE',
-				'CONNECTOR_ENDPOINT' => 'GROUP.GROUP_CONNECTOR.ENDPOINT',
-				'GROUP_ID'
-			),
-			'filter' => array(
-				'MAILING_ID' => $posting['MAILING_ID'],
-			),
-			'order' => array('INCLUDE' => 'DESC', 'GROUP_ID' => 'ASC')
-		));
-		while($group = $groupConnectorDb->fetch())
-		{
-			$groupConnectorList[] = $group;
-		}
-
-		$groupConnectorList[] = array(
-			'INCLUDE' => true,
-			'CONNECTOR_ENDPOINT' => array(
-				'FIELDS' => array('MAILING_ID' => $posting['MAILING_ID'])
-			),
-			'GROUP_ID' => null,
-			'CONNECTOR' => new \Bitrix\Sender\SenderConnectorSubscriber
-		);
-
-		foreach($groupConnectorList as $group)
-		{
-			$connector = null;
-			if(isset($group['CONNECTOR']) && is_object($group['CONNECTOR']))
-				$connector = $group['CONNECTOR'];
-			elseif(is_array($group['CONNECTOR_ENDPOINT']))
-				$connector = \Bitrix\Sender\ConnectorManager::getConnector($group['CONNECTOR_ENDPOINT']);
-
-			if(!$connector)
-				continue;
-
-			$connectorDataCount = 0;
-			$connector->setFieldValues($group['CONNECTOR_ENDPOINT']['FIELDS']);
-			$connectorDataDb = $connector->getResult();
-			while(true)
-			{
-				$emailList = array();
-				$connectorDataList = array();
-
-				$maxPart = 200;
-				while ($connectorData = $connectorDataDb->fetch())
-				{
-					// collect connectors counter of addresses
-					$connectorDataCount++;
-
-					// exclude unsubscribed addresses
-					$connectorData['EMAIL'] = trim(strtolower($connectorData['EMAIL']));
-					if (strlen($connectorData['EMAIL']) <= 0 || in_array($connectorData['EMAIL'], $emailNotSendList))
-					{
-						continue;
-					}
-
-					$emailList[] = $connectorData['EMAIL'];
-					$connectorDataList[$connectorData['EMAIL']] = $connectorData;
-
-					$maxPart--;
-					if($maxPart == 0) break;
-				}
-
-				if (empty($emailList)) break;
-
-				foreach($emailList as &$email) $email = $conHelper->forSql($email);
-				$emailListString = "'" . implode("', '", $emailList) . "'";
-
-				if ($group['INCLUDE'])
-				{
-					// add address if not exists
-					if($checkRecipientDuplicate)
-					{
-						$recipientEmailDb = $connection->query("select EMAIL from b_sender_posting_recipient where EMAIL in (".$emailListString.") and POSTING_ID=".intval($postingId));
-						while ($recipientEmail = $recipientEmailDb->fetch())
-						{
-							unset($connectorDataList[$recipientEmail['EMAIL']]);
-						}
-					}
-
-					if(!empty($connectorDataList))
-					{
-						$insertDataList = array();
-						$insertColumnNamesString = array();
-						foreach($connectorDataList as $email => $connectorData)
-						{
-							$recipientInsert = array(
-								'NAME' => "'" . $conHelper->forSql($connectorData['NAME']) . "'",
-								'EMAIL' => "'" . $conHelper->forSql($connectorData['EMAIL']) . "'",
-								'STATUS' => "'" . $statusRecipientNone . "'",
-								'POSTING_ID' => intval($postingId),
-								'USER_ID' => "NULL",
-								'FIELDS' => "NULL"
-							);
-
-							if (array_key_exists('USER_ID', $connectorData) && intval($connectorData['USER_ID']) > 0)
-							{
-								$recipientInsert['USER_ID'] = intval($connectorData['USER_ID']);
-							}
-
-							if (array_key_exists('FIELDS', $connectorData) && count($connectorData['FIELDS']) > 0)
-							{
-								$recipientInsert['FIELDS'] =  "'" . $conHelper->forSql(serialize($connectorData['FIELDS'])) . "'";
-							}
-
-							$insertColumnNamesString = implode(", ", array_keys($recipientInsert));
-							$insertColumnValuesString = implode(", ", array_values($recipientInsert));
-							$insertDataList[] = $insertColumnValuesString;
-						}
-
-						if($insertDataList && $insertColumnNamesString)
-						{
-							$insertDataListString =  implode('),(', $insertDataList);
-							$connection->query("insert into b_sender_posting_recipient(" . $insertColumnNamesString . ") values(" . $insertDataListString . ")");
-						}
-					}
-				}
-				else
-				{
-					// delete address from posting
-					$connection->query("delete from b_sender_posting_recipient where EMAIL in (".$emailListString.") and POSTING_ID=".intval($postingId));
-				}
-			}
-
-			//\Bitrix\Sender\GroupConnectorTable::update(array('ID' => $group['GROUP_CONNECTOR_ID']), array('ADDRESS_COUNT' => $connectorDataCount));
-			// collect groups counter of addresses
-			if(!empty($group['GROUP_ID']))
-			{
-				if (array_key_exists($group['GROUP_ID'], $groupConnectorsDataCount))
-					$groupConnectorsDataCount[$group['GROUP_ID']] += $connectorDataCount;
-				else
-					$groupConnectorsDataCount[$group['GROUP_ID']] = $connectorDataCount;
-			}
-
-			unset($connector);
-		}
-
-
-		// update group counter of addresses
-		foreach($groupConnectorsDataCount as $groupId => $groupDataCount)
-		{
-			\Bitrix\Sender\GroupTable::update($groupId, array('ADDRESS_COUNT' => $groupDataCount));
-		}
-
+		PostingBuilder::create()->run($postingId, $checkDuplicate);
 
 		return true;
 	}
@@ -508,7 +354,7 @@ class PostingReadTable extends Entity\DataManager
 			),
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
 		);
 	}
@@ -573,7 +419,7 @@ class PostingClickTable extends Entity\DataManager
 			),
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
 			'URL' => array(
 				'data_type' => 'string',
@@ -644,7 +490,7 @@ class PostingUnsubTable extends Entity\DataManager
 			),
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
-				'default_value' => new Type\DateTime(),
+				'default_value' => new MainType\DateTime(),
 			),
 			'POSTING' => array(
 				'data_type' => 'Bitrix\Sender\PostingTable',
@@ -726,21 +572,12 @@ class PostingRecipientTable extends Entity\DataManager
 			'DATE_SENT' => array(
 				'data_type' => 'datetime',
 			),
-
 			'DATE_DENY' => array(
 				'data_type' => 'datetime',
 			),
-			'NAME' => array(
-				'data_type' => 'string',
-			),
-			'EMAIL' => array(
-				'data_type' => 'string',
-				'primary' => true,
+			'CONTACT_ID' => array(
 				'required' => true,
-			),
-			'PHONE' => array(
-				'data_type' => 'string',
-				//'required' => true,
+				'data_type' => 'integer',
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer',
@@ -760,6 +597,10 @@ class PostingRecipientTable extends Entity\DataManager
 			),
 			'IS_UNSUB' => array(
 				'data_type' => 'string',
+			),
+			'CONTACT' => array(
+				'data_type' => 'Bitrix\Sender\ContactTable',
+				'reference' => array('=this.CONTACT_ID' => 'ref.ID'),
 			),
 			'POSTING' => array(
 				'data_type' => 'Bitrix\Sender\PostingTable',
@@ -790,34 +631,39 @@ class PostingRecipientTable extends Entity\DataManager
 	 */
 	public static function getPersonalizeList()
 	{
-		return array_merge(
+		$list = array(
 			array(
-				array(
-					'CODE' => 'NAME',
-					'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_NAME"),
-					'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_NAME_DESC"),
-				),
-				array(
-					'CODE' => 'USER_ID',
-					'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_USER_ID"),
-					'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_USER_ID_DESC"),
-				),
-				array(
-					'CODE' => 'SITE_NAME',
-					'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SITE_NAME"),
-					'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SITE_NAME_DESC"),
-				),
-				array(
-					'CODE' => 'EMAIL_TO',
-					'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_EMAIL"),
-					'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_EMAIL_DESC"),
-				),
-				array(
-					'CODE' => 'SENDER_CHAIN_CODE',
-					'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SENDER_CHAIN_ID"),
-					'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SENDER_CHAIN_ID_DESC"),
-				),
+				'CODE' => 'NAME',
+				'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_NAME"),
+				'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_NAME_DESC"),
 			),
+			array(
+				'CODE' => 'EMAIL_TO',
+				'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_EMAIL"),
+				'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_EMAIL_DESC"),
+			),
+		);
+		if (!Integration\Bitrix24\Service::isCloud())
+		{
+			$list[] = array(
+				'CODE' => 'USER_ID',
+				'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_USER_ID"),
+				'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_USER_ID_DESC"),
+			);
+			$list[] = array(
+				'CODE' => 'SITE_NAME',
+				'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SITE_NAME"),
+				'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SITE_NAME_DESC"),
+			);
+			$list[] = array(
+				'CODE' => 'SENDER_CHAIN_CODE',
+				'NAME' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SENDER_CHAIN_ID"),
+				'DESC' => Loc::getMessage("SENDER_POSTING_PERSONALIZE_FIELD_SENDER_CHAIN_ID_DESC"),
+			);
+		}
+
+		return array_merge(
+			$list,
 			(static::$personalizeList ? static::$personalizeList : array())
 		);
 	}

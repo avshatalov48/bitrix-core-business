@@ -10,7 +10,7 @@ class DocumentImportFactory
     /** Create new document import by specified document type ID.
      * @static
      * @param int $documentTypeID Document type ID.
-     * @return DocumentImport
+     * @return DocumentBase
      * @throws Main\ArgumentOutOfRangeException
      * @throws Main\NotSupportedException
      */

@@ -687,12 +687,7 @@ class CIMCall
 			'command' => 'call',
 			'expiry' => 600,
 			'params' => $params,
-			'extra' => Array(
-				'call_revision' => IM_CALL_REVISION,
-				'call_revision_mobile' => IM_CALL_REVISION_MOBILE,
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			)
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		));
 
 		return true;

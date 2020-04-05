@@ -236,7 +236,7 @@ th.reports-selected-column .task-head-cell-sort-clear {display:block;}
 .filter-field-user {position:relative;}
 div.filter-field span.webform-field-textbox-inner {background-color:#fff; padding: 0 20px 0 4px; position:relative; width:200px;}
 div.filter-field input.webform-field-textbox {height:20px; width:200px; padding:0;}
-.webform-field-textbox-clear {top:-3px; right:-3px;}
+.filter-field .webform-field-textbox-clear {top:-3px; right:-3px;}
 .filter-field-calendar {width:90px;}
 
 .reports-add-popup-item {color:#000; cursor:default; font-size:13px; margin-right:5px; padding:6px 5px; min-height:9px; display: flex}

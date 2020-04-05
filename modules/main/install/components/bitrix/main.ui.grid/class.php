@@ -338,6 +338,21 @@ class CMainUIGrid extends CBitrixComponent
 			false
 		);
 
+		$this->arParams["TILE_GRID_MODE"] = Grid\Params::prepareBoolean(
+			array($this->arParams["TILE_GRID_MODE"]),
+			false
+		);
+
+		$this->arParams["JS_CLASS_TILE_GRID_ITEM"] = Grid\Params::prepareString(
+			array($this->arParams["JS_CLASS_TILE_GRID_ITEM"]),
+			null
+		);
+
+		$this->arParams["TILE_SIZE"] = Grid\Params::prepareString(
+			array($this->arParams["TILE_SIZE"]),
+			null
+		);
+
 		if (is_array($this->arParams["ROW_LAYOUT"]) && !empty($this->arParams["ROW_LAYOUT"]))
 		{
 			$this->arParams["ALLOW_COLUMNS_SORT"] = false;
@@ -367,6 +382,7 @@ class CMainUIGrid extends CBitrixComponent
 		$this->arResult["COLS_EDIT_META"] = $this->prepareColumnsEditMeta();
 		$this->arResult["COLS_EDIT_META_ALL"] = $this->prepareColumnsEditMetaAll();
 		$this->arResult["ROWS"] = $this->prepareRows();
+		$this->arResult["TILE_GRID_ITEMS"] = $this->prepareTileGridItems();
 		$this->arResult["HAS_ACTIONS"] = $this->prepareHasActions();
 		$this->arResult["EDIT_DATE"] = $this->prepareEditDate();
 		$this->arResult["ALLOW_EDIT"] = $this->prepareAllowEdit();
@@ -1224,6 +1240,38 @@ class CMainUIGrid extends CBitrixComponent
 		return $this->arParams["ROWS"];
 	}
 
+	protected function prepareTileGridItems()
+	{
+		if (!$this->arParams['TILE_GRID_MODE'])
+		{
+			return null;
+		}
+		$this->setTemplateName('tilegrid');
+
+		if (isset($this->arParams['TILE_GRID_ITEMS']))
+		{
+			return $this->arParams['TILE_GRID_ITEMS'];
+		}
+
+		return $this->reformatRowsToTileGridItems($this->arParams['ROWS']);
+	}
+
+	protected function reformatRowsToTileGridItems($rows)
+	{
+		$items = [];
+
+		foreach ($rows as $row)
+		{
+			$items[] = [
+				'id' => $row['ID'],
+				'name' => isset($row['NAME'])? $row['NAME'] : null,
+				'image' => isset($row['IMAGE'])? $row['IMAGE'] : null,
+			];
+		}
+
+		return $items;
+	}
+
 	protected function prepareColumnsEditMeta()
 	{
 		if (!is_array($this->arResult["COLS_EDIT_META"]))
@@ -2040,6 +2088,12 @@ class CMainUIGrid extends CBitrixComponent
 			if ($this->arParams["ENABLE_COLLAPSIBLE_ROWS"])
 			{
 				$this->prepareMultilevelRows();
+			}
+
+			$templateName = $this->getTemplateName();
+			if ( (empty($templateName) || $templateName === ".default") && $this->arParams['TILE_GRID_MODE'])
+			{
+				$this->setTemplateName('tilegrid');
 			}
 
 			$this->includeComponentTemplate();

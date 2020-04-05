@@ -18,7 +18,7 @@ $toValue = $dialog->getCurrentValue($map['MailUserTo']['FieldName'], $map['MailU
 
 $toAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode(array(
 	'valueInputName' => $map['MailUserTo']['FieldName'],
-	'selected'       => \Bitrix\Crm\Automation\Helper::prepareUserSelectorEntities(
+	'selected'       => \Bitrix\Bizproc\Automation\Helper::prepareUserSelectorEntities(
 		$dialog->getDocumentType(),
 		$toValue
 	),
@@ -35,37 +35,38 @@ if ($from && $mailboxes):?>
 		$APPLICATION->IncludeComponent('bitrix:main.mail.confirm', '');
 		?>
 	</div>
-	<div class="crm-automation-popup-settings crm-automation-popup-settings-text">
-		<span class="crm-automation-popup-settings-title"><?=htmlspecialcharsbx($from['Name'])?>:</span>
+	<div class="bizproc-automation-popup-settings bizproc-automation-popup-settings-text">
+		<span class="bizproc-automation-popup-settings-title"><?=htmlspecialcharsbx($from['Name'])?>:</span>
 		<input type="hidden" name="<?=htmlspecialcharsbx($from['FieldName'])?>" value="<?=htmlspecialcharsbx($fromValue)?>" data-role="mailbox-selector-value">
-		<a class="crm-automation-popup-settings-link" data-role="mailbox-selector"></a>
+		<a class="bizproc-automation-popup-settings-link" data-role="mailbox-selector"></a>
 	</div>
 <?
 endif;
 ?>
 
-	<div class="crm-automation-popup-settings">
-		<span class="crm-automation-popup-settings-title crm-automation-popup-settings-title-autocomplete">
+	<div class="bizproc-automation-popup-settings">
+		<span class="bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete">
 			<?=htmlspecialcharsbx($map['MailUserTo']['Name'])?>:
 		</span>
 		<div data-role="user-selector" data-config="<?= $toAttributeValue ?>"></div>
 	</div>
 
-	<div class="crm-automation-popup-settings">
-		<input name="<?=htmlspecialcharsbx($subject['FieldName'])?>" type="text" class="crm-automation-popup-input"
+	<div class="bizproc-automation-popup-settings">
+		<input name="<?=htmlspecialcharsbx($subject['FieldName'])?>" type="text" class="bizproc-automation-popup-input"
 			value="<?=htmlspecialcharsbx($dialog->getCurrentValue($subject['FieldName']))?>"
 			placeholder="<?=htmlspecialcharsbx($subject['Name'])?>"
 			data-role="inline-selector-target"
 		>
 	</div>
-	<div class="crm-automation-popup-settings" data-role="inline-selector-html">
-		<div class="crm-automation-popup-select"><?php
+	<div class="bizproc-automation-popup-settings" data-role="inline-selector-html">
+		<div class="bizproc-automation-popup-select"><?php
 			$emailEditor = new CHTMLEditor;
 
 			$content = $dialog->getCurrentValue($messageText['FieldName'], '');
 			if ($dialog->getCurrentValue('mail_message_encoded'))
 			{
-				$content = htmlspecialcharsback($content);
+				$content = \CBPMailActivity::decodeMailText($content);
+				$content = \Bitrix\Bizproc\Automation\Helper::convertExpressions($content, $dialog->getDocumentType());
 			}
 
 			if ($messageType !== 'html')
@@ -140,26 +141,26 @@ $config = array(
 
 if ($dialog->getCurrentValue($attachmentType['FieldName']) === 'disk')
 {
-	$config['selected'] = \Bitrix\Crm\Automation\Helper::prepareDiskAttachments(
+	$config['selected'] = \Bitrix\Bizproc\Automation\Helper::prepareDiskAttachments(
 		$dialog->getCurrentValue($attachment['FieldName'])
 	);
 }
 else
 {
-	$config['selected'] = \Bitrix\Crm\Automation\Helper::prepareFileAttachments(
+	$config['selected'] = \Bitrix\Bizproc\Automation\Helper::prepareFileAttachments(
 		$dialog->getDocumentType(),
 		$dialog->getCurrentValue($attachment['FieldName'])
 	);
 }
 $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config));
 ?>
-	<div class="crm-automation-popup-settings" data-role="file-selector" data-config="<?=$configAttributeValue?>"></div>
+	<div class="bizproc-automation-popup-settings" data-role="file-selector" data-config="<?=$configAttributeValue?>"></div>
 <?if ($from && $mailboxes):?>
 	<script>
 
 		BX.ready(function ()
 		{
-			var dialog = BX.Crm.Automation.Runtime.getRobotSettingsDialog();
+			var dialog = BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
 			if (!dialog)
 			{
 				return;
@@ -221,7 +222,7 @@ $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config
 
 			BX.bind(mailboxSelector, 'click', function(e)
 				{
-					var menuId = 'crm-sma-mailboxes' + Math.random();
+					var menuId = 'bpma-mailboxes' + Math.random();
 					BX.PopupMenu.show(
 						menuId,
 						this,

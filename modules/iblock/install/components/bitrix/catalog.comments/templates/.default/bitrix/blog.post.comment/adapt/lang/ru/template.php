@@ -52,5 +52,5 @@ $MESS["BLOG_P_IMAGE_UPLOAD"] = "Загрузка изображения";
 $MESS["BLOG_PHOTO"] = "Фото:";
 $MESS["MPF_IMAGE_TITLE"] = "Вставить изображение в сообщение";
 $MESS["BLOG_ADD_FILES"] = "Добавить файлы";
-$MESS['BPC_ERROR_NO_TEXT'] = "Вы должны ввести текст сообщения";
+$MESS["BPC_ERROR_NO_TEXT"] = "Вы должны ввести текст сообщения";
 ?>

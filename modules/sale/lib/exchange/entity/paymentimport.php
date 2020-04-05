@@ -206,29 +206,63 @@ class PaymentImport extends EntityImport
      * @return int
      * @throws Main\ArgumentException
      */
-    public static function resolveEntityTypeId(Internals\Entity $payment)
+	static public function resolveEntityTypeId(Internals\Entity $payment)
     {
         if(!($payment instanceof Payment))
             throw new Main\ArgumentException("Entity must be instanceof Payment");
 
         $paySystem = $payment->getPaySystem();
         $type = $paySystem->getField('IS_CASH');
-        switch($type)
-        {
-            case 'Y':
-                $resolveType = EntityType::PAYMENT_CASH;
-                break;
-            case 'N':
-                $resolveType = EntityType::PAYMENT_CASH_LESS;
-                break;
-            case 'A':
-                $resolveType = EntityType::PAYMENT_CARD_TRANSACTION;
-                break;
-            default;
-                $resolveType = EntityType::UNDEFINED;
-        }
-        return $resolveType;
+
+        return self::resolveEntityTypeIdByCodeType($type);
     }
+
+	/**
+	 * @param string $type
+	 * @return int
+	 */
+	static public function resolveEntityTypeIdByCodeType($type)
+	{
+		switch($type)
+		{
+			case 'Y':
+				$resolveType = EntityType::PAYMENT_CASH;
+				break;
+			case 'N':
+				$resolveType = EntityType::PAYMENT_CASH_LESS;
+				break;
+			case 'A':
+				$resolveType = EntityType::PAYMENT_CARD_TRANSACTION;
+				break;
+			default;
+				$resolveType = EntityType::UNDEFINED;
+		}
+		return $resolveType;
+	}
+
+	public function initFields()
+	{
+		$this->setFields(
+			array(
+				'TRAITS'=>$this->getFieldsTraits(),
+			)
+		);
+	}
+
+	/**
+	 * @param Sale\IBusinessValueProvider $entity
+	 * @return Sale\Order
+	 */
+	static protected function getBusinessValueOrderProvider(\Bitrix\Sale\IBusinessValueProvider $entity)
+	{
+		if(!($entity instanceof Payment))
+			throw new Main\ArgumentException("entity must be instanceof Payment");
+
+		/** @var Sale\PaymentCollection $collection */
+		$collection = $entity->getCollection();
+
+		return $collection->getOrder();
+	}
 }
 
 class PaymentCashImport extends PaymentImport

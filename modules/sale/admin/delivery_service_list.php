@@ -24,7 +24,7 @@ if(!isset($by))
 if(!isset($order))
 	$order = 'ASC';
 
-$groupId = isset($filter_group) && (isset($set_filter) ||  $set_filter == 'Y') ? $filter_group : -1;
+$groupId = isset($filter_group) && (isset($set_filter) ||  $set_filter == 'Y') ? $filter_group : 0;
 
 $arFilterFields = array(
 	"filter_name",

@@ -71,7 +71,9 @@ class FieldAdapter
 					$sourceField["name"],
 					$sourceField["placeholder"],
 					$sourceField["time"],
-					$sourceField["exclude"]
+					$sourceField["exclude"],
+					$sourceField["include"],
+					$sourceField["allow_years_switcher"]
 				);
 				break;
 

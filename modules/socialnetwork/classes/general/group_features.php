@@ -409,6 +409,7 @@ class CAllSocNetFeatures
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 		if (
 			!array_key_exists($feature, $arSocNetFeaturesSettings)
+			|| !array_key_exists("allowed", $arSocNetFeaturesSettings[$feature])
 			|| !in_array($type, $arSocNetFeaturesSettings[$feature]["allowed"])
 		)
 		{

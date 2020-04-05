@@ -1,5 +1,5 @@
 <?php
-$MESS['SALE_HPS_YANDEX_CHECKOUT'] = 'Яндекс.Касса';
+$MESS['SALE_HPS_YANDEX_CHECKOUT'] = 'Яндекс.Касса (с версии 3.х)';
 $MESS["SALE_HPS_YANDEX_CHECKOUT_SHOP_ID"] = "shopId";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_SHOP_ID_DESC"] = "Скопируйте shopId в личном кабинете Яндекс.Кассы";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_SECRET_KEY"] = "Секретный ключ";

@@ -71,10 +71,7 @@ class CIMSettings
 				'params' => Array(
 					'openDesktopFromPanel' => $value['openDesktopFromPanel'],
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -127,10 +124,7 @@ class CIMSettings
 				'params' => Array(
 					'openDesktopFromPanel' => $value['openDesktopFromPanel'],
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -234,7 +228,7 @@ class CIMSettings
 				'notifyScheme' => 'simple',
 				'notifySchemeLevel' => 'important',
 				'notifySchemeSendSite' => true,
-				'notifySchemeSendEmail' => true,
+				'notifySchemeSendEmail' => !IsModuleInstalled('bitrix24'),
 				'notifySchemeSendXmpp' => true,
 				'notifySchemeSendPush' => true,
 				'privacyMessage' => COption::GetOptionString("im", "privacy_message"),

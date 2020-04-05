@@ -307,10 +307,18 @@ class OrderImport extends EntityImport
         return $result;
     }
 
-    private function prepareFieldsBasketItem($productXML_ID, $item)
-    {
-        $product = self::getProduct(array("XML_ID"=>$productXML_ID));
-        if(!empty($product))
+	private function prepareFieldsBasketItem($productXML_ID, $item)
+	{
+    	/** @var Exchange\ISettingsImport $settings */
+    	$settings = $this->getSettings();
+
+    	$code = $this->getCodeAfterDelimiter($productXML_ID);
+		$product = $code<>'' ? self::getProduct($code):array();
+
+		if(empty($product))
+			$product = self::getProduct($productXML_ID);
+
+		if(!empty($product))
         {
             $result = array(
                 "PRODUCT_ID" => $product["ID"],
@@ -338,8 +346,8 @@ class OrderImport extends EntityImport
             );
         }
 
-        $result["CURRENCY"] = $this->settings->getCurrency();
-        $result["LID"] = $this->settings->getSiteId();
+        $result["CURRENCY"] = $settings->getCurrency();
+        $result["LID"] = $settings->getSiteId();
         $result["QUANTITY"] = $item["QUANTITY"];
         $result["DELAY"] = "N";
         $result["CAN_BUY"] = "Y";
@@ -363,38 +371,48 @@ class OrderImport extends EntityImport
                 "APPLY_ORDER" => "100"
             )
         );
-    }
+	}
 
-    private static function getProduct($fields)
+	/**
+	 * @param $code
+	 * @return string|null
+	 */
+	protected function getCodeAfterDelimiter($code)
+	{
+		$result = '';
+
+		if(strpos($code, '#') !== false)
+		{
+			$code = explode('#', $code);
+			$result = $code[1];
+		}
+		return $result;
+	}
+
+    private static function getProduct($code)
     {
         $result = array();
 
-        if(strpos($fields["XML_ID"], '#') !== false)
-        {
-            $code = explode('#', $fields["XML_ID"]);
-            $fields["XML_ID"] = $code[1];
-        }
+		$r = \CIBlockElement::GetList(array(),
+			array("=XML_ID" => $code, "ACTIVE" => "Y", "CHECK_PERMISSIONS" => "Y"),
+			false,
+			false,
+			array("ID", "IBLOCK_ID", "XML_ID", "NAME", "DETAIL_PAGE_URL")
+		);
+		if($ar = $r->GetNext())
+		{
+			$result = $ar;
+			$product = \CCatalogProduct::GetByID($ar["ID"]);
 
-        $r = \CIBlockElement::GetList(array(),
-            array("=XML_ID" => $fields["XML_ID"], "ACTIVE" => "Y", "CHECK_PERMISSIONS" => "Y"),
-            false,
-            false,
-            array("ID", "IBLOCK_ID", "XML_ID", "NAME", "DETAIL_PAGE_URL")
-        );
-        if($ar = $r->GetNext())
-        {
-            $result = $ar;
-            $product = \CCatalogProduct::GetByID($ar["ID"]);
+			$result["WEIGHT"] = $product["WEIGHT"];
+			$result["CATALOG_GROUP_NAME"] = $product["CATALOG_GROUP_NAME"];
 
-            $result["WEIGHT"] = $product["WEIGHT"];
-            $result["CATALOG_GROUP_NAME"] = $product["CATALOG_GROUP_NAME"];
+			$productIBlock = static::getIBlockProduct($ar["IBLOCK_ID"]);
+			$result["IBLOCK_XML_ID"] = $productIBlock[$ar["IBLOCK_ID"]]["XML_ID"];
+		}
 
-            $productIBlock = static::getIBlockProduct($ar["IBLOCK_ID"]);
-            $result["IBLOCK_XML_ID"] = $productIBlock[$ar["IBLOCK_ID"]]["XML_ID"];
-        }
-
-        return $result;
-    }
+		return $result;
+	}
 
 	/**
 	 * @param Sale\Basket $basket
@@ -843,4 +861,122 @@ class OrderImport extends EntityImport
         }
         return $result;
     }
+
+    public function initFields()
+	{
+		$this->setFields(
+			array(
+			'TRAITS'=>$this->getFieldsTraits(),
+			'ITEMS'=>$this->getFieldsItems(),
+			'TAXES'=>$this->getFieldsTaxes(),
+			'CASH_BOX_CHECKS'=>$this->getCashBoxChecks()
+			)
+		);
+	}
+
+	/**
+	 * @return array
+	 * @internal
+	 */
+	protected function getFieldsItems()
+	{
+		$result = array();
+		$order = $this->getEntity();
+		if($order instanceof Order)
+		{
+			/** @var Sale\BasketItem[] $basketItems */
+			$basketItems = $order->getBasket();
+			foreach ($basketItems as $basket)
+			{
+				$attributes = array();
+				$attributeFields = static::getAttributesItem($basket);
+				if(count($attributeFields)>0)
+					$attributes['ATTRIBUTES'] = $attributeFields;
+
+				$result[] = array_merge($basket->getFieldValues(), $attributes);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Sale\BasketItem $basket
+	 * @return array
+	 */
+	static public function getAttributesItem(Sale\BasketItem $basket)
+	{
+		$result = array();
+		/** @var Sale\BasketPropertyItemBase[] $propertyItems */
+		$propertyItems = $basket->getPropertyCollection();
+		foreach ($propertyItems as $property)
+		{
+			$result[] = $property->getFieldValues();
+		}
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 * @internal
+	 */
+	protected function getFieldsTaxes()
+	{
+		$result = array();
+		$order = $this->getEntity();
+		if($order instanceof Order)
+		{
+			$res = \CSaleOrderTax::GetList(
+				array(),
+				array("ORDER_ID" => $order->getId()),
+				false,
+				false,
+				array("ID", "TAX_NAME", "VALUE", "VALUE_MONEY", "CODE", "IS_IN_PRICE")
+			);
+			while ($tax = $res->Fetch())
+			{
+				$result[] = $tax;
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getCashBoxChecks()
+	{
+		$result = array();
+		$cashBoxOneCId = \Bitrix\Sale\Cashbox\Cashbox1C::getId();
+		$order = $this->getEntity();
+		if($order instanceof Order)
+		{
+			if($cashBoxOneCId>0)
+			{
+				$result = \Bitrix\Sale\Cashbox\CheckManager::getPrintableChecks(array($cashBoxOneCId), array($order->getId()));
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 * @internal
+	 */
+	protected function getFieldsProperty()
+	{
+		//ORDER_PROPS
+	}
+
+	/**
+	 * @param Sale\IBusinessValueProvider $entity
+	 * @return Order
+	 */
+	static protected function getBusinessValueOrderProvider(Sale\IBusinessValueProvider $entity)
+	{
+		if(!($entity instanceof Order))
+			throw new Main\ArgumentException("entity must be instanceof Order");
+
+		return $entity;
+	}
 }

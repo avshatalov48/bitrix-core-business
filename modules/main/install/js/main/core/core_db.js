@@ -23,10 +23,10 @@
 	{
 		this.tableList = [];
 		this.jsonFields = {};
-		
+
 		if(typeof window.SQLitePlugin != 'undefined' && typeof window.SQLitePlugin.openDatabase == 'function')
 		{
-			this.dbObject = window.SQLitePlugin.openDatabase(params.name, params.version, params.displayName, params.capacity);
+			this.dbObject = window.SQLitePlugin.openDatabase(params);
 			this.dbBandle = 'SQLitePlugin';
 		}
 		else if(typeof window.openDatabase != 'undefined')
@@ -34,7 +34,7 @@
 			this.dbBandle = 'openDatabase';
 			this.dbObject = window.openDatabase(params.name, params.version, params.displayName, params.capacity);
 		}
-		else 
+		else
 		{
 			this.dbBandle = 'undefined';
 			this.dbObject = null;
@@ -50,7 +50,7 @@
 		{
 			return new BX.dataBase(params);
 		}
-		else 
+		else
 		{
 			return null;
 		}
@@ -64,16 +64,16 @@
 			{
 				fields = [];
 			}
-			else 
+			else
 			{
 				fields = [fields];
 			}
 		}
-		
+
 		if (tableName && BX.type.isArray(fields))
 		{
 			tableName = tableName.toString().toUpperCase();
-			
+
 			this.jsonFields[tableName] = [];
 			if (fields.length > 0)
 			{
@@ -84,15 +84,15 @@
 					);
 				}
 			}
-			else 
+			else
 			{
 				delete this.jsonFields[tableName];
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	BX.dataBase.prototype.isTableExists = function (tableName, callback)
 	{
 		tableName = tableName.toUpperCase();
@@ -101,7 +101,7 @@
 		{
 			callback = function(){};
 		}
-		
+
 		var tableListCallback = function (tableList)
 		{
 			if (tableList.indexOf(tableName) > -1)
@@ -109,7 +109,7 @@
 				callback(true, tableName);
 				promise.fulfill(tableName);
 			}
-			else 
+			else
 			{
 				callback(false, tableName);
 				promise.reject(tableName);
@@ -140,7 +140,7 @@
 		{
 			callback = function(){};
 		}
-		
+
 		var callbackFunc = callback;
 		this.query({
 			query: "SELECT tbl_name from sqlite_master WHERE type = 'table'",
@@ -159,7 +159,7 @@
 		}.bind(this)).catch(function (error){
 			promise.reject(error);
 		});
-		
+
 		return promise;
 	};
 
@@ -170,7 +170,7 @@
 	BX.dataBase.prototype.createTable = function (params)
 	{
 		var promise = new BX.Promise();
-		
+
 		params = params || {};
 		if (typeof params.success != 'function')
 		{
@@ -180,9 +180,9 @@
 		{
 			params.fail = function(result, transaction, query){};
 		}
-		
+
 		params.action = 'create';
-		
+
 		this.query(
 			this.getQuery(params)
 		).then(function (success) {
@@ -195,7 +195,7 @@
 			error.queryParams = params;
 			promise.reject(error);
 		});
-		
+
 		return promise;
 	};
 
@@ -206,7 +206,7 @@
 	BX.dataBase.prototype.dropTable = function (params)
 	{
 		var promise = new BX.Promise();
-		
+
 		params = params || {};
 		if (typeof params.success != 'function')
 		{
@@ -216,9 +216,9 @@
 		{
 			params.fail = function(result, transaction, query){};
 		}
-		
+
 		params.action = "drop";
-		
+
 		this.query(
 			this.getQuery(params)
 		).then(function (success) {
@@ -231,18 +231,18 @@
 			error.queryParams = params;
 			promise.reject(error);
 		});
-		
+
 		return promise;
 	};
 
 	/**
-	 * Drops the table from the database
+	 * Add row to the database
 	 * @param params
 	 */
 	BX.dataBase.prototype.addRow = function (params)
 	{
 		var promise = new BX.Promise();
-		
+
 		params = params || {};
 		if (typeof params.success != 'function')
 		{
@@ -252,9 +252,9 @@
 		{
 			params.fail = function(result, transaction, query){};
 		}
-		
+
 		params.action = "insert";
-		
+
 		this.query(
 			this.getQuery(params)
 		).then(function (success) {
@@ -266,7 +266,42 @@
 			error.queryParams = params;
 			promise.reject(error);
 		});
-		
+
+		return promise;
+	};
+
+	/**
+	 * Add row to the database
+	 * @param params
+	 */
+	BX.dataBase.prototype.replaceRow = function (params)
+	{
+		var promise = new BX.Promise();
+
+		params = params || {};
+		if (typeof params.success != 'function')
+		{
+			params.success = function(result, transaction){};
+		}
+		if (typeof params.fail != 'function')
+		{
+			params.fail = function(result, transaction, query){};
+		}
+
+		params.action = "replace";
+
+		this.query(
+			this.getQuery(params)
+		).then(function (success) {
+			params.success(success.result, success.transaction);
+			success.result.tableName = params.tableName;
+			promise.fulfill(success);
+		}).catch(function (error){
+			params.fail(error.result, error.transaction, error.query, params);
+			error.queryParams = params;
+			promise.reject(error);
+		});
+
 		return promise;
 	};
 
@@ -277,7 +312,7 @@
 	BX.dataBase.prototype.getRows = function (params)
 	{
 		var promise = new BX.Promise();
-		
+
 		params = params || {};
 		if (typeof params.success != 'function')
 		{
@@ -287,16 +322,16 @@
 		{
 			params.fail = function(result, transaction, query){};
 		}
-		
+
 		params.action = "select";
-		
+
 		this.query(
 			this.getQuery(params)
 		).then(function (success) {
 			var tableName = params.tableName.toString().toUpperCase();
 			if (
-				this.jsonFields[tableName] 
-				&& this.jsonFields[tableName].length 
+				this.jsonFields[tableName]
+				&& this.jsonFields[tableName].length
 				&& success.result.items.length
 			)
 			{
@@ -319,7 +354,7 @@
 			error.queryParams = params;
 			promise.reject(error);
 		});
-		
+
 		return promise;
 	};
 
@@ -330,7 +365,7 @@
 	BX.dataBase.prototype.updateRows = function (params)
 	{
 		var promise = new BX.Promise();
-		
+
 		params = params || {};
 		if (typeof params.success != 'function')
 		{
@@ -340,9 +375,9 @@
 		{
 			params.fail = function(result, transaction, query){};
 		}
-		
+
 		params.action = "update";
-		
+
 		this.query(
 			this.getQuery(params)
 		).then(function (success) {
@@ -354,7 +389,7 @@
 			error.queryParams = params;
 			promise.reject(error);
 		});
-		
+
 		return promise;
 	};
 
@@ -364,9 +399,33 @@
 	 */
 	BX.dataBase.prototype.deleteRows = function (params)
 	{
+		var promise = new BX.Promise();
+
+		params = params || {};
+		if (typeof params.success != 'function')
+		{
+			params.success = function(result, transaction){};
+		}
+		if (typeof params.fail != 'function')
+		{
+			params.fail = function(result, transaction, query){};
+		}
+
 		params.action = "delete";
-		var str = this.getQuery(params);
-		this.query(str, params.success, params.fail);
+
+        this.query(
+        	this.getQuery(params)
+		).then(function (success) {
+			params.success(success.result, success.transaction);
+			success.result.tableName = params.tableName;
+			promise.fulfill(success);
+		}).catch(function (error) {
+			params.fail(error.result, error.transaction, error.query, params);
+			error.queryParams = params;
+			promise.reject(error);
+		});
+
+        return promise;
 	};
 
 	/**
@@ -378,6 +437,8 @@
 	{
 		var values = [];
 		var where = params.filter;
+		var order = params.order || null;
+		var limit = params.limit || null;
 		var select = params.fields;
 		var insert = params.insertFields;
 		var set = params.updateFields;
@@ -435,7 +496,7 @@
 				}
 
 				strQuery = "CREATE TABLE IF NOT EXISTS " + tableName.toUpperCase() + " (" + fieldsString + ") ";
-				
+
 				break;
 			}
 
@@ -446,10 +507,83 @@
 			}
 			case "select":
 			{
-				strQuery = "SELECT " + this.getValueArrayString(select, "*") + " FROM " + tableName.toUpperCase() + " " + this.getFilter(where);
+				var orderParam = [];
+				if (order && typeof order == 'object')
+				{
+					for (var key in order)
+					{
+						if (order.hasOwnProperty(key))
+						{
+							orderParam.push(key+" "+(order[key] == "DESC"? "DESC": "ASC"));
+						}
+					}
+				}
+
+				var limitParam = null;
+				if (limit)
+				{
+					if (typeof limit == 'object')
+					{
+						limitParam = parseInt(limit.limit)+(limit.offset? ', '+parseInt(limit.offset): '');
+					}
+					else if (typeof limit == 'number')
+					{
+						limitParam = limit;
+					}
+				}
+
+				strQuery = "SELECT " + this.getValueArrayString(select, "*") +
+							" FROM " + tableName.toUpperCase() +
+							" " + this.getFilter(where) +
+							(orderParam.length > 0? " ORDER BY " + orderParam.join(', ') + " ": "") +
+							(limitParam? " LIMIT " + limitParam + " ": "");
+
 				values = this.getValues([where]);
 				break;
 			}
+
+			case "replace":
+			{
+				var groups = 0;
+				var groupSize = 0;
+				var keyString = "";
+				if (BX.type.isArray(insert))
+				{
+					values = this.getValues(insert, 'insert');
+					for (var i in insert[0])
+					{
+						groupSize++
+					}
+					groups = insert.length;
+					keyString = this.getKeyString(insert[0])
+				}
+				else
+				{
+					values = this.getValues([insert], 'insert');
+					groups = 1;
+					groupSize = values.length;
+					keyString = this.getKeyString(insert)
+				}
+
+				strQuery = "REPLACE INTO " + tableName.toUpperCase() + " (" + keyString + ") VALUES %values%";
+
+				var placeholder = [];
+				var placeholderGroup = [];
+				for (var i = 0; i < groups; i++)
+				{
+					placeholder = [];
+					for (var j = 0; j < groupSize; j++)
+					{
+						placeholder.push('?');
+					}
+					placeholderGroup.push(placeholder.join(','));
+				}
+
+				strQuery = strQuery.replace("%values%", "("+placeholderGroup.join("), (")+")");
+
+				break;
+			}
+
 			case "insert":
 			{
 				var groups = 0;
@@ -465,16 +599,16 @@
 					groups = insert.length;
 					keyString = this.getKeyString(insert[0])
 				}
-				else 
+				else
 				{
 					values = this.getValues([insert], 'insert');
 					groups = 1;
 					groupSize = values.length;
 					keyString = this.getKeyString(insert)
 				}
-				
+
 				strQuery = "INSERT INTO " + tableName.toUpperCase() + " (" + keyString + ") VALUES %values%";
-				
+
 				var placeholder = [];
 				var placeholderGroup = [];
 				for (var i = 0; i < groups; i++)
@@ -488,10 +622,10 @@
 				}
 
 				strQuery = strQuery.replace("%values%", "("+placeholderGroup.join("), (")+")");
-				
+
 				break;
 			}
-				
+
 			case "delete":
 			{
 				strQuery = "DELETE FROM " + tableName.toUpperCase() + " " + this.getFilter(where);
@@ -506,7 +640,7 @@
 					this.getValues([where])
 				);
 				break;
-			}	
+			}
 		}
 		return {
 			query: strQuery,
@@ -558,7 +692,7 @@
 				{
 					count = fields[key].length;
 				}
-				
+
 				for (var j = 0; j < count; j++)
 				{
 					pair = ((j > 0) ? pair + " OR " : "(") + (key.toUpperCase() + "=" + "?");
@@ -588,7 +722,7 @@
 		var result = "";
 		if (!defaultResult)
 			defaultResult = "";
-		
+
 		if (BX.type.isArray(fields))
 		{
 			for (var i = 0; i < fields.length; i++)
@@ -657,7 +791,7 @@
 	BX.dataBase.prototype.getValues = function (values, type)
 	{
 		type = type || 'undefined';
-		
+
 		var resultValues = [];
 		for (var j = 0; j < values.length; j++)
 		{
@@ -685,7 +819,7 @@
 							}
 						}
 					}
-					else 
+					else
 					{
 						resultValues.push(valuesItem[i]);
 					}
@@ -713,7 +847,7 @@
 							}
 						}
 					}
-					else 
+					else
 					{
 						resultValues.push(valuesItem[i]);
 					}
@@ -742,14 +876,14 @@
 		{
 			fail = function(result, transaction, query){};
 		}
-		
+
 		if (!this.dbObject)
 		{
 			fail(null, null, null);
 			promise.reject(null, null, null);
 			return promise;
 		}
-		
+
 		this.dbObject.transaction(
 			function (tx)
 			{
@@ -792,6 +926,11 @@
 						promise.reject({result: res, transaction: tx, query: query});
 					}
 				);
+			},
+			function(error)
+			{
+				console.error('BX.dataBase.prototype.query: ', error);
+				promise.reject(null, null, null);
 			}
 		);
 		return promise;

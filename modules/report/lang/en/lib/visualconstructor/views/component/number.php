@@ -1,0 +1,3 @@
+<?
+$MESS["REPORT_NUMBER_VIEW_LABEL"] = "Number";
+?>

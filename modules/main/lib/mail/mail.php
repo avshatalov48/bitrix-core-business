@@ -100,7 +100,7 @@ class Mail
 		{
 			$this->generateTextVersion = (bool) $mailParams['GENERATE_TEXT_VERSION'];
 		}
-		$this->multipart = (new Multipart())->setContentType(Multipart::MIXED);
+		$this->multipart = (new Multipart())->setContentType(Multipart::MIXED)->setEol($this->eol);
 
 		$this->setTo($mailParams['TO']);
 		$this->setSubject($mailParams['SUBJECT']);
@@ -259,7 +259,7 @@ class Mail
 		{
 			if ($this->generateTextVersion)
 			{
-				$alternative = (new Multipart())->setContentType(Multipart::ALTERNATIVE);
+				$alternative = (new Multipart())->setContentType(Multipart::ALTERNATIVE)->setEol($this->eol);
 				$alternative->addPart($plainPart);
 				$alternative->addPart($htmlPart);
 				$this->multipart->addPart($alternative);
@@ -355,6 +355,11 @@ class Mail
 		if($headers["Date"] == '')
 		{
 			$headers["Date"] = date("r");
+		}
+
+		if(empty($headers["MIME-Version"]))
+		{
+			$headers["MIME-Version"] = '1.0';
 		}
 
 		if($this->settingMailConvertMailHeader)

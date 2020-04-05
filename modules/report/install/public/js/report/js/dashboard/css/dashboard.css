@@ -1,0 +1,509 @@
+.report-visualconstructor-dashboard-container
+{
+    overflow: hidden;
+}
+
+.report-visualconstructor-empty-board
+{
+	text-align: center;
+	line-height: 250px;
+	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+}
+
+.report-visualconstructor-dashboard-widget-container
+{
+    display:inline-block;
+    width: 100%;
+    height: 100%;
+    vertical-align: top;
+    opacity: 1;
+}
+
+.report-visualconstructor-dashboard-widget-wrapper {
+    position: relative;
+    float:left;
+    width: 100%;
+    /*height: 100%;*/
+	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	border-radius: 2px;
+}
+
+.report-visualconstructor-dashboard-widget-content-wrapper
+{
+    position: relative;
+}
+
+.report-visualconstructor-dashboard-widget-lazy-load-preset {
+    height: 100%;
+    position: relative;
+}
+
+.report-visualconstructor-dashboard-widget-lazy-load-preset > img {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.report-visualconstructor-dashboard-widget-properties-popup-wrapper
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.report-visualconstructor-dashboard-widget-properties-popup-item
+{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #525c68;
+    line-height: 36px;
+    padding: 0 15px 0 9px;
+    text-decoration: none;
+    vertical-align: middle;
+    -webkit-transition: color 0.2s linear;
+    transition: color 0.2s linear;
+    cursor: pointer;
+}
+.report-visualconstructor-dashboard-widget-properties-popup-item:hover
+{
+    background-color: #f6f8f9;
+}
+
+.report-visualconstructor-dashboard-widget-lazy-load-preset-disable {
+    display: none;
+}
+
+.report-visualconstructor-dashboard-widget-wrapper .report-visualconstructor-dashboard-widget-head-wrapper {
+    display: flex;
+	background: rgba(0,0,0,.05);
+	position: relative;
+    font-size: 18px;
+    padding: 0 0 0 20px;
+    height: 55px;
+	line-height: 55px;
+    z-index: 10;
+}
+
+.report-visualconstructor-dashboard-draggable-widget-container .report-visualconstructor-dashboard-widget-head-wrapper
+{
+    cursor: move;
+}
+
+.report-visualconstructor-dashboard-widget-light .report-visualconstructor-dashboard-widget-head-wrapper {
+	color: #333;
+	background: none;
+}
+
+.report-visualconstructor-dashboard-widget-light .report-visualconstructor-dashboard-widget-head-wrapper:after {
+	content: '';
+	left: 20px;
+	right: 20px;
+	bottom: 0;
+	height: 1px;
+	position: absolute;
+	background: #f0f0f2;
+}
+
+.report-visualconstructor-dashboard-widget-html-container
+{
+    height: 190px;
+}
+
+.report-visualconstructor-dashboard-widget-container.report-visualconstructor-dashboard-widget-drag
+{
+    -webkit-transition: 0s;
+    -moz-transition: 0s;
+    transition: 0s;
+    margin: 0;
+    padding: 0;
+    flex: none;
+    pointer-events: none;
+    opacity: 0.5;
+
+}
+.report-visualconstructor-dashboard-widget-drag.report-visualconstructor-dashboard-widget-rotated-left
+{
+    /*-webkit-transform: rotate(4deg) translate(-30px, -20px);*/
+    /*-moz-transform: rotate(4deg) translate(-30px, -20px);*/
+    /*transform: rotate(4deg) translate(-30px, -20px);*/
+}
+
+.report-visualconstructor-dashboard-widget-drag.report-visualconstructor-dashboard-widget-rotated-right
+{
+    /*-webkit-transform: rotate(-4deg) translate(-30px, -20px);*/
+    /*-moz-transform: rotate(-4deg) translate(-30px, -20px);*/
+    /*transform: rotate(-4deg) translate(-30px, -20px);*/
+}
+
+.report-visualconstructor-dashboard-widget-disabled
+{
+    display: none;
+}
+
+.report-visualconstructor-dashboard-widget-title-container {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+	text-overflow: ellipsis;
+	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-size: 18px;
+	color: #fff;
+}
+
+.report-visualconstructor-dashboard-widget-light .report-visualconstructor-dashboard-widget-title-container {
+	color: #333;
+}
+
+.report-visualconstructor-dashboard-widget-controls-container {
+    display: flex;
+    flex: 1;
+}
+
+.report-visualconstructor-dashboard-widget-properties-button {
+	display:inline-block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 50px;
+    height: 100%;
+    min-height: 50px;
+    opacity: .7;
+    background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%2012%22%3E%0A%20%20%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M1146.2162%2C733.493606%20C1146.03489%2C734.345928%201145.36463%2C735.016206%201144.51234%2C735.197463%20C1142.8874%2C735.543055%201141.47582%2C734.131018%201141.82147%2C732.506376%20C1141.98493%2C731.738143%201142.75689%2C730.966103%201143.5251%2C730.802606%20C1145.14973%2C730.456805%201146.56186%2C731.868528%201146.2162%2C733.493606%20M1149.5609%2C732.126224%20L1148.37221%2C731.927905%20L1148.37221%2C731.927905%20C1148.28776%2C731.582645%201148.1655%2C731.252265%201148.00681%2C730.943435%20C1148.00014%2C730.930442%201148.00169%2C730.914811%201148.01086%2C730.903443%20L1148.75675%2C729.978576%20C1148.9186%2C729.779157%201148.91125%2C729.492244%201148.74062%2C729.299793%20L1148.26785%2C728.767705%20C1148.09648%2C728.575446%201147.8123%2C728.53479%201147.59553%2C728.671741%20L1146.57896%2C729.310795%20L1146.57896%2C729.310795%20C1146.13826%2C729.00289%201145.63989%2C728.774341%201145.10251%2C728.639678%20C1145.08826%2C728.636098%201145.07745%2C728.624467%201145.07502%2C728.609954%20L1144.88013%2C727.438726%20C1144.83839%2C727.185675%201144.61941%2C727%201144.36236%2C727%20L1143.64991%2C727%20C1143.39338%2C727%201143.17365%2C727.185675%201143.13284%2C727.438726%20L1142.93687%2C728.610391%20C1142.93444%2C728.624868%201142.92365%2C728.636464%201142.90942%2C728.640027%20C1142.47453%2C728.749019%201142.06605%2C728.921037%201141.69186%2C729.145936%20C1141.67925%2C729.153516%201141.66341%2C729.152957%201141.65143%2C729.1444%20L1140.70436%2C728.468497%20C1140.49601%2C728.319636%201140.20982%2C728.342915%201140.02799%2C728.524364%20L1139.52467%2C729.028056%20C1139.34322%2C729.209889%201139.31994%2C729.496086%201139.4692%2C729.704447%20L1140.14669%2C730.653413%20C1140.15523%2C730.665376%201140.15582%2C730.681215%201140.14826%2C730.693824%20C1139.92555%2C731.065123%201139.75532%2C731.471174%201139.64644%2C731.902111%20C1139.64284%2C731.916344%201139.63125%2C731.927102%201139.61679%2C731.929512%20L1138.4387%2C732.126242%20C1138.18604%2C732.167963%201138%2C732.386976%201138%2C732.644044%20L1138%2C733.355956%20C1138%2C733.613006%201138.18604%2C733.832037%201138.4387%2C733.873758%20L1139.61675%2C734.070471%20C1139.63123%2C734.072898%201139.64284%2C734.083674%201139.64642%2C734.097924%20C1139.73499%2C734.44975%201139.86115%2C734.786295%201140.027%2C735.099579%20C1140.03391%2C735.112642%201140.03245%2C735.128516%201140.02316%2C735.140025%20L1139.28095%2C736.059285%20C1139.11966%2C736.258513%201139.12643%2C736.545618%201139.29707%2C736.737894%20L1139.76947%2C737.269999%20C1139.94085%2C737.462608%201140.22519%2C737.50253%201140.44198%2C737.365928%20L1141.45281%2C736.730926%20C1141.4652%2C736.723137%201141.48099%2C736.723452%201141.49311%2C736.73166%20C1141.92454%2C737.023218%201142.41123%2C737.237918%201142.93289%2C737.365928%20L1142.93289%2C737.365928%20L1143.13286%2C738.561239%20C1143.17367%2C738.814307%201143.39338%2C739%201143.64991%2C739%20L1144.36236%2C739%20C1144.61942%2C739%201144.83839%2C738.814325%201144.88013%2C738.561257%20L1145.07535%2C737.389801%20C1145.07778%2C737.375306%201145.08859%2C737.363693%201145.10284%2C737.36013%20C1145.53211%2C737.25264%201145.93528%2C737.08366%201146.30594%2C736.862726%20C1146.31855%2C736.855216%201146.33433%2C736.85581%201146.34626%2C736.864332%20L1147.33369%2C737.569574%20C1147.54168%2C737.718977%201147.82807%2C737.69554%201148.00971%2C737.513515%20L1148.51325%2C737.009981%20C1148.69448%2C736.828706%201148.71902%2C736.542666%201148.56852%2C736.333921%20L1147.86559%2C735.348351%20C1147.85705%2C735.336388%201147.85647%2C735.320566%201147.86403%2C735.307974%20C1148.0874%2C734.935419%201148.25854%2C734.528582%201148.36682%2C734.095706%20C1148.37038%2C734.081456%201148.38199%2C734.070646%201148.39647%2C734.068218%20L1149.5613%2C733.873724%20C1149.81471%2C733.831985%201150%2C733.612971%201150%2C733.355921%20L1150%2C732.644009%20C1149.99962%2C732.386976%201149.81433%2C732.167963%201149.5609%2C732.126224%22%20transform%3D%22translate%28-1138%20-727%29%22%20/%3E%0A%3C/svg%3E%0A') center center no-repeat;
+	background-size: 14px 14px;
+    margin-left: auto;
+	cursor: pointer;
+}
+
+.report-visualconstructor-dashboard-widget-properties-button:hover {
+	opacity: .9;
+}
+
+.report-visualconstructor-dashboard-widget-light .report-visualconstructor-dashboard-widget-properties-button {
+	opacity: .2;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2012%2012%22%3E%0A%20%20%3Cpath%20fill%3D%22%23999EA6%22%20d%3D%22M1146.2162%2C733.493606%20C1146.03489%2C734.345928%201145.36463%2C735.016206%201144.51234%2C735.197463%20C1142.8874%2C735.543055%201141.47582%2C734.131018%201141.82147%2C732.506376%20C1141.98493%2C731.738143%201142.75689%2C730.966103%201143.5251%2C730.802606%20C1145.14973%2C730.456805%201146.56186%2C731.868528%201146.2162%2C733.493606%20M1149.5609%2C732.126224%20L1148.37221%2C731.927905%20L1148.37221%2C731.927905%20C1148.28776%2C731.582645%201148.1655%2C731.252265%201148.00681%2C730.943435%20C1148.00014%2C730.930442%201148.00169%2C730.914811%201148.01086%2C730.903443%20L1148.75675%2C729.978576%20C1148.9186%2C729.779157%201148.91125%2C729.492244%201148.74062%2C729.299793%20L1148.26785%2C728.767705%20C1148.09648%2C728.575446%201147.8123%2C728.53479%201147.59553%2C728.671741%20L1146.57896%2C729.310795%20L1146.57896%2C729.310795%20C1146.13826%2C729.00289%201145.63989%2C728.774341%201145.10251%2C728.639678%20C1145.08826%2C728.636098%201145.07745%2C728.624467%201145.07502%2C728.609954%20L1144.88013%2C727.438726%20C1144.83839%2C727.185675%201144.61941%2C727%201144.36236%2C727%20L1143.64991%2C727%20C1143.39338%2C727%201143.17365%2C727.185675%201143.13284%2C727.438726%20L1142.93687%2C728.610391%20C1142.93444%2C728.624868%201142.92365%2C728.636464%201142.90942%2C728.640027%20C1142.47453%2C728.749019%201142.06605%2C728.921037%201141.69186%2C729.145936%20C1141.67925%2C729.153516%201141.66341%2C729.152957%201141.65143%2C729.1444%20L1140.70436%2C728.468497%20C1140.49601%2C728.319636%201140.20982%2C728.342915%201140.02799%2C728.524364%20L1139.52467%2C729.028056%20C1139.34322%2C729.209889%201139.31994%2C729.496086%201139.4692%2C729.704447%20L1140.14669%2C730.653413%20C1140.15523%2C730.665376%201140.15582%2C730.681215%201140.14826%2C730.693824%20C1139.92555%2C731.065123%201139.75532%2C731.471174%201139.64644%2C731.902111%20C1139.64284%2C731.916344%201139.63125%2C731.927102%201139.61679%2C731.929512%20L1138.4387%2C732.126242%20C1138.18604%2C732.167963%201138%2C732.386976%201138%2C732.644044%20L1138%2C733.355956%20C1138%2C733.613006%201138.18604%2C733.832037%201138.4387%2C733.873758%20L1139.61675%2C734.070471%20C1139.63123%2C734.072898%201139.64284%2C734.083674%201139.64642%2C734.097924%20C1139.73499%2C734.44975%201139.86115%2C734.786295%201140.027%2C735.099579%20C1140.03391%2C735.112642%201140.03245%2C735.128516%201140.02316%2C735.140025%20L1139.28095%2C736.059285%20C1139.11966%2C736.258513%201139.12643%2C736.545618%201139.29707%2C736.737894%20L1139.76947%2C737.269999%20C1139.94085%2C737.462608%201140.22519%2C737.50253%201140.44198%2C737.365928%20L1141.45281%2C736.730926%20C1141.4652%2C736.723137%201141.48099%2C736.723452%201141.49311%2C736.73166%20C1141.92454%2C737.023218%201142.41123%2C737.237918%201142.93289%2C737.365928%20L1142.93289%2C737.365928%20L1143.13286%2C738.561239%20C1143.17367%2C738.814307%201143.39338%2C739%201143.64991%2C739%20L1144.36236%2C739%20C1144.61942%2C739%201144.83839%2C738.814325%201144.88013%2C738.561257%20L1145.07535%2C737.389801%20C1145.07778%2C737.375306%201145.08859%2C737.363693%201145.10284%2C737.36013%20C1145.53211%2C737.25264%201145.93528%2C737.08366%201146.30594%2C736.862726%20C1146.31855%2C736.855216%201146.33433%2C736.85581%201146.34626%2C736.864332%20L1147.33369%2C737.569574%20C1147.54168%2C737.718977%201147.82807%2C737.69554%201148.00971%2C737.513515%20L1148.51325%2C737.009981%20C1148.69448%2C736.828706%201148.71902%2C736.542666%201148.56852%2C736.333921%20L1147.86559%2C735.348351%20C1147.85705%2C735.336388%201147.85647%2C735.320566%201147.86403%2C735.307974%20C1148.0874%2C734.935419%201148.25854%2C734.528582%201148.36682%2C734.095706%20C1148.37038%2C734.081456%201148.38199%2C734.070646%201148.39647%2C734.068218%20L1149.5613%2C733.873724%20C1149.81471%2C733.831985%201150%2C733.612971%201150%2C733.355921%20L1150%2C732.644009%20C1149.99962%2C732.386976%201149.81433%2C732.167963%201149.5609%2C732.126224%22%20transform%3D%22translate%28-1138%20-727%29%22%20/%3E%0A%3C/svg%3E%0A');
+}
+
+.report-visualconstructor-dashboard-widget-light .report-visualconstructor-dashboard-widget-properties-button:hover {
+	opacity: .5;
+}
+
+.report-visualconstructor-dashboard-row-container {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+
+.report-visualconstructor-dashboard-pseudo-row .report-visualconstructor-dashboard-cell {
+    border: 2px dashed #a7b0b5;
+    border-radius: 2px;
+    box-sizing: border-box;
+    /*animation: expandCell 500ms 1;*/
+    min-height: 50px;
+}
+
+@keyframes expandCell {
+    from {min-height: 0}
+    to {min-height: 50px}
+}
+
+.report-visualconstructor-dashboard-row-drag
+{
+    z-index: 999999;
+    opacity: .6;
+    transition: 0s;
+    margin: 0;
+    padding: 0;
+    -webkit-transform: translate(0px, -50%);
+    transform: translate(0px, -50%);
+}
+
+.report-visualconstructor-dashboard-row-container > .report-visualconstructor-dashboard-row-wrapper
+{
+    width: 100%;
+    height: 100%;
+}
+
+.report-visualconstructor-dashboard-cell-container-direction-row
+{
+    display: flex;
+}
+
+.report-visualconstructor-dashboard-row
+{
+    display: flex;
+}
+
+.report-visualconstructor-dashboard-cell
+{
+    /*min-height: 50px;*/
+    overflow: hidden;
+    margin-right: 16px;
+    flex: 1;
+
+}
+.report-visualconstructor-dashboard-cell > .report-visualconstructor-dashboard-row
+{
+    height: 100%;
+}
+.report-visualconstructor-dashboard-row-direction-column
+{
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+.report-visualconstructor-dashboard-row-direction-row
+{
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+.report-visualconstructor-dashboard-row-direction-column > .report-visualconstructor-dashboard-cell
+{
+
+    margin-right: 0;
+    margin-bottom: 20px;
+}
+
+.report-visualconstructor-dashboard-row-direction-column > .report-visualconstructor-dashboard-cell:last-child
+{
+    margin-bottom: 0;
+}
+
+.report-visualconstructor-dashboard-row-direction-row > .report-visualconstructor-dashboard-cell
+{
+
+    margin-right: 16px;
+    margin-bottom: 0;
+}
+
+.report-visualconstructor-dashboard-row-direction-row > .report-visualconstructor-dashboard-cell:last-child
+{
+
+    margin-right: 0;
+}
+
+/*.report-visualconstructor-dashboard-row-direction-column > .report-visualconstructor-dashboard-empty-cell:not(.report-visualconstructor-dashboard-empty-cell-droppable)*/
+/*{*/
+    /*margin-bottom: 0;*/
+    /*margin-top: -16px;*/
+    /**/
+/*}*/
+
+.report-visualconstructor-dashboard-cell:last-child
+{
+    margin-right: 0;
+}
+
+
+
+.report-visualconstructor-dashboard-cell.report-visualconstructor-dashboard-cell-container-direction-row
+{
+    margin-right: 10px;
+}
+
+.report-visualconstructor-dashboard-empty-cell
+{
+    min-height: 0;
+}
+
+.report-visualconstructor-dashboard-empty-cell-droppable
+{
+    /*border: 2px dashed #0a51ae;*/
+    background-color: #EFEFEF;
+    -webkit-transition: min-height 500ms;
+    -moz-transition: min-height 500ms;
+    -o-transition: min-height 500ms;
+    transition: min-height 500ms;
+    min-height: 50px;
+}
+
+.report-visualconstructor-dashboard-empty-cell-droppable-active
+{
+    background-color: #e0ded1;
+}
+
+.report-visualconstructor-dashboard-cell.report-visualconstructor-dashboard-cell-container-direction-row:last-child
+{
+  margin-right: 0;
+}
+
+.report-visualconstructor-dashboard-row-add-control
+{
+    position: absolute;
+    top: calc(100% - 17px);
+    left: calc(50% - 50px);
+    z-index: 99;
+    cursor: pointer;
+    height: 25px;
+    width: 100px;
+    border-radius: 21px;
+    background-color: #d2f95f;
+    color: #535c69;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    opacity: 0;
+    display: none;
+}
+
+
+.report-visualconstructor-dashboard-row-remove-control
+{
+    position: absolute;
+    top: -13px;
+    right: -6px;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    background-color: #ff0000;
+    color: #ffffff;
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    opacity: 0;
+    display: none;
+}
+
+.report-visualconstructor-dashboard-row-move-control
+{
+    position: absolute;
+    top: calc(50% - 12px);
+    left: -11px;
+    border: 1px solid #000;
+    border-radius: 17px;
+    z-index: 99999;
+    height: 40px;
+    width: 20px;
+    text-align: center;
+    background-color: #d2f95f;
+    cursor: move;
+    opacity: 0;
+    display: none;
+}
+
+.report-visualconstructor-dashboard-designer-mode .report-visualconstructor-dashboard-row-move-control
+{
+    display: block;
+}
+
+.report-visualconstructor-dashboard-designer-mode .report-visualconstructor-dashboard-row-add-control
+{
+    display: block;
+}
+
+.report-visualconstructor-dashboard-add-row-popup-opened, .report-visualconstructor-dashboard-row-container:hover .report-visualconstructor-dashboard-row-add-control
+{
+    opacity: 1;
+}
+
+.report-visualconstructor-dashboard-row-container:hover .report-visualconstructor-dashboard-row-move-control
+{
+    opacity: 1;
+}
+
+.report-visualconstructor-dashboard-row-container:hover .report-visualconstructor-dashboard-row-remove-control
+{
+    opacity: 1;
+}
+
+
+.report-visualconstructor-dashboard-row-miniature-popup-content
+{
+    height: 100%;
+    width: 160px;
+    margin: 5px;
+}
+
+.report-visualconstructor-dashboard-miniature-container
+{
+    display: flex;
+    float:left;
+    width: 60px;
+    height: 20px;
+    padding: 4px;
+    margin-bottom: 4px;
+}
+
+.report-visualconstructor-dashboard-miniature-inner-left-container, .report-visualconstructor-dashboard-miniature-inner-right-container
+{
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    flex: 1;
+}
+
+.report-visualconstructor-dashboard-miniature-inner-left-container
+{
+    margin-right: 1px;
+}
+
+.report-visualconstructor-dashboard-miniature-container:hover
+{
+    background: #0ae4ff;
+    cursor: pointer;
+}
+
+.report-visualconstructor-dashboard-miniature-cell
+{
+    flex: 1;
+    border: 1px dashed #00B5FF;
+}
+.report-visualconstructor-dashboard-miniature-inner-left-container > .report-visualconstructor-dashboard-miniature-cell
+{
+    margin-bottom: 1px;
+}
+
+.report-visualconstructor-dashboard-miniature-inner-left-container > .report-visualconstructor-dashboard-miniature-cell:last-child
+{
+    margin-bottom: 0;
+}
+
+.report-visualconstructor-dashboard-miniature-inner-right-container > .report-visualconstructor-dashboard-miniature-cell
+{
+    margin-bottom: 1px;
+}
+
+.report-visualconstructor-dashboard-miniature-inner-right-container > .report-visualconstructor-dashboard-miniature-cell:last-child
+{
+    margin-bottom: 0;
+}
+
+.report-visualconstructor-dashboard-miniature-container > .report-visualconstructor-dashboard-miniature-cell
+{
+    margin-right: 1px;
+}
+
+.report-visualconstructor-dashboard-miniature-container > .report-visualconstructor-dashboard-miniature-cell:last-child
+{
+    margin-right: 0;
+}
+
+.report-visualconstructor-dashboard-cell-temp-content
+{
+    color: #b3aeae;
+    text-align: center;
+    display: none;
+    height: 100%;
+}
+
+.report-visualconstructor-dashboard-cell-temp-content > ins
+{
+    cursor: pointer;
+}
+
+.report-visualconstructor-dashboard-cell:hover > .report-visualconstructor-dashboard-cell-temp-content
+{
+    /*display: block;*/
+}
+
+.report-visualconstructor-dashboard-hidden-temp-content
+{
+    display: none;
+}

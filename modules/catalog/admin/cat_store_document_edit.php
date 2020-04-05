@@ -219,6 +219,12 @@ if($ID > 0)
 	}
 }
 
+if (!isset(CCatalogDocs::$types[$docType]))
+{
+	$docType = '';
+	LocalRedirect("/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+}
+
 $requiredFields = CCatalogStoreControlUtil::getFields($docType);
 if(!$requiredFields || $_REQUEST["dontsave"])
 	LocalRedirect("/bitrix/admin/cat_store_document_list.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
@@ -272,7 +278,7 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 
 	if(!isset($_REQUEST["AJAX_MODE"]))
 	{
-		$dbDocumentElement = CCatalogStoreDocsElement::getList(array(), array("DOC_ID" => $ID), false, false, array("ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "PURCHASING_PRICE", "IS_MULTIPLY_BARCODE", "RESERVED"));
+		$dbDocumentElement = CCatalogStoreDocsElement::getList(array('ID' => 'ASC'), array("DOC_ID" => $ID), false, false, array("ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "PURCHASING_PRICE", "IS_MULTIPLY_BARCODE", "RESERVED"));
 		while($arDocumentElements = $dbDocumentElement->Fetch())
 		{
 			$arAllDocumentElement[] = $arDocumentElements;

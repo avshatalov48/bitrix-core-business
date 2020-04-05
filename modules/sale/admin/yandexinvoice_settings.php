@@ -15,7 +15,7 @@ $request = $context->getRequest();
 
 global $APPLICATION;
 
-$id = $request->get('pay_system_id');
+$id = (int)$request->get('pay_system_id');
 $personTypeId = $request->getQuery("personTypeId");
 $personTypeList = \Bitrix\Sale\BusinessValue::getPersonTypes();
 $errorMsg = '';

@@ -515,7 +515,14 @@ while($arRes = $dbResultList->Fetch())
 
 
 	$arActions = array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("CAT_DOC_".$strForAction), "ACTION"=>$lAdmin->ActionRedirect("cat_store_document_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID/*."&".GetFilterParams("filter_").""*/), "DEFAULT"=>true);
+	$arActions[] = array(
+		"ICON" => "edit",
+		"TEXT" => GetMessage("CAT_DOC_".$strForAction),
+		"ACTION" => $lAdmin->ActionRedirect(
+			"cat_store_document_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID."&".GetFilterParams("filter_")
+		),
+		"DEFAULT" => true
+	);
 
 	if (!$bReadOnly)
 	{

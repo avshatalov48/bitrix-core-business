@@ -780,16 +780,19 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] == "PUT")
 			"PATH_TO_GROUP_TASK_ELEMENT" => $arResult["PATH_TO_GROUP_TASKS_TASK"],
 			"PATH_TO_USER_TASK_ELEMENT" => "",
 			"TASK_FORUM_ID" => ($tasksForumId > 0 ? $tasksForumId : $arParams["TASK_FORUM_ID"]),
-
-			"FILES_PROPERTY_CODE" => $arParams["NAME_FILE_PROPERTY"],
-			"FILES_FORUM_ID" => $arParams["FILES_FORUM_ID"],
-			"FILES_GROUP_IBLOCK_ID" => $arParams["FILES_GROUP_IBLOCK_ID"],
-			"PATH_TO_GROUP_FILES_ELEMENT" => $arResult["PATH_TO_GROUP_FILES_ELEMENT"],
-			"PATH_TO_GROUP_FILES" => $arResult["PATH_TO_GROUP_FILES"],
-			"FILES_USER_IBLOCK_ID" => false,
-			"PATH_TO_USER_FILES_ELEMENT" => "",
-			"PATH_TO_USER_FILES" => "",
 		);
+
+		if (!$diskEnabled)
+		{
+			$arSocNetSearchParams["FILES_PROPERTY_CODE"] = $arParams["NAME_FILE_PROPERTY"];
+			$arSocNetSearchParams["FILES_FORUM_ID"] = $arParams["FILES_FORUM_ID"];
+			$arSocNetSearchParams["FILES_GROUP_IBLOCK_ID"] = $arParams["FILES_GROUP_IBLOCK_ID"];
+			$arSocNetSearchParams["PATH_TO_GROUP_FILES_ELEMENT"] = $arResult["PATH_TO_GROUP_FILES_ELEMENT"];
+			$arSocNetSearchParams["PATH_TO_GROUP_FILES"] = $arResult["PATH_TO_GROUP_FILES"];
+			$arSocNetSearchParams["FILES_USER_IBLOCK_ID"] = false;
+			$arSocNetSearchParams["PATH_TO_USER_FILES_ELEMENT"] = "";
+			$arSocNetSearchParams["PATH_TO_USER_FILES"] = "";
+		}
 
 		if (isset($arResult["PATH_TO_GROUP_WIKI_POST_COMMENT"]))
 		{
@@ -852,10 +855,13 @@ if(strpos($componentPage, 'group_disk') !== false)
 				WebDav
 ********************************************************************/
 if (
-	strPos($componentPage, "group_files") !== false 
-	|| strPos($componentPage, "group_blog") !== false
-	|| strPos($componentPage, "group_log") !== false
-	|| $componentPage == "group"
+	!$diskEnabled
+	&& (
+		strPos($componentPage, "group_files") !== false
+		|| strPos($componentPage, "group_blog") !== false
+		|| strPos($componentPage, "group_log") !== false
+		|| $componentPage == "group"
+	)
 )
 {
 	if (intval($arResult["VARIABLES"]["group_id"]) > 0)

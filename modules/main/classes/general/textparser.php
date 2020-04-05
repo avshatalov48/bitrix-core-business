@@ -185,23 +185,24 @@ class CTextParser
 
 		$text = preg_replace(array("#([?&;])PHPSESSID=([0-9a-zA-Z]{32})#is", "/\\x{00A0}/".BX_UTF_PCRE_MODIFIER), array("\\1PHPSESSID1=", " "), $text);
 
-		$this->serverName = "";
 		$this->defended_urls = array();
 
-		if($this->type == "rss")
+		if($this->serverName == '' && $this->type == "rss")
 		{
 			$dbSite = CSite::GetByID(SITE_ID);
 			$arSite = $dbSite->Fetch();
 			$serverName = $arSite["SERVER_NAME"];
-			if (strlen($serverName) <=0)
+			if ($serverName == '')
 			{
-				if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+				if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 					$serverName = SITE_SERVER_NAME;
 				else
-					$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
+					$serverName = COption::GetOptionString("main", "server_name");
 			}
-			$serverName = htmlspecialcharsbx($serverName);
-			$this->serverName = "http://".$serverName;
+			if ($serverName <> '')
+			{
+				$this->serverName = "http://".$serverName;
+			}
 		}
 
 		$this->preg = array("counter" => 0, "pattern" => array(), "replace" => array(), "cache" => array());
@@ -1064,7 +1065,7 @@ class CTextParser
 		if ($descriptionDecode)
 			$description = htmlspecialcharsback($description);
 
-		$html = '<img src="'.$this->serverName.$this->pathToSmile.$image.'" border="0" data-code="'.$code.'" data-definition="'.$imageDefinition.'" alt="'.$code.'"'.' style="'.($width > 0 ? 'width:'.$width.'px;' : '').($height > 0 ? 'height:'.$height.'px;' : '').'"'.' title="'.$description.'" class="bx-smile" />';
+		$html = '<img src="'.htmlspecialcharsbx($this->serverName).$this->pathToSmile.$image.'" border="0" data-code="'.$code.'" data-definition="'.$imageDefinition.'" alt="'.$code.'"'.' style="'.($width > 0 ? 'width:'.$width.'px;' : '').($height > 0 ? 'height:'.$height.'px;' : '').'"'.' title="'.$description.'" class="bx-smile" />';
 		$cacheKey = md5($html);
 		if (!isset($this->preg["cache"][$cacheKey]))
 			$this->preg["cache"][$cacheKey] = $this->defended_tags($html, 'replace');
@@ -1177,8 +1178,9 @@ class CTextParser
 		if($height > 0)
 			$strPar .= " height=\"".$height."\"";
 
-		$image = '<img src="'.$this->serverName.$url.'" border="0"'.$strPar.' data-bx-image="'.$this->serverName.$url.'" />';
-		if(strlen($this->serverName) <= 0 || preg_match("/^(http|https|ftp)\\:\\/\\//i".BX_UTF_PCRE_MODIFIER, $url))
+		$serverName = htmlspecialcharsbx($this->serverName);
+		$image = '<img src="'.$serverName.$url.'" border="0"'.$strPar.' data-bx-image="'.$serverName.$url.'" />';
+		if($this->serverName == '' || preg_match("/^(http|https|ftp)\\:\\/\\//i".BX_UTF_PCRE_MODIFIER, $url))
 			$image = '<img src="'.$url.'" border="0"'.$strPar.' data-bx-image="'.$url.'" />';
 		return $this->defended_tags($image, 'replace');
 	}
@@ -1220,7 +1222,7 @@ class CTextParser
 				$value = intVal(substr($value, 0, -2));
 				if ($value <= 0)
 					return $text;
-				return '<span style="font-size:'.$value.'pt; line-height: normal;">'.$text.'</span>';
+				return '<span class="bx-font" style="font-size:'.$value.'pt; line-height: normal;">'.$text.'</span>';
 			}
 
 			$count = count($this->arFontSize);
@@ -1229,17 +1231,17 @@ class CTextParser
 			$value = intval($value > $count ? ($count - 1) : $value);
 			//compatibility with old percent values
 			$size = (is_numeric($this->arFontSize[$value])? $this->arFontSize[$value].'%' : $this->arFontSize[$value]);
-			return '<span style="font-size:'.$size.';">'.$text.'</span>';
+			return '<span class="bx-font" style="font-size:'.$size.';">'.$text.'</span>';
 		}
 		elseif ($attr == 'color')
 		{
 			$value = preg_replace("/[^\\w#]/", "" , $value);
-			return '<span style="color:'.$value.'">'.$text.'</span>';
+			return '<span class="bx-font" style="color:'.$value.'">'.$text.'</span>';
 		}
 		elseif ($attr == 'font')
 		{
 			$value = preg_replace("/[^\\w\\s\\-\\,]/", "" , $value);
-			return '<span style="font-family:'.$value.'">'.$text.'</span>';
+			return '<span class="bx-font" style="font-family:'.$value.'">'.$text.'</span>';
 		}
 		return '';
 	}
@@ -1369,7 +1371,7 @@ class CTextParser
 
 		$res = (
 			!$this->bPublic
-				? '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'">'.$userName.'</a>'
+				? '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'.$userName.'</a>'
 				: $userName
 		);
 

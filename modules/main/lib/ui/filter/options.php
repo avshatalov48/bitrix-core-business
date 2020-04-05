@@ -446,6 +446,11 @@ class Options
 			}
 		}
 
+		if ($request["FIND"] !== null)
+		{
+			$result["fields"]["FIND"] = $request["FIND"];
+		}
+
 		if (empty($result["fields"]) && empty($result["rows"]))
 		{
 			$result = null;
@@ -578,6 +583,7 @@ class Options
 	 * @param string $key
 	 * @param array $filterFields
 	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public static function fetchDateFieldValue($key = "", $filterFields = array())
 	{
@@ -1091,6 +1097,7 @@ class Options
 	 * @param string $fieldId
 	 * @param array $source Source values
 	 * @param array $result Result values
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public static function calcDates($fieldId, $source, &$result)
 	{
@@ -1302,6 +1309,7 @@ class Options
 				{
 					$dateTime = new Filter\DateTime();
 					$days = (int) $source[$fieldId."_days"];
+					$days = $days > 0 ? $days - 1 : 0;
 
 					$result[$fieldId."_datesel"] = DateType::PREV_DAYS;
 					$result[$fieldId."_month"] = $dateTime->month();
@@ -1309,11 +1317,72 @@ class Options
 					$result[$fieldId."_days"] = $source[$fieldId."_days"];
 					$result[$fieldId."_year"] = $dateTime->year();
 					$result[$fieldId."_from"] = $dateTime->offset("- ".$days." days");
-					$result[$fieldId."_to"] = $dateTime->offset("-1 second");
+					$result[$fieldId."_to"] = $dateTime->offset("1 days -1 second");
 				}
 
 				break;
 			}
+
+			case AdditionalDateType::PREV_DAY :
+			{
+				if (is_numeric($source[$fieldId."_days"]))
+				{
+					$dateTime = new Filter\DateTime();
+					$days = (int) $source[$fieldId."_days"];
+
+					$result[$fieldId."_days"] = $source[$fieldId."_days"];
+					$result[$fieldId."_from"] = $dateTime->offset(-$days." days");
+					$result[$fieldId."_to"] = $dateTime->offset(-($days-1)." days -1 second");
+				}
+
+				break;
+			}
+
+			case AdditionalDateType::NEXT_DAY :
+			{
+				if (is_numeric($source[$fieldId."_days"]))
+				{
+					$dateTime = new Filter\DateTime();
+					$days = (int) $source[$fieldId."_days"];
+
+					$result[$fieldId."_days"] = $source[$fieldId."_days"];
+					$result[$fieldId."_from"] = $dateTime->offset($days." days");
+					$result[$fieldId."_to"] = $dateTime->offset(($days+1)." days -1 second");
+				}
+
+				break;
+			}
+
+			case AdditionalDateType::MORE_THAN_DAYS_AGO :
+			{
+				if (is_numeric($source[$fieldId."_days"]))
+				{
+					$dateTime = new Filter\DateTime();
+					$days = (int) $source[$fieldId."_days"];
+
+					$result[$fieldId."_days"] = $source[$fieldId."_days"];
+					$result[$fieldId."_from"] = $dateTime->offset(-($days+1)." days");
+					$result[$fieldId."_to"] = $dateTime->offset(-$days." days -1 second");
+				}
+
+				break;
+			}
+
+			case AdditionalDateType::AFTER_DAYS :
+				{
+					if (is_numeric($source[$fieldId."_days"]))
+					{
+						$dateTime = new Filter\DateTime();
+						$days = (int) $source[$fieldId."_days"];
+
+						$result[$fieldId."_days"] = $source[$fieldId."_days"];
+						$result[$fieldId."_from"] = $dateTime->offset($days." days");
+						$result[$fieldId."_to"] = $dateTime->offset(($days+1)." days -1 second");
+					}
+
+					break;
+				}
+
 
 			case DateType::QUARTER :
 			{

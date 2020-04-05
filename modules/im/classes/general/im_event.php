@@ -528,7 +528,16 @@ class CIMEvent
 
 	public static function GetMessageRatingVote($arParams, $bForMail = false)
 	{
-		$like = $arParams['VALUE'] >= 0? '_LIKE': '_DISLIKE';
+		$like = (
+			$arParams['VALUE'] >= 0
+				? (
+					empty($arParams['REACTION'])
+					|| $arParams['REACTION'] == 'like'
+						? '_LIKE'
+						: '_REACT'
+				)
+				: '_DISLIKE'
+		);
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "OnGetMessageRatingVote") as $event)
 		{
@@ -538,6 +547,34 @@ class CIMEvent
 		if(isset($arParams['MESSAGE'])) // message was generated manually inside OnGetMessageRatingVote
 		{
 			return $arParams['MESSAGE'];
+		}
+
+		$genderSuffix = '';
+		if (
+			$like == '_REACT'
+			&& !empty($arParams['USER_ID'])
+			&& intval($arParams['USER_ID']) > 0
+		)
+		{
+			$res = \Bitrix\Main\UserTable::getList(array(
+				'filter' => array(
+					'ID' => intval($arParams['USER_ID'])
+				),
+				'select' => array('PERSONAL_GENDER')
+			));
+			if ($userFields = $res->fetch())
+			{
+				switch ($userFields['PERSONAL_GENDER'])
+				{
+					case "M":
+					case "F":
+						$genderSuffix = '_'.$userFields['PERSONAL_GENDER'];
+						break;
+					default:
+						$genderSuffix = '';
+				}
+			}
+			$like .= $genderSuffix;
 		}
 
 		if (!isset($CCTP))
@@ -982,7 +1019,7 @@ class CIMEvent
 			$relationList = IM\Model\RecentTable::getList(array(
 				"select" => array("USER_ID"),
 				"filter" => array(
-					"=ITEM_TYPE" => 'P',
+					"=ITEM_TYPE" => IM_MESSAGE_PRIVATE,
 					"=ITEM_ID" => $ID,
 				),
 			));
@@ -996,7 +1033,7 @@ class CIMEvent
 			$obCache->CleanDir('/bx/imc/recent');
 		}
 
-		$strSQL = "DELETE FROM b_im_recent WHERE ITEM_TYPE = 'P' and ITEM_ID = ".$ID;
+		$strSQL = "DELETE FROM b_im_recent WHERE ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' and ITEM_ID = ".$ID;
 		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		return true;
@@ -1021,6 +1058,7 @@ class DesktopApplication extends Bitrix\Main\Authentication\Application
 		"/disk/downloadFile/",
 		"/bitrix/services/disk/index.php",
 		"/bitrix/services/rest/index.php",
+		"/bitrix/services/main/ajax.php",
 		"/bitrix/components/bitrix/imopenlines.iframe.quick/ajax.php",
 	);
 

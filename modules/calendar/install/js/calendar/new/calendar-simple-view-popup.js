@@ -141,7 +141,7 @@
 				BX.util.htmlspecialchars(this.entry.data['~RRULE_DESCRIPTION']) + '</div></div></div>'});
 			}
 
-			if (this.entry.isMeeting() && this.entry.getAttendees().length > 0)
+			if (this.calendar.util.isMeetingsEnabled() && this.entry.isMeeting() && this.entry.getAttendees().length > 0)
 			{
 				row = this.DOM.tableWrap.insertRow(-1);
 				BX.adjust(row.insertCell(-1), {props: {className: 'calendar-field-table-cell-name'}, html: BX.message('EC_HOST') + ':'});
@@ -200,6 +200,18 @@
 				BX.util.htmlspecialchars(location) + '</div></div></div>'});
 			}
 
+			if (this.calendar.util.showEventDescriptionInSimplePopup())
+			{
+				this.entry.getDescription(BX.proxy(function(descriptionHTML)
+				{
+					if (BX.isNodeInDom(this.DOM.tableWrap) && descriptionHTML)
+					{
+						row = this.DOM.tableWrap.insertRow(-1);
+						BX.adjust(row.insertCell(-1), {attrs: {colSpan: 2, className: 'calendar-field-table-cell-value'}, html: '<div class="calendar-field-container calendar-field-container-text calendar-container-short-description"><div class="calendar-field-block"><div class="calendar-text calendar-description-field">' + descriptionHTML + '</div></div></div>'});
+					}
+				}, this));
+			}
+
 			this.showButtons();
 
 			return this.wrap;
@@ -208,23 +220,26 @@
 		showButtons: function()
 		{
 			// Buttons
-			this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
-				props: {className: 'calendar-right-block-event-info-btn'},
-				text: BX.message('EC_VIEW'),
-				events: {click: BX.proxy(function(){
-					if (this.entry.isTask())
-					{
-						BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(this.entry.id), {loader: "task-new-loader"});
-					}
-					else
-					{
-						this.calendar.getView().showViewSlider({entry: this.entry});
-					}
-					this.close({deselectEntry: true});
-				}, this)}
-			}));
+			if (this.calendar.util.useViewSlider())
+			{
+				this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
+					props: {className: 'calendar-right-block-event-info-btn'},
+					text: BX.message('EC_VIEW'),
+					events: {click: BX.proxy(function(){
+						if (this.entry.isTask())
+						{
+							BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(this.entry.id), {loader: "task-new-loader"});
+						}
+						else
+						{
+							this.calendar.getView().showViewSlider({entry: this.entry});
+						}
+						this.close({deselectEntry: true});
+					}, this)}
+				}));
+			}
 
-			if (this.entry && this.entry.getCurrentStatus())
+			if (this.calendar.util.isMeetingsEnabled() && this.entry && this.entry.getCurrentStatus())
 			{
 				var status = this.entry.getCurrentStatus();
 

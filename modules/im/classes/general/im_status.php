@@ -22,12 +22,29 @@ class CIMStatus
 		if (isset($params['STATUS']))
 			$params['IDLE'] = null;
 
+		$previousStatus = Array(
+			'USER_ID' => $userId,
+			'STATUS' => '',
+			'COLOR' => '',
+			'IDLE' => false,
+			'MOBILE_LAST_DATE' => false,
+			'DESKTOP_LAST_DATE' => false,
+		);
 		$needToUpdate = false;
 
 		$params = self::PrepareFields($params);
 		$res = IM\Model\StatusTable::getById($userId);
 		if ($status = $res->fetch())
 		{
+			$previousStatus = Array(
+				'USER_ID' => $status['USER_ID'],
+				'STATUS' => (string)$status['STATUS'],
+				'COLOR' => (string)$status['COLOR'],
+				'IDLE' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $status['IDLE']: false,
+				'MOBILE_LAST_DATE' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['MOBILE_LAST_DATE']: false,
+				'DESKTOP_LAST_DATE' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['DESKTOP_LAST_DATE']: false,
+			);
+
 			foreach ($params as $key => $value)
 			{
 				$oldValue = is_object($status[$key])? $status[$key]->toString(): $status[$key];
@@ -64,9 +81,10 @@ class CIMStatus
 						$userId => Array(
 							'id' => $userId,
 							'status' => $status['STATUS'],
-							'color' => $status['COLOR']? \Bitrix\Im\Color::getColor($status['COLOR']): '',
+							'color' => $status['COLOR']? \Bitrix\Im\Color::getColor($status['COLOR']): \Bitrix\Im\Color::getColorByNumber($userId),
 							'idle' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['IDLE']->getTimestamp()): false,
 							'mobile_last_date' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['MOBILE_LAST_DATE']->getTimestamp()): false,
+							'desktop_last_date' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? date('c', $status['DESKTOP_LAST_DATE']->getTimestamp()): false,
 							'last_activity_date' => date('c', time())
 						)
 					)
@@ -76,21 +94,31 @@ class CIMStatus
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		$cache->cleanDir(self::CACHE_PATH.$userId.'/');
-
 		$cache->CleanDir(self::CACHE_ONLINE_PATH);
+
+		$event = new \Bitrix\Main\Event("im", "onStatusSet", array(
+			'USER_ID' => $userId,
+			'STATUS' => $status['STATUS'],
+			'COLOR' => $status['COLOR']? $status['COLOR']: '',
+			'IDLE' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $status['IDLE']: false,
+			'MOBILE_LAST_DATE' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['MOBILE_LAST_DATE']: false,
+			'PREVIOUS_VALUES' => $previousStatus
+		));
+		$event->send();
 
 		return true;
 	}
 
-	public static function SetIdle($userId, $result = true, $min = 10)
+	public static function SetIdle($userId, $result = true, $ago = 10)
 	{
 		$date = null;
-		$min = intval($min);
-		if ($result && $min > 0)
+		$ago = intval($ago);
+		if ($result && $ago > 0)
 		{
 			$date = new Bitrix\Main\Type\DateTime();
-			$date->add('-'.$min.' MINUTE');
+			$date->add('-'.$ago.' MINUTE');
 		}
+
 		CIMStatus::Set($userId, Array('IDLE' => $date));
 	}
 

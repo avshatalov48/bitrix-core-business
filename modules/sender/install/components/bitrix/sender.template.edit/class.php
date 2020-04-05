@@ -1,0 +1,160 @@
+<?
+
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Context;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Error;
+
+use Bitrix\Sender\Internals\QueryController;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Entity;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\Security;
+
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+Loc::loadMessages(__FILE__);
+
+class SenderTemplateEditComponent extends CBitrixComponent
+{
+	/** @var ErrorCollection $errors */
+	protected $errors;
+
+	/** @var Entity\Template $entityTemplate */
+	protected $entityTemplate;
+
+	protected function checkRequiredParams()
+	{
+		return $this->errors->count() == 0;
+	}
+
+	protected function initParams()
+	{
+		$this->arParams['ID'] = isset($this->arParams['ID']) ? (int) $this->arParams['ID'] : 0;
+		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
+
+		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? (bool) $this->arParams['SET_TITLE'] : true;
+		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
+			?
+			$this->arParams['CAN_EDIT']
+			:
+			Security\Access::current()->canModifyLetters();
+	}
+
+	protected function preparePost()
+	{
+		$data = Array(
+			"CONTENT"	=> Security\Sanitizer::cleanHtml($this->request->getPostList()->getRaw('CONTENT')),
+			"NAME"	=> $this->request->get('NAME'),
+		);
+
+		$this->entityTemplate->mergeData($data)->save();
+		$this->errors->add($this->entityTemplate->getErrors());
+
+		if ($this->errors->isEmpty())
+		{
+			$path = str_replace('#id#', $this->entityTemplate->getId(), $this->arParams['PATH_TO_EDIT']);
+			$uri = new Uri($path);
+			if ($this->request->get('IFRAME') == 'Y')
+			{
+				$uri->addParams(array('IFRAME' => 'Y'));
+				$uri->addParams(array('IS_SAVED' => 'Y'));
+			}
+			$path = $uri->getLocator();
+
+			LocalRedirect($path);
+		}
+	}
+
+	protected function prepareResult()
+	{
+		if ($this->arParams['SET_TITLE'] == 'Y')
+		{
+			$GLOBALS['APPLICATION']->SetTitle(
+				$this->arParams['ID'] > 0
+					?
+					Loc::getMessage('SENDER_COMP_TEMPLATE_EDIT_TITLE_EDIT')
+					:
+					Loc::getMessage('SENDER_COMP_TEMPLATE_EDIT_TITLE_ADD')
+			);
+		}
+
+		if (!Security\Access::current()->canViewLetters())
+		{
+			Security\AccessChecker::addError($this->errors);
+			return false;
+		}
+
+		$this->arResult['SUBMIT_FORM_URL'] = Context::getCurrent()->getRequest()->getRequestUri();
+
+		$this->entityTemplate = new Entity\Template($this->arParams['ID']);
+		$this->arResult['ROW'] = $this->entityTemplate->getData();
+
+
+		if (!$this->arResult['ROW']['TYPE'])
+		{
+			$this->arResult['ROW']['TYPE'] = Message\ConfigurationOption::TYPE_MAIL_EDITOR;
+		}
+
+		if ($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
+		{
+			$this->preparePost();
+		}
+
+		$this->arResult['ROW']['CONTENT_URL'] = QueryController\Manager::getActionRequestingUri(
+			CommonAjax\ActionGetTemplate::NAME,
+			array(
+				'template_type' => 'USER',
+				'template_id' => $this->arResult['ROW']['ID']
+			),
+			$this->getPath() . '/ajax.php'
+		);
+
+		$this->arResult['USE_TEMPLATES'] = true;
+		$this->arResult['SHOW_TEMPLATE_SELECTOR'] = empty($this->arResult['ROW']['CONTENT']);
+
+		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
+
+		return true;
+	}
+
+	protected function printErrors()
+	{
+		foreach ($this->errors as $error)
+		{
+			ShowError($error);
+		}
+	}
+
+	public function executeComponent()
+	{
+		$this->errors = new \Bitrix\Main\ErrorCollection();
+		if (!Loader::includeModule('sender'))
+		{
+			$this->errors->setError(new Error('Module `sender` is not installed.'));
+			$this->printErrors();
+			return;
+		}
+
+		$this->initParams();
+		if (!$this->checkRequiredParams())
+		{
+			$this->printErrors();
+			return;
+		}
+
+		if (!$this->prepareResult())
+		{
+			$this->printErrors();
+			return;
+		}
+
+		$this->includeComponentTemplate();
+	}
+}

@@ -30,9 +30,21 @@ class Helper
 		while ($item = $res->fetch())
 		{
 			if ($item['SERVICE_TYPE'] == 'domain')
-				\CMailDomain2::getDomainUsers($item['TOKEN'], $item['SERVER'], $error, true);
-			if ($item['SERVICE_TYPE'] == 'crdomain')
+			{
+				$lockName = sprintf('domain_users_sync_lock_%u', $item['ID']);
+				$syncLock = \Bitrix\Main\Config\Option::get('mail', $lockName, 0);
+
+				if ($syncLock < time()-3600)
+				{
+					\Bitrix\Main\Config\Option::set('mail', $lockName, time());
+					\CMailDomain2::getDomainUsers($item['TOKEN'], $item['SERVER'], $error, true);
+					\Bitrix\Main\Config\Option::set('mail', $lockName, 0);
+				}
+			}
+			else if ($item['SERVICE_TYPE'] == 'crdomain')
+			{
 				\CControllerClient::executeEvent('OnMailControllerResyncMemberUsers', array('DOMAIN' => $item['SERVER']));
+			}
 		}
 
 		return 'Bitrix\Mail\Helper::resyncDomainUsersAgent();';
@@ -210,7 +222,7 @@ class Helper
 		$blacklist['domain'] = array_map('strtolower', $blacklist['domain']);
 		$blacklist['email']  = array_map('strtolower', $blacklist['email']);
 
-		$nouidv = \Bitrix\Main\Config\Option::get('mail', sprintf('imap_mailbox_no_uidv_%u', $mailbox['ID']), 'N');
+		$nouidv = \Bitrix\Main\Config\Option::get('mail', sprintf('imap_mailbox_no_uidv_v3_%u', $mailbox['ID']), 'N');
 
 		$session = md5(uniqid(''));
 
@@ -227,17 +239,17 @@ class Helper
 			if (empty($list))
 				continue;
 
-			if (!($uidtoken > 0) && $nouidv != 'Y')
+			if (!is_null($uidtoken) && $nouidv != 'Y')
 			{
 				addMessage2Log(
 					sprintf(
-						'IMAP: UIDV not found (%s:%s/%s)',
+						'IMAP: UIDV not found v3 (%s:%s/%s)',
 						$mailbox['SERVER'], $mailbox['PORT'], $mailbox['LOGIN']
 					),
 					'mail', 0, false
 				);
 
-				\Bitrix\Main\Config\Option::set('mail', sprintf('imap_mailbox_no_uidv_%u', $mailbox['ID']), $nouidv = 'Y');
+				\Bitrix\Main\Config\Option::set('mail', sprintf('imap_mailbox_no_uidv_v3_%u', $mailbox['ID']), $nouidv = 'Y');
 			}
 
 			foreach ($list as $item)

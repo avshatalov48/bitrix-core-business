@@ -1023,9 +1023,14 @@ else
 															$featureTitle = $featureTitleOriginal = (
 																isset($arResult["arSocNetFeaturesSettings"][$feature]["title"])
 																&& strlen($arResult["arSocNetFeaturesSettings"][$feature]["title"]) > 0
-																? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
-																: Loc::getMessage("SONET_FEATURES_".$feature)
+																	? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
+																	: Loc::getMessage("SONET_FEATURES_".$feature."_GROUP")
 															);
+
+															if (empty($featureTitle))
+															{
+																$featureTitle = $featureTitleOriginal = Loc::getMessage("SONET_FEATURES_".$feature);
+															}
 
 															if (strlen($arResult["POST"]["FEATURES"][$feature]["FeatureName"]) > 0)
 															{

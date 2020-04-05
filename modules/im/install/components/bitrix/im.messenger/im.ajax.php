@@ -262,8 +262,8 @@ else if ($_POST['IM_HISTORY_FILES_SEARCH'] == 'Y')
 }
 elseif ($_POST['IM_UPDATE_STATE'] == 'Y')
 {
-	$arResult["REVISION"] = IM_REVISION;
-	$arResult["MOBILE_REVISION"] = IM_REVISION_MOBILE;
+	$arResult["REVISION"] = \Bitrix\Im\Revision::getWeb();
+	$arResult["MOBILE_REVISION"] = \Bitrix\Im\Revision::getMobile();
 	$arResult["DISK_REVISION"] = COption::GetOptionString("disk", "disk_revision_api", -1);
 
 	$arResult['SERVER_TIME'] = time();
@@ -410,8 +410,8 @@ else if ($_POST['IM_UPDATE_STATE_LIGHT'] == 'Y')
 {
 	$errorMessage = "";
 
-	$arResult["REVISION"] = IM_REVISION;
-	$arResult["MOBILE_REVISION"] = IM_REVISION_MOBILE;
+	$arResult["REVISION"] = \Bitrix\Im\Revision::getWeb();
+	$arResult["MOBILE_REVISION"] = \Bitrix\Im\Revision::getMobile();
 	$arResult["DISK_REVISION"] = COption::GetOptionString("disk", "disk_revision_api", -1);
 
 	$arResult['SERVER_TIME'] = time();
@@ -573,6 +573,11 @@ else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 			$errorMessage = $e->GetString();
 		if (StrLen($errorMessage) == 0)
 			$errorMessage = GetMessage('IM_UNKNOWN_ERROR');
+	}
+
+	if (!\CIMMessenger::IsMobileRequest())
+	{
+		CIMStatus::Set($USER->GetId(), Array('IDLE' => null));
 	}
 
 
@@ -823,6 +828,8 @@ else if ($_POST['IM_LOAD_LAST_MESSAGE'] == 'Y')
 
 			$orm = \Bitrix\Im\Model\ChatTable::getById($chatId);
 			$chatData = $orm->fetch();
+
+			$diskFolderId = (int)$chatData['DISK_FOLDER_ID'];
 			$entityType = $chatData['ENTITY_TYPE'];
 			$entityId = $chatData['ENTITY_ID'];
 		}
@@ -870,6 +877,13 @@ else if ($_POST['IM_LOAD_LAST_MESSAGE'] == 'Y')
 				{
 					$chatId = CIMMessage::GetChatId($USER->GetId(), $_POST['USER_ID']);
 				}
+
+				$orm = \Bitrix\Im\Model\ChatTable::getById($chatId);
+				$chatData = $orm->fetch();
+
+				$diskFolderId = (int)$chatData['DISK_FOLDER_ID'];
+				$entityType = $chatData['ENTITY_TYPE'];
+				$entityId = $chatData['ENTITY_ID'];
 			}
 		}
 		else
@@ -891,14 +905,20 @@ else if ($_POST['IM_LOAD_LAST_MESSAGE'] == 'Y')
 		}
 	}
 
+	if (!\CIMMessenger::IsMobileRequest())
+	{
+		CIMStatus::Set($USER->GetId(), Array('IDLE' => null));
+	}
 
 	echo \Bitrix\Im\Common::objectEncode(Array(
-		'REVISION' => IM_REVISION,
-		'MOBILE_REVISION' => IM_REVISION_MOBILE,
+		'REVISION' => \Bitrix\Im\Revision::getWeb(),
+		'MOBILE_REVISION' => \Bitrix\Im\Revision::getMobile(),
 		'CHAT_ID' => $chatId,
+		'DISK_FOLDER_ID' => $diskFolderId,
 		'USER_ID' => $_POST['CHAT'] == 'Y'? htmlspecialcharsbx($_POST['USER_ID']): intval($_POST['USER_ID']),
 		'MESSAGE' => isset($arMessage['message'])? $arMessage['message']: Array(),
 		'USERS_MESSAGE' => isset($arMessage['usersMessage'])? $arMessage['usersMessage']: Array(),
+		'UNREAD_MESSAGE' => isset($arMessage['unreadMessage'])? $arMessage['unreadMessage']: Array(),
 		'USERS' => isset($arMessage['users'])? $arMessage['users']: Array(),
 		'USER_IN_GROUP' => isset($arMessage['userInGroup'])? $arMessage['userInGroup']: Array(),
 		'CHAT' => isset($arMessage['chat'])? $arMessage['chat']: Array(),
@@ -1865,12 +1885,7 @@ else if ($_POST['IM_SHARING'] == 'Y' && intval($_POST['USER_ID']) > 0)
 				'command' => 'signaling',
 				'peer' => $_POST['PEER'],
 			),
-			'extra' => Array(
-				'call_revision' => IM_CALL_REVISION,
-				'call_revision_mobile' => IM_CALL_REVISION_MOBILE,
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			),
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		));
 	}
 	else
@@ -1883,12 +1898,7 @@ else if ($_POST['IM_SHARING'] == 'Y' && intval($_POST['USER_ID']) > 0)
 				'senderId' => $USER->GetID(),
 				'command' => $_POST['COMMAND']
 			),
-			'extra' => Array(
-				'call_revision' => IM_CALL_REVISION,
-				'call_revision_mobile' => IM_CALL_REVISION_MOBILE,
-				'im_revision' => IM_REVISION,
-				'im_revision_mobile' => IM_REVISION_MOBILE,
-			),
+			'extra' => \Bitrix\Im\Common::getPullExtra()
 		));
 	}
 }

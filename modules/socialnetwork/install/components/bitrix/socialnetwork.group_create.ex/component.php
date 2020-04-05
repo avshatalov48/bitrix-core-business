@@ -14,6 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\Item\UserToGroup;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
@@ -636,7 +637,31 @@ else
 					&& CExtranet::IsExtranetSite()
 				)
 				{
-					$arFields["SITE_ID"] = array(SITE_ID, CSite::GetDefSite());
+					if ($arParams["GROUP_ID"] <= 0)
+					{
+						$arFields["SITE_ID"] = array(SITE_ID, CSite::GetDefSite());
+					}
+					else
+					{
+						$siteIdList = array();
+						$res = WorkgroupSiteTable::getList(array(
+							'filter' => array(
+								'GROUP_ID' => $arParams["GROUP_ID"]
+							),
+							'select' => array('SITE_ID')
+						));
+						while($workGroupSiteFields = $res->fetch())
+						{
+							$siteIdList[] = $workGroupSiteFields['SITE_ID'];
+						}
+						$siteIdList[] = SITE_ID;
+
+						$siteIdList = array_unique($siteIdList);
+						if (!empty($siteIdList))
+						{
+							$arFields["SITE_ID"] = $siteIdList;
+						}
+					}
 				}
 
 				foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
@@ -741,6 +766,19 @@ else
 							'user_id' => $plusList,
 							'current_user_id' => $arResult["currentUserId"]
 						));
+
+						if (!empty($plusList))
+						{
+							foreach($plusList as $moderatorId)
+							{
+								UserToGroup::addInfoToChat(array(
+									'group_id' => $arResult["GROUP_ID"],
+									'user_id' => $moderatorId,
+									'action' => UserToGroup::CHAT_ACTION_IN,
+									'sendMessage' => false
+								));
+							}
+						}
 
 						$rsSite = CSite::getList($by="sort", $order="desc", Array("ACTIVE" => "Y"));
 						while($arSite = $rsSite->Fetch())
@@ -925,7 +963,7 @@ else
 
 									if (!empty($externalAuthIdList))
 									{
-										$arFilter['!=EXTERNAL_AUTH_ID'] = $externalAuthIdList;
+										$arFilter['!EXTERNAL_AUTH_ID'] = $externalAuthIdList;
 									}
 
 									$userID = 0;
@@ -935,7 +973,7 @@ else
 										($order="asc"),
 										$arFilter,
 										array(
-											"FIELDS" => array("ID", "EXTERNAL_AUTH_ID"),
+											"FIELDS" => array("ID", "EXTERNAL_AUTH_ID", "CONFIRM_CODE"),
 											"SELECT" => array("UF_DEPARTMENT")
 										)
 									);
@@ -977,8 +1015,12 @@ else
 											)
 										)
 										{
+											if (!empty($arUser["CONFIRM_CODE"]))
+											{
+												\CIntranetInviteDialog::reinviteExtranetUser(SITE_ID, $arUser["ID"]);
+											}
+
 											$arUserIDs[] = $userID = $arUser["ID"];
-											$checkword 	= $arUser["CONFIRM_CODE"];
 										}
 										else
 										{
@@ -1041,7 +1083,7 @@ else
 							);
 							if (!empty($externalAuthIdList))
 							{
-								$arFilter['!=EXTERNAL_AUTH_ID'] = $externalAuthIdList;
+								$arFilter['!EXTERNAL_AUTH_ID'] = $externalAuthIdList;
 							}
 
 							$rsUser = CUser::GetList(
@@ -1104,30 +1146,6 @@ else
 					}
 
 					// send invitations and add users
-					if (!empty($moderatorIdList))
-					{
-						foreach($moderatorIdList as $moderatorId)
-						{
-							CSocNetUserToGroup::add(array(
-								"USER_ID" => $moderatorId,
-								"GROUP_ID" => $arResult["GROUP_ID"],
-								"ROLE" => UserToGroupTable::ROLE_MODERATOR,
-								"=DATE_CREATE" => $DB->CurrentTimeFunction(),
-								"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
-								"MESSAGE" => "",
-								"INITIATED_BY_TYPE" => UserToGroupTable::INITIATED_BY_GROUP,
-								"INITIATED_BY_USER_ID" => $arResult["currentUserId"],
-								"SEND_MAIL" => "N"
-							));
-
-							$chatNotificationResult = UserToGroup::addInfoToChat(array(
-								'group_id' => $arResult["GROUP_ID"],
-								'user_id' => $moderatorId,
-								'action' => UserToGroup::CHAT_ACTION_IN,
-								'sendMessage' => false
-							));
-						}
-					}
 
 					if (
 						(
@@ -1140,7 +1158,7 @@ else
 						&& !CSocNetUser::IsCurrentUserModuleAdmin() // not session admin
 					)
 					{
-						CSocNetUserToGroup::add(array(
+						if (CSocNetUserToGroup::add(array(
 							"USER_ID" => $arResult["currentUserId"],
 							"GROUP_ID" => $arResult["GROUP_ID"],
 							"ROLE" => UserToGroupTable::ROLE_USER,
@@ -1150,7 +1168,15 @@ else
 							"INITIATED_BY_TYPE" => UserToGroupTable::INITIATED_BY_GROUP,
 							"INITIATED_BY_USER_ID" => $arResult["currentUserId"],
 							"SEND_MAIL" => "N"
-						));
+						)))
+						{
+							UserToGroup::addInfoToChat(array(
+								'group_id' => $arResult["GROUP_ID"],
+								'user_id' => $arResult["currentUserId"],
+								'action' => UserToGroup::CHAT_ACTION_IN,
+								'sendMessage' => false
+							));
+						}
 					}
 
 					if (

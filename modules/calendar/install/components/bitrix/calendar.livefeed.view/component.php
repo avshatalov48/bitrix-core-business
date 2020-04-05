@@ -117,22 +117,25 @@ if ($arResult['EVENT']['IS_MEETING'])
 	$arResult['ATTENDEES_INDEX'] = array();
 	$arResult['EVENT']['ACCEPTED_ATTENDEES'] = array();
 	$arResult['EVENT']['DECLINED_ATTENDEES'] = array();
-	foreach ($arResult['EVENT']['~ATTENDEES'] as $i => $att)
+	if (!empty($arResult['EVENT']['~ATTENDEES']))
 	{
-		$arResult['ATTENDEES_INDEX'][$att["USER_ID"]] = array(
-			"STATUS" => $att['STATUS']
-		);
-
-		if ($att['STATUS'] != "Q")
+		foreach ($arResult['EVENT']['~ATTENDEES'] as $i => $att)
 		{
-			$att['AVATAR_SRC'] = CCalendar::GetUserAvatar($att);
-			$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
-		}
+			$arResult['ATTENDEES_INDEX'][$att["USER_ID"]] = array(
+				"STATUS" => $att['STATUS']
+			);
 
-		if ($att['STATUS'] == "Y")
-			$arResult['EVENT']['ACCEPTED_ATTENDEES'][] = $att;
-		elseif($att['STATUS'] == "N")
-			$arResult['EVENT']['DECLINED_ATTENDEES'][] = $att;
+			if ($att['STATUS'] != "Q")
+			{
+				$att['AVATAR_SRC'] = CCalendar::GetUserAvatar($att);
+				$att['URL'] = CCalendar::GetUserUrl($att["USER_ID"], $arParams["PATH_TO_USER"]);
+			}
+
+			if ($att['STATUS'] == "Y")
+				$arResult['EVENT']['ACCEPTED_ATTENDEES'][] = $att;
+			elseif($att['STATUS'] == "N")
+				$arResult['EVENT']['DECLINED_ATTENDEES'][] = $att;
+		}
 	}
 }
 

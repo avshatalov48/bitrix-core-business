@@ -9,9 +9,9 @@ class UrlRewriter
 {
 	const DEFAULT_SORT = 100;
 
-	private static function loadRules($siteId)
+	protected static function loadRules($siteId)
 	{
-		$site = SiteTable::getRow(array("filter" => array("LID" => $siteId)));
+		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId)));
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
@@ -33,9 +33,9 @@ class UrlRewriter
 		return $arUrlRewrite;
 	}
 
-	private static function saveRules($siteId, array $arUrlRewrite)
+	protected static function saveRules($siteId, array $arUrlRewrite)
 	{
-		$site = SiteTable::getRow(array("filter" => array("LID" => $siteId)));
+		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId)));
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
@@ -82,7 +82,7 @@ class UrlRewriter
 		return $arResult;
 	}
 
-	private static function filterRules(array $arUrlRewrite, array $arFilter)
+	protected static function filterRules(array $arUrlRewrite, array $arFilter)
 	{
 		$arResultKeys = array();
 
@@ -122,7 +122,7 @@ class UrlRewriter
 		return $arResultKeys;
 	}
 
-	private static function recordsCompare($a, $b)
+	protected static function recordsCompare($a, $b)
 	{
 		$sortA = isset($a["SORT"]) ? intval($a["SORT"]) : self::DEFAULT_SORT;
 		$sortB = isset($b["SORT"]) ? intval($b["SORT"]) : self::DEFAULT_SORT;
@@ -148,6 +148,15 @@ class UrlRewriter
 			throw new ArgumentNullException("siteId");
 
 		$arUrlRewrite = static::loadRules($siteId);
+
+		// if rule is exist – return
+		foreach ($arUrlRewrite as $rule)
+		{
+			if ($arFields["CONDITION"] == $rule["CONDITION"])
+			{
+				return;
+			}
+		}
 
 		$arUrlRewrite[] = array(
 			"CONDITION" => $arFields["CONDITION"],
@@ -237,7 +246,7 @@ class UrlRewriter
 		$db = SiteTable::getList(
 			array(
 				"select" => array("LID", "DOC_ROOT", "DIR"),
-				"filter" => array("ACTIVE" => "Y"),
+				"filter" => array("=ACTIVE" => "Y"),
 			)
 		);
 		while ($ar = $db->fetch())
@@ -325,7 +334,7 @@ class UrlRewriter
 		return $ns["CNT"];
 	}
 
-	private static function recursiveReindex($rootPath, $path, $arSites, $maxExecutionTime = 0, &$ns)
+	protected static function recursiveReindex($rootPath, $path, $arSites, $maxExecutionTime = 0, &$ns)
 	{
 		$pathAbs = IO\Path::combine($rootPath, $path);
 
@@ -462,7 +471,7 @@ class UrlRewriter
 		return true;
 	}
 
-	private static function checkPath($path)
+	public static function checkPath($path)
 	{
 		static $searchMasksCache = false;
 		if (is_array($searchMasksCache))

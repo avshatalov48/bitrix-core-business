@@ -2,11 +2,57 @@
 .ui-btn:after,
 .ui-btn-main:after { transition: 160ms color linear, 160ms transform linear, 160ms opacity linear, 160ms background-color linear; }
 
+/*region Empty*/
 .ui-btn:empty,
 .ui-btn.ui-btn-lg:empty,
 .ui-btn.ui-btn-md:empty,
 .ui-btn.ui-btn-sm:empty,
 .ui-btn.ui-btn-xs:empty { min-width: 0; }
+
+.ui-btn:empty,
+.ui-btn-double .ui-btn-main:empty,
+.ui-btn[class*="ui-btn-icon-"]:empty,
+.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty {
+	padding: 0;
+	width: var(--ui-btn-size-md);
+	height: var(--ui-btn-size-md);
+}
+
+.ui-btn:empty:after,
+.ui-btn-double .ui-btn-main:empty:after,
+.ui-btn[class*="ui-btn-icon-"]:empty:after,
+.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty:after {
+	top: 50%;
+	left: 50%;
+	margin: 0;
+	transform: translate3d(-50%, -50%, 0);
+}
+
+.ui-btn.ui-btn-lg:empty,
+.ui-btn-double.ui-btn-lg .ui-btn-main:empty {
+	width: var(--ui-btn-size-lg);
+	height: var(--ui-btn-size-lg);
+}
+
+.ui-btn.ui-btn-md:empty,
+.ui-btn-double.ui-btn-md .ui-btn-main:empty {
+	width: var(--ui-btn-size-md);
+	height: var(--ui-btn-size-md);
+}
+
+.ui-btn.ui-btn-sm:empty,
+.ui-btn-double.ui-btn-sm .ui-btn-main:empty {
+	width: var(--ui-btn-size-sm);
+	height: var(--ui-btn-size-sm);
+}
+
+.ui-btn.ui-btn-xs:empty,
+.ui-btn-double.ui-btn-xs .ui-btn-main:empty {
+	width: var(--ui-btn-size-xs);
+	height: var(--ui-btn-size-xs);
+}
+
+/*endregion*/
 
 /*region ui-btn-icon-stop*/
 .ui-btn-icon-stop.ui-btn,
@@ -58,48 +104,6 @@
 .ui-btn-icon-stop.ui-btn-default:after,
 .ui-btn-icon-stop.ui-btn-default .ui-btn-main:after { background-color: #fff; }
 
-/*region Empty*/
-.ui-btn-icon-stop:empty,
-.ui-btn-icon-stop.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-stop:empty:after,
-.ui-btn-icon-stop.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin-top: -4.5px;
-	margin-left: -4.5px;
-}
-
-.ui-btn-icon-stop.ui-btn-lg:empty,
-.ui-btn-icon-stop.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-stop.ui-btn-md:empty,
-.ui-btn-icon-stop.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-stop.ui-btn-sm:empty,
-.ui-btn-icon-stop.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-stop.ui-btn-xs:empty,
-.ui-btn-icon-stop.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
-
 /*endregion*/
 
 /*region ui-btn-icon-add*/
@@ -150,46 +154,6 @@
 .ui-btn-icon-add.ui-btn:after,
 .ui-btn-icon-add.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-add); }
 
-/*region Empty*/
-.ui-btn-icon-add:empty,
-.ui-btn-icon-add.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-add:empty:after,
-.ui-btn-icon-add.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-add.ui-btn-lg:empty,
-.ui-btn-icon-add.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-add.ui-btn-md:empty,
-.ui-btn-icon-add.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-add.ui-btn-sm:empty,
-.ui-btn-icon-add.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-add.ui-btn-xs:empty,
-.ui-btn-icon-add.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
 /*endregion*/
 
 /*region Fix for IE*/
@@ -214,6 +178,7 @@
 .bx-ie .ui-btn-icon-add.ui-btn-double.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-plus-black.svg); }
 
 /*endregion*/
+
 /*endregion*/
 
 /*region ui-btn-icon-setting*/
@@ -263,48 +228,6 @@
 
 .ui-btn-icon-setting.ui-btn:after,
 .ui-btn-icon-setting.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-setting); }
-
-/*region Empty*/
-.ui-btn-icon-setting:empty,
-.ui-btn-icon-setting.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-setting:empty:after,
-.ui-btn-icon-setting.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-setting.ui-btn-lg:empty,
-.ui-btn-icon-setting.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-setting.ui-btn-md:empty,
-.ui-btn-icon-setting.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-setting.ui-btn-sm:empty,
-.ui-btn-icon-setting.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-setting.ui-btn-xs:empty,
-.ui-btn-icon-setting.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
 
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-setting.ui-btn:after,
@@ -356,7 +279,6 @@
 .bx-no-retina .ui-btn-icon-start.ui-btn-double .ui-btn-main:after {
 	margin-top: -5px;
 	margin-left: -3px;
-	transform: translate3d(0, 0, 0);
 }
 
 .ui-btn-icon-start.ui-btn-link:after,
@@ -380,43 +302,13 @@
 .ui-btn-icon-start.ui-btn-default .ui-btn-main:after { border-left-color: #fff; }
 
 /*region Empty*/
-.ui-btn-icon-start:empty,
-.ui-btn-icon-start.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
 .ui-btn-icon-start:empty:after,
-.ui-btn-icon-start.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin-top: -5px;
-	margin-left: -3.5px;
-}
+.ui-btn-icon-start.ui-btn-double .ui-btn-main:empty:after { margin-left: 2px !important; }
 
-.ui-btn-icon-start.ui-btn-lg:empty,
-.ui-btn-icon-start.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-start.ui-btn-md:empty,
-.ui-btn-icon-start.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-start.ui-btn-sm:empty,
-.ui-btn-icon-start.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-start.ui-btn-xs:empty,
-.ui-btn-icon-start.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
+.bx-no-retina .ui-btn-icon-start.ui-btn:empty:after,
+.bx-no-retina .ui-btn-icon-start.ui-btn-double .ui-btn-main:empty:after {
+	margin: 0;
+	transform: translate3d(-50%, -50%, 0);
 }
 
 /*endregion*/
@@ -480,43 +372,10 @@
 }
 
 /*region Empty*/
-.ui-btn-icon-pause:empty,
-.ui-btn-icon-pause.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
 .ui-btn-icon-pause:empty:after,
 .ui-btn-icon-pause.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
 	margin-top: -4.5px;
 	margin-left: -3.5px;
-}
-
-.ui-btn-icon-pause.ui-btn-lg:empty,
-.ui-btn-icon-pause.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-pause.ui-btn-md:empty,
-.ui-btn-icon-pause.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-pause.ui-btn-sm:empty,
-.ui-btn-icon-pause.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-pause.ui-btn-xs:empty,
-.ui-btn-icon-pause.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
 }
 
 /*endregion*/
@@ -569,48 +428,6 @@
 
 .ui-btn-icon-task.ui-btn:after,
 .ui-btn-icon-task.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-task); }
-
-/*region Empty*/
-.ui-btn-icon-task:empty,
-.ui-btn-icon-task.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-task:empty:after,
-.ui-btn-icon-task.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-task.ui-btn-lg:empty,
-.ui-btn-icon-task.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-task.ui-btn-md:empty,
-.ui-btn-icon-task.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-task.ui-btn-sm:empty,
-.ui-btn-icon-task.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-task.ui-btn-xs:empty,
-.ui-btn-icon-task.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
 
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-task.ui-btn.ui-btn-link:after,
@@ -684,48 +501,6 @@
 .ui-btn-icon-info.ui-btn:after,
 .ui-btn-icon-info.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-info); }
 
-/*region Empty*/
-.ui-btn-icon-info:empty,
-.ui-btn-icon-info.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-info:empty:after,
-.ui-btn-icon-info.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-info.ui-btn-lg:empty,
-.ui-btn-icon-info.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-info.ui-btn-md:empty,
-.ui-btn-icon-info.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-info.ui-btn-sm:empty,
-.ui-btn-icon-info.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-info.ui-btn-xs:empty,
-.ui-btn-icon-info.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
-
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-info.ui-btn.ui-btn-link:after,
 .bx-ie .ui-btn-icon-info.ui-btn-double.ui-btn-link .ui-btn-main:after,
@@ -797,48 +572,6 @@
 
 .ui-btn-icon-search.ui-btn:after,
 .ui-btn-icon-search.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-search); }
-
-/*region Empty*/
-.ui-btn-icon-search:empty,
-.ui-btn-icon-search.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-search:empty:after,
-.ui-btn-icon-search.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-search.ui-btn-lg:empty,
-.ui-btn-icon-search.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-search.ui-btn-md:empty,
-.ui-btn-icon-search.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-search.ui-btn-sm:empty,
-.ui-btn-icon-search.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-search.ui-btn-xs:empty,
-.ui-btn-icon-search.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
 
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-search.ui-btn.ui-btn-link:after,
@@ -912,48 +645,6 @@
 .ui-btn-icon-unfollow.ui-btn:after,
 .ui-btn-icon-unfollow.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-unfollow); }
 
-/*region Empty*/
-.ui-btn-icon-unfollow:empty,
-.ui-btn-icon-unfollow.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-unfollow:empty:after,
-.ui-btn-icon-unfollow.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-unfollow.ui-btn-lg:empty,
-.ui-btn-icon-unfollow.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-unfollow.ui-btn-md:empty,
-.ui-btn-icon-unfollow.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-unfollow.ui-btn-sm:empty,
-.ui-btn-icon-unfollow.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-unfollow.ui-btn-xs:empty,
-.ui-btn-icon-unfollow.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
-
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-unfollow.ui-btn.ui-btn-link:after,
 .bx-ie .ui-btn-icon-unfollow.ui-btn-double.ui-btn-link .ui-btn-main:after,
@@ -1025,48 +716,6 @@
 
 .ui-btn-icon-follow.ui-btn:after,
 .ui-btn-icon-follow.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-follow); }
-
-/*region Empty*/
-.ui-btn-icon-follow:empty,
-.ui-btn-icon-follow.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-follow:empty:after,
-.ui-btn-icon-follow.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-follow.ui-btn-lg:empty,
-.ui-btn-icon-follow.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-follow.ui-btn-md:empty,
-.ui-btn-icon-follow.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-follow.ui-btn-sm:empty,
-.ui-btn-icon-follow.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-follow.ui-btn-xs:empty,
-.ui-btn-icon-follow.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
 
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-follow.ui-btn.ui-btn-link:after,
@@ -1140,48 +789,6 @@
 .ui-btn-icon-print.ui-btn:after,
 .ui-btn-icon-print.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-print); }
 
-/*region Empty*/
-.ui-btn-icon-print:empty,
-.ui-btn-icon-print.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-print:empty:after,
-.ui-btn-icon-print.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-print.ui-btn-lg:empty,
-.ui-btn-icon-print.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-print.ui-btn-md:empty,
-.ui-btn-icon-print.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-print.ui-btn-sm:empty,
-.ui-btn-icon-print.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-print.ui-btn-xs:empty,
-.ui-btn-icon-print.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
-
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-print.ui-btn.ui-btn-link:after,
 .bx-ie .ui-btn-icon-print.ui-btn-double.ui-btn-link .ui-btn-main:after,
@@ -1202,6 +809,78 @@
 .bx-ie .ui-btn-icon-print.ui-btn-double.ui-btn-primary .ui-btn-main:after,
 .bx-ie .ui-btn-icon-print.ui-btn.ui-btn-default:after,
 .bx-ie .ui-btn-icon-print.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-print-white.svg); }
+
+/*endregion*/
+
+/*endregion*/
+
+/*region ui-btn-icon-add-folder*/
+.ui-btn-icon-add-folder.ui-btn,
+.ui-btn-icon-add-folder.ui-btn-double .ui-btn-main { padding-left: 37px; }
+
+.ui-btn-icon-add-folder.ui-btn:after,
+.ui-btn-icon-add-folder.ui-btn-double .ui-btn-main:after {
+	position: absolute;
+	top: 50%;
+	left: 19px;
+	display: block;
+	box-sizing: border-box;
+	margin-top: -8px;
+	width: 16px;
+	height: 14px;
+	background: no-repeat center;
+	content: '';
+}
+
+.ui-btn-icon-add-folder.ui-btn,
+.ui-btn-icon-add-folder.ui-btn-double,
+.ui-btn-icon-add-folder.ui-btn-danger,
+.ui-btn-icon-add-folder.ui-btn-primary,
+.ui-btn-icon-add-folder.ui-btn-default,
+.bitrix24-light-theme .pagetitle-wrap .ui-btn-light-border.ui-btn-icon-add-folder { --ui-btn-icon-add-folder: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-white.svg); }
+
+.ui-btn-icon-add-folder.ui-btn-link,
+.ui-btn-icon-add-folder.ui-btn-light,
+.ui-btn-icon-add-folder.ui-btn-success,
+.ui-btn-icon-add-folder.ui-btn-secondary,
+.ui-btn-icon-add-folder.ui-btn-light-border { --ui-btn-icon-add-folder: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-black.svg); }
+
+.bx-retina .ui-btn-icon-add-folder.ui-btn:after,
+.bx-retina .ui-btn-icon-add-folder.ui-btn-double .ui-btn-main:after {
+	margin-top: -1px;
+	transform: translate3d(-50%, -50%, 0);
+}
+
+.bx-no-retina .ui-btn-icon-add-folder.ui-btn:after,
+.bx-no-retina .ui-btn-icon-add-folder.ui-btn-double .ui-btn-main:after {
+	margin-top: -8px;
+	margin-left: -8px;
+	transform: translate3d(0, 0, 0);
+}
+
+.ui-btn-icon-add-folder.ui-btn:after,
+.ui-btn-icon-add-folder.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-add-folder); }
+
+/*region Fix for IE*/
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-light-border:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-black.svg); }
+
+.bx-ie .ui-btn-icon-add-folder.ui-btn:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn.ui-btn-default:after,
+.bx-ie .ui-btn-icon-add-folder.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-add-folder-white.svg); }
 
 /*endregion*/
 
@@ -1246,55 +925,13 @@
 
 .bx-no-retina .ui-btn-icon-list.ui-btn:after,
 .bx-no-retina .ui-btn-icon-list.ui-btn-double .ui-btn-main:after {
-	margin-top: -8.5px;
+	margin-top: -7px;
 	margin-left: -8.5px;
 	transform: translate3d(0, 0, 0);
 }
 
 .ui-btn-icon-list.ui-btn:after,
 .ui-btn-icon-list.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-list); }
-
-/*region Empty*/
-.ui-btn-icon-list:empty,
-.ui-btn-icon-list.ui-btn-double .ui-btn-main:empty {
-	padding: 0;
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-list:empty:after,
-.ui-btn-icon-list.ui-btn-double .ui-btn-main:empty:after {
-	top: 50%;
-	left: 50%;
-	margin: 0;
-	transform: translate3d(-50%, -50%, 0);
-}
-
-.ui-btn-icon-list.ui-btn-lg:empty,
-.ui-btn-icon-list.ui-btn-lg.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-lg);
-	height: var(--ui-btn-size-lg);
-}
-
-.ui-btn-icon-list.ui-btn-md:empty,
-.ui-btn-icon-list.ui-btn-md.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-md);
-	height: var(--ui-btn-size-md);
-}
-
-.ui-btn-icon-list.ui-btn-sm:empty,
-.ui-btn-icon-list.ui-btn-sm.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-sm);
-	height: var(--ui-btn-size-sm);
-}
-
-.ui-btn-icon-list.ui-btn-xs:empty,
-.ui-btn-icon-list.ui-btn-xs.ui-btn-double .ui-btn-main:empty {
-	width: var(--ui-btn-size-xs);
-	height: var(--ui-btn-size-xs);
-}
-
-/*endregion*/
 
 /*region Fix for IE*/
 .bx-ie .ui-btn-icon-list.ui-btn.ui-btn-link:after,
@@ -1316,6 +953,222 @@
 .bx-ie .ui-btn-icon-list.ui-btn-double.ui-btn-primary .ui-btn-main:after,
 .bx-ie .ui-btn-icon-list.ui-btn.ui-btn-default:after,
 .bx-ie .ui-btn-icon-list.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-list-white.svg); }
+
+/*endregion*/
+
+/*endregion*/
+
+/*region ui-btn-icon-buisness*/
+.ui-btn-icon-buisness.ui-btn,
+.ui-btn-icon-buisness.ui-btn-double .ui-btn-main { padding-left: 37px; }
+
+.ui-btn-icon-buisness.ui-btn:after,
+.ui-btn-icon-buisness.ui-btn-double .ui-btn-main:after {
+	position: absolute;
+	top: 50%;
+	left: 19px;
+	display: block;
+	box-sizing: border-box;
+	margin-top: -8px;
+	width: 24px;
+	height: 16px;
+	background: no-repeat center;
+	content: '';
+}
+
+.ui-btn-icon-buisness.ui-btn,
+.ui-btn-icon-buisness.ui-btn-double,
+.ui-btn-icon-buisness.ui-btn-danger,
+.ui-btn-icon-buisness.ui-btn-primary,
+.ui-btn-icon-buisness.ui-btn-default,
+.bitrix24-light-theme .pagetitle-wrap .ui-btn-light-border.ui-btn-icon-buisness { --ui-btn-icon-buisness: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-white.svg); }
+
+.ui-btn-icon-buisness.ui-btn-link,
+.ui-btn-icon-buisness.ui-btn-light,
+.ui-btn-icon-buisness.ui-btn-success,
+.ui-btn-icon-buisness.ui-btn-secondary,
+.ui-btn-icon-buisness.ui-btn-light-border { --ui-btn-icon-buisness: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-black.svg); }
+
+.bx-retina .ui-btn-icon-buisness.ui-btn:after,
+.bx-retina .ui-btn-icon-buisness.ui-btn-double .ui-btn-main:after {
+	margin: 0;
+	transform: translate3d(-50%, -50%, 0);
+}
+
+.bx-no-retina .ui-btn-icon-buisness.ui-btn:after,
+.bx-no-retina .ui-btn-icon-buisness.ui-btn-double .ui-btn-main:after {
+	margin-top: -8.5px;
+	margin-left: -12px;
+	transform: translate3d(0, 0, 0);
+}
+
+.ui-btn-icon-buisness.ui-btn:after,
+.ui-btn-icon-buisness.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-buisness); }
+
+/*region Fix for IE*/
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-light-border:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-black.svg); }
+
+.bx-ie .ui-btn-icon-buisness.ui-btn:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn.ui-btn-default:after,
+.bx-ie .ui-btn-icon-buisness.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-white.svg); }
+
+/*endregion*/
+
+/*endregion*/
+
+/*region ui-btn-icon-buisness-confirm*/
+.ui-btn-icon-buisness-confirm.ui-btn,
+.ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main { padding-left: 37px; }
+
+.ui-btn-icon-buisness-confirm.ui-btn:after,
+.ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main:after {
+	position: absolute;
+	top: 50%;
+	left: 19px;
+	display: block;
+	box-sizing: border-box;
+	margin-top: -8px;
+	width: 24px;
+	height: 18px;
+	background: no-repeat center;
+	content: '';
+}
+
+.ui-btn-icon-buisness-confirm.ui-btn,
+.ui-btn-icon-buisness-confirm.ui-btn-double,
+.ui-btn-icon-buisness-confirm.ui-btn-danger,
+.ui-btn-icon-buisness-confirm.ui-btn-primary,
+.ui-btn-icon-buisness-confirm.ui-btn-default,
+.bitrix24-light-theme .pagetitle-wrap .ui-btn-light-border.ui-btn-icon-buisness-confirm { --ui-btn-icon-buisness-confirm: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-confirm-white.svg); }
+
+.ui-btn-icon-buisness-confirm.ui-btn-link,
+.ui-btn-icon-buisness-confirm.ui-btn-light,
+.ui-btn-icon-buisness-confirm.ui-btn-success,
+.ui-btn-icon-buisness-confirm.ui-btn-secondary,
+.ui-btn-icon-buisness-confirm.ui-btn-light-border { --ui-btn-icon-buisness-confirm: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-confirm-black.svg); }
+
+.bx-retina .ui-btn-icon-buisness-confirm.ui-btn:after,
+.bx-retina .ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main:after {
+	margin: 0;
+	transform: translate3d(-50%, -50%, 0);
+}
+
+.bx-no-retina .ui-btn-icon-buisness-confirm.ui-btn:after,
+.bx-no-retina .ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main:after {
+	margin-top: -8.5px;
+	margin-left: -12px;
+	transform: translate3d(0, 0, 0);
+}
+
+.ui-btn-icon-buisness-confirm.ui-btn:after,
+.ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-buisness-confirm); }
+
+/*region Fix for IE*/
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-light-border:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-confirm-black.svg); }
+
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn.ui-btn-default:after,
+.bx-ie .ui-btn-icon-buisness-confirm.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-confirm-white.svg); }
+
+/*endregion*/
+
+/*endregion*/
+
+/*region ui-btn-icon-buisness-warning*/
+.ui-btn-icon-buisness-warning.ui-btn,
+.ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main { padding-left: 37px; }
+
+.ui-btn-icon-buisness-warning.ui-btn:after,
+.ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main:after {
+	position: absolute;
+	top: 50%;
+	left: 19px;
+	display: block;
+	box-sizing: border-box;
+	margin-top: -8px;
+	width: 24px;
+	height: 19px;
+	background: no-repeat center;
+	content: '';
+}
+
+.ui-btn-icon-buisness-warning.ui-btn,
+.ui-btn-icon-buisness-warning.ui-btn-double,
+.ui-btn-icon-buisness-warning.ui-btn-danger,
+.ui-btn-icon-buisness-warning.ui-btn-primary,
+.ui-btn-icon-buisness-warning.ui-btn-default,
+.bitrix24-light-theme .pagetitle-wrap .ui-btn-light-border.ui-btn-icon-buisness-warning { --ui-btn-icon-buisness-warning: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-warning-white.svg); }
+
+.ui-btn-icon-buisness-warning.ui-btn-link,
+.ui-btn-icon-buisness-warning.ui-btn-light,
+.ui-btn-icon-buisness-warning.ui-btn-success,
+.ui-btn-icon-buisness-warning.ui-btn-secondary,
+.ui-btn-icon-buisness-warning.ui-btn-light-border { --ui-btn-icon-buisness-warning: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-warning-black.svg); }
+
+.bx-retina .ui-btn-icon-buisness-warning.ui-btn:after,
+.bx-retina .ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main:after {
+	margin: 0;
+	transform: translate3d(-50%, -50%, 0);
+}
+
+.bx-no-retina .ui-btn-icon-buisness-warning.ui-btn:after,
+.bx-no-retina .ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main:after {
+	margin-top: -8.5px;
+	margin-left: -12px;
+	transform: translate3d(0, 0, 0);
+}
+
+.ui-btn-icon-buisness-warning.ui-btn:after,
+.ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main:after { background-image: var(--ui-btn-icon-buisness-warning); }
+
+/*region Fix for IE*/
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-light-border:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-warning-black.svg); }
+
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn.ui-btn-default:after,
+.bx-ie .ui-btn-icon-buisness-warning.ui-btn-double.ui-btn-default .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-buisness-process-warning-white.svg); }
 
 /*endregion*/
 

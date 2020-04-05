@@ -1,0 +1,243 @@
+.landing-ui-panel-unsplash {
+	z-index: 9999;
+}
+
+.landing-ui-card.landing-ui-card-image-preview {
+	position: relative;
+	margin: 0;
+	padding: 0;
+}
+
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body {
+	position: relative;
+	cursor: pointer;
+}
+
+
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body::before,
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body::after {
+	position: absolute;
+	content: '';
+	display: none;
+}
+
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body::before {
+	top: -4px;
+	right: -4px;
+	left: -4px;
+	bottom: -4px;
+	border: 2px #000000 solid;
+	border-radius: 2px;
+}
+
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body::after {
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	left: -2px;
+	bottom: -2px;
+	border: 2px #ffffff solid;
+}
+
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body:hover::before,
+.landing-ui-card.landing-ui-card-image-preview .landing-ui-card-body:hover::after {
+	display: block;
+}
+
+
+.landing-ui-panel-unsplash .landing-ui-card-header + .landing-ui-card-body {
+	margin-top: 0;
+}
+
+
+
+.landing-ui-panel-unsplash-search-container {
+	padding: 40px 20px 30px 20px;
+}
+
+.landing-ui-panel-unsplash-search-field .landing-ui-field-input {
+	text-align: left!important;
+}
+
+.landing-ui-panel-unsplash-search-field .landing-ui-field-input::before {
+	position: absolute;
+	content: '';
+	top: 50%;
+	left: 0;
+	height: 20px;
+	transform: translateY(-50%);
+}
+
+
+.landing-ui-panel-unsplash-images-list {
+	display: grid;
+	grid-template-columns: auto auto auto;
+	grid-template-rows: auto auto auto;
+	grid-column-gap: 20px;
+	grid-row-gap: 20px;
+	padding: 20px;
+}
+
+.landing-ui-card-image-preview-container {
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	height: 165px;
+}
+
+
+.landing-ui-panel-unsplash-search-loader-container {
+	height: 100px;
+	position: relative;
+	display: none;
+}
+
+.landing-ui-panel-unsplash-search-loader-container.landing-ui-show {
+	display: block;
+}
+
+
+.landing-ui-panel-unsplash-search-loader {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 0;
+	width: 0;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	border: 0 solid #FE665C;
+	border-radius: 50%;
+	-webkit-animation: loader-figure 1.15s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+	-moz-animation: loader-figure 1.15s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+	animation: loader-figure 1.15s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+
+
+
+@-webkit-keyframes loader-figure {
+	0% {
+		height: 0;
+		width: 0;
+		background-color: #FE665C;
+	}
+	29% {
+		background-color: #FE665C;
+	}
+	30% {
+		height: 2em;
+		width: 2em;
+		background-color: transparent;
+		border-width: 1em;
+		opacity: 1;
+	}
+	100% {
+		height: 2em;
+		width: 2em;
+		border-width: 0;
+		opacity: 0;
+		background-color: transparent;
+	}
+}
+@-moz-keyframes loader-figure {
+	0% {
+		height: 0;
+		width: 0;
+		background-color: #FE665C;
+	}
+	29% {
+		background-color: #FE665C;
+	}
+	30% {
+		height: 2em;
+		width: 2em;
+		background-color: transparent;
+		border-width: 1em;
+		opacity: 1;
+	}
+	100% {
+		height: 2em;
+		width: 2em;
+		border-width: 0;
+		opacity: 0;
+		background-color: transparent;
+	}
+}
+@keyframes loader-figure {
+	0% {
+		height: 0;
+		width: 0;
+		background-color: #FE665C;
+	}
+	29% {
+		background-color: #FE665C;
+	}
+	30% {
+		height: 2em;
+		width: 2em;
+		background-color: transparent;
+		border-width: 1em;
+		opacity: 1;
+	}
+	100% {
+		height: 2em;
+		width: 2em;
+		border-width: 0;
+		opacity: 0;
+		background-color: transparent;
+	}
+}
+@-webkit-keyframes loader-label {
+	0% {
+		opacity: 0.25;
+	}
+	30% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.25;
+	}
+}
+@-moz-keyframes loader-label {
+	0% {
+		opacity: 0.25;
+	}
+	30% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.25;
+	}
+}
+@keyframes loader-label {
+	0% {
+		opacity: 0.25;
+	}
+	30% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.25;
+	}
+}
+
+
+.landing-ui-card-image-preview-credit {
+	text-align: center;
+	font-size: 13px;
+	padding-top: 3px;
+}
+
+.landing-ui-card-image-preview-credit-link {
+	color: rgba(0,0,0,.38);
+	text-decoration: none!important;
+	border-bottom: 1px rgba(0,0,0,.08) solid;
+}
+
+.landing-ui-card-image-preview-credit-link:hover {
+	color: rgba(0,0,0,.48);
+}

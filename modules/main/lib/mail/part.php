@@ -19,6 +19,39 @@ class Part
 	/** @var string $body Body. */
 	protected $body = '';
 
+	/** @var string $eol Symbol of end-of-line. */
+	protected $eol;
+
+	/**
+	 * Multipart constructor.
+	 */
+	public function __construct()
+	{
+		$this->eol = Mail::getMailEol();
+	}
+
+	/**
+	 * Get EOL.
+	 *
+	 * @return string
+	 */
+	public function getEol()
+	{
+		return $this->eol;
+	}
+
+	/**
+	 * Set EOL.
+	 *
+	 * @param string $eol
+	 * @return $this
+	 */
+	public function setEol($eol)
+	{
+		$this->eol = $eol;
+		return $this;
+	}
+
 	/**
 	 * Add header.
 	 *
@@ -98,8 +131,7 @@ class Part
 	 */
 	public function toStringBody()
 	{
-		$eol = Mail::getMailEol();
-		return $this->splitBody($this->body) . $eol . $eol;
+		return $this->splitBody($this->body) . $this->eol . $this->eol;
 	}
 
 	/**
@@ -110,10 +142,9 @@ class Part
 	public function toStringHeaders()
 	{
 		$result = '';
-		$eol = Mail::getMailEol();
 		foreach ($this->headers as $name => $value)
 		{
-			$result .= $name . ': '. $value . $eol;
+			$result .= $name . ': '. $value . $this->eol;
 		}
 
 		return $result ? $result  : '';
@@ -126,8 +157,7 @@ class Part
 	 */
 	public function toString()
 	{
-		$eol = Mail::getMailEol();
-		return $this->toStringHeaders() . $eol . $this->toStringBody();
+		return $this->toStringHeaders() . $this->eol . $this->toStringBody();
 	}
 
 	/**

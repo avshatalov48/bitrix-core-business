@@ -111,6 +111,11 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
+		if (isset($params['CUSTOM_SITE_ID']))
+		{
+			$this->setSiteId($params['CUSTOM_SITE_ID']);
+		}
+
 		if (!$this->includeModules())
 		{
 			return $params;
@@ -180,8 +185,8 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$params['USE_PREPAYMENT'] = isset($params['USE_PREPAYMENT']) && $params['USE_PREPAYMENT'] === 'Y' ? 'Y' : 'N';
 		$params['AUTO_CALCULATION'] = isset($params['AUTO_CALCULATION']) && $params['AUTO_CALCULATION'] === 'N' ? 'N' : 'Y';
 
-		$params['WEIGHT_KOEF'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_koef', 1, SITE_ID));
-		$params['WEIGHT_UNIT'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_unit', '', SITE_ID));
+		$params['WEIGHT_KOEF'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_koef', 1, $this->getSiteId()));
+		$params['WEIGHT_UNIT'] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_unit', '', $this->getSiteId()));
 
 		// default columns
 		$extendedColumnUse = isset($params['COLUMNS_LIST_EXT']);
@@ -336,7 +341,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$this->usePrepayment = $params['USE_PREPAYMENT'];
 
 		$this->pathToOrder = $params['PATH_TO_ORDER'];
-		$this->fUserId = Fuser::getId();
 	}
 
 	public function initParametersFromRequest(&$params)
@@ -604,7 +608,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 						if ($saveResult->isSuccess())
 						{
-							$_SESSION['SALE_BASKET_NUM_PRODUCTS'][SITE_ID]--;
+							$_SESSION['SALE_BASKET_NUM_PRODUCTS'][$this->getSiteId()]--;
 						}
 						else
 						{
@@ -644,7 +648,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 						if ($saveResult->isSuccess())
 						{
-							$_SESSION['SALE_BASKET_NUM_PRODUCTS'][SITE_ID]--;
+							$_SESSION['SALE_BASKET_NUM_PRODUCTS'][$this->getSiteId()]--;
 						}
 						else
 						{
@@ -686,7 +690,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 							if ($saveResult->isSuccess())
 							{
-								$_SESSION['SALE_BASKET_NUM_PRODUCTS'][SITE_ID]++;
+								$_SESSION['SALE_BASKET_NUM_PRODUCTS'][$this->getSiteId()]++;
 							}
 							else
 							{
@@ -866,7 +870,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 	protected function addProductToBasket($fields)
 	{
 		$basket = $this->getBasketStorage()->getBasket();
-		$context = array('SITE_ID' => SITE_ID);
+		$context = array('SITE_ID' => $this->getSiteId());
 
 		return Catalog\Product\Basket::addProductToBasketWithPermissions($basket, $fields, $context, false);
 	}
@@ -957,7 +961,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$iblockList = array();
 			$catalogIterator = Bitrix\Catalog\CatalogIblockTable::getList(array(
 				'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SITE_ID' => 'IBLOCK_SITE.SITE_ID'),
-				'filter' => array('SITE_ID' => SITE_ID),
+				'filter' => array('SITE_ID' => $this->getSiteId()),
 				'runtime' => array(
 					'IBLOCK_SITE' => array(
 						'data_type' => 'Bitrix\Iblock\IblockSiteTable',
@@ -1085,11 +1089,21 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 	}
 
+	protected function getFuserId()
+	{
+		if ($this->fUserId === null)
+		{
+			$this->fUserId = Fuser::getId();
+		}
+
+		return $this->fUserId;
+	}
+
 	protected function getBasketStorage()
 	{
 		if (!isset($this->basketStorage))
 		{
-			$this->basketStorage = Sale\Basket\Storage::getInstance($this->fUserId, $this->getSiteId());
+			$this->basketStorage = Sale\Basket\Storage::getInstance($this->getFuserId(), $this->getSiteId());
 		}
 
 		return $this->basketStorage;
@@ -1239,7 +1253,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 		{
 			$basketItem = Basket::getList(array(
 				'filter' => array(
-					'FUSER_ID' => $this->fUserId,
+					'FUSER_ID' => $this->getFuserId(),
 					'=LID' => $this->getSiteId(),
 					'ORDER_ID' => null,
 					'<=DATE_REFRESH' => FormatDate('FULL', time() - $refreshGap, '')
@@ -1348,7 +1362,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		$basketItemsResult = Basket::getList(array(
 			'filter' => array(
-				'FUSER_ID' => $this->fUserId,
+				'FUSER_ID' => $this->getFuserId(),
 				'=LID' => $this->getSiteId(),
 				'ORDER_ID' => null
 			),
@@ -2270,10 +2284,20 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 
 		$basket = $this->getBasketStorage()->getBasket();
-		$fUserId = $this->fUserId;
+		$fUserId = $this->getFuserId();
 
 		$sessionBasketPrice = $this->getSessionFUserBasketPrice($fUserId);
-		$basketPrice = $basket->getPrice();
+
+		$basketPrice = 0;
+		/** @var Sale\BasketItemBase $basketItem */
+		foreach ($basket as $basketItem)
+		{
+			if ($basketItem->canBuy())
+			{
+				$basketPrice += $basketItem->getFinalPrice();
+			}
+		}
+
 
 		if ($sessionBasketPrice != $basketPrice)
 		{
@@ -2282,12 +2306,21 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 
 		$sessionBasketQuantity = $this->getSessionFUserBasketQuantity($fUserId);
-		$basketQuantity = $basket->count();
 
-		if ($sessionBasketQuantity != $basketQuantity)
+		$basketItemQuantity = 0;
+		/** @var Sale\BasketItemBase $basketItem */
+		foreach ($basket as $basketItem)
+		{
+			if ($basketItem->canBuy())
+			{
+				$basketItemQuantity++;
+			}
+		}
+
+		if ($sessionBasketQuantity != $basketItemQuantity)
 		{
 			$state = 'Y';
-			$this->setSessionFUserBasketQuantity($basketQuantity, $fUserId);
+			$this->setSessionFUserBasketQuantity($basketItemQuantity, $fUserId);
 		}
 
 		return $state;
@@ -2526,7 +2559,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		$result = array();
 		$prePayablePs = array();
-		$personTypes = array_keys(Sale\PersonType::load(SITE_ID));
+		$personTypes = array_keys(Sale\PersonType::load($this->getSiteId()));
 
 		if (!empty($personTypes))
 		{
@@ -3429,7 +3462,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 				unset($_SESSION['NOTIFY_PRODUCT'][$userId][$item->getProductId()]);
 			}
 
-			$_SESSION['SALE_BASKET_NUM_PRODUCTS'][SITE_ID]--;
+			$_SESSION['SALE_BASKET_NUM_PRODUCTS'][$this->getSiteId()]--;
 		}
 		else
 		{
@@ -3479,7 +3512,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 		{
 			if ($delay === 'Y')
 			{
-				$_SESSION['SALE_BASKET_NUM_PRODUCTS'][SITE_ID]--;
+				$_SESSION['SALE_BASKET_NUM_PRODUCTS'][$this->getSiteId()]--;
 			}
 		}
 		else

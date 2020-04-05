@@ -1,5 +1,8 @@
 <?
 //<title>CSV Export (new)</title>
+
+use Bitrix\Catalog;
+
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/data_export.php');
 
 global $USER;
@@ -508,7 +511,10 @@ if (empty($arRunErrors))
 				}
 				unset($arAvailValueFieldsList);
 				if ($bNeedPrices)
+				{
 					$arCatalogGroups = array_values(array_unique($arCatalogGroups));
+					sort($arCatalogGroups);
+				}
 			}
 			if (!$bNeedPrices)
 			{
@@ -747,14 +753,11 @@ if (empty($arRunErrors))
 				$arResPricesMap = array();
 				$mapIndex = -1;
 
-				$dbProductPrice = CPrice::GetList(
-						array(),
-						array("PRODUCT_ID" => $arIBlockElement["ID"],'CATALOG_GROUP_ID' => $arCatalogGroups),
-						false,
-						false,
-						array("ID", "CATALOG_GROUP_ID", "PRICE", "CURRENCY", "QUANTITY_FROM", "QUANTITY_TO", "EXTRA_ID")
-					);
-				while ($arProductPrice = $dbProductPrice->Fetch())
+				$dbProductPrice = Catalog\PriceTable::getList(array(
+					'select' => array('ID', 'CATALOG_GROUP_ID', 'PRICE', 'CURRENCY', 'QUANTITY_FROM', 'QUANTITY_TO', 'EXTRA_ID'),
+					'filter' => array('=PRODUCT_ID' => $arIBlockElement["ID"], '@CATALOG_GROUP_ID' => $arCatalogGroups)
+				));
+				while ($arProductPrice = $dbProductPrice->fetch())
 				{
 					if (!isset($arResPricesMap[$arProductPrice["QUANTITY_FROM"]."-".$arProductPrice["QUANTITY_TO"]]))
 					{

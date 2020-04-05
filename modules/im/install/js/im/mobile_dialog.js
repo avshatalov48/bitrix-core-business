@@ -22,7 +22,7 @@ BX.ImMobile = function(params)
 	this.mobileActionCache = false;
 	this.mobileActionRun = false;
 
-	this.revision = 6; // mobile api revision - check include.php
+	this.revision = 9;
 	this.errorMessage = '';
 	this.isAdmin = false;
 	this.bitrixNetwork = false;
@@ -298,7 +298,7 @@ BX.ImMobile.prototype.updateDialogDataFromRecent = function(data)
 		data.chat = JSON.parse(data.chat);
 		data.chat.date_create = new Date(data.chat.date_create);
 
-		if (typeof this.messenger.users[data.user.id] == 'undefined')
+		if (typeof this.messenger.chat[data.user.id] == 'undefined')
 		{
 			this.messenger.chat[data.chat.id] = data.chat;
 		}
@@ -630,7 +630,7 @@ BX.ImMobile.prototype.mobileActionReady = function()
 					"dataSource":
 					{
 						"multiple":false,
-						"url":"/mobile/?mobile_action=disk_folder_list&type=user&path=%2F&entityId="+BX.message("USER_ID"),
+						"url": this.pathToRoot+"mobile/?mobile_action=disk_folder_list&type=user&path=%2F&entityId="+BX.message("USER_ID"),
 						"TABLE_SETTINGS":{
 							"searchField":true,
 							"showtitle":true,
@@ -658,7 +658,7 @@ BX.ImMobile.prototype.mobileActionReady = function()
 			var text = "";
 			if(typeof data == "object")
 			{
-				text = data.text;
+				text = BX.util.trim(data.text);
 				if(data.attachedFiles)
 				{
 					files = data.attachedFiles;
@@ -690,7 +690,7 @@ BX.ImMobile.prototype.mobileActionReady = function()
 				}
 				else
 				{
-					this.disk.uploadFromMobile(files[0].base64, text);
+					this.disk.uploadFromMobile(files[0].base64, text, files[0].type);
 				}
 			}
 			else if(text)
@@ -1172,75 +1172,94 @@ BX.ImMobile.prototype.addCopyableDialog = function (node, highlightBlockClass, t
 
 		BX.addClass(highlightNode, "long-tap-activate");
 
-		(new BXMobileApp.UI.ActionSheet({
-			buttons: [
+		var deleteMessageId = textBlock.id.replace('im-message-', '');
+		if (!BXIM.messenger.message[deleteMessageId] || !BXIM.messenger.message[deleteMessageId].params['FILE_ID'])
+		{
+			deleteMessageId = 0;
+		}
+
+		var buttons = [];
+		buttons.push({
+			title: BX.message("MUI_COPY"),
+			callback: function ()
+			{
+
+				var text = null;
+
+				if (typeof getTextFunction === "function")
 				{
-					title: BX.message("MUI_COPY"),
-					callback: function ()
-					{
-
-						var text = null;
-
-						if (typeof getTextFunction === "function")
-						{
-							text = getTextFunction(textBlock)
-						}
-						else
-						{
-							text = textBlock.innerHTML;
-						}
-
-						if (text !== null)
-						{
-							app.exec("copyToClipboard", {text: text});
-
-							(new BXMobileApp.UI.NotificationBar({
-								message: BX.message("MUI_TEXT_COPIED"),
-								color: "#3a3735",
-								textColor: "#ffffff",
-								groupId: "clipboard",
-								maxLines: 1,
-								align: "center",
-								isGlobal: true,
-								useCloseButton: true,
-								autoHideTimeout: 1000,
-								hideOnTap: true
-							}, "copy")).show();
-						}
-
-					}
-				},
-				{
-					title: BX.message("IM_MENU_MESS_QUOTE"),
-					callback: function ()
-					{
-
-						var putText = null;
-
-						if (typeof getQuoteFunction === "function")
-						{
-							putText = getQuoteFunction(textBlock)
-						}
-						else
-						{
-							putText = textBlock.innerHTML;
-						}
-
-						if (putText !== null)
-						{
-							BXMobileApp.UI.Page.TextPanel.getText(function(currentText){
-								if (currentText)
-								{
-									putText = BX.util.trim(currentText)+"\n"+putText;
-								}
-								BXMobileApp.UI.Page.TextPanel.setText(putText+' ');
-								BXMobileApp.UI.Page.TextPanel.focus();
-							});
-						}
-					}
+					text = getTextFunction(textBlock)
 				}
-			]
-		}, "copydialog")).show();
+				else
+				{
+					text = textBlock.innerHTML;
+				}
+
+				if (text !== null)
+				{
+					app.exec("copyToClipboard", {text: text});
+
+					(new BXMobileApp.UI.NotificationBar({
+						message: BX.message("MUI_TEXT_COPIED"),
+						color: "#3a3735",
+						textColor: "#ffffff",
+						groupId: "clipboard",
+						maxLines: 1,
+						align: "center",
+						isGlobal: true,
+						useCloseButton: true,
+						autoHideTimeout: 1000,
+						hideOnTap: true
+					}, "copy")).show();
+				}
+
+			}
+		});
+		buttons.push({
+			title: BX.message("IM_MENU_MESS_QUOTE"),
+			callback: function ()
+			{
+
+				var putText = null;
+
+				if (typeof getQuoteFunction === "function")
+				{
+					putText = getQuoteFunction(textBlock)
+				}
+				else
+				{
+					putText = textBlock.innerHTML;
+				}
+
+				if (putText !== null)
+				{
+					BXMobileApp.UI.Page.TextPanel.getText(function(currentText){
+						if (currentText)
+						{
+							putText = BX.util.trim(currentText)+"\n"+putText;
+						}
+						BXMobileApp.UI.Page.TextPanel.setText(putText+' ');
+						BXMobileApp.UI.Page.TextPanel.focus();
+					});
+				}
+			}
+		});
+		if (false && deleteMessageId && BX.MessengerCommon.checkEditMessage(deleteMessageId, 'edit'))
+		{
+			buttons.push({
+				title: BX.message("IM_MENU_MESS_EDIT"),
+				callback: BX.delegate(function () { BXIM.messenger.editMessage(deleteMessageId); }, this)
+			});
+		}
+		if (deleteMessageId && BX.MessengerCommon.checkEditMessage(deleteMessageId, 'delete'))
+		{
+			buttons.push({
+				title: BX.message("IM_MENU_MESS_DEL"),
+				callback: BX.delegate(function () { BXIM.messenger.deleteMessage(deleteMessageId); }, this)
+			});
+		}
+
+		(new BXMobileApp.UI.ActionSheet({buttons: buttons}, "copydialog")).show();
 
 		app.exec("callVibration");
 
@@ -1318,7 +1337,7 @@ BX.ImMobile.prototype.checkRevision = function(revision)
 	if (typeof(revision) == "number" && this.revision < revision)
 	{
 		console.log('NOTICE: Window reload, because REVISION UP ('+this.revision+' -> '+revision+')');
-		location.reload();
+		reload();
 
 		return false;
 	}
@@ -1853,24 +1872,42 @@ BX.ImMessengerMobile.prototype.drawRecentList = function()
 
 BX.ImMessengerMobile.prototype.openPhotoGallery = function(currentPhoto)
 {
-	var nodes = BX.findChildrenByClassName(this.BXIM.messenger.popupMessengerBodyWrap, "bx-messenger-file-image-text");
+	var nodes = BX.findChildrenByClassName(this.BXIM.messenger.popupMessengerBodyWrap, "bx-messenger-file-image-src");
 	var photos = [];
-	var defaultImage = '';
-	var nodeSrc = '';
+
 	for(var i = 0; i < nodes.length; i++)
 	{
-		nodeSrc = nodes[i].getAttribute('src');
-		photos.push({
-			'url': nodeSrc.replace("preview=Y&", ""),
-			'description': nodes[i].innerHTML
-		});
-		if (currentPhoto && nodeSrc.indexOf(currentPhoto) > -1)
-			defaultImage = nodeSrc.replace("preview=Y&", "");
+		var chatId = nodes[i].getAttribute('data-chatId');
+		var diskId = nodes[i].getAttribute('data-diskId');
+
+		if (
+			chatId && diskId
+			&& this.disk.files[chatId] && this.disk.files[chatId][diskId]
+		)
+		{
+			var file = this.disk.files[chatId][diskId];
+			if (file.type != 'image')
+				continue;
+
+			photos.push({
+				'url': file.urlShow,
+				'description': file.name
+			});
+		}
+		else
+		{
+			var node = BX.findChildByClassName(nodes[i], "bx-messenger-file-image-text");
+			photos.push({
+				'url': node.getAttribute('src'),
+				'description': ''
+			});
+		}
 	}
+
 	if (photos.length > 0)
 	{
 		BX.localStorage.set('impmh', true, 1);
-		BXMobileApp.UI.Photo.show({photos: photos, default_photo: defaultImage})
+		BXMobileApp.UI.Photo.show({photos: photos, default_photo: currentPhoto})
 	}
 }
 
@@ -1964,13 +2001,13 @@ BX.ImMessengerMobile.prototype.dialogStatusRedrawDelay = function(params)
 				}
 				if (session.crmLink)
 				{
-					items.push({image: "/bitrix/templates/mobile_app/images/im/work.png", name: BX.message('IM_M_OL_GOTO_CRM'), action:BX.delegate(function() {
-						var params = BX.MobileTools.getMobileUrlParams(session.crmLink);
-						if (params)
-						{
-							BXMobileApp.PageManager.loadPageBlank(params);
-						}
-					}, this)});
+					var linkParams = BX.MobileTools.getMobileUrlParams(session.crmLink);
+					if (linkParams)
+					{
+						items.push({image: "/bitrix/templates/mobile_app/images/im/work.png", name: BX.message('IM_M_OL_GOTO_CRM'), action: function() {
+							BXMobileApp.PageManager.loadPageBlank(linkParams);
+						}});
+					}
 				}
 				if (this.chat[chatId].owner == 0)
 				{
@@ -2202,7 +2239,7 @@ BX.ImMessengerMobile.prototype.dialogStatusRedrawDelay = function(params)
 		else if (this.users[userId])
 		{
 			BXMobileApp.UI.Page.TopBar.title.setText(BX.util.htmlspecialcharsback(this.users[userId].name));
-			BXMobileApp.UI.Page.TopBar.title.setImage(BX.MessengerCommon.isBlankAvatar(this.users[userId].avatar)? BX.MessengerCommon.getDefaultAvatar('private'): this.users[userId].avatar);
+			BXMobileApp.UI.Page.TopBar.title.setImage(BX.MessengerCommon.isBlankAvatar(this.users[userId].avatar)? '': this.users[userId].avatar);
 
 			var funcUpdateLastDate = BX.delegate(function() {
 				var detailText = BX.MessengerCommon.getUserPosition(this.users[userId], true);
@@ -2410,7 +2447,7 @@ BX.ImMessengerMobile.prototype.updateChatAvatar = function(chatId, chatAvatar)
 	{
 		if (BX.MessengerCommon.isBlankAvatar(chatAvatar))
 		{
-			this.redrawChatHeaderDelay();
+			BXMobileApp.UI.Page.TopBar.title.setImage('');
 		}
 		else
 		{
@@ -2480,7 +2517,7 @@ BX.ImMessengerMobile.prototype.redrawChatHeaderDelay = function()
 				BXMobileApp.UI.Page.TopBar.title.setDetailText(BX.message("IM_CL_CHAT_2"));
 			}
 		}
-		BXMobileApp.UI.Page.TopBar.title.setImage(BX.MessengerCommon.isBlankAvatar(this.chat[chatId].avatar)? BX.MessengerCommon.getDefaultAvatar(avatarType): this.chat[chatId].avatar);
+		BXMobileApp.UI.Page.TopBar.title.setImage(BX.MessengerCommon.isBlankAvatar(this.chat[chatId].avatar)? '': this.chat[chatId].avatar);
 	}
 	var color = '';
 	if (this.chat[chatId].type == 'lines')
@@ -2921,9 +2958,9 @@ BX.ImMessengerMobile.prototype.openMessageMenu = function(messageId)
 		)
 		{
 			sheetButtons.push({
-				title: BX.message("IM_MENU_MESS_LIKE_LIST"),
+				title: BX.message("IM_MENU_MESS_LIKE_LIST_2"),
 				callback: BX.delegate(function () {
-					this.BXIM.showUserTable(this.message[messageId].params.LIKE, BX.message('IM_MENU_MESS_LIKE_LIST'))
+					this.BXIM.showUserTable(this.message[messageId].params.LIKE, BX.message('IM_MENU_MESS_LIKE_LIST_2'))
 				}, this)
 			});
 		}
@@ -2944,18 +2981,13 @@ BX.ImMessengerMobile.prototype.openMessageMenu = function(messageId)
 		}
 	}
 
-	/*
-	sheetButtons.push({
-		title: BX.message("IM_MENU_MESS_QUOTE"),
-		callback: BX.delegate(function () {}, this)
-	});
-	*/
-	/*
-	sheetButtons.push({
-		title: BX.message("IM_MENU_MESS_LIKE_LIST"),
-		callback: BX.delegate(function () {}, this)
-	});
-	*/
+	if (this.message[messageId].senderId != this.BXIM.userId)
+	{
+		sheetButtons.push({
+			title: BX.message("IM_MENU_UNREAD"),
+			callback: BX.delegate(function () { BX.MessengerCommon.unreadMessage(messageId); }, this)
+		});
+	}
 
 	var deleteMessageId = 0;
 	var firstMessageId = BX('im-message-'+messageId)
@@ -3118,6 +3150,7 @@ BX.ImDiskManagerMobile = function(rootObject, params)
 	this.filesProgress = {};
 	this.filesMessage = {};
 	this.filesRegister = {};
+	this.messageBlock = {};
 
 	this.fileTmpId = 1;
 
@@ -3146,7 +3179,7 @@ BX.ImDiskManagerMobile = function(rootObject, params)
 			});
 		}
 	}, this);
-}
+};
 
 BX.ImDiskManagerMobile.prototype.init = function(params)
 {
@@ -3158,6 +3191,29 @@ BX.ImDiskManagerMobile.prototype.init = function(params)
 
 	this.enable = params.disk && params.disk.enable;
 	this.enableExternal = params.disk && params.disk.external;
+};
+
+BX.ImDiskManagerMobile.prototype.getChatId = function()
+{
+	var isChat = this.BXIM.messenger.currentTab.toString().substr(0, 4) == 'chat';
+	if (isChat)
+	{
+		return this.BXIM.messenger.currentTab.toString().substr(4);
+	}
+
+	var chatId = this.BXIM.messenger.userChat[this.BXIM.messenger.currentTab];
+	if (chatId)
+	{
+		return chatId;
+	}
+
+	return 0;
+};
+
+BX.ImDiskManagerMobile.prototype.setChatParams = function(chatId, folderId)
+{
+	this.diskChatId = chatId? parseInt(chatId): 0;
+	this.diskFolderId = folderId? parseInt(folderId): 0;
 };
 
 BX.ImDiskManagerMobile.prototype.chatDialogInit = function()
@@ -3188,8 +3244,9 @@ BX.ImDiskManagerMobile.prototype.chatDialogInit = function()
 
 BX.ImDiskManagerMobile.prototype.uploadFromMobile = function(image, text)
 {
-	var dataBlob = BX.UploaderUtils.dataURLToBlob("data:image/jpg;base64,"+image);
-	dataBlob.name = 'mobile_'+BX.date.format("Ymd_His")+'.jpg';
+	var imageType = imageType? imageType: 'jpg';
+	var dataBlob = BX.UploaderUtils.dataURLToBlob("data:image/"+imageType+";base64,"+image);
+	dataBlob.name = 'mobile_'+BX.date.format("Ymd_His")+'.'+imageType;
 	this.formAgents['imDialog'].messageText = text? text: '';
 	this.formAgents['imDialog'].onChange([dataBlob]);
 };

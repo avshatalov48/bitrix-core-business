@@ -1,0 +1,11 @@
+<?php
+$MESS['LANDING_TPL_TITLE'] = 'Список доменов';
+$MESS['LANDING_TPL_COL_ACTIVE'] = 'Акт.';
+$MESS['LANDING_TPL_COL_ACT_Y'] = 'Да';
+$MESS['LANDING_TPL_COL_ACT_N'] = 'Нет';
+$MESS['LANDING_TPL_COL_DOMAIN'] = 'Домен';
+$MESS['LANDING_TPL_COL_CREATED'] = 'Создан';
+$MESS['LANDING_TPL_COL_MODIFIED'] = 'Изменен';
+$MESS['LANDING_TPL_ACTION_EDIT'] = 'Изменить';
+$MESS['LANDING_TPL_ACTION_DELETE'] = 'Удалить';
+$MESS['LANDING_TPL_ACTION_ADD'] = 'Новый';

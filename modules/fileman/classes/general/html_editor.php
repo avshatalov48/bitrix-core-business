@@ -427,6 +427,9 @@ class CHTMLEditor
 		if (isset($arParams["useFileDialogs"]))
 			$this->jsConfig["useFileDialogs"] = $arParams["useFileDialogs"];
 
+		if (isset($arParams["useLinkStat"]))
+			$this->jsConfig["useLinkStat"] = $arParams["useLinkStat"];
+
 		if (isset($arParams["showTaskbars"]))
 			$this->jsConfig["showTaskbars"] = $arParams["showTaskbars"];
 

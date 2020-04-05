@@ -252,7 +252,9 @@ Class blog extends CModule
 
 		RegisterModuleDependences("socialnetwork", "OnSocNetFeaturesAdd", "blog", "CBlogSearch", "SetSoNetFeatureIndexSearch");
 		RegisterModuleDependences("socialnetwork", "OnSocNetFeaturesUpdate", "blog", "CBlogSearch", "SetSoNetFeatureIndexSearch");
+		RegisterModuleDependences("socialnetwork", "OnBeforeSocNetFeaturesPermsAdd", "blog", "CBlogSearch", "OnBeforeSocNetFeaturesPermsAdd");
 		RegisterModuleDependences("socialnetwork", "OnSocNetFeaturesPermsAdd", "blog", "CBlogSearch", "SetSoNetFeaturePermIndexSearch");
+		RegisterModuleDependences("socialnetwork", "OnBeforeSocNetFeaturesPermsUpdate", "blog", "CBlogSearch", "OnBeforeSocNetFeaturesPermsUpdate");
 		RegisterModuleDependences("socialnetwork", "OnSocNetFeaturesPermsUpdate", "blog", "CBlogSearch", "SetSoNetFeaturePermIndexSearch");
 
 		RegisterModuleDependences("main", "OnAfterAddRating", 	"blog", "CRatingsComponentsBlog", "OnAfterAddRating", 200);
@@ -319,7 +321,9 @@ Class blog extends CModule
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "blog", "CBlogSoNetPost", "OnGroupDelete");
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetFeaturesAdd", "blog", "CBlogSearch", "SetSoNetFeatureIndexSearch");
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetFeaturesUpdate", "blog", "CBlogSearch", "SetSoNetFeatureIndexSearch");
+		UnRegisterModuleDependences("socialnetwork", "OnBeforeSocNetFeaturesPermsAdd", "blog", "CBlogSearch", "OnBeforeSocNetFeaturesPermsAdd");
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetFeaturesPermsAdd", "blog", "CBlogSearch", "SetSoNetFeaturePermIndexSearch");
+		UnRegisterModuleDependences("socialnetwork", "OnBeforeSocNetFeaturesPermsUpdate", "blog", "CBlogSearch", "OnBeforeSocNetFeaturesPermsUpdate");
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetFeaturesPermsUpdate", "blog", "CBlogSearch", "SetSoNetFeaturePermIndexSearch");
 
 		UnRegisterModuleDependences("main", "OnAfterAddRating",    "blog", "CRatingsComponentsBlog", "OnAfterAddRating");

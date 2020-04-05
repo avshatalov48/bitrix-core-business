@@ -96,11 +96,11 @@ class StoreTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('STORE_ENTITY_LOCATION_ID_FIELD')
 			)),
 			'DATE_MODIFY' => new Main\Entity\DatetimeField('DATE_MODIFY', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('STORE_ENTITY_DATE_MODIFY_FIELD')
 			)),
 			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
-				'default_value' => new Main\Type\DateTime(),
+				'default_value' => function(){ return new Main\Type\DateTime(); },
 				'title' => Loc::getMessage('STORE_ENTITY_DATE_CREATE_FIELD')
 			)),
 			'USER_ID' => new Main\Entity\IntegerField('USER_ID', array(

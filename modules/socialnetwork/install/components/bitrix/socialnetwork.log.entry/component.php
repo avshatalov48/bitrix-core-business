@@ -11,6 +11,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CMain $APPLICATION */
 
 use Bitrix\Socialnetwork\Livefeed;
+use Bitrix\Main\ModuleManager;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.log.entry/include.php");
 
@@ -69,6 +70,7 @@ $arResult["COUNTER_TYPE"] = $arParams["COUNTER_TYPE"];
 $arResult["AJAX_CALL"] = $arParams["AJAX_CALL"];
 $arResult["bReload"] = $arParams["bReload"];
 $arResult["bGetComments"] = $arParams["bGetComments"];
+$arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 
 $arResult["Event"] = false;
 $arCurrentUserSubscribe = array("TRANSPORT" => array());

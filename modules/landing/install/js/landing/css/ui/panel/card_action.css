@@ -1,0 +1,37 @@
+.landing-ui-panel-block-card-action {
+	width: 69px;
+	height: 24px;
+	line-height: 19px;
+	top: 5px;
+	right: 4px;
+}
+
+.landing-ui-panel-block-card-action.landing-ui-size-xs {
+	top: -24px;
+	right: 0;
+}
+
+.landing-ui-panel-block-card-action.landing-ui-size-xs .landing-ui-button::after {
+	top: 3px;
+	bottom: 3px;
+}
+
+.landing-ui-panel-block-card-action .landing-ui-button-card-action {
+	height: 24px;
+	padding-left: 14px;
+	padding-right: 14px;
+	border-top: 1px rgba(82, 92, 105, .80) solid;
+	border-bottom: 1px rgba(82, 92, 105, .80) solid;
+}
+
+.landing-ui-panel-block-card-action .landing-ui-button-card-action:first-child {
+	border-left: 1px rgba(82, 92, 105, .80) solid;
+}
+
+.landing-ui-panel-block-card-action .landing-ui-button-card-action:last-child {
+	border-right: 1px rgba(82, 92, 105, .80) solid;
+}
+
+.landing-ui-panel-block-card-action .landing-ui-button-action[data-id="remove"]::before {
+	right: 12px;
+}

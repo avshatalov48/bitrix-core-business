@@ -123,7 +123,7 @@ else
 			</div>
 		</div>
 		<div class="socialnetwork-group-box">
-			<div class="socialnetwork-group-left"><?=Loc::getMessage($arResult['Group']['PROJECT'] == 'Y' ? 'SONET_C6_CARD_MOD_PROJECT' : 'SONET_C6_CARD_MOD')?> (<?=count($arResult["Moderators"]["List"])?>)</div>
+			<div class="socialnetwork-group-left"><?=Loc::getMessage($arResult['Group']['PROJECT'] == 'Y' ? 'SONET_C6_CARD_MOD_PROJECT' : 'SONET_C6_CARD_MOD')?> (<?=intval($arResult["Group"]["NUMBER_OF_MODERATORS"])?>)</div>
 			<div class="socialnetwork-group-right">
 				<div class="socialnetwork-group-user-box"><?
 					$counter = 0;
@@ -153,9 +153,8 @@ else
 				?></div>
 			</div>
 		</div>
-
 		<div class="socialnetwork-group-box">
-			<div class="socialnetwork-group-left"><?=Loc::getMessage('SONET_C6_CARD_MEMBERS')?> (<?=count($arResult["Members"]["List"])?>)</div>
+			<div class="socialnetwork-group-left"><?=Loc::getMessage('SONET_C6_CARD_MEMBERS')?> (<?=intval($arResult["Group"]["NUMBER_OF_MEMBERS"])?>)</div>
 			<div class="socialnetwork-group-right">
 				<div class="socialnetwork-group-user-box"><?
 					$counter = 0;

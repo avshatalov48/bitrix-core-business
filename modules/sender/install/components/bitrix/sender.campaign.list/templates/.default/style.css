@@ -1,0 +1,11 @@
+.main-ui-filter-search input[type="text"].main-ui-filter-search-filter {
+	padding: 0 50px 0 15px;
+	height: 30px;
+	font-size: 15px;
+	margin: 4px 1px;
+	border: none;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	-ms-box-shadow: none;
+}

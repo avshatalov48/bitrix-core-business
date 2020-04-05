@@ -121,7 +121,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 if ($eventHandlerID > 0 )
 	RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
 
-?><div class="feed-comments-block" id="blg-comment-<?=$arParams["ID"]?>"<?if(empty($arResult["CommentsResult"])){ ?> style="display:none;"<? }?>><?
+?><div class="feed-comments-block" id="blg-comment-<?=$arParams["ID"]?>"><?
 	?><a name="comments"></a><?
 	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?
 ?></div><?

@@ -16,12 +16,12 @@ $this->setFrameMode(false);
 <rss version="2.0"<?if($arParams["YANDEX"]) echo ' xmlns="http://backend.userland.com/rss2" xmlns:yandex="http://news.yandex.ru"';?>>
 <channel>
 <title><?=$arResult["NAME"].(strlen($arResult["SECTION"]["NAME"])>0?" / ".$arResult["SECTION"]["NAME"]:"")?></title>
-<link><?="http://".$arResult["SERVER_NAME"]?></link>
+<link><?=CHTTP::URN2URI("", $arResult["SERVER_NAME"])?></link>
 <description><?=strlen($arResult["SECTION"]["DESCRIPTION"])>0?$arResult["SECTION"]["DESCRIPTION"]:$arResult["DESCRIPTION"]?></description>
 <lastBuildDate><?=date("r")?></lastBuildDate>
 <ttl><?=$arResult["RSS_TTL"]?></ttl>
 <?if(is_array($arResult["PICTURE"])):?>
-	<?$image = substr($arResult["PICTURE"]["SRC"], 0, 1) == "/"? "http://".$arResult["SERVER_NAME"].$arResult["PICTURE"]["SRC"]: $arResult["PICTURE"]["SRC"];?>
+	<?$image = substr($arResult["PICTURE"]["SRC"], 0, 1) == "/"? CHTTP::URN2URI($arResult["PICTURE"]["SRC"], $arResult["SERVER_NAME"]): $arResult["PICTURE"]["SRC"];?>
 	<?if($arParams["YANDEX"]):?>
 		<yandex:logo><?=$image?></yandex:logo>
 		<?
@@ -35,7 +35,7 @@ $this->setFrameMode(false);
 			);
 			if ($squarePicture)
 			{
-				$squareImage = substr($squarePicture["src"], 0, 1) == "/"? "http://".$arResult["SERVER_NAME"].$squarePicture["src"]: $squarePicture["src"];
+				$squareImage = substr($squarePicture["src"], 0, 1) == "/"? CHTTP::URN2URI($squarePicture["src"], $arResult["SERVER_NAME"]): $squarePicture["src"];
 				?><yandex:logo type="square"><?=$squareImage?></yandex:logo><?
 			}
 		}
@@ -45,7 +45,7 @@ $this->setFrameMode(false);
 		<image>
 			<title><?=$arResult["NAME"]?></title>
 			<url><?=$image?></url>
-			<link><?="http://".$arResult["SERVER_NAME"]?></link>
+			<link><?=CHTTP::URN2URI("", $arResult["SERVER_NAME"])?></link>
 			<width><?=$arResult["PICTURE"]["WIDTH"]?></width>
 			<height><?=$arResult["PICTURE"]["HEIGHT"]?></height>
 		</image>

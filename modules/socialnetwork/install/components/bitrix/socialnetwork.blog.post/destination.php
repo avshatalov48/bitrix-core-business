@@ -15,17 +15,19 @@ $user_id = IntVal($USER->GetID());
 
 CJSCore::Init(array('socnetlogdest'));
 
-$arResult["DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
+$dataAdditional = array();
+$arResult["DEST_SORT"] = CSocNetLogDestination::getDestinationSort(array(
 	"DEST_CONTEXT" => "BLOG_POST",
 	"ALLOW_EMAIL_INVITATION" => $arResult["ALLOW_EMAIL_INVITATION"]
-));
+), $dataAdditional);
 
 $arResult["FEED_DESTINATION"]['LAST'] = array();
 CSocNetLogDestination::fillLastDestination(
 	$arResult["DEST_SORT"],
 	$arResult["FEED_DESTINATION"]['LAST'],
 	array(
-		"EMAILS" => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N')
+		"EMAILS" => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
+		"DATA_ADDITIONAL" => $dataAdditional
 	)
 );
 
@@ -35,21 +37,23 @@ $cacheDir = '/blog/form/dest/'.SITE_ID.'/'.$user_id;
 
 $obCache = new CPHPCache;
 if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
+{
 	$arResult["FEED_DESTINATION"]['SONETGROUPS'] = $obCache->GetVars();
+}
 else
 {
 	$obCache->StartDataCache();
 	$arResult["FEED_DESTINATION"]['SONETGROUPS'] = CSocNetLogDestination::GetSocnetGroup(Array('features' => array("blog", array("premoderate_post", "moderate_post", "write_post", "full_post"))));
 	if(defined("BX_COMP_MANAGED_CACHE"))
 	{
-		$GLOBALS["CACHE_MANAGER"]->StartTagCache($cacheDir);
+		$CACHE_MANAGER->StartTagCache($cacheDir);
 		foreach($arResult["FEED_DESTINATION"]['SONETGROUPS'] as $val)
 		{
-			$GLOBALS["CACHE_MANAGER"]->RegisterTag("sonet_features_G_".$val["entityId"]);
-			$GLOBALS["CACHE_MANAGER"]->RegisterTag("sonet_group_".$val["entityId"]);
+			$CACHE_MANAGER->RegisterTag("sonet_features_G_".$val["entityId"]);
+			$CACHE_MANAGER->RegisterTag("sonet_group_".$val["entityId"]);
 		}
-		$GLOBALS["CACHE_MANAGER"]->RegisterTag("sonet_user2group_U".$user_id);
-		$GLOBALS["CACHE_MANAGER"]->EndTagCache();
+		$CACHE_MANAGER->RegisterTag("sonet_user2group_U".$user_id);
+		$CACHE_MANAGER->EndTagCache();
 	}
 	$obCache->EndDataCache($arResult["FEED_DESTINATION"]['SONETGROUPS']);
 }

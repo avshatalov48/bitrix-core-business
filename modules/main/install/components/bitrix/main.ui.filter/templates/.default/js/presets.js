@@ -655,12 +655,13 @@
 				var datesel = '_datesel' in field.VALUES ? field.VALUES._datesel : field.SUB_TYPE.VALUE;
 
 				if (BX.type.isPlainObject(field.VALUES) &&
-					(field.VALUES._from ||
-					field.VALUES._to ||
-					field.VALUES._month ||
-					field.VALUES._quarter ||
-					field.VALUES._year ||
-					field.VALUES._days) ||
+					(field.VALUES._from || field.VALUES._to || field.VALUES._quarter ||
+					(field.VALUES._month && !BX.type.isArray(field.VALUES._month)) ||
+					(field.VALUES._year && !BX.type.isArray(field.VALUES._year)) ||
+					(field.VALUES._days) && !BX.type.isArray(field.VALUES._days)) ||
+					(BX.type.isArray(field.VALUES._days) && field.VALUES._days.length) ||
+					(BX.type.isArray(field.VALUES._month) && field.VALUES._month.length) ||
+					(BX.type.isArray(field.VALUES._year) && field.VALUES._year.length) ||
 					(
 						datesel === this.parent.dateTypes.CURRENT_DAY ||
 						datesel === this.parent.dateTypes.CURRENT_WEEK ||
@@ -947,6 +948,7 @@
 			if (BX.type.isPlainObject(fields))
 			{
 				var dateType = this.parent.dateTypes;
+				var additionalDateTypes = this.parent.additionalDateTypes;
 
 				if ('FIND' in fields)
 				{
@@ -967,12 +969,17 @@
 
 							if (datesel === dateType.EXACT ||
 								datesel === dateType.RANGE ||
+								datesel === additionalDateTypes.PREV_DAY ||
+								datesel === additionalDateTypes.NEXT_DAY ||
+								datesel === additionalDateTypes.MORE_THAN_DAYS_AGO ||
+								datesel === additionalDateTypes.AFTER_DAYS ||
 								datesel === dateType.PREV_DAYS ||
 								datesel === dateType.NEXT_DAYS ||
 								datesel === dateType.YEAR ||
 								datesel === dateType.MONTH ||
 								datesel === dateType.QUARTER ||
-								datesel === dateType.NONE)
+								datesel === dateType.NONE ||
+								datesel === dateType.CUSTOM_DATE)
 							{
 								delete fields[key];
 							}
@@ -1203,6 +1210,13 @@
 							}
 
 							BX.append(current, fieldListContainer);
+
+							if (BX.type.isString(fields[index].HTML))
+							{
+								var wrap = BX.create("div");
+								this.parent.getHiddenElement().appendChild(wrap);
+								BX.html(wrap, fields[index].HTML);
+							}
 						}
 					}, this);
 

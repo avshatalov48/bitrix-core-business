@@ -219,7 +219,6 @@ $MESS["IM_C_PRIVATE_TITLE"] = "Enter first and last names; position or departmen
 $MESS["IM_C_ABOUT_CHAT"] = "A private chat is available to only the invited users. #BR##BR# This chat is perfect for business discussions that involve and concern certain people. #BR##BR# It's not only your co-workers that you can invite to this chat; send invites to your clients, partners and other persons related to your business who use Bitrix24. To add a new chat member, enter the first and last names, e-mail or their display name. #BR##BR#Complete #PROFILE_START#your profile#PROFILE_END# to let other people find you.";
 $MESS["IM_C_ABOUT_CHAT_CHAT"] = "A private chat is available to only the invited users. #BR##BR# This chat is perfect for business discussions that involve and concern certain people.";
 $MESS["IM_C_ABOUT_OPEN"] = "A public chat is open to all of your colleagues. #BR##BR# Use this chat to discuss topics that are of importance to anybody in your company.#BR##BR# Once a public chat is created, a notification is sent to #CHAT_START#General chat#CHAT_END#. Your colleagues can then view chat messages and join the chat if they want to.#BR##BR# Your initial message is crucial to spark other's interest in your new chat.";
-$MESS["IM_C_ABOUT_OPEN_2"] = "A public chat is open to all of your colleagues. #BR##BR# Use this chat to discuss topics that are of importance to anybody in your company.#BR##BR# Your colleagues can then view chat messages and join the chat if they want to.#BR##BR# Your initial message is crucial to spark other's interest in your new chat.";
 $MESS["IM_C_ABOUT_OPEN_SITE"] = "A public chat is open to all of your colleagues. #BR##BR# Use this chat to discuss topics that are of importance to anybody in your company.#BR##BR# Your colleagues can then view chat messages and join the chat if they want to.#BR##BR# Your initial message is crucial to spark other's interest in your new chat.";
 $MESS["IM_C_ABOUT_PRIVATE"] = "A person-to-person chat is visible to only you and your contact. #BR##BR# Find a person you want to chat with by their name, position or department. #BR##BR# You can also chat with any of your clients, partners or other persons using Bitrix24. Find them by their name, e-mail or display name you think they use. #BR##BR# Complete #PROFILE_START#your profile#PROFILE_END# to help other people find you.";
 $MESS["IM_C_ABOUT_PRIVATE_SITE"] = "A person-to-person chat is visible to only you and your contact. #BR##BR# Find a person you want to chat with by their name, position or department.";
@@ -331,4 +330,9 @@ $MESS["IM_LS_M"] = "#POSITION#. Last seen #LAST_SEEN#";
 $MESS["IM_LS_F"] = "#POSITION#. Last seen #LAST_SEEN#";
 $MESS["IM_LS_SHORT_M"] = "Last seen #LAST_SEEN#";
 $MESS["IM_LS_SHORT_F"] = "Last seen #LAST_SEEN#";
+$MESS["IM_C_ABOUT_OPEN_2"] = "A public chat is open to all of your colleagues.#BR##BR# Use this chat to discuss topics that are of importance to anybody in your company.#BR##BR# Your colleagues can then view chat messages and join the chat if they want to.#BR##BR# Your initial message is crucial to spark other's interest in your new chat.";
+$MESS["IM_OL_CLIENT_NAME"] = "Client";
+$MESS["IM_TRANSFER_SCOPE_USERS"] = "Employees";
+$MESS["IM_TRANSFER_SCOPE_LINES"] = "Open Channels";
+$MESS["IM_TRANSFER_SCOPE_DEPARTMENTS"] = "Departments";
 ?>

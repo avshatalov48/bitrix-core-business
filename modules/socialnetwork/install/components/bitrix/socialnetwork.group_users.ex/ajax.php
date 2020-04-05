@@ -179,6 +179,13 @@ if (check_bitrix_sessid())
 						"CONTEXT" => 'GROUP_ADD_MODERATOR',
 						"CODE" => array('U'.$arUserID[0])
 					));
+
+					UserToGroup::addInfoToChat(array(
+						'group_id' => $arGroup["ID"],
+						'user_id' => $arUserID[0],
+						'action' => UserToGroup::CHAT_ACTION_IN,
+						'sendMessage' => false
+					));
 				}
 				else
 				{

@@ -184,6 +184,11 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 		if (is_array($FIELDS_del))
 			CAllFile::ConvertFilesToPost($FIELDS_del, $_POST['FIELDS'], "del");
 
+		if ($boolSubCatalog)
+		{
+			Catalog\Product\Sku::enableDeferredCalculation();
+		}
+
 		foreach ($_POST['FIELDS'] as $subID => $arFields)
 		{
 			if (!$lAdmin->IsUpdated($subID))
@@ -397,22 +402,20 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 							$arCatalogProduct['QUANTITY'] = $arFields['CATALOG_QUANTITY'];
 					}
 
-					$product = Catalog\ProductTable::getList(array(
-						'select' => array('ID', 'SUBSCRIBE_ORIG'),
+					$product = Catalog\Model\Product::getList(array(
+						'select' => array('ID'),
 						'filter' => array('=ID' => $subID)
 					))->fetch();
 					if (empty($product))
 					{
 						$arCatalogProduct['ID'] = $subID;
-						CCatalogProduct::Add($arCatalogProduct, false);
+						$result = Catalog\Model\Product::add(array('fields' => $arCatalogProduct));
 					}
 					else
 					{
 						if (!empty($arCatalogProduct))
 						{
-							if ($strUseStoreControl != 'Y')
-								$arCatalogProduct['SUBSCRIBE'] = $product['SUBSCRIBE_ORIG'];
-							CCatalogProduct::Update($subID, $arCatalogProduct);
+							$result = Catalog\Model\Product::update($subID, array('fields' => $arCatalogProduct));
 						}
 					}
 					unset($product);
@@ -597,6 +600,12 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 				unset($productIblock);
 			}
 		}
+
+		if ($boolSubCatalog)
+		{
+			Catalog\Product\Sku::disableDeferredCalculation();
+			Catalog\Product\Sku::calculate();
+		}
 	}
 
 	if (($arID = $lAdmin->GroupAction()))
@@ -606,6 +615,11 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 			$rsData = CIBlockElement::GetList($arOrder, $arFilter, false, false, array('ID'));
 			while($arRes = $rsData->Fetch())
 				$arID[] = $arRes['ID'];
+		}
+
+		if ($boolSubCatalog)
+		{
+			Catalog\Product\Sku::enableDeferredCalculation();
 		}
 
 		foreach ($arID as $subID)
@@ -785,6 +799,12 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 				}
 				break;
 			}
+		}
+
+		if ($boolSubCatalog)
+		{
+			Catalog\Product\Sku::disableDeferredCalculation();
+			Catalog\Product\Sku::calculate();
 		}
 	}
 }

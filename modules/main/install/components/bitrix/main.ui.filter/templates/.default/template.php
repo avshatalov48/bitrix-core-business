@@ -10,6 +10,7 @@
 	use Bitrix\Main\Localization\Loc;
 	use Bitrix\Main\UI\Filter\Type;
 	use Bitrix\Main\UI\Filter\DateType;
+	use Bitrix\Main\UI\Filter\AdditionalDateType;
 	use Bitrix\Main\UI\Filter\NumberType;
 
 	if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -169,7 +170,8 @@
 			<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
 			<?=CUtil::PhpToJSObject(Type::getList())?>,
 			<?=CUtil::PhpToJSObject(DateType::getList())?>,
-			<?=CUtil::PhpToJSObject(NumberType::getList())?>
+			<?=CUtil::PhpToJSObject(NumberType::getList())?>,
+			<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>
 		)
 	);
 </script>

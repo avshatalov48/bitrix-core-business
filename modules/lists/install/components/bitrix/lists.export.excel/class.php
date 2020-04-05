@@ -443,7 +443,13 @@ class ListExportExcelComponent extends CBitrixComponent
 				$countComments = $this->getCommentsProcess($data["ID"]);
 
 			if (empty($gridColumns))
+			{
 				$gridColumns = array_keys($arListFields);
+			}
+			if (in_array("IBLOCK_SECTION_ID", $arSelect) && !in_array("IBLOCK_SECTION_ID", $gridColumns))
+			{
+				$gridColumns[] = "IBLOCK_SECTION_ID";
+			}
 			foreach ($gridColumns as $position => $id)
 			{
 				if($id == "COMMENTS")

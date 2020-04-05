@@ -20,6 +20,7 @@
 			this.editorId = this.id + '_entry_slider_editor';
 
 			this.entry = params.entry || this.getNewEntry(params.entry || params.newEntryData);
+			this.tryLocation = params.tryLocation || false;
 
 			this.formType = params.formType || 'slider_main';
 			this.formSettings = this.getSettings();
@@ -169,12 +170,20 @@
 			this.initAttendeesControl();
 			this.initColorControl();
 
-			if (this.entry.accessibility)
+			if (this.calendar.util.isMeetingsEnabled() && this.entry.accessibility)
+			{
 				BX(this.id + '_accessibility').value = this.entry.accessibility;
+			}
+
 			if (this.entry.important)
+			{
 				BX(this.id + '_important').checked = this.entry.important;
-			if (this.entry.private)
+			}
+
+			if (this.calendar.util.isPrivateEventsEnabled() && this.entry.private)
+			{
 				BX(this.id + '_private').checked = this.entry.private;
+			}
 
 			this.DOM.mainBlock = BX(this.id + '_main_block_wrap');
 			this.DOM.additionalBlockWrap = BX(this.id + '_additional_block_wrap');
@@ -604,6 +613,7 @@
 					}
 				);
 
+				_this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "300px";
 				_this.sectionMenu.popupWindow.setWidth(_this.DOM.sectionSelect.offsetWidth - 2);
 				_this.sectionMenu.show();
 
@@ -681,7 +691,7 @@
 					inputName: 'location_text',
 					wrapNode: BX(this.id + '_location_wrap'),
 					onChangeCallback: BX.proxy(this.checkPlannerState, this),
-					value: this.entry.location
+					value: this.tryLocation ? this.tryLocation : this.entry.location
 				}, this.calendar);
 		},
 
@@ -742,16 +752,18 @@
 
 		initAttendeesControl: function()
 		{
+			if (!this.calendar.util.isMeetingsEnabled())
+			{
+				BX.remove(this.DOM.formWrap.querySelector('.calendar-options-item-destination'));
+				BX.remove(this.DOM.formWrap.querySelector('.calendar-options-item-planner'));
+				return;
+			}
+
+			this.DOM.attendeesWrap = BX(this.id + '_attendees_wrap');
 			this.attendees = this.entry.attendees || [this.calendar.currentUser];
 			this.attendeesIndex = {};
 			this.attendees.forEach(function(userId){this.attendeesIndex[userId] = true;}, this);
-
-			if (this.entry.getAttendeesCodes)
-				this.attendeesCodes = this.entry.getAttendeesCodes();
-			else
-				this.attendeesCodes = this.entry.attendeesCodes || false;
-
-			this.DOM.attendeesWrap = BX(this.id + '_attendees_wrap');
+			this.attendeesCodes = this.entry.getAttendeesCodes ? this.entry.getAttendeesCodes() : (this.entry.attendeesCodes || false);
 
 			this.attendeesSelector = new window.BXEventCalendar.DestinationSelector(this.calendar.id + '-slider-destination',
 			{
@@ -768,8 +780,10 @@
 			BX.addCustomEvent('OnDestinationUnselect', BX.proxy(this.checkPlannerState, this));
 			BX.addCustomEvent('OnCalendarPlannerSelectorChanged', BX.proxy(this.onCalendarPlannerSelectorChanged, this));
 			this.checkPlannerState();
+			BX.addCustomEvent('OnCalendarPlannerUpdated', BX.proxy(this.onCalendarPlannerUpdatedHandler, this));
 
 			this.DOM.moreOuterWrap = BX(this.id + '_more_outer_wrap');
+
 			//this.DOM.moreLink = BX.adjust(BX(this.id + '_more'), {events: {click: BX.delegate(function(){BX.toggleClass(this.DOM.moreWrap, 'collapse');}, this)}});
 			//this.DOM.moreWrap = BX(this.id + '_more_wrap');
 
@@ -901,10 +915,85 @@
 			}
 		},
 
+		checkLocationAccessibility: function(fromDate, toDate, timeout)
+		{
+			var locationIsFree = true;
+			timeout = timeout !== false;
+
+			if (timeout)
+			{
+				if (this.checkLocationAccessibilityTimeout)
+				{
+					this.checkLocationAccessibilityTimeout = clearTimeout(this.checkLocationAccessibilityTimeout);
+				}
+
+				this.checkLocationAccessibilityTimeout = setTimeout(BX.proxy(function(){
+					this.checkLocationAccessibility(false, false, false);
+				}, this), 500);
+				return locationIsFree;
+			}
+
+			if (!fromDate || !toDate)
+			{
+				var fromTime = this.calendar.util.parseTime(this.DOM.fromTime.value), toTime = this.calendar.util.parseTime(this.DOM.toTime.value);
+
+				fromDate = BX.parseDate(this.DOM.fromDate.value);
+				toDate = BX.parseDate(this.DOM.toDate.value);
+
+				if (fromDate && fromTime)
+				{
+					fromDate.setHours(fromTime.h, fromTime.m, 0);
+				}
+				if (toDate && toTime)
+				{
+					toDate.setHours(toTime.h, toTime.m, 0);
+				}
+			}
+
+			var
+				entry = false,
+				locationValue = this.locationSelector.getValue();
+
+			if (this.planner && locationValue.type == 'calendar')
+			{
+				entry = this.planner.entries.find(function(el){return el.type == 'room' && el.roomId == locationValue.value;});
+			}
+			else if (this.planner && locationValue.type == 'mr')
+			{
+				entry = this.planner.entries.find(function(el){return el.type == 'room' && el.id == 'MR_' + locationValue.value;});
+			}
+
+			if (entry && !this.planner.checkEntryTimePeriod(entry, fromDate, toDate))
+			{
+				BX.addClass(this.locationSelector.DOM.input, 'calendar-error');
+				if (this.locationErrorNode)
+				{
+					this.locationErrorNode = BX.remove(this.locationErrorNode);
+				}
+				this.locationErrorNode = this.locationSelector.DOM.wrapNode.parentNode
+					.appendChild(BX.create("div", {
+						props: {className: "calendar-content-error-text"},
+						text: BX.message('EC_LOCATION_RESERVE_ERROR')
+					}));
+
+				locationIsFree = false;
+			}
+			else
+			{
+				BX.removeClass(this.locationSelector.DOM.input, 'calendar-error');
+				if (this.locationErrorNode)
+				{
+					this.locationErrorNode = BX.remove(this.locationErrorNode);
+				}
+				locationIsFree = true;
+			}
+
+			return locationIsFree;
+		},
+
 		save: function(params)
 		{
-			if (!params)
-				params = {};
+			params = params || {};
 
 			var
 				url = this.calendar.util.getActionUrl(),
@@ -983,38 +1072,11 @@
 				return false;
 			}
 
-			// Check Meeting rooms accessibility
-			//if (this.Loc.NEW.substr(0, 5) == 'ECMR_' && !params.bLocationChecked)
-			//{
-			//	if (toDate && this.pFullDay.checked)
-			//	{
-			//		toDate = new Date(toDate.getTime() + 86400000 /* one day*/);
-			//	}
-			//
-			//	if (fromDate && toDate)
-			//	{
-			//		this.oEC.CheckMeetingRoom(
-			//			{
-			//				id : this.oEvent.ID || 0,
-			//				from : _this.oEC.FormatDateTime(fromDate),
-			//				to : _this.oEC.FormatDateTime(toDate),
-			//				location_new : this.Loc.NEW,
-			//				location_old : this.Loc.OLD || false
-			//			},
-			//			function(check)
-			//			{
-			//				if (!check)
-			//					return alert(EC_MESS.MRReserveErr);
-			//				if (check == 'reserved')
-			//					return alert(EC_MESS.MRNotReservedErr);
-			//
-			//				params.bLocationChecked = true;
-			//				_this.SaveForm(params);
-			//			}
-			//		);
-			//		return false;
-			//	}
-			//}
+			if (BX(this.id + '_location_new').value && this.planner
+				&& !this.checkLocationAccessibility(fromDate, toDate, false))
+			{
+				return false;
+			}
 
 			BX(this.id + '_id').value = this.entry.id || 0;
 			//BX(this.id + '_month').value = month + 1;
@@ -1218,37 +1280,38 @@
 
 		onCalendarPlannerSelectorChanged: function(params)
 		{
-			this.DOM.fromDate.value = this.calendar.util.formatDate(params.dateFrom);
-			this.DOM.fromTime.value = this.calendar.util.formatTime(params.dateFrom);
-			this.DOM.toDate.value = this.calendar.util.formatDate(params.dateTo);
-			this.DOM.toTime.value = this.calendar.util.formatTime(params.dateTo);
+			if (params.plannerId == this.plannerId)
+			{
+				if (!this.planner)
+				{
+					this.planner = params.planner;
+				}
+
+				this.DOM.fromDate.value = this.calendar.util.formatDate(params.dateFrom);
+				this.DOM.fromTime.value = this.calendar.util.formatTime(params.dateFrom);
+				this.DOM.toDate.value = this.calendar.util.formatDate(params.dateTo);
+				this.DOM.toTime.value = this.calendar.util.formatTime(params.dateTo);
+
+				this.checkLocationAccessibility();
+			}
 		},
 
-		//OnCalendarPlannerScaleChanged: function(params)
-		//{
-		//	this.updatePlanner({
-		//		entrieIds: params.entrieIds,
-		//		entries: params.entries,
-		//		from: params.from,
-		//		to: params.to,
-		//		location: this.Loc && this.Loc.NEW ? this.Loc.NEW : '',
-		//		roomEventId: this.Loc && this.Loc.OLD_mrevid ? parseInt(this.Loc.OLD_mrevid) : '',
-		//		focusSelector: params.focusSelector === true
-		//	});
-		//},
-
-		//DestroyDestinationControls: function()
-		//{
-		//	BX.removeCustomEvent('OnDestinationAddNewItem', BX.proxy(this.checkPlannerState, this));
-		//	BX.removeCustomEvent('OnDestinationUnselect', BX.proxy(this.checkPlannerState, this));
-		//	BX.removeCustomEvent('OnCalendarPlannerSelectorChanged', BX.proxy(this.OnCalendarPlannerSelectorChanged, this));
-		//	BX.removeCustomEvent('OnCalendarPlannerScaleChanged', BX.proxy(this.OnCalendarPlannerScaleChanged, this));
-		//	BX.removeCustomEvent('OnSetTab', BX.proxy(this.OnPlannerTabShow, this));
-		//	BX.onCustomEvent('OnCalendarPlannerDoUninstall', [{plannerId: this.plannerId}]);
-		//},
+		onCalendarPlannerUpdatedHandler: function(planner, params)
+		{
+			if (!this.planner)
+			{
+				this.planner = planner;
+				this.checkLocationAccessibility();
+			}
+		},
 
 		checkPlannerState: function()
 		{
+			if (!this.calendar.util.isMeetingsEnabled())
+			{
+				return;
+			}
+
 			var
 				_this = this,
 				from = BX.parseDate(this.DOM.fromDate.value),
@@ -1262,16 +1325,24 @@
 				};
 
 			this.attendeesCodes = this.attendeesSelector.getAttendeesCodes();
-
 			this.updatePlanner(params);
+			this.checkLocationAccessibility();
 		},
 
 		updatePlanner: function(params)
 		{
+			if (!this.calendar.util.isMeetingsEnabled())
+			{
+				return;
+			}
+
 			if (!params)
+			{
 				params = {};
+			}
 
 			var _this = this;
+			var currentEntryLocation = this.calendar.util.parseLocation(this.entry.location);
 
 			this.calendar.request({
 				data: {
@@ -1282,7 +1353,7 @@
 					date_to: params.dateTo || params.to || '',
 					timezone: this.DOM.fromTz.value ? this.DOM.fromTz.value : this.calendar.util.getUserOption('timezoneName'),
 					location: params.location || '',
-					//roomEventId: params.roomEventId || '',
+					roomEventId: currentEntryLocation ? (currentEntryLocation.room_event_id || currentEntryLocation.mrevid || false) : false,
 					entries: params.entrieIds || false,
 					add_cur_user_to_list: this.calendar.util.userIsOwner() ? 'Y' : 'N'
 				},
@@ -1423,7 +1494,10 @@
 					config.entriesListWidth = this.DOM.attendeesTitle.offsetWidth + 16;
 					config.width = this.DOM.plannerWrap.offsetWidth;
 
-					this.DOM.moreOuterWrap.style.paddingLeft = config.entriesListWidth + 'px';
+					if (this.DOM.moreOuterWrap)
+					{
+						this.DOM.moreOuterWrap.style.paddingLeft = config.entriesListWidth + 'px';
+					}
 
 					// RRULE
 					var RRULE = false;

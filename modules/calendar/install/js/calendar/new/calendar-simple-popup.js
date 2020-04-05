@@ -134,7 +134,7 @@
 				params = {};
 
 			// check users accessibility
-			if (params.checkBusyUsers !== false)
+			if (params.checkBusyUsers !== false && this.calendar.util.isMeetingsEnabled())
 			{
 				var busyUsers = this.getBusyUserList();
 				if (busyUsers && busyUsers.length > 0)
@@ -287,7 +287,10 @@
 			this.createlocationField();
 
 			// Attendees
-			this.createPlannerField();
+			if (this.calendar.util.isMeetingsEnabled())
+			{
+				this.createPlannerField();
+			}
 
 			// Entry name
 			this.fullFormField = this.createField('container-text', this.mainSlide);
@@ -456,6 +459,8 @@
 					}
 				);
 
+				_this.sectionMenu.popupWindow.contentContainer.style.overflow = "auto";
+				_this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "300px";
 				_this.sectionMenu.show();
 
 				// Paint round icons for section menu

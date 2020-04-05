@@ -388,6 +388,7 @@ class CAllIMContactList
 							$arPhones[$arUser["ID"]]['WORK_PHONE'] = $arUser['WORK_PHONE'];
 							$arPhones[$arUser["ID"]]['PERSONAL_MOBILE'] = $arUser['PERSONAL_MOBILE'];
 							$arPhones[$arUser["ID"]]['PERSONAL_PHONE'] = $arUser['PERSONAL_PHONE'];
+							$arPhones[$arUser["ID"]]['INNER_PHONE'] = $arUser['UF_PHONE_INNER'];
 						}
 					}
 				}
@@ -907,7 +908,7 @@ class CAllIMContactList
 				$cache_ttl = defined("BX_COMP_MANAGED_CACHE") ? 18144000 : 1800;
 
 			$uid = (is_object($USER)? $USER->GetID(): 'AGENT');
-            $cache_id = 'user_data_v29_'.$uid.'_'.implode('|', $arFilter['=ID']).'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
+            $cache_id = 'user_data_v30_'.$uid.'_'.implode('|', $arFilter['=ID']).'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
 
      		$userHash = md5($uid);
             $cache_dir = '/bx/imc/userdata/'.substr($userHash, 0, 2).'/'.substr($userHash, 2, 2);
@@ -1110,6 +1111,7 @@ class CAllIMContactList
 					$arPhones[$arUser["ID"]]['WORK_PHONE'] = $arUser['WORK_PHONE'];
 					$arPhones[$arUser["ID"]]['PERSONAL_MOBILE'] = $arUser['PERSONAL_MOBILE'];
 					$arPhones[$arUser["ID"]]['PERSONAL_PHONE'] = $arUser['PERSONAL_PHONE'];
+					$arPhones[$arUser["ID"]]['INNER_PHONE'] = $arUser['UF_PHONE_INNER'];
 				}
 				if (isset($arPhones[$arUser["ID"]]))
 				{
@@ -1348,7 +1350,7 @@ class CAllIMContactList
 
 		if ($isChat)
 		{
-			$itemType = "ITEM_TYPE IN ( '".IM_MESSAGE_CHAT."', '".IM_MESSAGE_OPEN."', '".IM_MESSAGE_THREAD."', '".IM_MESSAGE_OPEN_LINE."' )";
+			$itemType = "ITEM_TYPE IN ('".implode("','", \Bitrix\Im\Chat::getChatTypes())."')";
 		}
 		else
 		{
@@ -1358,7 +1360,7 @@ class CAllIMContactList
 		$strSQL = "
 			UPDATE b_im_relation R
 			INNER JOIN b_im_recent RC ON RC.USER_ID = ".$userId." AND RC.".$itemType." AND RC.".$sqlEntityId."
-			SET R.STATUS = '".IM_STATUS_READ."', R.MESSAGE_STATUS = '".IM_MESSAGE_STATUS_RECEIVED."', R.COUNTER = 555, R.LAST_READ = NOW()
+			SET R.STATUS = '".IM_STATUS_READ."', R.MESSAGE_STATUS = '".IM_MESSAGE_STATUS_RECEIVED."', R.COUNTER = 0, R.LAST_READ = NOW()
 			WHERE R.ID = RC.ITEM_RID;
 		";
 		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
@@ -1429,10 +1431,7 @@ class CAllIMContactList
 				'params' => Array(
 					'dialogId' => $dialogId
 				),
-				'extra' => Array(
-					'im_revision' => IM_REVISION,
-					'im_revision_mobile' => IM_REVISION_MOBILE,
-				),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
 
@@ -1509,7 +1508,7 @@ class CAllIMContactList
 					R.ITEM_MID M_ID, M.AUTHOR_ID M_AUTHOR_ID, M.ID M_ID, M.CHAT_ID M_CHAT_ID, M.MESSAGE M_MESSAGE, ".$DB->DatetimeToTimestampFunction('R.DATE_UPDATE')." M_DATE_CREATE,
 					C.TITLE C_TITLE, C.AUTHOR_ID C_OWNER_ID, C.ENTITY_TYPE CHAT_ENTITY_TYPE, C.ENTITY_ID CHAT_ENTITY_ID, C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1, C.ENTITY_DATA_2 CHAT_ENTITY_DATA_2, C.ENTITY_DATA_3 CHAT_ENTITY_DATA_3, C.AVATAR C_AVATAR, C.CALL_NUMBER C_CALL_NUMBER, C.EXTRANET CHAT_EXTRANET, C.COLOR CHAT_COLOR, C.TYPE CHAT_TYPE,
 					U.LOGIN, U.NAME, U.LAST_NAME, U.PERSONAL_PHOTO, U.SECOND_NAME, ".$DB->DatetimeToTimestampFunction('U.PERSONAL_BIRTHDAY')." PERSONAL_BIRTHDAY, ".$DB->DatetimeToTimestampFunction('U.LAST_ACTIVITY_DATE')." LAST_ACTIVITY_DATE, U.PERSONAL_GENDER, U.EXTERNAL_AUTH_ID, U.WORK_POSITION, U.TIME_ZONE_OFFSET, U.ACTIVE,
-					ST.COLOR, ST.STATUS, ".$DB->DatetimeToTimestampFunction('ST.IDLE')." IDLE, ".$DB->DatetimeToTimestampFunction('ST.MOBILE_LAST_DATE')." MOBILE_LAST_DATE,
+					ST.COLOR, ST.STATUS, ".$DB->DatetimeToTimestampFunction('ST.IDLE')." IDLE, ".$DB->DatetimeToTimestampFunction('ST.MOBILE_LAST_DATE')." MOBILE_LAST_DATE, 
 					C1.USER_ID RID, C1.NOTIFY_BLOCK RELATION_NOTIFY_BLOCK, C1.USER_ID RELATION_USER_ID
 					".($isOperator? ", S.ID LINES_ID, S.STATUS LINES_STATUS": "")."
 				FROM
@@ -1999,6 +1998,14 @@ class CAllIMContactList
 			if (substr($userId, 0, 7) == 'network')
 			{
 				$networkId[$userId] = substr($userId, 7);
+			}
+			elseif (substr($userId, 0, 10) == 'department')
+			{
+				$sid = intval(substr($userId, 10));
+				if ($sid > 0)
+				{
+					$structureId[$userId] = $sid;
+				}
 			}
 			elseif (substr($userId, 0, 9) == 'structure')
 			{

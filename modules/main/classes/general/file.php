@@ -3538,6 +3538,11 @@ function ImgShw(ID, width, height, alt)
 			$pathX = $io->GetPhysicalName($path);
 		}
 
+		if(!file_exists($pathX))
+		{
+			return false;
+		}
+
 		$file_handler = fopen($pathX, "rb");
 		if(!is_resource($file_handler))
 			return false;

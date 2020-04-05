@@ -8,6 +8,8 @@ class CBPWorkflow
 {
 	private $isNew = false;
 	private $instanceId = "";
+
+	/** @var CBPRuntime|null $runtime */
 	private $runtime = null;
 
 	private $rootActivity = null;
@@ -24,6 +26,9 @@ class CBPWorkflow
 		return $this->instanceId;
 	}
 
+	/**
+	 * @return CBPRuntime
+	 */
 	public function GetRuntime()
 	{
 		return $this->runtime;
@@ -37,6 +42,7 @@ class CBPWorkflow
 	private function SetWorkflowStatus($newStatus)
 	{
 		$this->rootActivity->SetWorkflowStatus($newStatus);
+		$this->GetRuntime()->onWorkflowStatusChanged($this->GetInstanceId(), $newStatus);
 	}
 
 	public function GetService($name)

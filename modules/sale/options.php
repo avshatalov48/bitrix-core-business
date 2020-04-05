@@ -1218,11 +1218,33 @@ $tabControl->BeginNextTab();
 		<td><?=Main\Localization\Loc::getMessage("SALE_BASKET_REFRESH_GAP")?>:</td>
 		<td>
 			<?
-			$val = (int)Main\Config\Option::get("sale", "basket_refresh_gap", 0);
+			$refreshGapVal = (int)Main\Config\Option::get("sale", "basket_refresh_gap", 0);
 			?>
-			<input type="text" size="10" value="<?=$val?>" name="BASKET_REFRESH_GAP">
+			<input type="text" size="10" value="<?=$refreshGapVal?>" name="BASKET_REFRESH_GAP" id="basket_refresh_gap">
 		</td>
 	</tr>
+	<? if ($currentSettings['use_sale_discount_only'] !== 'Y'): ?>
+		<tr id="basket_refresh_gap_warning" <?=($refreshGapVal === 0 ? 'style="display: none;"' : '')?>>
+			<td colspan="2" align="center">
+				<div class="adm-info-message-wrap">
+					<div class="adm-info-message">
+						<div><?=GetMessage("SALE_BASKET_REFRESH_GAP_WARNING")?></div>
+					</div>
+				</div>
+			</td>
+		</tr>
+		<script>
+			BX.bind(BX('basket_refresh_gap'), 'change', function(event){
+				var target = BX.getEventTarget(event);
+				var warning = BX('basket_refresh_gap_warning');
+
+				if (BX.type.isDomNode(target) && BX.type.isDomNode(warning))
+				{
+					warning.style.display = parseInt(target.value) === 0 ? 'none' : '';
+				}
+			});
+		</script>
+	<? endif; ?>
 	<!-- start of order guest view -->
 	<tr class="heading" id="guest_order_view_block">
 		<td colspan="2"><a name="section_guest_order_view"></a><?=GetMessage('SALE_ALLOW_GUEST_ORDER_VIEW_TITLE')?></td>
@@ -1331,6 +1353,26 @@ $tabControl->BeginNextTab();
 		<td width="60%">
 			<input type="hidden" name="use_sale_discount_only" id="use_sale_discount_only_N" value="N">
 			<input type="checkbox" name="use_sale_discount_only" id="use_sale_discount_only_Y" value="Y"<? echo ($currentSettings['use_sale_discount_only'] == 'Y' ? ' checked' : ''); ?>>
+		</td>
+	</tr>
+	<script>
+		BX.bind(BX('use_sale_discount_only_Y'), 'change', function(event){
+			var target = BX.getEventTarget(event);
+			var warning = BX('use_sale_discount_only_warning');
+
+			if (BX.type.isDomNode(target) && BX.type.isDomNode(warning))
+			{
+				warning.style.display = target.checked ? 'none' : '';
+			}
+		});
+	</script>
+	<tr id="use_sale_discount_only_warning" <?=($currentSettings['use_sale_discount_only'] === 'Y' || $refreshGapVal === 0 ? 'style="display: none;"' : '')?>>
+		<td colspan="2" align="center">
+			<div class="adm-info-message-wrap">
+				<div class="adm-info-message">
+					<div><?=GetMessage("SALE_USE_SALE_DISCOUNT_ONLY_WARNING")?></div>
+				</div>
+			</div>
 		</td>
 	</tr>
 	<tr>

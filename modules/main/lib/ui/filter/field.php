@@ -99,9 +99,11 @@ class Field
 	 * @param string $placeholder
 	 * @param bool $enableTime
 	 * @param array $exclude
+	 * @param array $include
+	 * @param boolean $allowYearsSwithcer
 	 * @return array
 	 */
-	public static function date($name, $type = DateType::NONE, $values = array(), $label = "", $placeholder = "", $enableTime = false, $exclude = array())
+	public static function date($name, $type = DateType::NONE, $values = array(), $label = "", $placeholder = "", $enableTime = false, $exclude = array(), $include = array(), $allowYearsSwithcer = false)
 	{
 		if (!is_bool($enableTime))
 		{
@@ -194,6 +196,32 @@ class Field
 			}
 		}
 
+		if (is_array($include))
+		{
+			foreach ($include as $key => $item)
+			{
+				if ($item === AdditionalDateType::CUSTOM_DATE)
+				{
+					$subtypes[] = array(
+						"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
+						"VALUE" => AdditionalDateType::CUSTOM_DATE,
+						"DECL" => static::customDate(array("id" => $name, "name" => $label))
+					);
+				}
+
+				if ($item === AdditionalDateType::NEXT_DAY ||
+					$item === AdditionalDateType::PREV_DAY ||
+					$item === AdditionalDateType::MORE_THAN_DAYS_AGO ||
+					$item === AdditionalDateType::AFTER_DAYS)
+				{
+					$subtypes[] = array(
+						"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_".$item),
+						"VALUE" => $item
+					);
+				}
+			}
+		}
+
 		$currentYear = (int) $date->format("Y");
 		$sourceYears = range($currentYear+5, $currentYear-20);
 		$years = array();
@@ -215,6 +243,21 @@ class Field
 			}
 		}
 
+		$yearsSwitcher = static::select(
+			$name."_allow_year",
+			array(
+				array(
+					"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_YEARS_SWITCHER_YES"),
+					"VALUE" => 1
+				),
+				array(
+					"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_YEARS_SWITCHER_NO"),
+					"VALUE" => 0
+				)
+			),
+			array()
+		);
+
 		$field = array(
 			"ID" => "field_".$name,
 			"TYPE" => Type::DATE,
@@ -231,7 +274,8 @@ class Field
 			"PLACEHOLDER" => $placeholder,
 			"LABEL" => $label,
 			"ENABLE_TIME" => $enableTime,
-			"SELECT_PARAMS" => $selectParams
+			"SELECT_PARAMS" => $selectParams,
+			"YEARS_SWITCHER" => $allowYearsSwithcer ? $yearsSwitcher : null
 		);
 
 		return $field;
@@ -340,15 +384,87 @@ class Field
 			"years" => array()
 		);
 
+		$days = static::getDaysList();
+		$daysDate = new Date();
+		$today = (int) $daysDate->format("d");
+		$yesterday = (int) $daysDate->add("-1 days")->format("d");
+		$tomorrow = (int) $daysDate->add("2 days")->format("d");
+		$additionalDays = array(
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_TODAY"),
+				"VALUE" => $today
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_YESTERDAY"),
+				"VALUE" => $yesterday
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_TOMORROW"),
+				"VALUE" => $tomorrow
+			),
+			array(
+				"SEPARATOR" => true
+			)
+		);
+		$days = array_merge($additionalDays, $days);
+
+		$months = static::getMonthsList();
+		$monthsDate = new Date();
+		$currentMonth = (int) $monthsDate->format("n");
+		$lastMonth = (int) $monthsDate->add("-1 month")->format("n");
+		$nextMonth = (int) $monthsDate->add("2 month")->format("n");
+		$additionalMonths = array(
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_CURRENT_MONTH"),
+				"VALUE" => $currentMonth
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_LAST_MONTH"),
+				"VALUE" => $lastMonth
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_NEXT_MONTH"),
+				"VALUE" => $nextMonth
+			),
+			array(
+				"SEPARATOR" => true
+			)
+		);
+		$months = array_merge($additionalMonths, $months);
+
+		$years = static::getYearsList();
+		$yearsDate = new Date();
+		$currentYear = (int) $yearsDate->format("Y");
+		$lastYear = (int) $yearsDate->add("-1 year")->format("Y");
+		$nextYear = (int) $yearsDate->add("2 year")->format("Y");
+		$additionalYears = array(
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_CURRENT_YEAR"),
+				"VALUE" => $currentYear
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_LAST_YEAR"),
+				"VALUE" => $lastYear
+			),
+			array(
+				"NAME" => Loc::getMessage("MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_NEXT_YEAR"),
+				"VALUE" => $nextYear
+			),
+			array(
+				"SEPARATOR" => true
+			)
+		);
+		$years = array_merge($additionalYears, $years);
+
 		return array(
 			"ID" => "field_".$options["id"],
 			"TYPE" => Type::CUSTOM_DATE,
 			"NAME" => $options["id"],
 			"VALUE" => $defaultValues,
 			"LABEL" => $options["name"],
-			"DAYS" => static::getDaysList(),
-			"MONTHS" => static::getMonthsList(),
-			"YEARS" => static::getYearsList(),
+			"DAYS" => $days,
+			"MONTHS" => $months,
+			"YEARS" => $years,
 			"DAYS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_DAYS"),
 			"MONTHS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_MONTHS"),
 			"YEARS_PLACEHOLDER" => Loc::getMessage("MAIN_UI_FILTER_FIELD_YEARS")
@@ -385,7 +501,7 @@ class Field
 	{
 		$date = new Date();
 		$currentYear = (int) $date->format("Y");
-		$sourceYears = range(($currentYear+5), ($currentYear-20));
+		$sourceYears = range(($currentYear+5), ($currentYear-95));
 		$years = array();
 
 		foreach ($sourceYears as $key => $year)

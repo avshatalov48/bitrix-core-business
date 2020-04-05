@@ -21,7 +21,8 @@ function forumCommentsCommentWeb(
 			"LAST_NAME" => $comment["~LAST_NAME"],
 			"SECOND_NAME" => $comment["~SECOND_NAME"],
 			"LOGIN" => $comment["~LOGIN"],
-			"AVATAR" => ($comment["AVATAR"] && $comment["AVATAR"]["FILE"] ? $comment["AVATAR"]["FILE"]['src'] : "")
+			"AVATAR" => ($comment["AVATAR"] && $comment["AVATAR"]["FILE"] ? $comment["AVATAR"]["FILE"]['src'] : ""),
+			"PERSONAL_GENDER" => !empty($comment["~PERSONAL_GENDER"]) ? $comment["~PERSONAL_GENDER"] : ""
 		),
 		"FILES" => $comment["FILES"],
 		"UF" => $comment["PROPS"],
@@ -49,6 +50,11 @@ function forumCommentsCommentWeb(
 				$res["FILES"][$key]["SRC"] = "/bitrix/components/bitrix/forum.interface/show_file.php?fid=".$file["ID"];
 			}
 		}
+	}
+
+	if ($arParams["SHOW_RATING"] == "Y")
+	{
+		$res["RATING_VOTE_ID"] = 'FORUM_POST_'.$res['ID'].'-'.(time()+rand(0, 1000));
 	}
 
 	return $res;

@@ -750,9 +750,13 @@ BitrixLFFilterDestinationSelector.prototype.open = function()
 	}
 	else
 	{
+		var currentValue = {};
+		currentValue[this.currentUser.entityId] = "users";
+
 		BX.onCustomEvent(window, 'BX.Livefeed.Filter:open', [ {
 			id: this.id,
-			bindNode: this.control.getField()
+			bindNode: this.control.getField(),
+			value: currentValue
 		} ]);
 
 		this.opened = true;
@@ -782,7 +786,9 @@ BitrixLFFilterDestinationSelector.prototype.onCustomEntitySelectorOpen = functio
 		if(this.control)
 		{
 			var current = this.control.getCurrentValues();
-			this.currentUser = { "entityId": current["value"] };
+			this.currentUser = {
+				entityId: current["value"]
+			};
 		}
 
 		BitrixLFFilterDestinationSelectorManager.controls[this.id] = this.control;
@@ -803,6 +809,7 @@ BitrixLFFilterDestinationSelector.prototype.onCustomEntitySelectorClose = functi
 	if(
 		this.fieldId === control.getId()
 		&& this.inited === true
+		&& this.opened === true
 	)
 	{
 		this.control = null;

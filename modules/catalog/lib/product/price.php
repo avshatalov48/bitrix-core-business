@@ -132,7 +132,6 @@ class Price
 	 *
 	 * @param int $priceType		Price type id.
 	 * @return array
-	 * @throws Main\ArgumentException
 	 */
 	public static function getRoundRules($priceType)
 	{

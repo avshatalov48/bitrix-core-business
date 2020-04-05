@@ -193,9 +193,7 @@
 			}
 
 			this.InitImageUploader();
-
 			this.Show();
-
 			BX.onCustomEvent(BXHtmlEditor, 'OnEditorCreated', [this]);
 		},
 

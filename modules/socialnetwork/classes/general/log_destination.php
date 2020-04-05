@@ -3,6 +3,8 @@ use Bitrix\Main\ModuleManager;
 
 class CSocNetLogDestination
 {
+	const LIST_USER_LIMIT = 11;
+
 	/**
 	* Retrieves last used users from socialnetwork/log_destination UserOption
 	* @deprecated
@@ -1968,7 +1970,7 @@ class CSocNetLogDestination
 		return $fetchUsers ? $users : $userIds;
 	}
 
-	public static function GetDestinationSort($arParams = array())
+	public static function GetDestinationSort($arParams = array(), &$dataAdditional = false)
 	{
 		global $USER;
 
@@ -2015,16 +2017,20 @@ class CSocNetLogDestination
 		}
 
 		$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
-		$cacheId = 'dest_sort'.$userId.serialize($arParams);
+		$cacheId = 'dest_sort'.(!is_array($dataAdditional) ? '' : '_2').$userId.serialize($arParams);
 		$cacheDir = '/sonet/log_dest_sort/'.intval($userId / 100);
 
 		$obCache = new CPHPCache;
 		if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
 		{
-			$arDestAll = $obCache->GetVars();
+			$cacheData = $obCache->GetVars();
+			$arDestAll = isset($cacheData['DEST_ALL']) ? $cacheData['DEST_ALL'] : array();
+			$dataAdditionalUsers = isset($cacheData['DATA_ADDITIONAL_USERS']) ? $cacheData['DATA_ADDITIONAL_USERS'] : array();
 		}
 		else
 		{
+			$dataAdditionalUsers = array();
+
 			$obCache->StartDataCache();
 			$arFilter = array(
 				"USER_ID" => $USER->GetId()
@@ -2089,6 +2095,56 @@ class CSocNetLogDestination
 
 			$arOrder['LAST_USE_DATE'] = 'DESC';
 
+			$emailUserCodeList = $emailCrmUserCodeList = array();
+
+			if (
+				IsModuleInstalled('mail')
+				&& IsModuleInstalled('intranet')
+				&& isset($arParams["ALLOW_EMAIL_INVITATION"])
+				&& $arParams["ALLOW_EMAIL_INVITATION"]
+			)
+			{
+				$rsDest = \Bitrix\Main\FinderDestTable::getList(array(
+					'order' => $arOrder,
+					'filter' => array(
+						"USER_ID" => $USER->getId(),
+						"=CODE_USER.EXTERNAL_AUTH_ID" => 'email',
+						"=CODE_TYPE" => 'U'
+					),
+					'select' => array('CODE'),
+					'runtime' => $arRuntime,
+					'limit' => self::LIST_USER_LIMIT
+				));
+				while($arDest = $rsDest->fetch())
+				{
+					$emailUserCodeList[] = $arDest['CODE'];
+				}
+				$dataAdditionalUsers['UE'] = $emailUserCodeList;
+			}
+
+			if (
+				!empty($arParams["DEST_CONTEXT"])
+				&& $arParams["DEST_CONTEXT"] == "CRM_POST"
+			)
+			{
+				$rsDest = \Bitrix\Main\FinderDestTable::getList(array(
+					'order' => $arOrder,
+					'filter' => array(
+						"USER_ID" => $USER->getId(),
+						"!=CODE_USER.UF_USER_CRM_ENTITY" => false,
+						"=CODE_TYPE" => 'U'
+					),
+					'select' => array('CODE'),
+					'runtime' => $arRuntime,
+					'limit' => self::LIST_USER_LIMIT
+				));
+				while($arDest = $rsDest->fetch())
+				{
+					$emailCrmUserCodeList[] = $arDest['CODE'];
+				}
+				$dataAdditionalUsers['UCRM'] = $emailCrmUserCodeList;
+			}
+
 			$rsDest = \Bitrix\Main\FinderDestTable::getList(array(
 				'order' => $arOrder,
 				'filter' => $arFilter,
@@ -2107,8 +2163,18 @@ class CSocNetLogDestination
 				$arDest["LAST_USE_DATE"] = MakeTimeStamp($arDest["LAST_USE_DATE"]->toString());
 				$arDestAll[] = $arDest;
 			}
-			$obCache->EndDataCache($arDestAll);
+
+			$obCache->EndDataCache(array(
+				"DEST_ALL" => $arDestAll,
+				"DATA_ADDITIONAL_USERS" => $dataAdditionalUsers
+			));
 		}
+
+		if (!is_array($dataAdditional))
+		{
+			$dataAdditional = array();
+		}
+		$dataAdditional = array_merge($dataAdditional, $dataAdditionalUsers);
 
 		foreach ($arDestAll as $arDest)
 		{
@@ -2259,10 +2325,18 @@ class CSocNetLogDestination
 			&& isset($arParams["PROJECTS"])
 			&& $arParams["PROJECTS"] == "Y"
 		);
+		$dataAdditional = (
+			is_array($arParams)
+			&& isset($arParams["DATA_ADDITIONAL"])
+			&& is_array($arParams["DATA_ADDITIONAL"])
+				? $arParams["DATA_ADDITIONAL"]
+				: array()
+		);
+
 		if (is_array($arDestinationSort))
 		{
 			$userIdList = $sonetGroupIdList = array();
-			$userLimit = 11;
+			$userLimit = self::LIST_USER_LIMIT;
 			$sonetGroupLimit = 6;
 			$departmentLimit = 6;
 			$crmContactLimit = $crmCompanyLimit = $crmDealLimit = $crmLeadLimit = 6;
@@ -2413,91 +2487,167 @@ class CSocNetLogDestination
 				$iUCounter = $iUECounter = $iUCRMCounter = 0;
 				$emailLimit = $crmLimit = 10;
 				$userId = $USER->getId();
-				$destUList = $destUEList = $destUCRMList =array();
+				$destUList = $destUEList = $destUCRMList = array();
 
-				$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
-				$cacheId = 'dest_sort_users'.$userId.serialize($arParams).intval($bAllowCrmEmail);
-				$cacheDir = '/sonet/log_dest_sort/'.intval($userId / 100);
-				$obCache = new CPHPCache;
-
-				if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
+				if (
+					(
+						isset($dataAdditional['UE'])
+						&& is_array($dataAdditional['UE'])
+					)
+					|| (
+						isset($dataAdditional['UCRM'])
+						&& is_array($dataAdditional['UCRM'])
+					)
+				)
 				{
-					$cacheVars = $obCache->GetVars();
-					$destUList = $cacheVars['U'];
-					$destUEList = $cacheVars['UE'];
-					$destUCRMList = $cacheVars['UCRM'];
-				}
-				else
-				{
-					$obCache->StartDataCache();
-
-					$selectList = array('ID', 'EXTERNAL_AUTH_ID');
-					if ($bAllowCrmEmail)
+					if (
+						empty($dataAdditional['UE'])
+						&& empty($dataAdditional['UCRM'])
+					)
 					{
-						$selectList[] = 'UF_USER_CRM_ENTITY';
-					}
-					$selectList[] = new \Bitrix\Main\Entity\ExpressionField('MAX_LAST_USE_DATE', 'MAX(%s)', array('\Bitrix\Main\FinderDest:CODE_USER_CURRENT.LAST_USE_DATE'));
-
-					$res = \Bitrix\Main\UserTable::getList(array(
-						'order' => array(
-							"MAX_LAST_USE_DATE" => 'DESC',
-						),
-						'filter' => array(
-							'@ID' => $userIdList
-						),
-						'select' => $selectList
-					));
-
-					while($destUser = $res->fetch())
-					{
-						if (
-							$iUCounter >= $userLimit
-							&& $iUECounter >= $emailLimit
-							&& $iUCRMCounter >= $crmLimit
-						)
+						foreach($userIdList as $uId)
 						{
-							break;
-						}
-
-						$code = 'U'.$destUser['ID'];
-
-						if ($bAllowEmail && $destUser['EXTERNAL_AUTH_ID'] == 'email')
-						{
-							if ($iUECounter >= $emailLimit)
-							{
-								continue;
-							}
-							$destUEList[$code] = $code;
-							$iUECounter++;
-						}
-						elseif (
-							$bAllowCrmEmail
-							&& !empty($destUser['UF_USER_CRM_ENTITY'])
-						)
-						{
-							if ($iUCRMCounter >= $crmLimit)
-							{
-								continue;
-							}
-							$destUCRMList[$code] = $code;
-							$iUCRMCounter++;
-						}
-						else
-						{
-							if ($iUCounter >= $userLimit)
-							{
-								continue;
-							}
+							$code = 'U'.$uId;
 							$destUList[$code] = $code;
-							$iUCounter++;
 						}
 					}
+					else
+					{
+						foreach($userIdList as $uId)
+						{
+							if (
+								$iUCounter >= $userLimit
+								&& $iUECounter >= $emailLimit
+								&& $iUCRMCounter >= $crmLimit
+							)
+							{
+								break;
+							}
 
-					$obCache->EndDataCache(array(
-						'U' => $destUList,
-						'UE' => $destUEList,
-						'UCRM' => $destUCRMList
-					));
+							$code = 'U'.$uId;
+
+							if (
+								$bAllowEmail
+								&& in_array($code, $dataAdditional['UE'])
+							)
+							{
+								if ($iUECounter >= $emailLimit)
+								{
+									continue;
+								}
+								$destUEList[$code] = $code;
+								$iUECounter++;
+							}
+							elseif (
+								$bAllowCrmEmail
+								&& in_array($code, $dataAdditional['UCRM'])
+							)
+							{
+								if ($iUCRMCounter >= $crmLimit)
+								{
+									continue;
+								}
+								$destUCRMList[$code] = $code;
+								$iUCRMCounter++;
+							}
+							else
+							{
+								if ($iUCounter >= $userLimit)
+								{
+									continue;
+								}
+								$destUList[$code] = $code;
+								$iUCounter++;
+							}
+						}
+					}
+				}
+				else // old method
+				{
+					$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
+					$cacheId = 'dest_sort_users'.$userId.serialize($arParams).intval($bAllowCrmEmail);
+					$cacheDir = '/sonet/log_dest_sort/'.intval($userId / 100);
+					$obCache = new CPHPCache;
+
+					if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
+					{
+						$cacheVars = $obCache->GetVars();
+						$destUList = $cacheVars['U'];
+						$destUEList = $cacheVars['UE'];
+						$destUCRMList = $cacheVars['UCRM'];
+					}
+					else
+					{
+						$obCache->StartDataCache();
+
+						$selectList = array('ID', 'EXTERNAL_AUTH_ID');
+						if ($bAllowCrmEmail)
+						{
+							$selectList[] = 'UF_USER_CRM_ENTITY';
+						}
+						$selectList[] = new \Bitrix\Main\Entity\ExpressionField('MAX_LAST_USE_DATE', 'MAX(%s)', array('\Bitrix\Main\FinderDest:CODE_USER_CURRENT.LAST_USE_DATE'));
+
+						$res = \Bitrix\Main\UserTable::getList(array(
+							'order' => array(
+								"MAX_LAST_USE_DATE" => 'DESC',
+							),
+							'filter' => array(
+								'@ID' => $userIdList
+							),
+							'select' => $selectList
+						));
+
+						while($destUser = $res->fetch())
+						{
+							if (
+								$iUCounter >= $userLimit
+								&& $iUECounter >= $emailLimit
+								&& $iUCRMCounter >= $crmLimit
+							)
+							{
+								break;
+							}
+
+							$code = 'U'.$destUser['ID'];
+
+							if ($bAllowEmail && $destUser['EXTERNAL_AUTH_ID'] == 'email')
+							{
+								if ($iUECounter >= $emailLimit)
+								{
+									continue;
+								}
+								$destUEList[$code] = $code;
+								$iUECounter++;
+							}
+							elseif (
+								$bAllowCrmEmail
+								&& !empty($destUser['UF_USER_CRM_ENTITY'])
+							)
+							{
+								if ($iUCRMCounter >= $crmLimit)
+								{
+									continue;
+								}
+								$destUCRMList[$code] = $code;
+								$iUCRMCounter++;
+							}
+							else
+							{
+								if ($iUCounter >= $userLimit)
+								{
+									continue;
+								}
+								$destUList[$code] = $code;
+								$iUCounter++;
+							}
+						}
+
+						$obCache->EndDataCache(array(
+							'U' => $destUList,
+							'UE' => $destUEList,
+							'UCRM' => $destUCRMList
+						));
+					}
 				}
 
 				$arLastDestination['USERS'] = array_merge($destUList, $destUEList, $destUCRMList);

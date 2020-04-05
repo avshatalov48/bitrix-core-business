@@ -273,7 +273,8 @@ class CatalogProvider
 		Price\Calculation::setConfig(array(
 			'CURRENCY' => $currency,
 			'PRECISION' => (int)Main\Config\Option::get('sale', 'value_precision'),
-			'RESULT_WITH_VAT' => true
+			'RESULT_WITH_VAT' => true,
+			'RESULT_MODE' => Catalog\Product\Price\Calculation::RESULT_MODE_RAW
 		));
 
 		$productPriceList = array();
@@ -1360,11 +1361,13 @@ class CatalogProvider
 
 	/**
 	 * @param array $productData
-	 * @param array $productStoreData
+	 * @param array $productStoreDataList
 	 *
 	 * @return Sale\Result
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private static function shipProduct(array $productData, array $productStoreData = array())
+	private static function shipProduct(array $productData, array $productStoreDataList = array())
 	{
 		$result = new Sale\Result();
 
@@ -1390,7 +1393,7 @@ class CatalogProvider
 
 		if ($useStoreControl === true)
 		{
-			if (empty($productStoreData) && $needShip)
+			if (empty($productStoreDataList) && $needShip)
 			{
 				$result->addError(
 					new Sale\ResultError(
@@ -1407,7 +1410,7 @@ class CatalogProvider
 			}
 
 			$setQuantityList = array();
-			$r = static::getSetableStoreQuantityProduct($productData, $productStoreData);
+			$r = static::getSetableStoreQuantityProduct($productData, $productStoreDataList);
 			if ($r->isSuccess())
 			{
 				$resultData = $r->getData();
@@ -1431,6 +1434,7 @@ class CatalogProvider
 					{
 						if ($catalogStoreIsUpdated === true)
 						{
+							static::clearHitCache(self::CACHE_STORE_PRODUCT);
 							if ($needShip)
 							{
 								$r = static::deleteBarcodes($productData);
@@ -1854,14 +1858,22 @@ class CatalogProvider
 
 		$needQuantityList = static::getNeedQuantityFromStore($productData);
 
+		if (empty($needQuantityList))
+		{
+			$autoShipStore = static::getAutoShipStoreData($productData, $productStoreDataList);
+
+			if (!empty($autoShipStore))
+			{
+				$needQuantityList[$autoShipStore['STORE_ID']] = ($productQuantity > $autoShipStore['AMOUNT'] ? $autoShipStore['AMOUNT'] : abs($productQuantity));
+			}
+		}
+
 		if (!empty($productStoreDataList))
 		{
 			foreach ($productStoreDataList as $storeId => $productStoreData)
 			{
 				$productId = $productStoreData['PRODUCT_ID'];
-				$checkProductQuantity = abs($productQuantity);
-
-				if ($isNeedShip && $productStoreData['AMOUNT'] < $checkProductQuantity && isset($needQuantityList[$storeId]))
+				if ($isNeedShip && (isset($needQuantityList[$storeId]) && $productStoreData['AMOUNT'] < $needQuantityList[$storeId]))
 				{
 					$result->addError(
 						new Sale\ResultError(
@@ -3500,6 +3512,8 @@ class CatalogProvider
 		$hasNew = false;
 
 		$countStores = 0;
+		$isOneStore = false;
+		$isDefaultStore = false;
 
 		$countStoresResult = $this->getStoresCount();
 		if ($countStoresResult->isSuccess())
@@ -3571,11 +3585,11 @@ class CatalogProvider
 					{
 						$countProductInStore = 0;
 						$storeDataList = $productStoreList[$productId];
-						foreach ($storeDataList as $storeId => $storeData)
+						if (!empty($storeDataList))
 						{
-							if (floatval($storeData['AMOUNT']) > 0)
+							foreach ($storeDataList as $storeId => $storeData)
 							{
-								if ($isOneStore || ($isDefaultStore && $defaultDeductionStore == $storeId))
+								if (floatval($storeData['AMOUNT']) > 0)
 								{
 									$countProductInStore++;
 								}
@@ -3599,6 +3613,69 @@ class CatalogProvider
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $product
+	 * @param array $productStoreDataList
+	 *
+	 * @return bool|array
+	 */
+	private static function getAutoShipStoreData(array $product, array $productStoreDataList)
+	{
+		$isMulti = false;
+		if (isset($product['STORE_DATA_LIST']))
+		{
+			$storeData = [];
+			$shipmentItemStoreData = reset($product['STORE_DATA_LIST']);
+			if (!empty($shipmentItemStoreData))
+			{
+				$storeData = reset($shipmentItemStoreData);
+			}
+
+			if (!empty($storeData))
+			{
+				$isMulti = isset($storeData['IS_BARCODE_MULTI']) && $storeData['IS_BARCODE_MULTI'] === true;
+			}
+		}
+		elseif (isset($product['IS_BARCODE_MULTI']))
+		{
+			$isMulti = isset($product['IS_BARCODE_MULTI']) && $product['IS_BARCODE_MULTI'] === true;
+		}
+
+		if ($isMulti)
+		{
+			return false;
+		}
+
+		$outputStoreData = false;
+
+		if (!empty($productStoreDataList))
+		{
+			$countProductInStore = 0;
+
+			$storeProductData = false;
+			foreach ($productStoreDataList as $storeId => $storeData)
+			{
+				if (floatval($storeData['AMOUNT']) > 0)
+				{
+					$countProductInStore++;
+					if (!$storeProductData)
+					{
+						$storeProductData = $storeData;
+					}
+				}
+			}
+
+			if ($countProductInStore == 1 && !empty($storeProductData))
+			{
+				$outputStoreData = $storeProductData;
+			}
+
+		}
+
+
+		return $outputStoreData;
 	}
 
 	/**

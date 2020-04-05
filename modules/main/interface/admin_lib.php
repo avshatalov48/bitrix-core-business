@@ -533,6 +533,14 @@ class CAdminMenu
 				"help_section" => "content",
 				"items" => array()
 			),
+			"global_menu_landing" => array(
+				"menu_id" => "landing",
+				"text" => GetMessage("admin_lib_menu_landing"),
+				"sort" => 130,
+				"items_id" => "global_menu_landing",
+				"help_section" => "landing",
+				"items" => array()
+			),
 			"global_menu_marketing" => array(
 				"menu_id" => "marketing",
 				"text" => GetMessage("admin_lib_menu_marketing"),

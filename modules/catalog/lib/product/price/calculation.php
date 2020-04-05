@@ -16,11 +16,15 @@ Loc::loadMessages(__FILE__);
  */
 class Calculation
 {
+	const RESULT_MODE_COMPONENT = 1;
+	const RESULT_MODE_RAW = 2;
+
 	protected static $config = array(
 		'CURRENCY' => null,
 		'PRECISION' => null,
 		'USE_DISCOUNTS' => true,
-		'RESULT_WITH_VAT' => true
+		'RESULT_WITH_VAT' => true,
+		'RESULT_MODE' => self::RESULT_MODE_COMPONENT
 	);
 
 	private static $stack = array();
@@ -35,6 +39,7 @@ class Calculation
 	 *		<li>int PRECISION				Calculation precision (can be null - use default catalog precision - CATALOG_VALUE_PRECISION).
 	 *		<li>bool USE_DISCOUNTS			Use discounts for calculation (by default use discounts is allowed).
 	 *		<li>bool RESULT_WITH_VAT		Returns result price without/with VAT (by default return price with VAT).
+	 *		<li>int RESULT_MODE				Returns raw result for provider or prepared result for components (by default - for components).
 	 *		</ul>
 	 * @return void
 	 */
@@ -119,8 +124,23 @@ class Calculation
 		return self::$config['RESULT_WITH_VAT'];
 	}
 
+	public static function getResultMode()
+	{
+		return self::$config['RESULT_MODE'];
+	}
+
+	public static function isComponentResultMode()
+	{
+		return self::$config['RESULT_MODE'] == self::RESULT_MODE_COMPONENT;
+	}
+	
+	public static function isRawResultMode()
+	{
+		return self::$config['RESULT_MODE'] == self::RESULT_MODE_RAW;
+	}	
+
 	/**
-	 * Round price or discount value.
+	 * Rounding the price or discount to a specified number of decimal places.
 	 *
 	 * @param float|int $value		Value for rounding.
 	 * @return float
@@ -204,6 +224,10 @@ class Calculation
 					case 'USE_DISCOUNTS':
 					case 'RESULT_WITH_VAT':
 						$checked = is_bool($value);
+						break;
+					case 'RESULT_MODE':
+						$value = (int)$value;
+						$checked = ($value == self::RESULT_MODE_COMPONENT || $value == self::RESULT_MODE_RAW);
 						break;
 					default:
 						break;

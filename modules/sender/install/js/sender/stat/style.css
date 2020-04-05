@@ -1,27 +1,23 @@
+.bx-sender-stat-wrapper {
+	padding: 13px 30px;
+	background: #fff;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
 .bx-sender-stat {
 	width: 100%;
 	min-height: 800px;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	background: #fff;
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-box-shadow: 0 0 3px rgba(0,0,0,.3);
-	-moz-box-shadow: 0 0 3px rgba(0,0,0,.3);
-	box-shadow: 0 0 3px rgba(0,0,0,.3);
 }
 
 .bx-sender-block-first {
 	display: block;
-	overflow: hidden;
-	margin: 0 0 10px 0;
-	padding: 7px 17px 17px 17px;
+	/*overflow: hidden;*/
+	margin: 0 0 20px 0;
+	padding: 7px 0 27px 0;
 	background: #fff;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-box-shadow: 0 0 3px rgba(0,0,0,.3);
-	-moz-box-shadow: 0 0 3px rgba(0,0,0,.3);
-	box-shadow: 0 0 3px rgba(0,0,0,.3);
 }
 
 .bx-sender-last-postings {
@@ -32,7 +28,7 @@
 
 
 .bx-sender-min-width-80 {
-	min-width: 80px;
+	/*min-width: 80px;*/
 	display: inline-block;
 }
 
@@ -48,7 +44,7 @@
 	display: block;
 	overflow: hidden;
 	margin: 0 0 10px 0;
-	padding: 0 24px;
+	/*padding: 0 24px;*/
 }
 
 .bx-sender-block-left-padding {
@@ -60,11 +56,10 @@
 
 .bx-sender-title {
 	display: block;
-	padding: 0;
+	padding: 0 0 14px 0;
 	margin: 0 0 30px 0;
-	font-size: 24px;
+	font: 18px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #000;
-	line-height: 48px;
 	border-bottom: 1px solid #ededed;
 }
 
@@ -87,7 +82,8 @@
 	display: block;
 	height: 48px;
 	padding: 0 24px;
-	margin: 0 -24px;
+	margin: 0 0 24px 0;
+	/*margin: 0 -24px;*/
 	overflow: hidden;
 	background: #33ade1;
 	white-space: nowrap;
@@ -170,28 +166,43 @@
 	display: block;
 	overflow: hidden;
 	padding: 40px 0;
-	margin: 0 -17px;
+	/*margin: 0 -17px;*/
 	font-size: 0;
 }
 
 .bx-sender-mailfilter-result-item {
 	display: inline-block;
 	vertical-align: top;
-	width: 20%;
+	width: 15%;
+	margin: 0 5% 0 0;
 	text-align: center;
+}
+
+.bx-sender-mailfilter-result-item a {
+	text-decoration: none;
 }
 
 .bx-sender-mailfilter-result-item.bx-sender-mailfilter-4-items {
 	width: 25%;
 }
 
+.bx-sender-mailfilter-result-item.bx-sender-mailfilter-2-items {
+	width: 45%;
+	margin: 0;
+}
+
+.bx-sender-mailfilter-result-item.bx-sender-mailfilter-2-items:first-child {
+	margin: 0 10% 0 0;
+}
+
 .bx-sender-mailfilter-result-title {
 	display: block;
-	padding: 0;
+	padding: 0 0 6px 0;
 	margin: 0 0 10px 0;
+	border-bottom: 1px solid #E9EDEE;
 	font-size: 12px;
-	color: #000;
-	opacity: .7;
+	color: rgba(47,58,69,.7);
+	text-align: left;
 }
 
 .bx-sender-loader {
@@ -215,6 +226,12 @@
 	margin: 0;
 	font-size: 40px;
 	color: #000;
+	text-align: right;
+	transition: opacity .3s;
+}
+
+.bx-sender-mailfilter-result-total:hover {
+	opacity: .5;
 }
 
 .bx-sender-mailfilter-result-total-proc:after {
@@ -309,12 +326,16 @@
 .bx-sender-block-col-2 {
 	display: inline-block;
 	overflow: hidden;
-	padding: 15px 17px;
-	vertical-align: bottom;
-	width: 50%;
+	padding: 15px 0;
+	vertical-align: top;
+	width: 45%;
 	font-size: 14px;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+.bx-sender-block-col-margin {
+	margin: 0 10% 0 0;
 }
 
 .bx-sender-tittle-statistic {
@@ -323,7 +344,7 @@
 	display: flex;
 	width: 100%;
 	overflow: hidden;
-	margin: 0 0 25px 0;
+	margin: 0 0 15px 0;
 	white-space: nowrap;
 }
 
@@ -331,13 +352,27 @@
 	float: left;
 	overflow: hidden;
 	font-size: 14px;
+	color: #525C69;
 	margin: 0 7px 0 0;
+	/*opacity: .5;*/
+}
+
+.bx-sender-title-statistic-text a {
+	text-decoration: none;
+	transition: opacity .3s
+}
+
+.bx-sender-title-statistic-text a:hover {
 	opacity: .5;
 }
 
 .bx-sender-title-statistic-text-bold {
 	opacity:1;
 	font-weight: bold;
+}
+
+.bx-sender-title-statistic-number-bold {
+	font: bold 18px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
 .bx-sender-title-statistic-link {
@@ -360,7 +395,7 @@
 .bx-sender-graph {
 	display: block;
 	overflow: hidden;
-	margin: 0 0 14px 0;
+	margin: 30px 0 14px 0;
 }
 
 .bx-sender-graph-info {
@@ -401,9 +436,9 @@
 	overflow: hidden;
 	height: 13px;
 	background: #ebf0f2;
-	-webkit-box-shadow: inset -1px 2px 0 #e1e9eb;
-	-moz-box-shadow: inset -1px 2px 0 #e1e9eb;
-	box-shadow: inset -1px 2px 0 #e1e9eb;
+	/*-webkit-box-shadow: inset -1px 2px 0 #e1e9eb;*/
+	/*-moz-box-shadow: inset -1px 2px 0 #e1e9eb;*/
+	/*box-shadow: inset -1px 2px 0 #e1e9eb;*/
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
@@ -412,18 +447,18 @@
 	display: block;
 	overflow: hidden;
 	height: 13px;
-	background-color: #86ad00!important;
-	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;
-	box-shadow: 0 1px 1px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;
-	border: solid 1px;
-	-webkit-transition: .4s;
-	transition: .4s;
-	border-color: #97c004 #7ea502 #648900;
-	background-image: -webkit-linear-gradient(bottom, #729e00, #97ba00)!important;
-	background-image: -moz-linear-gradient(bottom, #729e00, #97ba00)!important;
-	background-image: -ms-linear-gradient(bottom, #729e00, #97ba00)!important;
-	background-image: -o-linear-gradient(bottom, #729e00, #97ba00)!important;
-	background-image: linear-gradient(bottom, #729e00, #97ba00)!important;
+	background-color: #A2CF1B!important;
+	/*-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;*/
+	/*box-shadow: 0 1px 1px rgba(0,0,0,.25), inset 0 1px 0 #cbdc00;*/
+	/*border: solid 1px;*/
+	-webkit-transition: background-color .4s;
+	transition: background-color .4s;
+	/*border-color: #97c004 #7ea502 #648900;*/
+	/*background-image: -webkit-linear-gradient(bottom, #729e00, #97ba00)!important;*/
+	/*background-image: -moz-linear-gradient(bottom, #729e00, #97ba00)!important;*/
+	/*background-image: -ms-linear-gradient(bottom, #729e00, #97ba00)!important;*/
+	/*background-image: -o-linear-gradient(bottom, #729e00, #97ba00)!important;*/
+	/*background-image: linear-gradient(bottom, #729e00, #97ba00)!important;*/
 }
 
 .bx-sender-tittle-statistic-proc,
@@ -431,7 +466,7 @@
 	float: left;
 	overflow: hidden;
 	font-size: 14px;
-	color: #000;
+	color: #525C69;
 	opacity: .7;
 }
 
@@ -493,11 +528,14 @@
 }
 
 .bx-gadget-speed-ruler {
-	background: url(/bitrix/gadgets/bitrix/admin_sitespeed/images/speed-sprite.png) repeat right -90px;
-	color: #444;
-	height: 14px;
-	margin-bottom: 3px;
-	font-size: 12px;
+	position: absolute;
+	top: 50%;
+	width: 100%;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22171%22%20height%3D%2217%22%20viewBox%3D%220%200%20171%2017%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h1v17H0V0zm8.094%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.095%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.092%200h1v17h-1V0zm8.094%200h1v17h-1V0zm9.105%200h1v17h-1V0zm8.095%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.092%200h1v17h-1V0zm8.094%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.093%200h1v17h-1V0zm8.094%200h1v17h-1V0z%22%20opacity%3D%22.3%22/%3E%3C/svg%3E');
+	background-repeat: repeat;
+	background-position: right 0;
+	height: 17px;
+	transform: translate(0,-50%);
 }
 
 .bx-gadget-speed-ruler-end,
@@ -514,100 +552,99 @@
 }
 
 .bx-gadget-speed-graph {
-	border-radius: 3px;
-	-webkit-box-shadow: 0 6px 2px -5px #ccc, 0 11px 2px -10px #ccc;
-	box-shadow:  0 6px 2px -5px #ccc, 0 11px 2px -10px #ccc;
-	height: 40px;
 	position: relative;
+	height: 47px;
 	font-size: 0;
 }
 
-.bx-gadget-speed-graph-part {
-	background: url(/bitrix/gadgets/bitrix/admin_sitespeed/images/speed-sprite.png) repeat-x 0 -40px;
+.bx-gadget-speed-graph-box {
 	display: inline-block;
-	color: #1d2331;
-	font-size: 10px;
-	line-height: 10px;
-	height: 40px;
-	text-shadow: 0 1px rgba(221,231,233, .7);
+	height: 47px;
 	vertical-align: top;
 	width: 20%;
-	text-transform: uppercase;
+}
+
+.bx-gadget-speed-graph-part {
+	display: inline-block;
+	margin: 0 0 12px 0;
+	width: 100%;
+	text-align: center;
 }
 
 .bx-gadget-speed-graph-part:before {
 	content: '';
 	display: inline-block;
-	height: 40px;
+	height: 47px;
 	vertical-align: middle;
 	width: 14px;
 }
 
 .bx-gadget-speed-graph-text {
-	display: inline-block;
-	margin-top: 3px;
-	vertical-align: middle;
+	display: block;
+	font: bold 9px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #2F3A45;
+	text-transform: uppercase;
+	text-align: center;
 }
 
 .bx-gadget-speed-graph-varyfast {
-	background-color: #cddd62;
+	background-color: #2FC6F6;
 	border-radius: 0 3px 3px 0;
 }
 .bx-gadget-speed-graph-fast {
-	background-color: #afc232;
+	background-color: #9DCF00;
 }
 .bx-gadget-speed-graph-notfast {
-	background-color: #ecd238;
+	background-color: #F9E900;
 }
 .bx-gadget-speed-graph-slow {
-	background-color: #eaaa3a;
+	background-color: #FFA900;
 }
 .bx-gadget-speed-graph-veryslow {
-	background-color: #eb8825;
+	background-color: #FF5752;
 	border-radius: 3px 0 0 3px;
 }
 
 .bx-gadget-speed-pointer {
-	background-color: rgba(74,88,19, 0.32);
-	bottom: 0;
-	left: -15%;
-	height: 40px;
 	position: absolute;
-	width: 1px;
+	top: 0;
+	left: -15%;
+	-webkit-box-shadow: 0 2px 3px rgba(47,58,69,.22);
+	box-shadow: 0 2px 3px rgba(47,58,69,.22);
 	-webkit-transition: left 0.55s cubic-bezier(0.23, 1, 0.32, 1);
 	transition: left 0.55s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .bx-gadget-speed-value {
-	background: url(/bitrix/gadgets/bitrix/admin_sitespeed/images/speed-sprite.png) no-repeat 0 0;
-	color: #000;
-	height: 27px;
-	font-size: 13px;
-	font-weight: bold;
-	left: -22px;
-	line-height: 19px;
 	position: absolute;
-	text-align: center;
-	text-shadow: 0 -1px rgba(255,255,255,0.68);
 	top: -22px;
-	width: 44px;
+	left: -22px;
+	padding: 5px 8px;
+	height: 34px;
+	width: 51px;
+	background-color: #545C6A;
+	font: bold 14px/26px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #fff;
+	text-align: center;
+	-webkit-box-shadow: 0 2px 8px rgba(47,58,69,.56);
+	box-shadow: 0 2px 8px rgba(47,58,69,.56);
+	box-sizing: border-box;
 }
 
-.bx-gadgets-perfmon .bx-gadgets-side {
-	background: url(/bitrix/gadgets/bitrix/admin_sitespeed/images/stitch2.png) repeat-y 0 0;
-}
-
-
-.bx-gadget-speed-waiter {
-	background: url(/bitrix/gadgets/bitrix/admin_sitespeed/images/waiter-speed.gif) no-repeat 0 0;
-	height: 42px;
-	left: 77px;
+.bx-gadget-speed-value:before {
+	content: '';
 	position: absolute;
-	top: 9px;
-	width: 42px;
+	left: 21px;
+	bottom: -4px;
+	display: block;
+	width: 9px;
+	height: 9px;
+	background-color: #545C6A;
+	transform: rotate(45deg);
+}
 
-	-webkit-transition: opacity 0.3s linear;
-	transition: opacity 0.3s linear;
+.bx-gadget-speed-value-percent {
+	font: bold 9px/26px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
 .bx-gadgets-speed-ready .bx-gadget-speed-waiter {

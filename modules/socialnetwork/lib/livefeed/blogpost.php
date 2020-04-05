@@ -64,7 +64,7 @@ final class BlogPost extends Provider
 				$this->setSourceFields($post);
 				$this->setSourceDescription($post['DETAIL_TEXT']);
 				$this->setSourceTitle(truncateText(($post['MICRO'] == 'N' ? $post['TITLE'] : htmlspecialcharsback($post['TITLE'])), 100));
-				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($postId));
+				$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
 				$this->setSourceDiskObjects($this->getDiskObjects($postId, $this->cloneDiskObjects));
 			}
 		}

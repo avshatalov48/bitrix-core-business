@@ -1254,7 +1254,7 @@ function __run()
 
 	StyleSelectorList.prototype.OpenSubmenu = function (item)
 	{
-		// Hack for load font awesome css (used in some templatese to customize bullit list styles)
+		// Hack for load font awesome css (used in some templates to customize bullet list styles)
 		if (item.id == 'list')
 			BX.loadCSS(['/bitrix/css/main/font-awesome.css']);
 
@@ -2854,6 +2854,7 @@ function __run()
 				if (!this.smileSets[setInd].butWrapImage)
 				{
 					this.smileSets[setInd].butWrapImage = smileImg.cloneNode();
+					this.smileSets[setInd].butWrapImage.style.cssText = '';
 					this.smileSets[setInd].butWrapImage.className = '';
 					this.smileSets[setInd].butWrapImage.title = '';
 					this.smileSets[setInd].butWrap.appendChild(this.smileSets[setInd].butWrapImage);
@@ -4323,22 +4324,25 @@ function __run()
 				BX.toggleClass(pTableWrap, 'bxhtmled-dialog-tbl-collapsed');
 			};
 
-			// Use statistics
-			r = addRow(pTableWrap, false, true);
-			this.pStatCont = r.row;
-			this.pStat = r.leftCell.appendChild(BX.create('INPUT', {props: {type: 'checkbox', id: this.id + '-stat'}}));
-			r.rightCell.appendChild(BX.create('LABEL', {text: BX.message('BXEdLinkStat')})).setAttribute('for', this.id + '-stat');
-			var
-				wrap,
-				statInfoCont = r.rightCell.appendChild(BX.create('DIV', {props: {className: 'bxhtmled-stat-wrap'}}));
-			wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event1">' + BX.message('BXEdLinkStatEv1') + ':</label> '}));
-			this.pStatEvent1 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event1"}, style: {minWidth: '50px'}}));
-			wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event2">' + BX.message('BXEdLinkStatEv2') + ':</label> '}));
-			this.pStatEvent2 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event2"}, style: {minWidth: '50px'}}));
-			wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event3">' + BX.message('BXEdLinkStatEv3') + ':</label> '}));
-			this.pStatEvent3 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event3"}, style: {minWidth: '50px'}}));
-			BX.addClass(r.leftCell,'bxhtmled-left-c-top');
-			BX.bind(this.pStat, 'click', BX.delegate(this.CheckShowStatParams, this));
+			if (this.editor.config.useLinkStat !== false)
+			{
+				// Use statistics
+				r = addRow(pTableWrap, false, true);
+				this.pStatCont = r.row;
+				this.pStat = r.leftCell.appendChild(BX.create('INPUT', {props: {type: 'checkbox', id: this.id + '-stat'}}));
+				r.rightCell.appendChild(BX.create('LABEL', {text: BX.message('BXEdLinkStat')})).setAttribute('for', this.id + '-stat');
+				var
+					wrap,
+					statInfoCont = r.rightCell.appendChild(BX.create('DIV', {props: {className: 'bxhtmled-stat-wrap'}}));
+				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event1">' + BX.message('BXEdLinkStatEv1') + ':</label> '}));
+				this.pStatEvent1 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event1"}, style: {minWidth: '50px'}}));
+				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event2">' + BX.message('BXEdLinkStatEv2') + ':</label> '}));
+				this.pStatEvent2 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event2"}, style: {minWidth: '50px'}}));
+				wrap = statInfoCont.appendChild(BX.create('DIV', {html: '<label for="event3">' + BX.message('BXEdLinkStatEv3') + ':</label> '}));
+				this.pStatEvent3 = wrap.appendChild(BX.create('INPUT', {props: {type: 'text',  id: "event3"}, style: {minWidth: '50px'}}));
+				BX.addClass(r.leftCell,'bxhtmled-left-c-top');
+				BX.bind(this.pStat, 'click', BX.delegate(this.CheckShowStatParams, this));
+			}
 
 			// Link title
 			r = addRow(pTableWrap, {label: BX.message('BXEdLinkTitle') + ':', id: this.id + '-title'}, true);
@@ -4433,7 +4437,7 @@ function __run()
 
 	LinkDialog.prototype.CheckShowStatParams = function()
 	{
-		if (this.pStat.checked)
+		if (this.pStat && this.pStat.checked)
 		{
 			BX.removeClass(this.pStatCont, 'bxhtmled-link-stat-hide');
 		}
@@ -4461,7 +4465,7 @@ function __run()
 	{
 		this.pHrefAnchor.value = '';
 
-		if (!this.editor.bbCode)
+		if (!this.editor.bbCode && this.pStat)
 		{
 			this.pStatEvent1.value =
 			this.pStatEvent2.value =
@@ -4504,7 +4508,7 @@ function __run()
 					values.type = 'external';
 
 					// Fix link in statistic
-					if(href.substr(0, '/bitrix/redirect.php'.length) == '/bitrix/redirect.php')
+					if (this.pStat && href.substr(0, '/bitrix/redirect.php'.length) == '/bitrix/redirect.php')
 					{
 						this.pStat.checked = true;
 						this.CheckShowStatParams();

@@ -2111,7 +2111,6 @@ var focusWithoutScrolling = function(element)
 					{
 						// INVISIBLE_CURSOR
 						value = value.replace(/\u2060/ig, '<span id="bx-cursor-node"> </span>');
-
 						this.iframeView.SetValue(value, bParseHtml);
 					}
 				}
@@ -2195,9 +2194,6 @@ var focusWithoutScrolling = function(element)
 
 			BX.addCustomEvent(this.editor, "OnTextareaBlur", BX.delegate(this.StopSync, this));
 			BX.addCustomEvent(this.editor, "OnIframeBlur", BX.delegate(this.StopSync, this));
-
-			//BX.addCustomEvent(this.editor, "OnIframeMouseDown", BX.proxy(this.OnIframeMousedown, this));
-			//this.On('OnSetViewAfter');
 		},
 
 		StartSync: function(delay)
@@ -2235,19 +2231,11 @@ var focusWithoutScrolling = function(element)
 
 		OnIframeMousedown: function(e, target, bxTag)
 		{
-			//var caret = this.editor.iframeView.document.createTextNode(this.INVISIBLE_CURSOR);
-			//this.editor.selection.InsertNode(caret);
-//			target.setAttribute('data-svd', "svd");
-//			var _this = this;
-//			setTimeout(function(){
-//				_this.textareaView.SelectText('data-svd="svd"');
-//			}, 1000);
 		},
 
 		IsFocusedOnTextarea: function()
 		{
-			var view = this.editor.currentViewName;
-			return view === "code" || view === "split" && this.GetSplitMode() === "code";
+			return this.editor.currentViewName === "code" || this.editor.currentViewName === "split" && this.GetSplitMode() === "code";
 		}
 	}
 

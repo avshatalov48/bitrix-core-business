@@ -358,4 +358,9 @@ $MESS["IM_OL_VOTE_TEXT"] = "Rate our service";
 $MESS["IM_OL_VOTE_TNX"] = "Thank you!";
 $MESS["IM_OL_VOTE_LIKE"] = "I like it";
 $MESS["IM_OL_VOTE_DISLIKE"] = "I don't like it";
+$MESS["IM_UPLOAD_IMAGE_BUTTON_UPLOAD"] = "Send";
+$MESS["IM_UPLOAD_IMAGE_BUTTON_CLOSE"] = "Cancel";
+$MESS["IM_UPLOAD_IMAGE_TITLE"] = "Insert image";
+$MESS["IM_UPLOAD_IMAGE_COMMENT"] = "Add message";
+$MESS["IM_UPLOAD_IMAGE_TITLE_2"] = "Uploading #NUMBER# images";
 ?>

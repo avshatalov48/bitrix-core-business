@@ -1047,7 +1047,7 @@ class Order
 			$orderDateList['DATE_INSERT'] = $fields['DATE_INSERT'];
 			$orderDateList['DATE_UPDATE'] = $fields['DATE_UPDATE'];
 
-			if ($USER->isAuthorized())
+			if (is_object($USER) && $USER->isAuthorized())
 			{
 				$fields['CREATED_BY'] = $USER->getID();
 				$this->setFieldNoDemand('CREATED_BY', $fields['CREATED_BY']);
@@ -1072,7 +1072,7 @@ class Order
 				}
 
 
-				if ((!isset($fields['EMP_STATUS_ID']) || (int)$fields['EMP_STATUS_ID'] <= 0) && $USER->isAuthorized())
+				if ((!isset($fields['EMP_STATUS_ID']) || (int)$fields['EMP_STATUS_ID'] <= 0) && (is_object($USER) && $USER->isAuthorized()))
 				{
 					$fields['EMP_STATUS_ID'] = $USER->getID();
 					$this->setFieldNoDemand('EMP_STATUS_ID', $fields['EMP_STATUS_ID']);
@@ -1317,7 +1317,7 @@ class Order
 			$updateFields = array(
 				'MARKED' => 'Y',
 				'DATE_MARKED' => new Type\DateTime(),
-				'EMP_MARKED_ID' => $USER->getId(),
+				'EMP_MARKED_ID' => (is_object($USER) ? $USER->getId(): false),
 				'REASON_MARKED' => $errorMsg
 			);
 
@@ -1963,7 +1963,7 @@ class Order
 
 			$this->setField('DATE_CANCELED', new Type\DateTime());
 
-			if ($USER->isAuthorized())
+			if (is_object($USER) && $USER->isAuthorized())
 				$this->setField('EMP_CANCELED_ID', $USER->getID());
 
 			Internals\EventsPool::addEvent($this->getInternalId(), EventActions::EVENT_ON_ORDER_CANCELED, array(
@@ -1984,7 +1984,7 @@ class Order
 			{
 				$this->setField('DATE_MARKED', new Type\DateTime());
 
-				if ($USER->isAuthorized())
+				if (is_object($USER) && $USER->isAuthorized())
 					$this->setField('EMP_MARKED_ID', $USER->getID());
 			}
 			elseif ($value == "N")
@@ -2044,8 +2044,10 @@ class Order
 
 			$this->setField('DATE_STATUS', new Type\DateTime());
 
-			if ($USER && $USER->isAuthorized())
+			if (is_object($USER) && $USER->isAuthorized())
+			{
 				$this->setField('EMP_STATUS_ID', $USER->GetID());
+			}
 
 			Internals\EventsPool::addEvent($this->getInternalId(), EventActions::EVENT_ON_ORDER_STATUS_CHANGE, array(
 				'ENTITY' => $this,
@@ -2376,7 +2378,7 @@ class Order
 			if ($payment !== null)
 				$payment->setFieldNoDemand('IS_RETURN', 'N');
 
-			if ($USER->isAuthorized())
+			if (is_object($USER) && $USER->isAuthorized())
 				$this->setFieldNoDemand('EMP_PAYED_ID', $USER->getID());
 
 			if ($paymentCollection->isPaid() && $payment !== null)
@@ -2923,8 +2925,7 @@ class Order
 								$basketItem->setFieldNoDemand('PRICE', $basketItemData['PRICE']);
 							}
 
-							if ($basketItemData['DISCOUNT_PRICE'] >= 0
-								&& $basketItem->getDiscountPrice() != $basketItemData['DISCOUNT_PRICE'])
+							if ($basketItem->getDiscountPrice() != $basketItemData['DISCOUNT_PRICE'])
 							{
 								$basketItemData['DISCOUNT_PRICE'] = PriceMaths::roundPrecision($basketItemData['DISCOUNT_PRICE']);
 								$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $basketItemData['DISCOUNT_PRICE']);
@@ -3041,7 +3042,7 @@ class Order
 
 		return Internals\OrderTable::update($id, array(
 			'DATE_LOCK' => new Main\Type\DateTime(),
-			'LOCKED_BY' => $USER->GetID()
+			'LOCKED_BY' => (is_object($USER) ? $USER->GetID(): false)
 		));
 	}
 

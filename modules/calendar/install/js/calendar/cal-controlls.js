@@ -2011,7 +2011,6 @@ window.BxEditEventGridSearch = function(event)
 
 			this.plannerLoadedTimezone = params.tzFrom || this.pFromTz.value;
 			this.plannerLoadedlocation = params.location || '';
-			console.info(this.plannerLoadedlocation);
 
 			var
 				_this = this,

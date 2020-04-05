@@ -686,7 +686,7 @@
 
 				more.setAttribute('title', more.getAttribute('title').replace(/-?\d+/, items.length-limit));
 				if (visible >= items.length)
-					more.style.display = 'none';
+					more.parentNode.style.display = 'none';
 			}
 		};
 
@@ -772,7 +772,7 @@
 			for (var i = 0; i < items.length; i++)
 				items[i].style.display = '';
 
-			this.style.display = 'none';
+			this.parentNode.style.display = 'none';
 
 			BX.PreventDefault(e);
 		});

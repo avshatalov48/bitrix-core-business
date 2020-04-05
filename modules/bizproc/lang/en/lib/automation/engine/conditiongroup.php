@@ -1,0 +1,3 @@
+<?
+$MESS["BIZPROC_AUTOMATION_CONDITION_TITLE"] = "Condition";
+?>

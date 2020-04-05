@@ -168,7 +168,7 @@ class MobileCounter
 
 		if ($needUpdate)
 		{
-			\CUserOptions::SetOption('pull', 'mobileCounterType', $types, $userId);
+			\CUserOptions::SetOption('pull', 'mobileCounterType', $types, false, $userId);
 		}
 
 		return true;

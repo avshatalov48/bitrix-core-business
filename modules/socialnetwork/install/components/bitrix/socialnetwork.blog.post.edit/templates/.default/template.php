@@ -34,6 +34,7 @@ if ($bLists)
 
 CJSCore::Init(array('videorecorder'));
 
+CJSCore::Init(array('ui_date'));
 if (
 	!empty($arResult["Post"])
 	|| isset($arParams["DISPLAY"])
@@ -609,6 +610,7 @@ HTML;
 							"LHE" => array(
 								"id" => $id,
 								"documentCSS" => "body {color:#434343;}",
+								"iframeCss" => "html body {font-size: 14px!important; line-height: 20px!important;}",
 								"ctrlEnterHandler" => "submitBlogPostForm",
 								"jsObjName" => $jsObjName,
 								"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
@@ -654,6 +656,52 @@ HTML;
 							array("HIDE_ICONS" => "Y")
 						);
 					?></span><?
+
+					if (isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]) && !empty($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]))
+					{
+						$dateTillPostIsShowing = false;
+						if (isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+							&& $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+						{
+							$dateTillPostIsShowing = $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"];
+						}
+						$ufPostEndTimeEditing = $dateTillPostIsShowing ? $dateTillPostIsShowing : "";
+						?>
+						<div class="feed-add-post-expire-date">
+							<div class="feed-add-post-expire-date-wrap">
+								<div class="feed-add-post-expire-date-inner js-post-expire-date-block
+								<?= $ufPostEndTimeEditing ? 'feed-add-post-expire-date-customize' : ''; ?>">
+									<span class="feed-add-post-expire-date-text"><?= htmlspecialcharsbx(GetMessage("IMPORTANT_TILL_TITLE")); ?></span>
+									<span id="js-post-expire-date-wrapper" class="feed-add-post-expire-date-period ">
+										<span class="feed-add-post-expire-date-duration js-important-till-popup-trigger"><?
+											?><?= htmlspecialcharsbx($dateTillPostIsShowing ?
+												GetMessage("IMPORTANT_FOR_CUSTOM") :
+												GetMessage($arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]["TEXT_KEY"])) ?><?
+										?></span>
+										<div class="js-post-showing-duration-options-container main-ui-hide">
+											<? 	foreach ($arResult["REMAIN_IMPORTANT_TILL"] as $periodAttributes)
+											{?>
+												<span class="main-ui-hide js-post-showing-duration-option"
+													  data-value="<?=htmlspecialcharsbx($periodAttributes['VALUE']) ; ?>"
+													  data-class="<?=htmlspecialcharsbx($periodAttributes['CLASS']) ; ?>"
+													  data-text="<?= htmlspecialcharsbx(GetMessage($periodAttributes['TEXT_KEY']));?>"></span><?
+											 }; ?>
+										</div>
+										<span class="js-date-post-showing-custom feed-add-post-expire-date-final"><?= htmlspecialcharsbx($ufPostEndTimeEditing); ?></span>
+										<input class="js-form-editing-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END_SAVED" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing); ?>">
+										<input class="js-form-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing); ?>">
+										<input class="js-form-post-end-period" type="hidden" name="postShowingDuration"
+											   value="<?= htmlspecialcharsbx($dateTillPostIsShowing ? "CUSTOM" : ""); ?>">
+									</span>
+								</div>
+							</div>
+						</div>
+						<script>
+							BX.ready(function(){
+								BX.SocNetPostDateEndData.init();
+							});
+						</script><?
+					}
 				?></div><?
 				if ($bGrat)
 				{

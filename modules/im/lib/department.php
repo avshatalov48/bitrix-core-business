@@ -134,6 +134,53 @@ class Department
 	{
 		$list = \Bitrix\Im\Integration\Intranet\Department::getList();
 
+		if (isset($options['FILTER']['ID']))
+		{
+			foreach ($list as $key => $department)
+			{
+				if (!in_array($department['ID'], $options['FILTER']['ID']))
+				{
+					unset($list[$key]);
+				}
+			}
+		}
+
+		$pagination = isset($options['LIST'])? true: false;
+
+		$limit = isset($options['LIST']['LIMIT'])? intval($options['LIST']['LIMIT']): 50;
+		$offset = isset($options['LIST']['OFFSET'])? intval($options['LIST']['OFFSET']): 0;
+
+		if (isset($options['FILTER']['SEARCH']) && strlen($options['FILTER']['SEARCH']) > 1)
+		{
+			$count = 0;
+			$breakAfterDigit = $offset === 0? $offset: false;
+
+			$options['FILTER']['SEARCH'] = ToLower($options['FILTER']['SEARCH']);
+			foreach ($list as $key => $department)
+			{
+				$checkField = ToLower($department['FULL_NAME']);
+				if (
+					strpos($checkField, $options['FILTER']['SEARCH']) !== 0
+					&& strpos($checkField, ' '.$options['FILTER']['SEARCH']) === false
+				)
+				{
+					unset($list[$key]);
+				}
+				if ($breakAfterDigit !== false)
+				{
+					$count++;
+					if ($count === $breakAfterDigit)
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		$count = count($list);
+
+		$list = array_slice($list, $offset, $limit);
+
 		if ($options['JSON'] == 'Y' || $options['USER_DATA'] == 'Y')
 		{
 			if ($options['JSON'] == 'Y')
@@ -150,6 +197,15 @@ class Department
 
 				$list[$key] = $options['JSON'] == 'Y'? array_change_key_case($department, CASE_LOWER): $department;
 			}
+		}
+
+		if ($options['JSON'] == 'Y')
+		{
+			$list = $pagination? Array('total' => $count, 'result' => $list): $list;
+		}
+		else
+		{
+			$list = $pagination? Array('TOTAL' => $count, 'RESULT' => $list): $list;
 		}
 
 		return $list;

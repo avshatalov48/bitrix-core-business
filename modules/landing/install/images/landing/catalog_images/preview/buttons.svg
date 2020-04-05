@@ -1,0 +1,20 @@
+<svg width="126px" height="31px" viewBox="0 0 126 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M8,230 L15,230 C15.5522847,230 16,230.447715 16,231 L16,238 C16,238.552285 15.5522847,239 15,239 L8,239 C7.44771525,239 7,238.552285 7,238 L7,231 C7,230.447715 7.44771525,230 8,230 Z" id="path-1"></path>
+    </defs>
+    <g id="В-отрисовку" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02_Дизайн-слайдер-вкладки-Copy-2" transform="translate(-36.000000, -1848.000000)">
+            <g id="Group-28" transform="translate(35.000000, 1635.000000)">
+                <g id="Group-17" transform="translate(2.000000, 2.000000)">
+                    <rect id="Rectangle-25" x="0" y="211" width="124" height="30"></rect>
+                </g>
+                <polygon id="Rectangle-20-Copy-19" fill="#A8ADB4" opacity="0.300000012" points="1 225 127 225 127 244 1 244"></polygon>
+                <path d="M22.5,233 L50.5,233 C51.3284271,233 52,233.671573 52,234.5 L52,234.5 C52,235.328427 51.3284271,236 50.5,236 L22.5,236 C21.6715729,236 21,235.328427 21,234.5 L21,234.5 C21,233.671573 21.6715729,233 22.5,233 Z" id="Rectangle-19-Copy-17" fill="#FFFFFF"></path>
+                <g id="Rectangle-20-Copy-20">
+                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    <path stroke="#B9C2C9" stroke-width="1" d="M8,230.5 C7.72385763,230.5 7.5,230.723858 7.5,231 L7.5,238 C7.5,238.276142 7.72385763,238.5 8,238.5 L15,238.5 C15.2761424,238.5 15.5,238.276142 15.5,238 L15.5,231 C15.5,230.723858 15.2761424,230.5 15,230.5 L8,230.5 Z"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

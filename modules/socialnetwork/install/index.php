@@ -213,14 +213,11 @@ Class socialnetwork extends CModule
 		CModule::IncludeModule("socialnetwork");
 		if(strtolower($DB->type) == 'mysql')
 		{
-			if ($DB->Query("CREATE fulltext index IXF_SONET_LOG_INDEX on b_sonet_log_index (CONTENT)", true))
-			{
-				\Bitrix\Socialnetwork\LogIndexTable::getEntity()->enableFullTextIndex("CONTENT");
-			}
-
-			if ($DB->Query("CREATE fulltext index IXF_SONET_GROUP on b_sonet_group (SEARCH_INDEX)", true))
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/".$DBType."/install_ft.sql");
+			if ($errors === false)
 			{
 				\Bitrix\Socialnetwork\WorkgroupTable::getEntity()->enableFullTextIndex("SEARCH_INDEX");
+				\Bitrix\Socialnetwork\LogIndexTable::getEntity()->enableFullTextIndex("CONTENT");
 			}
 		}
 
@@ -487,6 +484,30 @@ Class socialnetwork extends CModule
 						$arImportantPostUF["LIST_FILTER_LABEL"][$arLang["LID"]] = $messages["SONETP_LIST_FILTER_LABEL"];
 					}
 					$arFields[] = $arImportantPostUF;
+
+					$arImportantDateEndUF = array(
+						"USER_TYPE_ID" => "datetime",
+						"ENTITY_ID" => "BLOG_POST",
+						"FIELD_NAME" => "UF_IMPRTANT_DATE_END",
+						"XML_ID" => "UF_IMPRTANT_DATE_END",
+						"MULTIPLE" => "N",
+						"MANDATORY" => "N",
+						"SHOW_FILTER" => "N",
+						"SHOW_IN_LIST" => "N",
+						"EDIT_IN_LIST" => "Y",
+						"IS_SEARCHABLE" => "N",
+						"EDIT_FORM_LABEL" => Array(),
+						"LIST_COLUMN_LABEL" => Array(),
+						"LIST_FILTER_LABEL" => Array());
+
+					$dbLangs = CLanguage::GetList(($b = ""), ($o = ""), array("ACTIVE" => "Y"));
+					while ($arLang = $dbLangs->Fetch())
+					{
+						$messages = IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/index.php", $arLang["LID"], true);
+						$arImportantDateEndUF["EDIT_FORM_LABEL"][$arLang["LID"]] = $messages["SONETP_UF_IMPRTANT_DATE_END_EDIT_FORM_LABEL"];
+						$arImportantDateEndUF["LIST_COLUMN_LABEL"][$arLang["LID"]] = $messages["SONETP_UF_IMPRTANT_DATE_END_LIST_COLUMN_LABEL"];
+					}
+					$arFields[] = $arImportantDateEndUF;
 				}
 			}
 

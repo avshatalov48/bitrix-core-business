@@ -1,0 +1,16 @@
+<svg width="45px" height="37px" viewBox="0 0 45 37" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Маркетплейс---дополнение-к-панельке" transform="translate(-1240.000000, -232.000000)">
+            <g id="Group-17-Copy" transform="translate(1240.000000, 232.000000)">
+                <g id="плашка">
+                    <g id="Group-12">
+                        <path d="M45,0.0599317321 C35.4842287,0.823461705 28,8.78771321 28,18.5 C28,28.2122868 35.4842287,36.1765383 45,36.9400683 C44.5052366,36.9797673 44.0049811,37 43.5,37 L18.5,37 C8.28273213,37 1.25125444e-15,28.7172679 0,18.5 C-1.25125444e-15,8.28273213 8.28273213,1.87688166e-15 18.5,0 L43.5,0 C44.0049811,-9.27635197e-17 44.5052366,0.02023272 45,0.0599317321 Z" id="Combined-Shape" fill="#2FC6F6" opacity="0.881680254"></path>
+                        <text id="!" font-family="OpenSans-Bold, Open Sans" font-size="17" font-weight="bold" fill="#FFFFFF">
+                            <tspan x="15.0678711" y="25">!</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,30 @@
+.landing-ui-panel-url-list {
+	width: 746px;
+	z-index: 1299;
+}
+
+.landing-ui-panel-url-list-overlay {
+	z-index: 1298;
+}
+
+.landing-ui-panel-url-list-blocks {
+	width: 496px;
+}
+
+.landing-ui-panel-url-list-overlay {
+	z-index: 1298;
+}
+
+.landing-ui-panel-url-list-list {
+	padding: 20px 40px;
+	margin: 60px 60px;
+}
+
+
+.landing-ui-panel-url-list .landing-ui-panel-content-footer {
+	display: none;
+}
+
+.landing-ui-panel-url-list .landing-ui-panel-content-body {
+	height: 100%;
+}

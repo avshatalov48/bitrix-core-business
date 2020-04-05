@@ -817,11 +817,6 @@ while($obElement = $rsElements->GetNextElement())
 			{
 				$data["WORKFLOW_ID"] = '';
 			}
-
-			if ($data["WORKFLOW_ID"] && !CLists::isWorkflowParticipant($data["WORKFLOW_ID"]))
-			{
-				$arResult["USE_COMMENTS"] = false;
-			}
 		}
 
 		$backUrl = $APPLICATION->GetCurPageParam(

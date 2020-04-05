@@ -27,6 +27,9 @@ BX.CrmEntitySelector = (function ()
 		this.popupContent = '';
 		this.externalRequestData = null;
 		this.externalEventHandler = null;
+
+		BX.addCustomEvent('onCrmSelectedItem', BX.proxy(this.setSelectedElement, this));
+		BX.addCustomEvent('onCrmUnSelectedItem', BX.proxy(this.unsetSelectedElement, this));
 	};
 
 	CrmEntitySelector.prototype.createNewEntity = function(event)
@@ -157,6 +160,28 @@ BX.CrmEntitySelector = (function ()
 		else 
 		{
 			return '';
+		}
+	};
+
+	CrmEntitySelector.prototype.setSelectedElement = function(itemInfo)
+	{
+		for (var k in this.listElement)
+		{
+			if (itemInfo.id === this.listElement[k].id)
+			{
+				this.listElement[k].selected = 'Y';
+			}
+		}
+	};
+
+	CrmEntitySelector.prototype.unsetSelectedElement = function(itemInfo)
+	{
+		for (var k in this.listElement)
+		{
+			if (itemInfo.id === this.listElement[k].id)
+			{
+				this.listElement[k].selected = 'N';
+			}
 		}
 	};
 

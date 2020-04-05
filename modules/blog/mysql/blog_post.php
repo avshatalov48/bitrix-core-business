@@ -661,6 +661,7 @@ class CBlogPost extends CAllBlogPost
 			"COMMENT_ID" => array("FIELD" => "PC.ID", "TYPE" => "string", "FROM" => "INNER JOIN b_blog_comment PC ON (P.ID = PC.POST_ID)"),
 		);
 
+		$unreadImportantFilter = false;
 		if (\Bitrix\Main\Loader::includeModule('socialnetwork'))
 		{
 			if ($blogPostEventIdList === null)
@@ -678,7 +679,16 @@ class CBlogPost extends CAllBlogPost
 		{
 			$key_res = CBlog::GetFilterOperation($key);
 			$k = $key_res["FIELD"];
-			if (strpos($k, "POST_PARAM_") === 0)
+			if (
+				$k == 'POST_PARAM_BLOG_POST_IMPRTNT'
+				&& $key_res['NEGATIVE'] == 'Y'
+				&& $key_res['OR_NULL'] == 'N'
+			)
+			{
+				$unreadImportantFilter = true;
+				unset($arFilter[$key]);
+			}
+			elseif (strpos($k, "POST_PARAM_") === 0)
 			{
 				$user_id = 0; $ii++; $pref = "BPP".$ii;
 				if (is_array($val))
@@ -692,6 +702,7 @@ class CBlogPost extends CAllBlogPost
 						($user_id <= 0 ? " IS NULL" : "=".$user_id)." AND ".$pref.".NAME='".$GLOBALS["DB"]->ForSql(substr($k, 11), 50)."')");
 			}
 		}
+
 		if(isset($arFilter["GROUP_CHECK_PERMS"]))
 		{
 			if(is_array($arFilter["GROUP_CHECK_PERMS"]))
@@ -828,21 +839,40 @@ class CBlogPost extends CAllBlogPost
 				}
 				else
 				{
-					$arSqls["FROM"] .=
-								" INNER JOIN b_blog_socnet_rights SR ON (P.ID = SR.POST_ID) " .
-								" LEFT JOIN b_user_access UA ON (UA.ACCESS_CODE = SR.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ";
 					if(strlen($arSqls["WHERE"]) > 0)
 						$arSqls["WHERE"] .= " AND ";
-					$arSqls["WHERE"] .= " (UA.USER_ID is not NULL OR SR.ENTITY = 'AU') ";
+					$arSqls["WHERE"] .=
+						" EXISTS ( ".
+							"SELECT ID ".
+							"FROM b_blog_socnet_rights SRX ".
+							"LEFT JOIN b_user_access UA ON (UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ".
+							"WHERE P.ID = SRX.POST_ID 
+								AND (
+									(SRX.ENTITY = 'AU') 
+									OR (UA.ACCESS_CODE = SRX.ENTITY AND UA.USER_ID = ".IntVal($arFilter["FOR_USER"]).") ".
+								")".
+						")";
 				}
 			}
 			else
 			{
 				$arSqls["FROM"] .=
-							" INNER JOIN b_blog_socnet_rights SR ON (P.ID = SR.POST_ID) ".
-							" INNER JOIN b_user_access UA ON (UA.ACCESS_CODE = SR.ENTITY AND UA.USER_ID = 0)";
+					" INNER JOIN b_blog_socnet_rights SR ON (P.ID = SR.POST_ID) ".
+					" INNER JOIN b_user_access UA ON (UA.ACCESS_CODE = SR.ENTITY AND UA.USER_ID = 0)";
 			}
 			$bNeedDistinct = true;
+		}
+
+		if ($unreadImportantFilter)
+		{
+			if(strlen($arSqls["WHERE"]) > 0)
+				$arSqls["WHERE"] .= " AND ";
+			$arSqls["WHERE"] .=
+				" NOT EXISTS ( ".
+					"SELECT BPPX.POST_ID ".
+					"FROM b_blog_post_param BPPX ".
+					" WHERE P.ID = BPPX.POST_ID AND BPPX.USER_ID = ".IntVal($arFilter["FOR_USER"])." AND BPPX.NAME = 'BLOG_POST_IMPRTNT' AND BPPX.VALUE = 'Y' ".
+				")";
 		}
 
 		if($bNeedDistinct)

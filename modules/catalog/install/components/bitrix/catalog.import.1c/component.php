@@ -353,13 +353,15 @@ elseif (($_GET["mode"] == "import") && $ABS_FILE_NAME)
 
 	if ($NS["STEP"] < 1)
 	{
-		CIBlockXMLFile::DropTemporaryTables();
+		$obXMLFile = new CIBlockXMLFile;
+		$obXMLFile->DropTemporaryTables();
 		$strMessage = GetMessage("CC_BSC1_TABLES_DROPPED");
 		$NS["STEP"] = 1;
 	}
 	elseif ($NS["STEP"] == 1)
 	{
-		if (CIBlockXMLFile::CreateTemporaryTables())
+		$obXMLFile = new CIBlockXMLFile;
+		if ($obXMLFile->CreateTemporaryTables())
 		{
 			$strMessage = GetMessage("CC_BSC1_TABLES_CREATED");
 			$NS["STEP"] = 2;
@@ -495,9 +497,10 @@ elseif (($_GET["mode"] == "import") && $ABS_FILE_NAME)
 	{
 		if (($NS["DONE"]["ALL"] <= 0) && $NS["XML_ELEMENTS_PARENT"])
 		{
-			if (CIBlockXMLFile::IsExistTemporaryTable())
+			$obXMLFile = new CIBlockXMLFile;
+			if ($obXMLFile->IsExistTemporaryTable())
 			{
-				$NS["DONE"]["ALL"] = CIBlockXMLFile::GetCountItemsWithParent($NS["XML_ELEMENTS_PARENT"]);
+				$NS["DONE"]["ALL"] = $obXMLFile->GetCountItemsWithParent($NS["XML_ELEMENTS_PARENT"]);
 			}
 			else
 			{

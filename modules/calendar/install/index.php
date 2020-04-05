@@ -180,6 +180,8 @@ class calendar extends CModule
 		$eventManager->registerEventHandler("dav", "OnExchandeCalendarDataSync", "calendar", "CCalendar", "OnExchangeCalendarSync");
 		$eventManager->registerEventHandler('socialnetwork', 'onLogIndexGetContent', 'calendar', '\Bitrix\Calendar\Integration\Socialnetwork\Log', 'onIndexGetContent');
 
+		$eventManager->registerEventHandler('main', 'OnBeforeUserTypeAdd', 'calendar', '\Bitrix\Calendar\UserField\ResourceBooking', 'onBeforeUserTypeAdd');
+
 		if($DB->type === "MYSQL"
 			&& $DB->Query("CREATE fulltext index IXF_B_CALENDAR_EVENT_SEARCHABLE_CONTENT on b_calendar_event (SEARCHABLE_CONTENT)", true))
 		{
@@ -203,7 +205,7 @@ class calendar extends CModule
 		CAgent::RemoveModuleAgents('calendar');
 		$errors = null;
 
-		CAgent::RemoveAgent("CCalendarSync::DoSync();", "calendar");
+		CAgent::RemoveAgent("CCalendarSync::doSync();", "calendar");
 
 		if ((true == array_key_exists("savedata", $arParams)) && ($arParams["savedata"] != 'Y'))
 		{
@@ -238,6 +240,7 @@ class calendar extends CModule
 		$eventManager->unRegisterEventHandler("dav", "OnDavCalendarProperties", "calendar", "CCalendar", "OnDavCalendarSync");
 		$eventManager->unRegisterEventHandler("dav", "OnExchandeCalendarDataSync", "calendar", "CCalendar", "OnExchangeCalendarSync");
 		$eventManager->unRegisterEventHandler('socialnetwork', 'onLogIndexGetContent', 'calendar', '\Bitrix\Calendar\Integration\Socialnetwork\Log', 'onIndexGetContent');
+		$eventManager->unRegisterEventHandler('main', 'OnBeforeUserTypeAdd', 'calendar', '\Bitrix\Calendar\UserField\ResourceBooking', 'onBeforeUserTypeAdd');
 
 		UnRegisterModule("calendar");
 

@@ -316,7 +316,9 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 			$rsNavChain = CIBlockSection::GetNavChain($arResult["ID"], $arElement["IBLOCK_SECTION_ID"]);
 			while($arNavChain = $rsNavChain->Fetch())
 			{
-				$arItem["category"] .= htmlspecialcharsbx($arNavChain["NAME"])."/";
+				if ($arItem["category"])
+					$arItem["category"] .= "/";
+				$arItem["category"] .= htmlspecialcharsbx($arNavChain["NAME"]);
 			}
 		}
 

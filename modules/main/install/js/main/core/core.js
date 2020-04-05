@@ -338,7 +338,13 @@ BX.debug = function()
 	if (BX.debugStatus())
 	{
 		if (window.console && window.console.log)
+		{
 			window.console.log('BX.debug: ', arguments.length > 0 ? arguments : arguments[0]);
+			if(arguments[0] instanceof Error && arguments[0].stack)
+			{
+				window.console.log('BX.debug error stack trace', arguments[0].stack);
+			}
+		}
 		if (window.console && window.console.trace)
 			console.trace();
 	}
@@ -1965,7 +1971,7 @@ BX.bindDebouncedChange = function(node, fn, fnInstant, timeout, ctx)
 BX.parseJSON = function(data, context)
 {
 	var result = null;
-	if (BX.type.isString(data))
+	if (BX.type.isNotEmptyString(data))
 	{
 		try {
 			if (data.indexOf("\n") >= 0)
@@ -2622,6 +2628,31 @@ BX.util = {
 		for (var i = 0; i < escapes.length; i++)
 			str = str.replace(new RegExp(escapes[i].c, 'g'), escapes[i].r);
 		return str;
+	},
+
+	getCssName: function(jsName)
+	{
+		if (!BX.type.isNotEmptyString(jsName))
+		{
+			return "";
+		}
+
+		return jsName.replace(/[A-Z]/g, function(match) {
+			return "-" + match.toLowerCase();
+		});
+	},
+
+	getJsName: function(cssName)
+	{
+		var regex = /\-([a-z]){1}/g;
+		if (regex.test(cssName))
+		{
+			return cssName.replace(regex, function(match, letter) {
+				return letter.toUpperCase();
+			});
+		}
+
+		return cssName;
 	},
 
 	nl2br: function(str)

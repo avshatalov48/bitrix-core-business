@@ -81,15 +81,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Reindex"]=="Y")
 		{
 			$NS[$IBLOCK_ID] = array(
 				"CNT" => 0,
+				"LAST_ID" => 0,
 			);
 			$index->startIndex();
 			$NS[$IBLOCK_ID]["TOTAL"] = $index->estimateElementCount();
 		}
 
+		$index->setLastElementId($NS[$IBLOCK_ID]["LAST_ID"]);
 		$res = $index->continueIndex($max_execution_time);
 		if ($res > 0)
 		{
 			$NS[$IBLOCK_ID]["CNT"] += $res;
+			$NS[$IBLOCK_ID]["LAST_ID"] = $index->getLastElementId();
 
 			$message = new CAdminMessage(array(
 				"MESSAGE" => GetMessage("IBLOCK_REINDEX_IN_PROGRESS"),

@@ -705,6 +705,10 @@ function __blogPostSetFollow(log_id)
 				if (!!params["data"])
 				{
 					this.change(params["data"]);
+					if (this.popup != null)
+					{
+						this.popup.isNew = true;
+					}
 				}
 			}
 		}, this);
@@ -739,7 +743,9 @@ function __blogPostSetFollow(log_id)
 				}
 			}
 			if (data["StatusPage"] == "done")
+			{
 				this.node.setAttribute("inumpage", "done");
+			}
 			else
 				this.node.setAttribute("inumpage", 1);
 			BX.adjust(this.parentNode, {style : {display : "inline-block"}});
@@ -808,7 +814,8 @@ function __blogPostSetFollow(log_id)
 			this.make((this.node.getAttribute("inumpage") != "done"));
 		}
 
-		if (this.node.getAttribute("inumpage") != "done") {
+		if (this.node.getAttribute("inumpage") != "done")
+		{
 			this.node.setAttribute("status", "busy");
 			BX.ajax({
 				url: "/bitrix/components/bitrix/socialnetwork.blog.blog/users.php",
@@ -834,7 +841,9 @@ function __blogPostSetFollow(log_id)
 							this.data.push(data.items[ii]);
 						}
 						if (data.StatusPage == "done")
+						{
 							this.node.setAttribute("inumpage", "done");
+						}
 
 						this.make((this.node.getAttribute("inumpage") != "done"));
 					}
@@ -851,9 +860,6 @@ function __blogPostSetFollow(log_id)
 	};
 	top.SBPImpPostCounter.prototype.show = function()
 	{
-		if (this.popup != null)
-			this.popup.close();
-
 		if (this.popup == null)
 		{
 			this.popup = new BX.PopupWindow('bx-vote-popup-cont-' + this.postId, this.node, {
@@ -977,7 +983,7 @@ function __blogPostSetFollow(log_id)
 			}
 			if (needToCheckData)
 			{
-				BX.bind(node, 'scroll' , BX.delegate(this.popupScrollCheck, this));
+				BX.bind(node, 'scroll' , BX.proxy(this.popupScrollCheck, this));
 			}
 		}
 		if (this.popup.isNew)
@@ -1004,7 +1010,7 @@ function __blogPostSetFollow(log_id)
 		var res = BX.proxy_context;
 		if (res.scrollTop > (res.scrollHeight - res.offsetHeight) / 1.5)
 		{
-			BX.unbind(res, 'scroll' , BX.delegate(this.popupScrollCheck, this));
+			BX.unbind(res, 'scroll' , BX.proxy(this.popupScrollCheck, this));
 			this.get();
 		}
 	}
@@ -1299,7 +1305,7 @@ window.renderSharingPost = function(postId)
 						name: name,
 						type: type
 					});
-					nodeId = 'post_' + postId + '_dest_' + id
+					nodeId = 'post_' + postId + '_dest_' + id;
 					res.push(nodeId);
 
 					var destText = BX.create("span", {

@@ -90,6 +90,8 @@ if ($server->getRequestMethod() == "POST"
 	&& $saleModulePermissions == "W"
 	&& check_bitrix_sessid())
 {
+	$isNewSystem = ($id <= 0);
+
 	$name = trim($request->get('NAME'));
 	if ($name == '')
 		$errorMessage .= Loc::getMessage("ERROR_NO_NAME")."<br>";
@@ -104,12 +106,58 @@ if ($server->getRequestMethod() == "POST"
 
 	$actionFile = $request->get('ACTION_FILE');
 	if (!$actionFile)
+	{
 		$errorMessage = Loc::getMessage('SALE_PSE_ERROR_ACTION_SAVE');
+	}
+
+	// temp crutch because of CSalePdf does not support all images
+	if (strpos($actionFile, 'bill') === 0)
+	{
+		$consumer = $isNewSystem ? 'PAYSYSTEM_NEW' : 'PAYSYSTEM_'.$id;
+
+		$fileNameList = [];
+		if (isset($_FILES['PAYSYSTEMBizVal']['name']['MAP'][$consumer])
+			&& is_array($_FILES['PAYSYSTEMBizVal']['name']['MAP'][$consumer])
+		)
+		{
+			$fileNameList = array_keys($_FILES['PAYSYSTEMBizVal']['name']['MAP'][$consumer]);
+		}
+
+		$fileFields = [];
+		if (isset($_FILES['PAYSYSTEMBizVal'])
+			&& is_array($_FILES['PAYSYSTEMBizVal']))
+		{
+			$fileFields = array_keys($_FILES['PAYSYSTEMBizVal']);
+		}
+
+		foreach ($fileNameList as $fileName)
+		{
+			$file = array();
+			foreach ($fileFields as $key)
+			{
+				$file[$key] = $_FILES['PAYSYSTEMBizVal'][$key]['MAP'][$consumer][$fileName][0]['PROVIDER_VALUE'];
+			}
+
+			if (!CFile::IsImage($file['name']))
+			{
+				continue;
+			}
+
+			$description = PaySystem\Manager::getHandlerDescription($actionFile);
+
+			$result = CSalePdf::CheckImage($file);
+			if ($result)
+			{
+				$errorMessage .= Loc::getMessage(
+						'SALE_PSE_ERROR_IMAGE_ERROR',
+						array('#SETTING_NAME#' => $description['CODES'][$fileName]['NAME'])
+				);
+			}
+		}
+	}
 
 	if ($errorMessage === '')
 	{
-		$isNewSystem = ($id <= 0);
-
 		$fields = array(
 			"NAME" => $name,
 			"PSA_NAME" => $request->get('PSA_NAME'),

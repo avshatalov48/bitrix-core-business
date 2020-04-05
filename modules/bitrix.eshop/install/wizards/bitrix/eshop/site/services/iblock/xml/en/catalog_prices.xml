@@ -2,6 +2,7 @@
 <CommerceInformation SchemaVersion="2.021" CreationDate="2012-12-03T16:55:17">
 	<OffersList>
 		<Id>furniture</Id>
+		<BitrixCode>furniture</BitrixCode>
 		<PriceTypes>
 			<PriceType>
 				<Id>BASE</Id>

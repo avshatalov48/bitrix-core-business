@@ -44,7 +44,7 @@
 
 		addClass(this.layout, "landing-ui-panel-catalog");
 		addClass(this.overlay, "landing-ui-panel-catalog");
-		setTextContent(this.title, BX.message("LANDING_STYLE_PANEL_CATALOG_TITLE"));
+		setTextContent(this.title, BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_TITLE"));
 
 		if (!this.getIblocks() || this.getIblocks().length > 1)
 		{
@@ -115,9 +115,9 @@
 		{
 			var typeSwitcher = new BX.Landing.UI.Field.ButtonGroup({
 				items: [
-					{"name": BX.message("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_ALL"), value: TYPE_CATALOG_ALL},
-					{"name": BX.message("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_ELEMENTS"), value: TYPE_CATALOG_ELEMENT},
-					{"name": BX.message("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_SECTIONS"), value: TYPE_CATALOG_SECTION}
+					{"name": BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_ALL"), value: TYPE_CATALOG_ALL},
+					{"name": BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_ELEMENTS"), value: TYPE_CATALOG_ELEMENT},
+					{"name": BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_SEARCH_TYPE_SECTIONS"), value: TYPE_CATALOG_SECTION}
 				],
 				content: TYPE_CATALOG_ALL,
 				onChange: this.onSearchTypeChange.bind(this)
@@ -152,7 +152,7 @@
 		createIblockSwitcher: function()
 		{
 			var iBlockSwitcher = new BX.Landing.UI.Field.Dropdown({
-				title: BX.message("LANDING_STYLE_PANEL_CATALOG_IBLOCK_SWITCHER"),
+				title: BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_IBLOCK_SWITCHER"),
 				items: this.getIblocks(),
 				content: isArray(this.getIblocks()) ? this.getIblocks()[0].value : "",
 				onChange: this.onIblockChange.bind(this)
@@ -180,7 +180,7 @@
 		createSearchField: function()
 		{
 			return new BX.Landing.UI.Field.Text({
-				placeholder: BX.message("LANDING_STYLE_PANEL_CATALOG_SEARCH_PLACEHOLDER"),
+				placeholder: BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_SEARCH_PLACEHOLDER"),
 				textOnly: true,
 				onValueChange: debounce(this.onSearch, 200, this)
 			});
@@ -321,7 +321,7 @@
 			if (entityTypes.length === 1 && entityTypes[0] === TYPE_CATALOG_SECTION)
 			{
 				data(this.searchField.input, {
-					"data-placeholder": BX.message("LANDING_STYLE_PANEL_CATALOG_SEARCH_SECTION_PLACEHOLDER")
+					"data-placeholder": BX.Landing.Loc.getMessage("LANDING_STYLE_PANEL_CATALOG_SEARCH_SECTION_PLACEHOLDER")
 				})
 			}
 		},

@@ -1,6 +1,7 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+\Bitrix\Main\UI\Extension::load("main.rating");
 
-<div id="wiki-post">
+?><div id="wiki-post">
 <?
 
 if(!empty($arResult["FATAL_MESSAGE"])):
@@ -80,19 +81,61 @@ else:
 			</div>
 			<?if ($arParams['SHOW_RATING'] == 'Y'):?>
 				<div class="wiki-category-rating"><?
-				$APPLICATION->IncludeComponent(
-					'bitrix:rating.vote', $arParams['RATING_TYPE'],
-					Array(
-						'ENTITY_TYPE_ID' => "IBLOCK_ELEMENT",
-						'ENTITY_ID' => $arResult['ELEMENT']['ID'],
+
+					$voteEntityType = "IBLOCK_ELEMENT";
+					$voteEntityId = $arResult['ELEMENT']['ID'];
+
+					$voteId = $voteEntityType.'_'.$voteEntityId.'-'.(time()+rand(0, 1000));
+
+					$likeTemplate = (
+						$arResult["isIntranetInstalled"]
+							? 'like_react'
+							: $arParams["RATING_TYPE"]
+					);
+
+					$componentParams = array(
+						'ENTITY_TYPE_ID' => $voteEntityType,
+						'ENTITY_ID' => $voteEntityId,
 						'OWNER_ID' => $arResult['ELEMENT']['CREATED_BY'],
 						'PATH_TO_USER_PROFILE' => $arParams['PATH_TO_USER'],
-					),
-					$component,
-					array('HIDE_ICONS' => 'Y')
-				);?>
-			</div>
-		<?endif;?>
+						"VOTE_ID" => $voteId
+					);
+
+					if ($arResult["isIntranetInstalled"])
+					{
+						$arRating = \CRatings::getRatingVoteResult($voteEntityType, $voteEntityId);
+						$emotion = (!empty($arRating["USER_REACTION"]) ? strtoupper($arRating["USER_REACTION"]) : 'LIKE');
+
+						?><span id="bx-ilike-button-<?=htmlspecialcharsbx($voteId)?>" class="feed-inform-ilike feed-new-like"><?
+							?><span class="bx-ilike-left-wrap<?=(isset($arRating["USER_HAS_VOTED"]) && $arRating["USER_HAS_VOTED"] == "Y" ? ' bx-you-like-button' : '')?>"><a href="#like" class="bx-ilike-text"><?=\CRatingsComponentsMain::getRatingLikeMessage($emotion)?></a></span><?
+						?></span><?
+
+						if (!empty($arRating))
+						{
+							$componentParams = array_merge($componentParams, $arRating);
+							$componentParams['TOP_DATA'] = (!empty($arResult['TOP_RATING_DATA']) ? $arResult['TOP_RATING_DATA'] : array());
+						}
+
+						?><div class="feed-post-emoji-top-panel-outer"><?
+							?><div id="feed-post-emoji-top-panel-container-<?=htmlspecialcharsbx($voteId)?>" class="feed-post-emoji-top-panel-box <?=(intval($arRating["TOTAL_POSITIVE_VOTES"]) > 0 ? 'feed-post-emoji-top-panel-container-active' : '')?>"><?
+					}
+
+					$APPLICATION->IncludeComponent(
+						'bitrix:rating.vote',
+						$likeTemplate,
+						$componentParams,
+						$component,
+						array('HIDE_ICONS' => 'Y')
+					);
+
+					if ($arResult["isIntranetInstalled"])
+					{
+							?></div><?
+						?></div><?
+					}
+
+				?></div>
+			<?endif;?>
 			<div style="clear:both"></div>
 		</div>
 	<?

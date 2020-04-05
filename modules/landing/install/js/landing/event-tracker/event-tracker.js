@@ -59,7 +59,8 @@
 	{
 		var items = [].concat(
 			slice(element.querySelectorAll("a")),
-			slice(element.querySelectorAll("button"))
+			slice(element.querySelectorAll("button")),
+			slice(element.querySelectorAll("[data-pseudo-url]"))
 		);
 
 		items.forEach(function(item) {
@@ -87,17 +88,38 @@
 			label: trim(item.innerText)
 		};
 
-		if (isEmpty(gaData.label) && item.tagName === "A")
+		if (tracker.options.labelFrom === 'href')
 		{
-			var firstChild = item.firstElementChild;
-
-			if (firstChild && firstChild.tagName === "IMG" && attr(firstChild, "alt"))
+			if (item.tagName === 'A' && BX.Type.isStringFilled(item.href))
 			{
-				gaData.label = attr(firstChild, "alt");
+				gaData.label = item.href;
 			}
 			else
 			{
-				gaData.label = attr(item, "href");
+				var pseudoUrl = BX.Landing.Utils.data(item, 'data-pseudo-url');
+				if (
+					BX.Type.isPlainObject(pseudoUrl)
+					&& pseudoUrl.enabled
+					&& BX.Type.isStringFilled(pseudoUrl.href)
+				)
+				{
+					gaData.label = pseudoUrl.href;
+				}
+			}
+		}
+		else if (!BX.Type.isStringFilled(gaData.label))
+		{
+			if (item.tagName === "IMG" && attr(item, "alt"))
+			{
+				gaData.label = attr(item, "alt");
+			}
+			else
+			{
+				var firstChild = item.firstElementChild;
+				if (firstChild && firstChild.tagName === "IMG" && attr(firstChild, "alt"))
+				{
+					gaData.label = attr(firstChild, "alt");
+				}
 			}
 		}
 
@@ -121,6 +143,7 @@
 		if (isPlainObject(sourceOptions) && !isEmpty(sourceOptions))
 		{
 			resultOptions.event = sourceOptions["data-event-tracker"] || [];
+			resultOptions.labelFrom = sourceOptions["data-event-tracker-label-from"] || "text";
 		}
 
 		return resultOptions;
@@ -219,6 +242,7 @@
 		this.services = [
 			new BX.Landing.EventTracker.Service.GoogleAnalytics()
 		];
+		this.options = fetchOptionsFromElement(document.body);
 	};
 
 

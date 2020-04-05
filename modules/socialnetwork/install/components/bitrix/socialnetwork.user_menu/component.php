@@ -256,13 +256,13 @@ else
 		$arResult["CanView"]["forum"] = (array_key_exists("forum", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 
-		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["blog"]) > 0) ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_BLOG"));
+		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["blog"]) > 0) ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM"));
 		$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["microblog"]) > 0) ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
 		$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["photo"]) > 0) ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
 		$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["forum"]) > 0) ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
 		$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["calendar"]) > 0) ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
 		$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["tasks"]) > 0) ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
-		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["files"]) > 0) ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_FILES"));
+		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["files"]) > 0) ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_DISK"));
 		$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["search"]) > 0) ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
 
 		$a = array_keys($arResult["Urls"]);

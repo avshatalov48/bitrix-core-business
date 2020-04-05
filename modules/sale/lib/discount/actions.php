@@ -32,10 +32,14 @@ class Actions
 
 	const RESULT_ENTITY_BASKET = 0x0001;
 	const RESULT_ENTITY_DELIVERY = 0x0002;
+	const RESULT_ENTITY_ORDER = 0x0004;
 
 	const APPLY_RESULT_MODE_COUNTER = 0x0001;
 	const APPLY_RESULT_MODE_DESCR = 0x0002;
 	const APPLY_RESULT_MODE_SIMPLE = 0x0004;
+
+	const ACTION_TYPE_DISCOUNT = 'D';
+	const ACTION_TYPE_EXTRA = 'E';
 
 	protected static $useMode = self::MODE_CALCULATE;
 	protected static $applyCounter = self::APPLY_COUNTER_START;
@@ -129,7 +133,7 @@ class Actions
 	}
 
 	/**
-	 * Return current use actions mode.
+	 * Returns current use actions mode.
 	 *
 	 * @return int
 	 */
@@ -166,6 +170,17 @@ class Actions
 	public static function isMixedMode()
 	{
 		return self::$useMode === self::MODE_MIXED;
+	}
+
+	/**
+	 * Check current use actions mode.
+	 *
+	 * @param array $list
+	 * @return bool
+	 */
+	public static function checkUseMode(array $list)
+	{
+		return (in_array(self::$useMode, $list, true));
 	}
 
 	/**
@@ -604,7 +619,7 @@ class Actions
 		$sumConfiguration = $configuration['sum']?: array();
 		$applyIfMoreProfitable = $configuration['apply_if_more_profitable'] === 'Y';
 
-		if (in_array(self::getUseMode(), array(self::MODE_MANUAL, self::MODE_MIXED)))
+		if (static::checkUseMode(array(self::MODE_MANUAL, self::MODE_MIXED)))
 		{
 			$actionStoredData = self::getActionStoredData();
 			$cumulativeOrderUserValue = $actionStoredData['cumulative_value'];

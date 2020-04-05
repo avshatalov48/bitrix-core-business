@@ -42,6 +42,7 @@ class Client
 	const METHOD_APPLICATION_UNINSTALL = 'application.uninstall';
 	const METHOD_APPLICATION_STAT = 'application.stat';
 	const METHOD_APPLICATION_LIST = 'application.list';
+	const METHOD_APPLICATION_USAGE = 'application.usage';
 
 	const METHOD_APPLICATION_VERSION_UPDATE = 'application.version.update';
 	const METHOD_APPLICATION_VERSION_DELETE = 'application.version.delete';
@@ -86,6 +87,7 @@ class Client
 		$additionalParams['client_id'] = $this->clientId;
 		$additionalParams['client_secret'] = $this->clientSecret;
 		$additionalParams['client_redirect_uri'] = OAuthService::getRedirectUri();
+		$additionalParams['member_id'] = \CRestUtil::getMemberId();
 
 		if($licenseCheck)
 		{
@@ -258,6 +260,14 @@ class Client
 	public function getApplicationList()
 	{
 		return $this->call(static::METHOD_APPLICATION_LIST);
+	}
+
+	public function sendApplicationUsage($clientId, array $usage)
+	{
+		return $this->call(static::METHOD_APPLICATION_USAGE, array(
+			"CLIENT_ID" => $clientId,
+			"USAGE" => $usage,
+		));
 	}
 
 	public function sendEvent(array $eventItems)

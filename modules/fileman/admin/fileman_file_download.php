@@ -11,6 +11,7 @@ $strWarning = "";
 $site = CFileMan::__CheckSite($site);
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 $io = CBXVirtualIo::GetInstance();
+$path = CBXVirtualIoFileSystem::ConvertCharset($path, CBXVirtualIoFileSystem::directionDecode);
 $path = $io->CombinePath("/", $path);
 $arFile = CFile::MakeFileArray($io->GetPhysicalName($DOC_ROOT.$path));
 $arFile["tmp_name"] = CBXVirtualIoFileSystem::ConvertCharset($arFile["tmp_name"], CBXVirtualIoFileSystem::directionDecode);

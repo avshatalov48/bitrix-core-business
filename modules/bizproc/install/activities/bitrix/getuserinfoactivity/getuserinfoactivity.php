@@ -35,6 +35,9 @@ class CBPGetUserInfoActivity
 		'USER_WORK_POSITION' => [
 			'Type' => 'string',
 		],
+		'USER_PERSONAL_BIRTHDAY' => [
+			'Type' => 'date',
+		],
 		'USER_PERSONAL_WWW' => [
 			'Type' => 'string',
 		],

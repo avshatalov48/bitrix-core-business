@@ -13,7 +13,15 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
-
+if ($arParams["IFRAME"] === true && ($componentParams = $this->request->getPost('PARAMS')) && isset($componentParams['params']))
+{
+	$arParams = array_merge($arParams, $componentParams['params']);
+	if(isset($arParams['PLACEMENT_OPTIONS']) && !isset($arParams['~PLACEMENT_OPTIONS']))
+	{
+		$arParams['~PLACEMENT_OPTIONS'] = $arParams['PLACEMENT_OPTIONS'];
+	}
+	$arParams["LAZYLOAD"] = true;
+}
 $arParams['ID'] = isset($arParams['ID']) ? intval($arParams['ID']) : 0;
 $appCode = '';
 if($arParams['ID'] <= 0)
@@ -179,7 +187,7 @@ if(
 			$arResult['APP_NAME'] = $arApp['APP_NAME'];
 		}
 	}
-	elseif(isset($arParams['LAZYLOAD']) && strlen($arResult['APP_NAME']) <= 0)
+	elseif(isset($arParams['LAZYLOAD']) || strlen($arResult['APP_NAME']) <= 0)
 	{
 		$arResult['APP_NAME'] = $arApp['APP_NAME'];
 	}
@@ -465,8 +473,8 @@ if(
 
 		if($arResult['APP_STATUS']['PAYMENT_ALLOW'] === 'Y')
 		{
-			\Bitrix\Rest\StatTable::logPlacement($arResult['APP_ID'], $arParams['PLACEMENT']);
-			\Bitrix\Rest\StatTable::finalize();
+			\Bitrix\Rest\UsageStatTable::logPlacement($arResult['APP_ID'], $arParams['PLACEMENT']);
+			\Bitrix\Rest\UsageStatTable::finalize();
 		}
 
 		$this->IncludeComponentTemplate();

@@ -51,12 +51,12 @@
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
 						selector: "autoplay",
 						content: parseInt(settings.autoplay),
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
 						]
 					})
 				);

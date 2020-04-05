@@ -14,4 +14,5 @@ $MESS["CP_BCF_CACHE_GROUPS"] = "Учитывать права доступа";
 $MESS["CP_BCF_OFFERS_FIELD_CODE"] = "Поля предложений";
 $MESS["CP_BCF_OFFERS_PROPERTY_CODE"] = "Свойства предложений";
 $MESS["CP_BCF_PAGER_PARAMS_NAME"] = "Имя массива с переменными для построения ссылок в постраничной навигации";
+$MESS["CP_CF_PREFILTER_NAME"] = "Имя входящего массива для дополнительной фильтрации элементов";
 ?>

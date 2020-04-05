@@ -668,7 +668,7 @@ abstract class Connector extends Entity\DataManager
 			'data_type' => static::getEntity()->getFullName(),
 			'reference' => array(
 				'=ref.'.static::getLinkField() => array('?', $entityPrimary),
-				'=ref.'.static::getTypeField() => array('?', 'G')
+				'=ref.'.static::getTypeField() => array('?', static::DB_GROUP_FLAG)
 			),
 			'join_type' => 'inner'
 		);

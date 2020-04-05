@@ -11,6 +11,7 @@ namespace Bitrix\Main\Cli;
 use Bitrix\Iblock\IblockTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Authentication\Context;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Main\ORM\Data\Result;
@@ -32,15 +33,19 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Objectify\Collection;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\ScalarField;
+use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Text\StringHelper;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Type\Dictionary;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @package    bitrix
@@ -114,9 +119,12 @@ class OrmAnnotateCommand extends Command
 		$time = getmicrotime();
 		$memoryBefore = memory_get_usage();
 
+		/** @var \Exception[] $exceptions deferred errors */
+		$exceptions = [];
+
 		// handle already known classes (but we don't know their modules)
 		// as long as there are no any Table by default, we can ignore it
-		$this->handleClasses(get_declared_classes(), $input, $output);
+		$this->handleClasses($this->getDeclaredClassesDiff(), $input, $output);
 
 		// scan dirs
 		$inputModules = [];
@@ -135,7 +143,14 @@ class OrmAnnotateCommand extends Command
 		}
 
 		// get classes from outside regular filesystem (e.g. iblock, hlblock)
-		$this->handleVirtualClasses($inputModules, $input, $output);
+		try
+		{
+			$this->handleVirtualClasses($inputModules, $input, $output);
+		}
+		catch (\Exception $e)
+		{
+			$exceptions[] = $e;
+		}
 
 		// output file path
 		$filePath = $input->getArgument('output');
@@ -167,10 +182,17 @@ class OrmAnnotateCommand extends Command
 		// add/rewrite new entities
 		foreach ($this->entitiesFound as $entityClass)
 		{
-			$entity = Entity::getInstance($entityClass);
-			$entityAnnotation = static::annotateEntity($entity, $input,$output);
-			$annotations[$entityClass] = "/* ".static::ANNOTATION_MARKER.":{$entityClass} */".PHP_EOL;
-			$annotations[$entityClass] .= $entityAnnotation;
+			try
+			{
+				$entity = Entity::getInstance($entityClass);
+				$entityAnnotation = static::annotateEntity($entity, $input,$output);
+				$annotations[$entityClass] = "/* ".static::ANNOTATION_MARKER.":{$entityClass} */".PHP_EOL;
+				$annotations[$entityClass] .= $entityAnnotation;
+			}
+			catch (\Exception $e)
+			{
+				$exceptions[] = $e;
+			}
 		}
 
 		// write to file
@@ -190,6 +212,16 @@ class OrmAnnotateCommand extends Command
 		$output->writeln('Time: '.$time.' sec');
 		$output->writeln('Memory usage: '.(round($memoryAfter/1024/1024, 1)).'M (+'.(round($memoryDiff/1024/1024, 1)).'M)');
 		$output->writeln('Memory peak usage: '.(round(memory_get_peak_usage()/1024/1024, 1)).'M');
+
+		if (!empty($exceptions))
+		{
+			$io = new SymfonyStyle($input, $output);
+
+			foreach ($exceptions as $e)
+			{
+				$io->warning('Exception: '.$e->getMessage().PHP_EOL.$e->getTraceAsString());
+			}
+		}
 	}
 
 	protected function getDirsToScan($inputModules, InputInterface $input, OutputInterface $output)
@@ -251,9 +283,25 @@ class OrmAnnotateCommand extends Command
 		return $dirs;
 	}
 
+	protected function registerFallbackAutoload()
+	{
+		spl_autoload_register(function($className) {
+			list($vendor, $module) = explode('\\', $className);
+
+			if (!empty($module))
+			{
+				Loader::includeModule($module);
+			}
+
+			return Loader::autoLoad($className);
+		});
+	}
+
 	protected function scanDir($dir, InputInterface $input, OutputInterface $output)
 	{
 		$this->debug($output,'scan dir: '.$dir);
+
+		$this->registerFallbackAutoload();
 
 		foreach (
 			$iterator = new \RecursiveIteratorIterator(
@@ -277,15 +325,13 @@ class OrmAnnotateCommand extends Command
 			{
 				$this->debug($output,'handle file: '.$item->getPathname());
 
-				// get classes from file
-				$classes = get_declared_classes();
-
 				try
 				{
+					// get classes from file
 					include_once $item->getPathname();
 					$this->filesIncluded++;
 
-					$classes = array_diff(get_declared_classes(), $classes);
+					$classes = $this->getDeclaredClassesDiff();
 
 					// check classes
 					$this->handleClasses($classes, $input, $output);
@@ -310,12 +356,30 @@ class OrmAnnotateCommand extends Command
 
 			if (is_subclass_of($class, DataManager::class) && substr($class, -5) == 'Table')
 			{
+				$reflection = new \ReflectionClass($class);
+
+				if ($reflection->isAbstract())
+				{
+					continue;
+				}
+
 				$debugMsg .= ' found!';
 				$this->entitiesFound[] = $class;
 			}
 
 			$this->debug($output, $debugMsg);
 		}
+	}
+
+	protected function getDeclaredClassesDiff()
+	{
+		static $lastDeclaredClasses = [];
+
+		$currentDeclaredClasses = get_declared_classes();
+		$diff = array_diff($currentDeclaredClasses, $lastDeclaredClasses);
+		$lastDeclaredClasses = $currentDeclaredClasses;
+
+		return $diff;
 	}
 
 	public static function annotateEntity(Entity $entity, InputInterface $input, OutputInterface $output)
@@ -386,7 +450,8 @@ class OrmAnnotateCommand extends Command
 		$code[] = "\t *";
 		$code[] = "\t * @property-read \\".Entity::class." \$entity";
 		$code[] = "\t * @property-read array \$primary";
-		$code[] = "\t * @property-read int \$state @see \Bitrix\Main\ORM\Objectify\State";
+		$code[] = "\t * @property-read int \$state @see \\".State::class;
+		$code[] = "\t * @property-read \\".Dictionary::class." \$customData";
 		$code[] = "\t * @property \\".Context::class." \$authContext";
 		$code[] = "\t * @method mixed get(\$fieldName)";
 		$code[] = "\t * @method mixed remindActual(\$fieldName)";
@@ -412,6 +477,9 @@ class OrmAnnotateCommand extends Command
 		$code[] = "\tclass {$objectDefaultClassName} {";
 		$code[] = "\t\t/* @var {$dataClass} */";
 		$code[] = "\t\tstatic public \$dataClass = '{$dataClass}';";
+		$code[] = "\t\t/**";
+		$code[] = "\t\t * @param bool|array \$setDefaultValues";
+		$code[] = "\t\t */";
 		$code[] = "\t\tpublic function __construct(\$setDefaultValues = true) {}";
 		$code[] = "\t}"; // end class
 
@@ -532,31 +600,32 @@ class OrmAnnotateCommand extends Command
 		// TODO no setter if it is reference-elemental (could expressions become elemental?)
 
 		$objectClass = $field->getEntity()->getObjectClass();
-		$dataType = static::scalarFieldToTypeHint($field);
+		$getterDataType = $field->getGetterTypeHint();
+		$setterDataType = $field->getSetterTypeHint();
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
 		$objectCode = [];
 		$collectionCode = [];
 
-		$objectCode[] = "\t * @method {$dataType} get{$uName}()";
-		$objectCode[] = "\t * @method {$objectClass} set{$uName}({$dataType} \${$lName})";
+		$objectCode[] = "\t * @method {$getterDataType} get{$uName}()";
+		$objectCode[] = "\t * @method {$objectClass} set{$uName}({$setterDataType}|\\".SqlExpression::class." \${$lName})";
 
 		$objectCode[] = "\t * @method bool has{$uName}()";
 		$objectCode[] = "\t * @method bool is{$uName}Filled()";
 		$objectCode[] = "\t * @method bool is{$uName}Changed()";
 
-		$collectionCode[] = "\t * @method {$dataType}[] get{$uName}List()";
+		$collectionCode[] = "\t * @method {$getterDataType}[] get{$uName}List()";
 
 		if (!$field->isPrimary())
 		{
-			$objectCode[] = "\t * @method {$dataType} remindActual{$uName}()";
-			$objectCode[] = "\t * @method {$dataType} require{$uName}()";
+			$objectCode[] = "\t * @method {$getterDataType} remindActual{$uName}()";
+			$objectCode[] = "\t * @method {$getterDataType} require{$uName}()";
 
 			$objectCode[] = "\t * @method {$objectClass} reset{$uName}()";
 			$objectCode[] = "\t * @method {$objectClass} unset{$uName}()";
 
-			$objectCode[] = "\t * @method {$dataType} fill{$uName}()";
-			$collectionCode[] = "\t * @method fill{$uName}()";
+			$objectCode[] = "\t * @method {$getterDataType} fill{$uName}()";
+			$collectionCode[] = "\t * @method {$getterDataType}[] fill{$uName}()";
 		}
 
 		return [$objectCode, $collectionCode];
@@ -566,7 +635,10 @@ class OrmAnnotateCommand extends Command
 	{
 		// no setter
 		$objectClass = $field->getEntity()->getObjectClass();
-		$dataType = static::scalarFieldToTypeHint($field->getValueType());
+
+		/** @var ScalarField $scalarFieldClass */
+		$scalarFieldClass = $field->getValueType();
+		$dataType = (new $scalarFieldClass('TMP'))->getSetterTypeHint();
 		$dataType = $field->isMultiple() ? $dataType.'[]' : $dataType;
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
@@ -584,7 +656,9 @@ class OrmAnnotateCommand extends Command
 	{
 		// no setter
 		$objectClass = $field->getEntity()->getObjectClass();
-		$dataType = static::scalarFieldToTypeHint($field->getValueType());
+
+		$scalarFieldClass = $field->getValueType();
+		$dataType = (new $scalarFieldClass('TMP'))->getGetterTypeHint();
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
 		$objectCode = [];
@@ -602,7 +676,7 @@ class OrmAnnotateCommand extends Command
 		$objectCode[] = "\t * @method {$objectClass} unset{$uName}()";
 
 		$objectCode[] = "\t * @method {$dataType} fill{$uName}()";
-		$collectionCode[] = "\t * @method fill{$uName}()";
+		$collectionCode[] = "\t * @method {$dataType}[] fill{$uName}()";
 
 		return [$objectCode, $collectionCode];
 	}
@@ -615,18 +689,22 @@ class OrmAnnotateCommand extends Command
 		}
 
 		$objectClass = $field->getEntity()->getObjectClass();
-		$dataType = $field->getRefEntity()->getObjectClass();
+		$collectionClass = $field->getEntity()->getCollectionClass();
+		$collectionDataType = $field->getRefEntity()->getCollectionClass();
+
+		$getterTypeHint = $field->getGetterTypeHint();
+		$setterTypeHint = $field->getSetterTypeHint();
 
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
 		$objectCode = [];
 		$collectionCode = [];
 
-		$objectCode[] = "\t * @method {$dataType} get{$uName}()";
-		$objectCode[] = "\t * @method {$dataType} remindActual{$uName}()";
-		$objectCode[] = "\t * @method {$dataType} require{$uName}()";
+		$objectCode[] = "\t * @method {$getterTypeHint} get{$uName}()";
+		$objectCode[] = "\t * @method {$getterTypeHint} remindActual{$uName}()";
+		$objectCode[] = "\t * @method {$getterTypeHint} require{$uName}()";
 
-		$objectCode[] = "\t * @method {$objectClass} set{$uName}({$dataType} \$object)";
+		$objectCode[] = "\t * @method {$objectClass} set{$uName}({$setterTypeHint} \$object)";
 		$objectCode[] = "\t * @method {$objectClass} reset{$uName}()";
 		$objectCode[] = "\t * @method {$objectClass} unset{$uName}()";
 
@@ -634,10 +712,11 @@ class OrmAnnotateCommand extends Command
 		$objectCode[] = "\t * @method bool is{$uName}Filled()";
 		$objectCode[] = "\t * @method bool is{$uName}Changed()";
 
-		$collectionCode[] = "\t * @method {$dataType}[] get{$uName}List()";
+		$collectionCode[] = "\t * @method {$getterTypeHint}[] get{$uName}List()";
+		$collectionCode[] = "\t * @method {$collectionClass} get{$uName}Collection()";
 
-		$objectCode[] = "\t * @method {$dataType} fill{$uName}()";
-		$collectionCode[] = "\t * @method fill{$uName}()";
+		$objectCode[] = "\t * @method {$getterTypeHint} fill{$uName}()";
+		$collectionCode[] = "\t * @method {$collectionDataType} fill{$uName}()";
 
 		return [$objectCode, $collectionCode];
 	}
@@ -651,8 +730,9 @@ class OrmAnnotateCommand extends Command
 
 		$objectClass = $field->getEntity()->getObjectClass();
 		$collectionDataType = $field->getRefEntity()->getCollectionClass();
-		$objectDataType = $field->getRefEntity()->getObjectClass();
 		$objectVarName = lcfirst($field->getRefEntity()->getName());
+
+		$setterTypeHint = $field->getSetterTypeHint();
 
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
@@ -667,15 +747,16 @@ class OrmAnnotateCommand extends Command
 		$objectCode[] = "\t * @method bool is{$uName}Filled()";
 		$objectCode[] = "\t * @method bool is{$uName}Changed()";
 
-		$objectCode[] = "\t * @method void addTo{$uName}({$objectDataType} \${$objectVarName})";
-		$objectCode[] = "\t * @method void removeFrom{$uName}({$objectDataType} \${$objectVarName})";
+		$objectCode[] = "\t * @method void addTo{$uName}({$setterTypeHint} \${$objectVarName})";
+		$objectCode[] = "\t * @method void removeFrom{$uName}({$setterTypeHint} \${$objectVarName})";
 		$objectCode[] = "\t * @method void removeAll{$uName}()";
 
 		$objectCode[] = "\t * @method {$objectClass} reset{$uName}()";
 		$objectCode[] = "\t * @method {$objectClass} unset{$uName}()";
 
 		$collectionCode[] = "\t * @method {$collectionDataType}[] get{$uName}List()";
-		$collectionCode[] = "\t * @method void fill{$uName}()";
+		$collectionCode[] = "\t * @method {$collectionDataType} get{$uName}Collection()";
+		$collectionCode[] = "\t * @method {$collectionDataType} fill{$uName}()";
 
 		return [$objectCode, $collectionCode];
 	}
@@ -689,8 +770,9 @@ class OrmAnnotateCommand extends Command
 
 		$objectClass = $field->getEntity()->getObjectClass();
 		$collectionDataType = $field->getRefEntity()->getCollectionClass();
-		$objectDataType = $field->getRefEntity()->getObjectClass();
 		$objectVarName = lcfirst($field->getRefEntity()->getName());
+
+		$setterTypeHint = $field->getSetterTypeHint();
 
 		list($lName, $uName) = static::getFieldNameCamelCase($field->getName());
 
@@ -705,15 +787,16 @@ class OrmAnnotateCommand extends Command
 		$objectCode[] = "\t * @method bool is{$uName}Filled()";
 		$objectCode[] = "\t * @method bool is{$uName}Changed()";
 
-		$objectCode[] = "\t * @method void addTo{$uName}({$objectDataType} \${$objectVarName})";
-		$objectCode[] = "\t * @method void removeFrom{$uName}({$objectDataType} \${$objectVarName})";
+		$objectCode[] = "\t * @method void addTo{$uName}({$setterTypeHint} \${$objectVarName})";
+		$objectCode[] = "\t * @method void removeFrom{$uName}({$setterTypeHint} \${$objectVarName})";
 		$objectCode[] = "\t * @method void removeAll{$uName}()";
 
 		$objectCode[] = "\t * @method {$objectClass} reset{$uName}()";
 		$objectCode[] = "\t * @method {$objectClass} unset{$uName}()";
 
 		$collectionCode[] = "\t * @method {$collectionDataType}[] get{$uName}List()";
-		$collectionCode[] = "\t * @method fill{$uName}()";
+		$collectionCode[] = "\t * @method {$collectionDataType} get{$uName}Collection()";
+		$collectionCode[] = "\t * @method {$collectionDataType} fill{$uName}()";
 
 		return [$objectCode, $collectionCode];
 	}
@@ -756,27 +839,31 @@ class OrmAnnotateCommand extends Command
 	 */
 	protected function handleVirtualClasses($inputModules, InputInterface $input, OutputInterface $output)
 	{
-		// remember current classes
-		$classes = get_declared_classes();
-
 		// init new classes by event
 		$event = new \Bitrix\Main\Event("main", "onVirtualClassBuildList", [], $inputModules);
 		$event->send();
 
 		// no need to handle event result, get classes from the memory
-		$classes = array_diff(get_declared_classes(), $classes);
+		$classes = $this->getDeclaredClassesDiff();
 
 		$this->handleClasses($classes, $input, $output);
 	}
 
 	protected static function getFieldNameCamelCase($fieldName)
 	{
-		$upperFirstName = Entity::snake2camel($fieldName);
+		$upperFirstName = StringHelper::snake2camel($fieldName);
 		$lowerFirstName = lcfirst($upperFirstName);
 
 		return [$lowerFirstName, $upperFirstName];
 	}
 
+	/**
+	 * @deprecated
+	 *
+	 * @param $field
+	 *
+	 * @return string
+	 */
 	public static function scalarFieldToTypeHint($field)
 	{
 		if (is_string($field))

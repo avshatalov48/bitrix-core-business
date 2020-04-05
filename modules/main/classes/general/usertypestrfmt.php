@@ -150,7 +150,7 @@ class CUserTypeStringFormatted extends \CUserTypeString
 			$val = '';
 		}
 
-		return $val;
+		return htmlspecialcharsEx($val);
 	}
 
 

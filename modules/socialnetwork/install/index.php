@@ -194,6 +194,8 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
 		$eventManager->registerEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogRight', 'OnAfterLogUpdate');
 		$eventManager->registerEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogIndex', 'OnAfterLogUpdate');
+		$eventManager->registerEventHandler('bitrix24', 'OnManualModuleAddDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Bitrix24\Bitrix24Event', 'OnManualModuleAddDelete');
+		$eventManager->registerEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 
@@ -425,6 +427,8 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
 		$eventManager->unregisterEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogRight', 'OnAfterLogUpdate');
 		$eventManager->unregisterEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogIndex', 'OnAfterLogUpdate');
+		$eventManager->unregisterEventHandler('bitrix24', 'OnManualModuleAddDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Bitrix24\Bitrix24Event', 'OnManualModuleAddDelete');
+		$eventManager->unregisterEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
 
 		UnRegisterModule("socialnetwork");
 		return true;
@@ -964,6 +968,7 @@ Class socialnetwork extends CModule
 		DeleteDirFilesEx("/bitrix/themes/.default/icons/socialnetwork/");//icons
 		DeleteDirFilesEx("/bitrix/images/socialnetwork/");//images
 		DeleteDirFilesEx("/bitrix/sounds/socialnetwork/");//sounds
+		DeleteDirFilesEx("/bitrix/js/socialnetwork/");//javascript
 
 		return true;
 	}
@@ -1022,5 +1027,15 @@ Class socialnetwork extends CModule
 			);
 		return $arr;
 	}
+
+	public function migrateToBox()
+	{
+		global $DB;
+
+		$DB->Query('UPDATE b_sonet_log SET EVENT_ID="intranet_new_user" WHERE EVENT_ID="bitrix24_new_user"');
+		$DB->Query('UPDATE b_sonet_log_comment SET EVENT_ID="intranet_new_user_comment" WHERE EVENT_ID="bitrix24_new_user_comment"');
+		$DB->Query('UPDATE b_sonet_log SET ENTITY_TYPE="IN" WHERE ENTITY_TYPE="BN"');
+		$DB->Query('UPDATE b_sonet_log SET RATING_TYPE_ID="INTRANET_NEW_USER" WHERE RATING_TYPE_ID="BITRIX24_NEW_USER"');
+		$DB->Query('UPDATE b_sonet_log SET MODULE_ID="intranet" WHERE EVENT_ID="intranet_new_user"');
+	}
 }
-?>

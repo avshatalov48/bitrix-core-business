@@ -166,7 +166,7 @@ return array(
         <div class="container">
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row row justify-content-center no-gutters landing-block-inner">
 
                 <div class="landing-block-node-element landing-block-card col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in js-animation fadeInLeft">
                     <!-- Icon Blocks -->
@@ -285,7 +285,7 @@ return array(
 				'SORT' => '4500',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-65">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article class="h-100 text-center u-block-hover u-block-hover__additional--jump g-brd-around g-bg-gray-light-v5 g-brd-gray-light-v4 d-flex flex-column">

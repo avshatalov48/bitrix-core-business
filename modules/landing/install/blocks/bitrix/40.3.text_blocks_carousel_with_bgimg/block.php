@@ -1,5 +1,4 @@
-<section
-		class="landing-block js-animation fadeIn landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_7--after g-bg-img-hero g-pt-100 g-pb-100"
+<section class="landing-block js-animation fadeIn landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_7--after g-bg-img-hero g-pt-100 g-pb-100"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x964/img1.jpg);">
 	<div class="u-bg-overlay__inner">
 		<div class="container g-max-width-780 text-center g-mb-60">
@@ -45,9 +44,6 @@
 
 				<div class="landing-block-node-card js-slide">
 					<div class="row justify-content-end">
-<!--						<div class="col-md-6">-->
-<!--						</div>-->
-
 						<div class="col-md-6 g-color-white g-pt-80--md">
 							<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
 								Catherine

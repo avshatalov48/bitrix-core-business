@@ -38,6 +38,11 @@ abstract class CReportHelper
 		throw new \Bitrix\Main\SystemException('Method "getColumnList" must be defined in child class.');
 	}
 
+	public static function getAlternatePhrasesOfColumns()
+	{
+		return [];
+	}
+
 	public static function getDefaultColumns()
 	{
 		throw new \Bitrix\Main\SystemException('Method "getDefaultColumns" must be defined in child class.');
@@ -855,8 +860,24 @@ abstract class CReportHelper
 		);
 	}
 
+	public static function getFiltrableColumnGroups()
+	{
+		return [];
+	}
+
 	public static function buildHTMLSelectTreePopup($tree, $withReferencesChoose = false, $level = 0)
 	{
+		if (is_array($withReferencesChoose))
+		{
+			$filtrableGroups = $withReferencesChoose;
+			$isRefChoose = true;
+		}
+		else
+		{
+			$filtrableGroups = [];
+			$isRefChoose = $withReferencesChoose;
+		}
+		
 		$html = '';
 
 		$i = 0;
@@ -880,13 +901,13 @@ abstract class CReportHelper
 			}
 
 			// file fields is not filtrable
-			if ($withReferencesChoose && ($fieldType === 'file' || $fieldType === 'disk_file'))
+			if ($isRefChoose && ($fieldType === 'file' || $fieldType === 'disk_file'))
 			{
 				continue;
 			}
 
 			// multiple money fields is not filtrable
-			if ($withReferencesChoose && $fieldType === 'money'
+			if ($isRefChoose && $fieldType === 'money'
 				&& $treeElem['isUF'] === true
 				&& is_array($treeElem['ufInfo'])
 				&& isset($treeElem['ufInfo']['MULTIPLE'])
@@ -921,8 +942,9 @@ abstract class CReportHelper
 
 				$scalarTypes = array('integer', 'float', 'string', 'text', 'boolean', 'file', 'disk_file', 'datetime',
 					'enum', 'employee', 'crm', 'crm_status', 'iblock_element', 'iblock_section', 'money');
-				if ($withReferencesChoose &&
-					(in_array($fieldType, $scalarTypes) || empty($fieldType))
+				if ($isRefChoose
+					&& !in_array($fieldDefinition, $filtrableGroups, true)
+					&& (in_array($fieldType, $scalarTypes) || empty($fieldType))
 				)
 				{
 					// ignore virtual branches (without references)
@@ -937,9 +959,14 @@ abstract class CReportHelper
 				$html .= '<div class="reports-add-popup-it-children">';
 
 				// add self
-				if ($withReferencesChoose)
+				if ($isRefChoose)
 				{
-					$html .= static::buildSelectTreePopupElelemnt(GetMessage('REPORT_CHOOSE').'...', $treeElem['humanTitle'], $fieldDefinition, $fieldType);
+					$html .= static::buildSelectTreePopupElelemnt(
+						GetMessage('REPORT_CHOOSE').'...',
+						$treeElem['humanTitle'],
+						$fieldDefinition,
+						$fieldType
+					);
 				}
 
 				$html .= static::buildHTMLSelectTreePopup($branch, $withReferencesChoose, $level+1);

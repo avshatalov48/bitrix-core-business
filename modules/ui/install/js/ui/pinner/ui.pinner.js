@@ -55,7 +55,7 @@
 			BX.bind(
 				window,
 				'scroll',
-				BX.throttle(this.onChange.bind(this), this.timeout)
+				BX.throttle(this.onChange.bind(this), 200)
 			);
 			BX.bind(
 				window,

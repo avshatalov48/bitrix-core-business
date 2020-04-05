@@ -186,6 +186,11 @@
 					node.onbxdestdraghout = this._onbxdestdraghout;
 					node.onbxdestdragfinish = this._onbxdestdragfinish;
 					window.jsDD.registerDest(node);
+					var inputs = BX.findChild(node, {tagName : "INPUT", props : {"type" : "text"}}, true, true);
+					for (var ii = 0; ii <= inputs.length; ii++)
+					{
+						BX.bind(inputs[ii], "mousedown", BX.eventCancelBubble);
+					}
 				}
 				node.setAttribute("bx-item-id", res.id);
 				if (BX(being))

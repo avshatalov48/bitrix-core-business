@@ -120,7 +120,7 @@ class CVoteUfComponent extends \CBitrixComponent
 
 			if ($this->request->getQuery("exportVoting") > 0)
 			{
-				/** @var \Bitrix\Vote\Attachment\Attach $attach */
+				/** @var \Bitrix\Vote\Attach $attach */
 				foreach ($this->arResult["ATTACHES"] as $attach)
 				{
 					if ($attach->getAttachId() == $this->request->getQuery("exportVoting"))
@@ -218,7 +218,7 @@ class CVoteUfComponent extends \CBitrixComponent
 			{
 				$cache->StartDataCache($cacheTtl, $cacheId, $cacheDir);
 				/**
-				 * @var $attach \Bitrix\Vote\Attachment\Attach
+				 * @var $attach \Bitrix\Vote\Attach
 				 */
 				foreach ($result as $attach)
 				{
@@ -242,7 +242,7 @@ class CVoteUfComponent extends \CBitrixComponent
 		foreach ($values as $value)
 		{
 			$value = intval($value);
-			/* @var \Bitrix\Vote\Attachment\Attach $attach */
+			/* @var \Bitrix\Vote\Attach $attach */
 			if ($value > 0 &&
 				array_key_exists($value, $this->arResult["ATTACHES"]) &&
 				($attach = $this->arResult["ATTACHES"][$value]) &&
@@ -264,7 +264,7 @@ class CVoteUfComponent extends \CBitrixComponent
 		foreach ($values as $value)
 		{
 			$value = intval($value);
-			/* @var \Bitrix\Vote\Attachment\Attach $attach */
+			/* @var \Bitrix\Vote\Attach $attach */
 			if ($value > 0 &&
 				array_key_exists($value, $this->arResult["ATTACHES"]) &&
 				($attach = $this->arResult["ATTACHES"][$value]) &&

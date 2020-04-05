@@ -359,26 +359,16 @@ function BPRIAParamSaveForm()
 	if (objFields.arFieldTypes[BPRIAParams[lastEd]['Type']]['Complex'] == "Y")
 		BPRIAParams[lastEd]['Options'] = window.currentType['Options'];
 
-//__dump_bx(BPRIAParams[lastEd], 3, "BPRIAParams[lastEd]");
 	objFields.GetFieldInputValue(
 		BPRIAParams[lastEd],
 		{'Field':'fri_default', 'Form':'<?= $formName ?>'},
 		function(v){
-			//alert("GetFieldInputValue0a=" + v);
 			if (typeof v == "object")
 			{
-				BPRIAParams[lastEd]['Default_printable'] = v[1];
 				v = v[0];
 			}
-			else
-			{
-				BPRIAParams[lastEd]['Default_printable'] = v;
-			}
-
-			//alert("GetFieldInputValue1a=" + v);
 
 			BPRIAParams[lastEd]['Default'] = v;
-//alert(N + ":" + lastEd + ":" + (N == false).toString());
 			if (N === false)
 				BPRIAParamAddParam(lastEd, BPRIAParams[lastEd]);
 			else
@@ -389,10 +379,6 @@ function BPRIAParamSaveForm()
 			BX.closeWait();
 		}
 	);
-
-//	if (N == false)
-//		BPRIAParamAddParam(lastEd, BPRIAParams[lastEd]);
-//	BPRIAParamFillParam(lastEd, BPRIAParams[lastEd]);
 }
 
 function moveRowUp(a)

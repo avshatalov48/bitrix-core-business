@@ -450,12 +450,6 @@
 	text-align: center;
 }
 
-.bx-touch .product-item-title,
-.product-item-container.hover .product-item-title {
-	overflow: auto;
-	white-space: normal;
-}
-
 .product-item-title a {
 	color: #3f3f3f;
 	text-decoration: none;

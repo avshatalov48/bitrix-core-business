@@ -62,39 +62,41 @@ class CIMHistory
 		}
 		if ($chatId > 0)
 		{
-			$op = "*%";
+			$where = [
+				'=CHAT_ID'	=> $chatId,
+				'*%MESSAGE'	=> $searchText,
+			];
 			if (\Bitrix\Main\Search\Content::canUseFulltextSearch($searchText))
 			{
-				if (\Bitrix\Im\Model\MessageTable::getEntity()->fullTextIndexEnabled("MESSAGE"))
+				if (\Bitrix\Im\Model\MessageIndexTable::getEntity()->fullTextIndexEnabled("SEARCH_CONTENT"))
 				{
-					$op = "*";
-				}
-				else
-				{
-					if ($DB->IndexExists("b_im_message", array("MESSAGE"), true))
-					{
-						\Bitrix\Im\Model\MessageTable::getEntity()->enableFullTextIndex("MESSAGE");
-						$op = "*";
-					}
+					$searchText = \Bitrix\Main\Search\Content::prepareStringToken($searchText);
+					$where = [
+						'=CHAT_ID' => $chatId,
+						'*INDEX.SEARCH_CONTENT' => $searchText,
+					];
 				}
 			}
-			$where = Array(
-				'=CHAT_ID' => $chatId,
-				$op.'MESSAGE' => $searchText,
-			);
 			if ($startId)
 			{
 				$where['>=ID'] = intval($startId);
 			}
 
-			$orm = \Bitrix\Im\Model\MessageTable::getList(Array(
-				'select' => Array(
-					'ID', 'CHAT_ID', 'MESSAGE', 'AUTHOR_ID', 'NOTIFY_EVENT', 'DATE_CREATE'
-				),
-				'filter' => $where,
-				'order' => array('DATE_CREATE' => 'DESC', 'ID' => 'DESC'),
-				'limit' => 1000,
-			));
+			$orm = \Bitrix\Im\Model\MessageTable::getList(
+				[
+					'select' => [
+						'ID',
+						'CHAT_ID',
+						'MESSAGE',
+						'AUTHOR_ID',
+						'NOTIFY_EVENT',
+						'DATE_CREATE'
+					],
+					'filter' => $where,
+					'order' => ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],
+					'limit' => 1000,
+				]
+			);
 
 			while ($arRes = $orm->fetch())
 			{
@@ -453,12 +455,12 @@ class CIMHistory
 			if ($arRes['MAX_ID'] >= $arRes['R2_START_ID'] && $arRes['R2_START_ID'] > 0)
 			{
 				$messages = IM\Model\MessageTable::getList(array(
-					'select' => array('ID'),
-					'filter' => array(
-						'<ID' => $arRes['R2_START_ID'],
-						'=CHAT_ID' => $arRes['CHAT_ID'],
-					),
-				));
+															   'select' => array('ID'),
+															   'filter' => array(
+																   '<ID' => $arRes['R2_START_ID'],
+																   '=CHAT_ID' => $arRes['CHAT_ID'],
+															   ),
+														   ));
 				while ($messageInfo = $messages->fetch())
 				{
 					IM\Model\MessageTable::delete($messageInfo['ID']);
@@ -522,42 +524,80 @@ class CIMHistory
 			return false;
 		}
 
-		$op = "*%";
-		if (\CIMMessenger::IsMysqlDb())
+		$ormChat = IM\Model\ChatTable::getById($chatId);
+		if (!($chatData = $ormChat->fetch()))
 		{
-			if (\Bitrix\Im\Model\MessageTable::getEntity()->fullTextIndexEnabled("MESSAGE"))
-			{
-				$op = "*";
-			}
-			else
-			{
-				if ($DB->IndexExists("b_im_message", array("MESSAGE"), true))
-				{
-					\Bitrix\Im\Model\MessageTable::getEntity()->enableFullTextIndex("MESSAGE");
-					$op = "*";
-				}
-			}
-		}
-		$where = Array(
-			'=RELATION.USER_ID' => $this->user_id,
-			'=RELATION.CHAT_ID' => $chatId,
-			'!=RELATION.MESSAGE_TYPE' => IM_MESSAGE_PRIVATE,
-			$op.'MESSAGE' => $searchText,
-		);
-		$ar = \CIMChat::GetRelationById($chatId, $this->user_id);
-		if ($ar && $ar['START_ID'] > 0)
-		{
-			$where['>=ID'] = intval($ar['START_ID']);
+			return false;
 		}
 
-		$orm = \Bitrix\Im\Model\MessageTable::getList(Array(
-				'select' => Array(
-					'ID', 'CHAT_ID', 'MESSAGE', 'AUTHOR_ID', 'DATE_CREATE'
-				),
+		$crmEntityType = null;
+		$crmEntityId = null;
+		if ($chatData['TYPE'] == IM_MESSAGE_OPEN_LINE && \Bitrix\Main\Loader::includeModule('imopenlines'))
+		{
+			$explodeData = explode('|', $chatData['ENTITY_DATA_1']);
+			$crmEntityType = ($explodeData[0] == 'Y') ? $explodeData[1] : null;
+			$crmEntityId = ($explodeData[0] == 'Y') ? intval($explodeData[2]) : null;
+		}
+
+		if (
+			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
+			&& \Bitrix\Main\Loader::includeModule('imopenlines')
+			&& \Bitrix\ImOpenLines\Config::canJoin($chatId, $crmEntityType, $crmEntityId)
+		)
+		{
+			$where = Array(
+				'=CHAT_ID' => $chatId,
+				'*%MESSAGE' => $searchText,
+			);
+
+			if($this->checkFullText($searchText))
+			{
+				$where = Array(
+					'=CHAT_ID' => $chatId,
+					'*INDEX.SEARCH_CONTENT' => \Bitrix\Main\Search\Content::prepareStringToken($searchText),
+				);
+			}
+		}
+		else
+		{
+			$where = Array(
+				'=RELATION.USER_ID' => $this->user_id,
+				'=RELATION.CHAT_ID' => $chatId,
+				'!=RELATION.MESSAGE_TYPE' => IM_MESSAGE_PRIVATE,
+				'*%MESSAGE' => $searchText,
+			);
+
+			if ($this->checkFullText($searchText))
+			{
+				$where = Array(
+					'=RELATION.USER_ID' => $this->user_id,
+					'=RELATION.CHAT_ID' => $chatId,
+					'!=RELATION.MESSAGE_TYPE' => IM_MESSAGE_PRIVATE,
+					'*INDEX.SEARCH_CONTENT' => \Bitrix\Main\Search\Content::prepareStringToken($searchText),
+				);
+			}
+
+			$ar = \CIMChat::GetRelationById($chatId, $this->user_id);
+			if ($ar && $ar['START_ID'] > 0)
+			{
+				$where['>=ID'] = intval($ar['START_ID']);
+			}
+		}
+
+		$orm = \Bitrix\Im\Model\MessageTable::getList(
+			[
+				'select' => [
+					'ID',
+					'CHAT_ID',
+					'MESSAGE',
+					'AUTHOR_ID',
+					'DATE_CREATE'
+				],
 				'filter' => $where,
-				'order' => array('DATE_CREATE' => 'DESC', 'ID' => 'DESC'),
+				'order' => ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],
 				'limit' => 1000,
-			));
+			]
+		);
 
 		$arMessages = Array();
 		$arMessageId = Array();
@@ -990,11 +1030,11 @@ class CIMHistory
 		$arMessages = CIMMessageLink::prepareShow($arMessages, $params);
 
 		$users = CIMContactList::GetUserData(array(
-			'ID' => $arUsersIds,
-			'DEPARTMENT' => 'Y',
-			'USE_CACHE' => 'N',
-			'PHONES' => IsModuleInstalled('voximplant')? 'Y': 'N'
-		));
+												 'ID' => $arUsersIds,
+												 'DEPARTMENT' => 'Y',
+												 'USE_CACHE' => 'N',
+												 'PHONES' => IsModuleInstalled('voximplant')? 'Y': 'N'
+											 ));
 
 		return Array(
 			'chatId' => $chatId,
@@ -1018,11 +1058,11 @@ class CIMHistory
 	public function GetRelatedMessages($messageId, $previous = 10, $next = 10, $timezone = true, $textParser = true)
 	{
 		$message = \Bitrix\Im\Model\MessageTable::getList(Array(
-			'select' => Array('ID','DATE_CREATE', 'CHAT_ID', 'CHAT_TYPE' => 'CHAT.TYPE', 'AUTHOR_ID'),
-			'filter' => Array(
-				'=ID' => $messageId,
-				'=RELATION.USER_ID' => $this->user_id
-			))
+															  'select' => Array('ID','DATE_CREATE', 'CHAT_ID', 'CHAT_TYPE' => 'CHAT.TYPE', 'AUTHOR_ID', 'ENTITY_TYPE' => 'CHAT.ENTITY_TYPE'),
+															  'filter' => Array(
+																  '=ID' => $messageId,
+																  '=RELATION.USER_ID' => $this->user_id
+															  ))
 		)->fetch();
 		if (!$message)
 			return false;
@@ -1030,6 +1070,10 @@ class CIMHistory
 		$dialogId = 0;
 		if ($message['CHAT_TYPE'] == IM_MESSAGE_PRIVATE)
 		{
+			if($message['ENTITY_TYPE'] == IM_CHAT_TYPE_PERSONAL)
+			{
+				$dialogId = $this->user_id;
+			}
 			if ($message['AUTHOR_ID'] != $this->user_id)
 			{
 				$dialogId = $message['AUTHOR_ID'];
@@ -1111,11 +1155,11 @@ class CIMHistory
 		$arMessages = CIMMessageLink::prepareShow($arMessages, $params);
 
 		$users = CIMContactList::GetUserData(array(
-			'ID' => $arUsersIds,
-			'DEPARTMENT' => 'Y',
-			'USE_CACHE' => 'N',
-			'PHONES' => IsModuleInstalled('voximplant')? 'Y': 'N'
-		));
+												 'ID' => $arUsersIds,
+												 'DEPARTMENT' => 'Y',
+												 'USE_CACHE' => 'N',
+												 'PHONES' => IsModuleInstalled('voximplant')? 'Y': 'N'
+											 ));
 
 		return Array(
 			'chatId' => $chatId,
@@ -1230,6 +1274,20 @@ class CIMHistory
 		}
 
 		return $messages;
+	}
+
+	private function checkFullText($searchText)
+	{
+		if (
+			\CIMMessenger::IsMysqlDb()
+			&& \Bitrix\Main\Search\Content::canUseFulltextSearch($searchText)
+			&& \Bitrix\Im\Model\MessageIndexTable::getEntity()->fullTextIndexEnabled("SEARCH_CONTENT")
+		)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
 ?>

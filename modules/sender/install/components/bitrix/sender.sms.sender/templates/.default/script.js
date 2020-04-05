@@ -40,13 +40,31 @@
 		this.senderId = params.senderId;
 		this.list = params.list;
 
-		var menuSenders = this.list.map(function (item) {
-			return {
+		var menuSenders = [];
+		var prevFromRest = false;
+		for (var i = 0; i < this.list.length; ++i)
+		{
+			var item = this.list[i];
+			if (item.fromRest && !prevFromRest) {
+				prevFromRest = item.fromRest;
+				menuSenders.push({delimiter: true});
+			}
+
+			menuSenders.push({
 				id: item.senderId + '.' + Math.random(),
 				text: item.name,
+				className: (!item.canUse ? 'sender-sms-popup-menu-item-disabled menu-popup-no-icon' : ''),
 				onclick: this.onSenderSelect.bind(this, item)
-			};
-		}, this);
+			});
+		}
+		if (params.hasRest)
+		{
+			menuSenders.push({delimiter: true}, {
+				text: params.mess.marketplaceSendersList,
+				href: '/marketplace/category/crm_robot_sms/',
+				target: '_blank'
+			});
+		}
 
 		this.initSender();
 
@@ -82,7 +100,14 @@
 		var item = this.getItemById(this.senderId);
 		if (!item && this.list.length > 0)
 		{
-			item = this.list[0];
+			for (var i=0; i<this.list.length; i++)
+			{
+				if (this.list[i].canUse)
+				{
+					item = this.list[i];
+					break;
+				}
+			}
 		}
 		if (item)
 		{
@@ -112,6 +137,12 @@
 	};
 	Sender.prototype.onSenderSelect = function (item)
 	{
+		if (!item.canUse)
+		{
+			this.closeMenu();
+			window.open(item.manageUrl);
+			return;
+		}
 		this.senderNode.textContent = item.shortName;
 		this.closeMenu();
 
@@ -187,10 +218,6 @@
 				{
 					position: "top",
 					offset: 42
-				},
-				events:
-				{
-					onPopupClose : BX.delegate(this.onPopupClose, this)
 				}
 			}
 		);

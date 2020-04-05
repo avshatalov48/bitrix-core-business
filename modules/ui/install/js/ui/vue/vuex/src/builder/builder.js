@@ -13,6 +13,7 @@ import {VuexBuilderModel} from "./model.js";
 const DatabaseType = Object.freeze({
 	indexedDb: 'indexedDb',
 	localStorage: 'localStorage',
+	jnSharedStorage: 'jnSharedStorage',
 });
 
 export class VuexBuilder
@@ -127,6 +128,13 @@ export class VuexBuilder
 		});
 	}
 
+	clearDatabase()
+	{
+		this.models.forEach(model => model.clearDatabase());
+
+		return new Promise((resolve, reject) => resolve(true));
+	}
+
 	/**
 	 * Build Vuex Store
 	 *
@@ -163,7 +171,6 @@ export class VuexBuilder
 
 			results.push(model.getStore());
 		});
-
 		return new Promise((resolve, reject) =>
 		{
 			Promise.all(results).then(stores =>

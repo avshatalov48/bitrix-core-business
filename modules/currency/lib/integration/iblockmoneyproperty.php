@@ -79,9 +79,9 @@ class IblockMoneyProperty
 		$randomGenerator = new RandomSequence($seed);
 		$randString = strtolower($randomGenerator->randString(6));
 
-		$explode = is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : array();
-		$currentValue = $explode[0] ? $explode[0] : '';
-		$currentCurrency = $explode[1] ? $explode[1] : '';
+		$explode = (is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : []);
+		$currentValue = (strlen($explode[0]) ? $explode[0] : '');
+		$currentCurrency = ($explode[1] ? $explode[1] : '');
 
 		$html = '<input type="text" style="width: auto;" value="'.htmlspecialcharsbx($currentValue).
 			'" id="input-'.$randString.'">';
@@ -119,7 +119,7 @@ class IblockMoneyProperty
 	public static function getAdminListViewHTML($property, $value, $controlSettings)
 	{
 		$explode = is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : array();
-		$currentValue = $explode[0] ? $explode[0] : '';
+		$currentValue = (strlen($explode[0]) ? $explode[0] : '');
 		$currentCurrency = $explode[1] ? $explode[1] : '';
 
 		if (!$currentCurrency)
@@ -158,11 +158,11 @@ class IblockMoneyProperty
 	 */
 	public static function checkFields($property, $value)
 	{
-		$result = array();
+		$result = [];
 		if(empty($value['VALUE'])) return $result;
-		$explode = is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : array();
-		$currentValue = $explode[0] ? $explode[0] : '';
-		$currentCurrency = $explode[1] ? $explode[1] : '';
+		$explode = (is_string($value['VALUE']) ? explode(self::SEPARATOR, $value['VALUE']) : []);
+		$currentValue = (strlen($explode[0]) ? $explode[0] : '');
+		$currentCurrency = ($explode[1] ? $explode[1] : '');
 
 		if(!$currentCurrency)
 			return intval($currentValue) ? $result : array(Loc::getMessage('CIMP_FORMAT_ERROR'));
@@ -182,7 +182,7 @@ class IblockMoneyProperty
 				}
 				else
 				{
-					$regExp = '/^\d{1,3}(('.$thousandsSep.'){0,1}\d{3})?$/';
+					$regExp = '/^\d{1,3}(('.$thousandsSep.'){0,1}\d{3})*$/';
 				}
 			}
 			elseif($thousandsSep && !$decPoint)
@@ -256,11 +256,11 @@ class IblockMoneyProperty
 	private static function getSeparatedValues($value)
 	{
 		$explode = is_string($value) ? explode(self::SEPARATOR, $value) : array();
-		$currentValue = $explode[0] ? $explode[0] : '';
+		$currentValue = (strlen($explode[0]) ? $explode[0] : '');
 		$currentCurrency = $explode[1] ? $explode[1] : '';
 		$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
 		$explode = explode($format['DEC_POINT'], $currentValue);
-		$currentValue = $explode[0] ? $explode[0] : '';
+		$currentValue = (strlen($explode[0]) ? $explode[0] : '');
 		$decimalsValue = $explode[1] ? $explode[1] : '';
 		return array($currentValue, $currentCurrency, $decimalsValue);
 	}
@@ -401,7 +401,7 @@ class IblockMoneyProperty
 					{
 						if (this.isDecimalsNull)
 						{
-							this.regExp = '^\\d{1,3}('+this.thousandsSep+'?\\d{3})?$';
+							this.regExp = '^\\d{1,3}('+this.thousandsSep+'?\\d{3})*$';
 							this.exampleValue = '6'+this.thousandsSep+'456';
 						}
 						else

@@ -19,7 +19,6 @@
 		this.defaultBoardTitle = options.defaultBoardTitle;
 
 		this.currentPageTitle = top.document.title;
-		this.currentAjaxRequest = null;
 		this.init();
 	};
 
@@ -38,40 +37,56 @@
 			}.bind(this));
 			this.loader = new BX.Loader({size: 80});
 			top.onpopstate = this.handlerOnPopState.bind(this);
+			this.openBoardWithKey(this.defaultBoardKey);
 		},
 		handleItemClick: function(event)
 		{
 			event.preventDefault();
 			var button = event.currentTarget;
 
-
 			this.activateButton(event);
-			var boardKey = button.dataset.reportBoardKey;
+			var isExternal = button.dataset.isExternal == 'Y';
+			if (isExternal)
+			{
+				this.openExternalUrl(button.dataset.externalUrl);
+			}
+			else
+			{
+				this.openBoardWithKey(button.dataset.reportBoardKey, button.href);
+			}
+		},
+		openExternalUrl: function(url)
+		{
+			BX.SidePanel.Instance.open(url, {
+				cacheable: false
+			});
+		},
+		openBoardWithKey: function (boardKey, urlForHistory)
+		{
+			urlForHistory = urlForHistory || "";
 			this.cleanPageContent();
 			this.showLoader();
-			if (this.currentAjaxRequest !== null)
-			{
-				this.currentAjaxRequest.abort();
-			}
+			BX.Report.VC.Core.abortAllRunningRequests();
 
 			BX.Report.VC.Core.ajaxPost('analytics.getBoardComponentByKey', {
 				data: {
 					IFRAME: 'Y',
 					boardKey: boardKey
 				},
-				onrequeststart: function (xhr) {
-					this.currentAjaxRequest = xhr;
-				}.bind(this),
+				analyticsLabel: {
+					boardKey: boardKey
+				},
 				onFullSuccess: function(result)
 				{
 					this.hideLoader();
-					var isDisabled = button.dataset.disabledBoard;
-					this.currentAjaxRequest = null;
-					top.history.pushState(null, result.additionalParams.pageTitle, button.href);
-					top.history.replaceState({
-						reportBoardKey: boardKey,
-						href: button.href
-					}, result.additionalParams.pageTitle, button.href);
+					if(urlForHistory != "")
+					{
+						top.history.pushState(null, result.additionalParams.pageTitle, urlForHistory);
+						top.history.replaceState({
+							reportBoardKey: boardKey,
+							href: urlForHistory
+						}, result.additionalParams.pageTitle, urlForHistory);
+					}
 
 					this.changePageTitle(result.additionalParams.pageTitle);
 					this.changePageControls(result.additionalParams.pageControlsParams);
@@ -90,7 +105,10 @@
 			{
 				BX.Report.Dashboard.BoardRepository.destroyBoards();
 			}
-
+			if (BX.VisualConstructor && BX.VisualConstructor.BoardRepository)
+			{
+				BX.VisualConstructor.BoardRepository.destroyBoards();
+			}
 		},
 		changePageControls: function(controlsContent)
 		{
@@ -149,6 +167,9 @@
 			BX.Report.VC.Core.ajaxPost('analytics.getBoardComponentByKey', {
 				data: {
 					IFRAME: 'Y',
+					boardKey: boardKey
+				},
+				analyticsLabel: {
 					boardKey: boardKey
 				},
 				onFullSuccess: function(result)

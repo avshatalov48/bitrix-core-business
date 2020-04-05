@@ -7,7 +7,7 @@ $MESS["SALE_VK_ONLY_RUSSIAN_2"] = "Если вы хотите настроить
 $MESS['SALE_VK_DESCRIPTION'] = 'Интеграция с магазином ВКонтакте';
 $MESS['SALE_VK_EXPORT_PROFILE'] = 'Профиль';
 
-$MESS['SALE_VK_NEED_EXPORT_PROFILE'] = 'Создайте хотя бы один <a href=\"#A1\">профиль экспорта</a>, чтобы выполнить настройки.';
+$MESS['SALE_VK_NEED_EXPORT_PROFILE'] = 'Создайте хотя бы один <a href="#A1">профиль экспорта</a>, чтобы выполнить настройки.';
 $MESS['SALE_VK_NEED_SAVE_SECTION'] = 'Настроить интеграцию с ВКонтакте можно будет после сохранения нового раздела.';
 $MESS['SALE_VK_CATEGORY_SELECTOR'] = 'Категория товаров';
 $MESS['SALE_VK_CATEGORY_SELECTOR_DEFAULT'] = 'Категория по умолчанию';

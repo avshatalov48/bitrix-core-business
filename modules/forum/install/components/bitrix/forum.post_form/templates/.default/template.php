@@ -369,8 +369,9 @@ if ($arResult["SHOW_PANEL_EDIT"] == "Y")
 	$checked = true;
 	if ($arResult["SHOW_PANEL_EDIT_ASK"] == "Y")
 	{
-		$checked = ($_REQUEST["EDIT_ADD_REASON"]=="Y" ? true : false);
+		$checked = ($_REQUEST["EDIT_ADD_REASON"] == "N" ? false : true);
 		?><div class="forum-reply-field-lastedit-view"><?
+			?><input type="hidden" name="EDIT_ADD_REASON<?=$arParams["form_index"]?>" value="N" /><?
 			?><input type="checkbox" id="EDIT_ADD_REASON" name="EDIT_ADD_REASON<?=$arParams["form_index"]?>" <?=($checked ? "checked=\"checked\"" : "")?> value="Y" <?
 				?>onclick="BX.Forum.ShowLastEditReason(this.checked, this.parentNode.nextSibling)" />&nbsp;<?
 			?><label for="EDIT_ADD_REASON<?=$arParams["form_index"]?>"><?=GetMessage("F_EDIT_ADD_REASON")?></label></div><?

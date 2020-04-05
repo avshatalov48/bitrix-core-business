@@ -9,8 +9,9 @@ use \Bitrix\Main\Localization\Loc;
 return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_49_JUST_VIDEO_NAME'),
-		'section' => array('video'),
-		'version' => '18.5.0',
+		'section' => array('video', 'recommended'),
+		'dynamic' => false,
+		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	),
 	'nodes' => array(
 		'.landing-block-node-embed' => array(

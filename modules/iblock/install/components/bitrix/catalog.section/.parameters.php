@@ -4,10 +4,12 @@
  * @var string $componentPath
  * @var string $componentName
  * @var array $arCurrentValues
+ * @var array $templateProperties
  * @global CUserTypeManager $USER_FIELD_MANAGER
  */
 
-use Bitrix\Main\Loader,
+use Bitrix\Main\ModuleManager,
+	Bitrix\Main\Loader,
 	Bitrix\Main\Web\Json,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
@@ -19,6 +21,7 @@ if (!Loader::includeModule('iblock'))
 	return;
 
 $catalogIncluded = Loader::includeModule('catalog');
+$bitrix24Mode = ModuleManager::isModuleInstalled('bitrix24');
 CBitrixComponent::includeComponentClass($componentName);
 
 $usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
@@ -177,14 +180,13 @@ $arSort = CIBlockParameters::GetElementSortFields(
 $arPrice = array();
 if ($catalogIncluded)
 {
-	$arOfferSort = array_merge($arSort, CCatalogIBlockParameters::GetCatalogSortFields());
+	$arSort = array_merge($arSort, CCatalogIBlockParameters::GetCatalogSortFields());
 	if (isset($arSort['CATALOG_AVAILABLE']))
 		unset($arSort['CATALOG_AVAILABLE']);
 	$arPrice = CCatalogIBlockParameters::getPriceTypesList();
 }
 else
 {
-	$arOfferSort = $arSort;
 	$arPrice = $arProperty_N;
 }
 
@@ -358,6 +360,12 @@ $arComponentParameters = array(
 			'TYPE' => 'STRING',
 			'DEFAULT' => 'SECTION_ID',
 		),
+		'ALLOW_SEO_DATA' => array(
+			'PARENT' => 'ADDITIONAL_SETTINGS',
+			'NAME' => GetMessage('CP_BCS_ALLOW_SEO_DATA'),
+			'TYPE' => 'CHECKBOX',
+			'DEFAULT' => 'N',
+		),
 		'SET_TITLE' => array(),
 		'SET_BROWSER_TITLE' => array(
 			'PARENT' => 'ADDITIONAL_SETTINGS',
@@ -462,7 +470,7 @@ $arComponentParameters = array(
 			'PARENT' => 'SORT_SETTINGS',
 			'NAME' => GetMessage('CP_BCS_OFFERS_SORT_FIELD'),
 			'TYPE' => 'LIST',
-			'VALUES' => $arOfferSort,
+			'VALUES' => $arSort,
 			'ADDITIONAL_VALUES' => 'Y',
 			'DEFAULT' => 'sort',
 		),
@@ -478,7 +486,7 @@ $arComponentParameters = array(
 			'PARENT' => 'SORT_SETTINGS',
 			'NAME' => GetMessage('CP_BCS_OFFERS_SORT_FIELD2'),
 			'TYPE' => 'LIST',
-			'VALUES' => $arOfferSort,
+			'VALUES' => $arSort,
 			'ADDITIONAL_VALUES' => 'Y',
 			'DEFAULT' => 'id',
 		),
@@ -621,6 +629,21 @@ $arComponentParameters = array(
 		)
 	),
 );
+
+if ($bitrix24Mode)
+{
+	unset($arComponentParameters['PARAMETERS']['SET_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['SET_BROWSER_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['BROWSER_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['SET_META_KEYWORDS']);
+	unset($arComponentParameters['PARAMETERS']['META_KEYWORDS']);
+	unset($arComponentParameters['PARAMETERS']['SET_META_DESCRIPTION']);
+	unset($arComponentParameters['PARAMETERS']['META_DESCRIPTION']);
+}
+else
+{
+	unset($arComponentParameters['PARAMETERS']['ALLOW_SEO_DATA']);
+}
 
 if (isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'N')
 {

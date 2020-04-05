@@ -31,8 +31,6 @@ class SenderImMessageEditorComponent extends CBitrixComponent
 	{
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 		$this->arResult['VALUE'] = htmlspecialcharsback($this->arParams['VALUE']);
-		$this->arResult['COUNT'] = count($this->arParams['VALUE']);
-
 		return true;
 	}
 

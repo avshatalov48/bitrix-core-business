@@ -10,6 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_42.1.REST_MENU_NAME'),
 		'section' => array('tariffs'),
+		'type' => ['page', 'store', 'smn'],
 	),
 	'cards' => array(
 		'.landing-block-node-card' => array(
@@ -33,7 +34,7 @@ return array(
 		'.landing-block-node-card-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_42.1.REST_MENU_NODES_LANDINGBLOCKNODECARDPHOTO'),
 			'type' => 'img',
-			'dimensions' => array('width' => 500, 'height' => 500),
+			'dimensions' => array('width' => 100),
 		),
 	),
 	'style' => array(
@@ -56,6 +57,10 @@ return array(
 		'.landing-block-node-card-price' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_42.1.REST_MENU_STYLE_LANDINGBLOCKNODECARDPRICE'),
 			'type' => array('background-color', 'typo'),
+		),
+		'.landing-block-inner' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_42.1.REST_MENU_CARDS_LANDINGBLOCKNODEINNER'),
+			'type' => array('row-align'),
 		),
 	),
 );

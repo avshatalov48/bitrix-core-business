@@ -767,6 +767,15 @@ class CCalendarLiveFeed
 				$newlogId = CSocNetLog::Add($arSoFields, false);
 				CSocNetLogRights::Add($newlogId, $arCodes);
 
+				// Increment counter in live feed (mantis:#108212)
+				\CSocNetLog::counterIncrement(array(
+					"ENTITY_ID" => $newlogId,
+					"EVENT_ID" => 'calendar',
+					"TYPE" => "L",
+					"FOR_ALL_ACCESS" => false,
+					"SEND_TO_AUTHOR" => "N"
+				));
+
 				foreach($unfolowersList as $value)
 				{
 					CSocNetLogFollow::Set(intval($value), "L".$newlogId, 'N');

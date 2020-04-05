@@ -18,4 +18,6 @@ $MESS ['SPCR1_NO_PLANS'] = "No active affiliate commission plans exist. Please c
 $MESS ['SPCR1_ERR_AFF'] = "Error registering an affiliate";
 $MESS ['SPCR1_NO_SHOP'] = "The e-Store module is not installed";
 $MESS ['INFO_REQ'] = "You have been successfully registered.";
+$MESS ["SPCR1_SITE_URL_CONSENT"] = "Your site URL";
+$MESS ["SPCR1_SITE_DESCR_CONSENT"] = "Description of your site";
 ?>

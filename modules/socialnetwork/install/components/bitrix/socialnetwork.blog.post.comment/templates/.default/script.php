@@ -15,7 +15,7 @@ $formParams = Array(
 		(($arResult["allowVideo"] == "Y") ? "InputVideo" : ""),
 		"Table", "Justify", "InsertOrderedList",
 		"InsertUnorderedList",
-		"MentionUser", "SmileList", "Source"),
+		"MentionUser", "Spoiler", "SmileList", "Source"),
 	"BUTTONS" => Array(
 		(
 			in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"])

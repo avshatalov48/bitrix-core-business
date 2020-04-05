@@ -56,6 +56,10 @@
 				 data-form-style-main-bg-light="1"
 			>
 			</div>
+			<div class="g-bg-white"
+				 data-form-style-light-bg="1"
+			>
+			</div>
 		</div>
 
 		<div class="row align-items-center">
@@ -68,8 +72,7 @@
 			</div>
 			<div class="landing-block-node-video-col js-animation slideInRight col-md-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-video embed-responsive-item"
+					<iframe class="landing-block-node-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"

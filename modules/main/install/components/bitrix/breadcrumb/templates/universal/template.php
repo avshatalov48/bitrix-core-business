@@ -32,7 +32,7 @@ for($index = 0; $index < $itemSize; $index++)
 	{
 		$strReturn .=  $arrow.'
 			<div class="bx-breadcrumb-item" id="bx_breadcrumb_'.$index.'" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-				<a class="bx-breadcrumb-item-link" href="'.$arResult[$index]["LINK"].'" title="'.$title.'" itemprop="url">
+				<a class="bx-breadcrumb-item-link" href="'.$arResult[$index]["LINK"].'" title="'.$title.'" itemprop="item">
 					<span class="bx-breadcrumb-item-text" itemprop="name">'.$title.'</span>
 				</a>
 				<meta itemprop="position" content="'.($index + 1).'" />
@@ -41,9 +41,8 @@ for($index = 0; $index < $itemSize; $index++)
 	else
 	{
 		$strReturn .= $arrow.'
-			<div class="bx-breadcrumb-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-				<span class="bx-breadcrumb-item-text" itemprop="name">'.$title.'</span>
-				<meta itemprop="position" content="'.($index + 1).'" />
+			<div class="bx-breadcrumb-item">
+				<span class="bx-breadcrumb-item-text">'.$title.'</span>
 			</div>';
 	}
 }

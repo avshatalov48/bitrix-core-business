@@ -21,8 +21,10 @@ Loc::loadMessages(__FILE__);
  */
 class Campaign extends Base
 {
-	/** @var integer $defaultId Default ID. */
+	/** @var array $defaultId Default ID. */
 	private static $defaultId;
+
+	private static $defaultSiteId;
 
 	/**
 	 * Get list.
@@ -52,38 +54,61 @@ class Campaign extends Base
 	/**
 	 * Get default campaign id.
 	 *
+	 * @param null|string $siteId Site id.
 	 * @return int
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getDefaultId()
+	public static function getDefaultId($siteId = null)
 	{
-		if (self::$defaultId)
+		if ($siteId !== null)
 		{
-			return self::$defaultId;
+			if (!SiteTable::getList([
+				'filter' => ['ACTIVE' => 'Y', 'LID' => $siteId],
+				'cache' => 3600
+			])->fetch())
+			{
+				$siteId = null;
+			}
+		}
+		if ($siteId === null)
+		{
+			if (!self::$defaultSiteId)
+			{
+				$defaultSite = SiteTable::getRow(['select' => ['ID' => 'LID'], 'filter' => ['=DEF' => 'Y']]);
+				self::$defaultSiteId = ($defaultSite ? $defaultSite['ID'] : SITE_ID);
+			}
+			$siteId = self::$defaultSiteId;
+		}
+
+		if (self::$defaultId[$siteId])
+		{
+			return self::$defaultId[$siteId];
 		}
 
 		$row = MailingTable::getRow(array(
 			'select' => array('ID'),
-			'filter' => array('=ACTIVE' => 'Y', '=IS_TRIGGER' => 'N'),
+			'filter' => array('=ACTIVE' => 'Y', '=IS_TRIGGER' => 'N', 'SITE_ID' => $siteId),
 			'limit' => 1,
 			'order' => array('ID' => 'DESC')
 		));
 		if ($row)
 		{
-			self::$defaultId = $row['ID'];
-			return self::$defaultId;
+			self::$defaultId[$siteId] = $row['ID'];
+			return self::$defaultId[$siteId];
 		}
 
-		$site = SiteTable::getRow(['select' => ['ID' => 'LID'], 'filter' => ['=DEF' => 'Y']]);
 		$result = MailingTable::add(array(
 			'NAME' => Loc::getMessage('SENDER_ENTITY_CAMPAIGN_NAME_DEFAULT'),
-			'SITE_ID' => ($site ? $site['ID'] : SITE_ID)
+			'SITE_ID' => $siteId
 		));
 		if ($result->isSuccess())
 		{
-			self::$defaultId = $result->getId();
+			self::$defaultId[$siteId] = $result->getId();
 		}
 
-		return self::$defaultId;
+		return self::$defaultId[$siteId];
 	}
 
 	/**

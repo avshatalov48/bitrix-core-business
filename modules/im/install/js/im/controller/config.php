@@ -12,6 +12,7 @@ return [
 		'main.polyfill.core',
 		'im.tools.timer',
 		'im.const',
+		'im.utils',
 	],
 	'skip_core' => true,
 ];

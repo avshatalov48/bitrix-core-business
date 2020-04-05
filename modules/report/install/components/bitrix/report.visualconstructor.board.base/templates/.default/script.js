@@ -3,7 +3,6 @@
 	BX.namespace("BX.VisualConstructor");
 	"use strict";
 
-
 	BX.VisualConstructor.BoardBase = function (options)
 	{
 		this.renderTo = options.renderTo;
@@ -17,6 +16,16 @@
 		this.layout = {
 			demoModeFlagContainer: null
 		};
+
+		this.onAfterWidgetAddHandler = this.loadWidget.bind(this);
+		this.onAferWidgetMoveHandler = this.saveWidgetPositions.bind(this);
+		this.onAfterFormSaveHandler = this.handleFormSave.bind(this);
+		this.onAfterFormCancelHandler = this.closeSlidePanel.bind(this);
+		this.onAfterRemoveBoardRowHandler = this.removeRow.bind(this);
+		this.onAfterAdjustBoardRowsHandler = this.adjustRows.bind(this);
+		this.onBeforeFilterApplyHandler = this.onBeforeApplyFilter.bind(this);
+		this.onFilterApplyHandler = this.onApplyFilter.bind(this);
+
 		this.init();
 	};
 
@@ -33,15 +42,30 @@
 			{
 				this.showDemoFlag();
 			}
-			BX.addCustomEvent("BX.Report.VisualConstructor.afterWidgetAdd", this.loadWidget.bind(this));
-			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Widget:afterMove", this.saveWidgetPositions.bind(this));
-			BX.addCustomEvent("BX.Report.VisualConstructor.Widget.Form:afterSave", this.handleFormSave.bind(this));
-			BX.addCustomEvent("BX.Report.VisualConstructor.Widget.Form:cancel", this.closeSlidePanel.bind(this));
-			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowRemove", this.removeRow.bind(this));
-			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowsAdjust", this.adjustRows.bind(this));
-			BX.addCustomEvent('BX.Main.Filter:beforeApply', this.onBeforeApplyFilter.bind(this));
-			BX.addCustomEvent('BX.Main.Filter:apply', this.onApplyFilter.bind(this));
+			this.bindEvents();
 			BX.VisualConstructor.BoardRepository.addBoard(this);
+		},
+		bindEvents: function()
+		{
+			BX.addCustomEvent("BX.Report.VisualConstructor.afterWidgetAdd", this.onAfterWidgetAddHandler);
+			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Widget:afterMove", this.onAferWidgetMoveHandler);
+			BX.addCustomEvent("BX.Report.VisualConstructor.Widget.Form:afterSave", this.onAfterFormSaveHandler);
+			BX.addCustomEvent("BX.Report.VisualConstructor.Widget.Form:cancel", this.onAfterFormCancelHandler);
+			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowRemove", this.onAfterRemoveBoardRowHandler);
+			BX.addCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowsAdjust", this.onAfterAdjustBoardRowsHandler);
+			BX.addCustomEvent('BX.Main.Filter:beforeApply', this.onBeforeFilterApplyHandler);
+			BX.addCustomEvent('BX.Main.Filter:apply', this.onFilterApplyHandler);
+		},
+		unbindEvents: function()
+		{
+			BX.removeCustomEvent("BX.Report.VisualConstructor.afterWidgetAdd", this.onAfterWidgetAddHandler);
+			BX.removeCustomEvent(this.dashboard, "BX.Report.Dashboard.Widget:afterMove", this.onAferWidgetMoveHandler);
+			BX.removeCustomEvent("BX.Report.VisualConstructor.Widget.Form:afterSave", this.onAfterFormSaveHandler);
+			BX.removeCustomEvent("BX.Report.VisualConstructor.Widget.Form:cancel", this.onAfterFormCancelHandler);
+			BX.removeCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowRemove", this.onAfterRemoveBoardRowHandler);
+			BX.removeCustomEvent(this.dashboard, "BX.Report.Dashboard.Board:afterRowsAdjust", this.onAfterAdjustBoardRowsHandler);
+			BX.removeCustomEvent('BX.Main.Filter:beforeApply', this.onBeforeFilterApplyHandler);
+			BX.removeCustomEvent('BX.Main.Filter:apply', this.onFilterApplyHandler);
 		},
 		showDemoFlag: function()
 		{
@@ -92,6 +116,7 @@
 		},
 		toggleDemoMode: function()
 		{
+			BX.Report.VC.Core.abortAllRunningRequests();
 			BX.Report.VC.Core.ajaxPost('board.toggleMode', {
 				data: {
 					boardKey: this.boardId
@@ -137,39 +162,40 @@
 		},
 		onApplyFilter: function(filterId, data, ctx, promise, params)
 		{
-
-
-
-
-			if (this.filterId !== filterId)
+			if (this.filterId !== filterId || this.isNowFiltering)
 			{
 				return;
 			}
-
-
-			if (this.isNowFiltering)
-			{
-
-				return;
-			}
-
 			this.isNowFiltering = true;
+			this.reload().then(function()
+			{
+				this.isNowFiltering = false;
+			}.bind(this));
+		},
+		reload: function()
+		{
+			BX.Report.VC.Core.abortAllRunningRequests();
+			this.getDashboard().clearRows();
+			this.getDashboard().destroy();
 
-			BX.Report.VC.Core.ajaxGet('widget.loadByBoardId', {
-				urlParams: {
-					'boardId': this.getBoardId()
-				},
-				onFullSuccess: BX.defer(function (result)
-				{
-					if (result.data.rows)
+			return new Promise(function(resolve)
+			{
+				BX.Report.VC.Core.ajaxGet('widget.loadByBoardId', {
+					urlParams: {
+						'boardId': this.getBoardId()
+					},
+					onFullSuccess: BX.defer(function (result)
 					{
-						this.isNowFiltering = false;
-						this.getDashboard().addRows(result.data.rows);
-						this.getDashboard().render();
-					}
-				}, this)
-			});
+						if (result.data.rows)
+						{
+							this.getDashboard().addRows(result.data.rows);
+							this.getDashboard().render();
+						}
+						resolve();
+					}, this)
+				});
 
+			}.bind(this));
 		},
 		isDemoMode: function()
 		{
@@ -306,8 +332,6 @@
 		},
 		removeRow: function(params)
 		{
-
-
 			//HACK:
 			setTimeout(function() {
 				if (!params.row.isPseudo())
@@ -327,6 +351,9 @@
 			}, 3000);
 
 		},
+		/**
+		 * @return BX.Report.Dashboard.Board
+		 */
 		getDashboard: function()
 		{
 			return this.dashboard;
@@ -352,6 +379,14 @@
 				defaultWidgetClass: 'BX.VisualConstructor.Widget',
 				isDefault: this.defaultBoard
 			});
+		},
+		destroy: function()
+		{
+			this.unbindEvents();
+			this.dashboard = null;
+			this.renderTo = null;
+			this.layout = null;
+			this.rows = null;
 		}
 	};
 
@@ -376,6 +411,26 @@
 		getBoards: function()
 		{
 			return this.dashboards;
+		},
+		getLast: function()
+		{
+			if(this.dashboards.length > 0)
+			{
+				return this.dashboards[this.dashboards.length - 1];
+			}
+			else
+			{
+				return null;
+			}
+		},
+		destroyBoards: function()
+		{
+			for (var i = 0; i < this.dashboards.length; i++)
+			{
+				this.dashboards[i].destroy();
+				this.dashboards[i] = null;
+			}
+			this.dashboards = [];
 		}
 	};
 
@@ -449,6 +504,10 @@
 		},
 		reload: function (callback)
 		{
+			if(!BX.type.isFunction(callback))
+			{
+				callback = BX.DoNothing;
+			}
 			BX.Report.VC.Core.ajaxGet('widget.load', {
 				urlParams: {
 					'widgetId': this.id

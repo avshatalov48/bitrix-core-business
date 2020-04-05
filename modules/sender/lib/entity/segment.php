@@ -160,6 +160,12 @@ class Segment extends Base
 
 			$connector->setFieldValues($endpoint['FIELDS']);
 			$endpoint['FIELDS'] = $connector->getFieldValues();
+			$statFields = $connector->getStatFields();
+
+			foreach (array_intersect($statFields, array_keys($endpoint['FIELDS'])) as $field)
+			{
+				\Bitrix\Sender\Log::stat('segment_field', $field, $id);
+			}
 
 			$groupConnector = array(
 				'GROUP_ID' => $id,

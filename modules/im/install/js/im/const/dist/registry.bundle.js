@@ -16,7 +16,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  message: 'message',
 	  recentTitle: 'recentTitle',
 	  recentLinesTitle: 'recentLinesTitle',
-	  default: 'default'
+	  readedTitle: 'readedTitle',
+	  default: 'default',
+	  vacationTitle: 'vacationTitle'
 	});
 
 	/**
@@ -44,9 +46,18 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var InsertType = Object.freeze({
-	  after: 'after',
-	  before: 'before'
+	var MutationType = Object.freeze({
+	  none: 'none',
+	  add: 'delete',
+	  update: 'update',
+	  delete: 'delete',
+	  set: 'set',
+	  setAfter: 'after',
+	  setBefore: 'before'
+	});
+	var StorageLimit = Object.freeze({
+	  dialogues: 50,
+	  messages: 20
 	});
 
 	/**
@@ -62,21 +73,140 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  imMessageUpdate: 'im.message.update',
 	  imMessageDelete: 'im.message.delete',
 	  imMessageLike: 'im.message.like',
+	  imMessageCommand: 'im.message.command',
+	  imMessageShare: 'im.message.share',
 	  imChatGet: 'im.chat.get',
-	  imChatSendTyping: 'im.chat.sendTyping',
+	  imChatLeave: 'im.chat.leave',
+	  imChatMute: 'im.chat.mute',
+	  imChatParentJoin: 'im.chat.parent.join',
+	  imDialogGet: 'im.dialog.get',
 	  imDialogMessagesGet: 'im.dialog.messages.get',
-	  imDialogMessagesUnread: 'im.dialog.messages.unread',
 	  imDialogRead: 'im.dialog.read',
+	  imDialogUnread: 'im.dialog.unread',
+	  imDialogWriting: 'im.dialog.writing',
+	  imUserGet: 'im.user.get',
+	  imUserListGet: 'im.user.list.get',
 	  imDiskFolderGet: 'im.disk.folder.get',
 	  imDiskFileUpload: 'disk.folder.uploadfile',
-	  imDiskFileCommit: 'im.disk.file.commit'
+	  imDiskFileCommit: 'im.disk.file.commit',
+	  mobileBrowserConstGet: 'mobile.browser.const.get'
+	});
+	var RestMethodHandler = Object.freeze({
+	  imChatGet: 'im.chat.get',
+	  imMessageAdd: 'im.message.add',
+	  imDialogRead: 'im.dialog.read',
+	  imDialogMessagesGet: 'im.dialog.messages.get',
+	  imDialogMessagesGetInit: 'im.dialog.messages.get.init',
+	  imDialogMessagesGetUnread: 'im.dialog.messages.get.unread',
+	  imDiskFolderGet: 'im.disk.folder.get',
+	  imDiskFileUpload: 'disk.folder.uploadfile',
+	  imDiskFileCommit: 'im.disk.file.commit',
+	  imUserGet: 'im.user.get',
+	  imUserListGet: 'im.user.list.get',
+	  mobileBrowserConstGet: 'mobile.browser.const.get'
 	});
 
+	/**
+	 * Bitrix Messenger
+	 * Event names constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2019 Bitrix
+	 */
+	var EventType = Object.freeze({
+	  dialog: {
+	    scrollToBottom: 'EventType.dialog.scrollToBottom',
+	    requestHistoryResult: 'EventType.dialog.requestHistoryResult',
+	    requestUnreadResult: 'EventType.dialog.requestUnreadResult',
+	    sendReadMessages: 'EventType.dialog.sendReadMessages'
+	  },
+	  textarea: {
+	    insertText: 'EventType.textarea.insertText',
+	    focus: 'EventType.textarea.focus',
+	    blur: 'EventType.textarea.blur'
+	  }
+	});
+
+	/**
+	 * Bitrix Messenger
+	 * Event names constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2019 Bitrix
+	 */
+	var DialogType = Object.freeze({
+	  private: 'private',
+	  chat: 'chat',
+	  open: 'open',
+	  call: 'call',
+	  crm: 'crm'
+	});
+	var DialogCrmType = Object.freeze({
+	  lead: 'lead',
+	  company: 'company',
+	  contact: 'contact',
+	  deal: 'deal',
+	  none: 'none'
+	});
+	var DialogReferenceClassName = Object.freeze({
+	  listBody: 'bx-im-dialog-list',
+	  listItem: 'bx-im-dialog-list-item-reference',
+	  listItemName: 'bx-im-dialog-list-item-name-reference',
+	  listItemBody: 'bx-im-dialog-list-item-content-reference',
+	  listUnreadLoader: 'bx-im-dialog-list-unread-loader-reference'
+	});
+
+	/**
+	 * Bitrix Messenger
+	 * File constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2019 Bitrix
+	 */
+	var FileStatus = Object.freeze({
+	  upload: 'upload',
+	  wait: 'wait',
+	  done: 'done',
+	  error: 'error'
+	});
+	var FileType = Object.freeze({
+	  image: 'image',
+	  video: 'video',
+	  audio: 'audio',
+	  file: 'file'
+	});
+
+	/**
+	 * Bitrix Messenger
+	 * Message constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2019 Bitrix
+	 */
+	var MessageType = Object.freeze({
+	  self: 'self',
+	  opponent: 'opponent',
+	  system: 'system'
+	});
+
+	exports.EventType = EventType;
 	exports.DateFormat = DateFormat;
 	exports.DeviceType = DeviceType;
 	exports.DeviceOrientation = DeviceOrientation;
-	exports.InsertType = InsertType;
+	exports.MutationType = MutationType;
+	exports.StorageLimit = StorageLimit;
 	exports.RestMethod = RestMethod;
+	exports.RestMethodHandler = RestMethodHandler;
+	exports.DialogType = DialogType;
+	exports.DialogCrmType = DialogCrmType;
+	exports.DialogReferenceClassName = DialogReferenceClassName;
+	exports.FileStatus = FileStatus;
+	exports.FileType = FileType;
+	exports.MessageType = MessageType;
 
 }((this.BX.Messenger.Const = this.BX.Messenger.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

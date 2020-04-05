@@ -16,14 +16,9 @@ class Emoji
 
 	public static function encode($text)
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return $text;
-		}
-
-		return preg_replace_callback(self::$emojiPattern, function ($m) {
+		return self::replace($text, function ($m) {
 			return ":".bin2hex($m[0]).":";
-		}, $text);
+		});
 	}
 
 	public static function decode($text)
@@ -44,6 +39,22 @@ class Emoji
 
 			return $m[0];
 		}, $text);
+	}
+
+	/**
+	 * @param string $text
+	 * @param callable $callback
+	 *
+	 * @return string|string[]|null
+	 */
+	public static function replace($text, $callback)
+	{
+		if (!\Bitrix\Main\Application::isUtfMode())
+		{
+			return $text;
+		}
+
+		return preg_replace_callback(self::$emojiPattern, $callback, $text);
 	}
 
 	public static function getSaveModificator()

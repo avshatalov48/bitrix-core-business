@@ -13,6 +13,7 @@
 	BX.Landing.Block.Node.Embed = function(options)
 	{
 		BX.Landing.Block.Node.apply(this, arguments);
+		this.type = "embed";
 		this.onAttributeChangeHandler = options.onAttributeChange || (function() {});
 		this.lastValue = this.getValue();
 	};

@@ -340,4 +340,3 @@ else
 }
 
 $this->IncludeComponentTemplate();
-?>

@@ -23,4 +23,14 @@ $MESS["SOC_OPT_B24NET_PUT"] = "Вставить";
 $MESS["SOC_OPT_B24NET_SITE"] = "Получить параметры авторизации для сайта";
 $MESS["SOC_OPT_B24NET_GET"] = "Получить";
 $MESS["SOC_OPT_B24NET_TITLE"] = "Регистрация сайта в Битрикс24.Network";
+$MESS["SOC_OPT_CRYPTO_FIELD_TITLE"] = "Статус:";
+$MESS["SOC_OPT_CRYPTO_MESSAGE_ACTIVE"] = "Шифрование токенов авторизации активировано";
+$MESS["SOC_OPT_CRYPTO_TAB_TITLE"] = "Шифрование";
+$MESS["SOC_OPT_CRYPTO_TAB_DESCR"] = "Шифрование токенов авторизации";
+$MESS["SOC_OPT_CRYPTO_ACTIVATE"] = "Включить шифрование токенов авторизации";
+$MESS["SOC_OPT_CRYPTO_NOTE"] = "После включения авторизационные токены пользователей социальных сервисов станут храниться в зашифрованном виде.
+<br>
+<b>Внимание!</b> Это действие необратимо!";
+$MESS["SOC_OPT_CRYPTO_NO_CRYPTOKEY"] = "Ключ шифрования не установлен";
+$MESS["SOC_OPT_CRYPTO_CONFIRM"] = "Вы действительно хотите включить шифрование токенов авторизации?";
 ?>

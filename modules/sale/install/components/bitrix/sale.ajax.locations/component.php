@@ -354,7 +354,7 @@ if(is_array($regionSortIndex))
 
 $arResult["REGION_LIST"] = $regionListSorted;
 
-if (count($arResult["REGION_LIST"]) <= 0)
+if (!is_array($arResult["REGION_LIST"]))
 	$arResult["REGION_LIST"] = array();
 elseif (count($arResult["REGION_LIST"]) == 1)
 	$arParams["REGION"] = $arResult["REGION_LIST"][0]["ID"];

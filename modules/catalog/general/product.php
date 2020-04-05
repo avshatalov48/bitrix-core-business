@@ -2546,6 +2546,8 @@ class CAllCatalogProduct
 	{
 		$possibleSalePrice = null;
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
 		if (empty($priceData))
 			return $possibleSalePrice;
 
@@ -2572,7 +2574,10 @@ class CAllCatalogProduct
 		}
 		if ($basket === null)
 		{
-			$basket = Sale\Basket::create($siteID);
+			/** @var Sale\Basket $basketClassName */
+			$basketClassName = $registry->getBasketClassName();
+
+			$basket = $basketClassName::create($siteID);
 			$basketItem = $basket->createItem('catalog', $intProductID);
 		}
 
@@ -2584,7 +2589,7 @@ class CAllCatalogProduct
 			'PRICE' => $priceData['PRICE'],
 			'BASE_PRICE' => $priceData['PRICE'],
 			'DISCOUNT_PRICE' => 0,
-			'CURRENCY' => $priceData['PRICE'],
+			'CURRENCY' => $priceData['CURRENCY'],
 			'CAN_BUY' => 'Y',
 			'DELAY' => 'N',
 			'PRICE_TYPE_ID' => (int)$priceData['CATALOG_GROUP_ID']
@@ -2607,6 +2612,7 @@ class CAllCatalogProduct
 
 		if ($freezeCoupons)
 			Sale\DiscountCouponsManager::unFreezeCouponStorage();
+		$discount->setExecuteModuleFilter(array('all', 'sale', 'catalog'));
 
 		if ($isCompatibilityUsed === true)
 		{

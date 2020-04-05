@@ -101,12 +101,4 @@ CJSCore::init(array('lists'));
 			?>
 		</div>
 	</div>
-
-	<script>
-		if (BX["viewElementBind"])
-		{
-			BX.viewElementBind('<?=$gridId?>', {showTitle: true}, {attr: 'data-bx-viewer'});
-		}
-	</script>
-	
 <? endforeach; ?>

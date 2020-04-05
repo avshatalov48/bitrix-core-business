@@ -169,7 +169,10 @@
 
 /*region TRACK FOR TYPE NUMBER*/
 
-.smart-filter-slider-track-container { padding: 25px 18px 25px; }
+.smart-filter-slider-track-container {
+	overflow: hidden;
+	padding: 25px 18px 25px;
+}
 
 .smart-filter-slider-track {
 	position: relative;

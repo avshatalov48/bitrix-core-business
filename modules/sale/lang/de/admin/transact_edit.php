@@ -5,7 +5,6 @@ $MESS["STE_EMPTY_DATE"] = "Das Feld \"Transaktionsdatum\" wurde nicht ausgefüll
 $MESS["STE_ERROR_SAVE_ACCOUNT"] = "Beim Speichern des Kontos ist ein Fehler aufgetreten";
 $MESS["STE_TITLE"] = "Neue Transaktion";
 $MESS["STE_TO_LIST"] = "Transaktionen";
-$MESS["STE_DATE"] = "Transaktionsdatum";
 $MESS["STE_SUM"] = "Summe:";
 $MESS["STE_CURRENCY"] = "Währung:";
 $MESS["STE_TYPE"] = "Typ des Eintrags";

@@ -110,7 +110,6 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		$runtime->StartRuntime();
 		$this->arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
-
 		$dbWorkflowTemplate = CBPWorkflowTemplateLoader::GetList(
 			array(),
 			array(
@@ -275,6 +274,17 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		else
 		{
 			$this->arResult["SHOW_MODE"] = "SelectWorkflow";
+		}
+
+		if ($this->arResult["SHOW_MODE"] === "SelectWorkflow")
+		{
+			foreach ($this->arResult["TEMPLATES"] as $id => $tpl)
+			{
+				if ($tpl['AUTO_EXECUTE'] > \CBPDocumentEventType::Delete)
+				{
+					unset($this->arResult["TEMPLATES"][$id]);
+				}
+			}
 		}
 
 		$this->IncludeComponentTemplate();

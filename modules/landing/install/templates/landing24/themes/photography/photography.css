@@ -850,164 +850,125 @@ h1, h2, h3, h4, h5, h6 {
       transform: translateX(-50%) rotate(55deg);
 }
 
-/*------------------------------------
-  Headers
-------------------------------------*/
-.u-header {
-  position: relative;
-  left: 0;
-  right: 0;
-  width: 100%;
-  font-size: 0.92857rem;
-  z-index: 101;
+/*
+NAVBAR menus
+*/
+.navbar a {
+  color: #fff;
 }
 
-.u-header [aria-labelledby] {
-  opacity: 0;
+.navbar .hamburger-inner {
+  background-color: #fff;
 }
 
-.u-header [aria-labelledby][role="tabpanel"] {
-  opacity: 1;
+.navbar .active > a, .navbar a:hover {
+  color: #333 !important;
 }
 
-.u-header [aria-labelledby].u-dropdown--css-animation,
-.u-header [aria-labelledby].u-dropdown--jquery-slide {
-  opacity: 1;
+.u-header__section--light .navbar a {
+  color: #333;
 }
 
-.u-header__section--hidden {
-  position: relative;
+.u-header__section--light .navbar .hamburger-inner {
+  background-color: #333;
 }
 
-.u-header--floating {
-  position: absolute;
-  left: 0;
-  right: 0;
+.u-navbar-color-primary {
+  color: #333 !important;
 }
 
-.u-header--floating.js-header-fix-moment .navbar {
-  padding-left: 0;
-  padding-right: 0;
+.u-navbar-color-primary a, .js-header-fix-moment .u-navbar-color-primary--fix-moment, .js-header-fix-moment .u-navbar-color-primary--fix-moment a {
+  color: #333 !important;
 }
 
-.u-header[data-header-fix-effect] {
-  transition: .3s ease;
+.u-navbar-color-primary .hamburger-inner, .js-header-fix-moment .u-navbar-color-primary--fix-moment .hamburger-inner {
+  background-color: #333 !important;
 }
 
-.u-header.js-header-fix-moment {
-  position: fixed;
-  top: 0;
-  bottom: auto;
+.u-navbar-color-primary--hover:hover {
+  color: #333 !important;
 }
 
-.u-header__section {
-  position: relative;
-  z-index: 1;
+.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover:hover {
+  color: #333 !important;
 }
 
-.u-header__section:nth-child(1) {
-  z-index: 5;
+.u-navbar-color-primary--hover .navbar-nav .nav-item.active > a,
+.u-navbar-color-primary--hover .navbar-nav a:hover,
+.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover .navbar-nav .nav-item.active > a,
+.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover .navbar-nav a:hover {
+  color: #333 !important;
 }
 
-.u-header__section:nth-child(2) {
-  z-index: 4;
+.u-navbar-color-primary--fix-moment::after {
+  color: #333 !important;
 }
 
-.u-header__section:nth-child(3) {
-  z-index: 3;
+.u-navbar-color-primary--fix-moment--hover::after {
+  color: #333 !important;
 }
 
-.u-header__section:nth-child(4) {
-  z-index: 2;
+.u-navbar-color-main {
+  color: #333 !important;
 }
 
-.u-header__section:nth-child(5) {
-  z-index: 1;
+.u-navbar-color-main a, .js-header-fix-moment .u-navbar-color-main--fix-moment, .js-header-fix-moment .u-navbar-color-main--fix-moment a {
+  color: #333 !important;
 }
 
-.u-header__sections-container {
-  position: relative;
-  z-index: 2;
+.u-navbar-color-main .hamburger-inner, .js-header-fix-moment .u-navbar-color-main--fix-moment .hamburger-inner {
+  background-color: #333 !important;
 }
 
-.u-header__logo {
-  position: relative;
-  z-index: 1;
+.u-navbar-color-main--hover:hover {
+  color: #333 !important;
 }
 
-.u-header__logo-img {
-  top: 0;
-  left: 0;
-  /*transition: .3s ease;*/
+.js-header-fix-moment .u-navbar-color-main--fix-moment--hover:hover {
+  color: #333 !important;
 }
 
-.u-header__logo-img:not(.u-header__logo-img--main) {
-  position: absolute;
-  opacity: 0;
+.u-navbar-color-main--hover .navbar-nav .nav-item.active > a,
+.u-navbar-color-main--hover .navbar-nav a:hover,
+.js-header-fix-moment .u-navbar-color-main--fix-moment--hover .navbar-nav .nav-item.active > a,
+.js-header-fix-moment .u-navbar-color-main--fix-moment--hover .navbar-nav a:hover {
+  color: #333 !important;
 }
 
-.dropdown-menu.u-dropdown--reverse-position {
-  left: auto;
-  right: 0;
+.u-navbar-color-main--fix-moment::after {
+  color: #333 !important;
 }
 
-/**
-Instead this colors was be added new navbar color themes in /custom/_navbar.scss
- */
-.navbar > .container {
-  position: relative;
+.u-navbar-color-main--fix-moment--hover::after {
+  color: #333 !important;
 }
 
-@media all and (max-width: 1199px) {
-  .navbar-expand-xl > .container,
-  .navbar-expand-xl > .container-fluid {
-    -ms-flex-pack: start;
-        justify-content: flex-start;
-  }
-  .navbar-expand-xl .navbar-collapse {
-    width: 100%;
-    -ms-flex-order: 10;
-        order: 10;
-  }
+.u-navbar-bg-primary .navbar-nav .nav-item > a,
+.u-navbar-bg-primary--hover .navbar-nav .nav-item > a:hover,
+.u-navbar-bg-primary--hover .navbar-nav .nav-item.active > a {
+  background-color: #333 !important;
 }
 
-@media all and (max-width: 991px) {
-  .navbar-expand-lg > .container,
-  .navbar-expand-lg > .container-fluid {
-    -ms-flex-pack: start;
-        justify-content: flex-start;
-  }
-  .navbar-expand-lg .navbar-collapse {
-    width: 100%;
-    -ms-flex-order: 10;
-        order: 10;
-  }
+.u-navbar-bg-primary::after {
+  background-color: #333 !important;
 }
 
-@media all and (max-width: 767px) {
-  .navbar-expand-md > .container,
-  .navbar-expand-md > .container-fluid {
-    -ms-flex-pack: start;
-        justify-content: flex-start;
-  }
-  .navbar-expand-md .navbar-collapse {
-    width: 100%;
-    -ms-flex-order: 10;
-        order: 10;
-  }
+.u-navbar-bg-primary--hover::after {
+  background-color: #333 !important;
 }
 
-@media all and (max-width: 575px) {
-  .navbar-expand-sm > .container,
-  .navbar-expand-sm > .container-fluid {
-    -ms-flex-pack: start;
-        justify-content: flex-start;
-  }
-  .navbar-expand-sm .navbar-collapse {
-    width: 100%;
-    -ms-flex-order: 10;
-        order: 10;
-  }
+.u-navbar-bg-main .navbar-nav .nav-item > a,
+.u-navbar-bg-main--hover .navbar-nav .nav-item > a:hover,
+.u-navbar-bg-main--hover .navbar-nav .nav-item.active > a {
+  background-color: #333 !important;
+}
+
+.u-navbar-bg-main::after {
+  background-color: #333 !important;
+}
+
+.u-navbar-bg-main--hover::after {
+  background-color: #333 !important;
 }
 
 /* Button Styles
@@ -1227,87 +1188,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-primary.g-btn-hover-reset:hover, .u-btn-primary.g-btn-hover-reset.active {
-  background-color: #333;
-  border-color: #333;
-}
-
-.u-btn-primary.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-1::after, .u-btn-primary.u-btn-hover-v1-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v1-1:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-2::after, .u-btn-primary.u-btn-hover-v1-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v1-2:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-3::after, .u-btn-primary.u-btn-hover-v1-3:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v1-3:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v1-4::after, .u-btn-primary.u-btn-hover-v1-4:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v1-4:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v2-1::after, .u-btn-primary.u-btn-hover-v2-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v2-1:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-primary.u-btn-hover-v2-2::after, .u-btn-primary.u-btn-hover-v2-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-primary.u-btn-hover-v2-2:hover {
-  background-color: #333;
-  overflow: hidden;
+.u-btn-primary.landing-ui-active {
+  background-color: #333 !important;
 }
 
 /* Button White */
@@ -1325,87 +1207,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #555;
 }
 
-.u-btn-white.g-btn-hover-reset:hover, .u-btn-white.g-btn-hover-reset.active {
-  background-color: #fff;
-  border-color: #fff;
-}
-
-.u-btn-white.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-1::after, .u-btn-white.u-btn-hover-v1-1:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v1-1:hover {
-  background-color: #fff;
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-2::after, .u-btn-white.u-btn-hover-v1-2:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v1-2:hover {
-  background-color: #fff;
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-3::after, .u-btn-white.u-btn-hover-v1-3:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v1-3:hover {
-  background-color: #fff;
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v1-4::after, .u-btn-white.u-btn-hover-v1-4:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v1-4:hover {
-  background-color: #fff;
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v2-1::after, .u-btn-white.u-btn-hover-v2-1:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-white.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-white.u-btn-hover-v2-2::after, .u-btn-white.u-btn-hover-v2-2:hover::after {
-  background-color: white;
-}
-
-.u-btn-white.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
+.u-btn-white.landing-ui-active {
+  background-color: #fff !important;
 }
 
 /* Button Black */
@@ -1423,87 +1226,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-black.g-btn-hover-reset:hover, .u-btn-black.g-btn-hover-reset.active {
-  background-color: #000;
-  border-color: #000;
-}
-
-.u-btn-black.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-1::after, .u-btn-black.u-btn-hover-v1-1:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v1-1:hover {
-  background-color: #000;
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-2::after, .u-btn-black.u-btn-hover-v1-2:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v1-2:hover {
-  background-color: #000;
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-3::after, .u-btn-black.u-btn-hover-v1-3:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v1-3:hover {
-  background-color: #000;
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v1-4::after, .u-btn-black.u-btn-hover-v1-4:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v1-4:hover {
-  background-color: #000;
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v2-1::after, .u-btn-black.u-btn-hover-v2-1:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-black.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-black.u-btn-hover-v2-2::after, .u-btn-black.u-btn-hover-v2-2:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-black.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
+.u-btn-black.landing-ui-active {
+  background-color: #000 !important;
 }
 
 /* Button Dark Gray */
@@ -1521,87 +1245,46 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-darkgray.g-btn-hover-reset:hover, .u-btn-darkgray.g-btn-hover-reset.active {
-  background-color: #333;
-  border-color: #333;
+.u-btn-darkgray.landing-ui-active {
+  background-color: #333 !important;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-1 {
-  overflow: hidden;
+/* Button Gray */
+.u-btn-gray {
+  color: #fff;
+  background-color: #999;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-1::after, .u-btn-darkgray.u-btn-hover-v1-1:hover::after {
-  background-color: #404040;
+.u-btn-gray:hover, .u-btn-gray.active {
+  border-color: #b3b3b3;
+  background-color: #b3b3b3;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-1:hover {
-  background-color: #333;
-  overflow: hidden;
+.u-btn-gray:hover, .u-btn-gray:focus, .u-btn-gray.active {
+  color: #fff;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-2 {
-  overflow: hidden;
+.u-btn-gray.landing-ui-active {
+  background-color: #999 !important;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-2::after, .u-btn-darkgray.u-btn-hover-v1-2:hover::after {
-  background-color: #404040;
+/* Button Light Gray */
+.u-btn-lightgray {
+  color: #fff;
+  background-color: #eee;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-2:hover {
-  background-color: #333;
-  overflow: hidden;
+.u-btn-lightgray:hover, .u-btn-lightgray.active {
+  border-color: #f7f7f7;
+  background-color: #f7f7f7;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-3 {
-  overflow: hidden;
+.u-btn-lightgray:hover, .u-btn-lightgray:focus, .u-btn-lightgray.active {
+  color: #fff;
 }
 
-.u-btn-darkgray.u-btn-hover-v1-3::after, .u-btn-darkgray.u-btn-hover-v1-3:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-darkgray.u-btn-hover-v1-3:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v1-4::after, .u-btn-darkgray.u-btn-hover-v1-4:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-darkgray.u-btn-hover-v1-4:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-1::after, .u-btn-darkgray.u-btn-hover-v2-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-1:hover {
-  background-color: #333;
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-2::after, .u-btn-darkgray.u-btn-hover-v2-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-darkgray.u-btn-hover-v2-2:hover {
-  background-color: #333;
-  overflow: hidden;
+.u-btn-lightgray.landing-ui-active {
+  background-color: #eee !important;
 }
 
 /* Button Red */
@@ -1619,87 +1302,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-red.g-btn-hover-reset:hover, .u-btn-red.g-btn-hover-reset.active {
-  background-color: #f00;
-  border-color: #f00;
-}
-
-.u-btn-red.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-1::after, .u-btn-red.u-btn-hover-v1-1:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v1-1:hover {
-  background-color: #f00;
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-2::after, .u-btn-red.u-btn-hover-v1-2:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v1-2:hover {
-  background-color: #f00;
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-3::after, .u-btn-red.u-btn-hover-v1-3:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v1-3:hover {
-  background-color: #f00;
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v1-4::after, .u-btn-red.u-btn-hover-v1-4:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v1-4:hover {
-  background-color: #f00;
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v2-1::after, .u-btn-red.u-btn-hover-v2-1:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v2-1:hover {
-  background-color: #f00;
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-red.u-btn-hover-v2-2::after, .u-btn-red.u-btn-hover-v2-2:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-red.u-btn-hover-v2-2:hover {
-  background-color: #f00;
-  overflow: hidden;
+.u-btn-red.landing-ui-active {
+  background-color: #f00 !important;
 }
 
 /* Button Red Tomato */
@@ -1717,87 +1321,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-lightred.g-btn-hover-reset:hover, .u-btn-lightred.g-btn-hover-reset.active {
-  background-color: #e64b3b;
-  border-color: #e64b3b;
-}
-
-.u-btn-lightred.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-1::after, .u-btn-lightred.u-btn-hover-v1-1:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v1-1:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-2::after, .u-btn-lightred.u-btn-hover-v1-2:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v1-2:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-3::after, .u-btn-lightred.u-btn-hover-v1-3:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v1-3:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v1-4::after, .u-btn-lightred.u-btn-hover-v1-4:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v1-4:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v2-1::after, .u-btn-lightred.u-btn-hover-v2-1:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v2-1:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-lightred.u-btn-hover-v2-2::after, .u-btn-lightred.u-btn-hover-v2-2:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-lightred.u-btn-hover-v2-2:hover {
-  background-color: #e64b3b;
-  overflow: hidden;
+.u-btn-lightred.landing-ui-active {
+  background-color: #e64b3b !important;
 }
 
 /* Button Dark Red */
@@ -1815,87 +1340,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-darkred.g-btn-hover-reset:hover, .u-btn-darkred.g-btn-hover-reset.active {
-  background-color: #a10f2b;
-  border-color: #a10f2b;
-}
-
-.u-btn-darkred.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-1::after, .u-btn-darkred.u-btn-hover-v1-1:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v1-1:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-2::after, .u-btn-darkred.u-btn-hover-v1-2:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v1-2:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-3::after, .u-btn-darkred.u-btn-hover-v1-3:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v1-3:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v1-4::after, .u-btn-darkred.u-btn-hover-v1-4:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v1-4:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v2-1::after, .u-btn-darkred.u-btn-hover-v2-1:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v2-1:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-darkred.u-btn-hover-v2-2::after, .u-btn-darkred.u-btn-hover-v2-2:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-darkred.u-btn-hover-v2-2:hover {
-  background-color: #a10f2b;
-  overflow: hidden;
+.u-btn-darkred.landing-ui-active {
+  background-color: #a10f2b !important;
 }
 
 /* Button Blue */
@@ -1913,87 +1359,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-blue.g-btn-hover-reset:hover, .u-btn-blue.g-btn-hover-reset.active {
-  background-color: #3398dc;
-  border-color: #3398dc;
-}
-
-.u-btn-blue.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-1::after, .u-btn-blue.u-btn-hover-v1-1:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v1-1:hover {
-  background-color: #3398dc;
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-2::after, .u-btn-blue.u-btn-hover-v1-2:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v1-2:hover {
-  background-color: #3398dc;
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-3::after, .u-btn-blue.u-btn-hover-v1-3:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v1-3:hover {
-  background-color: #3398dc;
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v1-4::after, .u-btn-blue.u-btn-hover-v1-4:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v1-4:hover {
-  background-color: #3398dc;
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v2-1::after, .u-btn-blue.u-btn-hover-v2-1:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v2-1:hover {
-  background-color: #3398dc;
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-blue.u-btn-hover-v2-2::after, .u-btn-blue.u-btn-hover-v2-2:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-blue.u-btn-hover-v2-2:hover {
-  background-color: #3398dc;
-  overflow: hidden;
+.u-btn-blue.landing-ui-active {
+  background-color: #3398dc !important;
 }
 
 /* Button Indigo */
@@ -2011,87 +1378,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-indigo.g-btn-hover-reset:hover, .u-btn-indigo.g-btn-hover-reset.active {
-  background-color: #4263a3;
-  border-color: #4263a3;
-}
-
-.u-btn-indigo.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-1::after, .u-btn-indigo.u-btn-hover-v1-1:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v1-1:hover {
-  background-color: #4263a3;
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-2::after, .u-btn-indigo.u-btn-hover-v1-2:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v1-2:hover {
-  background-color: #4263a3;
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-3::after, .u-btn-indigo.u-btn-hover-v1-3:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v1-3:hover {
-  background-color: #4263a3;
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v1-4::after, .u-btn-indigo.u-btn-hover-v1-4:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v1-4:hover {
-  background-color: #4263a3;
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v2-1::after, .u-btn-indigo.u-btn-hover-v2-1:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v2-1:hover {
-  background-color: #4263a3;
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-indigo.u-btn-hover-v2-2::after, .u-btn-indigo.u-btn-hover-v2-2:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-indigo.u-btn-hover-v2-2:hover {
-  background-color: #4263a3;
-  overflow: hidden;
+.u-btn-indigo.landing-ui-active {
+  background-color: #4263a3 !important;
 }
 
 /* Button Purple */
@@ -2109,87 +1397,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-purple.g-btn-hover-reset:hover, .u-btn-purple.g-btn-hover-reset.active {
-  background-color: #9a69cb;
-  border-color: #9a69cb;
-}
-
-.u-btn-purple.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-1::after, .u-btn-purple.u-btn-hover-v1-1:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v1-1:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-2::after, .u-btn-purple.u-btn-hover-v1-2:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v1-2:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-3::after, .u-btn-purple.u-btn-hover-v1-3:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v1-3:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v1-4::after, .u-btn-purple.u-btn-hover-v1-4:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v1-4:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v2-1::after, .u-btn-purple.u-btn-hover-v2-1:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v2-1:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-purple.u-btn-hover-v2-2::after, .u-btn-purple.u-btn-hover-v2-2:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-purple.u-btn-hover-v2-2:hover {
-  background-color: #9a69cb;
-  overflow: hidden;
+.u-btn-purple.landing-ui-active {
+  background-color: #9a69cb !important;
 }
 
 /* Button Dark Purple */
@@ -2207,87 +1416,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-darkpurple.g-btn-hover-reset:hover, .u-btn-darkpurple.g-btn-hover-reset.active {
-  background-color: #6639b6;
-  border-color: #6639b6;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-1::after, .u-btn-darkpurple.u-btn-hover-v1-1:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-1:hover {
-  background-color: #6639b6;
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-2::after, .u-btn-darkpurple.u-btn-hover-v1-2:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-2:hover {
-  background-color: #6639b6;
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-3::after, .u-btn-darkpurple.u-btn-hover-v1-3:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-3:hover {
-  background-color: #6639b6;
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-4::after, .u-btn-darkpurple.u-btn-hover-v1-4:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v1-4:hover {
-  background-color: #6639b6;
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-1::after, .u-btn-darkpurple.u-btn-hover-v2-1:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-1:hover {
-  background-color: #6639b6;
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-2::after, .u-btn-darkpurple.u-btn-hover-v2-2:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-darkpurple.u-btn-hover-v2-2:hover {
-  background-color: #6639b6;
-  overflow: hidden;
+.u-btn-darkpurple.landing-ui-active {
+  background-color: #6639b6 !important;
 }
 
 /* Button Pink */
@@ -2305,87 +1435,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-pink.g-btn-hover-reset:hover, .u-btn-pink.g-btn-hover-reset.active {
-  background-color: #e81c62;
-  border-color: #e81c62;
-}
-
-.u-btn-pink.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-1::after, .u-btn-pink.u-btn-hover-v1-1:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v1-1:hover {
-  background-color: #e81c62;
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-2::after, .u-btn-pink.u-btn-hover-v1-2:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v1-2:hover {
-  background-color: #e81c62;
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-3::after, .u-btn-pink.u-btn-hover-v1-3:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v1-3:hover {
-  background-color: #e81c62;
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v1-4::after, .u-btn-pink.u-btn-hover-v1-4:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v1-4:hover {
-  background-color: #e81c62;
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v2-1::after, .u-btn-pink.u-btn-hover-v2-1:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v2-1:hover {
-  background-color: #e81c62;
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-pink.u-btn-hover-v2-2::after, .u-btn-pink.u-btn-hover-v2-2:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-pink.u-btn-hover-v2-2:hover {
-  background-color: #e81c62;
-  overflow: hidden;
+.u-btn-pink.landing-ui-active {
+  background-color: #e81c62 !important;
 }
 
 /* Button Orange */
@@ -2403,87 +1454,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-orange.g-btn-hover-reset:hover, .u-btn-orange.g-btn-hover-reset.active {
-  background-color: #e57d20;
-  border-color: #e57d20;
-}
-
-.u-btn-orange.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-1::after, .u-btn-orange.u-btn-hover-v1-1:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v1-1:hover {
-  background-color: #e57d20;
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-2::after, .u-btn-orange.u-btn-hover-v1-2:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v1-2:hover {
-  background-color: #e57d20;
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-3::after, .u-btn-orange.u-btn-hover-v1-3:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v1-3:hover {
-  background-color: #e57d20;
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v1-4::after, .u-btn-orange.u-btn-hover-v1-4:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v1-4:hover {
-  background-color: #e57d20;
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v2-1::after, .u-btn-orange.u-btn-hover-v2-1:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v2-1:hover {
-  background-color: #e57d20;
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-orange.u-btn-hover-v2-2::after, .u-btn-orange.u-btn-hover-v2-2:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-orange.u-btn-hover-v2-2:hover {
-  background-color: #e57d20;
-  overflow: hidden;
+.u-btn-orange.landing-ui-active {
+  background-color: #e57d20 !important;
 }
 
 /* Button Deep Orange */
@@ -2501,87 +1473,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-deeporange.g-btn-hover-reset:hover, .u-btn-deeporange.g-btn-hover-reset.active {
-  background-color: #fe541e;
-  border-color: #fe541e;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-1::after, .u-btn-deeporange.u-btn-hover-v1-1:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-1:hover {
-  background-color: #fe541e;
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-2::after, .u-btn-deeporange.u-btn-hover-v1-2:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-2:hover {
-  background-color: #fe541e;
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-3::after, .u-btn-deeporange.u-btn-hover-v1-3:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-3:hover {
-  background-color: #fe541e;
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-4::after, .u-btn-deeporange.u-btn-hover-v1-4:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v1-4:hover {
-  background-color: #fe541e;
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-1::after, .u-btn-deeporange.u-btn-hover-v2-1:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-1:hover {
-  background-color: #fe541e;
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-2::after, .u-btn-deeporange.u-btn-hover-v2-2:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-deeporange.u-btn-hover-v2-2:hover {
-  background-color: #fe541e;
-  overflow: hidden;
+.u-btn-deeporange.landing-ui-active {
+  background-color: #fe541e !important;
 }
 
 /* Button Yellow */
@@ -2599,87 +1492,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-yellow.g-btn-hover-reset:hover, .u-btn-yellow.g-btn-hover-reset.active {
-  background-color: #ebc71d;
-  border-color: #ebc71d;
-}
-
-.u-btn-yellow.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-1::after, .u-btn-yellow.u-btn-hover-v1-1:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v1-1:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-2::after, .u-btn-yellow.u-btn-hover-v1-2:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v1-2:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-3::after, .u-btn-yellow.u-btn-hover-v1-3:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v1-3:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v1-4::after, .u-btn-yellow.u-btn-hover-v1-4:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v1-4:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v2-1::after, .u-btn-yellow.u-btn-hover-v2-1:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v2-1:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-yellow.u-btn-hover-v2-2::after, .u-btn-yellow.u-btn-hover-v2-2:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-yellow.u-btn-hover-v2-2:hover {
-  background-color: #ebc71d;
-  overflow: hidden;
+.u-btn-yellow.landing-ui-active {
+  background-color: #ebc71d !important;
 }
 
 /* Button Aqua */
@@ -2697,87 +1511,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-aqua.g-btn-hover-reset:hover, .u-btn-aqua.g-btn-hover-reset.active {
-  background-color: #29d6e6;
-  border-color: #29d6e6;
-}
-
-.u-btn-aqua.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-1::after, .u-btn-aqua.u-btn-hover-v1-1:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v1-1:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-2::after, .u-btn-aqua.u-btn-hover-v1-2:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v1-2:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-3::after, .u-btn-aqua.u-btn-hover-v1-3:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v1-3:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v1-4::after, .u-btn-aqua.u-btn-hover-v1-4:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v1-4:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v2-1::after, .u-btn-aqua.u-btn-hover-v2-1:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v2-1:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-aqua.u-btn-hover-v2-2::after, .u-btn-aqua.u-btn-hover-v2-2:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-aqua.u-btn-hover-v2-2:hover {
-  background-color: #29d6e6;
-  overflow: hidden;
+.u-btn-aqua.landing-ui-active {
+  background-color: #29d6e6 !important;
 }
 
 /* Button Cyan */
@@ -2795,87 +1530,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-cyan.g-btn-hover-reset:hover, .u-btn-cyan.g-btn-hover-reset.active {
-  background-color: #00bed6;
-  border-color: #00bed6;
-}
-
-.u-btn-cyan.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-1::after, .u-btn-cyan.u-btn-hover-v1-1:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v1-1:hover {
-  background-color: #00bed6;
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-2::after, .u-btn-cyan.u-btn-hover-v1-2:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v1-2:hover {
-  background-color: #00bed6;
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-3::after, .u-btn-cyan.u-btn-hover-v1-3:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v1-3:hover {
-  background-color: #00bed6;
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v1-4::after, .u-btn-cyan.u-btn-hover-v1-4:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v1-4:hover {
-  background-color: #00bed6;
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v2-1::after, .u-btn-cyan.u-btn-hover-v2-1:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v2-1:hover {
-  background-color: #00bed6;
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-cyan.u-btn-hover-v2-2::after, .u-btn-cyan.u-btn-hover-v2-2:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-cyan.u-btn-hover-v2-2:hover {
-  background-color: #00bed6;
-  overflow: hidden;
+.u-btn-cyan.landing-ui-active {
+  background-color: #00bed6 !important;
 }
 
 /* Button Teal */
@@ -2893,87 +1549,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-teal.g-btn-hover-reset:hover, .u-btn-teal.g-btn-hover-reset.active {
-  background-color: #18ba9b;
-  border-color: #18ba9b;
-}
-
-.u-btn-teal.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-1::after, .u-btn-teal.u-btn-hover-v1-1:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v1-1:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-2::after, .u-btn-teal.u-btn-hover-v1-2:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v1-2:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-3::after, .u-btn-teal.u-btn-hover-v1-3:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v1-3:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v1-4::after, .u-btn-teal.u-btn-hover-v1-4:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v1-4:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v2-1::after, .u-btn-teal.u-btn-hover-v2-1:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v2-1:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-teal.u-btn-hover-v2-2::after, .u-btn-teal.u-btn-hover-v2-2:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-teal.u-btn-hover-v2-2:hover {
-  background-color: #18ba9b;
-  overflow: hidden;
+.u-btn-teal.landing-ui-active {
+  background-color: #18ba9b !important;
 }
 
 /* Button Brown */
@@ -2991,87 +1568,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-brown.g-btn-hover-reset:hover, .u-btn-brown.g-btn-hover-reset.active {
-  background-color: #9c8061;
-  border-color: #9c8061;
-}
-
-.u-btn-brown.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-1::after, .u-btn-brown.u-btn-hover-v1-1:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v1-1:hover {
-  background-color: #9c8061;
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-2::after, .u-btn-brown.u-btn-hover-v1-2:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v1-2:hover {
-  background-color: #9c8061;
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-3::after, .u-btn-brown.u-btn-hover-v1-3:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v1-3:hover {
-  background-color: #9c8061;
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v1-4::after, .u-btn-brown.u-btn-hover-v1-4:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v1-4:hover {
-  background-color: #9c8061;
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v2-1::after, .u-btn-brown.u-btn-hover-v2-1:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v2-1:hover {
-  background-color: #9c8061;
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-brown.u-btn-hover-v2-2::after, .u-btn-brown.u-btn-hover-v2-2:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-brown.u-btn-hover-v2-2:hover {
-  background-color: #9c8061;
-  overflow: hidden;
+.u-btn-brown.landing-ui-active {
+  background-color: #9c8061 !important;
 }
 
 /* Button Bluegrey */
@@ -3089,87 +1587,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-bluegray.g-btn-hover-reset:hover, .u-btn-bluegray.g-btn-hover-reset.active {
-  background-color: #585f69;
-  border-color: #585f69;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-1::after, .u-btn-bluegray.u-btn-hover-v1-1:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-1:hover {
-  background-color: #585f69;
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-2::after, .u-btn-bluegray.u-btn-hover-v1-2:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-2:hover {
-  background-color: #585f69;
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-3::after, .u-btn-bluegray.u-btn-hover-v1-3:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-3:hover {
-  background-color: #585f69;
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-4::after, .u-btn-bluegray.u-btn-hover-v1-4:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v1-4:hover {
-  background-color: #585f69;
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-1::after, .u-btn-bluegray.u-btn-hover-v2-1:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-1:hover {
-  background-color: #585f69;
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-2::after, .u-btn-bluegray.u-btn-hover-v2-2:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-bluegray.u-btn-hover-v2-2:hover {
-  background-color: #585f69;
-  overflow: hidden;
+.u-btn-bluegray.landing-ui-active {
+  background-color: #585f69 !important;
 }
 
 /* Button Facebook */
@@ -3187,9 +1606,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-facebook.g-btn-hover-reset:hover, .u-btn-facebook.g-btn-hover-reset.active {
-  background-color: #3b5998;
-  border-color: #3b5998;
+.u-btn-facebook.landing-ui-active {
+  background-color: #3b5998 !important;
 }
 
 /* Button Twitter */
@@ -3207,9 +1625,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-twitter.g-btn-hover-reset:hover, .u-btn-twitter.g-btn-hover-reset.active {
-  background-color: #00acee;
-  border-color: #00acee;
+.u-btn-twitter.landing-ui-active {
+  background-color: #00acee !important;
 }
 
 /* Button Instagram */
@@ -3227,9 +1644,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-instagram.g-btn-hover-reset:hover, .u-btn-instagram.g-btn-hover-reset.active {
-  background-color: #3f729b;
-  border-color: #3f729b;
+.u-btn-instagram.landing-ui-active {
+  background-color: #3f729b !important;
 }
 
 /* Button VK */
@@ -3247,9 +1663,8 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-vk.g-btn-hover-reset:hover, .u-btn-vk.g-btn-hover-reset.active {
-  background-color: #2b587a;
-  border-color: #2b587a;
+.u-btn-vk.landing-ui-active {
+  background-color: #2b587a !important;
 }
 
 /* Button Google Plus */
@@ -3267,9 +1682,27 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   color: #fff;
 }
 
-.u-btn-google-plus.g-btn-hover-reset:hover, .u-btn-google-plus.g-btn-hover-reset.active {
-  background-color: #dd4b39;
-  border-color: #dd4b39;
+.u-btn-google-plus.landing-ui-active {
+  background-color: #dd4b39 !important;
+}
+
+/* Buttons Bitrix */
+.u-theme-bitrix-btn-v4 {
+  color: #fff;
+  background-color: #3330D9;
+}
+
+.u-theme-bitrix-btn-v4:hover, .u-theme-bitrix-btn-v4.active {
+  border-color: #5d5be1;
+  background-color: #5d5be1;
+}
+
+.u-theme-bitrix-btn-v4:hover, .u-theme-bitrix-btn-v4:focus, .u-theme-bitrix-btn-v4.active {
+  color: #fff;
+}
+
+.u-theme-bitrix-btn-v4.landing-ui-active {
+  background-color: #3330D9 !important;
 }
 
 /* Outline Button Primary */
@@ -3289,97 +1722,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #333;
 }
 
-.u-btn-outline-primary.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-1::after, .u-btn-outline-primary.u-btn-hover-v1-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-2::after, .u-btn-outline-primary.u-btn-hover-v1-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-3::after, .u-btn-outline-primary.u-btn-hover-v1-3:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-4::after, .u-btn-outline-primary.u-btn-hover-v1-4:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-1::after, .u-btn-outline-primary.u-btn-hover-v2-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-2::after, .u-btn-outline-primary.u-btn-hover-v2-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-primary.u-btn-hover-v3-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-primary.u-btn-hover-v3-1::after, .u-btn-outline-primary.u-btn-hover-v3-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-primary.u-btn-hover-v3-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button White */
 .u-btn-outline-white {
   color: #fff;
@@ -3395,84 +1737,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-white:hover {
   color: #555;
   background-color: #fff;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-1::after, .u-btn-outline-white.u-btn-hover-v1-1:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-2::after, .u-btn-outline-white.u-btn-hover-v1-2:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-3::after, .u-btn-outline-white.u-btn-hover-v1-3:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-4::after, .u-btn-outline-white.u-btn-hover-v1-4:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-1::after, .u-btn-outline-white.u-btn-hover-v2-1:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-2::after, .u-btn-outline-white.u-btn-hover-v2-2:hover::after {
-  background-color: white;
-}
-
-.u-btn-outline-white.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Black */
@@ -3492,84 +1756,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #000;
 }
 
-.u-btn-outline-black.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-1::after, .u-btn-outline-black.u-btn-hover-v1-1:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-2::after, .u-btn-outline-black.u-btn-hover-v1-2:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-3::after, .u-btn-outline-black.u-btn-hover-v1-3:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-4::after, .u-btn-outline-black.u-btn-hover-v1-4:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-1::after, .u-btn-outline-black.u-btn-hover-v2-1:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-2::after, .u-btn-outline-black.u-btn-hover-v2-2:hover::after {
-  background-color: #0d0d0d;
-}
-
-.u-btn-outline-black.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Dark Gray */
 .u-btn-outline-darkgray {
   color: #333;
@@ -3587,177 +1773,38 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #333;
 }
 
-.u-btn-outline-darkgray.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-1::after, .u-btn-outline-darkgray.u-btn-hover-v1-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-1:hover {
-  overflow: hidden;
+/* Outline Button Light Gray */
+.u-btn-outline-gray {
+  color: #eee;
+  border-color: #999;
   background-color: transparent;
 }
 
-.u-btn-outline-darkgray.u-btn-hover-v1-2 {
-  overflow: hidden;
+.u-btn-outline-gray:focus, .u-btn-outline-gray.active {
+  color: #fff;
+  background-color: #999;
 }
 
-.u-btn-outline-darkgray.u-btn-hover-v1-2::after, .u-btn-outline-darkgray.u-btn-hover-v1-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-3::after, .u-btn-outline-darkgray.u-btn-hover-v1-3:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-4::after, .u-btn-outline-darkgray.u-btn-hover-v1-4:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-1::after, .u-btn-outline-darkgray.u-btn-hover-v2-1:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-2::after, .u-btn-outline-darkgray.u-btn-hover-v2-2:hover::after {
-  background-color: #404040;
-}
-
-.u-btn-outline-darkgray.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
+.u-btn-outline-gray:hover {
+  color: #fff;
+  background-color: #999;
 }
 
 /* Outline Button Light Gray */
 .u-btn-outline-lightgray {
-  color: #333;
+  color: #eee;
   border-color: #eee;
   background-color: transparent;
 }
 
 .u-btn-outline-lightgray:focus, .u-btn-outline-lightgray.active {
-  color: #333;
+  color: #fff;
   background-color: #eee;
 }
 
 .u-btn-outline-lightgray:hover {
-  color: #333;
+  color: #fff;
   background-color: #eee;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-1::after, .u-btn-outline-lightgray.u-btn-hover-v1-1:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-2::after, .u-btn-outline-lightgray.u-btn-hover-v1-2:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-3::after, .u-btn-outline-lightgray.u-btn-hover-v1-3:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-4::after, .u-btn-outline-lightgray.u-btn-hover-v1-4:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-1::after, .u-btn-outline-lightgray.u-btn-hover-v2-1:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-2::after, .u-btn-outline-lightgray.u-btn-hover-v2-2:hover::after {
-  background-color: #fbfbfb;
-}
-
-.u-btn-outline-lightgray.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Button Outline Red */
@@ -3777,84 +1824,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #f00;
 }
 
-.u-btn-outline-red.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-1::after, .u-btn-outline-red.u-btn-hover-v1-1:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-2::after, .u-btn-outline-red.u-btn-hover-v1-2:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-3::after, .u-btn-outline-red.u-btn-hover-v1-3:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-4::after, .u-btn-outline-red.u-btn-hover-v1-4:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-1::after, .u-btn-outline-red.u-btn-hover-v2-1:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-2::after, .u-btn-outline-red.u-btn-hover-v2-2:hover::after {
-  background-color: #ff1a1a;
-}
-
-.u-btn-outline-red.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Button Outline Red Tomato */
 .u-btn-outline-lightred {
   color: #e64b3b;
@@ -3870,84 +1839,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-lightred:hover {
   color: #fff;
   background-color: #e64b3b;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-1::after, .u-btn-outline-lightred.u-btn-hover-v1-1:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-2::after, .u-btn-outline-lightred.u-btn-hover-v1-2:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-3::after, .u-btn-outline-lightred.u-btn-hover-v1-3:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-4::after, .u-btn-outline-lightred.u-btn-hover-v1-4:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-1::after, .u-btn-outline-lightred.u-btn-hover-v2-1:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-2::after, .u-btn-outline-lightred.u-btn-hover-v2-2:hover::after {
-  background-color: #e96052;
-}
-
-.u-btn-outline-lightred.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Dark Red */
@@ -3967,84 +1858,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #a10f2b;
 }
 
-.u-btn-outline-darkred.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-1::after, .u-btn-outline-darkred.u-btn-hover-v1-1:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-2::after, .u-btn-outline-darkred.u-btn-hover-v1-2:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-3::after, .u-btn-outline-darkred.u-btn-hover-v1-3:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-4::after, .u-btn-outline-darkred.u-btn-hover-v1-4:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-1::after, .u-btn-outline-darkred.u-btn-hover-v2-1:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-2::after, .u-btn-outline-darkred.u-btn-hover-v2-2:hover::after {
-  background-color: #b81131;
-}
-
-.u-btn-outline-darkred.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Blue */
 .u-btn-outline-blue {
   color: #3398dc;
@@ -4060,84 +1873,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-blue:hover {
   color: #fff;
   background-color: #3398dc;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-1::after, .u-btn-outline-blue.u-btn-hover-v1-1:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-2::after, .u-btn-outline-blue.u-btn-hover-v1-2:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-3::after, .u-btn-outline-blue.u-btn-hover-v1-3:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-4::after, .u-btn-outline-blue.u-btn-hover-v1-4:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-1::after, .u-btn-outline-blue.u-btn-hover-v2-1:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-2::after, .u-btn-outline-blue.u-btn-hover-v2-2:hover::after {
-  background-color: #49a3e0;
-}
-
-.u-btn-outline-blue.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Indigo */
@@ -4157,84 +1892,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #4263a3;
 }
 
-.u-btn-outline-indigo.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-1::after, .u-btn-outline-indigo.u-btn-hover-v1-1:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-2::after, .u-btn-outline-indigo.u-btn-hover-v1-2:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-3::after, .u-btn-outline-indigo.u-btn-hover-v1-3:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-4::after, .u-btn-outline-indigo.u-btn-hover-v1-4:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-1::after, .u-btn-outline-indigo.u-btn-hover-v2-1:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-2::after, .u-btn-outline-indigo.u-btn-hover-v2-2:hover::after {
-  background-color: #496eb5;
-}
-
-.u-btn-outline-indigo.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Purple */
 .u-btn-outline-purple {
   color: #9a69cb;
@@ -4250,84 +1907,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-purple:hover {
   color: #fff;
   background-color: #9a69cb;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-1::after, .u-btn-outline-purple.u-btn-hover-v1-1:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-2::after, .u-btn-outline-purple.u-btn-hover-v1-2:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-3::after, .u-btn-outline-purple.u-btn-hover-v1-3:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-4::after, .u-btn-outline-purple.u-btn-hover-v1-4:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-1::after, .u-btn-outline-purple.u-btn-hover-v2-1:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-2::after, .u-btn-outline-purple.u-btn-hover-v2-2:hover::after {
-  background-color: #a77cd2;
-}
-
-.u-btn-outline-purple.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Dark Purple */
@@ -4347,84 +1926,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #6639b6;
 }
 
-.u-btn-outline-darkpurple.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-1::after, .u-btn-outline-darkpurple.u-btn-hover-v1-1:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-2::after, .u-btn-outline-darkpurple.u-btn-hover-v1-2:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-3::after, .u-btn-outline-darkpurple.u-btn-hover-v1-3:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-4::after, .u-btn-outline-darkpurple.u-btn-hover-v1-4:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-1::after, .u-btn-outline-darkpurple.u-btn-hover-v2-1:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-2::after, .u-btn-outline-darkpurple.u-btn-hover-v2-2:hover::after {
-  background-color: #7244c4;
-}
-
-.u-btn-outline-darkpurple.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Pink */
 .u-btn-outline-pink {
   color: #e81c62;
@@ -4440,84 +1941,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-pink:hover {
   color: #fff;
   background-color: #e81c62;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-1::after, .u-btn-outline-pink.u-btn-hover-v1-1:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-2::after, .u-btn-outline-pink.u-btn-hover-v1-2:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-3::after, .u-btn-outline-pink.u-btn-hover-v1-3:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-4::after, .u-btn-outline-pink.u-btn-hover-v1-4:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-1::after, .u-btn-outline-pink.u-btn-hover-v2-1:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-2::after, .u-btn-outline-pink.u-btn-hover-v2-2:hover::after {
-  background-color: #ea3372;
-}
-
-.u-btn-outline-pink.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Orange */
@@ -4537,84 +1960,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #e57d20;
 }
 
-.u-btn-outline-orange.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-1::after, .u-btn-outline-orange.u-btn-hover-v1-1:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-2::after, .u-btn-outline-orange.u-btn-hover-v1-2:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-3::after, .u-btn-outline-orange.u-btn-hover-v1-3:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-4::after, .u-btn-outline-orange.u-btn-hover-v1-4:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-1::after, .u-btn-outline-orange.u-btn-hover-v2-1:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-2::after, .u-btn-outline-orange.u-btn-hover-v2-2:hover::after {
-  background-color: #e88a37;
-}
-
-.u-btn-outline-orange.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Deep Orange */
 .u-btn-outline-deeporange {
   color: #fe541e;
@@ -4630,84 +1975,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-deeporange:hover {
   color: #fff;
   background-color: #fe541e;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-1::after, .u-btn-outline-deeporange.u-btn-hover-v1-1:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-2::after, .u-btn-outline-deeporange.u-btn-hover-v1-2:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-3::after, .u-btn-outline-deeporange.u-btn-hover-v1-3:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-4::after, .u-btn-outline-deeporange.u-btn-hover-v1-4:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-1::after, .u-btn-outline-deeporange.u-btn-hover-v2-1:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-2::after, .u-btn-outline-deeporange.u-btn-hover-v2-2:hover::after {
-  background-color: #fe6737;
-}
-
-.u-btn-outline-deeporange.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Yellow */
@@ -4727,84 +1994,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #ebc71d;
 }
 
-.u-btn-outline-yellow.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-1::after, .u-btn-outline-yellow.u-btn-hover-v1-1:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-2::after, .u-btn-outline-yellow.u-btn-hover-v1-2:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-3::after, .u-btn-outline-yellow.u-btn-hover-v1-3:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-4::after, .u-btn-outline-yellow.u-btn-hover-v1-4:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-1::after, .u-btn-outline-yellow.u-btn-hover-v2-1:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-2::after, .u-btn-outline-yellow.u-btn-hover-v2-2:hover::after {
-  background-color: #edcd34;
-}
-
-.u-btn-outline-yellow.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Aqua */
 .u-btn-outline-aqua {
   color: #29d6e6;
@@ -4820,84 +2009,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-aqua:hover {
   color: #fff;
   background-color: #29d6e6;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-1::after, .u-btn-outline-aqua.u-btn-hover-v1-1:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-2::after, .u-btn-outline-aqua.u-btn-hover-v1-2:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-3::after, .u-btn-outline-aqua.u-btn-hover-v1-3:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-4::after, .u-btn-outline-aqua.u-btn-hover-v1-4:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-1::after, .u-btn-outline-aqua.u-btn-hover-v2-1:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-2::after, .u-btn-outline-aqua.u-btn-hover-v2-2:hover::after {
-  background-color: #40dae9;
-}
-
-.u-btn-outline-aqua.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Cyan */
@@ -4917,84 +2028,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #00bed6;
 }
 
-.u-btn-outline-cyan.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-1::after, .u-btn-outline-cyan.u-btn-hover-v1-1:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-2::after, .u-btn-outline-cyan.u-btn-hover-v1-2:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-3::after, .u-btn-outline-cyan.u-btn-hover-v1-3:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-4::after, .u-btn-outline-cyan.u-btn-hover-v1-4:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-1::after, .u-btn-outline-cyan.u-btn-hover-v2-1:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-2::after, .u-btn-outline-cyan.u-btn-hover-v2-2:hover::after {
-  background-color: #00d5f0;
-}
-
-.u-btn-outline-cyan.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Teal */
 .u-btn-outline-teal {
   color: #18ba9b;
@@ -5010,84 +2043,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-teal:hover {
   color: #fff;
   background-color: #18ba9b;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-1::after, .u-btn-outline-teal.u-btn-hover-v1-1:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-2::after, .u-btn-outline-teal.u-btn-hover-v1-2:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-3::after, .u-btn-outline-teal.u-btn-hover-v1-3:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-4::after, .u-btn-outline-teal.u-btn-hover-v1-4:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-1::after, .u-btn-outline-teal.u-btn-hover-v2-1:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-2::after, .u-btn-outline-teal.u-btn-hover-v2-2:hover::after {
-  background-color: #1bd1ae;
-}
-
-.u-btn-outline-teal.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Outline Button Brown */
@@ -5107,84 +2062,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
   background-color: #9c8061;
 }
 
-.u-btn-outline-brown.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-1::after, .u-btn-outline-brown.u-btn-hover-v1-1:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-2::after, .u-btn-outline-brown.u-btn-hover-v1-2:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-3::after, .u-btn-outline-brown.u-btn-hover-v1-3:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-4::after, .u-btn-outline-brown.u-btn-hover-v1-4:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-1::after, .u-btn-outline-brown.u-btn-hover-v2-1:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-2::after, .u-btn-outline-brown.u-btn-hover-v2-2:hover::after {
-  background-color: #a68d70;
-}
-
-.u-btn-outline-brown.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
 /* Outline Button Bluegrey */
 .u-btn-outline-bluegray {
   color: #585f69;
@@ -5200,84 +2077,6 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-bluegray:hover {
   color: #fff;
   background-color: #585f69;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-1::after, .u-btn-outline-bluegray.u-btn-hover-v1-1:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-2::after, .u-btn-outline-bluegray.u-btn-hover-v1-2:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-2:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-3 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-3::after, .u-btn-outline-bluegray.u-btn-hover-v1-3:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-3:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-4 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-4::after, .u-btn-outline-bluegray.u-btn-hover-v1-4:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v1-4:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-1 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-1::after, .u-btn-outline-bluegray.u-btn-hover-v2-1:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-1:hover {
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-2 {
-  overflow: hidden;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-2::after, .u-btn-outline-bluegray.u-btn-hover-v2-2:hover::after {
-  background-color: #646c77;
-}
-
-.u-btn-outline-bluegray.u-btn-hover-v2-2:hover {
-  overflow: hidden;
-  background-color: transparent;
 }
 
 /* Button Facebook */
@@ -5329,6 +2128,23 @@ Instead this colors was be added new navbar color themes in /custom/_navbar.scss
 .u-btn-outline-dribbble:hover {
   color: #fff;
   background-color: #ea4c89;
+}
+
+/* Buttons Bitrix */
+.u-theme-bitrix-btn-outline-v4 {
+  color: #3330D9;
+  border-color: #3330D9;
+  background-color: transparent;
+}
+
+.u-theme-bitrix-btn-outline-v4:focus, .u-theme-bitrix-btn-outline-v4.active {
+  color: #fff;
+  background-color: #3330D9;
+}
+
+.u-theme-bitrix-btn-outline-v4:hover {
+  color: #fff;
+  background-color: #3330D9;
 }
 
 /* Gradient Style v1 */
@@ -5474,6 +2290,567 @@ button.u-btn-floating {
 }
 
 /*------------------------------------
+  States
+------------------------------------*/
+/*------------------------------------
+  Focus state color
+------------------------------------*/
+/* Primary Colors */
+.g-color-primary:focus {
+  color: #333;
+}
+
+/* Black Colors */
+.g-color-black--focus:focus {
+  color: #000;
+}
+
+/* White Colors */
+.g-color-white--focus:focus {
+  color: #fff !important;
+}
+
+/* Gray Colors */
+.g-color-gray-light-v4:focus {
+  color: #eee !important;
+}
+
+/*------------------------------------
+  Checked state background
+------------------------------------*/
+/* Primary Colors */
+input[type="checkbox"]:checked + .g-bg-primary--checked,
+input[type="radio"]:checked + .g-bg-primary--checked,
+input[type="checkbox"]:checked + * .g-bg-primary--checked,
+input[type="radio"]:checked + * .g-bg-primary--checked {
+  background-color: #333 !important;
+}
+
+.g-bg-primary--checked.g-checked,
+.g-checked .g-bg-primary--checked {
+  background-color: #333 !important;
+}
+
+/* Black Colors */
+input[type="checkbox"]:checked + .g-bg-black--checked,
+input[type="radio"]:checked + .g-bg-black--checked,
+input[type="checkbox"]:checked + * .g-bg-black--checked,
+input[type="radio"]:checked + * .g-bg-black--checked {
+  background-color: #000 !important;
+}
+
+.g-bg-black--checked.g-checked,
+.g-checked .g-bg-black--checked {
+  background-color: #000 !important;
+}
+
+/* White Colors */
+input[type="checkbox"]:checked + .g-bg-white--checked,
+input[type="radio"]:checked + .g-bg-white--checked,
+input[type="checkbox"]:checked + * .g-bg-white--checked,
+input[type="radio"]:checked + * .g-bg-white--checked {
+  background-color: #fff !important;
+}
+
+.g-bg-white--checked.g-checked,
+.g-checked .g-bg-white--checked {
+  background-color: #fff !important;
+}
+
+/* Gray Colors */
+input[type="checkbox"]:checked + .g-bg-dark-dark-v1--checked,
+input[type="radio"]:checked + .g-bg-dark-dark-v1--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-dark-v1--checked,
+input[type="radio"]:checked + * .g-bg-dark-dark-v1--checked {
+  background-color: #111 !important;
+}
+
+.g-bg-dark-dark-v1--checked.g-checked,
+.g-checked .g-bg-dark-dark-v1--checked {
+  background-color: #111 !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-dark-v2--checked,
+input[type="radio"]:checked + .g-bg-dark-dark-v2--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-dark-v2--checked,
+input[type="radio"]:checked + * .g-bg-dark-dark-v2--checked {
+  background-color: #333 !important;
+}
+
+.g-bg-dark-dark-v2--checked.g-checked,
+.g-checked .g-bg-dark-dark-v2--checked {
+  background-color: #333 !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-dark-v3--checked,
+input[type="radio"]:checked + .g-bg-dark-dark-v3--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-dark-v3--checked,
+input[type="radio"]:checked + * .g-bg-dark-dark-v3--checked {
+  background-color: #555 !important;
+}
+
+.g-bg-dark-dark-v3--checked.g-checked,
+.g-checked .g-bg-dark-dark-v3--checked {
+  background-color: #555 !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-dark-v4--checked,
+input[type="radio"]:checked + .g-bg-dark-dark-v4--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-dark-v4--checked,
+input[type="radio"]:checked + * .g-bg-dark-dark-v4--checked {
+  background-color: #777 !important;
+}
+
+.g-bg-dark-dark-v4--checked.g-checked,
+.g-checked .g-bg-dark-dark-v4--checked {
+  background-color: #777 !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-dark-v5--checked,
+input[type="radio"]:checked + .g-bg-dark-dark-v5--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-dark-v5--checked,
+input[type="radio"]:checked + * .g-bg-dark-dark-v5--checked {
+  background-color: #999 !important;
+}
+
+.g-bg-dark-dark-v5--checked.g-checked,
+.g-checked .g-bg-dark-dark-v5--checked {
+  background-color: #999 !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-light-v1--checked,
+input[type="radio"]:checked + .g-bg-dark-light-v1--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-light-v1--checked,
+input[type="radio"]:checked + * .g-bg-dark-light-v1--checked {
+  background-color: #bbb !important;
+}
+
+.g-bg-dark-light-v1--checked.g-checked,
+.g-checked .g-bg-dark-light-v1--checked {
+  background-color: #bbb !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-light-v2--checked,
+input[type="radio"]:checked + .g-bg-dark-light-v2--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-light-v2--checked,
+input[type="radio"]:checked + * .g-bg-dark-light-v2--checked {
+  background-color: #ccc !important;
+}
+
+.g-bg-dark-light-v2--checked.g-checked,
+.g-checked .g-bg-dark-light-v2--checked {
+  background-color: #ccc !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-light-v3--checked,
+input[type="radio"]:checked + .g-bg-dark-light-v3--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-light-v3--checked,
+input[type="radio"]:checked + * .g-bg-dark-light-v3--checked {
+  background-color: #ddd !important;
+}
+
+.g-bg-dark-light-v3--checked.g-checked,
+.g-checked .g-bg-dark-light-v3--checked {
+  background-color: #ddd !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-light-v4--checked,
+input[type="radio"]:checked + .g-bg-dark-light-v4--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-light-v4--checked,
+input[type="radio"]:checked + * .g-bg-dark-light-v4--checked {
+  background-color: #eee !important;
+}
+
+.g-bg-dark-light-v4--checked.g-checked,
+.g-checked .g-bg-dark-light-v4--checked {
+  background-color: #eee !important;
+}
+
+input[type="checkbox"]:checked + .g-bg-dark-light-v5--checked,
+input[type="radio"]:checked + .g-bg-dark-light-v5--checked,
+input[type="checkbox"]:checked + * .g-bg-dark-light-v5--checked,
+input[type="radio"]:checked + * .g-bg-dark-light-v5--checked {
+  background-color: #f7f7f7 !important;
+}
+
+.g-bg-dark-light-v5--checked.g-checked,
+.g-checked .g-bg-dark-light-v5--checked {
+  background-color: #f7f7f7 !important;
+}
+
+/* Transparent */
+input[type="checkbox"]:checked + .g-bg-transparent--checked,
+input[type="radio"]:checked + .g-bg-transparent--checked,
+input[type="checkbox"]:checked + * .g-bg-transparent--checked,
+input[type="radio"]:checked + * .g-bg-transparent--checked {
+  background-color: transparent !important;
+}
+
+.g-bg-transparent--checked.g-checked,
+.g-checked .g-bg-transparent--checked {
+  background-color: transparent !important;
+}
+
+/* Color Red */
+input[type="checkbox"]:checked + .g-bg-red--checked,
+input[type="radio"]:checked + .g-bg-red--checked,
+input[type="checkbox"]:checked + * .g-bg-red--checked,
+input[type="radio"]:checked + * .g-bg-red--checked {
+  background-color: #f00 !important;
+}
+
+.g-bg-red--checked.g-checked,
+.g-checked .g-bg-red--checked {
+  background-color: #f00 !important;
+}
+
+/*------------------------------------
+  Checked state Colors
+------------------------------------*/
+/* Primary Colors */
+input[type="checkbox"]:checked + .g-color-primary--checked,
+input[type="radio"]:checked + .g-color-primary--checked,
+input[type="checkbox"]:checked + * .g-color-primary--checked,
+input[type="radio"]:checked + * .g-color-primary--checked {
+  color: #333 !important;
+}
+
+.g-color-primary--checked.g-checked,
+.g-checked .g-color-primary--checked {
+  color: #333 !important;
+}
+
+/*------------------------------------
+  Focus state background
+------------------------------------*/
+/* Black Colors */
+.g-bg-black--focus:focus {
+  background-color: #000 !important;
+}
+
+.g-bg-black-opacity-0_2--focus:focus {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.g-bg-black-opacity-0_4--focus:focus {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Gray Colors */
+.g-bg-gray-dark-v1--focus:focus {
+  background-color: #111 !important;
+}
+
+.g-bg-gray-dark-v2--focus:focus {
+  background-color: #333 !important;
+}
+
+.g-bg-gray-dark-v3--focus:focus {
+  background-color: #555 !important;
+}
+
+.g-bg-gray-light-v4--focus:focus {
+  background-color: #eee !important;
+}
+
+.g-bg-gray-light-v5--focus:focus {
+  background-color: #f7f7f7 !important;
+}
+
+/* Transparent */
+.g-bg-transparent--focus:focus {
+  background-color: transparent;
+}
+
+/*------------------------------------
+  Checked state border
+------------------------------------*/
+/* Primary Colors */
+input[type="checkbox"]:checked + .g-brd-primary--checked,
+input[type="radio"]:checked + .g-brd-primary--checked,
+input[type="checkbox"]:checked + * .g-brd-primary--checked,
+input[type="radio"]:checked + * .g-brd-primary--checked {
+  border-color: #333 !important;
+}
+
+.g-brd-primary--checked.g-checked,
+.g-checked .g-brd-primary--checked {
+  border-color: #333 !important;
+}
+
+/* Black Colors */
+input[type="checkbox"]:checked + .g-brd-black--checked,
+input[type="radio"]:checked + .g-brd-black--checked,
+input[type="checkbox"]:checked + * .g-brd-black--checked,
+input[type="radio"]:checked + * .g-brd-black--checked {
+  border-color: #000 !important;
+}
+
+.g-brd-black--checked.g-checked,
+.g-checked .g-brd-black--checked {
+  border-color: #000 !important;
+}
+
+/* White */
+input[type="checkbox"]:checked + .g-brd-white--checked,
+input[type="radio"]:checked + .g-brd-white--checked,
+input[type="checkbox"]:checked + * .g-brd-white--checked,
+input[type="radio"]:checked + * .g-brd-white--checked {
+  border-color: #fff !important;
+}
+
+.g-brd-white--checked.g-checked,
+.g-checked .g-brd-white--checked {
+  border-color: #fff !important;
+}
+
+/* Gray Colors */
+input[type="checkbox"]:checked + .g-brd-gray-dark-v1--checked,
+input[type="radio"]:checked + .g-brd-gray-dark-v1--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-dark-v1--checked,
+input[type="radio"]:checked + * .g-brd-gray-dark-v1--checked {
+  border-color: #111 !important;
+}
+
+.g-brd-gray-dark-v1--checked.g-checked,
+.g-checked .g-brd-gray-dark-v1--checked {
+  border-color: #111 !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-dark-v2--checked,
+input[type="radio"]:checked + .g-brd-gray-dark-v2--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-dark-v2--checked,
+input[type="radio"]:checked + * .g-brd-gray-dark-v2--checked {
+  border-color: #333 !important;
+}
+
+.g-brd-gray-dark-v2--checked.g-checked,
+.g-checked .g-brd-gray-dark-v2--checked {
+  border-color: #333 !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-dark-v3--checked,
+input[type="radio"]:checked + .g-brd-gray-dark-v3--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-dark-v3--checked,
+input[type="radio"]:checked + * .g-brd-gray-dark-v3--checked {
+  border-color: #555 !important;
+}
+
+.g-brd-gray-dark-v3--checked.g-checked,
+.g-checked .g-brd-gray-dark-v3--checked {
+  border-color: #555 !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-dark-v4--checked,
+input[type="radio"]:checked + .g-brd-gray-dark-v4--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-dark-v4--checked,
+input[type="radio"]:checked + * .g-brd-gray-dark-v4--checked {
+  border-color: #777 !important;
+}
+
+.g-brd-gray-dark-v4--checked.g-checked,
+.g-checked .g-brd-gray-dark-v4--checked {
+  border-color: #777 !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-dark-v5--checked,
+input[type="radio"]:checked + .g-brd-gray-dark-v5--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-dark-v5--checked,
+input[type="radio"]:checked + * .g-brd-gray-dark-v5--checked {
+  border-color: #999 !important;
+}
+
+.g-brd-gray-dark-v5--checked.g-checked,
+.g-checked .g-brd-gray-dark-v5--checked {
+  border-color: #999 !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-light-v1--checked,
+input[type="radio"]:checked + .g-brd-gray-light-v1--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-light-v1--checked,
+input[type="radio"]:checked + * .g-brd-gray-light-v1--checked {
+  border-color: #bbb !important;
+}
+
+.g-brd-gray-light-v1--checked.g-checked,
+.g-checked .g-brd-gray-light-v1--checked {
+  border-color: #bbb !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-light-v2--checked,
+input[type="radio"]:checked + .g-brd-gray-light-v2--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-light-v2--checked,
+input[type="radio"]:checked + * .g-brd-gray-light-v2--checked {
+  border-color: #ccc !important;
+}
+
+.g-brd-gray-light-v2--checked.g-checked,
+.g-checked .g-brd-gray-light-v2--checked {
+  border-color: #ccc !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-light-v3--checked,
+input[type="radio"]:checked + .g-brd-gray-light-v3--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-light-v3--checked,
+input[type="radio"]:checked + * .g-brd-gray-light-v3--checked {
+  border-color: #ddd !important;
+}
+
+.g-brd-gray-light-v3--checked.g-checked,
+.g-checked .g-brd-gray-light-v3--checked {
+  border-color: #ddd !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-light-v4--checked,
+input[type="radio"]:checked + .g-brd-gray-light-v4--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-light-v4--checked,
+input[type="radio"]:checked + * .g-brd-gray-light-v4--checked {
+  border-color: #eee !important;
+}
+
+.g-brd-gray-light-v4--checked.g-checked,
+.g-checked .g-brd-gray-light-v4--checked {
+  border-color: #eee !important;
+}
+
+input[type="checkbox"]:checked + .g-brd-gray-light-v5--checked,
+input[type="radio"]:checked + .g-brd-gray-light-v5--checked,
+input[type="checkbox"]:checked + * .g-brd-gray-light-v5--checked,
+input[type="radio"]:checked + * .g-brd-gray-light-v5--checked {
+  border-color: #f7f7f7 !important;
+}
+
+.g-brd-gray-light-v5--checked.g-checked,
+.g-checked .g-brd-gray-light-v5--checked {
+  border-color: #f7f7f7 !important;
+}
+
+/* Transparent */
+input[type="checkbox"]:checked + .g-brd-transparent--checked,
+input[type="radio"]:checked + .g-brd-transparent--checked,
+input[type="checkbox"]:checked + * .g-brd-transparent--checked,
+input[type="radio"]:checked + * .g-brd-transparent--checked {
+  border-color: transparent !important;
+}
+
+.g-brd-transparent--checked.g-checked,
+.g-checked .g-brd-transparent--checked {
+  border-color: transparent !important;
+}
+
+/* Color Red */
+input[type="checkbox"]:checked + .g-brd-red--checked,
+input[type="radio"]:checked + .g-brd-red--checked,
+input[type="checkbox"]:checked + * .g-brd-red--checked,
+input[type="radio"]:checked + * .g-brd-red--checked {
+  border-color: #f00 !important;
+}
+
+.g-brd-red--checked.g-checked,
+.g-checked .g-brd-red--checked {
+  border-color: #f00 !important;
+}
+
+/*------------------------------------
+  Focus state border
+------------------------------------*/
+/* Primary Colors */
+.g-brd-primary--focus:focus,
+.g-brd-primary--focus.g-state-focus *,
+.g-brd-primary--focus.g-state-focus *:focus {
+  border-color: #333 !important;
+}
+
+/* Black Colors */
+.g-brd-black--focus:focus,
+.g-brd-black--focus.g-state-focus *,
+.g-brd-black--focus.g-state-focus *:focus {
+  border-color: #000 !important;
+}
+
+/* White */
+.g-brd-white--focus:focus,
+.g-brd-white--focus.g-state-focus *,
+.g-brd-white--focus.g-state-focus *:focus {
+  border-color: #fff !important;
+}
+
+/* Gray Colors */
+.g-brd-gray-dark-v1--focus:focus,
+.g-brd-gray-dark-v1--focus.g-state-focus *,
+.g-brd-gray-dark-v1--focus.g-state-focus *:focus {
+  border-color: #111 !important;
+}
+
+.g-brd-gray-dark-v2--focus:focus,
+.g-brd-gray-dark-v2--focus.g-state-focus *,
+.g-brd-gray-dark-v2--focus.g-state-focus *:focus {
+  border-color: #333 !important;
+}
+
+.g-brd-gray-dark-v3--focus:focus,
+.g-brd-gray-dark-v3--focus.g-state-focus *,
+.g-brd-gray-dark-v3--focus.g-state-focus *:focus {
+  border-color: #555 !important;
+}
+
+.g-brd-gray-dark-v4--focus:focus,
+.g-brd-gray-dark-v4--focus.g-state-focus *,
+.g-brd-gray-dark-v4--focus.g-state-focus *:focus {
+  border-color: #777 !important;
+}
+
+.g-brd-gray-dark-v5--focus:focus,
+.g-brd-gray-dark-v5--focus.g-state-focus *,
+.g-brd-gray-dark-v5--focus.g-state-focus *:focus {
+  border-color: #999 !important;
+}
+
+.g-brd-gray-dark-light-v1--focus:focus,
+.g-brd-gray-dark-light-v1--focus.g-state-focus *,
+.g-brd-gray-dark-light-v1--focus.g-state-focus *:focus {
+  border-color: #bbb !important;
+}
+
+.g-brd-gray-dark-light-v2--focus:focus,
+.g-brd-gray-dark-light-v2--focus.g-state-focus *,
+.g-brd-gray-dark-light-v2--focus.g-state-focus *:focus {
+  border-color: #ccc !important;
+}
+
+.g-brd-gray-dark-light-v3--focus:focus,
+.g-brd-gray-dark-light-v3--focus.g-state-focus *,
+.g-brd-gray-dark-light-v3--focus.g-state-focus *:focus {
+  border-color: #ddd !important;
+}
+
+.g-brd-gray-dark-light-v4--focus:focus,
+.g-brd-gray-dark-light-v4--focus.g-state-focus *,
+.g-brd-gray-dark-light-v4--focus.g-state-focus *:focus {
+  border-color: #eee !important;
+}
+
+.g-brd-gray-dark-light-v5--focus:focus,
+.g-brd-gray-dark-light-v5--focus.g-state-focus *,
+.g-brd-gray-dark-light-v5--focus.g-state-focus *:focus {
+  border-color: #f7f7f7 !important;
+}
+
+/* Transparent */
+.g-brd-transparent--focus:focus,
+.g-brd-transparent--focus.g-state-focus *,
+.g-brd-transparent--focus.g-state-focus *:focus {
+  border-color: transparent !important;
+}
+
+/* Color Red */
+.g-brd-red--focus:focus,
+.g-brd-red--focus.g-state-focus *,
+.g-brd-red--focus.g-state-focus *:focus {
+  border-color: #f00 !important;
+}
+
+/*------------------------------------
   Carousel indicators v1
 ------------------------------------*/
 .u-carousel-indicators-v1,
@@ -5481,12 +2858,18 @@ button.u-btn-floating {
 .u-carousel-indicators-v1--white {
   display: -ms-flexbox !important;
   display: flex !important;
+  width: 100%;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  padding: 0 15px;
+  -ms-flex-pack: center;
+      justify-content: center;
 }
 
 .u-carousel-indicators-v1 li,
 .u-carousel-indicators-v1--white-inverse li,
 .u-carousel-indicators-v1--white li {
-  margin: 0 5px;
+  margin: 0 5px 5px;
 }
 
 .u-carousel-indicators-v1 li.slick-active span,
@@ -5502,7 +2885,7 @@ button.u-btn-floating {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #ddd;
+  background-color: #ccc;
   opacity: .7;
 }
 
@@ -8000,103 +5383,7 @@ img.u-block-hover__main--magnifier-top-left {
 /*------------------------------------
   Custom Bootstrap
 ------------------------------------*/
-.container-semiboxed {
-  box-sizing: border-box;
-  max-width: 100%;
-  padding-left: 15px;
-  padding-right: 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-@media (min-width: 576px) {
-  .container-semiboxed {
-    width: 540px;
-  }
-}
-
-@media (min-width: 768px) {
-  .container-semiboxed {
-    width: 720px;
-  }
-}
-
-@media (min-width: 992px) {
-  .container-semiboxed {
-    width: 960px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .container-semiboxed {
-    width: 1140px;
-  }
-}
-
-@media (min-width: 1400px) {
-  .container-semiboxed {
-    width: 1340px;
-  }
-}
-
-.text-muted {
-  color: #999 !important;
-}
-
-.list-group-item {
-  border-color: #eee;
-}
-
-.list-group-item-action:hover {
-  background-color: #f7f7f7;
-}
-
-.list-group-item.active {
-  background-color: #333;
-  border-color: #333;
-}
-
-.list-group-border-0 .list-group-item:first-child,
-.list-group-border-0 .list-group-item:last-child {
-  border-radius: 0;
-}
-
 /* Paginations */
-.page-link {
-  color: #333;
-}
-
-.page-link:focus, .page-link:hover {
-  color: #333;
-}
-
-.page-item.active .page-link,
-.page-item.active .page-link:focus,
-.page-item.active .page-link:hover {
-  border-color: #333;
-  background-color: #333;
-}
-
-.nav-pills .nav-item.show .nav-link,
-.nav-pills .nav-link.active {
-  background-color: #333;
-}
-
-.nav-tabs {
-  border-bottom: 1px solid #eee;
-}
-
-.nav-tabs .nav-link:focus,
-.nav-tabs .nav-link:hover {
-  border-color: transparent;
-}
-
-.nav-tabs .nav-link.active,
-.nav-tabs .nav-item.show .nav-link {
-  color: #333;
-  border-color: #eee #eee #fff;
-}
-
 .progress {
   font-size: 1rem;
   line-height: inherit;
@@ -8174,26 +5461,8 @@ img.u-block-hover__main--magnifier-top-left {
   padding: 1.07143rem;
 }
 
-.form-control {
-  border-color: #ccc;
-}
-
-.form-control-md {
-  padding: .8rem 1rem .6rem;
-}
-
-.input-group-lg > .input-group-btn > select.btn:not([size]):not([multiple]), .input-group-lg > select.form-control:not([size]):not([multiple]), .input-group-lg > select.input-group-addon:not([size]):not([multiple]), select.form-control-lg:not([size]):not([multiple]) {
-  height: calc(2.3125rem + 10px);
-}
-
-.form-control,
-.form-control:focus {
-  color: #333;
-}
-
 .form-control:focus,
 .custom-select:focus {
-  border-color: #333;
   box-shadow: none;
 }
 
@@ -8205,141 +5474,6 @@ img.u-block-hover__main--magnifier-top-left {
 .form-control::placeholder {
   color: inherit;
   opacity: .5;
-}
-
-.has-success .col-form-label,
-.has-success .custom-control,
-.has-success .form-check-label,
-.has-success .form-control-feedback,
-.has-success .form-control-label {
-  color: #5cb85c;
-}
-
-.has-success .form-control {
-  border-color: #5cb85c;
-}
-
-.has-warning .col-form-label,
-.has-warning .custom-control,
-.has-warning .form-check-label,
-.has-warning .form-control-feedback,
-.has-warning .form-control-label {
-  color: #f0ad4e;
-}
-
-.has-warning .form-control {
-  border-color: #f0ad4e;
-}
-
-.has-danger .col-form-label,
-.has-danger .custom-control,
-.has-danger .form-check-label,
-.has-danger .form-control-feedback,
-.has-danger .form-control-label {
-  color: #d9534f;
-}
-
-.has-danger .form-control {
-  border-color: #d9534f;
-}
-
-.input-group-addon {
-  min-width: 38px;
-  background-color: transparent;
-  border-color: #ccc;
-  transition: border-color .15s ease-in-out 0s;
-}
-
-.input-group-addon > * {
-  white-space: normal;
-}
-
-.input-group-addon i {
-  margin: 0 auto;
-}
-
-.input-group .form-control:active,
-.input-group .form-control:focus,
-.input-group .form-control:hover {
-  z-index: auto;
-}
-
-.btn-group {
-  display: block;
-}
-
-.input-group-addon + .input-group-addon {
-  border-left: solid 1px #ccc;
-}
-
-.table-striped tbody tr:nth-of-type(2n+1) {
-  background-color: #f7f7f7;
-}
-
-.table-striped tbody td {
-  border-top: none;
-}
-
-@media (min-width: 768px) {
-  .btn-group {
-    display: -ms-inline-flexbox;
-    display: inline-flex;
-  }
-  .justified-content {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-  }
-  .justified-content > * {
-    display: table-cell;
-    width: 1%;
-    float: none;
-  }
-}
-
-.dropdown-menu {
-  min-width: 15rem;
-  padding: 0;
-}
-
-.dropdown-toggle::before {
-  display: none;
-}
-
-.dropdown-toggle::after {
-  content: "\e900";
-  position: relative;
-  top: 0.21429rem;
-  font-family: "hs-icons" !important;
-  font-size: 10px;
-  display: inline;
-  border: none;
-  margin-left: 0.5rem;
-}
-
-.dropdown-item {
-  padding: 0.21429rem 1.07143rem;
-}
-
-.dropdown-item:focus, .dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.dropdown-item.active, .dropdown-item:active {
-  background: rgba(0, 0, 0, 0.05);
-  color: inherit !important;
-}
-
-.dropdown-item.active > a, .dropdown-item:active > a {
-  color: inherit !important;
-}
-
-.dropdown-item.active > a::before, .dropdown-item.active > a::after, .dropdown-item:active > a::before, .dropdown-item:active > a::after {
-  background-color: #fff;
-}
-
-.u-header__section--dark .dropdown-item.active > a, .u-header__section--dark .dropdown-item:active > a {
-  color: #fff !important;
 }
 
 /*--------------------------------------------------
@@ -8796,97 +5930,6 @@ img.u-block-hover__main--magnifier-top-left {
   border-color: #5bc0de !important;
 }
 
-/*
-NAVBAR menus
-*/
-.navbar a {
-  color: #fff;
-}
-
-.navbar .hamburger-inner {
-  background-color: #fff;
-}
-
-.navbar .active a, .navbar a:hover {
-  color: #333 !important;
-}
-
-.u-header__section--light .navbar a {
-  color: #333;
-}
-
-.u-header__section--light .navbar .hamburger-inner {
-  background-color: #333;
-}
-
-.u-navbar-color-primary {
-  color: #333 !important;
-}
-
-.u-navbar-color-primary a, .js-header-fix-moment .u-navbar-color-primary--fix-moment, .js-header-fix-moment .u-navbar-color-primary--fix-moment a {
-  color: #333 !important;
-}
-
-.u-navbar-color-primary .hamburger-inner, .js-header-fix-moment .u-navbar-color-primary--fix-moment .hamburger-inner {
-  background-color: #333 !important;
-}
-
-.u-navbar-color-primary--hover:hover {
-  color: #333 !important;
-}
-
-.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover:hover {
-  color: #333 !important;
-}
-
-.u-navbar-color-primary--hover .navbar-nav a:hover, .u-navbar-color-primary--hover .navbar-nav .active a,
-.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover .navbar-nav a:hover,
-.js-header-fix-moment .u-navbar-color-primary--fix-moment--hover .navbar-nav .active a {
-  color: #333 !important;
-}
-
-.u-navbar-color-primary--fix-moment::after {
-  color: #333 !important;
-}
-
-.u-navbar-color-primary--fix-moment--hover::after {
-  color: #333 !important;
-}
-
-.u-navbar-color-main {
-  color: #333 !important;
-}
-
-.u-navbar-color-main a, .js-header-fix-moment .u-navbar-color-main--fix-moment, .js-header-fix-moment .u-navbar-color-main--fix-moment a {
-  color: #333 !important;
-}
-
-.u-navbar-color-main .hamburger-inner, .js-header-fix-moment .u-navbar-color-main--fix-moment .hamburger-inner {
-  background-color: #333 !important;
-}
-
-.u-navbar-color-main--hover:hover {
-  color: #333 !important;
-}
-
-.js-header-fix-moment .u-navbar-color-main--fix-moment--hover:hover {
-  color: #333 !important;
-}
-
-.u-navbar-color-main--hover .navbar-nav a:hover, .u-navbar-color-main--hover .navbar-nav .active a,
-.js-header-fix-moment .u-navbar-color-main--fix-moment--hover .navbar-nav a:hover,
-.js-header-fix-moment .u-navbar-color-main--fix-moment--hover .navbar-nav .active a {
-  color: #333 !important;
-}
-
-.u-navbar-color-main--fix-moment::after {
-  color: #333 !important;
-}
-
-.u-navbar-color-main--fix-moment--hover::after {
-  color: #333 !important;
-}
-
 /*------------------------------------
   Background Gradient Colors
 ------------------------------------*/
@@ -9159,8 +6202,32 @@ NAVBAR menus
   background-color: #fff !important;
 }
 
+.g-bg-main--hover:hover {
+  background-color: #fff !important;
+}
+
+.g-bg-main--after::after {
+  background-color: #fff !important;
+}
+
+.g-bg-main--before::before {
+  background-color: #fff !important;
+}
+
 /* Main Secondary */
 .g-bg-secondary {
+  background-color: #fafafa !important;
+}
+
+.g-bg-secondary--hover:hover {
+  background-color: #fafafa !important;
+}
+
+.g-bg-secondary--after::after {
+  background-color: #fafafa !important;
+}
+
+.g-bg-secondary--before::before {
   background-color: #fafafa !important;
 }
 
@@ -9222,8 +6289,12 @@ NAVBAR menus
   background-color: rgba(51, 51, 51, 0.1) !important;
 }
 
+.g-bg-primary-opacity-0_1--hover:hover {
+  background-color: rgba(51, 51, 51, 0.1) !important;
+}
+
 .g-bg-primary-opacity-0_1--before::before {
-  background-color: rgba(51, 51, 51, 0.2) !important;
+  background-color: rgba(51, 51, 51, 0.1) !important;
 }
 
 .g-bg-primary-opacity-0_2 {
@@ -9355,13 +6426,6 @@ NAVBAR menus
 }
 
 /*------------------------------------
-  Background Colors Extended
-------------------------------------*/
-.js-header-change-moment .g-bg-primary--scrolling {
-  background-color: #333 !important;
-}
-
-/*------------------------------------
   Border Colors
 ------------------------------------*/
 /* Basic Colors
@@ -9371,77 +6435,128 @@ NAVBAR menus
   border-color: #333 !important;
 }
 
-.g-brd-primary--before::before {
+.g-brd-primary--hover:hover {
   border-color: #333 !important;
 }
 
-.g-brd-primary--before--active.active::before {
-  border-color: #333 !important;
+.g-brd-primary-top {
+  border-top-color: #333 !important;
 }
 
-.g-brd-primary--hover:hover, .g-brd-primary--active.active {
-  border-color: #333 !important;
-}
-
-.g-brd-primary--active.active,
-.active .g-brd-primary--active {
-  border-color: #333 !important;
-}
-
-*:hover > .g-brd-primary--hover-parent {
-  border-color: #333 !important;
+.g-brd-primary-top[class*="g-brd-"] {
+  border-top-color: #333 !important;
 }
 
 .g-brd-primary-opacity-0_3 {
   border-color: rgba(51, 51, 51, 0.3) !important;
 }
 
-.g-brd-primary-opacity-0_3--hover:hover, .g-brd-primary-opacity-0_3--active.active {
+.g-brd-primary-opacity-0_3--hover:hover {
   border-color: rgba(51, 51, 51, 0.3) !important;
 }
 
-*:hover > .g-brd-primary-opacity-0_3--hover-parent {
-  border-color: rgba(51, 51, 51, 0.3) !important;
+.g-brd-primary-opacity-0_3-top {
+  border-top-color: rgba(51, 51, 51, 0.3) !important;
+}
+
+.g-brd-primary-opacity-0_3-top[class*="g-brd-"] {
+  border-top-color: rgba(51, 51, 51, 0.3) !important;
 }
 
 .g-brd-primary-dark-dark-v1 {
   border-color: #2e2e2e !important;
 }
 
-.g-brd-primary-dark-dark-v1--hover:hover, .g-brd-primary-dark-dark-v1--active.active {
+.g-brd-primary-dark-dark-v1--hover:hover {
   border-color: #2e2e2e !important;
 }
 
-*:hover > .g-brd-primary-dark-dark-v1--hover-parent {
-  border-color: #2e2e2e !important;
+.g-brd-primary-dark-dark-v1-top {
+  border-top-color: #2e2e2e !important;
+}
+
+.g-brd-primary-dark-dark-v1-top[class*="g-brd-"] {
+  border-top-color: #2e2e2e !important;
 }
 
 .g-brd-primary-dark-dark-v2 {
   border-color: #262626 !important;
 }
 
-.g-brd-primary-dark-dark-v2--hover:hover, .g-brd-primary-dark-dark-v2--active.active {
+.g-brd-primary-dark-dark-v2--hover:hover {
   border-color: #262626 !important;
 }
 
-*:hover > .g-brd-primary-dark-dark-v2--hover-parent {
-  border-color: #262626 !important;
+.g-brd-primary-dark-dark-v2-top {
+  border-top-color: #262626 !important;
+}
+
+.g-brd-primary-dark-dark-v2-top[class*="g-brd-"] {
+  border-top-color: #262626 !important;
 }
 
 .g-brd-primary-dark-dark-v3 {
   border-color: #1a1a1a !important;
 }
 
-.g-brd-primary-dark-dark-v3--hover:hover, .g-brd-primary-dark-dark-v3--active.active {
+.g-brd-primary-dark-dark-v3--hover:hover {
   border-color: #1a1a1a !important;
 }
 
-*:hover > .g-brd-primary-dark-dark-v3--hover-parent {
+.g-brd-primary-dark-dark-v3-top {
+  border-top-color: #1a1a1a !important;
+}
+
+.g-brd-primary-dark-dark-v3-top[class*="g-brd-"] {
+  border-top-color: #1a1a1a !important;
+}
+
+.g-brd-primary-dark-v1 {
+  border-color: #2e2e2e !important;
+}
+
+.g-brd-primary-dark-v1--hover:hover {
+  border-color: #2e2e2e !important;
+}
+
+.g-brd-primary-dark-v1-top {
+  border-top-color: #2e2e2e !important;
+}
+
+.g-brd-primary-dark-v1-top[class*="g-brd-"] {
+  border-top-color: #2e2e2e !important;
+}
+
+.g-brd-primary-dark-v2 {
+  border-color: #262626 !important;
+}
+
+.g-brd-primary-dark-v2--hover:hover {
+  border-color: #262626 !important;
+}
+
+.g-brd-primary-dark-v2-top {
+  border-top-color: #262626 !important;
+}
+
+.g-brd-primary-dark-v2-top[class*="g-brd-"] {
+  border-top-color: #262626 !important;
+}
+
+.g-brd-primary-dark-v3 {
   border-color: #1a1a1a !important;
 }
 
-.g-brd-bottom-primary--hover:hover {
-  border-bottom-color: #333 !important;
+.g-brd-primary-dark-v3--hover:hover {
+  border-color: #1a1a1a !important;
+}
+
+.g-brd-primary-dark-v3-top {
+  border-top-color: #1a1a1a !important;
+}
+
+.g-brd-primary-dark-v3-top[class*="g-brd-"] {
+  border-top-color: #1a1a1a !important;
 }
 
 /* Main Colors */
@@ -9453,1376 +6568,16 @@ NAVBAR menus
   border-color: #333 !important;
 }
 
-/* Black Colors */
-.g-brd-black {
-  border-color: #000 !important;
-}
-
-.g-brd-black--hover:hover, .g-brd-black--active.active {
-  border-color: #000 !important;
-}
-
-*:hover > .g-brd-black--hover-parent {
-  border-color: #000 !important;
-}
-
-.g-brd-black-opacity-0_1 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.g-brd-black-opacity-0_2 {
-  border-color: rgba(0, 0, 0, 0.2) !important;
-}
-
-.g-brd-black-opacity-0_3 {
-  border-color: rgba(0, 0, 0, 0.3) !important;
-}
-
-.g-brd-black-opacity-0_4 {
-  border-color: rgba(0, 0, 0, 0.4) !important;
-}
-
-.g-brd-black-opacity-0_5 {
-  border-color: rgba(0, 0, 0, 0.5) !important;
-}
-
-.g-brd-black-opacity-0_6 {
-  border-color: rgba(0, 0, 0, 0.6) !important;
-}
-
-.g-brd-black-opacity-0_8 {
-  border-color: rgba(0, 0, 0, 0.8) !important;
-}
-
-/* White Colors */
-.g-brd-white {
-  border-color: #fff !important;
-}
-
-.g-brd-white--hover:hover, .g-brd-white--active.active {
-  border-color: #fff !important;
-}
-
-*:hover > .g-brd-white--hover-parent {
-  border-color: #fff !important;
-}
-
-.g-brd-white-opacity-0_1 {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_1--hover:hover, .g-brd-white-opacity-0_1--active.active {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_1--hover-parent {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_2 {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_2--hover:hover, .g-brd-white-opacity-0_2--active.active {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_2--hover-parent {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_3 {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_3--hover:hover, .g-brd-white-opacity-0_3--active.active {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_3--hover-parent {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_4 {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_4--hover:hover, .g-brd-white-opacity-0_4--active.active {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_4--hover-parent {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_5 {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_5--hover:hover, .g-brd-white-opacity-0_5--active.active {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_5--hover-parent {
-  border-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_6 {
-  border-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.g-brd-white-opacity-0_6--hover:hover, .g-brd-white-opacity-0_6--active.active {
-  border-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_6--hover-parent {
-  border-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.g-brd-white-opacity-0_8 {
-  border-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.g-brd-white-opacity-0_8--hover:hover, .g-brd-white-opacity-0_8--active.active {
-  border-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-*:hover > .g-brd-white-opacity-0_8--hover-parent {
-  border-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Gray Colors */
-.g-brd-gray-dark-v1 {
-  border-color: #111 !important;
-}
-
-.g-brd-gray-dark-v1--hover:hover, .g-brd-gray-dark-v1--active.active {
-  border-color: #111 !important;
-}
-
-*:hover > .g-brd-gray-dark-v1--hover-parent {
-  border-color: #111 !important;
-}
-
-.g-brd-gray-dark-v2 {
-  border-color: #333 !important;
-}
-
-.g-brd-gray-dark-v2--hover:hover, .g-brd-gray-dark-v2--active.active {
-  border-color: #333 !important;
-}
-
-*:hover > .g-brd-gray-dark-v2--hover-parent {
-  border-color: #333 !important;
-}
-
-.g-brd-gray-dark-v3 {
-  border-color: #555 !important;
-}
-
-.g-brd-gray-dark-v3--hover:hover, .g-brd-gray-dark-v3--active.active {
-  border-color: #555 !important;
-}
-
-*:hover > .g-brd-gray-dark-v3--hover-parent {
-  border-color: #555 !important;
-}
-
-.g-brd-gray-dark-v4 {
-  border-color: #777 !important;
-}
-
-.g-brd-gray-dark-v4--hover:hover, .g-brd-gray-dark-v4--active.active {
-  border-color: #777 !important;
-}
-
-*:hover > .g-brd-gray-dark-v4--hover-parent {
-  border-color: #777 !important;
-}
-
-.g-brd-gray-dark-v5 {
-  border-color: #999 !important;
-}
-
-.g-brd-gray-dark-v5--hover:hover, .g-brd-gray-dark-v5--active.active {
-  border-color: #999 !important;
-}
-
-*:hover > .g-brd-gray-dark-v5--hover-parent {
-  border-color: #999 !important;
-}
-
-.g-brd-gray-light-v1 {
-  border-color: #bbb !important;
-}
-
-.g-brd-gray-light-v1--hover:hover, .g-brd-gray-light-v1--focus:focus, .g-brd-gray-light-v1--active.active {
-  border-color: #bbb !important;
-}
-
-*:hover > .g-brd-gray-light-v1--hover-parent {
-  border-color: #bbb !important;
-}
-
-.g-brd-gray-light-v2 {
-  border-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2--before::before {
-  border-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2--after::after {
-  border-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2--hover:hover, .g-brd-gray-light-v2--active.active {
-  border-color: #ccc !important;
-}
-
-*:hover > .g-brd-gray-light-v2--hover-parent {
-  border-color: #ccc !important;
-}
-
-.g-brd-gray-light-v3 {
-  border-color: #ddd !important;
-}
-
-.g-brd-gray-light-v3--hover:hover, .g-brd-gray-light-v3--active.active, .g-brd-gray-light-v3--focus:focus {
-  border-color: #ddd !important;
-}
-
-*:hover > .g-brd-gray-light-v3--hover-parent {
-  border-color: #ddd !important;
-}
-
-.g-brd-gray-light-v4 {
-  border-color: #eee !important;
-}
-
-.g-brd-gray-light-v4--hover:hover, .g-brd-gray-light-v4--active.active {
-  border-color: #eee !important;
-}
-
-*:hover > .g-brd-gray-light-v4--hover-parent {
-  border-color: #eee !important;
-}
-
-.g-brd-gray-light-v5 {
-  border-color: #f7f7f7 !important;
-}
-
-.g-brd-gray-light-v5--hover:hover, .g-brd-gray-light-v5--active.active {
-  border-color: #f7f7f7 !important;
-}
-
-*:hover > .g-brd-gray-light-v5--hover-parent {
-  border-color: #f7f7f7 !important;
-}
-
-/* Transparent */
-.g-brd-transparent {
-  border-color: transparent !important;
-}
-
-.g-brd-transparent--before::before {
-  border-color: transparent !important;
-}
-
-.g-brd-transparent--after::after {
-  border-color: transparent !important;
-}
-
-.g-brd-transparent--hover:hover, .g-brd-transparent--active.active {
-  border-color: transparent !important;
-}
-
-*:hover > .g-brd-transparent--hover-parent {
-  border-color: transparent !important;
-}
-
-/* Complementary Colors
-------------------------------------*/
-/* Color Green */
-.g-brd-green {
-  border-color: #72c02c !important;
-}
-
-.g-brd-green--hover:hover, .g-brd-green--active.active {
-  border-color: #72c02c !important;
-}
-
-*:hover > .g-brd-green--hover-parent {
-  border-color: #72c02c !important;
-}
-
-/* Color Blue */
-.g-brd-blue {
-  border-color: #3398dc !important;
-}
-
-.g-brd-blue--hover:hover, .g-brd-blue--active.active {
-  border-color: #3398dc !important;
-}
-
-*:hover > .g-brd-blue--hover-parent {
-  border-color: #3398dc !important;
-}
-
-/* Color Light Blue */
-.g-brd-lightblue {
-  border-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue--hover:hover, .g-brd-lightblue--active.active {
-  border-color: #edf2f8 !important;
-}
-
-*:hover > .g-brd-lightblue--hover-parent {
-  border-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue-v1 {
-  border-color: #d6e2ee !important;
-}
-
-.g-brd-lightblue-v1--hover:hover, .g-brd-lightblue-v1--active.active {
-  border-color: #d6e2ee !important;
-}
-
-*:hover > .g-brd-lightblue-v1--hover-parent {
-  border-color: #d6e2ee !important;
-}
-
-/* Color Dark Blue */
-.g-brd-darkblue {
-  border-color: #009 !important;
-}
-
-.g-brd-darkblue--hover:hover, .g-brd-darkblue--active.active {
-  border-color: #009 !important;
-}
-
-*:hover > .g-brd-darkblue--hover-parent {
-  border-color: #009 !important;
-}
-
-/* Color Indigo */
-.g-brd-indigo {
-  border-color: #4263a3 !important;
-}
-
-.g-brd-indigo--hover:hover, .g-brd-indigo--active.active {
-  border-color: #4263a3 !important;
-}
-
-*:hover > .g-brd-indigo--hover-parent {
-  border-color: #4263a3 !important;
-}
-
-/* Color Red */
-.g-brd-red {
-  border-color: #f00 !important;
-}
-
-.g-brd-red--hover:hover, .g-brd-red--active.active {
-  border-color: #f00 !important;
-}
-
-*:hover > .g-brd-red--hover-parent {
-  border-color: #f00 !important;
-}
-
-/* Color Light Red */
-.g-brd-lightred {
-  border-color: #e64b3b !important;
-}
-
-.g-brd-lightred--hover:hover, .g-brd-lightred--active.active {
-  border-color: #e64b3b !important;
-}
-
-*:hover > .g-brd-lightred--hover-parent {
-  border-color: #e64b3b !important;
-}
-
-/* Color Dark Red */
-.g-brd-darkred {
-  border-color: #a10f2b !important;
-}
-
-.g-brd-darkred--hover:hover, .g-brd-darkred--active.active {
-  border-color: #a10f2b !important;
-}
-
-*:hover > .g-brd-darkred--hover-parent {
-  border-color: #a10f2b !important;
-}
-
-/* Color Purple */
-.g-brd-purple {
-  border-color: #9a69cb !important;
-}
-
-.g-brd-purple--hover:hover, .g-brd-purple--active.active {
-  border-color: #9a69cb !important;
-}
-
-*:hover > .g-brd-purple--hover-parent {
-  border-color: #9a69cb !important;
-}
-
-.g-brd-purple-opacity-0_1 {
-  border-color: rgba(154, 105, 203, 0.1) !important;
-}
-
-/* Color Dark Purple */
-.g-brd-darkpurple {
-  border-color: #6639b6 !important;
-}
-
-.g-brd-darkpurple--hover:hover, .g-brd-darkpurple--active.active {
-  border-color: #6639b6 !important;
-}
-
-*:hover > .g-brd-darkpurple--hover-parent {
-  border-color: #6639b6 !important;
-}
-
-/* Color Pink */
-.g-brd-pink {
-  border-color: #e81c62 !important;
-}
-
-.g-brd-pink--hover:hover, .g-brd-pink--active.active {
-  border-color: #e81c62 !important;
-}
-
-*:hover > .g-brd-pink--hover-parent {
-  border-color: #e81c62 !important;
-}
-
-/* Color Orange */
-.g-brd-orange {
-  border-color: #e57d20 !important;
-}
-
-.g-brd-orange--hover:hover, .g-brd-orange--active.active {
-  border-color: #e57d20 !important;
-}
-
-*:hover > .g-brd-orange--hover-parent {
-  border-color: #e57d20 !important;
-}
-
-/* Color Deep Orange */
-.g-brd-deeporange {
-  border-color: #fe541e !important;
-}
-
-.g-brd-deeporange--hover:hover, .g-brd-deeporange--active.active {
-  border-color: #fe541e !important;
-}
-
-*:hover > .g-brd-deeporange--hover-parent {
-  border-color: #fe541e !important;
-}
-
-/* Color Yellow */
-.g-brd-yellow {
-  border-color: #ebc71d !important;
-}
-
-.g-brd-yellow--hover:hover, .g-brd-yellow--active.active {
-  border-color: #ebc71d !important;
-}
-
-*:hover > .g-brd-yellow--hover-parent {
-  border-color: #ebc71d !important;
-}
-
-/* Color Aqua */
-.g-brd-aqua {
-  border-color: #29d6e6 !important;
-}
-
-.g-brd-aqua--hover:hover, .g-brd-aqua--active.active {
-  border-color: #29d6e6 !important;
-}
-
-*:hover > .g-brd-aqua--hover-parent {
-  border-color: #29d6e6 !important;
-}
-
-/* Color Cyan */
-.g-brd-cyan {
-  border-color: #00bed6 !important;
-}
-
-.g-brd-cyan--hover:hover, .g-brd-cyan--active.active {
-  border-color: #00bed6 !important;
-}
-
-*:hover > .g-brd-cyan--hover-parent {
-  border-color: #00bed6 !important;
-}
-
-/* Color Teal */
-.g-brd-teal {
-  border-color: #18ba9b !important;
-}
-
-.g-brd-teal--hover:hover, .g-brd-teal--active.active {
-  border-color: #18ba9b !important;
-}
-
-*:hover > .g-brd-teal--hover-parent {
-  border-color: #18ba9b !important;
-}
-
-/* Color Brown */
-.g-brd-brown {
-  border-color: #9c8061 !important;
-}
-
-.g-brd-brown--hover:hover, .g-brd-brown--active.active {
-  border-color: #9c8061 !important;
-}
-
-*:hover > .g-brd-brown--hover-parent {
-  border-color: #9c8061 !important;
-}
-
-/* Color Blue Gray */
-.g-brd-bluegray {
-  border-color: #585f69 !important;
-}
-
-.g-brd-bluegray--hover:hover, .g-brd-bluegray--active.active {
-  border-color: #585f69 !important;
-}
-
-*:hover > .g-brd-bluegray--hover-parent {
-  border-color: #585f69 !important;
-}
-
-/* Primary Colors */
-.g-brd-primary-top {
+.g-brd-main-top {
   border-top-color: #333 !important;
 }
 
-.g-brd-primary-top--before::before {
+.g-brd-main-top[class*="g-brd-"] {
   border-top-color: #333 !important;
 }
 
-.g-brd-primary-bottom {
+.g-brd-bottom-primary--hover:hover {
   border-bottom-color: #333 !important;
-}
-
-.g-brd-primary-bottom--before:before {
-  border-bottom-color: #333 !important;
-}
-
-.g-brd-primary-left {
-  border-left-color: #333 !important;
-}
-
-.g-brd-primary-left--before:before {
-  border-left-color: #333 !important;
-}
-
-.g-brd-primary-right {
-  border-right-color: #333 !important;
-}
-
-.g-brd-primary-right--before:before {
-  border-right-color: #333 !important;
-}
-
-.g-brd-primary-opacity-0_3-top {
-  border-top-color: rgba(51, 51, 51, 0.3) !important;
-}
-
-.g-brd-primary-opacity-0_3-bottom {
-  border-bottom-color: rgba(51, 51, 51, 0.3) !important;
-}
-
-.g-brd-primary-opacity-0_3-left {
-  border-left-color: rgba(51, 51, 51, 0.3) !important;
-}
-
-.g-brd-primary-opacity-0_3-right {
-  border-right-color: rgba(51, 51, 51, 0.3) !important;
-}
-
-.g-brd-primary-dark-dark-v1-top {
-  border-top-color: #2e2e2e !important;
-}
-
-.g-brd-primary-dark-dark-v1-bottom {
-  border-bottom-color: #2e2e2e !important;
-}
-
-.g-brd-primary-dark-dark-v1-left {
-  border-left-color: #2e2e2e !important;
-}
-
-.g-brd-primary-dark-dark-v1-right {
-  border-right-color: #2e2e2e !important;
-}
-
-.g-brd-primary-dark-dark-v2-top {
-  border-top-color: #262626 !important;
-}
-
-.g-brd-primary-dark-dark-v2-bottom {
-  border-bottom-color: #262626 !important;
-}
-
-.g-brd-primary-dark-dark-v2-left {
-  border-left-color: #262626 !important;
-}
-
-.g-brd-primary-dark-dark-v2-right {
-  border-right-color: #262626 !important;
-}
-
-.g-brd-primary-dark-dark-v3-top {
-  border-top-color: #1a1a1a !important;
-}
-
-.g-brd-primary-dark-dark-v3-bottom {
-  border-bottom-color: #1a1a1a !important;
-}
-
-.g-brd-primary-dark-dark-v3-left {
-  border-left-color: #1a1a1a !important;
-}
-
-.g-brd-primary-dark-dark-v3-right {
-  border-right-color: #1a1a1a !important;
-}
-
-/* Black Colors */
-.g-brd-black-top {
-  border-top-color: #000 !important;
-}
-
-.g-brd-black-bottom {
-  border-bottom-color: #000 !important;
-}
-
-.g-brd-black-left {
-  border-left-color: #000 !important;
-}
-
-.g-brd-black-right {
-  border-right-color: #000 !important;
-}
-
-/* White */
-.g-brd-white-top {
-  border-top-color: #fff !important;
-}
-
-.g-brd-white-bottom {
-  border-bottom-color: #fff !important;
-}
-
-.g-brd-white-left {
-  border-left-color: #fff !important;
-}
-
-.g-brd-white-right {
-  border-right-color: #fff !important;
-}
-
-.g-brd-white-opacity-0_1-top {
-  border-top-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_1-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_1-left {
-  border-left-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_1-right {
-  border-right-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.g-brd-white-opacity-0_2-top {
-  border-top-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_2-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_2-left {
-  border-left-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_2-right {
-  border-right-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.g-brd-white-opacity-0_3-top {
-  border-top-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_3-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_3-left {
-  border-left-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_3-right {
-  border-right-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.g-brd-white-opacity-0_4-top {
-  border-top-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_4-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_4-left {
-  border-left-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_4-right {
-  border-right-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.g-brd-white-opacity-0_5-top {
-  border-top-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_5-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_5-left {
-  border-left-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_5-right {
-  border-right-color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.g-brd-white-opacity-0_6-top {
-  border-top-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.g-brd-white-opacity-0_6-bottom {
-  border-bottom-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.g-brd-white-opacity-0_6-left {
-  border-left-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.g-brd-white-opacity-0_6-right {
-  border-right-color: rgba(255, 255, 255, 0.6) !important;
-}
-
-/* Gray Colors */
-.g-brd-gray-dark-v1-top {
-  border-top-color: #111 !important;
-}
-
-.g-brd-gray-dark-v1-bottom {
-  border-bottom-color: #111 !important;
-}
-
-.g-brd-gray-dark-v1-left {
-  border-left-color: #111 !important;
-}
-
-.g-brd-gray-dark-v1-right {
-  border-right-color: #111 !important;
-}
-
-.g-brd-gray-dark-v2-top {
-  border-top-color: #333 !important;
-}
-
-.g-brd-gray-dark-v2-bottom {
-  border-bottom-color: #333 !important;
-}
-
-.g-brd-gray-dark-v2-left {
-  border-left-color: #333 !important;
-}
-
-.g-brd-gray-dark-v2-right {
-  border-right-color: #333 !important;
-}
-
-.g-brd-gray-dark-v3-top {
-  border-top-color: #555 !important;
-}
-
-.g-brd-gray-dark-v3-bottom {
-  border-bottom-color: #555 !important;
-}
-
-.g-brd-gray-dark-v3-left {
-  border-left-color: #555 !important;
-}
-
-.g-brd-gray-dark-v3-right {
-  border-right-color: #555 !important;
-}
-
-.g-brd-gray-dark-v4-top {
-  border-top-color: #777 !important;
-}
-
-.g-brd-gray-dark-v4-bottom {
-  border-bottom-color: #777 !important;
-}
-
-.g-brd-gray-dark-v4-left {
-  border-left-color: #777 !important;
-}
-
-.g-brd-gray-dark-v4-right {
-  border-right-color: #777 !important;
-}
-
-.g-brd-gray-dark-v5-top {
-  border-top-color: #999 !important;
-}
-
-.g-brd-gray-dark-v5-bottom {
-  border-bottom-color: #999 !important;
-}
-
-.g-brd-gray-dark-v5-left {
-  border-left-color: #999 !important;
-}
-
-.g-brd-gray-dark-v5-right {
-  border-right-color: #999 !important;
-}
-
-.g-brd-gray-light-v1-top {
-  border-top-color: #bbb !important;
-}
-
-.g-brd-gray-light-v1-bottom {
-  border-bottom-color: #bbb !important;
-}
-
-.g-brd-gray-light-v1-left {
-  border-left-color: #bbb !important;
-}
-
-.g-brd-gray-light-v1-right {
-  border-right-color: #bbb !important;
-}
-
-.g-brd-gray-light-v2-top {
-  border-top-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2-bottom {
-  border-bottom-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2-left {
-  border-left-color: #ccc !important;
-}
-
-.g-brd-gray-light-v2-right {
-  border-right-color: #ccc !important;
-}
-
-.g-brd-gray-light-v3-top {
-  border-top-color: #ddd !important;
-}
-
-.g-brd-gray-light-v3-bottom {
-  border-bottom-color: #ddd !important;
-}
-
-.g-brd-gray-light-v3-left {
-  border-left-color: #ddd !important;
-}
-
-.g-brd-gray-light-v3-right {
-  border-right-color: #ddd !important;
-}
-
-.g-brd-gray-light-v4-top {
-  border-top-color: #eee !important;
-}
-
-.g-brd-gray-light-v4-bottom {
-  border-bottom-color: #eee !important;
-}
-
-.g-brd-gray-light-v4-left {
-  border-left-color: #eee !important;
-}
-
-.g-brd-gray-light-v4-right {
-  border-right-color: #eee !important;
-}
-
-.g-brd-gray-light-v5-top {
-  border-top-color: #f7f7f7 !important;
-}
-
-.g-brd-gray-light-v5-bottom {
-  border-bottom-color: #f7f7f7 !important;
-}
-
-.g-brd-gray-light-v5-left {
-  border-left-color: #f7f7f7 !important;
-}
-
-.g-brd-gray-light-v5-right {
-  border-right-color: #f7f7f7 !important;
-}
-
-/* Transparent */
-.g-brd-transparent-top {
-  border-top-color: transparent !important;
-}
-
-.g-brd-transparent-bottom {
-  border-bottom-color: transparent !important;
-}
-
-.g-brd-transparent-left {
-  border-left-color: transparent !important;
-}
-
-.g-brd-transparent-right {
-  border-right-color: transparent !important;
-}
-
-/* Complementary Colors
-------------------------------------*/
-/* Color Green */
-.g-brd-green-top {
-  border-top-color: #72c02c !important;
-}
-
-.g-brd-green-bottom {
-  border-bottom-color: #72c02c !important;
-}
-
-.g-brd-green-left {
-  border-left-color: #72c02c !important;
-}
-
-.g-brd-green-right {
-  border-right-color: #72c02c !important;
-}
-
-/* Color Blue */
-.g-brd-blue-top {
-  border-top-color: #3398dc !important;
-}
-
-.g-brd-blue-bottom {
-  border-bottom-color: #3398dc !important;
-}
-
-.g-brd-blue-left {
-  border-left-color: #3398dc !important;
-}
-
-.g-brd-blue-right {
-  border-right-color: #3398dc !important;
-}
-
-/* Color Light Blue */
-.g-brd-lightblue-top {
-  border-top-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue-bottom {
-  border-bottom-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue-left {
-  border-left-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue-right {
-  border-right-color: #edf2f8 !important;
-}
-
-.g-brd-lightblue-v1-top {
-  border-top-color: #d6e2ee !important;
-}
-
-.g-brd-lightblue-v1-bottom {
-  border-bottom-color: #d6e2ee !important;
-}
-
-.g-brd-lightblue-v1-left {
-  border-left-color: #d6e2ee !important;
-}
-
-.g-brd-lightblue-v1-right {
-  border-right-color: #d6e2ee !important;
-}
-
-/* Color Dark Blue */
-.g-brd-darkblue-top {
-  border-top-color: #009 !important;
-}
-
-.g-brd-darkblue-bottom {
-  border-bottom-color: #009 !important;
-}
-
-.g-brd-darkblue-left {
-  border-left-color: #009 !important;
-}
-
-.g-brd-darkblue-right {
-  border-right-color: #009 !important;
-}
-
-/* Color Indigo */
-.g-brd-indigo-top {
-  border-top-color: #4263a3 !important;
-}
-
-.g-brd-indigo-bottom {
-  border-bottom-color: #4263a3 !important;
-}
-
-.g-brd-indigo-left {
-  border-left-color: #4263a3 !important;
-}
-
-.g-brd-indigo-right {
-  border-right-color: #4263a3 !important;
-}
-
-/* Color Red */
-.g-brd-red-top {
-  border-top-color: #f00 !important;
-}
-
-.g-brd-red-bottom {
-  border-bottom-color: #f00 !important;
-}
-
-.g-brd-red-left {
-  border-left-color: #f00 !important;
-}
-
-.g-brd-red-right {
-  border-right-color: #f00 !important;
-}
-
-/* Color Light Red */
-.g-brd-lightred-top {
-  border-top-color: #e64b3b !important;
-}
-
-.g-brd-lightred-bottom {
-  border-bottom-color: #e64b3b !important;
-}
-
-.g-brd-lightred-left {
-  border-left-color: #e64b3b !important;
-}
-
-.g-brd-lightred-right {
-  border-right-color: #e64b3b !important;
-}
-
-/* Color Dark Red */
-.g-brd-darkred-top {
-  border-top-color: #a10f2b !important;
-}
-
-.g-brd-darkred-bottom {
-  border-bottom-color: #a10f2b !important;
-}
-
-.g-brd-darkred-left {
-  border-left-color: #a10f2b !important;
-}
-
-.g-brd-darkred-right {
-  border-right-color: #a10f2b !important;
-}
-
-/* Color Purple */
-.g-brd-purple-top {
-  border-top-color: #9a69cb !important;
-}
-
-.g-brd-purple-bottom {
-  border-bottom-color: #9a69cb !important;
-}
-
-.g-brd-purple-left {
-  border-left-color: #9a69cb !important;
-}
-
-.g-brd-purple-right {
-  border-right-color: #9a69cb !important;
-}
-
-/* Color Dark Purple */
-.g-brd-darkpurple-top {
-  border-top-color: #6639b6 !important;
-}
-
-.g-brd-darkpurple-bottom {
-  border-bottom-color: #6639b6 !important;
-}
-
-.g-brd-darkpurple-left {
-  border-left-color: #6639b6 !important;
-}
-
-.g-brd-darkpurple-right {
-  border-right-color: #6639b6 !important;
-}
-
-/* Color Pink */
-.g-brd-pink-top {
-  border-top-color: #e81c62 !important;
-}
-
-.g-brd-pink-bottom {
-  border-bottom-color: #e81c62 !important;
-}
-
-.g-brd-pink-left {
-  border-left-color: #e81c62 !important;
-}
-
-.g-brd-pink-right {
-  border-right-color: #e81c62 !important;
-}
-
-/* Color Orange */
-.g-brd-orange-top {
-  border-top-color: #e57d20 !important;
-}
-
-.g-brd-orange-bottom {
-  border-bottom-color: #e57d20 !important;
-}
-
-.g-brd-orange-left {
-  border-left-color: #e57d20 !important;
-}
-
-.g-brd-orange-right {
-  border-right-color: #e57d20 !important;
-}
-
-/* Color Deep Orange */
-.g-brd-deeporange-top {
-  border-top-color: #fe541e !important;
-}
-
-.g-brd-deeporange-bottom {
-  border-bottom-color: #fe541e !important;
-}
-
-.g-brd-deeporange-left {
-  border-left-color: #fe541e !important;
-}
-
-.g-brd-deeporange-right {
-  border-right-color: #fe541e !important;
-}
-
-/* Color Yellow */
-.g-brd-yellow-top {
-  border-top-color: #ebc71d !important;
-}
-
-.g-brd-yellow-bottom {
-  border-bottom-color: #ebc71d !important;
-}
-
-.g-brd-yellow-left {
-  border-left-color: #ebc71d !important;
-}
-
-.g-brd-yellow-right {
-  border-right-color: #ebc71d !important;
-}
-
-/* Color Aqua */
-.g-brd-aqua-top {
-  border-top-color: #29d6e6 !important;
-}
-
-.g-brd-aqua-bottom {
-  border-bottom-color: #29d6e6 !important;
-}
-
-.g-brd-aqua-left {
-  border-left-color: #29d6e6 !important;
-}
-
-.g-brd-aqua-right {
-  border-right-color: #29d6e6 !important;
-}
-
-/* Color Cyan */
-.g-brd-cyan-top {
-  border-top-color: #00bed6 !important;
-}
-
-.g-brd-cyan-bottom {
-  border-bottom-color: #00bed6 !important;
-}
-
-.g-brd-cyan-left {
-  border-left-color: #00bed6 !important;
-}
-
-.g-brd-cyan-right {
-  border-right-color: #00bed6 !important;
-}
-
-/* Color Teal */
-.g-brd-teal-top {
-  border-top-color: #18ba9b !important;
-}
-
-.g-brd-teal-bottom {
-  border-bottom-color: #18ba9b !important;
-}
-
-.g-brd-teal-left {
-  border-left-color: #18ba9b !important;
-}
-
-.g-brd-teal-right {
-  border-right-color: #18ba9b !important;
-}
-
-/* Color Brown */
-.g-brd-brown-top {
-  border-top-color: #9c8061 !important;
-}
-
-.g-brd-brown-bottom {
-  border-bottom-color: #9c8061 !important;
-}
-
-.g-brd-brown-left {
-  border-left-color: #9c8061 !important;
-}
-
-.g-brd-brown-right {
-  border-right-color: #9c8061 !important;
-}
-
-/* Color Blue Gray */
-.g-brd-bluegray-top {
-  border-top-color: #585f69 !important;
-}
-
-.g-brd-bluegray-bottom {
-  border-bottom-color: #585f69 !important;
-}
-
-.g-brd-bluegray-left {
-  border-left-color: #585f69 !important;
-}
-
-.g-brd-bluegray-right {
-  border-right-color: #585f69 !important;
-}
-
-/* O */
-.g-brd-primary-top--hover:hover {
-  border-top-color: #333 !important;
-}
-
-.g-brd-primary-top--hover:hover::after {
-  border-top-color: #333;
-}
-
-.g-brd-primary-top--active.active {
-  border-top-color: #333 !important;
-}
-
-.g-brd-primary-top--active.active::after {
-  border-top-color: #333;
-}
-
-.g-brd-primary-bottom--hover:hover {
-  border-bottom-color: #333 !important;
-}
-
-.g-brd-primary-bottom--hover:hover::after {
-  border-bottom-color: #333;
-}
-
-.g-brd-primary-bottom--active.active {
-  border-bottom-color: #333 !important;
-}
-
-.g-brd-primary-bottom--active.active::after {
-  border-bottom-color: #333;
-}
-
-.g-brd-pinterest {
-  border-color: #c8232c !important;
-}
-
-.g-brd-pinterest::after {
-  border-color: #c8232c !important;
-}
-
-.g-brd-pinterest-top--hover:hover {
-  border-top-color: #c8232c !important;
-}
-
-.g-brd-pinterest-top--hover:hover::after {
-  border-top-color: #c8232c;
-}
-
-.g-brd-pinterest-top--active.active {
-  border-top-color: #c8232c !important;
-}
-
-.g-brd-pinterest-top--active.active::after {
-  border-top-color: #c8232c;
-}
-
-.g-brd-pinterest-bottom--hover:hover {
-  border-bottom-color: #c8232c !important;
-}
-
-.g-brd-pinterest-bottom--hover:hover::after {
-  border-bottom-color: #c8232c;
-}
-
-.g-brd-pinterest-bottom--active.active {
-  border-bottom-color: #c8232c !important;
-}
-
-.g-brd-pinterest-bottom--active.active::after {
-  border-bottom-color: #c8232c;
 }
 
 /*------------------------------------
@@ -10995,29 +6750,6 @@ NAVBAR menus
   color: #e74b3c !important;
 }
 
-/*------------------------------------
-  Gradient Colors
-------------------------------------*/
-/* Cyan Gradient */
-.g-color-cyan-gradient-opacity-v1 {
-  background-repeat: repeat-x;
-  background-image: linear-gradient(160deg, rgba(0, 0, 153, 0.55), rgba(0, 190, 214, 0.6));
-  background-clip: text;
-  -webkit-background-clip: text;
-  text-fill-color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Blue Gradient */
-.g-color-blue-gradient-opacity-v1 {
-  background-repeat: repeat-x;
-  background-image: linear-gradient(-260deg, #8654da, rgba(66, 229, 248, 0.8));
-  background-clip: text;
-  -webkit-background-clip: text;
-  text-fill-color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
 a:hover, a:active, a:focus {
   color: #333;
 }
@@ -11062,8 +6794,3 @@ h6, .h6 {
 .hamburger--slider.is-active .hamburger-inner:after {
   transform: translate3d(0, -14px, 0) rotate(-90deg);
 }
-
-/* Main navigation */
-/* Colors */
-/* Background */
-/* Cube portfolio */

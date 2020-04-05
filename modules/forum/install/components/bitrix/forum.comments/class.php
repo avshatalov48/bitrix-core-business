@@ -11,7 +11,7 @@ use Bitrix\Main\Config;
 
 Loc::loadMessages(__FILE__);
 
-final class ForumCommentsComponent extends CBitrixComponent
+final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\Main\Engine\Contract\Controllerable
 {
 	const ERROR_REQUIRED_PARAMETER = 'FORUM_BASE_COMPONENT_22001';
 	const ERROR_ACTION = 'FORUM_BASE_COMPONENT_22002';
@@ -155,6 +155,10 @@ final class ForumCommentsComponent extends CBitrixComponent
 			{
 				throw $e;
 			}
+			else
+			{
+				ShowError($e->getMessage());
+			}
 		}
 
 	}
@@ -183,23 +187,16 @@ final class ForumCommentsComponent extends CBitrixComponent
 		return $this->errorCollection->toArray();
 	}
 
+	public function onPrepareComponentParams($arParams)
+	{
+		return $arParams;
+	}
+
 	public function executeComponent()
 	{
 		try
 		{
-/*
-			if (IsModuleInstalled("disk"))
-			{
-				\Bitrix\Disk\Internals\Diag::getInstance()
-//					->setExclusiveUserId(45)
-					->setEnableTimeTracker(true)
-					->setMemoryBehavior(\Bitrix\Disk\Internals\Diag::MEMORY_PRINT_DIFF)
-					->setSqlBehavior(\Bitrix\Disk\Internals\Diag::SQL_COUNT)
-					->collectDebugInfo($this->componentId, $this->getName());
-			}
-*/
 			$this->checkRequiredParams();
-
 			$this->feed = new \Bitrix\Forum\Comments\Feed(
 				$this->arParams["FORUM_ID"],
 				array(
@@ -207,7 +204,7 @@ final class ForumCommentsComponent extends CBitrixComponent
 					"id" => $this->arParams["ENTITY_ID"],
 					"xml_id" => $this->arParams["ENTITY_XML_ID"]
 				),
-				(isset($this->arParams["RECIPIENT_ID"]) ? intval($this->arParams["RECIPIENT_ID"]) : 0)
+				(isset($this->arParams["RECIPIENT_ID"]) ? intval($this->arParams["RECIPIENT_ID"]) : null)
 			);
 
 			$this->forum = $this->feed->getForum();
@@ -249,10 +246,6 @@ final class ForumCommentsComponent extends CBitrixComponent
 			{
 				$this->showError();
 			}
-			if (IsModuleInstalled("disk"))
-			{
-				\Bitrix\Disk\Internals\Diag::getInstance()->logDebugInfo($this->componentId, $this->getName());
-			}
 		}
 		catch(Exception $e)
 		{
@@ -276,6 +269,7 @@ final class ForumCommentsComponent extends CBitrixComponent
 
 		$this->arParams["NAME_TEMPLATE"] = empty($this->arParams["NAME_TEMPLATE"]) ? \CSite::GetNameFormat() : $this->arParams["NAME_TEMPLATE"];
 		$this->arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "", $this->arParams["NAME_TEMPLATE"]);
+		$this->arParams["URL"] = strlen($this->arParams["URL"]) > 0 ? $this->arParams["URL"] : $this->getApplication()->GetCurPageParam();
 	}
 
 	protected function prepareParams()
@@ -419,8 +413,35 @@ final class ForumCommentsComponent extends CBitrixComponent
 			return null;
 		}
 		$post = array_merge($this->request->getQueryList()->toArray(), $this->request->getPostList()->toArray());
-		$action = strtolower($post["comment_review"] == "Y" ? (strtolower($post['REVIEW_ACTION']) == "edit" ? "edit" : "add") : $post['REVIEW_ACTION']);
-		if (!in_array($action, array("add", 'del', 'hide', 'show', 'edit')))
+
+		if ($this->arParams["COMPONENT_AJAX"] === "Y")
+		{
+			$action = $this->request->getPost("ACTION");
+			if ($action === "DELETE")
+			{
+				$action = "del";
+			}
+			$mid = $this->request->getPost("ID");
+		}
+		else
+		{
+			$mid = $this->request->get("MID");
+			if ($post["comment_review"] == "Y")
+			{
+				$action = strtolower($post["REVIEW_ACTION"]) == "edit" ? "edit" : "add";
+			}
+			else
+			{
+				$action = ($this->request->get("REVIEW_ACTION") ?: $this->request->get("ACTION"));
+			}
+		}
+
+		$action = (is_string($action) ? strtolower($action) : $action);
+
+		$this->arResult["ACTION"] = $action;
+		$this->arResult["RESULT"] = $mid;
+
+		if (!in_array($action, array("add", "del", "hide", "show", "edit")))
 		{
 			return null;
 		}
@@ -437,7 +458,7 @@ final class ForumCommentsComponent extends CBitrixComponent
 		}
 		else
 		{
-			if ($post["AJAX_POST"] == "Y")
+			if ($post["AJAX_POST"] == "Y" && $this->arParams["COMPONENT_AJAX"] !== "Y")
 				CUtil::decodeURIComponent($post);
 
 			if ($action == "add" || $action == "edit")
@@ -462,7 +483,7 @@ final class ForumCommentsComponent extends CBitrixComponent
 		{
 			if ($action == "add" || $action == "edit")
 			{
-				$message = ($action == "add" ? $this->feed->add($arPost) : $this->feed->edit($this->request["MID"], $arPost));
+				$message = ($action == "add" ? $this->feed->add($arPost) : $this->feed->edit($mid, $arPost));
 				if ($message && $this->request["TOPIC_SUBSCRIBE"] == "Y")
 				{
 					ForumSubscribeNewMessagesEx($this->arParams["FORUM_ID"], $message["TOPIC_ID"], "N", $strErrorMessage, $strOKMessage);
@@ -471,11 +492,11 @@ final class ForumCommentsComponent extends CBitrixComponent
 			}
 			elseif ($action == "show" || $action == "hide")
 			{
-				$message = $this->feed->moderate($this->request["MID"], $action == "show");
+				$message = $this->feed->moderate($mid, $action == "show");
 			}
 			else
 			{
-				$message = $this->feed->delete($this->request["MID"]);
+				$message = $this->feed->delete($mid);
 			}
 
 			if ($this->feed->hasErrors())
@@ -484,7 +505,7 @@ final class ForumCommentsComponent extends CBitrixComponent
 			}
 			else if ($this->request["NOREDIRECT"] != "Y" && !$this->isAjaxRequest())
 			{
-				$strURL = $this->request["back_page"] ?: $this->getApplication()->GetCurPageParam("", array("MID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "sessid", "bxajaxid"));
+				$strURL = $this->request["back_page"] ?: $this->getApplication()->GetCurPageParam("", array("MID", "ID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "sessid", "bxajaxid"));
 				$strURL = ForumAddPageParams($strURL, array("MID" => $message["ID"], "result" => ($message["APPROVED"] == "Y" ? "reply" : "not_approved")));
 				LocalRedirect($strURL);
 			}
@@ -547,5 +568,77 @@ final class ForumCommentsComponent extends CBitrixComponent
 			$sName = (empty($sName) ? trim($user["LOGIN"]) : $sName);
 		}
 		return $sName;
+	}
+	public function configureActions()
+	{
+		return [];
+	}
+	protected function listKeysSignedParameters()
+	{
+		return [
+			"FORUM_ID",
+			"ENTITY_TYPE",
+			"ENTITY_ID",
+			"ENTITY_XML_ID",
+			"RECIPIENT_ID",
+			"PERMISSION",
+			"USER_FIELDS",
+			"USER_FIELDS_SETTINGS",
+
+			"URL_TEMPLATES_READ",
+			"URL_TEMPLATES_PROFILE_VIEW",
+			"MESSAGES_PER_PAGE",
+			"PAGE_NAVIGATION_TEMPLATE",
+			"PREORDER",
+			"PUBLIC_MODE",
+
+			"DATE_TIME_FORMAT",
+			"NAME_TEMPLATE",
+
+			"IMAGE_SIZE",
+			"IMAGE_HTML_SIZE",
+			"EDITOR_CODE_DEFAULT",
+			"ALLOW_MENTION",
+
+			"SUBSCRIBE_AUTHOR_ELEMENT",
+			"SHOW_RATING",
+			"RATING_TYPE",
+			"SET_LAST_VISIT",
+//			"SHOW_MINIMIZED",
+//			"USE_CAPTCHA",
+		];
+	}
+	public function processCommentAction()
+	{
+		$this->arParams["COMPONENT_AJAX"] = "Y";
+		$this->arParams["URL"] = $_SERVER["HTTP_REFERER"];
+		$this->executeComponent();
+	}
+	public function readCommentAction()
+	{
+		$this->arParams["COMPONENT_AJAX"] = "Y";
+
+		$this->checkRequiredParams();
+		$this->feed = new \Bitrix\Forum\Comments\Feed(
+			$this->arParams["FORUM_ID"],
+			array(
+				"type" => $this->arParams["ENTITY_TYPE"],
+				"id" => $this->arParams["ENTITY_ID"],
+				"xml_id" => $this->arParams["ENTITY_XML_ID"]
+			),
+			(isset($this->arParams["RECIPIENT_ID"]) ? intval($this->arParams["RECIPIENT_ID"]) : 0)
+		);
+
+		$this->forum = $this->feed->getForum();
+		if (array_key_exists("PERMISSION", $this->arParams))
+		{
+			$this->feed->setPermission($this->arParams["PERMISSION"]);
+		}
+
+		if ($this->feed->canRead())
+		{
+			$topic = $this->feed->getTopic() ?: ["ID" => 0];
+			$this->readTopic($this->feed->getEntity()->getType(), $this->feed->getEntity()->getId(), $topic["ID"]);
+		}
 	}
 }

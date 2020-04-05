@@ -15,6 +15,7 @@
 	};
 
 	Component.ViewMode = {
+		None: 0,
 		View : 1,
 		Edit: 2
 	};
@@ -31,6 +32,15 @@
 	{
 		++Component.idIncrement;
 		return 'bizproc-automation-cmp-' + Component.idIncrement;
+	};
+
+	var getAjaxUrl = function(url)
+	{
+		url = url || '/bitrix/components/bitrix/bizproc.automation/ajax.php';
+		return  BX.util.add_url_param(url, {
+			site_id: BX.message('SITE_ID'),
+			sessid: BX.bitrix_sessid()
+		});
 	};
 
 	Component.prototype =
@@ -72,6 +82,9 @@
 			this.documentSigned = this.data.DOCUMENT_SIGNED;
 
 			this.bizprocEditorUrl = this.data.WORKFLOW_EDIT_URL;
+			this.constantsEditorUrl = this.data.CONSTANTS_EDIT_URL || null;
+			this.parametersEditorUrl = this.data.PARAMETERS_EDIT_URL || null;
+
 			this.documentStatuses = this.data.DOCUMENT_STATUS_LIST;
 			this.statusesSort = [];
 			for(var i = 0; i < this.documentStatuses.length; ++i)
@@ -126,6 +139,24 @@
 					needleIndex = i;
 			}
 			return this.currentStatusIndex > -1 && needleIndex > this.currentStatusIndex;
+		},
+		getResponsibleUserExpression: function()
+		{
+			var exp;
+			if (BX.type.isArray(this.data['DOCUMENT_FIELDS']))
+			{
+				var i, field;
+				for (i = 0; i < this.data['DOCUMENT_FIELDS'].length; ++i)
+				{
+					field = this.data['DOCUMENT_FIELDS'][i];
+					if (field['Id'] === 'ASSIGNED_BY_ID' || field['Id'] === 'RESPONSIBLE_ID')
+					{
+						exp = '{{'+field['Name']+'}}';
+						break;
+					}
+				}
+			}
+			return exp;
 		},
 		initTriggerManager: function()
 		{
@@ -286,10 +317,7 @@
 		},
 		getAjaxUrl: function()
 		{
-			return  BX.util.add_url_param(this.data.AJAX_URL, {
-				site_id: BX.message('SITE_ID'),
-				sessid: BX.bitrix_sessid()
-			});
+			return getAjaxUrl(this.data.AJAX_URL);
 		},
 		saveAutomation: function(callback)
 		{
@@ -304,7 +332,7 @@
 				ajax_action: 'save_automation',
 				document_signed: this.documentSigned,
 				triggers: this.triggerManager.serialize(),
-				templates: this.templateManager.serialize()
+				templates: this.templateManager.serialize(),
 			};
 
 			return BX.ajax({
@@ -381,25 +409,9 @@
 		onGlobalHelpClick: function(e)
 		{
 			e.preventDefault();
-			if (this.data['B24_TARIF_ZONE'] === 'en')
+			if (top.BX.Helper)
 			{
-				window.open('https://helpdesk.bitrix24.com/open/4781101/');
-			}
-			else if (this.data['B24_TARIF_ZONE'] === 'de')
-			{
-				window.open('https://helpdesk.bitrix24.de/open/4781105/');
-			}
-			else if (this.data['B24_TARIF_ZONE'] === 'es')
-			{
-				window.open('https://helpdesk.bitrix24.es/open/5859003/');
-			}
-			else if (BX.Helper && BX.Helper.frameOpenUrl.indexOf('//helpdesk.bitrix24.ru/') > 0)
-			{
-				BX.Helper.show("redirect=detail&HD_ID=5265469");
-			}
-			else
-			{
-				window.open('https://helpdesk.bitrix24.ru/open/5265469/');
+				top.BX.Helper.show('redirect=detail&code=6908975');
 			}
 		},
 		getUserOption: function(category, key, defaultValue)
@@ -539,8 +551,12 @@
 
 	var Template = function(manager)
 	{
-		this.manager = manager;
-		this.component = manager.component;
+		if (manager)
+		{
+			this.manager = manager;
+			this.component = manager.component;
+		}
+
 		this.data = {};
 	};
 
@@ -549,21 +565,28 @@
 		init: function(data, viewMode)
 		{
 			if (BX.type.isPlainObject(data))
+			{
 				this.data = data;
-
-			this.viewMode = viewMode || Component.ViewMode.View;
-			this.node = this.component.node.querySelector('[data-role="automation-template"][data-status-id="'+this.getStatusId()+'"]');
-			this.listNode = this.node.querySelector('[data-role="robot-list"]');
-			this.buttonsNode = this.node.querySelector('[data-role="buttons"]');
-			this.initRobots();
-			this.initButtons();
+			}
 
 			this.modified = false;
+			this.viewMode = (viewMode === undefined) ? Component.ViewMode.View : viewMode;
 
-			if (!this.isExternalModified())
+			if (this.viewMode !== Component.ViewMode.None)
 			{
-				//register DD
-				jsDD.registerDest(this.node, 10);
+				this.node = this.component.node.querySelector(
+					'[data-role="automation-template"][data-status-id="'+this.getStatusId()+'"]'
+				);
+				this.listNode = this.node.querySelector('[data-role="robot-list"]');
+				this.buttonsNode = this.node.querySelector('[data-role="buttons"]');
+				this.initRobots();
+				this.initButtons();
+
+				if (!this.isExternalModified())
+				{
+					//register DD
+					jsDD.registerDest(this.node, 10);
+				}
 			}
 		},
 		reInit: function(data, viewMode)
@@ -610,7 +633,11 @@
 					this.createAddButton();
 
 				if (this.getTemplateId() > 0)
+				{
+					this.createConstantsEditButton();
+					this.createParametersEditButton();
 					this.createExternalEditTemplateButton();
+				}
 			}
 
 			if (this.viewMode === Component.ViewMode.View && this.component.canEdit())
@@ -667,26 +694,84 @@
 				return false;
 			}
 
+			var url = this.manager.component.bizprocEditorUrl.replace('#ID#', this.getTemplateId());
+
 			var me = this,
 				anchor = BX.create('a', {
 				text: BX.message('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'),
 				props: {
-					href: '#'
+					href: url
 				},
 				events: {
 					click: function(e)
 					{
-						e.preventDefault();
-						me.onExternalEditTemplateButtonClick(this);
+						if (!url.length)
+						{
+							e.preventDefault();
+							me.onExternalEditTemplateButtonClick(this);
+						}
 					}
 				},
-				attrs: { className: "bizproc-automation-robot-btn-set" }
+				attrs: {
+					className: "bizproc-automation-robot-btn-set",
+					target: '_top'
+				}
 			});
 
 			if (!this.manager.component.bizprocEditorUrl.length)
 			{
 				BX.addClass(anchor, 'bizproc-automation-robot-btn-set-locked');
 			}
+
+			this.buttonsNode.appendChild(anchor);
+		},
+		createConstantsEditButton: function()
+		{
+			if (this.manager.component.constantsEditorUrl === null)
+			{
+				return false;
+			}
+
+			var url = this.manager.component.constantsEditorUrl.replace('#ID#', this.getTemplateId());
+
+			if (!url.length)
+			{
+				return false;
+			}
+
+			var me = this,
+				anchor = BX.create('a', {
+				text: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT'),
+				props: {
+					href: url
+				},
+				attrs: { className: "bizproc-automation-robot-btn-set" }
+			});
+
+			this.buttonsNode.appendChild(anchor);
+		},
+		createParametersEditButton: function()
+		{
+			if (this.manager.component.parametersEditorUrl === null)
+			{
+				return false;
+			}
+
+			var url = this.manager.component.parametersEditorUrl.replace('#ID#', this.getTemplateId());
+
+			if (!url.length)
+			{
+				return false;
+			}
+
+			var me = this,
+				anchor = BX.create('a', {
+				text: BX.message('BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT'),
+				props: {
+					href: url
+				},
+				attrs: { className: "bizproc-automation-robot-btn-set" }
+			});
 
 			this.buttonsNode.appendChild(anchor);
 		},
@@ -998,8 +1083,9 @@
 		/**
 		 * @param {Robot} robot
 		 * @param {Object} [context]
+		 * @param {Function} saveCallback
 		 */
-		openRobotSettingsDialog: function(robot, context)
+		openRobotSettingsDialog: function(robot, context, saveCallback)
 		{
 			if (Designer.getRobotSettingsDialog())
 				return;
@@ -1015,16 +1101,18 @@
 			form.appendChild(me.renderDelaySettings(robot));
 			form.appendChild(me.renderConditionSettings(robot));
 
-			var iconHelp = BX.create('div', {
-				attrs: { className: 'bizproc-automation-robot-help' },
-				events: {click: BX.delegate(this.component.onGlobalHelpClick, this.component)}
-			});
-			form.appendChild(iconHelp);
-
 			if (!BX.type.isPlainObject(context))
 				context = {};
 
-			context['DOCUMENT_CATEGORY_ID'] = this.manager.component.documentCategoryId;
+			if (this.component)
+			{
+				var iconHelp = BX.create('div', {
+					attrs: { className: 'bizproc-automation-robot-help' },
+					events: {click: BX.delegate(this.component.onGlobalHelpClick, this.component)}
+				});
+				form.appendChild(iconHelp);
+				context['DOCUMENT_CATEGORY_ID'] = this.component.documentCategoryId;
+			}
 
 			Designer.setRobotSettingsDialog({
 				template: this,
@@ -1035,11 +1123,11 @@
 			BX.ajax({
 				method: 'POST',
 				dataType: 'html',
-				url: this.manager.component.getAjaxUrl(),
+				url: this.component ? this.component.getAjaxUrl() : getAjaxUrl(),
 				data: {
 					ajax_action: 'get_robot_dialog',
-					document_signed: this.component.documentSigned,
-					document_status: this.component.documentStatus,
+					document_signed: this.component ? this.component.documentSigned : this.data['DOCUMENT_SIGNED'],
+					document_status: this.component ? this.component.documentStatus : this.data['DOCUMENT_STATUS'],
 					context: context,
 					robot: robot.serialize(),
 					form_name: formName
@@ -1053,18 +1141,32 @@
 						});
 						form.appendChild(dialogRows);
 					}
-					me.showRobotSettingsPopup(robot, form);
+					me.showRobotSettingsPopup(robot, form, saveCallback);
 				}
 			});
 		},
-		showRobotSettingsPopup: function(robot, form)
+		/**
+		 * @param {Robot} robot
+		 * @param {Element} form
+		 * @param {Function} saveCallback
+		 */
+		showRobotSettingsPopup: function(robot, form, saveCallback)
 		{
-			BX.addClass(this.component.node, 'automation-base-blocked');
+			var popupMinWidth = 580;
+			var popupWidth = popupMinWidth;
+			var overlay = false;
+
+			if (this.component)
+			{
+				BX.addClass(this.component.node, 'automation-base-blocked');
+				popupWidth = parseInt(this.component.getUserOption('defaults', 'robot_settings_popup_width', 580));
+			}
+			else
+			{
+				overlay = {backgroundColor: 'transparent'};
+			}
 
 			this.initRobotSettingsControls(robot, form);
-
-			var popupWidth = parseInt(this.component.getUserOption('defaults', 'robot_settings_popup_width', 580));
-			var popupMinWidth = 580;
 
 			if (robot.data.Type === 'CrmSendEmailActivity' || robot.data.Type === 'MailActivity')
 			{
@@ -1076,7 +1178,7 @@
 			}
 
 			var me = this, popup = new BX.PopupWindow(Component.generateUniqueId(), null, {
-				titleBar: robot.getTitle(),
+				titleBar: robot.component ? robot.getTitle() : BX.message('BIZPROC_AUTOMATION_ROBOT_SETTINGS_TITLE'),
 				content: form,
 				closeIcon: true,
 				width: popupWidth,
@@ -1089,7 +1191,7 @@
 				offsetTop: 0,
 				closeByEsc: true,
 				draggable: {restrict: false},
-				overlay: false,
+				overlay: overlay,
 				events: {
 					onPopupClose: function(popup)
 					{
@@ -1097,18 +1199,24 @@
 						Designer.setRobotSettingsDialog(null);
 						me.destroyRobotSettingsControls();
 						popup.destroy();
-						BX.removeClass(me.component.node, 'automation-base-blocked');
+						if (me.component)
+						{
+							BX.removeClass(me.component.node, 'automation-base-blocked');
+						}
 					},
 					onPopupResize: function()
 					{
 						me.onResizeRobotSettings();
 					},
 					onPopupResizeEnd: function() {
-						me.component.setUserOption(
-							'defaults',
-							'robot_settings_popup_width',
-							this.getWidth()
-						);
+						if (me.component)
+						{
+							me.component.setUserOption(
+								'defaults',
+								'robot_settings_popup_width',
+								this.getWidth()
+							);
+						}
 					}
 				},
 				buttons: [
@@ -1119,7 +1227,11 @@
 							click: function() {
 								me.saveRobotSettings(form, robot, BX.delegate(function()
 								{
-									this.popupWindow.close()
+									this.popupWindow.close();
+									if (saveCallback)
+									{
+										saveCallback(robot);
+									}
 								}, this));
 							}
 						}
@@ -1173,7 +1285,7 @@
 			}
 			else if (role === 'inline-selector-target')
 			{
-				control = new InlineSelector(robot, controlNode);
+				control = new InlineSelector(robot, controlNode, this.data);
 			}
 			else if (role === 'inline-selector-html')
 			{
@@ -1235,19 +1347,7 @@
 		renderDelaySettings: function(robot)
 		{
 			var delay = BX.clone(robot.getDelayInterval());
-			var isExecuteAfterPrevious = robot.isExecuteAfterPrevious();
-
 			var idSalt = Component.generateUniqueId();
-
-			var executeAfterPreviousCheckbox = BX.create("input", {
-				attrs: {
-					type: "checkbox",
-					id: "param-group-3-1" + idSalt,
-					name: "execute_after_previous",
-					value: '1',
-					style: 'vertical-align: middle'
-				}
-			});
 
 			var delayTypeNode = BX.create("input", {
 				attrs: {
@@ -1284,17 +1384,13 @@
 					value: delay.workTime ? 1 : 0
 				}
 			});
-			var delayLocalTimeNode = BX.create("input", {
-				attrs: {
-					type: "hidden",
-					name: "delay_localtime",
-					value: delay.localTime ? 1 : 0
-				}
-			});
-			if (isExecuteAfterPrevious)
-			{
-				executeAfterPreviousCheckbox.setAttribute('checked', 'checked');
-			}
+			// var delayLocalTimeNode = BX.create("input", {
+			// 	attrs: {
+			// 		type: "hidden",
+			// 		name: "delay_localtime",
+			// 		value: delay.localTime ? 1 : 0
+			// 	}
+			// });
 
 			var delayIntervalLabelNode = BX.create("span", {
 				attrs: {
@@ -1303,12 +1399,15 @@
 			});
 
 			var basisFields = [];
-			if (BX.type.isArray(this.component.data['DOCUMENT_FIELDS']))
+
+			var docFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : this.data['DOCUMENT_FIELDS'];
+
+			if (BX.type.isArray(docFields))
 			{
 				var i, field;
-				for (i = 0; i < this.component.data['DOCUMENT_FIELDS'].length; ++i)
+				for (i = 0; i < docFields.length; ++i)
 				{
-					field = this.component.data['DOCUMENT_FIELDS'][i];
+					field = docFields[i];
 					if (field['Type'] == 'date' || field['Type'] == 'datetime')
 					{
 						basisFields.push(field);
@@ -1326,10 +1425,41 @@
 					delayValueTypeNode.value = delay.valueType;
 					delayBasisNode.value = delay.basis;
 					delayWorkTimeNode.value = delay.workTime ? 1 : 0;
-					delayLocalTimeNode.value = delay.localTime ? 1 : 0;
+					// delayLocalTimeNode.value = delay.localTime ? 1 : 0;
 				},
 				basisFields: basisFields
 			});
+
+			var executeAfterPreviousBlock = null;
+			if (robot.component)
+			{
+				var executeAfterPreviousCheckbox = BX.create("input", {
+					attrs: {
+						type: "checkbox",
+						id: "param-group-3-1" + idSalt,
+						name: "execute_after_previous",
+						value: '1',
+						style: 'vertical-align: middle'
+					}
+				});
+				if (robot.isExecuteAfterPrevious())
+				{
+					executeAfterPreviousCheckbox.setAttribute('checked', 'checked');
+				}
+				executeAfterPreviousBlock = BX.create("div", {
+					attrs: { className: "bizproc-automation-popup-settings-block" },
+					children: [
+						executeAfterPreviousCheckbox,
+						BX.create("label", {
+							attrs: {
+								for: "param-group-3-1" + idSalt,
+								style: 'color: #535C69'
+							},
+							text: BX.message('BIZPROC_AUTOMATION_CMP_AFTER_PREVIOUS_WIDE')
+						})
+					]
+				})
+			}
 
 			var div = BX.create("div", {
 				attrs: { className: "bizproc-automation-popup-settings bizproc-automation-popup-settings-flex" },
@@ -1345,7 +1475,7 @@
 									delayValueTypeNode,
 									delayBasisNode,
 									delayWorkTimeNode,
-									delayLocalTimeNode,
+									// delayLocalTimeNode,
 									BX.create("span", {
 										attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-left" },
 										text: BX.message('BIZPROC_AUTOMATION_CMP_TO_EXECUTE') + ":"
@@ -1355,19 +1485,7 @@
 							})
 						]
 					}),
-					BX.create("div", {
-						attrs: { className: "bizproc-automation-popup-settings-block" },
-						children: [
-							executeAfterPreviousCheckbox,
-							BX.create("label", {
-								attrs: {
-									for: "param-group-3-1" + idSalt,
-									style: 'color: #535C69'
-								},
-								text: BX.message('BIZPROC_AUTOMATION_CMP_AFTER_PREVIOUS_WIDE')
-							})
-						]
-					})
+					executeAfterPreviousBlock
 				]
 			});
 
@@ -1388,12 +1506,15 @@
 			delay.setValueType(formFields['delay_value_type']);
 			delay.setBasis(formFields['delay_basis']);
 			delay.setWorkTime(formFields['delay_worktime'] === '1');
-			delay.setLocalTime(formFields['delay_localtime'] === '1');
-
-			var executeAfterPrevious = (formFields['execute_after_previous'] && (formFields['execute_after_previous']) === '1');
-
+			// delay.setLocalTime(formFields['delay_localtime'] === '1');
 			robot.setDelayInterval(delay);
-			robot.setExecuteAfterPrevious(executeAfterPrevious);
+
+			if (robot.component)
+			{
+				robot.setExecuteAfterPrevious(
+					formFields['execute_after_previous'] && (formFields['execute_after_previous']) === '1'
+				);
+			}
 
 			return this;
 		},
@@ -1405,7 +1526,7 @@
 			/** @var {ConditionGroup} conditionGroup */
 			var conditionGroup = BX.clone(robot.getCondition());
 			var selector = new ConditionGroupSelector(conditionGroup, {
-				fields: this.component.data['DOCUMENT_FIELDS']
+				fields: this.component ? this.component.data['DOCUMENT_FIELDS'] : this.data['DOCUMENT_FIELDS']
 			});
 
 			return BX.create("div", {
@@ -1465,13 +1586,15 @@
 			this.onBeforeSaveRobotSettings();
 			var me = this, formData = BX.ajax.prepareForm(form);
 
+			var ajaxUrl = this.component ? this.component.getAjaxUrl() : getAjaxUrl();
+			var documentSigned = this.component ? this.component.documentSigned : API.documentSigned;
 			BX.ajax({
 				method: 'POST',
 				dataType: 'json',
-				url: this.manager.component.getAjaxUrl(),
+				url: ajaxUrl,
 				data: {
 					ajax_action: 'save_robot_settings',
-					document_signed: this.component.documentSigned,
+					document_signed: documentSigned,
 					robot: robot.serialize(),
 					form_data: formData['data']
 				},
@@ -1531,10 +1654,13 @@
 
 	var Robot = function(template)
 	{
-		this.template = template;
-		this.templateManager = template.manager;
-		this.component = this.templateManager.component;
-		this.tracker = template.manager.component.tracker;
+		if (template)
+		{
+			this.template = template;
+			this.templateManager = template.manager;
+			this.component = this.templateManager.component;
+			this.tracker = template.manager.component.tracker;
+		}
 	};
 
 	Robot.generateName = function()
@@ -1558,11 +1684,19 @@
 
 			this.delay = new DelayInterval(this.data.Delay);
 			this.condition = new ConditionGroup(this.data.Condition);
-			this.viewMode = viewMode || Component.ViewMode.View;
-			this.node = this.createNode();
+			this.viewMode = (viewMode === undefined) ? Component.ViewMode.View : viewMode;
+			if (this.viewMode !== Component.ViewMode.None)
+			{
+				this.node = this.createNode();
+			}
 		},
 		reInit: function(data, viewMode)
 		{
+			if (viewMode === undefined && this.viewMode === Component.ViewMode.None)
+			{
+				return;
+			}
+
 			var node = this.node;
 			this.node = this.createNode();
 			if (node.parentNode)
@@ -1615,6 +1749,18 @@
 			}
 
 			return errors;
+		},
+		getDelayNotes: function()
+		{
+			if (this.data.DelayName)
+			{
+				var log = this.tracker.getRobotLog(this.data.DelayName);
+				if (log && parseInt(log['STATUS']) === Component.LogStatus.Running)
+				{
+					return log['NOTES'];
+				}
+			}
+			return [];
 		},
 		createNode: function()
 		{
@@ -1715,6 +1861,13 @@
 							loader = BX.create("div", {
 								attrs: { className: "bizproc-automation-robot-loader" }
 							});
+
+							var delayNotes = this.getDelayNotes();
+							if (delayNotes.length)
+							{
+								loader.setAttribute('data-text', delayNotes.join('\n'));
+								HelpHint.bindToNode(loader);
+							}
 						}
 						break;
 					case Component.LogStatus.Completed:
@@ -1940,7 +2093,7 @@
 		},
 		clipTitle: function (fullTitle)
 		{
-			var title = fullTitle;
+			var title = BX.util.htmlspecialchars(fullTitle);
 			var arrTitle = title.split(" ");
 			var lastWord = "<span>" + arrTitle[arrTitle.length - 1] + "</span>";
 
@@ -1962,6 +2115,7 @@
 		serialize: function()
 		{
 			var result = BX.clone(this.data);
+			delete result['viewData'];
 
 			var fixData = function(data)
 			{
@@ -1980,6 +2134,10 @@
 						else if (BX.type.isPlainObject(data[key]))
 						{
 							fixData(data[key]);
+						}
+						else if (BX.type.isArray(data[key]) && !data[key].length)
+						{
+							data[key] = '';
 						}
 					}
 				}
@@ -2025,7 +2183,7 @@
 		},
 		isExecuteAfterPrevious: function()
 		{
-			return (this.data.ExecuteAfterPrevious === 1)
+			return (this.data.ExecuteAfterPrevious === 1 || this.data.ExecuteAfterPrevious === '1')
 		},
 		registerItem: function(object)
 		{
@@ -3954,12 +4112,12 @@
 	 * @param {Node} targetInput
 	 *
 	 */
-	var InlineSelector = function(robot, targetInput)
+	var InlineSelector = function(robot, targetInput, data)
 	{
 		var me = this;
 		this.robot = robot;
 		this.component = robot.component;
-		this.documentFields = this.component.data['DOCUMENT_FIELDS'];
+		this.documentFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : data['DOCUMENT_FIELDS'];
 		this.targetInput = BX.clone(targetInput);
 		this.menuButton = BX.create('span', {
 			attrs: {className: 'bizproc-automation-popup-select-dotted'},
@@ -4014,7 +4172,7 @@
 			};
 
 			var menuItems = [], menuGroups = {'ROOT': {
-				text: this.component.data['ENTITY_NAME'],
+				text: this.component ? this.component.data['ENTITY_NAME'] : API.documentName,
 				items: []
 			}};
 
@@ -4060,7 +4218,10 @@
 
 			var skipId = this.robot.getId();
 			var robotResults = [];
-			this.robot.template.robots.forEach(function(robot)
+			var tpl = this.robot.template;
+			var templateRobots = tpl ? tpl.robots : [];
+
+			templateRobots.forEach(function(robot)
 			{
 				if (robot.getId() !== skipId)
 				{
@@ -4089,6 +4250,72 @@
 					text: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
 					items: robotResults
 				};
+			}
+
+			if (tpl && tpl.data.PARAMETERS)
+			{
+				var parameterList = [];
+				Object.keys(tpl.data.PARAMETERS).forEach(function(paramId)
+				{
+					var param = tpl.data.PARAMETERS[paramId];
+					parameterList.push({
+						text: param['Name'],
+						field: {Expression: '{=Parameter:'+paramId+'}'},
+						onclick: itemClickHandler
+					});
+				});
+
+				if (parameterList.length)
+				{
+					menuGroups['__PARAMETERS'] = {
+						text: BX.message('BIZPROC_AUTOMATION_CMP_PARAMETERS_LIST'),
+						items: parameterList
+					};
+				}
+			}
+
+			if (tpl && tpl.data.CONSTANTS)
+			{
+				var constantList = [];
+				Object.keys(tpl.data.CONSTANTS).forEach(function(paramId)
+				{
+					var param = tpl.data.CONSTANTS[paramId];
+					constantList.push({
+						text: param['Name'],
+						field: {Expression: '{=Constant:'+paramId+'}'},
+						onclick: itemClickHandler
+					});
+				});
+
+				if (constantList.length)
+				{
+					menuGroups['__CONSTANTS'] = {
+						text: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
+						items: constantList
+					};
+				}
+			}
+
+			if (this.component && this.component.data['GLOBAL_CONSTANTS'])
+			{
+				var globalConstantList = [];
+				Object.keys(this.component.data['GLOBAL_CONSTANTS']).forEach(function(paramId)
+				{
+					var param = this.component.data['GLOBAL_CONSTANTS'][paramId];
+					globalConstantList.push({
+						text: param['Name'],
+						field: {Expression: '{=GlobalConst:'+paramId+'}'},
+						onclick: itemClickHandler
+					});
+				}, this);
+
+				if (globalConstantList.length)
+				{
+					menuGroups['__GLOB_CONSTANTS'] = {
+						text: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST'),
+						items: globalConstantList
+					};
+				}
 			}
 
 			if (Object.keys(menuGroups).length < 2)
@@ -4193,7 +4420,10 @@
 				useAfterBasis: true,
 				onchange: (function(delay)
 				{
-					this.targetInput.value = delay.toExpression(basisFields);
+					this.targetInput.value = delay.toExpression(
+						basisFields,
+						this.component.getResponsibleUserExpression()
+					);
 				}).bind(this)
 			});
 
@@ -4271,6 +4501,24 @@
 
 						fields.push(printableField);
 					}
+				}
+				if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime')
+				{
+					var serverField = BX.clone(field);
+					serverField['Name'] += ' '+BX.message('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER');
+					serverField['Type'] = 'string';
+					serverField['SystemExpression'] = '{=Document:'+serverField['Id']+' > server}';
+					serverField['Expression'] = '{{'+field['Name']+' > server}}';
+
+					fields.push(serverField);
+
+					var responsibleField = BX.clone(field);
+					responsibleField['Name'] += ' '+BX.message('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_RESPONSIBLE');
+					responsibleField['Type'] = 'string';
+					responsibleField['SystemExpression'] = '{=Document:'+serverField['Id']+' > responsible}';
+					responsibleField['Expression'] = '{{'+field['Name']+' > responsible}}';
+
+					fields.push(responsibleField);
 				}
 			});
 
@@ -4616,7 +4864,7 @@
 			var workTimeHelpNode = BX.create('span', {
 				attrs: {
 					className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-					'data-hint': BX.message('BIZPROC_AUTOMATION_CMP_DELAY_WORKTIME_HELP')
+					'data-hint': BX.message('BIZPROC_AUTOMATION_CMP_DELAY_WORKTIME_HELP_2')
 				}
 			});
 
@@ -4634,7 +4882,7 @@
 					workTimeHelpNode
 				]
 			}));
-
+/*
 			var localTimeRadio = BX.create("input", {
 				attrs: {
 					type: "checkbox",
@@ -4670,11 +4918,10 @@
 					localTimeHelpNode
 				]
 			}));
-
+*/
 			//init modern Help tips
 			BX.UI.Hint.init(form);
-
-			var popup = new BX.PopupWindow('bizproc-automation-popup-set', this.labelNode, {
+			var popup = new BX.PopupWindow(Component.generateUniqueId(), this.labelNode, {
 				autoHide: true,
 				closeByEsc: true,
 				closeIcon: false,
@@ -4706,6 +4953,7 @@
 						{
 							me.valueTypeMenu.popupWindow.close();
 						}
+						this.destroy();
 					}
 				},
 				overlay: { backgroundColor: 'transparent' }
@@ -4744,7 +4992,7 @@
 			}
 
 			this.delay.setWorkTime(formData['worktime']);
-			this.delay.setLocalTime(formData['localtime']);
+			// this.delay.setLocalTime(formData['localtime']);
 
 			this.setLabelText();
 
@@ -5441,11 +5689,11 @@
 				value: this.value,
 				valueType: this.valueType,
 				basis: this.basis,
-				workTime: this.workTime ? 1 : 0,
-				localTime: this.localTime ? 1 : 0
+				workTime: this.workTime ? 1 : 0//,
+				//localTime: this.localTime ? 1 : 0
 			}
 		},
-		toExpression: function(basisFields)
+		toExpression: function(basisFields, workerExpression)
 		{
 			var basis = this.basis ? this.basis : DelayInterval.Basis.CurrentDate;
 
@@ -5500,7 +5748,13 @@
 				add = '0d';
 			}
 
-			return '='+ fn + '(' + basis + ',"' + add + '")';
+			var worker = '';
+			if (fn === 'workdateadd' && workerExpression)
+			{
+				worker = workerExpression;
+			}
+
+			return '='+ fn + '(' + basis + ',"' + add + '"' + (worker ? ',' + worker : '') + ')';
 		}
 	};
 
@@ -5952,7 +6206,10 @@
 						}
 					})
 				],
-				overlay: { backgroundColor: 'transparent' }
+				overlay: { backgroundColor: 'transparent' },
+				events: {
+					onPopupClose: function() {this.destroy()}
+				}
 			});
 
 			popup.show()
@@ -6083,8 +6340,9 @@
 		},
 		createValueNode: function(field, value)
 		{
+			var docType = Designer.component ? Designer.component.documentType : API.documentType;
 			return BX.Bizproc.FieldType.renderControl(
-				Designer.component.documentType,
+				docType,
 				field,
 				'condition_value',
 				value
@@ -6282,6 +6540,27 @@
 		}
 	};
 
+	var API = {
+		documentName: null,
+		documentType: null,
+		documentFields: null,
+		documentSigned: null,
+		showRobotSettings: function(robotData, documentType, documentStatus, onSaveCallback)
+		{
+			var robot = new Robot();
+			robot.init(robotData, Component.ViewMode.None);
+
+			var tpl = new Template();
+			tpl.init({
+				DOCUMENT_STATUS: documentStatus,
+				DOCUMENT_SIGNED: this.documentSigned,
+				DOCUMENT_FIELDS: this.documentFields
+			}, Component.ViewMode.None);
+
+			tpl.openRobotSettingsDialog(robot, null, onSaveCallback);
+		}
+	};
 	BX.Bizproc.Automation.Component = Component;
 	BX.Bizproc.Automation.Designer = Designer;
+	BX.Bizproc.Automation.API = API;
 })(window.BX || window.top.BX);

@@ -10,7 +10,7 @@ class AudienceGoogle extends Audience
 
 	const MAX_CONTACTS_PER_PACKET = 0;
 	const MIN_CONTACTS_FOR_ACTIVATING = 5000;
-	const URL_AUDIENCE_LIST = 'https://adwords.google.com/mcm/Mcm#uls.uls&app=mcm.audp';
+	const URL_AUDIENCE_LIST = 'https://ads.google.com/aw/audiences/management';
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',
@@ -130,5 +130,10 @@ class AudienceGoogle extends Audience
 	{
 		$key = 'ID';
 		return (is_array($row) && $row[$key]) ? $row[$key] : null;
+	}
+
+	public static function isSupportAddAudience()
+	{
+		return true;
 	}
 }

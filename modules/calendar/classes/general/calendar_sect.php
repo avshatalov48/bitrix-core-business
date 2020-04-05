@@ -1,4 +1,6 @@
 <?
+use Bitrix\Main\Loader;
+
 class CCalendarSect
 {
 	private static
@@ -106,6 +108,10 @@ class CCalendarSect
 					elseif($n == '>ID' && intVal($val) > 0)
 					{
 						$arSqlSearch[] = "CS.ID > ".intVal($val);
+					}
+					elseif($n == 'ACTIVE' && $val == "Y")
+					{
+						$arSqlSearch[] = "CS.ACTIVE='Y'";
 					}
 					elseif ($n == 'CAL_TYPE' && is_array($val))
 					{
@@ -264,7 +270,7 @@ class CCalendarSect
 					$userId = CCalendar::GetUserId();
 				}
 
-				$isManager = \Bitrix\Main\Loader::includeModule('intranet') && $sect['CAL_TYPE'] == 'user' && $settings['dep_manager_sub'] && Bitrix\Calendar\Util::isManagerForUser($userId, $sect['OWNER_ID']);
+				$isManager = Loader::includeModule('intranet') && $sect['CAL_TYPE'] == 'user' && $settings['dep_manager_sub'] && Bitrix\Calendar\Util::isManagerForUser($userId, $sect['OWNER_ID']);
 
 				if($bOwner || $isManager || self::CanDo('calendar_view_time', $sectId, $userId))
 				{
@@ -663,15 +669,27 @@ class CCalendarSect
 		if ($checkPermissions !== false && !CCalendarSect::CanDo('calendar_edit_section', $id))
 			return CCalendar::ThrowError('EC_ACCESS_DENIED');
 
-		$meetingIds = array();
-		// Here we don't use GetList to speed up delete process
-		// mantis: 82918
-		$strSql = "SELECT CE.ID, CE.PARENT_ID, CE.DELETED, CES.SECT_ID, CES.EVENT_ID FROM b_calendar_event CE
-			LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
-			WHERE CES.SECT_ID=".intval($id)."
-			AND (CE.PARENT_ID=CE.ID)
-			AND (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
-			AND (CE.DELETED='N' and CE.DELETED is not null)";
+		$id = intval($id);
+		$meetingIds = [];
+		if (\Bitrix\Calendar\Util::isSectionStructureConverted())
+		{
+			$strSql = "SELECT CE.PARENT_ID FROM b_calendar_event CE
+				WHERE CE.SECTION_ID=".$id."
+				AND (CE.PARENT_ID=CE.ID)
+				AND (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
+				AND (CE.DELETED='N' and CE.DELETED is not null)";
+		}
+		else
+		{
+			// Here we don't use GetList to speed up delete process
+			// mantis: 82918
+			$strSql = "SELECT CE.ID, CE.PARENT_ID, CE.DELETED, CES.SECT_ID, CES.EVENT_ID FROM b_calendar_event CE
+				LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
+				WHERE CES.SECT_ID=".$id."
+				AND (CE.PARENT_ID=CE.ID)
+				AND (CE.IS_MEETING='1' and CE.IS_MEETING is not null)
+				AND (CE.DELETED='N' and CE.DELETED is not null)";
+		}
 
 		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while($ev = $res->Fetch())
@@ -682,17 +700,17 @@ class CCalendarSect
 
 		if (count($meetingIds) > 0)
 		{
-			$meetingIds = implode(',', $meetingIds);
-			$DB->Query("DELETE from b_calendar_event WHERE PARENT_ID in (".$meetingIds.")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE from b_calendar_event WHERE PARENT_ID in (".implode(',', $meetingIds).")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 
 		// Del link from table
-		$strSql = "DELETE FROM b_calendar_event_sect WHERE SECT_ID=".IntVal($id);
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		if (!\Bitrix\Calendar\Util::isSectionStructureConverted())
+		{
+			$DB->Query("DELETE FROM b_calendar_event_sect WHERE SECT_ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		}
 
 		// Del from
-		$strSql = "DELETE FROM b_calendar_section WHERE ID=".IntVal($id);
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_section WHERE ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
 		CCalendarEvent::DeleteEmpty();
 		self::CleanAccessTable();
@@ -819,6 +837,9 @@ class CCalendarSect
 		if ((CCalendar::GetType() == 'group' || CCalendar::GetType() == 'user' || CCalendar::IsBitrix24()) && CCalendar::IsSocNet() && CCalendar::IsSocnetAdmin())
 			return true;
 
+		if (CCalendar::IsBitrix24() && Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($userId))
+			return true;
+
 		$res = in_array($operation, self::GetOperations($sectId, $userId));
 		self::$bClearOperationCache = false;
 		return $res;
@@ -899,7 +920,8 @@ class CCalendarSect
 			$params .=  '&type='.strtolower($type);
 		if ($ownerId !== false)
 			$params .=  '&owner='.intVal($ownerId);
-		return $params.'&user='.intVal($userId).'&'.'sec_id='.intVal($sectionId).'&sign='.self::GetSign($userId, $sectionId).'&bx_hit_hash='.self::GetAuthHash();
+		return $params.'&ncc=1&user='.intVal($userId).'&'.'sec_id='.intVal($sectionId).'&sign='.self::GetSign($userId, $sectionId)
+			.'&bx_hit_hash='.self::GetAuthHash();
 	}
 
 	function GetSPExportLink()
@@ -1150,10 +1172,14 @@ class CCalendarSect
 			$arId = array($arId);
 
 		$arId = array_unique($arId);
-		$strIds = array();
+		$strIds = [];
 		foreach($arId as $id)
+		{
 			if (intVal($id) > 0)
+			{
 				$strIds[] = intVal($id);
+			}
+		}
 		$strIds = implode(',', $strIds);
 
 		if ($strIds)
@@ -1234,13 +1260,31 @@ class CCalendarSect
 		$autoCreated = false;
 		$section = false;
 
-		$res = self::GetList(array('arFilter' => array('CAL_TYPE' => $type,'OWNER_ID' => $ownerId), 'checkPermissions' => false));
-		if ($res && is_array($res) && isset($res[0]))
+		$res = self::GetList(
+			array('arFilter' =>
+				array(
+					'CAL_TYPE' => $type,
+					'OWNER_ID' => $ownerId,
+					'DELETED' => 'N',
+					'ACTIVE' => 'Y'
+				),
+				'checkPermissions' => false
+			));
+
+		foreach($res as $sect)
 		{
-			$section = $res[0];
-			$sectionId = $res[0]['ID'];
+			$sectId = $sect['ID'];
+			$ownerId = $sect['OWNER_ID'];
+
+			if (self::CheckGoogleVirtualSection($sect['GAPI_CALENDAR_ID']))
+				continue;
+
+			$section = $sect;
+			$sectionId = $sect['ID'];
+			break;
 		}
-		elseif ($autoCreate)
+
+		if (!$section && $autoCreate)
 		{
 			$section = self::CreateDefault(array(
 				'type' => $type,
@@ -1249,6 +1293,7 @@ class CCalendarSect
 			$autoCreated = true;
 			$sectionId = $section['ID'];
 		}
+
 		return array('sectionId' => $sectionId, 'autoCreated' => $autoCreated, 'section' => $section);
 	}
 
@@ -1276,39 +1321,23 @@ class CCalendarSect
 	public static function CleanAccessTable()
 	{
 		global $DB;
-		if(strtoupper($DB->type) == "MSSQL")
-		{
-			$strSql = "SELECT DISTINCT CA.SECT_ID from b_calendar_access CA
-				LEFT JOIN b_calendar_section CS ON (CA.SECT_ID=CS.ID)
-				WHERE CS.ID is null AND ISNUMERIC(CA.SECT_ID)<>0";
-		}
-		elseif(strtoupper($DB->type) == "ORACLE")
-		{
-			$strSql = "SELECT DISTINCT CA.SECT_ID from b_calendar_access CA
-				LEFT JOIN b_calendar_section CS ON (CS.ID=CA.SECT_ID)
-				WHERE REGEXP_LIKE(CA.SECT_ID,'^[[:digit:]]+$') AND CS.ID is null";
-		}
-		else
-		{
-			$strSql = "SELECT DISTINCT CA.SECT_ID from b_calendar_access CA
+
+		$res = $DB->Query(
+			"SELECT DISTINCT CA.SECT_ID from b_calendar_access CA
 			LEFT JOIN b_calendar_section CS ON (CA.SECT_ID=CS.ID)
-			WHERE concat('',CA.SECT_ID * 1)=CA.SECT_ID AND CS.ID is null";
-		}
+			WHERE concat('',CA.SECT_ID * 1)=CA.SECT_ID AND CS.ID is null",
+			false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		$strItems = array();
+		$items = [];
 		while($r = $res->Fetch())
 		{
-			//if (IntVal($r['SECT_ID']) == $r['SECT_ID'])
-			$strItems[] = IntVal($r['SECT_ID']);
+			$items[] = "'".intval($r['SECT_ID'])."'";
 		}
-		$strItems = implode(',', $strItems);
 
 		// Clean from 'b_calendar_event'
-		if ($strItems != "")
+		if(count($items))
 		{
-			$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID in (".$strItems.")", false,
+			$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID in (".implode(',', $items).")", false,
 					"FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		}
 	}

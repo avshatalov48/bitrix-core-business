@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Blog;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlException;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
@@ -179,5 +180,21 @@ class PostSocnetRightsTable extends Entity\DataManager
 		}
 
 		return $queryRes;
+	}
+
+	public static function deleteByEntity($value = '')
+	{
+		if (strlen($value) <= 0)
+		{
+			return false;
+		}
+
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$tableName = self::getTableName();
+		$connection->queryExecute("DELETE FROM {$tableName} WHERE `ENTITY` = '".$helper->forSql($value)."'");
+
+		return true;
 	}
 }

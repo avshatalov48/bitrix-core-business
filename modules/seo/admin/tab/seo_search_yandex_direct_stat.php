@@ -20,7 +20,7 @@ use \Bitrix\Seo\Engine;
 
 foreach($bannerList as $bannerId => $banner)
 {
-	$campaign = $campaignList[$banner['CAMPAIGN_ID']];
+	$campaign = $bannerList[$banner['CAMPAIGN_ID']];
 
 	if(!$bSingle):
 ?>

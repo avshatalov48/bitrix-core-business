@@ -36,6 +36,16 @@ class Select extends \Bitrix\Landing\Field
 	}
 
 	/**
+	 * Gets true, if current value is empty.
+	 * @return bool
+	 */
+	public function isEmptyValue()
+	{
+		return $this->value === '' ||
+			   $this->value === 0;
+	}
+
+	/**
 	 * Multiple or not current field.
 	 * @return bool
 	 */

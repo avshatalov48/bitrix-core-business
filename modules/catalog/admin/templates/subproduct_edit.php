@@ -2035,6 +2035,25 @@ function HideNotice()
 				</tr>
 				<?
 			}
+
+			$arUserFields = $USER_FIELD_MANAGER->GetUserFields(Catalog\ProductTable::getUfId(), $PRODUCT_ID, LANGUAGE_ID);
+			if (!empty($arUserFields))
+			{
+				?><tr class="heading">
+				<td colspan="2"><?echo GetMessage("C2IT_UF_FIELDS")?></td>
+				</tr><?
+
+				foreach ($arUserFields as $FIELD_NAME => $arUserField)
+				{
+					$arUserField["VALUE_ID"] = $PRODUCT_ID;
+					$strLabel = $arUserField["EDIT_FORM_LABEL"] ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+					$arUserField["EDIT_FORM_LABEL"] = $strLabel;
+
+					echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
+				}
+				unset($FIELD_NAME, $arUserField);
+			}
+			unset($arUserFields);
 			?>
 		</table>
 <script type="text/javascript">

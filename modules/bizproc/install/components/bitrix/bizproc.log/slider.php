@@ -21,18 +21,25 @@ require($_SERVER['DOCUMENT_ROOT'].'/bitrix/header.php');
 		<div class="bizproc-log-slider-header-title"><?=GetMessage('BPABL_SLIDER_TITLE')?></div>
 	</div>
 <?
-$APPLICATION->IncludeComponent("bitrix:bizproc.log",
-	'modern',
-	array(
-		"COMPONENT_VERSION" => 2,
-		"ID" => isset($_REQUEST['WORKFLOW_ID'])? (string)$_REQUEST['WORKFLOW_ID'] : null,
-		"SET_TITLE" => "N",
-		"INLINE_MODE" => "Y",
-		"AJAX_MODE" => "Y",
-		'AJAX_OPTION_JUMP' => 'N',
-		'AJAX_OPTION_HISTORY' => 'N'
-	)
-);
+if (!empty($_REQUEST['WORKFLOW_ID']))
+{
+	$APPLICATION->IncludeComponent("bitrix:bizproc.log",
+		'modern',
+		array(
+			"COMPONENT_VERSION" => 2,
+			"ID" => (string)$_REQUEST['WORKFLOW_ID'],
+			"SET_TITLE" => "N",
+			"INLINE_MODE" => "Y",
+			"AJAX_MODE" => "Y",
+			'AJAX_OPTION_JUMP' => 'N',
+			'AJAX_OPTION_HISTORY' => 'N'
+		)
+	);
+}
+else
+{
+	ShowError(GetMessage('BPABL_SLIDER_ERROR'));
+}
 ?>
 </div>
 </body>

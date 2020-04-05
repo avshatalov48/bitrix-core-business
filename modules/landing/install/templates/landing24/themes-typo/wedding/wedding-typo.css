@@ -16,11 +16,6 @@ body {
   text-rendering: optimizelegibility;
 }
 
-p {
-  line-height: 1.4;
-  font-size: 1.14286rem;
-}
-
 .btn {
   font-family: "Montserrat", Arial, sans-serif;
 }

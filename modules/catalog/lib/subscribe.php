@@ -712,18 +712,11 @@ class SubscribeTable extends Entity\DataManager
 			$unsubscribeUrl = '';
 			if (Loader::includeModule('landing'))
 			{
-				$sysPages = \Bitrix\Landing\Syspage::get($subscribeData['LANDING_SITE_ID']);
-				$landing = \Bitrix\Landing\Landing::createInstance(
-					$sysPages['personal']['LANDING_ID'], ['blocks_limit' => 1]
+				$unsubscribeUrl = \Bitrix\Landing\Syspage::getSpecialPage(
+					$subscribeData['LANDING_SITE_ID'],
+					'personal',
+					['SECTION' => 'subscribe']
 				);
-				if ($landing->exist())
-				{
-					$siteUrl = \Bitrix\Landing\Site::getPublicUrl($landing->getSiteId());
-					$unsubscribeUrl = \CHTTP::urlAddParams(
-						$siteUrl.$landing->getPublicUrl($sysPages['personal']['LANDING_ID']),
-						['SECTION' => 'subscribe']
-					);
-				}
 			}
 		}
 		else

@@ -49,6 +49,7 @@ class HttpClient
 	protected $requestCharset = '';
 	protected $sslVerify = true;
 	protected $bodyLengthMax = 0;
+	protected $privateIp = true;
 
 	protected $status = 0;
 	/** @var HttpHeaders */
@@ -59,6 +60,8 @@ class HttpClient
 	protected $outputStream;
 
 	protected $effectiveUrl;
+
+	protected $contextOptions = [];
 
 	/**
 	 * @param array $options Optional array with options:
@@ -76,6 +79,7 @@ class HttpClient
 	 *		"charset" string Charset for body in POST and PUT
 	 *		"disableSslVerification" bool Pass true to disable ssl check
 	 *      "bodyLengthMax" int Maximum length of the body.
+	 *      "privateIp" bool Enable or disable requests to private IPs (default true).
 	 * 	All the options can be set separately with setters.
 	 */
 	public function __construct(array $options = null)
@@ -137,6 +141,10 @@ class HttpClient
 			if(isset($options["bodyLengthMax"]))
 			{
 				$this->setBodyLengthMax($options["bodyLengthMax"]);
+			}
+			if(isset($options["privateIp"]))
+			{
+				$this->setPrivateIp($options["privateIp"]);
 			}
 		}
 	}
@@ -312,6 +320,16 @@ class HttpClient
 				return false;
 			}
 
+			if($this->privateIp == false)
+			{
+				$ip = IpAddress::createByUri($parsedUrl);
+				if($ip->isPrivate())
+				{
+					$this->error["PRIVATE_IP"] = "Resolved IP is incorrect or private: ".$ip->get();
+					return false;
+				}
+			}
+
 			//just in case of serial queries
 			$this->disconnect();
 
@@ -370,7 +388,7 @@ class HttpClient
 	 * @param string $name Name of the header field.
 	 * @param string $value Value of the field.
 	 * @param bool $replace Replace existing header field with the same name or add one more.
-	 * @return void
+	 * @return $this
 	 */
 	public function setHeader($name, $value, $replace = true)
 	{
@@ -378,6 +396,7 @@ class HttpClient
 		{
 			$this->requestHeaders->set($name, $value);
 		}
+		return $this;
 	}
 
 	/**
@@ -392,11 +411,12 @@ class HttpClient
 	 * Sets an array of cookies for HTTP request.
 	 *
 	 * @param array $cookies Array of cookie_name => value pairs.
-	 * @return void
+	 * @return $this
 	 */
 	public function setCookies(array $cookies)
 	{
 		$this->requestCookies->set($cookies);
+		return $this;
 	}
 
 	/**
@@ -404,11 +424,12 @@ class HttpClient
 	 *
 	 * @param string $user Username.
 	 * @param string $pass Password.
-	 * @return void
+	 * @return $this
 	 */
 	public function setAuthorization($user, $pass)
 	{
 		$this->setHeader("Authorization", "Basic ".base64_encode($user.":".$pass));
+		return $this;
 	}
 
 	/**
@@ -416,7 +437,7 @@ class HttpClient
 	 *
 	 * @param bool $value If true, do redirect (default true).
 	 * @param null|int $max Maximum allowed redirect count.
-	 * @return void
+	 * @return $this
 	 */
 	public function setRedirect($value, $max = null)
 	{
@@ -425,50 +446,55 @@ class HttpClient
 		{
 			$this->redirectMax = intval($max);
 		}
+		return $this;
 	}
 
 	/**
 	 * Sets response waiting option.
 	 *
 	 * @param bool $value If true, wait for response. If false, return just after request (default true).
-	 * @return void
+	 * @return $this
 	 */
 	public function waitResponse($value)
 	{
-		$this->waitResponse = ($value? true : false);
+		$this->waitResponse = (bool)$value;
+		return $this;
 	}
 
 	/**
 	 * Sets connection timeout.
 	 *
 	 * @param int $value Connection timeout in seconds (default 30).
-	 * @return void
+	 * @return $this
 	 */
 	public function setTimeout($value)
 	{
 		$this->socketTimeout = intval($value);
+		return $this;
 	}
 
 	/**
 	 * Sets socket stream reading timeout.
 	 *
 	 * @param int $value Stream reading timeout in seconds; "0" means no timeout (default 60).
-	 * @return void
+	 * @return $this
 	 */
 	public function setStreamTimeout($value)
 	{
 		$this->streamTimeout = intval($value);
+		return $this;
 	}
 
 	/**
 	 * Sets HTTP protocol version. In version 1.1 chunked response is possible.
 	 *
 	 * @param string $value Version "1.0" or "1.1" (default "1.0").
-	 * @return void
+	 * @return $this
 	 */
 	public function setVersion($value)
 	{
 		$this->version = $value;
+		return $this;
 	}
 
 	/**
@@ -477,32 +503,47 @@ class HttpClient
 	 * Note, that compressed response is processed anyway if Content-Encoding response header field is set
 	 *
 	 * @param bool $value If true, "Accept-Encoding: gzip" will be sent.
-	 * @return void
+	 * @return $this
 	 */
 	public function setCompress($value)
 	{
-		$this->compress = ($value? true : false);
+		$this->compress = (bool)$value;
+		return $this;
 	}
 
 	/**
 	 * Sets charset for entity-body (used in the Content-Type request header field for POST and PUT)
 	 *
 	 * @param string $value Charset.
-	 * @return void
+	 * @return $this
 	 */
 	public function setCharset($value)
 	{
 		$this->requestCharset = $value;
+		return $this;
 	}
 
 	/**
 	 * Disables ssl certificate verification.
 	 *
-	 * @return void
+	 * @return $this
 	 */
 	public function disableSslVerification()
 	{
 		$this->sslVerify = false;
+		return $this;
+	}
+
+	/**
+	 * Enables or disables requests to private IPs.
+	 *
+	 * @param bool $value
+	 * @return $this
+	 */
+	public function setPrivateIp($value)
+	{
+		$this->privateIp = (bool)$value;
+		return $this;
 	}
 
 	/**
@@ -512,7 +553,7 @@ class HttpClient
 	 * @param null|int $proxyPort Proxy port number.
 	 * @param null|string $proxyUser Proxy username.
 	 * @param null|string $proxyPassword Proxy password.
-	 * @return void
+	 * @return $this
 	 */
 	public function setProxy($proxyHost, $proxyPort = null, $proxyUser = null, $proxyPassword = null)
 	{
@@ -524,6 +565,8 @@ class HttpClient
 		}
 		$this->proxyUser = $proxyUser;
 		$this->proxyPassword = $proxyPassword;
+
+		return $this;
 	}
 
 	/**
@@ -532,21 +575,24 @@ class HttpClient
 	 * Note, in this mode the result string is empty.
 	 *
 	 * @param resource $handler File or stream handler.
-	 * @return void
+	 * @return $this
 	 */
 	public function setOutputStream($handler)
 	{
 		$this->outputStream = $handler;
+		return $this;
 	}
 
 	/**
 	 * Sets the maximum body length that will be received in $this->readBody().
 	 *
 	 * @param int $bodyLengthMax
+	 * @return $this
 	 */
 	public function setBodyLengthMax($bodyLengthMax)
 	{
 		$this->bodyLengthMax = intval($bodyLengthMax);
+		return $this;
 	}
 
 	/**
@@ -589,6 +635,18 @@ class HttpClient
 		return $this->effectiveUrl;
 	}
 
+	/**
+	 * Sets context options and parameters.
+	 *
+	 * @param array $options Context options and parameters
+	 * @return $this
+	 */
+	public function setContextOptions(array $options)
+	{
+		$this->contextOptions = array_replace_recursive($this->contextOptions, $options);
+		return $this;
+	}
+
 	protected function connect(Uri $url)
 	{
 		if($this->proxyHost <> '')
@@ -613,7 +671,9 @@ class HttpClient
 		}
 
 		$context = $this->createContext();
-		if ($context)
+
+		//$context can be FALSE
+		if($context)
 		{
 			$res = stream_socket_client($proto.$host.":".$port, $errno, $errstr, $this->socketTimeout, STREAM_CLIENT_CONNECT, $context);
 		}
@@ -649,14 +709,14 @@ class HttpClient
 
 	protected function createContext()
 	{
-		$contextOptions = array();
 		if ($this->sslVerify === false)
 		{
-			$contextOptions["ssl"]["verify_peer_name"] = false;
-			$contextOptions["ssl"]["verify_peer"] = false;
-			$contextOptions["ssl"]["allow_self_signed"] = true;
+			$this->contextOptions["ssl"]["verify_peer_name"] = false;
+			$this->contextOptions["ssl"]["verify_peer"] = false;
+			$this->contextOptions["ssl"]["allow_self_signed"] = true;
 		}
-		$context = stream_context_create($contextOptions);
+
+		$context = stream_context_create($this->contextOptions);
 		return $context;
 	}
 

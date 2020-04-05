@@ -277,6 +277,11 @@ class Options
 			(!$USER->isAuthorized() && !isset($_SESSION["main.ui.filter"][$this->getId()]["options"])))
 		{
 			$options = \CUserOptions::getOption("main.ui.filter", $id, array(), self::getUserId());
+
+			if (empty($options))
+			{
+				$options = \CUserOptions::getOption("main.ui.filter.common", $id, array(), 0);
+			}
 		}
 		else
 		{
@@ -430,11 +435,23 @@ class Options
 					$result["rows"][] = $id;
 				}
 			}
-			else if ($type == "custom_entity" || $type == "dest_selector")
+			else if ($type == "custom_entity")
 			{
-				if ($request[$id] !== null && ($request[$nameId] !== null || $request[$labelId]))
+				if ($request[$id] !== null)
 				{
-					$result["fields"][$labelId] = $request[$nameId] !== null ? $request[$nameId] : $request[$labelId];
+					if ($request[$id] !== null || $request[$labelId] !== null)
+					{
+						$result["fields"][$labelId] = ($request[$nameId] !== null ?
+							$request[$nameId] : $request[$labelId]);
+					}
+					$result["fields"][$id] = $request[$id];
+					$result["rows"][] = $id;
+				}
+			}
+			else if ($type == "dest_selector")
+			{
+				if ($request[$id] !== null)
+				{
 					$result["fields"][$id] = $request[$id];
 					$result["rows"][] = $id;
 				}
@@ -657,7 +674,6 @@ class Options
 	{
 		$filterFields = self::fetchFieldsFromFilterSettings($filterSettings, $additionalFields);
 		$resultFields = array();
-
 		foreach ($filterFields as $key => $field)
 		{
 			$isStrictField = false;
@@ -733,10 +749,23 @@ class Options
 				$result["FIND"] = $this->getSearchString();
 			}
 		}
-
 		return $result;
 	}
 
+	/**
+	 * Gets current filter values that available for DB seach
+	 * @param array $sourceFields Filter fields $arParams["FILTER"]
+	 * @return array
+	 */
+	public function getFilterLogic($sourceFields = array())
+	{
+		$filter = $this->getFilter($sourceFields);
+		if ($filter["FILTER_APPLIED"] === true)
+		{
+			return Type::getLogicFilter($filter, $sourceFields);
+		}
+		return [];
+	}
 
 	/**
 	 * Gets filter search string
@@ -812,6 +841,8 @@ class Options
 	 */
 	public function saveForAll()
 	{
+		global $USER;
+
 		if (self::isCurrentUserEditOtherSettings())
 		{
 			$allUserOptions = $this->getAllUserOptions();
@@ -839,8 +870,12 @@ class Options
 						if (!self::isCommon($userOptions))
 						{
 							$currentUserOptions["deleted_presets"] = $currentOptions["deleted_presets"];
-							$currentUserOptions["default_presets"] = $forAllPresets;
 							$currentUserOptions["filters"] = $forAllPresets;
+
+							if (!$USER->CanDoOperation("edit_other_settings", $userOptions["USER_ID"]))
+							{
+								$currentUserOptions["default_presets"] = $forAllPresets;
+							}
 						}
 
 						$this->saveOptionsForUser($currentUserOptions, $userOptions["USER_ID"]);
@@ -985,7 +1020,13 @@ class Options
 			$this->options["filter"] = $settings["current_preset"];
 			$request = $this->getRequest();
 
-			if (isset($request["params"]["forAll"]))
+			if (
+				isset($request["params"]["forAll"])
+				&& (
+					$request["params"]["forAll"] === "true"
+					|| $request["params"]["forAll"] === true
+				)
+			)
 			{
 				$this->saveForAll();
 			}

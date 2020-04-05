@@ -649,6 +649,89 @@ HTML;
 	}
 
 	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function internalizeValue(FieldType $fieldType, $objectName, $value)
+	{
+		return $value;
+	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function internalizeValueSingle(FieldType $fieldType, $objectName, $value)
+	{
+		return static::internalizeValue($fieldType, $objectName, $value);
+	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function internalizeValueMultiple(FieldType $fieldType, $objectName, $value)
+	{
+		if (is_array($value))
+		{
+			foreach ($value as $k => $v)
+			{
+				$value[$k] = static::internalizeValue($fieldType, $objectName, $v);
+			}
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function externalizeValue(FieldType $fieldType, $objectName, $value)
+	{
+		return $value;
+	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function externalizeValueSingle(FieldType $fieldType, $objectName, $value)
+	{
+		return static::externalizeValue($fieldType, $objectName, $value);
+	}
+
+	/**
+	 * @param FieldType $fieldType Document field type.
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public static function externalizeValueMultiple(FieldType $fieldType, $objectName, $value)
+	{
+		if (!is_array($value) || \CBPHelper::isAssociativeArray($value))
+		{
+			$value = array($value);
+		}
+
+		foreach ($value as $k => $v)
+		{
+			$value[$k] = static::externalizeValue($fieldType, $objectName, $v);
+		}
+		return $value;
+	}
+
+	/**
 	 * @param mixed $valueA First value.
 	 * @param mixed $valueB Second value.
 	 * @return int Returns 1, -1 or 0

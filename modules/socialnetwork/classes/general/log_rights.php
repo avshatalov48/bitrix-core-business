@@ -171,6 +171,10 @@ class CSocNetLogRights
 			{
 				$CACHE_MANAGER->ClearByTag("SONET_LOG_".intval($LOG_ID));
 			}
+			if (\Bitrix\Main\Loader::includeModule('landing'))
+			{
+				\Bitrix\Socialnetwork\Integration\Landing\Livefeed::onSocNetLogRightsAddHandler($GROUP_CODE);
+			}
 
 			return $NEW_RIGHT_ID;
 		}
@@ -410,24 +414,37 @@ class CSocNetLogRights
 		$userID = intval($userID);
 
 		$strSql = "SELECT SLR.ID FROM b_sonet_log_right SLR
-			LEFT JOIN b_user_access UA ON UA.ACCESS_CODE = SLR.GROUP_CODE 
 			WHERE 
 				SLR.LOG_ID = ".intval($logID)."
-				AND (
-					(SLR.GROUP_CODE IN ('G2'".($userID > 0 ? ", 'AU'" : "").") )
-					".($userID > 0 ? "OR UA.USER_ID = ".$userID : "")."
-				)
+				AND 
+					SLR.GROUP_CODE IN ('G2'".($userID > 0 ? ", 'AU'" : "").")
+				
 			";
-
 		$result = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		if ($ar = $result->Fetch())
+		if ($ar = $result->fetch())
 		{
 			return true;
 		}
 
+		if ($userID > 0)
+		{
+			$strSql = "SELECT SLR.ID FROM b_sonet_log_right SLR
+				INNER JOIN b_user_access UA ON UA.ACCESS_CODE = SLR.GROUP_CODE 
+				WHERE 
+					SLR.LOG_ID = ".intval($logID)."
+					AND UA.USER_ID = ".$userID."
+			";
+
+			$result = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			if ($ar = $result->fetch())
+			{
+				return true;
+			}
+		}
+
 		return false;
 	}
-	
+
 	public static function CheckForUserAll($logID)
 	{
 		global $DB;

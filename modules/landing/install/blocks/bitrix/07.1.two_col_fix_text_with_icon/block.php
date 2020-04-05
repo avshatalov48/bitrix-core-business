@@ -1,6 +1,6 @@
     <section class="landing-block g-theme-business-bg-blue-dark-v1 g-pt-20 g-pb-20">
         <div class="container">
-            <div class="row">
+            <div class="row landing-block-inner">
 
                 <div class="landing-block-card js-animation fadeIn col-lg-6 g-px-30 g-mb-10">
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">

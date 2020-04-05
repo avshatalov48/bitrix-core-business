@@ -72,8 +72,12 @@ final class Synchronizer
 
 				LoggerDiag::addMessage('SYNCHRONIZER_INCOMING_REPLICATION_FILTER_BY_XML_ID', var_export(['xmlId'=>$xmlId], true));
 
+				$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+				/** @var Order $orderClass */
+				$orderClass = $registry->getOrderClassName();
+
 				/** @var Order[] $orders */
-				$orders = Order::loadByFilter(['filter'=>['XML_ID'=>$xmlId]]);
+				$orders = $orderClass::loadByFilter(['filter'=>['XML_ID'=>$xmlId]]);
 				if(count($orders)>0)
 				{
 					LoggerDiag::addMessage('SYNCHRONIZER_INCOMING_REPLICATION_FILTER_BY_XML_ID_SUCCESS', var_export($orders, true));

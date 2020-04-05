@@ -48,7 +48,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 				$params['PAYMENT_ID'] %= 99999;
 			}
 
-			$params['PAYMENT_SHOULD_PAY'] = roundEx($params['PAYMENT_SHOULD_PAY'], 2)*100;
+			$params['PAYMENT_SHOULD_PAY'] = round($params['PAYMENT_SHOULD_PAY'], 2)*100;
 
 			/** @var Main\Type\DateTime $date */
 			$date = $params['PAYMENT_DATE_INSERT'];

@@ -161,11 +161,21 @@ class Manager
 	 */
 	protected static function stop($chain, $data, $setGoal)
 	{
+		if(!$data || empty($data['EMAIL']))
+		{
+			return;
+		}
+
+		$code = $data['EMAIL'];
+		$typeId = Recipient\Type::detect($data['EMAIL']);
+		$code = Recipient\Normalizer::normalize($code, $typeId);
+
 		// if mailing continue, then stop it
 		$recipientDb = PostingRecipientTable::getList(array(
 			'select' => array('ID', 'ROOT_ID', 'POSTING_ID', 'STATUS', 'POSTING_STATUS' => 'POSTING.STATUS'),
 			'filter' => array(
-				'=CONTACT_ID' => $data['CONTACT_ID'],
+				'=CONTACT.CODE' => $code,
+				'=CONTACT.TYPE_ID' => $typeId,
 				'=POSTING.MAILING_ID' => $chain['MAILING_ID'],
 				'=STATUS' => array(
 					PostingRecipientTable::SEND_RESULT_NONE,
@@ -210,7 +220,8 @@ class Manager
 		$recipientDb = PostingRecipientTable::getList(array(
 			'select' => array('ID', 'DATE_DENY'),
 			'filter' => array(
-				'=CONTACT_ID' => $data['CONTACT_ID'],
+				'=CONTACT.CODE' => $code,
+				'=CONTACT.TYPE_ID' => $typeId,
 				'=POSTING.MAILING_ID' => $chain['MAILING_ID'],
 				'=STATUS' => array(
 					PostingRecipientTable::SEND_RESULT_SUCCESS

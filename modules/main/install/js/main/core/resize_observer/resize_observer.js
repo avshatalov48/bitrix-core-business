@@ -3,6 +3,16 @@
 
 	BX.namespace('BX');
 
+	var canUseNative = (
+		BX.type.isFunction(window.ResizeObserver)
+		&& BX.type.isFunction(window.ResizeObserverEntry)
+	);
+
+	if (canUseNative)
+	{
+		BX.ResizeObserver = window.ResizeObserver;
+		return;
+	}
 
 	/**
 	 * Implements ResizeObserver interface

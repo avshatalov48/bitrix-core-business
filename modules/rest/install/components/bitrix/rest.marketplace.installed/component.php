@@ -18,6 +18,8 @@ use \Bitrix\Rest\AppTable;
 use \Bitrix\Rest\Marketplace\Client;
 use \Bitrix\Main\Localization\Loc;
 
+$APPLICATION->SetTitle(Loc::getMessage("MARKETPLACE_INSTALLED"));
+
 if(!\Bitrix\Main\Loader::includeModule('rest'))
 {
 	return;
@@ -25,9 +27,27 @@ if(!\Bitrix\Main\Loader::includeModule('rest'))
 
 $arResult['ADMIN'] = \CRestUtil::isAdmin();
 
-if(!$arResult['ADMIN'] || !\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+if(!$arResult['ADMIN'])
 {
+	ShowError(GetMessage("RMI_ACCESS_DENIED"));
 	return;
+}
+else if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+{
+	try
+	{
+		\Bitrix\Rest\OAuthService::register();
+	}
+	catch(\Bitrix\Main\SystemException $e)
+	{
+		ShowError($e->getMessage());
+		return;
+	}
+	if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+	{
+		ShowError(GetMessage("RMI_ACCESS_DENIED_OAUTH_SERVICE_IS_NOT_REGISTERED"));
+		return;
+	}
 }
 
 $arResult["FILTER"]["FILTER_ID"] = "marketplace_installed";
@@ -97,6 +117,8 @@ if (!empty($arCodes))
 		$arResult['ITEMS'][$key]['DEMO'] = $app["DEMO"];
 		$arResult['ITEMS'][$key]['PARTNER_NAME'] = $app["PARTNER_NAME"];
 		$arResult['ITEMS'][$key]['PARTNER_URL'] = $app["PARTNER_URL"];
+		$arResult['ITEMS'][$key]['OTHER_REGION'] = $app["OTHER_REGION"];
+		$arResult['ITEMS'][$key]['TYPE'] = $app["TYPE"];
 		$arResult['ITEMS'][$key]['CAN_INSTALL'] = \CRestUtil::canInstallApplication($app);
 
 		if(is_array($app["PRICE"]) && !empty($app["PRICE"]) && $arResult['ADMIN'])
@@ -183,7 +205,6 @@ $this->arResult["FILTER"]["FILTER_PRESETS"] = array(
 
 CJSCore::Init(array('marketplace'));
 
-$APPLICATION->SetTitle(Loc::getMessage("MARKETPLACE_INSTALLED"));
 
 $this->IncludeComponentTemplate();
 ?>

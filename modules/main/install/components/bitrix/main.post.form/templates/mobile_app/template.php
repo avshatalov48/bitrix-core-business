@@ -47,7 +47,8 @@ foreach ($arParams["UPLOADS"] as $v)
 			BX.MPF.createInstance(<?=CUtil::PhpToJSObject(array(
 				"formId" => $arParams["FORM_ID"],
 				"text" => array_change_key_case($arParams["TEXT"], CASE_LOWER),
-				"CID" => $arParams["UPLOADS_CID"]
+				"CID" => $arParams["UPLOADS_CID"],
+				"forumContext" => (!empty($arParams["FORUM_CONTEXT"]) ? $arParams["FORUM_CONTEXT"] : '')
 			))?>);
 			BX.removeCustomEvent(window, "main.post.form/mobile", f);
 		};

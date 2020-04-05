@@ -63,15 +63,8 @@ if (!empty($mailboxesReadyToSync))
 	}
 }
 
-$unseen = \Bitrix\Mail\Helper\Message::getTotalUnseenCount($userId);
-if ($unseen >= 0)
-{
-	CUserCounter::Set($userId, 'mail_unseen', $unseen, $siteId);
-}
-else
-{
-	$unseen = 0;
-}
+$unseen = max(\Bitrix\Mail\Helper\Message::getTotalUnseenCount($userId), 0);
+\CUserCounter::set($userId, 'mail_unseen', $unseen, $siteId);
 
 header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
 echo json_encode([

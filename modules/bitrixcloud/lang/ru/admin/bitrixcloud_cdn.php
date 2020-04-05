@@ -1,6 +1,5 @@
 <?
 $MESS["MODULE_INCLUDE_ERROR"] = "Ошибка подключения модуля \"Облако 1С-Битрикс\".";
-$MESS["MODULE_INTRANET_ERROR"] = "Ускорение сайта недоступно при установленном модуле \"Интранет\".";
 $MESS["BCL_TITLE"] = "Ускорение сайта CDN";
 $MESS["BCL_MAIN_TAB1"] = "Ускорение";
 $MESS["BCL_MAIN_TAB_TITLE"] = "Включение CDN.";

@@ -24,10 +24,10 @@
 			{
 				$APPLICATION->IncludeComponent('bitrix:pdf.viewer', '', [
 					'PATH' => $params['pdfUrl'],
-					'IFRAME' => 'Y',
+					'IFRAME' => (isset($params['IFRAME']) && $params['IFRAME'] === 'Y') ? 'Y' : 'N',
 					'WIDTH' => 1000,
 					'HEIGHT' => 1200,
-					'PRINT' => 'Y'
+					'PRINT' => (isset($params['PRINT']) && $params['PRINT'] === 'Y') ? 'Y' : 'N',
 				]);
 			}
 		}

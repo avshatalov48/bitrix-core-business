@@ -126,7 +126,7 @@ class CCalendarPlanner
 			'to' => $to, // date or datetime in UTC
 			'curEventId' => $curEventId,
 			'getFromHR' => true,
-			'checkPermissions' => false
+			'checkPermissions' => true
 		));
 
 		$result['accessibility'] = array();
@@ -147,6 +147,7 @@ class CCalendarPlanner
 				{
 					$result['accessibility'][$userId][] = array(
 						'id' => $entry['ID'],
+						'title' => $entry['NAME'],
 						'dateFrom' => $entry['DT_FROM'],
 						'dateTo' => $entry['DT_TO'],
 						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
@@ -167,6 +168,7 @@ class CCalendarPlanner
 
 					$result['accessibility'][$userId][] = array(
 						'id' => $entry['ID'],
+						'title' => $entry['NAME'],
 						'dateFrom' => CCalendar::Date($fromTs, $entry['DT_SKIP_TIME'] != 'Y'),
 						'dateTo' => CCalendar::Date($toTs, $entry['DT_SKIP_TIME'] != 'Y'),
 						'type' => $entry['FROM_HR'] ? 'hr' : 'event'

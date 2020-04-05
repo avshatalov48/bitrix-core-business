@@ -654,6 +654,18 @@ class MailingTable extends Entity\DataManager
 
 		return $result;
 	}
+
+	public static function getMailingSiteId($mailingId)
+	{
+		static $cache;
+		if (!$cache[$mailingId])
+		{
+			$mailing = self::getById($mailingId)->fetch();
+			$cache[$mailingId] = $mailing['SITE_ID'];
+		}
+
+		return $cache[$mailingId];
+	}
 }
 
 

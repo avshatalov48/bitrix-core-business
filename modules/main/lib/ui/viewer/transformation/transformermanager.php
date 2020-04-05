@@ -131,7 +131,7 @@ final class TransformerManager
 
 		$shouldSendPullTag = true;
 		$information = $this->getTransformationInformation($fileId);
-		if ($this->shouldSendToTransformation($information))
+		if ($this->shouldSendToTransformation($information, $fileData))
 		{
 			$result = $transformer->transform(
 				(int)$fileId,
@@ -164,17 +164,19 @@ final class TransformerManager
 		return $result;
 	}
 
-	protected function shouldSendToTransformation($information)
+	protected function shouldSendToTransformation($information, array $fileData)
 	{
 		if (!$information)
 		{
 			return true;
 		}
 
-		if (
-			isset($information['status']) &&
-			$information['status'] !== Command::STATUS_SUCCESS
-		)
+		if (!isset($information['status']))
+		{
+			return true;
+		}
+
+		if ($information['status'] !== Command::STATUS_SUCCESS)
 		{
 			/** @var DateTime $date */
 			$date = $information['time'];
@@ -182,6 +184,11 @@ final class TransformerManager
 			{
 				return true;
 			}
+		}
+
+		if ($information['status'] === Command::STATUS_SUCCESS && !CallbackHandler::existSavedFile($fileData['ID']))
+		{
+			return true;
 		}
 
 		return false;

@@ -1,4 +1,6 @@
 <?php
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store.php");
 
 class CCatalogStore extends CAllCatalogStore
@@ -39,6 +41,8 @@ class CCatalogStore extends CAllCatalogStore
 		if(!$res)
 			return false;
 		$lastId = intval($DB->LastID());
+
+		Catalog\StoreTable::getEntity()->cleanCache();
 
 		foreach(GetModuleEvents("catalog", "OnCatalogStoreAdd", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($lastId, $arFields));

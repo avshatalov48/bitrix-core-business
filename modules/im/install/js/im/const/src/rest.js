@@ -13,18 +13,52 @@ const RestMethod = Object.freeze({
 	imMessageUpdate: 'im.message.update',
 	imMessageDelete: 'im.message.delete',
 	imMessageLike: 'im.message.like',
+	imMessageCommand: 'im.message.command',
+	imMessageShare: 'im.message.share',
+
 	imChatGet: 'im.chat.get',
-	imChatSendTyping: 'im.chat.sendTyping',
+	imChatLeave: 'im.chat.leave',
+	imChatMute: 'im.chat.mute',
+	imChatParentJoin: 'im.chat.parent.join',
+
+	imDialogGet: 'im.dialog.get',
 	imDialogMessagesGet: 'im.dialog.messages.get',
-	imDialogMessagesUnread: 'im.dialog.messages.unread',
 	imDialogRead: 'im.dialog.read',
+	imDialogUnread: 'im.dialog.unread',
+	imDialogWriting: 'im.dialog.writing',
+
+	imUserGet: 'im.user.get',
+	imUserListGet: 'im.user.list.get',
 
 	imDiskFolderGet: 'im.disk.folder.get',
 	imDiskFileUpload: 'disk.folder.uploadfile',
 	imDiskFileCommit: 'im.disk.file.commit',
 
+	mobileBrowserConstGet: 'mobile.browser.const.get',
+
+});
+
+const RestMethodHandler = Object.freeze({
+	imChatGet: 'im.chat.get',
+
+	imMessageAdd: 'im.message.add',
+
+	imDialogRead: 'im.dialog.read',
+	imDialogMessagesGet: 'im.dialog.messages.get',
+	imDialogMessagesGetInit: 'im.dialog.messages.get.init',
+	imDialogMessagesGetUnread: 'im.dialog.messages.get.unread',
+
+	imDiskFolderGet: 'im.disk.folder.get',
+	imDiskFileUpload: 'disk.folder.uploadfile',
+	imDiskFileCommit: 'im.disk.file.commit',
+
+	imUserGet: 'im.user.get',
+	imUserListGet: 'im.user.list.get',
+
+	mobileBrowserConstGet: 'mobile.browser.const.get',
 });
 
 export {
 	RestMethod,
+	RestMethodHandler,
 };

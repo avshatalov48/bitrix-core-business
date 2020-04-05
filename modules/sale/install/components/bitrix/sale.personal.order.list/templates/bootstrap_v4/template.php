@@ -28,7 +28,7 @@ if (!empty($arResult['ERRORS']['FATAL']))
 				<div class="alert alert-danger"><?=$arResult['ERRORS']['FATAL'][$component::E_NOT_AUTHORIZED]?></div>
 			</div>
 			<? $authListGetParams = array(); ?>
-			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3" id="catalog-subscriber-auth-form" style="<?=$authStyle?>">
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
 				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
 			</div>
 		</div>
@@ -140,7 +140,7 @@ else
 					<?=Loc::getMessage('SPOL_TPL_ORDER')?>
 					<?=Loc::getMessage('SPOL_TPL_NUMBER_SIGN').$order['ORDER']['ACCOUNT_NUMBER']?>
 					<?=Loc::getMessage('SPOL_TPL_FROM_DATE')?>
-					<?=$order['ORDER']['DATE_INSERT']->format($arParams['ACTIVE_DATE_FORMAT'])?>,
+					<?=$order['ORDER']['DATE_INSERT_FORMATED']?>,
 					<?=count($order['BASKET_ITEMS']);?>
 					<?
 					$count = count($order['BASKET_ITEMS']) % 10;
@@ -209,7 +209,7 @@ else
 											$paymentSubTitle = Loc::getMessage('SPOL_TPL_BILL')." ".Loc::getMessage('SPOL_TPL_NUMBER_SIGN').htmlspecialcharsbx($payment['ACCOUNT_NUMBER']);
 											if(isset($payment['DATE_BILL']))
 											{
-												$paymentSubTitle .= " ".Loc::getMessage('SPOL_TPL_FROM_DATE')." ".$payment['DATE_BILL']->format($arParams['ACTIVE_DATE_FORMAT']);
+												$paymentSubTitle .= " ".Loc::getMessage('SPOL_TPL_FROM_DATE')." ".$payment['DATE_BILL_FORMATED'];
 											}
 											$paymentSubTitle .=",";
 											echo $paymentSubTitle;
@@ -362,7 +362,7 @@ else
 											$shipmentSubTitle = Loc::getMessage('SPOL_TPL_NUMBER_SIGN').htmlspecialcharsbx($shipment['ACCOUNT_NUMBER']);
 											if ($shipment['DATE_DEDUCTED'])
 											{
-												$shipmentSubTitle .= " ".Loc::getMessage('SPOL_TPL_FROM_DATE')." ".$shipment['DATE_DEDUCTED']->format($arParams['ACTIVE_DATE_FORMAT']);
+												$shipmentSubTitle .= " ".Loc::getMessage('SPOL_TPL_FROM_DATE')." ".$shipment['DATE_DEDUCTED_FORMATED'];
 											}
 
 											if ($shipment['FORMATED_DELIVERY_PRICE'])

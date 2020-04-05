@@ -10,7 +10,7 @@ use Bitrix\Rest\AppTable;
 use Bitrix\Rest\OAuth\Auth;
 use Bitrix\Rest\OAuthService;
 use Bitrix\Rest\Sqs;
-use Bitrix\Rest\StatTable;
+use Bitrix\Rest\UsageStatTable;
 
 /**
  * Class Sender
@@ -203,7 +203,7 @@ class Sender
 
 				if(strlen($handler['EVENT_HANDLER']) > 0)
 				{
-					StatTable::logEvent($application['CLIENT_ID'], $handler['EVENT_NAME']);
+					UsageStatTable::logEvent($application['CLIENT_ID'], $handler['EVENT_NAME']);
 				}
 			}
 			else
@@ -270,7 +270,7 @@ class Sender
 	{
 		if(count(self::$queryData) > 0)
 		{
-			StatTable::finalize();
+			UsageStatTable::finalize();
 			static::getProvider()->send(self::$queryData);
 			self::$queryData = array();
 		}

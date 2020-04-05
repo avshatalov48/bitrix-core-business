@@ -161,49 +161,6 @@ return [
 		'disallow' => ['.landing-block-card-social-icon'],
 	],
 
-	'vine' => [
-		'name' => '<i class="fa fa-vine"></i> Vine',
-		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10"
-				data-card-preset="vine">
-				<a class="landing-block-card-social-icon-link u-icon-v2 g-width-35 g-height-35 g-font-size-16 g-color-gray-light-v1 g-color-white--hover g-bg-primary--hover g-brd-gray-dark-v5 g-brd-primary--hover g-rounded-50x"
-				   href="https://vine.com">
-					<i class="landing-block-card-social-icon fa fa-vine"></i>
-				</a>
-			</li>',
-		'values' => [
-			'.landing-block-card-social-icon-link' => [
-				'href' => 'https://vine.com',
-			],
-			'.landing-block-card-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa','fa-vine'],
-			],
-		],
-		'disallow' => ['.landing-block-card-social-icon'],
-	],
-
-	'google-plus' => [
-		'name' => '<i class="fa fa-google-plus"></i> Google-plus',
-		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10"
-				data-card-preset="google-plus">
-				<a class="landing-block-card-social-icon-link u-icon-v2 g-width-35 g-height-35 g-font-size-16 g-color-gray-light-v1 g-color-white--hover g-bg-primary--hover g-brd-gray-dark-v5 g-brd-primary--hover g-rounded-50x"
-				   href="https://google-plus.com">
-					<i class="landing-block-card-social-icon fa fa-google-plus"></i>
-				</a>
-			</li>',
-		'values' => [
-			'.landing-block-card-social-icon-link' => [
-				'href' => 'https://google-plus.com',
-			],
-			'.landing-block-card-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa','fa-google-plus'],
-			],
-		],
-		'disallow' => ['.landing-block-card-social-icon'],
-	],
 
 	'dribbble' => [
 		'name' => '<i class="fa fa-dribbble"></i> Dribbble',

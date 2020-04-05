@@ -18,7 +18,7 @@ use \Bitrix\Main\Text\Converter;
 
 Loc::loadMessages(dirname(__FILE__).'/../seo_adv.php');
 
-if(count($campaignList) > 0)
+if(count($bannerList) > 0)
 {
 	if(count($arBanners) > 0)
 	{
@@ -51,11 +51,11 @@ if(count($campaignList) > 0)
 <?
 		foreach($arBanners as $campaignId => $campaignBanners)
 		{
-			if(isset($campaignList[$campaignId]))
+			if(isset($bannerList[$campaignId]))
 			{
 ?>
 	<div class="adv-campaign-item">
-		<a href="/bitrix/admin/seo_search_yandex_direct_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$campaignId?>&back_url=<?=Converter::getHtmlConverter()->encode(urlencode($APPLICATION->GetCurPageParam('form_element_'.$iblockElementInfo["IBLOCK"]["ID"].'_active_tab=seo_adv_seo_adv', array('form_element_'.$iblockElementInfo["IBLOCK"]["ID"].'_active_tab'))))?>" class="adv-campaign-link"><?=Converter::getHtmlConverter()->encode($campaignList[$campaignId]['NAME']);?></a>
+		<a href="/bitrix/admin/seo_search_yandex_direct_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$campaignId?>&back_url=<?=Converter::getHtmlConverter()->encode(urlencode($APPLICATION->GetCurPageParam('form_element_'.$iblockElementInfo["IBLOCK"]["ID"].'_active_tab=seo_adv_seo_adv', array('form_element_'.$iblockElementInfo["IBLOCK"]["ID"].'_active_tab'))))?>" class="adv-campaign-link"><?=Converter::getHtmlConverter()->encode($bannerList[$campaignId]['NAME']);?></a>
 		<div class="adv-campaign-list">
 <?
 				foreach($campaignBanners as $banner)

@@ -56,7 +56,7 @@
 		updateTime: function()
 		{
 			this.setContent([
-				BX.message("LANDING_PAGE_STATUS_UPDATED"),
+				BX.Landing.Loc.getMessage("LANDING_PAGE_STATUS_UPDATED"),
 				BX.date.format(format, lastUpdate.getTime() / 1000, (new Date()).getTime() / 1000)
 			].join(" "));
 		},
@@ -67,7 +67,7 @@
 				.then(function() {
 					this.runInterval();
 					lastUpdate = new Date();
-					this.setContent(BX.message("LANDING_PAGE_STATUS_UPDATED_NOW"));
+					this.setContent(BX.Landing.Loc.getMessage("LANDING_PAGE_STATUS_UPDATED_NOW"));
 				}.bind(this));
 		}
 	};

@@ -7,9 +7,11 @@
  */
 namespace Bitrix\Main;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\MapBuilder;
@@ -239,6 +241,11 @@ class UserTable extends Entity\DataManager
 				'reference' => array('=this.ID' => 'ref.USER_ID'),
 				'join_type' => 'INNER',
 			),
+			'INDEX_SELECTOR' => array(
+				'data_type' => 'Bitrix\Main\UserIndexSelector',
+				'reference' => array('=this.ID' => 'ref.USER_ID'),
+				'join_type' => 'INNER',
+			),
 			(new Entity\ReferenceField(
 				'COUNTER',
 				\Bitrix\Main\UserCounterTable::class,
@@ -248,7 +255,9 @@ class UserTable extends Entity\DataManager
 				'PHONE_AUTH',
 				UserPhoneAuthTable::class,
 				Join::on('this.ID', 'ref.USER_ID')
-			))
+			)),
+			(new OneToMany('GROUPS', UserGroupTable::class, 'USER'))
+				->configureJoinType(Entity\Query\Join::TYPE_INNER),
 		);
 	}
 
@@ -363,8 +372,42 @@ class UserTable extends Entity\DataManager
 
 	public static function getExternalUserTypes()
 	{
-		static $types = array("bot", "email", "controller", "replica", "imconnector", "sale", "saleanonymous");
+		static $types = array("bot", "email", "controller", "replica", "imconnector", "sale", "saleanonymous", "shop");
 		return $types;
+	}
+
+	private static function getUserSelectorContentFields()
+	{
+		static $cache = null;
+
+		if ($cache === null)
+		{
+			$result = Option::get('main', 'user_selector_search_fields', '');
+			if (empty($result))
+			{
+				$result = [];
+			}
+			else
+			{
+				$result = unserialize($result);
+			}
+
+			if (!is_array($result))
+			{
+				$result = [];
+			}
+
+			$result = array_intersect(array_keys(self::getEntity()->getFields()), $result);
+			$result = array_merge($result, [ 'NAME', 'LAST_NAME'] );
+
+			$cache = $result;
+		}
+		else
+		{
+			$result = $cache;
+		}
+
+		return $result;
 	}
 
 	public static function indexRecord($id)
@@ -377,14 +420,43 @@ class UserTable extends Entity\DataManager
 
 		$intranetInstalled = ModuleManager::isModuleInstalled('intranet');
 
-		$select = array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'WORK_POSITION', 'LOGIN', 'EMAIL');
+		$select = [
+			'ID',
+			'NAME',
+			'SECOND_NAME',
+			'LAST_NAME',
+			'WORK_POSITION',
+			'PERSONAL_PROFESSION',
+			'PERSONAL_WWW',
+			'LOGIN',
+			'EMAIL',
+			'PERSONAL_MOBILE',
+			'PERSONAL_PHONE',
+			'PERSONAL_CITY',
+			'PERSONAL_STREET',
+			'PERSONAL_STATE',
+			'PERSONAL_COUNTRY',
+			'PERSONAL_ZIP',
+			'PERSONAL_MAILBOX',
+			'WORK_CITY',
+			'WORK_STREET',
+			'WORK_STATE',
+			'WORK_ZIP',
+			'WORK_COUNTRY',
+			'WORK_MAILBOX',
+			'WORK_PHONE',
+			'WORK_COMPANY'
+		];
+
 		if ($intranetInstalled)
 		{
 			$select[] = 'UF_DEPARTMENT';
 		}
 
+		$userSelectorContentFields = self::getUserSelectorContentFields();
+
 		$record = parent::getList(array(
-			'select' => $select,
+			'select' => array_unique(array_merge($select, $userSelectorContentFields)),
 			'filter' => array('=ID' => $id)
 		))->fetch();
 
@@ -415,7 +487,41 @@ class UserTable extends Entity\DataManager
 			'UF_DEPARTMENT_NAME' => (string)$departmentName,
 			'SEARCH_USER_CONTENT' => self::generateSearchUserContent($record),
 			'SEARCH_ADMIN_CONTENT' => self::generateSearchAdminContent($record),
-			'SEARCH_DEPARTMENT_CONTENT' => MapBuilder::create()->addText($searchDepartmentContent)->build(),
+			'SEARCH_DEPARTMENT_CONTENT' => MapBuilder::create()->addText($searchDepartmentContent)->build()
+		));
+
+		self::indexRecordSelector($id, $record);
+
+		return true;
+	}
+
+	public static function indexRecordSelector($id, array $record = [])
+	{
+		$id = intval($id);
+		if($id == 0)
+		{
+			return false;
+		}
+
+		if (empty($record))
+		{
+			$select = array('ID', 'NAME', 'LAST_NAME');
+			$userSelectorContentFields = self::getUserSelectorContentFields();
+
+			$record = parent::getList(array(
+				'select' => array_unique(array_merge($select, $userSelectorContentFields)),
+				'filter' => array('=ID' => $id)
+			))->fetch();
+		}
+
+		if(!is_array($record))
+		{
+			return false;
+		}
+
+		UserIndexSelectorTable::merge(array(
+			'USER_ID' => $id,
+			'SEARCH_SELECTOR_CONTENT' => self::generateSearchSelectorContent($record),
 		));
 
 		return true;
@@ -424,6 +530,7 @@ class UserTable extends Entity\DataManager
 	public static function deleteIndexRecord($id)
 	{
 		UserIndexTable::delete($id);
+		UserIndexSelectorTable::delete($id);
 	}
 
 	private static function generateSearchUserContent(array $fields)
@@ -442,6 +549,32 @@ class UserTable extends Entity\DataManager
 
 	private static function generateSearchAdminContent(array $fields)
 	{
+		$personalCountry = (
+			isset($fields['PERSONAL_COUNTRY'])
+			&& intval($fields['PERSONAL_COUNTRY'])
+				? \Bitrix\Main\UserUtils::getCountryValue([
+					'VALUE' => intval($fields['PERSONAL_COUNTRY'])
+				])
+				: ''
+		);
+		$workCountry = (
+			isset($fields['WORK_COUNTRY'])
+			&& intval($fields['WORK_COUNTRY'])
+				? \Bitrix\Main\UserUtils::getCountryValue([
+					'VALUE' => intval($fields['WORK_COUNTRY'])
+				])
+				: ''
+		);
+		$department = (
+			isset($fields['UF_DEPARTMENT_NAMES'])
+			&& is_array($fields['UF_DEPARTMENT_NAMES'])
+				? implode(' ', $fields['UF_DEPARTMENT_NAMES'])
+				: ''
+		);
+
+		$ufContent = \Bitrix\Main\UserUtils::getUFContent($fields['ID']);
+		$tagsContent = \Bitrix\Main\UserUtils::getTagsContent($fields['ID']);
+
 		$result = MapBuilder::create()
 			->addInteger($fields['ID'])
 			->addText($fields['NAME'])
@@ -449,10 +582,98 @@ class UserTable extends Entity\DataManager
 			->addText($fields['LAST_NAME'])
 			->addEmail($fields['EMAIL'])
 			->addText($fields['WORK_POSITION'])
+			->addText($fields['PERSONAL_PROFESSION'])
+			->addText($fields['PERSONAL_WWW'])
 			->addText($fields['LOGIN'])
+			->addPhone($fields['PERSONAL_MOBILE'])
+			->addPhone($fields['PERSONAL_PHONE'])
+			->addText($fields['PERSONAL_CITY'])
+			->addText($fields['PERSONAL_STREET'])
+			->addText($fields['PERSONAL_STATE'])
+			->addText($fields['PERSONAL_ZIP'])
+			->addText($fields['PERSONAL_MAILBOX'])
+			->addText($fields['WORK_CITY'])
+			->addText($fields['WORK_STREET'])
+			->addText($fields['WORK_STATE'])
+			->addText($fields['WORK_ZIP'])
+			->addText($fields['WORK_MAILBOX'])
+			->addPhone($fields['WORK_PHONE'])
+			->addText($fields['WORK_COMPANY'])
+			->addText($personalCountry)
+			->addText($workCountry)
+			->addText($department)
+			->addText($ufContent)
+			->addText($tagsContent)
 			->build();
 
 		return $result;
+	}
+
+	private static function generateSearchSelectorContent(array $userFields)
+	{
+		static $fieldsList = null;
+
+		$userSelectorContentFields = self::getUserSelectorContentFields();
+
+		if ($fieldsList === null)
+		{
+			$fieldsList = self::getEntity()->getFields();
+		}
+
+		$result = MapBuilder::create();
+		foreach($userSelectorContentFields as $fieldCode)
+		{
+			if (
+				isset($fieldsList[$fieldCode])
+				&& isset($userFields[$fieldCode])
+			)
+			{
+				if ($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\IntegerField)
+				{
+					$result = $result->addInteger($userFields[$fieldCode]);
+				}
+				elseif($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\StringField)
+				{
+					$value = $userFields[$fieldCode];
+					if (in_array($fieldCode, ['NAME', 'LAST_NAME']))
+					{
+						$value = str_replace(['(', ')'], '', $value);
+						$value = str_replace('-', ' ', $value);
+					}
+					$result = $result->addText($value);
+				}
+				elseif ($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\UserTypeField)
+				{
+					if ($fieldsList[$fieldCode]->isMultiple())
+					{
+						foreach($fieldsList[$fieldCode] as $value)
+						{
+							if ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\IntegerField')
+							{
+								$result = $result->addInteger($value);
+							}
+							elseif ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\StringField')
+							{
+								$result = $result->addText($value);
+							}
+						}
+					}
+					else
+					{
+						if ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\IntegerField')
+						{
+							$result = $result->addInteger($userFields[$fieldCode]);
+						}
+						elseif ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\StringField')
+						{
+							$result = $result->addText($userFields[$fieldCode]);
+						}
+					}
+				}
+			}
+		}
+
+		return $result->build();
 	}
 
 	public static function add(array $data)
@@ -491,5 +712,23 @@ class UserTable extends Entity\DataManager
 		$id = $primary["ID"];
 		static::deleteIndexRecord($id);
 		return new Entity\EventResult();
+	}
+
+	public static function postInitialize(\Bitrix\Main\ORM\Entity $entity)
+	{
+		// add uts inner reference
+
+		if ($entity->hasField('UTS_OBJECT'))
+		{
+			/** @var Reference $leftUtsRef */
+			$leftUtsRef = $entity->getField('UTS_OBJECT');
+
+			$entity->addField((
+				new Reference(
+					'UTS_OBJECT_INNER', $leftUtsRef->getRefEntity(), $leftUtsRef->getReference()
+				))
+				->configureJoinType('inner')
+			);
+		}
 	}
 }

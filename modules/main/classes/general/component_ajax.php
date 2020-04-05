@@ -596,7 +596,7 @@ parent.bxcompajaxframeonload = function() {
 
 		$additional_data .= '</script>';
 
-		echo $additional_data;
+		return $additional_data;
 	}
 
 	function _PrepareData()
@@ -664,9 +664,10 @@ parent.bxcompajaxframeonload = function() {
 
 		if ($this->bAjaxSession)
 		{
-			AddEventHandler('main', 'onAfterAjaxResponse', array($this, '_PrepareAdditionalData'));
+			$eventManager = \Bitrix\Main\EventManager::getInstance();
 
-			$APPLICATION->AddBufferContent(array('CComponentAjax', 'ExecuteEvents'));
+			$eventManager->addEventHandlerCompatible('main', 'onAfterAjaxResponse', array($this, '_PrepareAdditionalData'));
+			$eventManager->addEventHandlerCompatible('main', 'OnEndBufferContent', array('CComponentAjax', 'executeEvents'));
 
 			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");
 			exit();
@@ -674,11 +675,15 @@ parent.bxcompajaxframeonload = function() {
 	}
 
 	// will be called as delay function and not in class entity context
-	function ExecuteEvents()
+	public static function executeEvents(&$content = '')
 	{
+		ob_start();
+
 		foreach (GetModuleEvents('main', 'onAfterAjaxResponse', true) as $arEvent)
 		{
 			echo ExecuteModuleEventEx($arEvent);
 		}
+
+		$content = ob_get_clean() . $content;
 	}
 }

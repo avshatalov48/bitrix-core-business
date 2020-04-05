@@ -86,7 +86,10 @@ final class Share extends Base
 			&& is_array($params['destinationList'])
 		)
 		{
-			$currentUserExtranet = ComponentHelper::isCurrentUserExtranet();
+			$currentUserExtranet = (
+				(!isset($options['bPublicPage']) || !$options['bPublicPage'])
+				&& ComponentHelper::isCurrentUserExtranet()
+			);
 			if (
 				$availableUsersList === null
 				&& Loader::includeModule('extranet')

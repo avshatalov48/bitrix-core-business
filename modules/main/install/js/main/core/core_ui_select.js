@@ -67,6 +67,13 @@
 				this.classSearchButton = this.prepareParam('classSearchButton');
 				this.classClearButton = this.prepareParam('classClearButton');
 				this.classSquareRemove = this.prepareParam('classSquareRemove');
+
+				var customPopupClassName = BX.prop.getString(this.params, 'classPopup', '');
+				if(customPopupClassName !== '')
+				{
+					this.classPopup += " " + customPopupClassName;
+				}
+
 				this.isMulti = this.prepareParam('isMulti');
 			}
 

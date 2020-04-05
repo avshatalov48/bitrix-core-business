@@ -8,7 +8,7 @@
 			</div>
 		</div>
 
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation slideInUp col-lg-6 g-pl-100--md g-mb-30">
 				<article class="landing-block-node-card-container media d-block d-md-flex h-100 g-bg-white">
 					<!-- Article Image -->

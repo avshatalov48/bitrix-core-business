@@ -8,6 +8,7 @@
 
 namespace Bitrix\Sender\Integration\Sender\Mail;
 
+use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Result;
@@ -243,6 +244,31 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			'TRACK_CLICK' => $this->canTrackMails() ? $message->getClickTracker()->getArray() : null,
 			'CONTEXT' => $this->getMailContext(),
 		);
+		$linkDomain = $message->getReadTracker()->getLinkDomain();
+		if ($linkDomain)
+		{
+			$mailParams['LINK_DOMAIN'] = $linkDomain;
+		}
+
+		// event on sending email
+		$eventMailParams = $mailParams;
+		$eventMailParams['MAILING_CHAIN_ID'] = $message->getConfiguration()->get('LETTER_ID');
+		$event = new Main\Event('sender', 'OnPostingSendRecipientEmail', [$eventMailParams]);
+		$event->send();
+		foreach ($event->getResults() as $eventResult)
+		{
+			if($eventResult->getType() == Main\EventResult::ERROR)
+			{
+				return false;
+			}
+
+			if(is_array($eventResult->getParameters()))
+			{
+				$eventMailParams = array_merge($eventMailParams, $eventResult->getParameters());
+			}
+		}
+		unset($eventMailParams['MAILING_CHAIN_ID']);
+		$mailParams = $eventMailParams;
 
 		return Mail\Mail::send($mailParams);
 	}

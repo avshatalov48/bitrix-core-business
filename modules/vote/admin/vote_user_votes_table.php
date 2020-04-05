@@ -30,7 +30,6 @@ try
 }
 catch(Exception $e)
 {
-	$APPLICATION->SetTitle(GetMessage("VOTE_NEW_RECORD"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError($e->getMessage());
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
@@ -44,7 +43,6 @@ function CheckFilter()
 {
 	global $arFilterFields,$lAdmin;
 	foreach ($arFilterFields as $s) global $$s;
-	$str = "";
 
 	$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 	$bGotErr = false;
@@ -272,12 +270,13 @@ $lAdmin->AddFooter(
 		)
 );
 /************** Initial list - Buttons *****************************/
+$lAdmin->AddAdminContextMenu(array(), true);
 if ($VOTE_RIGHT=="W")
 	$lAdmin->AddGroupActionTable(Array(
 		"delete"=>GetMessage("VOTE_DELETE"),
 		"validate"=>GetMessage("VOTE_VALIDATE"),
 		"devalidate"=>GetMessage("VOTE_DEVALIDATE"),
-		));
+	));
 /************** Initial list - Check AJAX **************************/
 $lAdmin->CheckListMode();
 
@@ -286,18 +285,34 @@ $lAdmin->CheckListMode();
 ********************************************************************/
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-$context = new CAdminContextMenu(array(
-	array(
-		"TEXT"	=> GetMessage("VOTE_BACK_TO_VOTE"),
-		"LINK"	=> ($vote->canEdit($USER->GetID()) ? "/bitrix/admin/vote_edit.php?lang=".LANGUAGE_ID."&ID=".$voteId : "/bitrix/admin/vote_preview.php?lang=".LANGUAGE_ID."&VOTE_ID=".$voteId),
-		"ICON" => "btn_list"
-	),
-	array(
-		"TEXT"	=> GetMessage("VOTE_VIEW_RESULTS"),
-		"LINK"	=> "/bitrix/admin/vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$voteId,
-	))
-);
-$context->Show();
+$toolbar = array(
+		array(
+			"TEXT"	=> GetMessage("VOTE_BACK_TO_VOTE"),
+			"LINK"	=> ($vote->canEdit($USER->GetID()) ? "/bitrix/admin/vote_edit.php?lang=".LANGUAGE_ID."&ID=".$voteId : "/bitrix/admin/vote_preview.php?lang=".LANGUAGE_ID."&VOTE_ID=".$voteId),
+			"ICON" => "btn_list"
+		)
+	);
+if ($vote["COUNTER"] > 0)
+{
+	array_push($toolbar, array(
+			"TEXT" => GetMessage("VOTE_VOTES_DROPDOWN", array("COUNTER" => $vote["COUNTER"])),
+			"MENU" => array(
+				array(
+					"TEXT"	=> GetMessage("VOTE_VOTES_GOTO_VIEW"),
+					"LINK"	=> "/bitrix/admin/vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$voteId),
+				array(
+					"TEXT"	=> GetMessage("VOTE_VOTES_EXPORT"),
+					"LINK"	=> "vote_user_votes.php?lang=".LANGUAGE_ID."&find_vote_id=$voteId&export=xls",
+					"ICON" => "btn_excel"),
+				array(
+					"TEXT"	=> GetMessage("VOTE_VOTES_EXPORT_2"),
+					"LINK"	=> "vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=$voteId&mode=excel",
+					"ICON" => "btn_excel"),
+
+			))
+	);
+}
+(new CAdminContextMenu($toolbar))->Show();
 
 ?>
 <a name="tb"></a>

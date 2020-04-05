@@ -1,0 +1,9 @@
+<?
+$MESS["ACCESS_DENIED"] = "Доступ заборонено";
+$MESS["SALE_REFUND_HANDLERS_TITLE"] = "Налаштування повернень";
+$MESS["SALE_REFUND_HANDLERS_LIST_EXTERNAL_ID"] = "Ідентифікатор магазину в системі";
+$MESS["SALE_REFUND_HANDLERS_LIST_NAME"] = "Назва обробника";
+$MESS["SALE_REFUND_HANDLERS_LIST_CONFIGURED"] = "Підключений";
+$MESS["SALE_REFUND_HANDLERS_LIST_CONFIGURED_Y"] = "Так";
+$MESS["SALE_REFUND_HANDLERS_LIST_CONFIGURED_N"] = "Ні";
+?>

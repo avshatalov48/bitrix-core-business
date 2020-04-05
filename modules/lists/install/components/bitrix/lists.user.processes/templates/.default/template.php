@@ -63,7 +63,7 @@ $pagetitleAlignRightContainer = "lists-align-right-container";
 if($isBitrix24Template)
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
-	$APPLICATION->SetPageProperty("BodyClass", "pagetitle-toolbar-field-view");
+	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."pagetitle-toolbar-field-view");
 	$this->SetViewTarget("inside_pagetitle");
 	$pagetitleFlexibleSpace = "";
 	$pagetitleAlignRightContainer = "";

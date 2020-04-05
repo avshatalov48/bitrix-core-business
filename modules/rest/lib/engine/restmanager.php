@@ -5,13 +5,12 @@ namespace Bitrix\Rest\Engine;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine;
+use Bitrix\Main\Engine\AutoWire;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Engine\Crawler;
 use Bitrix\Main\Engine\Resolver;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Event;
 use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Type\Contract;
 use Bitrix\Main\Type\Date;
@@ -68,7 +67,7 @@ class RestManager extends \IRestService
 
 		return $moduleId;
 	}
-	
+
 	/**
 	 * Processes method to services.
 	 *
@@ -82,7 +81,7 @@ class RestManager extends \IRestService
 	 */
 	public function processMethodRequest(array $params, $start, \CRestServer $restServer)
 	{
-		$this->restServer = $restServer;
+		$this->initialize($restServer, $start);
 
 		$errorCollection = new ErrorCollection();
 		$method = $restServer->getMethod();
@@ -94,6 +93,7 @@ class RestManager extends \IRestService
 		);
 		$router = new Engine\Router($request);
 
+		/** @var Controller $controller */
 		list ($controller, $action) = Resolver::getControllerAndAction(
 			$router->getVendor(),
 			$router->getModule(),
@@ -105,10 +105,12 @@ class RestManager extends \IRestService
 			throw new RestException("Unknown {$method}. There is not controller in module {$router->getModule()}");
 		}
 
-		$this->registerAutoWirings($restServer, $start);
+		$autoWirings = $this->getAutoWirings();
 
-		/** @var Controller $controller */
-		$result = $controller->run($action, array($params));
+		$this->registerAutoWirings($autoWirings);
+		$result = $controller->run($action, [$params]);
+		$this->unRegisterAutoWirings($autoWirings);
+
 		if ($result instanceof Engine\Response\File)
 		{
 			/** @noinspection PhpVoidFunctionResultUsedInspection */
@@ -135,6 +137,23 @@ class RestManager extends \IRestService
 		}
 
 		return $this->processData($result);
+	}
+
+	/**
+	 * @param \CRestServer $restServer
+	 * @param $start
+	 */
+	private function initialize(\CRestServer $restServer, $start): void
+	{
+		$pageNavigation = new PageNavigation('nav');
+		$pageNavigation->setPageSize(static::LIST_LIMIT);
+		if ($start)
+		{
+			$pageNavigation->setCurrentPage((int)($start / static::LIST_LIMIT) + 1);
+		}
+
+		$this->pageNavigation = $pageNavigation;
+		$this->restServer = $restServer;
 	}
 
 	/**
@@ -276,31 +295,54 @@ class RestManager extends \IRestService
 		return new RestException($firstError->getMessage(), $firstError->getCode());
 	}
 
-	private function registerAutoWirings(\CRestServer $restServer, $start)
+	/**
+	 * @param array $autoWirings
+	 */
+	private function registerAutoWirings(array $autoWirings): void
 	{
-		Engine\Binder::registerParameter(
-			get_class($restServer),
-			function() use ($restServer) {
-				return $restServer;
-			}
-		);
-
-		$pageNavigation = new PageNavigation('nav');
-		$pageNavigation->setPageSize(RestManager::LIST_LIMIT);
-		if($start)
+		foreach ($autoWirings as $parameter)
 		{
-			$pageNavigation->setCurrentPage(intval($start / RestManager::LIST_LIMIT) + 1);
+			AutoWire\Binder::registerGlobalAutoWiredParameter($parameter);
+		}
+	}
+
+	/**
+	 * @param array $autoWirings
+	 */
+	private function unRegisterAutoWirings(array $autoWirings): void
+	{
+		foreach ($autoWirings as $parameter)
+		{
+			AutoWire\Binder::unRegisterGlobalAutoWiredParameter($parameter);
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getAutoWirings(): array
+	{
+		$buildRules = [
+			'restServer' => [
+				'class' => get_class($this->restServer),
+				'constructor' => function() {
+					return $this->restServer;
+				},
+			],
+			'pageNavigation' => [
+				'class' => PageNavigation::class,
+				'constructor' => function() {
+					return $this->pageNavigation;
+				},
+			],
+		];
+
+		$autoWirings = [];
+		foreach ($buildRules as $rule)
+		{
+			$autoWirings[] = new AutoWire\Parameter($rule['class'], $rule['constructor']);
 		}
 
-		//php 5.3 we can't use this in \Closure.
-		$this->pageNavigation = $pageNavigation;
-
-		/** @see \Bitrix\Main\UI\PageNavigation */
-		Engine\Binder::registerParameter(
-			'\\Bitrix\\Main\\UI\\PageNavigation',
-			function() use ($pageNavigation) {
-				return $pageNavigation;
-			}
-		);
+		return $autoWirings;
 	}
 }

@@ -27,13 +27,37 @@ class CAppleMessage extends CPushMessage
 		return $this->_bAutoAdjustLongPayload;
 	}
 
+	protected function getAlertData()
+	{
+		$this->text = $this->customProperties["senderMessage"] ?? $this->text;
+		unset($this->customProperties["senderMessage"]);
+		$this->title = $this->customProperties["senderName"] ?? $this->title ?? "";
+		unset($this->customProperties["senderName"]);
+		if ($this->text != null && $this->text != "")
+		{
+			return [
+				'body' => $this->text,
+				'title'=>  $this->title,
+			];
+		}
+
+		return [];
+	}
+
 	protected function _getPayload()
 	{
-		$aPayload[self::APPLE_RESERVED_NAMESPACE] = array();
-
-		if (isset($this->text))
+		$alertData = $this->getAlertData();
+		if(!empty($alertData))
 		{
-			$aPayload[self::APPLE_RESERVED_NAMESPACE]['alert'] = (string)$this->text;
+			$aPayload[self::APPLE_RESERVED_NAMESPACE] = [
+				"alert" => $alertData
+			];
+
+			$aPayload[self::APPLE_RESERVED_NAMESPACE]["mutable-content"] = 1;
+		}
+		else
+		{
+			$aPayload[self::APPLE_RESERVED_NAMESPACE]["content-available"] = 1;
 		}
 
 		if (isset($this->category))
@@ -49,6 +73,8 @@ class CAppleMessage extends CPushMessage
 		{
 			$aPayload[self::APPLE_RESERVED_NAMESPACE]['sound'] = (string)$this->sound;
 		}
+
+
 
 		if (is_array($this->customProperties))
 		{
@@ -73,11 +99,25 @@ class CAppleMessage extends CPushMessage
 		{
 			if ($this->_bAutoAdjustLongPayload)
 			{
-				$nMaxTextLen = $nTextLen = CUtil::BinStrlen($this->text) - ($nJSONPayloadLen - $this->payloadMaxSize);
+				$text = $this->text;
+				$useSenderText = false;
+				if(array_key_exists("senderMessage", $this->customProperties))
+				{
+					$useSenderText = true;
+					$text = $this->customProperties["senderMessage"];
+				}
+				$nMaxTextLen = $nTextLen = CUtil::BinStrlen($text) - ($nJSONPayloadLen - $this->payloadMaxSize);
 				if ($nMaxTextLen > 0)
 				{
-					while (CUtil::BinStrlen($this->text = CUtil::BinSubstr($this->text, 0, --$nTextLen)) > $nMaxTextLen) ;
-
+					while (CUtil::BinStrlen($text = CUtil::BinSubstr($text, 0, --$nTextLen)) > $nMaxTextLen) ;
+					if($useSenderText)
+					{
+						$this->setCustomProperty("senderMessage", $text);
+					}
+					else
+					{
+						$this->setText($text);
+					}
 					return $this->getPayload();
 				}
 				else
@@ -127,7 +167,6 @@ class CAppleMessage extends CPushMessage
 
 class CApplePush extends CPushService
 {
-
 	protected $sandboxModifier;
 	protected $productionModifier;
 
@@ -202,7 +241,19 @@ class CApplePush extends CPushService
 		return $this->getBatchWithModifier($appMessages, ";" . $this->productionModifier . ";");
 	}
 
+	public static function shouldBeSent($messageRowData)
+	{
+		$params = $messageRowData["ADVANCED_PARAMS"];
+		return !($params && !$params["senderName"] && $params["senderMessage"]);
+	}
+}
 
+class CAppleVoipMessage extends CAppleMessage
+{
+	protected function getAlertData()
+	{
+		return $this->text;
+	}
 }
 
 class CApplePushVoip extends CApplePush
@@ -228,7 +279,12 @@ class CApplePushVoip extends CApplePush
 	 */
 	function getMessageInstance($token)
 	{
-		return new CAppleMessage($token, 4096);
+		return new CAppleVoipMessage($token, 4096);
+	}
+
+	public static function shouldBeSent($messageRowData)
+	{
+		return true;
 	}
 
 

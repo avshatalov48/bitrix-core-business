@@ -4,30 +4,34 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UI\Extension;
-
-Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.progressbar',]);
-
-\CJSCore::init(array('landing_master'));
-\CJSCore::init('loader');
-\Bitrix\Main\Page\Asset::getInstance()->addJs(
-	'/bitrix/js/landing/utils.js'
-);
-
-\Bitrix\Main\Page\Asset::getInstance()->addJs(
-	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js'
-);
 
 \Bitrix\Landing\Manager::setPageTitle(
 	Loc::getMessage('LANDING_TPL_TITLE')
 );
+
+// extensions, css, js
+Extension::load([
+	'ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.progressbar'
+]);
+\CJSCore::init([
+	'landing_master', 'loader'
+]);
+\Bitrix\Main\Page\Asset::getInstance()->addJs(
+	'/bitrix/js/landing/utils.js'
+);
+\Bitrix\Main\Page\Asset::getInstance()->addJs(
+	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js'
+);
+
+// vars
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $colors = $arResult['COLORS'];
 $themeCurr = $arResult['THEME_CURRENT'] ? $arResult['THEME_CURRENT'] : null;
 $themeSite = $arResult['THEME_SITE'] ? $arResult['THEME_SITE'] : $arResult['THEME_CURRENT'];
 $template = $arResult['TEMPLATE'];
+$siteGroup = $arResult['SITE_GROUP'];
 
 if (!$template)
 {
@@ -35,74 +39,34 @@ if (!$template)
 	return;
 }
 
-
-$createStore = false;
-$externalImport = ($arResult['TEMPLATE']['ID'] === 'store-instagram/mainpage' && Loader::includeModule('crm'));
-$externalImportPath = '';
-if ($externalImport)
-{
-	$externalImportPath = (string)\Bitrix\Main\Config\Option::get('crm', 'path_to_order_import_instagram');
-	if (empty($externalImportPath))
-	{
-		$externalImport = false;
-	}
-}
-if (!$externalImport)
-{
-	$createStore = ($arParams['SITE_ID'] <= 0 && $template['TYPE'] == 'STORE');
-}
+// create store
+$externalImport = !empty($arResult['EXTERNAL_IMPORT']);
+$createStore = !$externalImport &&
+			   !$arResult['DISABLE_IMPORT'] &&
+			   ($arParams['SITE_ID'] <= 0) &&
+			   (in_array('STORE', (array) $template['TYPE']));
 
 if ($createStore)
 {
 	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
-	$uriSelect->addParams(array(
+	$uriSelect->addParams([
 		'stepper' => 'store',
 		'param' => isset($template['DATA']['parent'])
 			? $template['DATA']['parent']
 			: $template['ID'],
 		'sessid' => bitrix_sessid()
-	));
+	]);
 }
 else
 {
-	$uriData = array(
+	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
+	$uriSelect->addParams([
 		'action' => 'select',
 		'param' => isset($template['DATA']['parent'])
 			? $template['DATA']['parent']
 			: $template['ID'],
 		'sessid' => bitrix_sessid()
-	);
-	if ($externalImport)
-	{
-		//TODO: change to method from \Bitrix\Crm\Order\Import\Instagram - get section XML_ID
-		$uriData['additional'] = array('section' => 'instagram');
-	}
-	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
-	$uriSelect->addParams($uriData);
-	unset($uriData);
-}
-
-$importUrl = '';
-
-// removed dependency from crm instagram feature
-/** @see \Bitrix\Crm\Order\Import\Instagram::isSiteTemplateImportable */
-if ($externalImport)
-{
-	$uriCreate = new \Bitrix\Main\Web\Uri($externalImportPath);
-
-	$params = [
-		'create_url' => $uriSelect->getUri(),
-	];
-
-	if ($request->get('IFRAME') === 'Y')
-	{
-		$params['IFRAME'] = 'Y';
-		$params['IFRAME_TYPE'] = 'SIDE_SLIDER';
-	}
-
-	$uriCreate->addParams($params);
-
-	$importUrl = $uriCreate->getUri();
+	]);
 }
 ?>
 <div class="landing-template-preview-body">
@@ -111,11 +75,7 @@ if ($externalImport)
             <div class="preview-left">
                 <div class="preview-desktop">
                     <div class="preview-desktop-body">
-                        <div class="preview-desktop-body-image">
-							<?if ($template['URL_PREVIEW']):?>
-                            <iframe src="<?= \htmlspecialcharsbx($template['URL_PREVIEW']);?>" class="preview-desktop-body-preview-frame"></iframe>
-							<?endif;?>
-                        </div>
+                        <div class="preview-desktop-body-image"></div>
                         <div class="preview-desktop-body-loader-container"></div>
                     </div>
                 </div>
@@ -142,46 +102,61 @@ if ($externalImport)
 						</p>
 						<span class="landing-template-preview-notice"><?= Loc::getMessage('LANDING_PREVIEW_NOTICE'); ?></span>
                     </div>
-
-					<?if ($template['URL_PREVIEW']):?>
-                    <div class="landing-template-preview-settings">
-                        <div class="landing-template-preview-header">
-							<?= Loc::getMessage('LANDING_TPL_HEADER_COLOR');?>
-                        </div>
-						<div class="landing-template-preview-palette" data-name="theme">
-							<?foreach ($colors as $code => $color):
-								if (!isset($color['base']) || $color['base'] !== true)
-								{
-									continue;
-								}
-								?>
-                                <div data-value="<?= $code;?>" data-src="<?= \htmlspecialcharsbx($template['URL_PREVIEW']);?><?
-								?><?= strpos($template['URL_PREVIEW'], '?') === false ? '?' : '&amp;';?>theme=<?= $code;?>" <?
-								?>class="landing-template-preview-palette-item<?= $themeCurr == $code ? ' active' : '';?>" <?
-									 ?>style="background-color: <?= $color['color'];?>;"><span></span></div>
+	
+					<?if ($siteGroup):?>
+						<div class="landing-template-preview-header">
+							<?= Loc::getMessage('LANDING_TPL_HEADER_SITE_GROUP');?>
+						</div>
+						<div class="landing-template-preview-palette landing-template-preview-site-group"
+							 data-name="param">
+							<?foreach ($siteGroup as $i => $site):?>
+								<div data-base-url="<?= $site['url'];?>"
+									 data-value="<?= $site['code'];?>"
+									 class="landing-template-preview-palette-item landing-template-preview-site-group-item <?= $i++ == 0 ? 'active' : '';?>"
+									 style="background-color: <?= $site['color']; ?>;"><span></span></div>
 							<?endforeach;?>
 						</div>
+					<?endif;?>
 
-						<? // add USE SITE COLOR setting only for adding page in exist site?>
-						<? if ($arParams['SITE_ID']): ?>
-							<div class="landing-template-preview-sitecolor">
-								<div class="landing-template-preview-palette-sitecolor" data-name="theme_use_site">
-									<div data-value="<?= $themeSite; ?>"
-										 data-src="<?= \htmlspecialcharsbx($template['URL_PREVIEW']); ?><?
-										 ?><?= strpos($template['URL_PREVIEW'],
-											 '?') === false ? '?' : '&amp;'; ?>theme=<?= $themeSite; ?>"
-										 class="landing-template-preview-palette-item landing-template-preview-palette-item-sitecolor <?=($themeCurr == 'USE_SITE') ? 'active' : ''?>"
-										 style="background-color: <?= $colors[$themeSite]['color'];?>"><span></span>
-									</div>
-								</div>
-								<div class="landing-template-preview-header landing-template-preview-header-sitecolor">
-									&mdash;&nbsp;<?= Loc::getMessage('LANDING_TPL_COLOR_USE_SITE'); ?>
-								</div>
-
+					<?if ($template['URL_PREVIEW']):?>
+						<div hidden class="landing-template-preview-base-url"
+							 data-base-url="<?= \htmlspecialcharsbx($template['URL_PREVIEW']);?>"></div>
+						<div class="landing-template-preview-settings">
+							<div class="landing-template-preview-header">
+								<?= Loc::getMessage('LANDING_TPL_HEADER_COLOR');?>
 							</div>
-						<? endif; ?>
-					</div>
+							<div class="landing-template-preview-palette landing-template-preview-themes" data-name="theme">
+								<?foreach ($colors as $code => $color):
+									if (!isset($color['base']) || $color['base'] !== true)
+									{
+										continue;
+									}
+									?>
+									<div data-value="<?= $code;?>" data-theme="<?= $code;?>"
+										 class="landing-template-preview-palette-item landing-template-preview-themes-item <?= $themeCurr == $code ? 'active' : '';?>"
+										 style="background-color: <?= $color['color'];?>;"><span></span></div>
+								<?endforeach;?>
+							</div>
+	
+							<? // add USE SITE COLOR setting only for adding page in exist site?>
+							<? if ($arParams['SITE_ID']): ?>
+								<div class="landing-template-preview-sitecolor-container">
+									<div class="landing-template-preview-sitecolor" data-name="theme_use_site">
+										<div data-value="<?= $themeSite; ?>" data-theme="<?= $themeSite;?>"
+											 class="landing-template-preview-palette-item landing-template-preview-sitecolor-item <?=($themeCurr == 'USE_SITE') ? 'active' : ''?>"
+											 style="background-color: <?= $colors[$themeSite]['color'];?>"><span></span>
+										</div>
+									</div>
+									<div class="landing-template-preview-header landing-template-preview-header-sitecolor">
+										&mdash;&nbsp;<?= Loc::getMessage('LANDING_TPL_COLOR_USE_SITE'); ?>
+									</div>
+	
+								</div>
+							<? endif; ?>
+						</div>
 					<? endif; ?>
+	
+					
                 </div>
             </div>
         </div>
@@ -189,17 +164,20 @@ if ($externalImport)
         <div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
             <div class="landing-form-footer-container">
 			<?
-			if ($externalImport)
+			if (!empty($arResult['EXTERNAL_IMPORT']))
 			{
 				?>
-				<a href="<?=$importUrl;?>"
-						class="ui-btn ui-btn-success landing-template-preview-create-by-import"
-						data-create-url="<?=$uriSelect->getUri();?>"
+				<span class="ui-btn ui-btn-success landing-template-preview-create-by-import"
+						<?if (isset($arResult['EXTERNAL_IMPORT']['href'])){?>onclick="BX.SidePanel.Instance.open('<?=\CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['href'])?>', {width: 1028})"<?}?>
+				   		<?if (isset($arResult['EXTERNAL_IMPORT']['onclick'])){?>onclick="<?=\CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['onclick'])?>"<?}?>
+				   		data-slider-ignore-autobinding="true"
 						title="<?=Loc::getMessage('LANDING_TPL_BUTTON_CREATE');?>">
 					<?=Loc::getMessage('LANDING_TPL_BUTTON_CREATE');?>
-				</a>
+				</span>
 				<span href="<?= $uriSelect->getUri(); ?>" class="ui-btn ui-btn-success landing-template-preview-create"
-						title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>" style="display: none;">
+						title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE');?>"
+					  	data-slider-ignore-autobinding="true"
+					  	style="display: none;">
 					<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>
 				</span>
 				<?
@@ -208,7 +186,8 @@ if ($externalImport)
 			{
 				?>
 				<span data-href="<?= $uriSelect->getUri(); ?>" class="ui-btn ui-btn-success landing-template-preview-create"
-				   title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>">
+				   		title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE');?>"
+					  	data-slider-ignore-autobinding="true">
 					<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>
 				</span>
 				<?
@@ -217,9 +196,10 @@ if ($externalImport)
 			{
 				?>
 				<a href="<?= $uriSelect->getUri(); ?>" class="ui-btn ui-btn-success landing-template-preview-create"
-				   title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>">
+						title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE');?>"
+				   		data-slider-ignore-autobinding="true">
 					<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE'); ?>
-				</a href="<?= $uriSelect->getUri(); ?>">
+				</a>
 				<?
 			}
 			?>
@@ -235,10 +215,12 @@ if ($externalImport)
 <script type="text/javascript">
 	// Force init template preview layout
 	BX.Landing.TemplatePreviewInstance = BX.Landing.TemplatePreview.getInstance({
-		createStore: <?=($createStore ? 'true' : 'false'); ?>,
+		createStore: <?= ($createStore ? 'true' : 'false');?>,
+		disableClickHandler: <?=(isset($arResult['EXTERNAL_IMPORT']['onclick']) ? 'true' : 'false');?>,
 		messages: {
 			LANDING_LOADER_WAIT: "<?= \CUtil::jsEscape(Loc::getMessage('LANDING_LOADER_WAIT'));?>"
-		}
+		},
+		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] == 'Y') ? 'true' : 'false';?>
 	});
 	var previewBlock = document.querySelector(".landing-template-preview-info");
 
@@ -247,15 +229,10 @@ if ($externalImport)
 		new BX.Landing.EditTitleForm(BX("landing-template-preview-description-text"), 0, true);
 	}
 
-	<?
-	if (!$createStore)
-	{
-	?>
+	<?if (!$createStore):?>
 	BX.ready(function(){
 		new BX.Landing.SaveBtn(document.querySelector(".landing-template-preview-create"));
 	});
-	<?
-	}
-	?>
+	<?endif;?>
 </script>
 <?endif;?>

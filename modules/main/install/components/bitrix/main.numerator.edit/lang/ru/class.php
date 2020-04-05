@@ -11,3 +11,4 @@ $MESS["NUMERATOR_EDIT_TITLE_BITRIX_MAIN_SEQUENTNUMBERGENERATOR_NEXT_NUMBER"] = "
 $MESS["NUMERATOR_EDIT_TITLE_BITRIX_MAIN_SEQUENTNUMBERGENERATOR_NEW_NEXT_NUMBER"] = "Новый текущий номер";
 
 $MESS["NUMERATOR_EDIT_FORM_EMPTY_FIELD_ERROR"] = "Поле не может быть пустым";
+$MESS["NUMERATOR_EDIT_FORM_PAD_STRING_HINT"] = "Последовательный номер дополняется слева до указанной длины с помощью заполнителя";

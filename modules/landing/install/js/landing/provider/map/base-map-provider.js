@@ -11,12 +11,13 @@
 	{
 		if (!isPlainObject(options))
 		{
+			var point = getPointByLanguage();
 			return {
-				center: {lat: 54.71916849999999, lng: 20.48854240000003},
+				center: point,
 				zoom: 17,
 				markers: [
 					{
-						latLng: {lat: 54.71916849999999, lng: 20.48854240000003},
+						latLng: point,
 						title: "Bitrix24",
 						description: "Bitrix24 - Your company. United."
 					}
@@ -25,6 +26,35 @@
 		}
 
 		return options;
+	}
+
+	function getPointByLanguage()
+	{
+		var point = {lat: 0, lng: 0,};
+		switch (BX.Landing.Loc.getMessage('LANGUAGE_ID'))
+		{
+			case 'ru':
+				point = {
+					lat: 54.71916849999999,
+					lng: 20.48854240000003
+				};
+				break;
+			case 'ua':
+				point = {
+					lat: 50.440333,
+					lng: 30.526835
+				};
+				break;
+			default:
+				//default - en
+				point = {
+					lat: 38.814089,
+					lng: -77.042356,
+				};
+				break;
+		}
+
+		return point;
 	}
 
 	/**
@@ -132,17 +162,17 @@
 		createBalloonEditForm: function(options, event)
 		{
 			var form = new BX.Landing.UI.Form.BalloonForm({
-				title: BX.message("LANDING_NODE_MAP_FORM_HEADER")
+				title: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_HEADER")
 			});
 
 			var applyButton = new BX.Landing.UI.Button.BaseButton({
-				text: BX.message("LANDING_NODE_MAP_FORM_SHOW_BUTTON_APPLY"),
+				text: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_SHOW_BUTTON_APPLY"),
 				className: ["ui-btn", "ui-btn-success", "ui-btn-sm"],
 				onClick: this.onEditFormApplyClick.bind(this, event)
 			});
 
 			var removeButton = new BX.Landing.UI.Button.BaseButton({
-				text: BX.message("LANDING_NODE_MAP_FORM_SHOW_BUTTON_REMOVE"),
+				text: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_SHOW_BUTTON_REMOVE"),
 				className: ["ui-btn", "ui-btn-danger", "ui-btn-sm"],
 				onClick: this.onEditFormRemoveClick.bind(this, event)
 			});
@@ -160,7 +190,7 @@
 
 			form.addField(
 				new BX.Landing.UI.Field.Text({
-					title: BX.message("LANDING_NODE_MAP_FORM_TITLE"),
+					title: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_TITLE"),
 					textOnly: true,
 					content: options.title
 				})
@@ -168,7 +198,7 @@
 
 			form.addField(
 				new BX.Landing.UI.Field.Text({
-					title: BX.message("LANDING_NODE_MAP_FORM_DESCRIPTION"),
+					title: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_DESCRIPTION"),
 					className: "landing-ui-field-map-description",
 					content: options.description
 				})
@@ -179,7 +209,7 @@
 					className: "landing-ui-field-map-show-by-default",
 					compact: true,
 					items: [
-						{name: BX.message("LANDING_NODE_MAP_FORM_SHOW_BY_DEFAULT"), "value": true}
+						{name: BX.Landing.Loc.getMessage("LANDING_NODE_MAP_FORM_SHOW_BY_DEFAULT"), "value": true}
 					],
 					value: [options.showByDefault]
 				})

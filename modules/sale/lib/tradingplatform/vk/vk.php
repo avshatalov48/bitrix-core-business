@@ -249,7 +249,7 @@ class Vk extends Platform
 
 //		uninstall vk-categories update agent
 		$vkCategories = new VkCategories($exportId);
-		$vkCategories->deleteAgent($exportId);
+		$vkCategories->deleteAgent();
 
 //		clear log
 		$logger = new Logger($exportId);

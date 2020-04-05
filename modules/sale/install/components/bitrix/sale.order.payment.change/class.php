@@ -276,7 +276,7 @@ class SaleOrderPaymentChange extends \CBitrixComponent
 		{
 			return;
 		}
-		$registry = Sale\Registry::getInstance(Sale\Order::getRegistryType());
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 		$orderClassName = $registry->getOrderClassName();
 		$this->order = $orderClassName::loadByAccountNumber($this->arParams['ACCOUNT_NUMBER']);
 

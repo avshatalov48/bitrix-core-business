@@ -89,7 +89,6 @@ final class Registry
 				Registry::ENTITY_NOTIFY => 'Bitrix\Sale\Notify',
 				Registry::ENTITY_TRADE_BINDING_COLLECTION => 'Bitrix\Sale\TradeBindingCollection',
 				Registry::ENTITY_TRADE_BINDING_ENTITY => 'Bitrix\Sale\TradeBindingEntity',
-				Registry::ENTITY_NOTIFY => 'Bitrix\Sale\Notify',
 			),
 			static::REGISTRY_TYPE_ARCHIVE_ORDER => array(
 				Registry::ENTITY_ORDER => '\Bitrix\Sale\Archive\Order',

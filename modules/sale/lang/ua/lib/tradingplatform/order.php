@@ -1,0 +1,7 @@
+<?
+$MESS["TRADING_PLATFORM_ORDER_ENTITY_ID_FIELD"] = "Ідентифікатор запису";
+$MESS["TRADING_PLATFORM_ORDER_ENTITY_ORDER_ID_FIELD"] = "Ідентифікатор замовлення";
+$MESS["TRADING_PLATFORM_ORDER_ENTITY_TRADING_PLATFORM_ID_FIELD"] = "Ідентифікатор торгової платформи";
+$MESS["TRADING_PLATFORM_ORDER_ENTITY_EXTERNAL_ORDER_ID_FIELD"] = "Зовнішній ідентифікатор замовлення";
+$MESS["TRADING_PLATFORM_ORDER_ENTITY_TRADING_PLATFORM_FIELD"] = "Торгова платформа";
+?>

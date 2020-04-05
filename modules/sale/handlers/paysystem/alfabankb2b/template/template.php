@@ -36,8 +36,8 @@ foreach ($_POST as $key => $value)
 	}
 }
 ?>
-
-<form action="" method="post">
+<div class="paysystem-yandex mb-4" id="paysystem-alfabankb2b">
+	<form id="paysystem-alfabankb2b-form" action="" method="post">
 	<?bitrix_sessid_post()?>
 	<?foreach ($post as $key => $value):?>
 		<input type="hidden" name="<?=$key;?>" value="<?=$value;?>">
@@ -48,5 +48,5 @@ foreach ($_POST as $key => $value)
 	<input type="hidden" name="paySystemId" value="<?=$params['PAYSYSTEM_ID']?>">
 	<input type="hidden" name="initiate_pay" value="Y">
 
-	<input type="submit" name="send" value="<?=Loc::getMessage('SALE_HPS_ALFABANK_SEND');?>">
+	<input type="submit" name="send" class="btn btn-primary pl-4 pr-4" value="<?=Loc::getMessage('SALE_HPS_ALFABANK_SEND');?>">
 </form>

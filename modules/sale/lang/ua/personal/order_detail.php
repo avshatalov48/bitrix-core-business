@@ -1,0 +1,36 @@
+<?
+$MESS["SALE_EDIT_RECORD"] = "Детальна інформація про замовлення N #ID#";
+$MESS["SALE_RECORDS_LIST"] = "У список замовлень";
+$MESS["P_ORDER_ID"] = "Замовлення";
+$MESS["P_ORDER_DATE"] = "Дата замовлення";
+$MESS["P_ORDER_LANG"] = "Мова замовлення";
+$MESS["P_ORDER_STATUS"] = "Статус";
+$MESS["P_ORDER_STATUS_DATE"] = "змінений";
+$MESS["P_ORDER_PRICE"] = "Сума замовлення";
+$MESS["P_ORDER_UPDATE_DATE"] = "остання зміна";
+$MESS["P_ORDER_CANCELED"] = "Скасовано";
+$MESS["P_ORDER_DATE_CANCELED"] = "скасований";
+$MESS["P_ORDER_PERS_TYPE"] = "Тип платника";
+$MESS["P_ORDER_PAYMENT"] = "Оплата і доставка";
+$MESS["P_ORDER_PAY_SYSTEM"] = "Платіжна система";
+$MESS["P_ORDER_PAYED"] = "Оплачено";
+$MESS["P_ORDER_DATE_PAYED"] = "оплачений";
+$MESS["P_ORDER_DELIVERY"] = "Служба доставки";
+$MESS["P_ORDER_COMMENTS"] = "Коментар";
+$MESS["P_ORDER_BASKET"] = "Вміст замовлення";
+$MESS["SALE_SAVE"] = "Зберегти";
+$MESS["SALE_APPLY"] = "Застосувати";
+$MESS["SALE_RESET"] = "Скасування";
+$MESS["P_ORDER_ALLOW_DELIVERY"] = "Доставка дозволена";
+$MESS["P_ORDER_DATE_ALLOW_DELIVERY"] = "дозволено";
+$MESS["SALE_ORDER_CODE"] = "Код замовлення";
+$MESS["SALE_YES"] = "Так";
+$MESS["SALE_NO"] = "Ні";
+$MESS["SALE_CANCEL_ORDER"] = "Скасувати";
+$MESS["SALE_REPEAT_PAY"] = "Повторити оплату";
+$MESS["SALE_CONTENT_NAME"] = "Назва";
+$MESS["SALE_CONTENT_QUANTITY"] = "Кількість";
+$MESS["SALE_NO_ORDER_F"] = "Замовлення не найден";
+$MESS["P_ORDER_USER"] = "Параметри замовлення";
+$MESS["P_ORDER_USER_COMMENT"] = "Коментарі покупця";
+?>

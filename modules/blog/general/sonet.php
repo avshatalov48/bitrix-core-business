@@ -74,6 +74,12 @@ class CBlogSoNetPost
 		{
 			CBlog::Delete($arBlog["ID"]);
 		}
+
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('SG'.$ID);
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('SG'.$ID.'_A');
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('SG'.$ID.'_E');
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('SG'.$ID.'_K');
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('OSG'.$ID.'_L');
 	}
 }
 ?>

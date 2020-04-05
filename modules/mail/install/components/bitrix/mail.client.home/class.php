@@ -33,24 +33,29 @@ class CMailClientHomeComponent extends CBitrixComponent
 
 		if (!empty($mailbox))
 		{
-			localRedirect(
-				\CComponentEngine::makePathFromTemplate(
-					$this->arParams['PATH_TO_MAIL_MSG_LIST'],
-					array('id' => $mailbox['ID'])
-				),
-				true
+			$redirect = \CComponentEngine::makePathFromTemplate(
+				$this->arParams['PATH_TO_MAIL_MSG_LIST'],
+				array('id' => $mailbox['ID'])
 			);
 		}
 		else
 		{
-			localRedirect(
-				\CComponentEngine::makePathFromTemplate(
-					$this->arParams['PATH_TO_MAIL_CONFIG'],
-					array('act' => '')
-				),
-				true
+			$redirect = \CComponentEngine::makePathFromTemplate(
+				$this->arParams['PATH_TO_MAIL_CONFIG'],
+				array('act' => '')
 			);
 		}
+
+		localRedirect(
+			\CHTTP::urlAddParams(
+				$redirect,
+				array_filter(array(
+					'IFRAME' => isset($_REQUEST['IFRAME']) ? $_REQUEST['IFRAME'] : null,
+					'IFRAME_TYPE' => isset($_REQUEST['IFRAME_TYPE']) ? $_REQUEST['IFRAME_TYPE'] : null,
+				))
+			),
+			true
+		);
 
 		$this->includeComponentTemplate();
 	}

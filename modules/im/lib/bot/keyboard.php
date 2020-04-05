@@ -87,6 +87,8 @@ class Keyboard
 
 		$button['BLOCK'] = $params['BLOCK'] == 'Y'? 'Y': 'N';
 
+		$button['WAIT'] = 'N';
+
 		$button['CONTEXT'] = in_array($params['CONTEXT'], Array('MOBILE', 'DESKTOP'))? $params['CONTEXT']: 'ALL';
 
 		$button['DISABLED'] = $params['DISABLED'] == 'Y'? 'Y': 'N';

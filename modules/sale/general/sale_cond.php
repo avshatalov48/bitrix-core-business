@@ -2557,7 +2557,12 @@ class CSaleCondCtrlPastOrder extends CSaleCondCtrlOrderFields
 
 	private static function getPastOrder($userId)
 	{
-		$orderData = \Bitrix\Sale\Internals\OrderTable::getList(
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$orderData = $orderClass::getList(
 			array(
 				'select' => array('ID'),
 				'filter' => array(
@@ -2575,7 +2580,7 @@ class CSaleCondCtrlPastOrder extends CSaleCondCtrlOrderFields
 			return null;
 		}
 
-		return \Bitrix\Sale\Order::load($orderData['ID']);
+		return $orderClass::load($orderData['ID']);
 	}
 
 	public static function Generate($arOneCondition, $arParams, $arControl, $arSubs = false)

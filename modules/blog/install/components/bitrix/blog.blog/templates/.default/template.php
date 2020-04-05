@@ -66,7 +66,10 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 	<?
 }
 
-if(count($arResult["POST"])>0)
+if(
+	is_array($arResult["POST"])
+	&& !empty($arResult["POST"])
+)
 {
 	foreach($arResult["POST"] as $ind => $CurPost)
 	{
@@ -365,10 +368,14 @@ if(count($arResult["POST"])>0)
 			</div>
 		<?
 	}
+
 	if(strlen($arResult["NAV_STRING"])>0)
+	{
 		echo $arResult["NAV_STRING"];
+	}
 }
 elseif(!empty($arResult["BLOG"]))
+{
 	echo GetMessage("BLOG_BLOG_BLOG_NO_AVAIBLE_MES");
-?>	
-</div>
+}
+?></div>

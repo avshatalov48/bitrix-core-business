@@ -12,7 +12,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
+use Bitrix\Main\Config\Option;
+
 $this->setFrameMode(false);
+
 /** @var CCacheManager $CACHE_MANAGER */
 global $CACHE_MANAGER;
 
@@ -239,6 +243,35 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 
 		if($res)
 		{
+			if ($_POST["LOCK_FEATURE"] == "Y")
+			{
+				$optionData = Option::get("lists", "iblock_lock_feature");
+				$iblockIdsWithLockFeature = unserialize($optionData);
+				if (!is_array($iblockIdsWithLockFeature))
+				{
+					$iblockIdsWithLockFeature = [];
+				}
+				if (!isset($iblockIdsWithLockFeature[$res]))
+				{
+					$iblockIdsWithLockFeature[$res] = $res;
+					Option::set("lists", "iblock_lock_feature", serialize($iblockIdsWithLockFeature));
+				}
+			}
+			else
+			{
+				$optionData = Option::get("lists", "iblock_lock_feature");
+				$iblockIdsWithLockFeature = unserialize($optionData);
+				if (!is_array($iblockIdsWithLockFeature))
+				{
+					$iblockIdsWithLockFeature = [];
+				}
+				if (isset($iblockIdsWithLockFeature[$res]))
+				{
+					unset($iblockIdsWithLockFeature[$res]);
+					Option::set("lists", "iblock_lock_feature", serialize($iblockIdsWithLockFeature));
+				}
+			}
+
 			if ((strlen($arFields["SOCNET_GROUP_ID"]) > 0) && CModule::IncludeModule('socialnetwork'))
 			{
 				CSocNetGroup::SetLastActivity($arFields["SOCNET_GROUP_ID"]);
@@ -361,6 +394,7 @@ if($bVarsFromForm)
 	$data["SECTION_ADD"] = $_POST["SECTION_ADD"];
 	$data["SECTION_EDIT"] = $_POST["SECTION_EDIT"];
 	$data["SECTION_DELETE"] = $_POST["SECTION_DELETE"];
+	$data["LOCK_FEATURE"] = $_POST["LOCK_FEATURE"];
 }
 elseif($arIBlock)
 {//Edit existing iblock
@@ -381,6 +415,14 @@ elseif($arIBlock)
 	$data["SECTION_ADD"] = $arIBlock["SECTION_ADD"];
 	$data["SECTION_EDIT"] = $arIBlock["SECTION_EDIT"];
 	$data["SECTION_DELETE"] = $arIBlock["SECTION_DELETE"];
+	if (CLists::isEnabledLockFeature($arIBlock["ID"]))
+	{
+		$data["LOCK_FEATURE"] = "Y";
+	}
+	else
+	{
+		$data["LOCK_FEATURE"] = "N";
+	}
 }
 else
 {//New one
@@ -401,6 +443,7 @@ else
 	$data["SECTION_ADD"] = $arMessages["SECTION_ADD"];
 	$data["SECTION_EDIT"] = $arMessages["SECTION_EDIT"];
 	$data["SECTION_DELETE"] = $arMessages["SECTION_DELETE"];
+	$data["LOCK_FEATURE"] = "N";
 }
 
 $arResult["FORM_DATA"] = array();

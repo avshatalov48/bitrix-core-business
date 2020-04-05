@@ -1,4 +1,5 @@
 <?
+use Bitrix\Main;
 use Bitrix\Sale;
 
 IncludeModuleLangFile(__FILE__);
@@ -54,18 +55,33 @@ class CSaleLang
 
 	public static function OnBeforeCurrencyDelete($currency)
 	{
-		global $DB, $APPLICATION;
+		global $APPLICATION;
 
-		if (strlen($currency)<=0)
+		$currency = (string)$currency;
+		if ($currency === '')
 			return true;
 
 		if (Bitrix\Sale\Internals\SiteCurrencyTable::getList(array(
 			'select' => array('*'),
-			'filter' => array('=CURRENCY' => $DB->ForSQL($currency, 3)),
+			'filter' => array('=CURRENCY' => $currency),
 			'limit'  => 1
 		))->fetch())
 		{
 			$APPLICATION->ThrowException(str_replace("#CURRENCY#", $currency, GetMessage("SKGO_ERROR_CURRENCY")), "ERROR_CURRENCY");
+			return false;
+		}
+
+		//TODO: change this call Option::get after remove RUB from default_option
+		$saleCurrency = (string)Main\Config\Option::get('sale', 'default_currency', '-');
+		if ($saleCurrency == $currency)
+		{
+			$APPLICATION->ThrowException(
+				GetMessage(
+					"SKGO_ERROR_DEFAULT_CURRENCY",
+					array("#CURRENCY#" => $currency)
+				),
+				"ERROR_CURRENCY"
+			);
 			return false;
 		}
 

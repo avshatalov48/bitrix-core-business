@@ -8,6 +8,7 @@
 
 namespace Bitrix\Main\Mail\Internal;
 
+use Bitrix\Main\Orm;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Type as Type;
 
@@ -103,10 +104,7 @@ class EventMessageTable extends Entity\DataManager
 			'SITE_TEMPLATE_ID' => array(
 				'data_type' => 'string',
 			),
-			'ADDITIONAL_FIELD' => array(
-				'data_type' => 'string',
-				'serialized' => true,
-			),
+			(new Orm\Fields\ArrayField('ADDITIONAL_FIELD'))->configureSerializationPhp(),
 			'EVENT_MESSAGE_SITE' => array(
 				'data_type' => 'Bitrix\Main\Mail\Internal\EventMessageSite',
 				'reference' => array('=this.ID' => 'ref.EVENT_MESSAGE_ID'),

@@ -387,6 +387,10 @@ class Bot
 		{
 			$update['CODE'] = $updateFields['CODE'];
 		}
+		if (isset($updateFields['APP_ID']) && !empty($updateFields['APP_ID']))
+		{
+			$update['APP_ID'] = $updateFields['APP_ID'];
+		}
 		if (isset($updateFields['LANG']))
 		{
 			$update['LANG'] = $updateFields['LANG']? $updateFields['LANG']: '';
@@ -805,15 +809,7 @@ class Bot
 				if (isset($messageFields['SYSTEM']) && $messageFields['SYSTEM'] == 'Y')
 				{
 					$ar['SYSTEM'] = 'Y';
-
-					$attach = new \CIMMessageParamAttach(10000, \CIMMessageParamAttach::TRANSPARENT);
-					$attach->AddBot(Array(
-						"NAME" => \Bitrix\Im\User::getInstance($botId)->getFullName(),
-						"AVATAR" => \Bitrix\Im\User::getInstance($botId)->getAvatar(),
-						"BOT_ID" => $botId,
-					));
-					$ar['MESSAGE'] = "[ATTACH=10000]".$ar['MESSAGE'];
-					$ar['ATTACH'][] = $attach;
+					$ar['MESSAGE'] = \Bitrix\Im\User::getInstance($botId)->getFullName().":[br]".$ar['MESSAGE'];
 				}
 				if (isset($messageFields['URL_PREVIEW']) && $messageFields['URL_PREVIEW'] == 'N')
 				{
@@ -1086,7 +1082,7 @@ class Bot
 	public static function getListCache($type = self::LIST_ALL)
 	{
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		if($cache->initCache(self::CACHE_TTL, 'list_r4', self::CACHE_PATH))
+		if($cache->initCache(self::CACHE_TTL, 'list_r5', self::CACHE_PATH))
 		{
 			$result = $cache->getVars();
 		}
@@ -1125,6 +1121,7 @@ class Bot
 		foreach ($bots as $bot)
 		{
 			$type = 'bot';
+
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
 				$type = 'human';
@@ -1132,6 +1129,14 @@ class Bot
 			else if ($bot['TYPE'] == self::TYPE_NETWORK)
 			{
 				$type = 'network';
+
+				if (
+					$bot['CLASS'] == 'Bitrix\ImBot\Bot\Support24'
+					|| $bot['CLASS'] == 'Bitrix\ImBot\Bot\Partner24'
+				)
+				{
+					$type = 'support24';
+				}
 			}
 			else if ($bot['TYPE'] == self::TYPE_OPENLINE)
 			{

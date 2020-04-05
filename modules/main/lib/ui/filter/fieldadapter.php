@@ -7,8 +7,13 @@ use Bitrix\Main\Localization\Loc;
 
 class FieldAdapter
 {
-	public static function adapt($sourceField)
+	/**
+	 * @param array $sourceField
+	 * @return array
+	 */
+	public static function adapt(array $sourceField)
 	{
+		$sourceField = static::normalize($sourceField);
 		switch ($sourceField["type"])
 		{
 			case "list" :
@@ -32,11 +37,12 @@ class FieldAdapter
 					}
 				}
 
-				if ($sourceField["params"]["multiple"] === "Y")
+				if ($sourceField["params"]["multiple"])
 				{
 					$field = Field::multiSelect(
 						$sourceField["id"],
-						$items, array(),
+						$items,
+						array(),
 						$sourceField["name"],
 						$sourceField["placeholder"]
 					);
@@ -67,14 +73,15 @@ class FieldAdapter
 			case "date" :
 				$field = Field::date(
 					$sourceField["id"],
-					DateType::NONE, array(),
+					DateType::NONE,
+					array(),
 					$sourceField["name"],
 					$sourceField["placeholder"],
-					$sourceField["time"],
-					$sourceField["exclude"],
-					$sourceField["include"],
-					$sourceField["allow_years_switcher"],
-					$sourceField["messages"]
+					(isset($sourceField["time"]) ? $sourceField["time"] : false),
+					(isset($sourceField["exclude"]) ? $sourceField["exclude"] : array()),
+					(isset($sourceField["include"]) ? $sourceField["include"] : array()),
+					(isset($sourceField["allow_years_switcher"]) ? $sourceField["allow_years_switcher"] : false),
+					(isset($sourceField["messages"]) ? $sourceField["messages"] : array())
 				);
 				break;
 
@@ -119,17 +126,16 @@ class FieldAdapter
 					$sourceField["value"],
 					$sourceField["name"],
 					$sourceField["placeholder"],
-					$sourceField["style"]
+					(isset($sourceField["style"]) ? $sourceField["style"] : false)
 				);
 				break;
 
 			case "custom_entity" :
-				$multiple = $sourceField["params"]["multiple"] === "Y" || $sourceField["params"]["multiple"] === true;
 				$field = Field::customEntity(
 					$sourceField["id"],
 					$sourceField["name"],
 					$sourceField["placeholder"],
-					$multiple
+					$sourceField["params"]["multiple"]
 				);
 				break;
 
@@ -163,9 +169,18 @@ class FieldAdapter
 					$sourceField["id"],
 					$sourceField["name"],
 					$sourceField["placeholder"],
-					(!empty($sourceField["params"]) && !empty($sourceField["params"]["multiple"]) && $sourceField["params"]["multiple"] == "Y"),
-					(!empty($sourceField["params"]) && is_array($sourceField["params"]) ? $sourceField["params"] : array()),
+					$sourceField["params"]["multiple"],
+					$sourceField["params"],
 					(isset($sourceField["lightweight"]) ? $sourceField["lightweight"] : false)
+				);
+				break;
+
+			case "textarea" :
+				$field = Field::textarea(
+					$sourceField["id"],
+					"",
+					$sourceField["name"],
+					$sourceField["placeholder"]
 				);
 				break;
 
@@ -185,5 +200,38 @@ class FieldAdapter
 		}
 
 		return $field;
+	}
+
+	/**
+	 * @param array $sourceField
+	 * @return array
+	 */
+	public static function normalize(array $sourceField)
+	{
+		if (!isset($sourceField["type"]))
+		{
+			$sourceField["type"] = "string";
+		}
+		if (!isset($sourceField["placeholder"]))
+		{
+			$sourceField["placeholder"] = "";
+		}
+		if (!isset($sourceField["params"]) || !is_array($sourceField["params"]))
+		{
+			$sourceField["params"] = array();
+		}
+		if (!isset($sourceField["params"]["multiple"]))
+		{
+			$sourceField["params"]["multiple"] = false;
+		}
+		else
+		{
+			$sourceField["params"]["multiple"] = (
+				$sourceField["params"]["multiple"] === 'Y'
+				|| $sourceField["params"]["multiple"] === true
+			);
+		}
+
+		return $sourceField;
 	}
 }

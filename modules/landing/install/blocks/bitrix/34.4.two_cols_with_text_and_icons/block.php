@@ -1,8 +1,8 @@
 <section class="landing-block g-pt-100 g-pb-60">
 	<div class="container">
 		<!-- Icon Blocks -->
-		<div class="row">
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
+		<div class="row landing-block-inner">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-mb-0--last g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -26,7 +26,7 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-mb-0--last g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -47,7 +47,7 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-mb-0--last g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">
@@ -70,7 +70,7 @@
 				<!-- End Icon Blocks -->
 			</div>
 
-			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-px-20">
+			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 g-mb-0--last g-px-20">
 				<!-- Icon Blocks -->
 				<div class="media">
 					<div class="d-flex g-mt-25 g-mr-40 g-width-64 justify-content-center">

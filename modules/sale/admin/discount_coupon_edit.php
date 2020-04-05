@@ -624,7 +624,7 @@ else
 		$control->AddViewField(
 			$prefix.'TYPE',
 			Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_TYPE'),
-			$couponTypes[$coupon['TYPE']],
+			$couponTypes[$coupon['TYPE']].'<input type="hidden" name="'.htmlspecialcharsbx($prefix.'TYPE').'" value="'.htmlspecialcharsbx($coupon['TYPE']).'">',
 			true
 		);
 	}

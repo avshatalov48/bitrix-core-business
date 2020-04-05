@@ -11,19 +11,39 @@ window.__blogLinkEntity = function(entities, formId) {
 	if (!!window["UC"] && !!window["UC"]["f" + formId])
 	{
 		window["UC"]["f" + formId].linkEntity(entities);
+		var form = window["UC"]["f" + formId].eventNode;
+		if (BX(form) && !form.hasOwnProperty("__blogLinkEntity"))
+		{
+			form["__blogLinkEntity"] = true;
+			BX.addCustomEvent(form, 'OnUCFormBeforeShow', function(obj) {
+				var entityXmlId = obj && obj.id && obj.id[0] ? obj.id[0] : null;
+				if (entityXmlId && entities[entityXmlId])
+				{
+					BX.show(BX('blg-comment-' + entities[ii][1]));
+				}
+			});
+		}
 		for (var ii in entities)
 		{
 			if (entities.hasOwnProperty(ii))
 			{
-				BX.bind(BX('blog-post-addc-add-' + entities[ii][1]), "click", BX.proxy(window['UC'][ii].reply, window['UC'][ii]));
-				BX.bind(BX('blg-post-' + entities[ii][1]), "dragenter", BX.proxy(window['UC'][ii].reply, window['UC'][ii]));
+				var replyFunction = window['UC'][ii].reply.bind(window['UC'][ii]);
+				BX.bind(BX('blog-post-addc-add-' + entities[ii][1]), "click", replyFunction);
 
-				BX.addCustomEvent(window["UC"]["f" + formId].eventNode, 'OnUCFormBeforeShow', function(obj) {
-					if (!!obj && !!obj.id && obj.id[0] == ii)
-					{
-						BX.show(BX('blg-comment-' + entities[ii][1]));
-					}
-				});
+				var node = BX('blg-post-' + entities[ii][1]);
+				if (BX.DD && !node.hasAttribute("dropzone"))
+				{
+					var dropZone = new BX.DD.dropFiles(node);
+					dropZone.replyHandler = replyFunction;
+					dropZone.dragEnterHandler = (function(event) {
+						BX.removeCustomEvent(this, 'dragEnter', this.dragEnterHandler);
+						this.replyHandler(event);
+					}.bind(dropZone));
+					BX.addCustomEvent(dropZone, 'dragEnter', dropZone.dragEnterHandler);
+					BX.addCustomEvent(dropZone, 'dragLeave', function() {
+						BX.addCustomEvent(this, 'dragEnter', this.dragEnterHandler);
+					}.bind(dropZone));
+				}
 			}
 		}
 	}

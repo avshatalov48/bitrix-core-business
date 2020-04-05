@@ -25,6 +25,7 @@ create table if not exists b_iblock
 	IBLOCK_TYPE_ID varchar(50) not null REFERENCES b_iblock_type(ID),
 	LID char(2) not null REFERENCES b_lang(LID),
 	CODE varchar(50) null,
+	API_CODE varchar(50) null,
 	NAME varchar(255) not null,
 	ACTIVE char(1) not null DEFAULT 'Y',
 	SORT int(11) not null DEFAULT 500,
@@ -62,7 +63,8 @@ create table if not exists b_iblock
 	ELEMENTS_NAME varchar(100) null,
 	ELEMENT_NAME varchar(100) null,
 	PRIMARY KEY(ID),
-	INDEX ix_iblock (IBLOCK_TYPE_ID, LID, ACTIVE)
+	INDEX ix_iblock (IBLOCK_TYPE_ID, LID, ACTIVE),
+	UNIQUE INDEX ix_iblock_api_code (API_CODE)
 );
 
 create table if not exists b_iblock_site

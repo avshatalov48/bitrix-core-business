@@ -34,7 +34,7 @@ class ItemAttributes
 	/**
 	 * @var array
 	 */
-	protected static $viewerTypeByContentType = [];
+	protected static $renderClassByContentType = [];
 
 	/**
 	 * ItemAttributes constructor.
@@ -297,19 +297,25 @@ class ItemAttributes
 	 */
 	protected static function getViewerTypeByFile(array $fileArray)
 	{
-		if (isset(static::$viewerTypeByContentType[$fileArray['CONTENT_TYPE']]))
-		{
-			return static::$viewerTypeByContentType[$fileArray['CONTENT_TYPE']];
-		}
-
 		$contentType = $fileArray['CONTENT_TYPE'];
 		$originalName = $fileArray['ORIGINAL_NAME'];
+
+		if (isset(static::$renderClassByContentType[$contentType]))
+		{
+			$renderClass = static::$renderClassByContentType[$contentType];
+			if ($renderClass::getSizeRestriction() === null)
+			{
+				return $renderClass::getJsType();
+			}
+		}
 
 		$previewManager = new PreviewManager();
 		$renderClass = $previewManager->getRenderClassByFile([
 			'contentType' => $contentType,
 			'originalName' => $originalName,
+			'size' => isset($fileArray['FILE_SIZE'])? $fileArray['FILE_SIZE'] : null,
 		]);
+
 		if ($renderClass === Renderer\Stub::class)
 		{
 			$transformerManager = new TransformerManager();
@@ -328,7 +334,10 @@ class ItemAttributes
 			}
 		}
 
-		static::$viewerTypeByContentType[$fileArray['CONTENT_TYPE']] = $renderClass::getJsType();
+		if ($renderClass !== Renderer\RestrictedBySize::class)
+		{
+			static::$renderClassByContentType[$fileArray['CONTENT_TYPE']] = $renderClass;
+		}
 
 		return $renderClass::getJsType();
 	}

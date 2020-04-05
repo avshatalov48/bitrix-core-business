@@ -590,8 +590,10 @@ else
 
 						$dbLog = CSocNetLog::GetList(
 										array('ID' => 'DESC'),
-										array('SOURCE_ID' => $arParams['ELEMENT_ID'])
-										//'SITE_ID' => $arGroupSite['SITE_ID'])
+										array(
+											'EVENT_ID' => 'wiki',
+											'SOURCE_ID' => $arParams['ELEMENT_ID']
+										)
 						);
 						$arLog = $dbLog->Fetch();
 					}
@@ -681,7 +683,13 @@ else
 											$arParams['~PATH_TO_POST']
 										);
 
-							$dbLog = CSocNetLog::GetList(array('ID' => 'DESC'), array('SOURCE_ID' => $arParams['ELEMENT_ID']));
+							$dbLog = CSocNetLog::GetList(
+								array('ID' => 'DESC'),
+								array(
+									'EVENT_ID' => 'wiki',
+									'SOURCE_ID' => $arParams['ELEMENT_ID']
+								)
+							);
 							if ($arLog = $dbLog->Fetch())
 							{
 								$arSoFields = Array(

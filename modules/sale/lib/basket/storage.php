@@ -68,7 +68,12 @@ class Storage
 	{
 		if (!isset($this->basket))
 		{
-			$this->basket = Sale\Basket::loadItemsForFUser($this->getFUserId(), $this->getSiteId());
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Basket $basketClassName */
+			$basketClassName = $registry->getBasketClassName();
+
+			$this->basket = $basketClassName::loadItemsForFUser($this->getFUserId(), $this->getSiteId());
 		}
 
 		return $this->basket;

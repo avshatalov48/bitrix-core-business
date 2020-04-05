@@ -1,0 +1,93 @@
+.landing-menu-add {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 30px;
+	padding-right: 30px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+.landing-menu-add-with-background {
+	background: rgba(255, 255, 255, .2);
+	padding-right: 60px;
+}
+
+.landing-menu-add-field {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.landing-menu-add-field-input {
+	background: #ffffff;
+	height: 39px;
+	box-sizing: border-box;
+	border: #C6CDD3 1px solid;
+	border-radius: 2px;
+	flex-grow: 1;
+	padding-left: 10px;
+	padding-right: 35px;
+	line-height: 39px;
+	width: 100%;
+}
+
+.landing-menu-add-field-close {
+	background: url('../images/remove-icon.svg') center center no-repeat;
+	width: 22px;
+	height: 26px;
+	position: absolute;
+	top: 50%;
+	right: -49px;
+	margin-top: -14px;
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+
+.landing-menu-add-field-close:hover {
+	background-image: url("../images/remove-icon-hover.svg");
+}
+
+.landing-menu-add-field-apply {
+	background: url('../images/apply-icon.svg') center center no-repeat;
+	width: 22px;
+	height: 26px;
+	position: absolute;
+	top: 50%;
+	right: -27px;
+	margin-top: -14px;
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+
+.landing-menu-add-field-apply:hover {
+	background-image: url("../images/apply-icon-hover.svg");
+}
+
+.landing-ui-menu-add-button {
+	background: #ffffff;
+}
+
+.landing-menu-add-field-input:focus,
+.landing-ui-menu-add-button:focus {
+	outline: none;
+}
+
+@media all {
+	body .landing-menu-root-list {
+		margin-bottom: 69px!important;
+	}
+
+	body .landing-menu-root-list-with-field {
+		margin-bottom: 90px!important;
+	}
+}

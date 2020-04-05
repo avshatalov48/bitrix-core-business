@@ -114,6 +114,32 @@ BX.mergeEx(BX.Currency, {
 				result = format.FORMAT_STRING.replace(/(^|[^&])#/, '$1' + result);
 		}
 		return result;
+	},
+
+	loadCurrencyFormat: function (currency)
+	{
+		return new Promise(function (resolve, reject)
+		{
+			var index = this.getCurrencyIndex(currency);
+			if(index > -1)
+			{
+				resolve(this.currencyList[index].format);
+			}
+			else
+			{
+				BX.ajax.runAction("currency.format.get", {data: {currencyId: currency}}).then(
+					function(response)
+					{
+						var format = response.data;
+						this.setCurrencyFormat(currency, format);
+						resolve(format);
+					}.bind(this)
+				).catch(function(response)
+				{
+					reject(response.errors);
+				})
+			}
+		}.bind(this))
 	}
 });
 

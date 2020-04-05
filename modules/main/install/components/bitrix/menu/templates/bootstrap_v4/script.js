@@ -125,8 +125,8 @@
 	};
 })(window);
 
-BX.namespace("BX.Main.Menu");
-BX.Main.Menu.CatalogHorizontal = (function()
+BX.namespace("BX.Main.MenuComponent");
+BX.Main.MenuComponent.CatalogHorizontal = (function()
 {
 	var CatalogHorizontal = function(menuBlockId, itemImgDesc)
 	{

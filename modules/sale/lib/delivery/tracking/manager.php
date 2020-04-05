@@ -12,6 +12,7 @@ use Bitrix\Main\SystemException;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Internals\ShipmentTable;
 use Bitrix\Sale\Order;
+use Bitrix\Sale;
 use Bitrix\Sale\PropertyValueCollection;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Shipment;
@@ -249,7 +250,7 @@ class Manager
 	 */
 	protected function getStatus($shipment)
 	{
-		$result = new \Bitrix\Sale\Result();
+		$result = new StatusResult();
 
 		if(intval($shipment['DELIVERY_ID']) <= 0)
 			throw new ArgumentNullException('deliveryId');
@@ -555,6 +556,10 @@ class Manager
 	{
 		$result = new Result();
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		foreach($params as $param)
 		{
 			if(intval($param->status) <= 0 && strlen($param->description) <= 0)
@@ -565,7 +570,7 @@ class Manager
 			if(!empty($mappedStatuses[$param->status]))
 			{
 				/** @var Order $order */
-				$order = Order::load($param->orderId);
+				$order = $orderClass::load($param->orderId);
 				$shipmentCollection = null;
 				$oShipment = null;
 
@@ -620,6 +625,10 @@ class Manager
 		foreach($params as $status)
 			$paramsByShipmentId[$status->shipmentId] = $status;
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		$res = ShipmentTable::getList(array(
 			'filter' => array(
 				'=ID' => array_keys($paramsByShipmentId)
@@ -653,7 +662,7 @@ class Manager
 		{
 			$userEmail = '';
 			$userName = '';
-			$order = Order::load($paramsByShipmentId[$data['SHIPMENT_NO']]->orderId);
+			$order = $orderClass::load($paramsByShipmentId[$data['SHIPMENT_NO']]->orderId);
 
 			/** @var PropertyValueCollection $propertyCollection */
 			if ($propertyCollection = $order->getPropertyCollection())

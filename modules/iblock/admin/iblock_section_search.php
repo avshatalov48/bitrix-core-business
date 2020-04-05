@@ -131,7 +131,7 @@ else
 	);
 }
 
-$useParentFilter = $iblockFix;
+$useParentFilter = ($iblockFix || $IBLOCK_ID > 0);
 
 $APPLICATION->SetTitle(GetMessage("IBLOCK_SECSEARCH_TITLE"));
 

@@ -3,7 +3,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Персональный раздел");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:sale.personal.section",
-	"",
+	"bootstrap_v4",
 	Array(
 		"ACCOUNT_PAYMENT_ELIMINATED_PAY_SYSTEMS" => array("0"),
 		"ACCOUNT_PAYMENT_PERSON_TYPE" => "1",
@@ -23,7 +23,7 @@ $APPLICATION->SetTitle("Персональный раздел");
 		"PATH_TO_BASKET" => "#SITE_DIR#personal/cart",
 		"PATH_TO_CATALOG" => "#SITE_DIR#catalog/",
 		"PATH_TO_CONTACT" => "#SITE_DIR#about/contacts",
-		"PATH_TO_PAYMENT" => "#SITE_DIR#personal/order/payment",
+		"PATH_TO_PAYMENT" => "#SITE_DIR#personal/order/payment/",
 		"PER_PAGE" => "20",
 		"PROP_1" => array(),
 		"PROP_2" => array(),

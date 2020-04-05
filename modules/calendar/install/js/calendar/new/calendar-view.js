@@ -228,7 +228,7 @@
 			}
 
 			this.selectEntry(params.entry);
-			if (this.name == 'week' || this.name == 'month')
+			if (this.name === 'week' || this.name === 'month')
 			{
 				this.showSimpleViewPopup(params);
 			}
@@ -397,6 +397,7 @@
 		showAllEventsInPopup: function(params)
 		{
 			var
+				entrieList = params.entrieList || params.day.entries.list,
 				innerCont,
 				popup;
 
@@ -405,10 +406,10 @@
 				events: {click : BX.proxy(this.calendar.handleViewsClick, this.calendar)}
 			});
 
-			params.day.entries.list.sort(this.calendar.entryController.sort);
+			entrieList.sort(this.calendar.entryController.sort);
 
 			var taskWrap, eventsWrap;
-			params.day.entries.list.forEach(function(entryItem)
+			entrieList.forEach(function(entryItem)
 			{
 				if (entryItem.entry)
 				{

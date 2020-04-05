@@ -147,7 +147,7 @@ class Calculation
 	 */
 	public static function roundPrecision($value)
 	{
-		return roundEx($value, static::getPrecision());
+		return round($value, static::getPrecision());
 	}
 
 	/**

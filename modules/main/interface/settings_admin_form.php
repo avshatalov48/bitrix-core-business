@@ -205,6 +205,11 @@ if($GLOBALS["USER"]->CanDoOperation('edit_other_settings')):
 <?
 endif
 ?>
+	<div id="save_settings_error" class="settings-error">
+		<p class="settings-error-header"><?=GetMessage('SAVE_SETTINGS_ERROR_TITLE'); ?></p>
+		<p class="settings-error-message"><?=GetMessage('SAVE_SETTINGS_ERROR'); ?></p>
+		<div id="absent_required_fields" class="absent-fields"></div>
+	</div>
 </div>
 </form>
 <?

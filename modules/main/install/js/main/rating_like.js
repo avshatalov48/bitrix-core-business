@@ -60,6 +60,7 @@ RatingLike = function(likeId, entityTypeId, entityId, available, userId, localiz
 	this.mouseOverHandler = null;
 	this.version = (BXRL.render && this.topPanel ? 2 : 1);
 	this.mouseInShowPopupNode = {};
+	this.listXHR = null;
 
 	if (typeof lastVoteRepo[key] != 'undefined')
 	{
@@ -1245,7 +1246,12 @@ RatingLike.List = function(likeId, page, reaction, clear)
 		});
 	}
 
-	BX.ajax({
+	if (BXRL[likeId].listXHR)
+	{
+		BXRL[likeId].listXHR.abort();
+	}
+
+	BXRL[likeId].listXHR = BX.ajax({
 		url: BXRL[likeId].pathToAjax,
 		method: 'POST',
 		dataType: 'json',
@@ -1260,6 +1266,11 @@ RatingLike.List = function(likeId, page, reaction, clear)
 		},
 		onsuccess: function(data)
 		{
+			if (!data)
+			{
+				return false;
+			}
+
 			BXRL[likeId].countText.innerHTML = data.items_all;
 
 			if (parseInt(data.items_page) == 0)

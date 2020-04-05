@@ -98,9 +98,9 @@ final class LogEvent extends Provider
 				if ($html)
 				{
 					$sanitizer = new \CBXSanitizer();
-					$sanitizer->applyHtmlSpecChars(false);
+					$sanitizer->applyDoubleEncode(false);
 					$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
-					$this->setSourceDescription(htmlspecialcharsEx($sanitizer->sanitizeHtml(htmlspecialcharsback($logEntryFields['MESSAGE']))));
+					$this->setSourceDescription($sanitizer->sanitizeHtml(htmlspecialcharsback($logEntryFields['MESSAGE'])));
 				}
 				else
 				{

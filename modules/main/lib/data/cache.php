@@ -50,7 +50,7 @@ class Cache
 
 	protected $forceRewriting = false;
 
-	public static function createCacheEngine()
+	public static function createCacheEngine($params = [])
 	{
 		static $cacheEngine = null;
 		if ($cacheEngine)
@@ -63,7 +63,9 @@ class Cache
 		$cacheType = "files";
 		$v = Config\Configuration::getValue("cache");
 		if ($v != null && isset($v["type"]) && !empty($v["type"]))
+		{
 			$cacheType = $v["type"];
+		}
 
 		if (is_array($cacheType))
 		{
@@ -72,40 +74,48 @@ class Cache
 				if (!isset($cacheType["extension"]) || extension_loaded($cacheType["extension"]))
 				{
 					if (isset($cacheType["required_file"]) && ($requiredFile = Main\Loader::getLocal($cacheType["required_file"])) !== false)
+					{
 						require_once($requiredFile);
+					}
+
 					if (isset($cacheType["required_remote_file"]))
+					{
 						require_once($cacheType["required_remote_file"]);
+					}
 
 					$className = $cacheType["class_name"];
 					if (class_exists($className))
-						$cacheEngine = new $className();
+					{
+						$cacheEngine = new $className($params);
+					}
 				}
 			}
 		}
 		else
 		{
-			switch ($cacheType)
+			if ($cacheType == 'memcache' && extension_loaded('memcache'))
 			{
-				case "memcache":
-					if (extension_loaded('memcache'))
-						$cacheEngine = new CacheEngineMemcache();
-					break;
-				case "apc":
-					if (extension_loaded('apc'))
-						$cacheEngine = new CacheEngineApc();
-					break;
-				case "xcache":
-					if (extension_loaded('xcache'))
-						$cacheEngine = new CacheEngineXCache();
-					break;
-				case "files":
-					$cacheEngine = new CacheEngineFiles();
-					break;
-				case "none":
-					$cacheEngine = new CacheEngineNone();
-					break;
-				default:
-					break;
+				$cacheEngine = new CacheEngineMemcache($params);
+			}
+			elseif ($cacheType == 'redis' && extension_loaded('redis'))
+			{
+				$cacheEngine = new CacheEngineRedis($params);
+			}
+			elseif ($cacheType == 'apc' && extension_loaded('apc'))
+			{
+				$cacheEngine = new CacheEngineApc();
+			}
+			elseif ($cacheType == 'xcache' && extension_loaded('xcache'))
+			{
+				$cacheEngine = new CacheEngineXCache($params);
+			}
+			elseif ($cacheType == 'files')
+			{
+				$cacheEngine = new CacheEngineFiles($params);
+			}
+			elseif ($cacheType == 'none')
+			{
+				$cacheEngine = new CacheEngineNone($params);
 			}
 		}
 
@@ -129,16 +139,20 @@ class Cache
 		$obj = static::createCacheEngine();
 		$class = get_class($obj);
 		if (($pos = strrpos($class, "\\")) !== false)
+		{
 			$class = substr($class, $pos + 1);
+		}
+
 		return strtolower($class);
 	}
 
 	/**
-	 * @return Cache
+	 * @param array $params
+	 * @return static Cache
 	 */
-	public static function createInstance()
+	public static function createInstance($params = [])
 	{
-		$cacheEngine = static::createCacheEngine();
+		$cacheEngine = static::createCacheEngine($params);
 		return new static($cacheEngine);
 	}
 
@@ -207,9 +221,13 @@ class Cache
 				if (isset(static::$clearCacheSession))
 				{
 					if (static::$clearCacheSession === true)
+					{
 						$_SESSION["SESS_CLEAR_CACHE"] = "Y";
+					}
 					else
+					{
 						unset($_SESSION["SESS_CLEAR_CACHE"]);
+					}
 				}
 
 				if (isset(static::$clearCache) && (static::$clearCache === true))
@@ -240,7 +258,9 @@ class Cache
 		$filename = $this->getPath($uniqueString);
 
 		if (static::$showCacheStat)
-			Diag\CacheTracker::add(0, "", $baseDir, $initDir, "/".$filename, "C");
+		{
+			Diag\CacheTracker::add(0, "", $baseDir, $initDir, "/" . $filename, "C");
+		}
 
 		return $this->cacheEngine->clean($baseDir, $initDir, "/".$filename);
 	}
@@ -251,7 +271,9 @@ class Cache
 		$baseDir = $personalRoot."/".$baseDir."/";
 
 		if (static::$showCacheStat)
+		{
 			Diag\CacheTracker::add(0, "", $baseDir, $initDir, "", "C");
+		}
 
 		return $this->cacheEngine->clean($baseDir, $initDir);
 	}
@@ -272,18 +294,21 @@ class Cache
 		$this->uniqueString = $uniqueString;
 		$this->vars = false;
 
-		if ($TTL <= 0)
+		if ($TTL <= 0 || $this->forceRewriting || static::shouldClearCache())
+		{
 			return false;
+		}
 
-		if ($this->forceRewriting)
+		$data = ['CONTENT' => '', 'VARS' => ''];
+		if (!$this->cacheEngine->read($data, $this->baseDir, $this->initDir, $this->filename, $this->TTL))
+		{
 			return false;
+		}
 
-		if (static::shouldClearCache())
+		if (!is_array($data) || empty($data) || !isset($data['CONTENT']) || !isset($data['VARS']))
+		{
 			return false;
-
-		$allVars = array("CONTENT" => "", "VARS" => "");
-		if (!$this->cacheEngine->read($allVars, $this->baseDir, $this->initDir, $this->filename, $this->TTL))
-			return false;
+		}
 
 		if (static::$showCacheStat)
 		{
@@ -302,12 +327,13 @@ class Cache
 				/** @noinspection PhpUndefinedFieldInspection */
 				$path = $this->cacheEngine->path;
 			}
+
 			Diag\CacheTracker::addCacheStatBytes($read);
 			Diag\CacheTracker::add($read, $path, $this->baseDir, $this->initDir, $this->filename, "R");
 		}
 
-		$this->content = $allVars["CONTENT"];
-		$this->vars = $allVars["VARS"];
+		$this->content = $data['CONTENT'];
+		$this->vars = $data['VARS'];
 
 		return true;
 	}
@@ -325,14 +351,25 @@ class Cache
 	public function startDataCache($TTL = false, $uniqueString = false, $initDir = false, $vars = array(), $baseDir = "cache")
 	{
 		$narg = func_num_args();
-		if($narg<=0)
+		if ($narg <= 0)
+		{
 			$TTL = $this->TTL;
-		if($narg<=1)
+		}
+
+		if ($narg <= 1)
+		{
 			$uniqueString = $this->uniqueString;
-		if($narg<=2)
+		}
+
+		if ($narg <= 2)
+		{
 			$initDir = $this->initDir;
-		if($narg<=3)
+		}
+
+		if ($narg <= 3)
+		{
 			$vars = $this->vars;
+		}
 
 		if ($this->initCache($TTL, $uniqueString, $initDir, $baseDir))
 		{
@@ -341,7 +378,9 @@ class Cache
 		}
 
 		if ($TTL <= 0)
+		{
 			return true;
+		}
 
 		ob_start();
 		$this->vars = $vars;
@@ -353,7 +392,9 @@ class Cache
 	public function abortDataCache()
 	{
 		if (!$this->isStarted)
+		{
 			return;
+		}
 
 		$this->isStarted = false;
 		ob_end_flush();
@@ -362,10 +403,11 @@ class Cache
 	public function endDataCache($vars=false)
 	{
 		if (!$this->isStarted)
+		{
 			return;
+		}
 
 		$this->isStarted = false;
-
 		$allVars = array(
 			"CONTENT" => ob_get_contents(),
 			"VARS" => ($vars!==false ? $vars : $this->vars),
@@ -395,9 +437,13 @@ class Cache
 		}
 
 		if (strlen(ob_get_contents()) > 0)
+		{
 			ob_end_flush();
+		}
 		else
+		{
 			ob_end_clean();
+		}
 	}
 
 	public function isCacheExpired($path)
@@ -432,7 +478,9 @@ class Cache
 			while (($file = readdir($handle)) !== false)
 			{
 				if ($file === "." || $file === "..")
+				{
 					continue;
+				}
 
 				if (is_dir($path."/".$file))
 				{
@@ -451,7 +499,9 @@ class Cache
 				{
 					@chmod($path."/".$file, BX_FILE_PERMISSIONS);
 					if (!unlink($path."/".$file))
+					{
 						$res = false;
+					}
 				}
 				elseif (substr($file, -4) === ".php")
 				{
@@ -460,7 +510,9 @@ class Cache
 					{
 						@chmod($path."/".$file, BX_FILE_PERMISSIONS);
 						if (!unlink($path."/".$file))
+						{
 							$res = false;
+						}
 					}
 				}
 				else
@@ -481,6 +533,6 @@ class Cache
 	 */
 	public function forceRewriting($mode)
 	{
-		$this->forceRewriting = (bool)$mode;
+		$this->forceRewriting = (bool) $mode;
 	}
 }

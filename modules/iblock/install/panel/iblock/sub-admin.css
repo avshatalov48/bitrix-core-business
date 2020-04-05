@@ -12,3 +12,9 @@
 	margin: auto 0 auto 0; vertical-align: middle;
 	padding: 0; border: 0 none transparent;
 }
+
+.adm-sublist .adm-list-table-footer .adm-input-text-wrap
+{
+	display: inline-block; vertical-align: middle;
+	margin:0 0 0 11px;
+}

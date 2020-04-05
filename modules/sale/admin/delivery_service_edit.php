@@ -74,7 +74,7 @@ if (($isItReloadingProcess || $isItSavingProcess) && $saleModulePermissions == "
 		$fields["ACTIVE"] = "N";
 
 	if(isset($_POST["XML_ID"]) && $_POST["XML_ID"])
-		$fields["XML_ID"] = $_POST["XML_ID"];
+		$fields["XML_ID"] = trim($_POST["XML_ID"]);
 	else
 		$fields["XML_ID"] = Services\Manager::generateXmlId();
 
@@ -323,8 +323,18 @@ if($ID > 0 && ($_SERVER['REQUEST_METHOD'] != "POST" || $isItSavingProcess))
 {
 	$dbRes = \Bitrix\Sale\Delivery\Services\Table::getById($ID);
 
-	if(!$fields = $dbRes->fetch())
+	if(!$savedFields = $dbRes->fetch())
+	{
 		$srvStrError .= str_replace("#ID#", $ID, Loc::getMessage("SALE_DSE_ERROR_ID"))."<br>";
+	}
+	elseif(!empty($fields))
+	{
+		$fields = array_merge($savedFields, $fields);
+	}
+	else
+	{
+		$fields = $savedFields;
+	}
 }
 
 /* If action is copying */
@@ -861,25 +871,6 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-//warn about unfilled required fields
-if($ID > 0)
-{
-	if(is_array($serviceConfig) && !empty($serviceConfig))
-	{
-		foreach($serviceConfig as $sectionKey => $configSection)
-		{
-			if(is_array($configSection["ITEMS"]) && !empty($configSection["ITEMS"]))
-			{
-				foreach($configSection["ITEMS"] as $name => $params)
-				{
-					if(!empty($params['REQUIRED']) && $params['REQUIRED'] == true && strlen($params['VALUE']) <= 0)
-						$srvStrError .= Loc::getMessage('SALE_DSE_REQUIRED_FIELD').' "'.$params['NAME'].'".<br>';
-				}
-			}
-		}
-	}
-}
-
 if(strlen($srvStrError) > 0)
 {
 	$m = Array("DETAILS"=>$srvStrError, "TYPE"=>"ERROR", "HTML"=>true);
@@ -1085,7 +1076,7 @@ $tabControl->BeginNextTab();
 		<tr>
 			<td width="40%"><?=Loc::getMessage('SALE_DSE_XML_ID')?>:</td>
 			<td width="60%">
-				<input type="text" name="XML_ID" value="<?=(isset($fields["XML_ID"]) ? $fields["XML_ID"] : Services\Manager::generateXmlId() )?>" size="40">
+				<input type="text" name="XML_ID" value="<?=(isset($fields["XML_ID"]) ? htmlspecialcharsbx($fields["XML_ID"]) : Services\Manager::generateXmlId() )?>" size="40">
 			</td>
 		</tr>
 	<?endif;?>

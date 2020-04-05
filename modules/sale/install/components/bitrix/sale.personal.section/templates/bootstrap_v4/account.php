@@ -7,6 +7,13 @@ if ($arParams['SHOW_ACCOUNT_PAGE'] !== 'Y')
 }
 
 use Bitrix\Main\Localization\Loc;
+
+global $USER;
+if ($arParams['USE_PRIVATE_PAGE_TO_AUTH'] === 'Y' && !$USER->IsAuthorized())
+{
+	LocalRedirect($arResult['PATH_TO_AUTH_PAGE']);
+}
+
 if ($arParams['SET_TITLE'] == 'Y')
 {
 	$APPLICATION->SetTitle(Loc::getMessage("SPS_TITLE_ACCOUNT"));
@@ -62,6 +69,7 @@ if ($arParams['SHOW_ACCOUNT_PAY_COMPONENT'] !== 'N' && $USER->IsAuthorized())
 						"SELL_VALUES_FROM_VAR" => "N",
 						"SELL_VAR_PRICE_VALUE" => "",
 						"SET_TITLE" => "N",
+						"CONTEXT_SITE_ID" => $arParams["CONTEXT_SITE_ID"],
 						"AUTH_FORM_IN_TEMPLATE" => 'Y',
 					),
 					$component

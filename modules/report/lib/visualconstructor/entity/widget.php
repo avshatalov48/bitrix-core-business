@@ -13,8 +13,8 @@ use Bitrix\Report\VisualConstructor\RuntimeProvider\WidgetProvider;
 
 /**
  * Class Widget
- * @method addReports(Report | Reports[] $report) add report/reports to this widget.
- * @method deleteReports(Report | Reports[] $report) delete report connection adn if it is ONE-TO-MANY delete Report entity.
+ * @method addReports(Report | Report[] $report) add report/reports to this widget.
+ * @method deleteReports(Report | Report[] $report) delete report connection adn if it is ONE-TO-MANY delete Report entity.
  * @method deleteRow(DashboardRow $row) delete report connection with row.
  * @package Bitrix\Report\VisualConstructor\Entity
  */
@@ -247,6 +247,23 @@ class Widget extends ConfigurableModel
 			$result[$report->getGId()] = $report;
 		}
 		return $result;
+	}
+
+	/**
+	 * @param string $reportGId
+	 * @return Report|null
+	 */
+	public function getReportByGId($reportGId)
+	{
+		foreach ($this->getReports() as $report)
+		{
+			echo $report->getGId() . PHP_EOL;
+			if($report->getGId() === $reportGId)
+			{
+				return $report;
+			}
+		}
+		return null;
 	}
 
 	/**

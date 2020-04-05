@@ -13,15 +13,16 @@
 	min-width: 400px;
 }
 
+/*
 .crm-ads-rtg-warning-popup-alert:before {
 	content: '';
 	display: inline-block;
 	margin: 0 10px 3px 0;
 	width: 21px;
 	height: 18px;
-	/*background: url(images/crm-webform-edit-sprite.svg) -2px -371px;*/
 	vertical-align: middle;
 }
+*/
 
 .crm-ads-rtg-warning-popup-confirm {
 	color: #535c69;
@@ -129,6 +130,9 @@
 .crm-ads-rtg-popup-settings-dropdown-sm {
 	min-width: 50px;
 }
+.crm-ads-rtg-popup-settings-dropdown-narrow {
+	width: calc(100% - 10px);
+}
 
 .crm-ads-rtg-popup-social {
 	display: -webkit-box;
@@ -150,7 +154,7 @@
 
 .crm-ads-rtg-popup-social:before {
 	content: '';
-	float: left;
+	flex: 0 0 auto;
 	overflow: hidden;
 	height: 70px;
 	margin: 0 17px 0 0;
@@ -188,6 +192,21 @@
 	height: 33px;
 	padding: 18px 0 18px 17px;
 	position: relative;
+}
+.crm-ads-rtg-popup-social-facebook .crm-ads-rtg-popup-client {
+	width: calc(100% - 118px);
+}
+.crm-ads-rtg-popup-social-vkontakte .crm-ads-rtg-popup-client {
+	width: calc(100% - 132px);
+}
+.crm-ads-rtg-popup-social-google .crm-ads-rtg-popup-client {
+	width: calc(100% - 89px);
+}
+.crm-ads-rtg-popup-social-yandex .crm-ads-rtg-popup-client {
+	width: calc(100% - 119px);
+}
+.crm-ads-rtg-popup-social-yandex-auditorii-not-used .crm-ads-rtg-popup-client {
+	width: calc(100% - 148px);
 }
 
 .crm-ads-rtg-popup-social-avatar:before {
@@ -359,4 +378,53 @@
 
 .crm-ads-rtg-table tr:last-child td {
 	padding: 0;
+}
+.crm-ads-rtg-input {
+	padding: 10px;
+}
+.crm-ads-rtg-input-label {
+	margin: 0 0 6px 0;
+	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868E;
+	text-align: left;
+}
+.crm-ads-rtg-input-input {
+	display: inline-block;
+	padding: 7px 30px 7px 14px;
+	width: 100%;
+	height: 38px;
+	border: none;
+	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
+	box-shadow: inset 0 0 0 1px #C6CDD3;
+	border-radius: 2px;
+	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	background: #fff;
+	box-sizing: border-box;
+	vertical-align: middle;
+	transition: border-color .3s ease;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	outline: none;
+	text-indent: 1px;
+	text-overflow: '';
+}
+
+.crm-ads-rtg-input-input:focus {
+	-webkit-box-shadow: inset 0 0 0 1px rgba(81, 203, 238, 1);
+	box-shadow: inset 0 0 0 1px rgba(81, 203, 238, 1);
+}
+
+.crm-ads-rtg-popup-client {
+	position: relative;
+}
+.crm-ads-rtg-popup-client:before {
+	content: '';
+	display: block;
+	width: 1px;
+	top: 19px;
+	bottom: 19px;
+	left: 0;
+	position: absolute;
+	background: #dcdee1;
 }

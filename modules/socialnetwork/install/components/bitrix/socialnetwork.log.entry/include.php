@@ -1,5 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Socialnetwork\Component\LogList;
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -9,9 +12,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-
-if (!isset($GLOBALS["CurUserCanAddComments"]))
-	$GLOBALS["CurUserCanAddComments"] = array();
 
 if (!function_exists('__SLGetUFMeta'))
 {
@@ -134,7 +134,6 @@ if (!function_exists('__SLEGetLogRecord'))
 
 		$cache_time = 31536000;
 		$arEvent = array();
-		$bEmpty = false;
 
 		$cache = new CPHPCache;
 
@@ -530,14 +529,10 @@ if (!function_exists('__SLEGetLogRecord'))
 								);
 							}
 						}
-						else
-						{
-							$bEmpty = true;
-						}
 					}
 				}
 
-				if (!$bEmpty)
+				if (is_array($arEvent["FIELDS_FORMATTED"]))
 				{
 					$dateFormated = FormatDate(
 						$DB->DateFormatToPHP(FORMAT_DATE),
@@ -663,7 +658,7 @@ if (!function_exists('__SLEGetLogRecord'))
 			}
 		}
 
-		if ($bEmpty)
+		if (!is_array($arEvent["FIELDS_FORMATTED"]))
 		{
 			return false;
 		}
@@ -738,9 +733,9 @@ if (!function_exists('__SLEGetLogRecord'))
 		else
 		{
 			$array_key = $arEvent["FIELDS_FORMATTED"]["EVENT"]["ENTITY_TYPE"]."_".$arEvent["FIELDS_FORMATTED"]["EVENT"]["ENTITY_ID"]."_".$arEvent["FIELDS_FORMATTED"]["EVENT"]["EVENT_ID"];
-			if (array_key_exists($array_key, $GLOBALS["CurUserCanAddComments"]))
+			if (array_key_exists($array_key, LogList::$canCurrentUserAddComments))
 			{
-				$arEvent["FIELDS_FORMATTED"]["CAN_ADD_COMMENTS"] = ($GLOBALS["CurUserCanAddComments"][$array_key] == "Y" && $arEvent["FIELDS_FORMATTED"]["HAS_COMMENTS"] == "Y" ? "Y" : "N");
+				$arEvent["FIELDS_FORMATTED"]["CAN_ADD_COMMENTS"] = (LogList::$canCurrentUserAddComments[$array_key] == "Y" && $arEvent["FIELDS_FORMATTED"]["HAS_COMMENTS"] == "Y" ? "Y" : "N");
 			}
 			else
 			{
@@ -751,7 +746,7 @@ if (!function_exists('__SLEGetLogRecord'))
 					&& strlen($arCommentEvent["OPERATION_ADD"]) > 0
 				)
 				{
-					$GLOBALS["CurUserCanAddComments"][$array_key] = (
+					LogList::$canCurrentUserAddComments[$array_key] = (
 						CSocNetFeaturesPerms::CanPerformOperation(
 								$USER->GetID(),
 								$arEvent["FIELDS_FORMATTED"]["EVENT"]["ENTITY_TYPE"],
@@ -766,11 +761,11 @@ if (!function_exists('__SLEGetLogRecord'))
 				}
 				else
 				{
-					$GLOBALS["CurUserCanAddComments"][$array_key] = "Y";
+					LogList::$canCurrentUserAddComments[$array_key] = "Y";
 				}
 
 				$arEvent["FIELDS_FORMATTED"]["CAN_ADD_COMMENTS"] = (
-					$GLOBALS["CurUserCanAddComments"][$array_key] == "Y"
+					LogList::$canCurrentUserAddComments[$array_key] == "Y"
 					&& $arEvent["FIELDS_FORMATTED"]["HAS_COMMENTS"] == "Y"
 						? "Y"
 						: "N"

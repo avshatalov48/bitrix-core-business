@@ -28,7 +28,7 @@ class SenderCampaignComponent extends CBitrixComponent
 			return false;
 		}
 
-		return Integration\Bitrix24\Service::isAvailable();
+		return true;
 	}
 
 	protected function initParams()

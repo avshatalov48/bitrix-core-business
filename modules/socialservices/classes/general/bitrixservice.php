@@ -143,6 +143,11 @@ class CBitrixServiceTransport
 		return $this->call(self::METHOD_METHODS);
 	}
 
+	public function setTimeout($timeout)
+	{
+		$this->httpTimeout = $timeout;
+	}
+
 	protected static function getLicense()
 	{
 		return md5(LICENSE_KEY);

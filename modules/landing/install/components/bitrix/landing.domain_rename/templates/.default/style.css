@@ -1,0 +1,141 @@
+.landing-form-site-name-wrap {
+	display: inline-block;
+	padding-right: 25px;
+	position: relative;
+}
+
+.landing-form-site-name-wrap .ui-title-input-btn {
+	top: 5px;
+}
+
+.landing-form-site-name-label {
+	display: inline-block;
+	color: #525c69;
+	font-size: 21px;
+	vertical-align: middle;
+}
+
+.landing-page-set-form .landing-form-site-name-label {
+	margin-right: 8px;
+}
+
+.ui-control-wrap.landing-popup-control-wrap {
+	margin-bottom: 12px;
+	padding-left: 30px;
+	position: relative;
+}
+
+.landing-popup-control-wrap .ui-radio {
+	left: 0;
+	top: 2px;
+	position: absolute;
+}
+
+.landing-popup-control-wrap .ui-radio:checked + .landing-form-domainname-wrap .ui-domainname {
+	opacity: 1;
+}
+
+.landing-form-domainname-wrap .ui-domainname-subdomain,
+.landing-popup-control-wrap .ui-radio:checked + .landing-form-domainname-wrap .ui-domainname-subdomain {
+	width: 80%;
+}
+
+.landing-form-domainname-wrap .ui-domainname {
+	width: 100%;
+}
+
+.landing-site-name-postfix {
+	font-size: 16px;
+}
+
+.landing-alert {
+	font-size: 14px;
+	padding: 14px 18px 8px;
+}
+
+.ui-editable-domain-content .landing-alert {
+	margin-top: 20px;
+	margin-left: 30px;
+}
+
+.landing-alert-info {
+	background-color: #f9fafa;
+	color: #182231;
+	border-radius: 1px;
+}
+
+.landing-alert-paragraph {
+	margin: 0 0 4px;
+}
+
+.landing-alert-header-text {
+	width: 100%;
+	display: block;
+	padding: 0 10px;
+	box-sizing: border-box;
+	border-right: 1px solid #d8dce3;
+}
+
+.landing-alert-table {
+	border-collapse: collapse;
+	margin: 18px 0 0;
+	width: 100%;
+}
+
+.landing-alert-table td {
+	padding: 10px 0 11px;
+}
+
+.landing-alert-table-header {
+	background: #eef2f4;
+	color: #626870;
+}
+
+.landing-alert-table-content td {
+	padding: 13px 10px 14px;
+	color: #000;
+	font-weight: 600;
+	overflow: hidden;
+	word-wrap: break-word;
+	max-width: 200px;
+}
+
+.landing-alert-table-content + .landing-alert-table-content {
+	border-top: 1px solid #e6e8eb;
+}
+
+.landing-alert-table-content:last-child {
+	border-bottom: none;
+}
+
+.landing-alert-table-header td:last-child .landing-alert-header-text {
+	border-right: none;
+}
+
+.landing-alert-warning {
+	background-color: #f8f4bc;
+	color: #91711e;
+	margin-top: 15px;
+}
+
+.landing-form-domain-name-text {
+	word-wrap: break-word;
+}
+
+.landing-alert-more {
+	color: #0446a5;
+	transition: all .2s linear;
+}
+
+.ui-editable-domain-content {
+	width: 575px;
+}
+
+.ui-editable-domain-content .ui-input {
+	opacity: 0.5;
+	width: 390px;
+}
+
+.ui-editable-domain-content .ui-form-control-label {
+	display: block;
+}

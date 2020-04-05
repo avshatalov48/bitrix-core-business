@@ -5,7 +5,8 @@ use Bitrix\Main\Loader,
 	Bitrix\Currency,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
-	Bitrix\Main;
+	Bitrix\Main,
+	Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
 
@@ -13,6 +14,7 @@ class CIBlockPriceTools
 {
 	protected static $catalogIncluded = null;
 	protected static $highLoadInclude = null;
+	protected static $saleIncluded = null;
 	protected static $needDiscountCache = null;
 	protected static $calculationDiscounts = 0;
 
@@ -121,27 +123,52 @@ class CIBlockPriceTools
 
 	public static function SetCatalogDiscountCache($arCatalogGroups, $arUserGroups, $siteId = false)
 	{
-		if(\Bitrix\Main\Config\Option::get('sale', 'use_sale_discount_only') === 'Y')
-			return true;
-
-		global $DB;
 		$result = false;
+
+		if (!is_array($arUserGroups))
+			return $result;
+		Main\Type\Collection::normalizeArrayValuesByInt($arUserGroups, true);
+		if (empty($arUserGroups))
+			return $result;
 
 		if ($siteId === false)
 			$siteId = SITE_ID;
+
+		if(\Bitrix\Main\Config\Option::get('sale', 'use_sale_discount_only') === 'Y')
+		{
+			self::$needDiscountCache = false;
+			if (self::$saleIncluded === null)
+				self::$saleIncluded = Loader::includeModule('sale');
+			if (self::$saleIncluded)
+			{
+				$cache = Sale\Discount\RuntimeCache\DiscountCache::getInstance();
+				$ids = $cache->getDiscountIds($arUserGroups);
+				if (!empty($ids))
+				{
+					$discountList = $cache->getDiscounts(
+						$ids,
+						['all', 'catalog'],
+						$siteId,
+						[]
+					);
+					if (!empty($discountList))
+					{
+						$result = true;
+					}
+				}
+			}
+			return $result;
+		}
 
 		if (self::$catalogIncluded === null)
 			self::$catalogIncluded = Loader::includeModule('catalog');
 		if (self::$catalogIncluded)
 		{
-			if (!is_array($arCatalogGroups) || !is_array($arUserGroups))
-				return false;
-			Main\Type\Collection::normalizeArrayValuesByInt($arCatalogGroups, true);
-			if (empty($arCatalogGroups))
-				return false;
+			if (!is_array($arCatalogGroups))
+				return $result;
 			Main\Type\Collection::normalizeArrayValuesByInt($arUserGroups, true);
 			if (empty($arUserGroups))
-				return false;
+				return $result;
 
 			$arRestFilter = array(
 				'PRICE_TYPES' => $arCatalogGroups,
@@ -163,34 +190,58 @@ class CIBlockPriceTools
 			{
 				$arResultDiscountList = array();
 
-				$arSelect = array(
+				$select = array(
 					'ID', 'TYPE', 'SITE_ID', 'ACTIVE', 'ACTIVE_FROM', 'ACTIVE_TO',
 					'RENEWAL', 'NAME', 'SORT', 'MAX_DISCOUNT', 'VALUE_TYPE', 'VALUE', 'CURRENCY',
 					'PRIORITY', 'LAST_DISCOUNT',
-					'COUPON', 'COUPON_ONE_TIME', 'COUPON_ACTIVE', 'UNPACK', 'CONDITIONS'
+					'USE_COUPONS', 'UNPACK', 'CONDITIONS'
 				);
-				$strDate = date($DB->DateFormatToPHP(CSite::GetDateFormat('FULL')));
+				$currentDatetime = new Main\Type\DateTime();
 				$discountRows = array_chunk($arRest['DISCOUNTS'], 500);
-				foreach ($discountRows as $row)
+				foreach ($discountRows as $pageIds)
 				{
-					$arFilter = array(
-						'@ID' => $row,
-						'SITE_ID' => $siteId,
-						'TYPE' => Catalog\DiscountTable::TYPE_DISCOUNT,
-						'RENEWAL' => 'N',
-						'+<=ACTIVE_FROM' => $strDate,
-						'+>=ACTIVE_TO' => $strDate,
-						'+COUPON' => array()
+					$discountFilter = array(
+						'@ID' => $pageIds,
+						'=SITE_ID' => $siteId,
+						'=TYPE' => Catalog\DiscountTable::TYPE_DISCOUNT,
+						array(
+							'LOGIC' => 'OR',
+							'ACTIVE_FROM' => '',
+							'<=ACTIVE_FROM' => $currentDatetime
+						),
+						array(
+							'LOGIC' => 'OR',
+							'ACTIVE_TO' => '',
+							'>=ACTIVE_TO' => $currentDatetime
+						),
+						'=USE_COUPONS' => 'N',
+						'=RENEWAL' => 'N',
 					);
-					$rsPriceDiscounts = CCatalogDiscount::GetList(array(), $arFilter, false, false, $arSelect);
-					while ($arPriceDiscount = $rsPriceDiscounts->Fetch())
+					CTimeZone::Disable();
+					$iterator = Catalog\DiscountTable::getList(array(
+						'select' => $select,
+						'filter' => $discountFilter
+					));
+					while ($row = $iterator->fetch())
 					{
-						$arPriceDiscount['ID'] = (int)$arPriceDiscount['ID'];
-						$arResultDiscountList[$arPriceDiscount['ID']] = $arPriceDiscount;
+						$row['ID'] = (int)$row['ID'];
+						$row['HANDLERS'] = array();
+						$row['MODULE_ID'] = 'catalog';
+						$row['TYPE'] = (int)$row['TYPE'];
+						if ($row['ACTIVE_FROM'] instanceof Main\Type\DateTime)
+							$row['ACTIVE_FROM'] = $row['ACTIVE_FROM']->toString();
+						if ($row['ACTIVE_TO'] instanceof Main\Type\DateTime)
+							$row['ACTIVE_TO'] = $row['ACTIVE_TO']->toString();
+						$row['COUPON_ACTIVE'] = '';
+						$row['COUPON'] = '';
+						$row['COUPON_ONE_TIME'] = null;
+						$arResultDiscountList[$row['ID']] = $row;
 					}
-					unset($arPriceDiscount, $rsPriceDiscounts, $arFilter);
+					unset($row, $iterator);
+					CTimeZone::Enable();
 				}
-				unset($row, $discountRows);
+				unset($pageIds, $discountRows);
+
 				foreach ($arCatalogGroups as $intOneGroupID)
 				{
 					$strCacheKey = CCatalogDiscount::GetDiscountFilterCacheKey(array($intOneGroupID), $arUserGroups, false);
@@ -1183,6 +1234,10 @@ class CIBlockPriceTools
 		if (self::$catalogIncluded)
 		{
 			$iblockInfo = CCatalogSku::GetInfoByProductIBlock($iblockID);
+			if (empty($iblockInfo))
+			{
+				$iblockInfo = CCatalogSku::GetInfoByOfferIBlock($iblockID);
+			}
 		}
 		if (empty($iblockInfo))
 			return $result;
@@ -1794,6 +1849,12 @@ class CIBlockPriceTools
 
 	public static function getTreeProperties($skuInfo, $propertiesCodes, $defaultFields = array())
 	{
+		if (isset($defaultFields['PICT']) && is_array($defaultFields['PICT']))
+		{
+			if (!isset($defaultFields['PICT']['ID']))
+				$defaultFields['PICT']['ID'] = 0;
+		}
+
 		$requireFields = array(
 			'ID',
 			'UF_XML_ID',
@@ -1941,6 +2002,11 @@ class CIBlockPriceTools
 			$useFilterValues = !empty($propNeedValues) && is_array($propNeedValues);
 			foreach ($propList as $oneProperty)
 			{
+				if (isset($oneProperty['DEFAULT_VALUES']['PICT']) && is_array($oneProperty['DEFAULT_VALUES']['PICT']))
+				{
+					if (!isset($oneProperty['DEFAULT_VALUES']['PICT']['ID']))
+						$oneProperty['DEFAULT_VALUES']['PICT']['ID'] = 0;
+				}
 				$values = array();
 				$valuesExist = false;
 				$pictMode = ('PICT' == $oneProperty['SHOW_MODE']);
@@ -2029,6 +2095,7 @@ class CIBlockPriceTools
 											if (!empty($previewPict))
 											{
 												$row['PICT'] = array(
+													'ID' => (int)$previewPict['ID'],
 													'SRC' => $previewPict['SRC'],
 													'WIDTH' => (int)$previewPict['WIDTH'],
 													'HEIGHT' => (int)$previewPict['HEIGHT']
@@ -2071,6 +2138,7 @@ class CIBlockPriceTools
 										if (!empty($previewPict))
 										{
 											$row['PICT'] = array(
+												'ID' => (int)$previewPict['ID'],
 												'SRC' => $previewPict['SRC'],
 												'WIDTH' => (int)$previewPict['WIDTH'],
 												'HEIGHT' => (int)$previewPict['HEIGHT']
@@ -2103,7 +2171,7 @@ class CIBlockPriceTools
 						if (self::$highLoadInclude === null)
 							self::$highLoadInclude = Loader::includeModule('highloadblock');
 						if (!self::$highLoadInclude)
-							continue;
+							continue 2;
 						$xmlMap = array();
 						$sortExist = isset($oneProperty['USER_TYPE_SETTINGS']['FIELDS_MAP']['UF_SORT']);
 
@@ -2122,7 +2190,7 @@ class CIBlockPriceTools
 						/** @var Main\Entity\Base $entity */
 						$entity = $oneProperty['USER_TYPE_SETTINGS']['ENTITY'];
 						if (!($entity instanceof Main\Entity\Base))
-							continue;
+							continue 2;
 						$entityDataClass = $entity->getDataClass();
 						$entityGetList = array(
 							'select' => $directorySelect,
@@ -2149,6 +2217,7 @@ class CIBlockPriceTools
 											if (!empty($arFile))
 											{
 												$row['PICT'] = array(
+													'ID' => (int)$arFile['ID'],
 													'SRC' => $arFile['SRC'],
 													'WIDTH' => (int)$arFile['WIDTH'],
 													'HEIGHT' => (int)$arFile['HEIGHT']
@@ -2189,6 +2258,7 @@ class CIBlockPriceTools
 										if (!empty($arFile))
 										{
 											$row['PICT'] = array(
+												'ID' => (int)$arFile['ID'],
 												'SRC' => $arFile['SRC'],
 												'WIDTH' => (int)$arFile['WIDTH'],
 												'HEIGHT' => (int)$arFile['HEIGHT']

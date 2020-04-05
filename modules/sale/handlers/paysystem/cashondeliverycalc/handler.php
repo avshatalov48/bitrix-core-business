@@ -83,7 +83,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 			$result = floatval($tarifs["TARIFS"][$tariffNum]["FIX"]) + $percent;
 		}
 
-		return roundEx($result, SALE_VALUE_PRECISION);
+		return round($result, 2);
 	}
 
 	/**

@@ -39,9 +39,18 @@ BX.UI.SelectorManager = {
 		);
 	},
 
-	buildRelations: function(entities, prefix)
+	buildRelations: function(entities, prefix, relationRoot)
 	{
 		var relation = {}, p, iid;
+
+		relationRoot = (
+			relationRoot
+			&& BX.type.isNotEmptyObject(entities[prefix + relationRoot])
+			&& BX.type.isNotEmptyString(entities[prefix + relationRoot].parent)
+				? entities[prefix + relationRoot].parent
+				: (prefix + 0)
+		);
+
 		for(iid in entities)
 		{
 			if (entities.hasOwnProperty(iid))
@@ -54,7 +63,8 @@ BX.UI.SelectorManager = {
 				relation[p].push(iid);
 			}
 		}
-		return this.makeTree(prefix + '0', relation);
+
+		return this.makeTree(relationRoot, relation);
 	},
 	makeTree: function(id, relation)
 	{
@@ -143,7 +153,11 @@ BX.UI.SelectorManager = {
 					)
 					{
 						instance.entities[entityType + '_RELATION'] = {
-							items: BX.UI.SelectorManager.buildRelations(instance.entities[entityType].items, entityTypeData.ADDITIONAL_INFO.PREFIX)
+							items: BX.UI.SelectorManager.buildRelations(
+								instance.entities[entityType].items,
+								entityTypeData.ADDITIONAL_INFO.PREFIX,
+								(entityTypeData.ADDITIONAL_INFO.RELATION_ROOT ? entityTypeData.ADDITIONAL_INFO.RELATION_ROOT : 0)
+							)
 						};
 					}
 
@@ -297,6 +311,14 @@ BX.UI.SelectorManager = {
 				break;
 			default:
 		}
+
+		var test = null;
+		if (test = entityType.match(/^([A-Z]+)\_MULTI$/))
+		{
+			result.push(test[1]);
+		}
+
+		result = BX.util.array_unique(result);
 
 		return result;
 	},

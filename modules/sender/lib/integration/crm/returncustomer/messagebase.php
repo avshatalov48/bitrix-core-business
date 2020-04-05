@@ -84,19 +84,22 @@ class MessageBase implements Message\iBase, Message\iReturnCustomer
 				function () use ($assignOption)
 				{
 					$userList = $assignOption->getValue();
-					if ($userList)
-					{
-						$userList = explode(',', $assignOption->getValue());
-					}
+					$userList = $userList ? explode(',', $userList) : [];
 
 					ob_start();
 					$GLOBALS['APPLICATION']->includeComponent(
-						"bitrix:sender.ui.user.selector",
+						"bitrix:main.user.selector",
 						".default",
 						[
 							"ID" => "sender-crm-rc-message",
-							"INPUT_NAME" => "%INPUT_NAME%",
+							"INPUT_NAME" => "%INPUT_NAME%[]",
 							"LIST" => $userList,
+							'API_VERSION' => '3',
+							"SELECTOR_OPTIONS" => array(
+								'context' => 'SENDER_USER',
+								'allowAddSocNetGroup' => 'N',
+								'departmentSelectDisable' => 'Y'
+							)
 						]
 					);
 

@@ -13,6 +13,11 @@ use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class Controller
+ * @package Bitrix\Lists\Internals
+ * @deprecated
+ */
 abstract class Controller implements IErrorable
 {
 	const ERROR_REQUIRED_PARAMETER = 'LISTS_CONTROLLER_22001';

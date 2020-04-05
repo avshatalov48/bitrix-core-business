@@ -193,3 +193,27 @@
 .landing-ui-disallow-type .landing-ui-field-link-url-grid-left {
 	display: none;
 }
+
+.landing-ui-field-edit-link,
+.landing-ui-field-edit-link a {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+	padding-bottom: 15px;
+	color: #A9ADB2;
+}
+
+
+.landing-ui-field-edit-link a {
+	color: #A9ADB2;
+	border-bottom: 1px rgba(169, 173, 178, .65) solid;
+	padding: 0!important;
+	text-decoration: none;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-field-edit-link a:hover {
+	opacity: .45;
+	color: #A9ADB2;
+	text-decoration: none;
+}

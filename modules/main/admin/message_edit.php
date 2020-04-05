@@ -118,34 +118,61 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0)&& $isAdmin &
 	}
 	else
 	{
-		//Delete checked
-		if(is_array($FILES_del))
+		// Delete files
+		$FILE_ID_tmp = array();
+		//New files
+		$arFiles = array();
+
+		//update files
+		if(is_array($_FILES["FILES"]))
 		{
-			$FILE_ID_tmp = array();
+			foreach($_FILES["FILES"] as $attribute=>$files)
+			{
+				if(is_array($files))
+				{
+					foreach($files as $index=>$value)
+					{
+						$arFiles[$index][$attribute]=$value;
+					}
+				}
+			}
+
+			foreach($arFiles as $index => $file)
+			{
+				if(!is_uploaded_file($file["tmp_name"]))
+				{
+					unset($arFiles[$index]);
+				}
+				else if ($index > 0)
+				{
+					$FILE_ID_tmp[] = intval($index);
+				}
+			}
+		}
+
+		//Delete checked
+		if(!empty($FILES_del) && is_array($FILES_del))
+		{
 			foreach($FILES_del as $file=>$fileMarkDel)
 			{
 				$file = intval($file);
 				if($file>0)
 					$FILE_ID_tmp[] = $file;
 			}
-
-			if(count($FILE_ID_tmp)>0)
-			{
-				$deleteFileDb = \Bitrix\Main\Mail\Internal\EventMessageAttachmentTable::getList(array(
-					'select' => array('FILE_ID'),
-					'filter' => array('EVENT_MESSAGE_ID' => $ID, 'FILE_ID' => $FILE_ID_tmp),
-				));
-				while($arDeleteFile = $deleteFileDb->fetch())
-				{
-					CFile::Delete($arDeleteFile["FILE_ID"]);
-					\Bitrix\Main\Mail\Internal\EventMessageAttachmentTable::delete($ID);
-				}
-			}
 		}
 
-
-		//New files
-		$arFiles = array();
+		if(count($FILE_ID_tmp)>0)
+		{
+			$deleteFileDb = \Bitrix\Main\Mail\Internal\EventMessageAttachmentTable::getList(array(
+				'select' => array('EVENT_MESSAGE_ID', 'FILE_ID'),
+				'filter' => array('=EVENT_MESSAGE_ID' => $ID, '=FILE_ID' => $FILE_ID_tmp),
+			));
+			while($deleteFile = $deleteFileDb->fetch())
+			{
+				CFile::Delete($deleteFile["FILE_ID"]);
+				\Bitrix\Main\Mail\Internal\EventMessageAttachmentTable::delete($deleteFile);
+			}
+		}
 
 		//Brandnew
 		if(is_array($_FILES["NEW_FILE"]))
@@ -671,7 +698,11 @@ $tabControl->BeginNextTab();
 	?>
 	<tr>
 		<td align="left" colspan="2"><br><b><?=GetMessage("AVAILABLE_FIELDS")?></b><br><br>
-			<?echo ReplaceVars(nl2br(trim($type_DESCRIPTION)."\r\n".$str_def));?></td>
+			<?echo ReplaceVars(nl2br(trim($type_DESCRIPTION)."\r\n".$str_def));?>
+			<?=BeginNote()?>
+				<?echo GetMessage("main_message_edit_html_note")?>
+			<?=EndNote()?>
+		</td>
 	</tr>
 	
 	<?

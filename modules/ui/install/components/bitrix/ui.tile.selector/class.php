@@ -30,6 +30,7 @@ class UiTileSelectorComponent extends CBitrixComponent
 		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;
 		$this->arParams['FIRE_CLICK_EVENT'] = isset($this->arParams['FIRE_CLICK_EVENT']) ? $this->arParams['FIRE_CLICK_EVENT'] : '';
+		$this->arParams['LOCK'] = isset($this->arParams['LOCK']) ? (bool) $this->arParams['LOCK'] : false;
 
 		if (isset($this->arParams['SHOW_BUTTON_ADD']))
 		{

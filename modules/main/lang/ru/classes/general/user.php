@@ -67,7 +67,6 @@ $MESS["USER_LAST_SEEN_NOW"] = "только что";
 $MESS["USER_LAST_SEEN_TODAY"] = "сегодня в #TIME#";
 $MESS["USER_LAST_SEEN_YESTERDAY"] = "вчера в #TIME#";
 $MESS["USER_LAST_SEEN_MORE_YEAR"] = "более года назад";
-$MESS["main_user_check_max_pass"] = "Превышена максимальная длина пароля (50 символов).";
 $MESS["main_user_pass_request_sent"] = "Код подтверждения отправлен на указанный номер.";
 $MESS["main_change_pass_error"] = "Ошибка при изменении пароля.";
 $MESS["main_change_pass_code_error"] = "Неправильный проверочный код. Возможно, истек интервал проверки кода. Вы можете запросить код повторно.";

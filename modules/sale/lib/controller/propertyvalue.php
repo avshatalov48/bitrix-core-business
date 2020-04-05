@@ -7,8 +7,7 @@ namespace Bitrix\Sale\Controller;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\SystemException;
+use Bitrix\Sale;
 use Bitrix\Main\UI\PageNavigation;
 
 class PropertyValue extends Controller
@@ -17,22 +16,31 @@ class PropertyValue extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\PropertyValue::class,
+			Sale\PropertyValue::class,
 			'propertyValue',
 			function($className, $id) {
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
-				$r = \Bitrix\Sale\PropertyValue::getList([
+				/** @var Sale\Property $propertyValueClass */
+				$propertyValueClass = $registry->getPropertyValueClassName();
+
+				$r = $propertyValueClass::getList([
 					'select'=>['ORDER_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($row = $r->fetch())
 				{
-					$propertyValue = \Bitrix\Sale\Order::load($row['ORDER_ID'])
+					/** @var Sale\Order $orderClass */
+					$orderClass = $registry->getOrderClassName();
+
+					$propertyValue = $orderClass::load($row['ORDER_ID'])
 						->getPropertyCollection()
 						->getItemById($id);
-					if($propertyValue instanceof \Bitrix\Sale\PropertyValue)
+					if ($propertyValue)
+					{
 						return $propertyValue;
+					}
 				}
 				else
 				{

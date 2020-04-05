@@ -17,7 +17,7 @@ use Bitrix\Main\UI\Extension;
 
 Extension::load("ui.buttons");
 Extension::load("ui.notification");
-
+Extension::load("sender.error_handler");
 $component = $this->getComponent();
 $getMessageLocal = function($messageCode, $replace = []) use ($component)
 {
@@ -57,9 +57,34 @@ $containerId = 'sender-letter-time';
 					)
 				)
 			))?>);
+			<?if ($arResult['USER_ERRORS']):
+				/** @var \Bitrix\Main\Error $userError */
+				$userError = $arResult['USER_ERRORS'][0];
+				$url = str_replace('#id#', $arParams['ID'], $arParams['PATH_TO_EDIT']);
+				$uri = new Bitrix\Main\Web\Uri($url);
+				if ($arParams['IFRAME'] == 'Y')
+				{
+					$uri->addParams(array('IFRAME' => 'Y'));
+				}
+				?>
+				var errorHandler = new BX.Sender.ErrorHandler();
+				errorHandler.onError('<?=CUtil::JSescape($userError->getCode())?>', <?=CUtil::PhpToJSObject([
+					'text' => $userError->getMessage(),
+					'editUrl' => $uri->getLocator()
+				])?>,
+				function() {
+					var form = document.querySelector('[data-role="letter-time-form"]');
+					if (form)
+					{
+						form.submit();
+					}
+				},
+				function() {});
+				document.getElementById('ui-button-panel-save').classList.add('ui-btn-wait');
+			<?endif;?>
 		});
 	</script>
-	<form method="post" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
+	<form method="post" data-role="letter-time-form" action="<?=htmlspecialcharsbx($arResult['SUBMIT_FORM_URL'])?>">
 		<?=bitrix_sessid_post()?>
 
 		<div class="sender-letter-time-title">
@@ -108,20 +133,28 @@ $containerId = 'sender-letter-time';
 				<?endif;?>
 			</div>
 		<?endif;?>
-
-
+		<div class="sender-letter-time-actions">
 		<?
+		$buttons = [];
+		if ($arResult['CAN_CHANGE'])
+		{
+			$buttons[] = 'save';
+		}
+		else
+		{
+			$buttons[] = ['TYPE' => 'close', 'LINK' => $arParams['PATH_TO_LIST']];
+		}
 		$APPLICATION->IncludeComponent(
-			"bitrix:sender.ui.button.panel",
+			"bitrix:ui.button.panel",
 			"",
 			array(
-				'SAVE' => $arResult['CAN_CHANGE'] ? [] : null,
-				'CLOSE' => $arResult['CAN_CHANGE'] ? null : ['URL' => $arParams['PATH_TO_LIST']],
+				'BUTTONS' => $buttons
 			),
 			false
 		);
-		?>
 
+		?>
+		</div>
 	</form>
 
 	<div style="display: none;">

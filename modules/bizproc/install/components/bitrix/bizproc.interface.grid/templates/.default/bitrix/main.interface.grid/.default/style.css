@@ -147,11 +147,16 @@ div.bx-popup-menu td.popupmenu div.popupitem td.gutter div.grid-views {backgroun
 .bx-bizproc-sorted > a {
 	display: inline-block;
 	overflow: hidden;
-	vertical-align: middle;
+	vertical-align: top;
 	max-width: 350px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+
+.bx-bizproc-sorted {
+	min-width: 65%;
+}
+
 .bx-head-advanced-more{
 	display:inline-block;
 	width:16px;

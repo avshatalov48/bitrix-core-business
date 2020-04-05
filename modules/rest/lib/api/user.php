@@ -4,7 +4,6 @@ namespace Bitrix\Rest\Api;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Main\UserFieldTable;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\RestException;
 
@@ -23,6 +22,23 @@ class User extends \IRestService
 
 		"UF_DEPARTMENT", "UF_INTERESTS", "UF_SKILLS", "UF_WEB_SITES", "UF_XING", "UF_LINKEDIN", "UF_FACEBOOK", "UF_TWITTER", "UF_SKYPE", "UF_DISTRICT", "UF_PHONE_INNER"
 	);
+
+	public static function getDefaultAllowedUserFields()
+	{
+		$result = static::$allowedUserFields;
+
+		if (Loader::includeModule('intranet'))
+		{
+			$result[] = 'USER_TYPE';
+		}
+
+		return $result;
+	}
+
+	public static function unsetDefaultAllowedUserField($key)
+	{
+		unset(static::$allowedUserFields[$key]);
+	}
 
 	public static function onRestServiceBuildDescription()
 	{
@@ -60,11 +76,11 @@ class User extends \IRestService
 
 		$fields = $USER_FIELD_MANAGER->GetUserFields("USER");
 
-		foreach(static::$allowedUserFields as $key => $field)
+		foreach(static::getDefaultAllowedUserFields() as $key => $field)
 		{
 			if(substr($field, 0, 3) === 'UF_' && !array_key_exists($field, $fields))
 			{
-				unset(static::$allowedUserFields[$key]);
+				static::unsetDefaultAllowedUserField($key);
 			}
 		}
 	}
@@ -144,7 +160,7 @@ class User extends \IRestService
 			IncludeModuleLangFile('/bitrix/modules/main/admin/user_admin.php', false, true)
 		);
 		$fieldsList = $USER_FIELD_MANAGER->getUserFields('USER', 0, LANGUAGE_ID);
-		foreach (self::$allowedUserFields as $key)
+		foreach (static::getDefaultAllowedUserFields() as $key)
 		{
 			if(substr($key, 0, 3) != 'UF_')
 			{
@@ -227,18 +243,15 @@ class User extends \IRestService
 			}
 		}
 
-		$allowedUserFields = self::$allowedUserFields;
+		$allowedUserFields = static::getDefaultAllowedUserFields();
 		$allowedUserFields[] = 'IS_ONLINE';
+		$allowedUserFields[] = 'HAS_DEPARTAMENT';
 		$allowedUserFields[] = 'NAME_SEARCH';
 		$allowedUserFields[] = 'EXTERNAL_AUTH_ID';
 		if ($server->getMethod() == "user.search")
 		{
 			$allowedUserFields[] = 'FIND';
 			$allowedUserFields[] = 'UF_DEPARTMENT_NAME';
-		}
-		if (Loader::includeModule('intranet'))
-		{
-			$allowedUserFields[] = 'USER_TYPE';
 		}
 
 		if(isset($query['FILTER']) && is_array($query['FILTER']))
@@ -309,11 +322,31 @@ class User extends \IRestService
 			}
 		}
 
+		if(array_key_exists("HAS_DEPARTAMENT", $filter))
+		{
+			if($filter["HAS_DEPARTAMENT"] == "Y")
+			{
+				$filter[] = [
+					'LOGIC' => 'AND',
+					'!UF_DEPARTMENT' => false,
+				];
+			}
+
+			unset($filter["HAS_DEPARTAMENT"]);
+		}
+
 		$result = array();
 
 		$filter['=IS_REAL_USER'] = 'Y';
 
-		$dbResCnt = UserTable::getList(array(
+		$getListClassName = '\Bitrix\Main\UserTable';
+		if (Loader::includeModule('intranet'))
+		{
+			$getListClassName = '\Bitrix\Intranet\UserTable';
+		}
+		$getListMethodName = 'getList';
+
+		$dbResCnt = $getListClassName::$getListMethodName(array(
 			'filter' => $filter,
 			'select' => array("CNT" => new ExpressionField('CNT', 'COUNT(1)')),
 		));
@@ -329,10 +362,10 @@ class User extends \IRestService
 				$querySort[$sort] = $order;
 			}
 
-			$dbRes = UserTable::getList(array(
+			$dbRes = $getListClassName::$getListMethodName(array(
 				'order' => $querySort,
 				'filter' => $filter,
-				'select' => self::$allowedUserFields,
+				'select' => static::getDefaultAllowedUserFields(),
 				'limit' => $navParams['limit'],
 				'offset' => $navParams['offset'],
 				'data_doubling' => false,
@@ -597,11 +630,11 @@ class User extends \IRestService
 
 		if (!$allowedUserFields)
 		{
-			$allowedUserFields = self::$allowedUserFields;
+			$allowedUserFields = static::getDefaultAllowedUserFields();
 		}
 		foreach($userData as $key => $value)
 		{
-			if(in_array($key, $allowedUserFields))
+			if(in_array($key, $allowedUserFields, true))
 			{
 				$user[$key] = $value;
 			}
@@ -653,7 +686,7 @@ class User extends \IRestService
 		}
 
 		$res = array();
-		foreach(self::$allowedUserFields as $key)
+		foreach(static::getDefaultAllowedUserFields() as $key)
 		{
 			switch($key)
 			{

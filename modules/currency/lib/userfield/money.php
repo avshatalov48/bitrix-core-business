@@ -76,7 +76,7 @@ class Money extends TypeBase
 		}
 		elseif (is_array($userField))
 		{
-			$value = htmlspecialcharsbx($userField["SETTINGS"]["DEFAULT_VALUE"]);
+			$value = $userField["SETTINGS"]["DEFAULT_VALUE"];
 		}
 		else
 		{

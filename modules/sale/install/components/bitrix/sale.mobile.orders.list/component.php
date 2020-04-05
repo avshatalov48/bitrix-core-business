@@ -187,9 +187,10 @@ while ($arOrderItem = $dbOrderList->GetNext())
 	$arOrderItem["DATE_UPDATE"] = CSaleMobileOrderUtils::getDateTime($arOrderItem["DATE_UPDATE"]);
 	$arOrderItem["PRICE_DELIVERY"] = SaleFormatCurrency($arOrderItem["PRICE_DELIVERY"], $arOrderItem["CURRENCY"]);
 	$arOrderItem["SUM_PAID"] = SaleFormatCurrency($arOrderItem["SUM_PAID"], $arOrderItem["CURRENCY"]);
-	$arOrderItem["PS_SUM"] = SaleFormatCurrency($arOrderItemr["PS_SUM"], $arOrderItem["CURRENCY"]);
+	$arOrderItem["PS_SUM"] = SaleFormatCurrency($arOrderItem["PS_SUM"], $arOrderItem["CURRENCY"]);
 	$arOrderItem["TAX_VALUE"] = SaleFormatCurrency($arOrderItem["TAX_VALUE"], $arOrderItem["CURRENCY"]);
 	$arOrderItem["DATE_INSERT"] = CSaleMobileOrderUtils::getDateTime($arOrderItem["DATE_INSERT"]);
+	$arOrderItem["DATE_INSERT_SHORT"] = CSaleMobileOrderUtils::getDate($arOrderItem["DATE_INSERT"]);
 	$arOrderItem["TMPL_DELIVERY_ALLOWED"] = $arOrderItem["ALLOW_DELIVERY"] == 'Y' ? 'allowed' : 'notallowed';
 	$arOrderItem["ADD_ALLOW_DELIVERY_PHRASE"] = $arOrderItem["ALLOW_DELIVERY"] == 'Y' ? GetMessage("SMOL_ALLOWED") : GetMessage("SMOL_DISALLOWED");
 	$arOrderItem["ADD_ALLOW_PAYED_PHRASE"] = $arOrderItem["PAYED"] == 'Y' ? GetMessage("SMOB_PAYED") : GetMessage("SMOB_NOT_PAYED");

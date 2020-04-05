@@ -446,12 +446,12 @@ class SmsRu extends Sender\BaseConfigurable
 
 	private function getEmbedPartner()
 	{
-		return Option::get('messageservice', 'smsru_partner');
+		return 'bitrix24';//Option::get('messageservice', 'smsru_partner');
 	}
 
 	private function getSecretKey()
 	{
-		return Option::get('messageservice', 'smsru_secret_key');
+		return 'P46y811M84W3b4H18SmDpy9KG3pKG3Ok';//Option::get('messageservice', 'smsru_secret_key');
 	}
 
 	private function getEmbedHash($phoneNumber)

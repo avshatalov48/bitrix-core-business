@@ -3,6 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
 CJSCore::Init(array('qrcode', 'ajax', 'popup'));
+\Bitrix\Main\UI\Extension::load("ui.common");
 
 /**
  * @var array $arParams
@@ -15,9 +16,10 @@ CJSCore::Init(array('qrcode', 'ajax', 'popup'));
 <?if ($arResult["MESSAGE"]):?>
 	<?ShowMessage($arResult["MESSAGE"]);?>
 <?else:?>
-<div id="user-otp-container" class="bx-otp-wrap-container <?=LANGUAGE_ID?>" style="padding-top: 0; max-width:1300px;">
+
+<div id="user-otp-container" class="security-user-otp <?=LANGUAGE_ID?>">
 	<?if ($arParams['SHOW_DESCRIPTION'] === 'Y'):?>
-	<p class="bx-otp-wrap-container-description"><?=GetMessage("SECURITY_OTP_DESCR")?></p>
+	<div class="ui-text-1 ui-color-medium"><?=GetMessage("SECURITY_OTP_DESCR")?></div>
 	<?endif?>
 
 	<div class="bx-otp-wrap-container-getstart">
@@ -130,7 +132,10 @@ CJSCore::Init(array('qrcode', 'ajax', 'popup'));
 		'ui' => array(
 			'containerId' => 'user-otp-container'
 		),
-		'successfulUrl' => $arResult['SUCCESSFUL_URL']
+		'successfulUrl' => $arResult['SUCCESSFUL_URL'],
+		'signedParameters' => $this->getComponent()->getSignedParameters(),
+		'componentName' => $this->getComponent()->getName(),
+		'needRedirectAfterConnection' => $arResult["REDIRECT_AFTER_CONNECTION"] == "Y" ? "Y" : "N"
 	);
 	$jsMessages = array(
 		'SECURITY_OTP_ERROR_TITLE' => GetMessage('SECURITY_OTP_ERROR_TITLE'),

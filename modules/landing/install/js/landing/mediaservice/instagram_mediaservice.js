@@ -46,11 +46,11 @@
 				this.form = new BX.Landing.UI.Form.BaseForm();
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_CAPTIONED"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_CAPTIONED"),
 						selector: "captioned",
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
 						],
 						onChange: function(value)
 						{

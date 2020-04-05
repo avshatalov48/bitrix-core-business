@@ -1,9 +1,9 @@
 <?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Report\VisualConstructor\Helper\Dashboard;
 use Bitrix\Report\VisualConstructor\Helper\Filter;
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 \Bitrix\Main\Loader::includeModule('report');
 
 /**
@@ -24,7 +24,8 @@ class ReportVisualConstructorBoardBase extends CBitrixComponent
 	{
 		Dashboard::renewDefaultDashboard($this->arParams['BOARD_ID']);
 		$this->arResult['BOARD_ID'] = $this->arParams['BOARD_ID']; //TODO@ add check for required params such us BOARD_ID
-		$this->arResult['FILTER'] = $this->getFilter();
+		$this->arResult['FILTER'] = $this->arParams['FILTER'] instanceof Filter ? $this->arParams['FILTER'] : null;
+		$this->arResult['FILTER_ID'] = $this->arParams['FILTER'] instanceof Filter ? $this->arParams['FILTER']->getFilterParameters()['FILTER_ID'] : "";
 		$this->arResult['REPORTS_CATEGORIES'] = $this->arParams['REPORTS_CATEGORIES'];
 		$this->arResult['IS_ENABLED_STEPPER'] = isset($this->arParams['IS_ENABLED_STEPPER']) ? $this->arParams['IS_ENABLED_STEPPER'] : false;
 		$this->arResult['STEPPER_IDS'] = isset($this->arParams['STEPPER_IDS']) ? $this->arParams['STEPPER_IDS'] : [];
@@ -76,6 +77,7 @@ class ReportVisualConstructorBoardBase extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
 	 * @return Filter
 	 */
 	private function getFilter()

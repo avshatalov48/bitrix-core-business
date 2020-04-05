@@ -14,6 +14,10 @@ if (!Loader::IncludeModule('lists') || !\Bitrix\Main\Application::getInstance()-
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class ListsEditAjaxController
+ * @deprecated
+ */
 class ListsEditAjaxController extends Controller
 {
 	/** @var  int */

@@ -5,13 +5,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'js' => [
-		'/bitrix/js/main/loader/loader.js'
+	'css' => 'dist/loader.bundle.css',
+	'js' => 'dist/loader.bundle.js',
+	'rel' => [
+		'main.core',
 	],
-
-	'css' => [
-		'/bitrix/js/main/loader/loader.css'
-	],
-
-	'bundle_js' => 'main_loader'
+	'skip_core' => false,
 ];

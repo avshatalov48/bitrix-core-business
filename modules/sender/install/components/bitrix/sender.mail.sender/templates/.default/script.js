@@ -23,7 +23,8 @@
 
 		this.input = Helper.getNode('mailbox-input', this.context);
 		this.mailbox = Helper.getNode('mailbox', this.context);
-		BX.bind(this.mailbox, 'click', this.showMenu.bind(this));
+		this.mailboxWrap = Helper.getNode('mailbox-wrap', this.context);
+		BX.bind(this.mailboxWrap, 'click', this.showMenu.bind(this));
 	};
 	Selector.prototype.onClick = function (item)
 	{

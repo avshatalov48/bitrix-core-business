@@ -15,14 +15,14 @@ CModule::IncludeModule($module_id);
 $MOD_RIGHT = $APPLICATION->GetGroupRight($module_id);
 if($MOD_RIGHT>="R"):
 
-$arAllOptions =
-	Array(
-		Array("save_src", GetMessage("MAIL_OPTIONS_SAVE_SRC"), B_MAIL_SAVE_SRC, Array("checkbox", "Y")),
-		Array("save_attachments", GetMessage("MAIL_OPTIONS_SAVE_ATTACHMENTS"), B_MAIL_SAVE_ATTACHMENTS, Array("checkbox", "Y")),
-		Array("connect_timeout", GetMessage("MAIL_OPTIONS_TIMEOUT"), B_MAIL_TIMEOUT, Array("text", 2)),
-		Array("spam_check", GetMessage("MAIL_OPTIONS_CHECKSPAM"), B_MAIL_CHECK_SPAM, Array("checkbox", "Y")),
-		Array("time_keep_log", GetMessage("MAIL_OPTIONS_LOG_SAVE"), B_MAIL_KEEP_LOG, Array("text", 2))
-		);
+$arAllOptions = array(
+	array('save_src', getMessage('MAIL_OPTIONS_SAVE_SRC'), B_MAIL_SAVE_SRC, array('checkbox', 'Y')),
+	array('save_attachments', getMessage('MAIL_OPTIONS_SAVE_ATTACHMENTS'), B_MAIL_SAVE_ATTACHMENTS, array('checkbox', 'Y')),
+	array('connect_timeout', getMessage('MAIL_OPTIONS_TIMEOUT'), B_MAIL_TIMEOUT, array('text', 2)),
+	array('spam_check', getMessage('MAIL_OPTIONS_CHECKSPAM'), B_MAIL_CHECK_SPAM, array('checkbox', 'Y')),
+	array('time_keep_log', getMessage('MAIL_OPTIONS_LOG_SAVE'), B_MAIL_KEEP_LOG, array('text', 2)),
+	array('sync_old_limit2', getMessage('MAIL_OPTIONS_SYNC_OLD_LIMIT'), 0, array('text', 2)),
+);
 
 if($MOD_RIGHT>="W" && check_bitrix_sessid())
 {

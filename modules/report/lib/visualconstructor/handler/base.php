@@ -6,7 +6,6 @@ use Bitrix\Report\VisualConstructor\Entity\Configuration;
 use Bitrix\Report\VisualConstructor\Fields\Base as BaseFormElement;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\BaseValuable;
 use Bitrix\Report\VisualConstructor\Helper\Util;
-use Bitrix\Report\VisualConstructor\Internal\IConfigurable;
 use Bitrix\Report\VisualConstructor\View;
 
 /**

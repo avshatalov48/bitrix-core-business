@@ -22,6 +22,10 @@ Main\Localization\Loc::loadLanguageFile(__FILE__);
  */
 class HighloadBlockTable extends Entity\DataManager
 {
+	private const ENTITY_ID_PREFIX = 'HLBLOCK_';
+
+	private const ENTITY_ID_MASK = '/^HLBLOCK_(\d+)$/';
+
 	/**
 	 * @return string
 	 */
@@ -56,7 +60,9 @@ class HighloadBlockTable extends Entity\DataManager
 			'FIELDS_COUNT' => array(
 				'data_type' => 'integer',
 				'expression' => array(
-					'(SELECT COUNT(ID) FROM b_user_field WHERE b_user_field.ENTITY_ID = '.$sqlHelper->getConcatFunction("'HLBLOCK_'", $sqlHelper->castToChar('%s')).')', 'ID'
+					'(SELECT COUNT(ID) FROM b_user_field WHERE b_user_field.ENTITY_ID = '.
+						$sqlHelper->getConcatFunction("'".self::ENTITY_ID_PREFIX."'", $sqlHelper->castToChar('%s')).')',
+					'ID'
 				)
 			),
 			'LANG' => new Entity\ReferenceField(
@@ -172,7 +178,7 @@ class HighloadBlockTable extends Entity\DataManager
 
 			// rename also uf multiple tables and its constraints, sequences, and triggers
 			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-			foreach ($USER_FIELD_MANAGER->getUserFields('HLBLOCK_'.$oldData['ID']) as $field)
+			foreach ($USER_FIELD_MANAGER->getUserFields(static::compileEntityId($oldData['ID'])) as $field)
 			{
 				if ($field['MULTIPLE'] == 'Y')
 				{
@@ -202,7 +208,7 @@ class HighloadBlockTable extends Entity\DataManager
 		// get file fields
 		$file_fields = array();
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		$fields = $USER_FIELD_MANAGER->getUserFields('HLBLOCK_'.$hlblock['ID']);
+		$fields = $USER_FIELD_MANAGER->getUserFields(static::compileEntityId($hlblock['ID']));
 
 		foreach ($fields as $name => $field)
 		{
@@ -421,7 +427,7 @@ class HighloadBlockTable extends Entity\DataManager
 		$entity = $entity_data_class::getEntity();
 
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		$uFields = $USER_FIELD_MANAGER->getUserFields('HLBLOCK_'.$hlblock['ID']);
+		$uFields = $USER_FIELD_MANAGER->getUserFields(static::compileEntityId($hlblock['ID']));
 
 		foreach ($uFields as $uField)
 		{
@@ -448,9 +454,18 @@ class HighloadBlockTable extends Entity\DataManager
 		return Entity\Base::getInstance($entity_name);
 	}
 
+	/**
+	 * @param string|int $id
+	 * @return string
+	 */
+	public static function compileEntityId($id)
+	{
+		return self::ENTITY_ID_PREFIX.$id;
+	}
+
 	public static function OnBeforeUserTypeAdd($field)
 	{
-		if (preg_match('/^HLBLOCK_(\d+)$/', $field['ENTITY_ID'], $matches))
+		if (preg_match(self::ENTITY_ID_MASK, $field['ENTITY_ID'], $matches))
 		{
 			if (substr($field['FIELD_NAME'], -4) == '_REF')
 			{
@@ -479,7 +494,7 @@ class HighloadBlockTable extends Entity\DataManager
 	{
 		global $APPLICATION, $USER_FIELD_MANAGER;
 
-		if (preg_match('/^HLBLOCK_(\d+)$/', $field['ENTITY_ID'], $matches))
+		if (preg_match(self::ENTITY_ID_MASK, $field['ENTITY_ID'], $matches))
 		{
 			$field['USER_TYPE'] = $USER_FIELD_MANAGER->getUserType($field['USER_TYPE_ID']);
 
@@ -490,7 +505,7 @@ class HighloadBlockTable extends Entity\DataManager
 			if (empty($hlblock))
 			{
 				$APPLICATION->throwException(sprintf(
-					'Entity "HLBLOCK_%s" wasn\'t found.', $hlblock_id
+					'Entity "'.static::compileEntityId('%s').'" wasn\'t found.', $hlblock_id
 				));
 
 				return false;
@@ -542,7 +557,7 @@ class HighloadBlockTable extends Entity\DataManager
 	{
 		global $USER_FIELD_MANAGER;
 
-		if (preg_match('/^HLBLOCK_(\d+)$/', $field['ENTITY_ID'], $matches))
+		if (preg_match(self::ENTITY_ID_MASK, $field['ENTITY_ID'], $matches))
 		{
 			// get entity info
 			$hlblock_id = $matches[1];
@@ -696,7 +711,7 @@ class HighloadBlockTable extends Entity\DataManager
 
 	public static function getUtmEntityClassName(Entity\Base $hlentity, $userfield)
 	{
-		return $hlentity->getName().'Utm'.Entity\Base::snake2camel($userfield['FIELD_NAME']);
+		return $hlentity->getName().'Utm'.Main\Text\StringHelper::snake2camel($userfield['FIELD_NAME']);
 	}
 
 	public static function getMultipleValueTableName($hlblock, $userfield)

@@ -24,7 +24,7 @@
 											<i class="landing-block-node-menu-contact-img icon icon-screen-smartphone"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
 											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
@@ -122,13 +122,11 @@
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#specialOffers"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Special
-								offers</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Special offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourHouses"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Our
-								houses</a>
+							   class="landing-block-node-menu-list-item-link nav-link p-0">Our houses</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"

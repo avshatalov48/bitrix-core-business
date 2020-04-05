@@ -318,6 +318,18 @@ class Controller implements Errorable, Controllerable
 	}
 
 	/**
+	 * @param array $sourceParametersList
+	 *
+	 * @return Controller
+	 */
+	final public function setSourceParametersList($sourceParametersList)
+	{
+		$this->sourceParametersList = $sourceParametersList;
+
+		return $this;
+	}
+
+	/**
 	 * @param       $actionName
 	 * @param array $sourceParametersList
 	 *
@@ -333,7 +345,7 @@ class Controller implements Errorable, Controllerable
 
 		try
 		{
-			$this->sourceParametersList = $sourceParametersList;
+			$this->setSourceParametersList($sourceParametersList);
 			$this->processUnsignedParameters();
 
 			$action = $this->create($actionName);

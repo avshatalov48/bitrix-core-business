@@ -17,12 +17,15 @@ class OrderArchiveCollection
 	public function loadFromDB(array $parameters)
 	{
 		$result = new Sale\Result();
-		$ordersList = Sale\Order::getList($parameters);
 
-		while ($orderFields = $ordersList->fetch())
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$ordersList = $orderClass::loadByFilter($parameters);
+
+		foreach ($ordersList as $order)
 		{
-			$order = Sale\Order::create($orderFields['LID'], $orderFields['USER_ID'], $orderFields['CURRENCY_ID']);
-			$order->initFields($orderFields);
 			$newItem = new OrderArchiveItem($order);
 			$this->addItem($newItem);
 		}
@@ -202,7 +205,12 @@ class OrderArchiveCollection
 		$sortedBasketItems = [];
 		$basketItemsList = [];
 
-		$basketItems = Sale\Basket::getList(
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClassName */
+		$basketClassName = $registry->getBasketClassName();
+
+		$basketItems = $basketClassName::getList(
 			array(
 				"order" => array("ORDER_ID"),
 				"filter" => array("=ORDER_ID" => $orderIds)

@@ -218,35 +218,25 @@ if(
 								)
 							))
 							{
-								$arParamsNotify = Array(
-									"bSoNet" => true,
-									"allowVideo" => $arResult["allowVideo"],
-									"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
-									"PATH_TO_POST" => $arParams["PATH_TO_POST"],
-									"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
-									"user_id" => $arPost["AUTHOR_ID"],
-									"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-									"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
-								);
-
-								$blogPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
-
-								$dbRes = CSocNetLog::GetList(
-									array("ID" => "DESC"),
-									array(
-										"EVENT_ID" => $blogPostLivefeedProvider->getEventId(),
-										"SOURCE_ID" => $pub_id
-									),
-									false,
-									false,
-									array("ID", "ENTITY_TYPE", "ENTITY_ID")
-								);
-								if ($arRes = $dbRes->Fetch())
+								$logEntryActivated = false;
+								if ($postItem = \Bitrix\Blog\Item\Post::getById($pub_id))
 								{
-									CBlogPost::UpdateLog($pub_id, $arPost, false, $arParamsNotify);
+									$logEntryActivated = $postItem->activateLogEntry();
 								}
-								else
+
+								if (!$logEntryActivated)
 								{
+									$arParamsNotify = Array(
+										"bSoNet" => true,
+										"allowVideo" => $arResult["allowVideo"],
+										"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
+										"PATH_TO_POST" => $arParams["PATH_TO_POST"],
+										"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
+										"user_id" => $arPost["AUTHOR_ID"],
+										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+										"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
+									);
+
 									CBlogPost::Notify($arPost, false, $arParamsNotify);
 
 									$postUrl = CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("post_id" => $arPost["ID"], "user_id" => $arPost["AUTHOR_ID"]));
@@ -328,12 +318,16 @@ if(
 			{
 				$arPost["perms"] = $arResult["perms"];
 				$arPost["urlToPub"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("pub_id=".$arPost["ID"]."&".bitrix_sessid_get(), Array("del_id", "sessid", "success", "pub_id")));
-
-				$arPost["ADIT_MENU"][6] = Array(
-					"text_php" => GetMessage("BLOG_MOD_PUB"),
-					"href" => $arPost["urlToPub"],
-				);
-
+				if (
+					!isset($arParams['VERSION'])
+					|| intval($arParams['VERSION']) < 2
+				)
+				{
+					$arPost["ADIT_MENU"][6] = Array(
+						"text_php" => GetMessage("BLOG_MOD_PUB"),
+						"href" => $arPost["urlToPub"],
+					);
+				}
 				if($arResult["perms"] >= BLOG_PERMS_FULL || $arPost["AUTHOR_ID"] == $user_id)
 				{
 					$arPost["urlToDelete"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("del_id=".$arPost["ID"]."&".bitrix_sessid_get(), Array("del_id", "sessid", "success", "pub_id")));

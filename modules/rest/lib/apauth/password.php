@@ -100,11 +100,10 @@ class PasswordTable extends Main\Entity\DataManager
 	 * @return bool|string password or false
 	 * @throws \Exception
 	 */
-	public static function createPassword($userId, array $scopeList, $siteTitle)
+	public static function createPassword($userId, array $scopeList, $siteTitle, $returnArray = false)
 	{
 		$password = static::generatePassword();
-
-		$res = static::add(array(
+		$passwordData = [
 			'USER_ID' => $userId,
 			'PASSWORD' => $password,
 			'DATE_CREATE' => new Main\Type\DateTime(),
@@ -112,7 +111,8 @@ class PasswordTable extends Main\Entity\DataManager
 				'#TITLE#' => $siteTitle,
 			)),
 			'COMMENT' => Loc::getMessage('REST_APP_COMMENT'),
-		));
+		];
+		$res = static::add($passwordData);
 
 		if($res->isSuccess())
 		{
@@ -125,7 +125,16 @@ class PasswordTable extends Main\Entity\DataManager
 				));
 			}
 
-			return $password;
+			if(!$returnArray)
+			{
+				$return = $password;
+			}
+			else
+			{
+				$passwordData['ID'] = $res->getId();
+				$return = $passwordData;
+			}
+			return $return;
 		}
 
 		return false;

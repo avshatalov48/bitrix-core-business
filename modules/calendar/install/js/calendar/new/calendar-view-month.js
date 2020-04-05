@@ -299,7 +299,6 @@
 		if (this.monthRows.length > 0)
 		{
 			this.rowHeight = Math.round(height / this.monthRows.length);
-
 			this.slotsCount = Math.floor((this.rowHeight - this.eventHolderTopOffset) / this.slotHeight);
 			for (i = 0; i < this.monthRows.length; i++)
 			{
@@ -331,11 +330,11 @@
 			}
 		}
 
-		if (params.month == 'previous')
+		if (params.month === 'previous')
 		{
 			className += ' calendar-grid-previous-month-day';
 		}
-		else if (params.month == 'next')
+		else if (params.month === 'next')
 		{
 			className += ' calendar-grid-next-month-day';
 		}
@@ -374,7 +373,7 @@
 
 		this.calendar.dragDrop.registerDay(this.days[this.days.length - 1]);
 
-		if (this.currentMonthRow && this.util.getWeekEnd() == weekDay)
+		if (this.currentMonthRow && this.util.getWeekEnd() === weekDay)
 		{
 			this.entryHolders.push(this.currentMonthRow.appendChild(BX.create('DIV', {props: {className: 'calendar-grid-month-events-holder'}})));
 		}
@@ -390,6 +389,7 @@
 	{
 		var
 			prevElement,
+			element,
 			i, j, entry, part, dayPos, entryPart, day, entryStarted,
 			partsStorage = [],
 			entryDisplayed, showHiddenLink,
@@ -440,7 +440,7 @@
 			for (dayPos = this.dayIndex[entry.startDayCode]; dayPos < this.days.length; dayPos++)
 			{
 				day = this.days[dayPos];
-				if (day.dayCode == entry.startDayCode || entryStarted && day.dayOffset == 0)
+				if (day.dayCode === entry.startDayCode || entryStarted && day.dayOffset === 0)
 				{
 					entryStarted = true;
 
@@ -465,13 +465,13 @@
 					part.daysCount++;
 					part.to = day;
 
-					if (day.dayCode == entry.endDayCode || day.dayOffset == this.dayCount - 1)
+					if (day.dayCode === entry.endDayCode || day.dayOffset === this.dayCount - 1)
 					{
 						// here we know where part of event starts and ends
 						partsStorage.push({part: part, entry: entry});
 
 						// Event finished
-						if (day.dayCode == entry.endDayCode)
+						if (day.dayCode === entry.endDayCode)
 						{
 							break;
 						}
@@ -494,7 +494,9 @@
 			if (day.entries.started.length > 0)
 			{
 				if (day.entries.started.length > 0)
+				{
 					day.entries.started.sort(this.calendar.entryController.sort);
+				}
 
 				for(i = 0; i < day.entries.started.length; i++)
 				{
@@ -537,7 +539,7 @@
 				showHiddenLink = false;
 				for(i = 0; i < day.entries.list.length; i++)
 				{
-					if (day.entries.list[i].part.params.wrapNode.style.display == 'none')
+					if (day.entries.list[i].part.params.wrapNode.style.display === 'none')
 					{
 						showHiddenLink = true;
 						break;
@@ -553,7 +555,6 @@
 						attrs: {'data-bx-calendar-show-all-events': day.dayCode},
 						style: {
 							top: (this.rowHeight - 42) + 'px',
-							//top: (this.rowHeight < 135 ? (this.rowHeight - 42) : (this.rowHeight - 45)) + 'px',
 							left: 'calc((100% / ' + this.dayCount + ') * (' + (day.dayOffset + 1) + ' - 1) + 2px)',
 							width: 'calc(100% / ' + this.dayCount + ' - 3px)'
 						}

@@ -44,7 +44,9 @@ final class Authentication extends Base
 			}
 
 			Context::getCurrent()->getResponse()->setStatus(401);
-			$this->errorCollection[] = new Error(Loc::getMessage("MAIN_ENGINE_FILTER_AUTHENTICATION_ERROR"), self::ERROR_INVALID_AUTHENTICATION);
+			$this->addError(new Error(
+				Loc::getMessage("MAIN_ENGINE_FILTER_AUTHENTICATION_ERROR"), self::ERROR_INVALID_AUTHENTICATION)
+			);
 
 			return new EventResult(EventResult::ERROR, null, null, $this);
 		}

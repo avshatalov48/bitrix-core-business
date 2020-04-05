@@ -26,7 +26,24 @@ class CIBlockPropertyDate extends CIBlockPropertyDateTime
 			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
 			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
+			//"GetORMFields" => array(__CLASS__, "GetORMFields"),
+		);
+	}
+
+	/**
+	 * @param \Bitrix\Main\ORM\Entity $valueEntity
+	 * @param Iblock\Property         $property
+	 *
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function GetORMFields($valueEntity, $property)
+	{
+		$valueEntity->addField(
+			(new \Bitrix\Main\ORM\Fields\DateField('DATE'))
+				->configureFormat('Y-m-d')
+				->configureColumnName($valueEntity->getField('VALUE')->getColumnName())
 		);
 	}
 

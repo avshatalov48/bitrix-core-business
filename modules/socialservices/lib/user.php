@@ -2,6 +2,8 @@
 namespace Bitrix\Socialservices;
 
 use \Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Socialservices\EncryptedToken\FieldValue;
 
 
 class UserTable extends Entity\DataManager
@@ -72,16 +74,19 @@ class UserTable extends Entity\DataManager
 				'serizalized' => true,
 			),
 			'OATOKEN' => array(
-				'data_type' => 'string',
+				'data_type' => '\\Bitrix\\Socialservices\\EncryptedToken\\CryptoField',
+				'encryption_complete' => static::cryptoEnabled('OATOKEN')
 			),
 			'OATOKEN_EXPIRES' => array(
 				'data_type' => 'integer',
 			),
 			'OASECRET' => array(
-				'data_type' => 'string',
+				'data_type' => '\\Bitrix\\Socialservices\\EncryptedToken\\CryptoField',
+				'encryption_complete' => static::cryptoEnabled('OASECRET')
 			),
 			'REFRESH_TOKEN' => array(
-				'data_type' => 'string',
+				'data_type' => '\\Bitrix\\Socialservices\\EncryptedToken\\CryptoField',
+				'encryption_complete' => static::cryptoEnabled('REFRESH_TOKEN')
 			),
 			'SEND_ACTIVITY' => array(
 				'data_type' => 'boolean',
@@ -103,7 +108,7 @@ class UserTable extends Entity\DataManager
 		return $fieldsMap;
 	}
 
-	public static function filterFields($fields)
+	public static function filterFields($fields, $oldValue = null)
 	{
 		$map = static::getMap();
 		foreach($fields as $key => $value)
@@ -120,13 +125,33 @@ class UserTable extends Entity\DataManager
 
 		if(array_key_exists('PERSONAL_PHOTO', $fields) && is_array($fields['PERSONAL_PHOTO']))
 		{
-			$fields['PERSONAL_PHOTO'] = \CFile::SaveFile($fields['PERSONAL_PHOTO'], 'socialservices');
+			$needUpdatePersonalPhoto = true;
+			$fields['PERSONAL_PHOTO']['MODULE_ID'] = 'socialservices';
+			$fields['PERSONAL_PHOTO']['external_id'] = md5_file($fields['PERSONAL_PHOTO']['tmp_name']);
+			if ($oldValue['PERSONAL_PHOTO'])
+			{
+				$oldPersonalPhoto = \CFile::GetByID($oldValue['PERSONAL_PHOTO'])->Fetch();
+				if ($oldPersonalPhoto['EXTERNAL_ID'] == $fields['PERSONAL_PHOTO']['external_id'])
+				{
+					$needUpdatePersonalPhoto = false;
+				}
+				$fields['PERSONAL_PHOTO']['del'] = 'Y';
+				$fields['PERSONAL_PHOTO']['old_file'] = $oldValue['PERSONAL_PHOTO'];
+			}
+			if ($needUpdatePersonalPhoto)
+			{
+				$fields['PERSONAL_PHOTO'] = \CFile::SaveFile($fields['PERSONAL_PHOTO'], 'socialservices');
+			}
+			else
+			{
+				unset($fields['PERSONAL_PHOTO']);
+			}
 		}
 
 		return $fields;
 	}
 
-	public static function onBeforeDelete(Entity\Event $event)
+	public static function onBeforeDelete(Event $event)
 	{
 		$primary = $event->getParameter("primary");
 		$ID = $primary["ID"];
@@ -134,7 +159,7 @@ class UserTable extends Entity\DataManager
 		self::$deletedList[$ID] = $dbRes->fetch();
 	}
 
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(Event $event)
 	{
 		$primary = $event->getParameter("primary");
 		$ID = $primary["ID"];
@@ -154,6 +179,11 @@ class UserTable extends Entity\DataManager
 				{
 					$interface->RevokeAuth();
 				}
+			}
+
+			if($userInfo["PERSONAL_PHOTO"])
+			{
+				\CFile::Delete($userInfo["PERSONAL_PHOTO"]);
 			}
 		}
 	}

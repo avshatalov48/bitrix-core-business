@@ -75,7 +75,12 @@ class BusinessValuePersonDomain extends Controller
 
 		if($result->isSuccess())
 		{
-			return ['BUSINESS_VALUE_PERSON_DOMAIN'=>$this->get($personTypeId)];
+			return [
+				'BUSINESS_VALUE_PERSON_DOMAIN'=>BusinessValuePersonDomainTable::getList(['filter'=>[
+					'PERSON_TYPE_ID'=>$personTypeId,
+					'DOMAIN'=>$domain
+				]])->fetchAll()[0]
+			];
 		}
 		else
 		{
@@ -84,6 +89,7 @@ class BusinessValuePersonDomain extends Controller
 		}
 	}
 
+	/** @deprecated  */
 	public function getAction($personTypeId)
 	{
 		$r = $this->exists($personTypeId);
@@ -98,6 +104,7 @@ class BusinessValuePersonDomain extends Controller
 		}
 	}
 
+	/** @deprecated  */
 	public function deleteAction($personTypeId)
 	{
 		$r = $this->exists($personTypeId);
@@ -106,6 +113,33 @@ class BusinessValuePersonDomain extends Controller
 			\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::delete([
 				'PERSON_TYPE_ID' => $personTypeId
 			]);
+		}
+
+		if($r->isSuccess())
+		{
+			return true;
+		}
+		else
+		{
+			$this->addErrors($r->getErrors());
+			return null;
+		}
+	}
+
+	public function deleteByFilterAction($fields)
+	{
+		$r = $this->checkFields($fields);
+
+		if($r->isSuccess())
+		{
+			$r = $this->existsByFilter([
+				'PERSON_TYPE_ID'=>$fields['PERSON_TYPE_ID'],
+				'DOMAIN'=>$fields['DOMAIN']
+			]);
+			if($r->isSuccess())
+			{
+				$r = BusinessValuePersonDomainTable::delete(['PERSON_TYPE_ID'=>$fields['PERSON_TYPE_ID'], 'DOMAIN'=>$fields['DOMAIN']]);
+			}
 		}
 
 		if($r->isSuccess())
@@ -147,6 +181,43 @@ class BusinessValuePersonDomain extends Controller
 		if($this->get($personTypeId)['PERSON_TYPE_ID']<=0)
 			$r->addError(new Error('business value person domain is not exists', 201440400001));
 
+		return $r;
+	}
+
+	protected function existsByFilter($filter)
+	{
+		$r = new Result();
+
+		$row = BusinessValuePersonDomainTable::getList(['filter'=>['PERSON_TYPE_ID'=>$filter['PERSON_TYPE_ID'], 'DOMAIN'=>$filter['DOMAIN']]])->fetchAll();
+		if(isset($row[0]['PERSON_TYPE_ID']) == false)
+			$r->addError(new Error('business value person domain is not exists', 201440400003));
+
+		return $r;
+	}
+
+	protected function checkFields($fields)
+	{
+		$r = new Result();
+
+		if(isset($fields['PERSON_TYPE_ID']) == false && $fields['PERSON_TYPE_ID'] <> '')
+			$r->addError(new Error('personTypeId - parametrs is empty', 201450000002));
+
+		if(isset($fields['DOMAIN'])  == false && $fields['DOMAIN'] <> '')
+			$r->addError(new Error('domian - parametrs is empty', 201450000003));
+
+		return $r;
+	}
+
+	protected function checkPermissionEntity($name)
+	{
+		if($name == 'deletebyfilter')
+		{
+			$r = $this->checkModifyPermissionEntity();
+		}
+		else
+		{
+			$r = parent::checkPermissionEntity($name);
+		}
 		return $r;
 	}
 }

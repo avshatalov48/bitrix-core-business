@@ -10,6 +10,8 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'im.const',
+		'ui.vue.vuex',
 	],
 	'skip_core' => true,
 ];

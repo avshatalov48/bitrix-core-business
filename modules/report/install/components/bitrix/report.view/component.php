@@ -139,7 +139,7 @@ if (!$isStExport)
 	$strReportViewParams = CReport::getViewParams($arParams['REPORT_ID'], $this->GetTemplateName());
 	if (isset($uriParams['set_filter']))
 	{
-		if (substr($_SERVER['QUERY_STRING'], 0, 6) !== 'EXCEL=')
+		if (substr($_SERVER['QUERY_STRING'], 0, 6) !== 'EXCEL=' || array_key_exists("publicSidePanel", $_REQUEST))
 		{
 			if ($_SERVER['QUERY_STRING'] !== $strReportViewParams)
 			{
@@ -151,7 +151,7 @@ if (!$isStExport)
 	{
 		if (!empty($strReportViewParams))
 		{
-			if (!is_set($uriParams['sort_id']))
+			if (!is_set($uriParams['sort_id']) && !array_key_exists("publicSidePanel", $_REQUEST))
 			{
 				$len = strpos($arParams['PATH_TO_REPORT_VIEW'], '?');
 
@@ -208,9 +208,28 @@ try
 	{
 		$arResult['MARK_DEFAULT'] = intval($report['MARK_DEFAULT']);
 	}
+	$arResult['SHOW_EDIT_BUTTON'] = is_bool($arParams['SHOW_EDIT_BUTTON']) ? $arParams['SHOW_EDIT_BUTTON'] : true;
 
 	// action
 	$settings = unserialize($report['SETTINGS']);
+
+	// prevent percent from percent
+	$prcntSelect = [];
+	foreach ($settings['select'] as $id => $elem)
+	{
+		if (isset($elem['prcnt']))
+		{
+			$prcntSelect[$id] = $elem;
+		}
+	}
+	foreach ($prcntSelect as $id => $elem)
+	{
+		if (isset($prcntSelect[$elem['prcnt']]))
+		{
+			unset($settings['select'][$id]['prcnt']);
+		}
+	}
+	unset($prcntSelect, $id, $elem);
 
 	// <editor-fold defaultstate="collapsed" desc="parse period">
 	$date_from = $date_to = null;
@@ -780,108 +799,147 @@ try
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="collect changeables">
-	$changeableFilters = array();
-	$changeableFiltersEntities = array();
-	foreach ($settings['filter'] as $fId => &$fInfo)
+	$changeableFilters = [];
+	$changeableFiltersEntities = [];
+	$filterSettings = $settings['filter'];
+	$contextStack = [];
+
+	if (count($filterSettings) > 0 && is_array($filterSettings[0]))
 	{
-		foreach ($fInfo as $k => &$fElem)
+		$contextStack[] = [
+			'filter' => $filterSettings[0],
+			'id' => 0,
+			'index' => 0
+		];
+	}
+	while (count($contextStack) > 0)
+	{
+		$context = array_pop($contextStack);
+		$contextSwitch = false;
+		while (!$contextSwitch && isset($context['filter'][$context['index']]))
 		{
-			if (is_array($fElem) && $fElem['type'] == 'field' && (int) $fElem['changeable'] > 0)
+			$index = $context['index']++;
+			$fElem = $context['filter'][$index];
+			if (is_array($fElem))
 			{
-				$match = array();
-				$arUF = null;
-				if (preg_match('/__COLUMN__(\d+)/', $fElem['name'], $match))
+				if ($fElem['type'] == 'field' && (int) $fElem['changeable'] > 0)
 				{
-					/** @var Entity\Field[] $view */
-					$num = $match[1];
-					$view = $viewColumns[$num];
-					$data_type = call_user_func(
-						array($arParams['REPORT_HELPER_CLASS'], 'getFieldDataType'), $view['field']
-					);
-
-					if ($view['prcnt'])
+					$match = [];
+					$arUF = null;
+					if (preg_match('/__COLUMN__(\d+)/', $fElem['name'], $match))
 					{
-						$data_type = 'float';
-					}
-					else if ($view['aggr'] == 'COUNT_DISTINCT')
-					{
-						$data_type = 'integer';
-					}
-
-					$field = null;
-				}
-				else
-				{
-					$field = $fList[$fElem['name']];
-					$data_type = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getFieldDataType'), $field);
-				}
-
-				if ($field instanceof Entity\ReferenceField)
-				{
-					$tmpElem = $fElem;
-					call_user_func_array(
-						array($arParams['REPORT_HELPER_CLASS'], 'fillFilterReferenceColumn'),
-						array(&$tmpElem, &$field)
-					);
-					$value = $tmpElem['value'];
-					$changeableFiltersEntities[$field->getRefEntityName()] = true;
-				}
-				else
-				{
-					// detect UF
-					$arUF = call_user_func_array(
-						array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'),
-						array($field)
-					);
-					if ($arUF['isUF'] && is_array($arUF['ufInfo']) && isset($arUF['ufInfo']['USER_TYPE_ID']))
-					{
-						$tmpElem = $fElem;
-						call_user_func_array(
-							array($arParams['REPORT_HELPER_CLASS'], 'fillFilterUFColumn'),
-							array(&$tmpElem, $field, $arUF['ufInfo'])
+						/** @var Entity\Field[] $view */
+						$num = $match[1];
+						$view = $viewColumns[$num];
+						$data_type = call_user_func(
+							array($arParams['REPORT_HELPER_CLASS'], 'getFieldDataType'), $view['field']
 						);
-						$value = $tmpElem['value'];
+
+						if ($view['prcnt'])
+						{
+							$data_type = 'float';
+						}
+						else if ($view['aggr'] == 'COUNT_DISTINCT')
+						{
+							$data_type = 'integer';
+						}
+
+						$field = null;
 					}
 					else
 					{
-						$value = $fElem['value'];
+						$field = $fList[$fElem['name']];
+						$data_type = call_user_func(
+							[
+								$arParams['REPORT_HELPER_CLASS'],
+								'getFieldDataType'
+							],
+							$field
+						);
+					}
+
+					if ($field instanceof Entity\ReferenceField)
+					{
+						$tmpElem = $fElem;
+						call_user_func_array(
+							array($arParams['REPORT_HELPER_CLASS'], 'fillFilterReferenceColumn'),
+							array(&$tmpElem, &$field)
+						);
+						$value = $tmpElem['value'];
+						$changeableFiltersEntities[$field->getRefEntityName()] = true;
+					}
+					else
+					{
+						// detect UF
+						$arUF = call_user_func_array(
+							array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'),
+							array($field)
+						);
+						if ($arUF['isUF'] && is_array($arUF['ufInfo']) && isset($arUF['ufInfo']['USER_TYPE_ID']))
+						{
+							$tmpElem = $fElem;
+							call_user_func_array(
+								array($arParams['REPORT_HELPER_CLASS'], 'fillFilterUFColumn'),
+								array(&$tmpElem, $field, $arUF['ufInfo'])
+							);
+							$value = $tmpElem['value'];
+						}
+						else
+						{
+							$value = $fElem['value'];
+						}
+					}
+
+					// detect UF
+					if ($arUF === null)
+					{
+						$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $field);
+					}
+
+					if ($arUF['isUF'] && is_array($arUF['ufInfo'])
+						&& isset($arUF['ufInfo']['ENTITY_ID']) && isset($arUF['ufInfo']['FIELD_NAME']))
+					{
+						$usedUFMap[$arUF['ufInfo']['ENTITY_ID']][$arUF['ufInfo']['FIELD_NAME']] = true;
+					}
+
+					$changeableFilters[] = array(
+						'name' => $fElem['name'],
+						'title' => '', // will be added later
+						'value' => $value,
+						'compare' => $fElem['compare'],
+						'filter' => $context['id'],
+						'num' => $index,
+						'formName' => 'filter['.$context['id'].']['.$index.']',
+						'formId' => 'filter_'.$context['id'].'_'.$index,
+						'field' => $field,
+						'data_type' => $data_type,
+						'isUF' => $arUF['isUF'],
+						'ufId' => $arUF['isUF'] ? $arUF['ufInfo']['ENTITY_ID'] : '',
+						'ufName' => $arUF['isUF'] ? $arUF['ufInfo']['FIELD_NAME'] : ''
+					);
+
+					unset($arUF);
+				}
+				elseif ($fElem['type'] == 'filter')
+				{
+					$index = $fElem['name'];
+					if (is_array($filterSettings[$index])
+						&& count($filterSettings[$index]) > 0
+						&& is_array($filterSettings[$index][0]))
+					{
+						$contextStack[] = $context;
+						$contextStack[] = [
+							'filter' => $filterSettings[$index],
+							'id' => $index,
+							'index' => 0
+						];
+						$contextSwitch = true;
 					}
 				}
-
-				// detect UF
-				if ($arUF === null)
-				{
-					$arUF = call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'detectUserField'), $field);
-				}
-
-				if ($arUF['isUF'] && is_array($arUF['ufInfo'])
-					&& isset($arUF['ufInfo']['ENTITY_ID']) && isset($arUF['ufInfo']['FIELD_NAME']))
-				{
-					$usedUFMap[$arUF['ufInfo']['ENTITY_ID']][$arUF['ufInfo']['FIELD_NAME']] = true;
-				}
-
-				$changeableFilters[] = array(
-					'name' => $fElem['name'],
-					'title' => '', // will be added later
-					'value' => $value,
-					'compare' => $fElem['compare'],
-					'filter' => $fId,
-					'num' => $k,
-					'formName' => 'filter['.$fId.']['.$k.']',
-					'formId' => 'filter_'.$fId.'_'.$k,
-					'field' => $field,
-					'data_type' => $data_type,
-					'isUF' => $arUF['isUF'],
-					'ufId' => $arUF['isUF'] ? $arUF['ufInfo']['ENTITY_ID'] : '',
-					'ufName' => $arUF['isUF'] ? $arUF['ufInfo']['FIELD_NAME'] : ''
-				);
-
-				unset($arUF);
 			}
 		}
 	}
-	unset($fInfo);
-	unset($fElem);
+	unset($filterSettings, $contextStack, $fElem);
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="rewrite references to primary">
@@ -958,45 +1016,23 @@ try
 				{
 					if ($fElem['compare'] == 'EQUAL')
 					{
-						// clone filter
-						$fElem_start = $fElem;
-						$fElem_end = $fElem;
-
-						$fElem_start['compare'] = 'GREATER_OR_EQUAL';
-						$fElem_start['value'] .= ' 00:00:00';
-
-						$fElem_end['compare'] = 'LESS_OR_EQUAL';
-						$dtValue = new Bitrix\Main\Type\DateTime($fElem_end['value']);
+						$dtValue = new Bitrix\Main\Type\DateTime($fElem['value']);
 						$dtValue->setTime(23, 59, 59);
-						$fElem_end['value'] = ConvertTimeStamp($dtValue->getTimestamp(), 'FULL');
-
-						// replace filter by subfilter
-						$settings['filter'][] = array('LOGIC' => 'AND', $fElem_start, $fElem_end);
-						end($settings['filter']);
-						$lastFilterNum = key($settings['filter']);
-
-						$fElem = array('type' => 'filter', 'name' => $lastFilterNum);
+						$fElem['compare'] = 'BETWEEN';
+						$fElem['value'] = [
+							$fElem['value'] . ' 00:00:00',
+							ConvertTimeStamp($dtValue->getTimestamp(), 'FULL')
+						];
 					}
 					else if ($fElem['compare'] == 'NOT_EQUAL')
 					{
-						// clone filter
-						$fElem_start = $fElem;
-						$fElem_end = $fElem;
-
-						$fElem_start['compare'] = 'LESS';
-						$fElem_start['value'] .= ' 00:00:00';
-
-						$fElem_end['compare'] = 'GREATER';
-						$dtValue = new Bitrix\Main\Type\DateTime($fElem_end['value']);
+						$dtValue = new Bitrix\Main\Type\DateTime($fElem['value']);
 						$dtValue->setTime(23, 59, 59);
-						$fElem_end['value'] = ConvertTimeStamp($dtValue->getTimestamp(), 'FULL');
-
-						// replace filter by subfilter
-						$settings['filter'][] = array('LOGIC' => 'OR', $fElem_start, $fElem_end);
-						end($settings['filter']);
-						$lastFilterNum = key($settings['filter']);
-
-						$fElem = array('type' => 'filter', 'name' => $lastFilterNum);
+						$fElem['compare'] = 'NOT_BETWEEN';
+						$fElem['value'] = [
+							$fElem['value'] . ' 00:00:00',
+							ConvertTimeStamp($dtValue->getTimestamp(), 'FULL')
+						];
 					}
 					else if ($fElem['compare'] == 'LESS_OR_EQUAL')
 					{
@@ -1084,12 +1120,12 @@ try
 
 					$_sub_init_table_alias = ToLower($entity->getCode());
 
-					$_sub_filter = array();
+					$subFilter = array();
 
 					// add primary linking with main query
 					foreach ($entity->GetPrimaryArray() as $_primary)
 					{
-						$_sub_filter['='.$_primary] =
+						$subFilter['='.$_primary] =
 							new CSQLWhereExpression('?#', $_sub_init_table_alias.'.'.$_primary);
 					}
 
@@ -1097,32 +1133,56 @@ try
 					$filterCompare = CReport::$iBlockCompareVariations[$fElem['compare']];
 					$filterName = $fElem['name'];
 					$filterValue = $fElem['value'];
+					$isNegativeCondition = ($filterCompare === '!' || $filterCompare === '!%');
+					$subQueryAdv = null;
+
+					// <editor-fold defaultstate="collapsed" desc="build subquery">
+					$subQueryAdv = null;
+					if ($isNegativeCondition)
+					{
+						$subFilterAdv = $subFilter;
+						$subFilterAdv['!'.$filterName] = false;
+						$subQueryAdv = new Entity\Query($entity);
+						$subQueryAdv->setFilter($subFilterAdv);
+						unset($subFilterAdv);
+						$subQueryAdv->setLimit(1);
+						$subQueryAdv->setTableAliasPostfix('_subex');
+					}
 					if ($filterCompare === '>%')
 					{
 						$filterCompare = '';
 						$filterValue = $filterValue.'%';
 					}
-					$_sub_filter[$filterCompare.$filterName] = $filterValue;
+					$subFilter[$filterCompare.$filterName] = $filterValue;
 
-					// build subquery
-					$_sub_query = new Entity\Query($entity);
-					$_sub_query->setFilter($_sub_filter);
-					$_sub_query->setTableAliasPostfix('_sub');
+					$subQuery = new Entity\Query($entity);
+					$subQuery->setFilter($subFilter);
+					$subQuery->setTableAliasPostfix('_sub');
 
-					$_sub_sql = 'EXISTS('.$_sub_query->getQuery().')';
-					$_sub_sql = '(CASE WHEN '.$_sub_sql.' THEN 1 ELSE 0 END)';
+					if ($isNegativeCondition)
+					{
+						$subSql = 'EXISTS('.$subQuery->getQuery().') OR NOT EXISTS('.$subQueryAdv->getQuery().')';
+					}
+					else
+					{
+						$subSql = 'EXISTS('.$subQuery->getQuery().')';
+					}
+					unset($subQueryAdv);
+
+					$subSql = '(CASE WHEN '.$subSql.' THEN 1 ELSE 0 END)';
+					// </editor-fold>
 
 					// expression escaping as sprintf requires
-					$_sub_sql = str_replace('%', '%%', $_sub_sql);
+					$subSql = str_replace('%', '%%', $subSql);
 
-					$_runtime_field = array(
+					$runtimeField = array(
 						'data_type' => 'integer',
-						'expression' => array($_sub_sql)
+						'expression' => array($subSql)
 					);
 
 					$f_filter_alias = 'F_FILTER_ALIAS_'.(++$f_filter_alias_count);
 
-					$runtime[$f_filter_alias] = $_runtime_field;
+					$runtime[$f_filter_alias] = $runtimeField;
 					$fElem['name'] = $f_filter_alias;
 					$fElem['compare'] = 'EQUAL';
 					$fElem['value'] = 1;
@@ -1130,8 +1190,7 @@ try
 			}
 		}
 	}
-	unset($fInfo);
-	unset($fElem);
+	unset($fInfo, $fElem, $runtimeField);
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="rewrite __COLUMN__\d filters">
@@ -1309,6 +1368,7 @@ try
 			}
 		}
 	}
+	unset($runtimeField);
 
 	if (isset($limit['nPageTop']))
 		$main_query->setLimit($limit['nPageTop']);
@@ -1457,27 +1517,126 @@ try
 	// add SUM aggr
 	$_totalSelect = $totalSelect;
 	$totalSelect = [];
-	$totalSelectAfter = [];
+	$totalSelectAfter = [[], []];
 
 	foreach ($_totalSelect as $k => $v)
 	{
-		if (isset($customTotals[$k]['type']) && $customTotals[$k]['type'] === 'prcntFromCol')
+		$isCustomTotal = false;
+		$isAverage = false;
+		$isMinimum = false;
+		$isMaximum = false;
+		$isPrcntFromCol = false;
+		if (is_array($customTotals[$k]))
 		{
-			$totalSelectAfter[] = new Entity\ExpressionField(
-				'TOTAL_'.$k,
-				'(SUM(%s)) / (%s) * 100',
-				[
-					$customTotals[$k]['local']['alias'],
-					'TOTAL_'.$customTotals[$k]['remote']['alias']
-				]
-			);
+			if (is_array($customTotals[$k]['average']))
+			{
+				$isCustomTotal = $isAverage = true;
+			}
+			else if (is_array($customTotals[$k]['minimum']))
+			{
+				$isCustomTotal = $isMinimum = true;
+			}
+			else if (is_array($customTotals[$k]['maximum']))
+			{
+				$isCustomTotal = $isMaximum = true;
+			}
+
+			if (is_array($customTotals[$k]['prcntFromCol']))
+			{
+				$isCustomTotal = $isPrcntFromCol = true;
+			}
+		}
+
+		if ($isCustomTotal)
+		{
+			if (!$isPrcntFromCol)
+			{
+				if ($isAverage)
+				{
+					$totalInfo = $customTotals[$k]['average'];
+					$totalSelectAfter[0][] = new Entity\ExpressionField(
+						'TOTAL_'.$k,
+						'(SUM(%s) / SUM(%s))',
+						[
+							$totalInfo['sum']['alias'],
+							$totalInfo['cnt']['alias']
+						]
+					);
+				}
+				else if ($isMinimum || $isMaximum)
+				{
+					if ($isMinimum)
+					{
+						$sqlFunctionName = 'MIN';
+					}
+					else if ($isMaximum)
+					{
+						$sqlFunctionName = 'MAX';
+					}
+
+					$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, $sqlFunctionName.'(%s)', $k);
+
+					unset($sqlFunctionName);
+				}
+			}
+			else
+			{
+				$totalInfo = $customTotals[$k]['prcntFromCol'];
+				if ($isAverage)
+				{
+					$averageInfo = $customTotals[$k]['average'];
+					$totalSelectAfter[1][] = new Entity\ExpressionField(
+						'TOTAL_'.$k,
+						'(SUM(%s) / SUM(%s)) / (%s) * 100',
+						[
+							$averageInfo['sum']['alias'],
+							$averageInfo['cnt']['alias'],
+							'TOTAL_'.$totalInfo['remote']['alias']
+						]
+					);
+				}
+				else if ($isMinimum || $isMaximum)
+				{
+					if ($isMinimum)
+					{
+						$sqlFunctionName = 'MIN';
+					}
+					else if ($isMaximum)
+					{
+						$sqlFunctionName = 'MAX';
+					}
+
+					$totalSelectAfter[1][] = new Entity\ExpressionField(
+						'TOTAL_'.$k,
+						'('.$sqlFunctionName.'(%s)) / (%s) * 100',
+						[
+							$totalInfo['local']['alias'],
+							'TOTAL_'.$totalInfo['remote']['alias']
+						]
+					);
+
+					unset($sqlFunctionName);
+				}
+				else
+				{
+					$totalSelectAfter[1][] = new Entity\ExpressionField(
+						'TOTAL_'.$k,
+						'(SUM(%s)) / (%s) * 100',
+						[
+							$totalInfo['local']['alias'],
+							'TOTAL_'.$totalInfo['remote']['alias']
+						]
+					);
+				}
+			}
 		}
 		else
 		{
 			$totalSelect[] = new Entity\ExpressionField('TOTAL_'.$k, 'SUM(%s)', $k);
 		}
 	}
-	$totalSelect = array_merge($totalSelect, $totalSelectAfter);
+	unset($isCustomTotal, $isAverage, $isPrcntFromCol, $totalInfo, $averageInfo);
+	$totalSelect = array_merge($totalSelect, $totalSelectAfter[0], $totalSelectAfter[1]);
 	unset($_totalSelect, $totalSelectAfter);
 
 	if (!empty($totalSelect))
@@ -1489,18 +1648,50 @@ try
 
 		foreach ($runtime as $k => $v)
 		{
-			if (isset($customTotals[$k]['type']) && $customTotals[$k]['type'] === 'prcntFromCol')
+			$isCustomTotal = false;
+			$isAverage = false;
+			$isPrcntFromCol = false;
+			if (is_array($customTotals[$k]))
 			{
-				$fieldAlias = $customTotals[$k]['local']['alias'];
-				$query_from->registerRuntimeField($fieldAlias, $customTotals[$k]['local']['def']);
-				$subSelect[$fieldAlias] = $fieldAlias;
-				unset($subSelect[$k]);
+				if (is_array($customTotals[$k]['average']))
+				{
+					$isCustomTotal = $isAverage = true;
+				}
+				if (is_array($customTotals[$k]['prcntFromCol']))
+				{
+					$isCustomTotal = $isPrcntFromCol = true;
+				}
+			}
+
+			if ($isCustomTotal)
+			{
+				if ($isAverage)
+				{
+					$totalInfo = $customTotals[$k]['average'];
+					$fieldAlias = $totalInfo['sum']['alias'];
+					$query_from->registerRuntimeField($fieldAlias, $totalInfo['sum']['def']);
+					$subSelect[$fieldAlias] = $fieldAlias;
+
+					$fieldAlias = $totalInfo['cnt']['alias'];
+					$query_from->registerRuntimeField($fieldAlias, $totalInfo['cnt']['def']);
+					$subSelect[$fieldAlias] = $fieldAlias;
+					unset($subSelect[$k]);
+				}
+				if ($isPrcntFromCol && !$isAverage)
+				{
+					$totalInfo = $customTotals[$k]['prcntFromCol'];
+					$fieldAlias = $totalInfo['local']['alias'];
+					$query_from->registerRuntimeField($fieldAlias, $totalInfo['local']['def']);
+					$subSelect[$fieldAlias] = $fieldAlias;
+					unset($subSelect[$k]);
+				}
 			}
 			else
 			{
 				$query_from->registerRuntimeField($k, $v);
 			}
 		}
+		unset($isCustomTotal, $isAverage, $isPrcntFromCol, $totalInfo);
 
 		$query_from->setSelect($subSelect);
 		$query_from->setFilter($filter);

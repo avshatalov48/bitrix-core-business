@@ -30,7 +30,7 @@ class Map
 					'header' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_TITLE'),
 					'description' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_DESC'),
 					'text' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_SETTINGS'),
-					'href' => '#page_url_site_edit',
+					'href' => '#page_url_site_edit@map_required_key',
 					'className' => 'landing-required-link'
 				);
 				

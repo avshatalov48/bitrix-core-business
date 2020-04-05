@@ -15,7 +15,7 @@
 			<h2 class="landing-block-node-subtitle text-uppercase u-heading-v3__title g-letter-spacing-1 g-font-weight-700 g-font-size-18 g-brd-3 g-brd-primary g-pb-5 g-mb-20">
 				Fitness program for all</h2>
 			<h3 class="landing-block-node-title text-uppercase g-line-height-1_4 g-letter-spacing-5 g-font-weight-700 g-font-size-40 g-mb-20">
-				Easy be a perfect</h3>
+				Easy to be perfect</h3>
 
 			<ul class="list-inline g-mb-30">
 				<li class="landing-block-node-card-list-item list-inline-item g-mx-20 g-mb-10 g-mb-0--md">

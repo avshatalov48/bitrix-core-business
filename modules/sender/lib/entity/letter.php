@@ -14,6 +14,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\Date;
 
+use Bitrix\Sender\Internals\Model\MessageFieldTable;
 use Bitrix\Sender\Message as MainMessage;
 use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Posting;
@@ -35,6 +36,10 @@ class Letter extends Base
 
 	/** @var  MainMessage\Adapter $message Message. */
 	protected $message;
+
+	/** @var null|array $messagesCache Created messages by type
+	 */
+	protected $messagesCache = [];
 
 	/** @var  Dispatch\Duration $duration Duration. */
 	protected $duration;
@@ -84,24 +89,7 @@ class Letter extends Base
 	{
 		if (!isset($parameters['select']))
 		{
-			$parameters['select'] = array(
-				'*',
-				'SITE_ID' => 'CAMPAIGN.SITE_ID',
-
-				'DATE_SEND' => 'CURRENT_POSTING.DATE_SEND',
-				'DATE_PAUSE' => 'CURRENT_POSTING.DATE_PAUSE',
-				'DATE_SENT' => 'CURRENT_POSTING.DATE_SENT',
-
-				'COUNT_SEND_ALL' => 'CURRENT_POSTING.COUNT_SEND_ALL',
-				'COUNT_SEND_NONE' => 'CURRENT_POSTING.COUNT_SEND_NONE',
-				'COUNT_SEND_ERROR' => 'CURRENT_POSTING.COUNT_SEND_ERROR',
-				'COUNT_SEND_SUCCESS' => 'CURRENT_POSTING.COUNT_SEND_SUCCESS',
-				'COUNT_SEND_DENY' => 'CURRENT_POSTING.COUNT_SEND_DENY',
-
-				'USER_NAME' => 'CREATED_BY_USER.NAME',
-				'USER_LAST_NAME' => 'CREATED_BY_USER.LAST_NAME',
-				'USER_ID' => 'CREATED_BY',
-			);
+			$parameters['select'] = static::getDefaultSelectFields();
 		}
 		if (!isset($parameters['filter']))
 		{
@@ -131,6 +119,70 @@ class Letter extends Base
 		}
 
 		return LetterTable::getList($parameters);
+	}
+
+	public static function getDefaultSelectFields()
+	{
+		return array(
+			'*',
+			'SITE_ID' => 'CAMPAIGN.SITE_ID',
+			'CAMPAIGN_ACTIVE' => 'CAMPAIGN.ACTIVE',
+
+			'DATE_SEND' => 'CURRENT_POSTING.DATE_SEND',
+			'DATE_PAUSE' => 'CURRENT_POSTING.DATE_PAUSE',
+			'DATE_SENT' => 'CURRENT_POSTING.DATE_SENT',
+
+			'COUNT_SEND_ALL' => 'CURRENT_POSTING.COUNT_SEND_ALL',
+			'COUNT_SEND_NONE' => 'CURRENT_POSTING.COUNT_SEND_NONE',
+			'COUNT_SEND_ERROR' => 'CURRENT_POSTING.COUNT_SEND_ERROR',
+			'COUNT_SEND_SUCCESS' => 'CURRENT_POSTING.COUNT_SEND_SUCCESS',
+			'COUNT_SEND_DENY' => 'CURRENT_POSTING.COUNT_SEND_DENY',
+
+			'USER_NAME' => 'CREATED_BY_USER.NAME',
+			'USER_LAST_NAME' => 'CREATED_BY_USER.LAST_NAME',
+			'USER_ID' => 'CREATED_BY',
+		);
+	}
+	/**
+	 * Get list with message fields
+	 * @param array $parameters Getlist params.
+	 * @return DB\ArrayResult
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getListWithMessageFields(array $parameters = array())
+	{
+		$result = [];
+		$messageIds = [];
+		$list = static::getList($parameters);
+		while ($item = $list->fetch())
+		{
+			$result[] = $item;
+			if ($item['MESSAGE_ID'])
+			{
+				$messageIds[] = $item['MESSAGE_ID'];
+			}
+		}
+		if ($messageIds)
+		{
+			$messageFields = [];
+			$rows = MessageFieldTable::getList(['filter' => ['=MESSAGE_ID' => $messageIds]]);
+			while ($messageField = $rows->fetch())
+			{
+				$messageFields[$messageField['MESSAGE_ID']][] = $messageField;
+			}
+			foreach ($result as $key => $item)
+			{
+				if ($messageFields[$item['MESSAGE_ID']])
+				{
+					$result[$key]['MESSAGE_FIELDS'] = $messageFields[$item['MESSAGE_ID']];
+				}
+			}
+		}
+		$dbResult = new \Bitrix\Main\DB\ArrayResult($result);
+		$dbResult->setCount($list->getCount());
+		return $dbResult;
 	}
 
 	/**
@@ -358,7 +410,7 @@ class Letter extends Base
 		// campaign setting
 		if (!isset($data['CAMPAIGN_ID']))
 		{
-			$data['CAMPAIGN_ID'] = Campaign::getDefaultId();
+			$data['CAMPAIGN_ID'] = Campaign::getDefaultId(SITE_ID);
 			$this->set('CAMPAIGN_ID', $data['CAMPAIGN_ID']);
 		}
 
@@ -434,7 +486,7 @@ class Letter extends Base
 				case $option::TYPE_HTML:
 				case $option::TYPE_MAIL_EDITOR:
 					$content->addHtmlLayout($value);
-					continue;
+					break;
 
 				case $option::TYPE_TEXT:
 				case $option::TYPE_STRING:
@@ -442,9 +494,6 @@ class Letter extends Base
 				case $option::TYPE_SMS_EDITOR:
 					$content->addText($value);
 					break;
-
-				default:
-					continue;
 			}
 		}
 
@@ -571,7 +620,7 @@ class Letter extends Base
 		return (
 			$this->getState()->wasStartedSending()
 			&&
-			!$this->getState()->isSendingPlanned()
+			!$this->getState()->isPlanned()
 			&&
 			$this->getMessage()->hasStatistics()
 		);
@@ -636,14 +685,28 @@ class Letter extends Base
 	 * Get Message instance.
 	 *
 	 * @return MainMessage\Adapter
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function getMessage()
 	{
 		$messageCode = $this->get('MESSAGE_CODE') ?: MainMessage\Adapter::CODE_MAIL;
 		$messageId = $this->get('MESSAGE_ID') ?: null;
 
-		if ($this->message && $this->message->getCode() === $messageCode)
+		$messageFields = [];
+		if ($this->data['MESSAGE_FIELDS'])
 		{
+			foreach ($this->data['MESSAGE_FIELDS'] as $field)
+			{
+				$messageFields[$field['CODE']] = $field['VALUE'];
+			}
+		}
+		if ($this->messagesCache && $this->messagesCache[$messageCode])
+		{
+			$this->message = $this->messagesCache[$messageCode];
+			if ($messageFields)
+			{
+				$this->message->setConfigurationData($messageFields);
+			}
 			return $this->message;
 		}
 
@@ -651,7 +714,13 @@ class Letter extends Base
 		$createdById = $this->get('CREATED_BY') ?: Security\User::current()->getId();
 		$this->message->getConfiguration()->set('LETTER_CREATED_BY_ID', $createdById);
 		$this->message->setSiteId($this->get('SITE_ID'));
+		if ($messageFields)
+		{
+			$this->message->setConfigurationData($messageFields);
+		}
 		$this->message->loadConfiguration($messageId);
+
+		$this->messagesCache[$messageCode] = $this->message;
 
 		return $this->message;
 	}
@@ -847,6 +916,7 @@ class Letter extends Base
 			'TEMPLATE_TYPE' => $this->get('TEMPLATE_TYPE'),
 			'TEMPLATE_ID' => $this->get('TEMPLATE_ID'),
 			'CREATED_BY' => $this->getUser()->getId(),
+			'UPDATED_BY' => $this->getUser()->getId(),
 			'IS_TRIGGER' => $this->get('IS_TRIGGER'),
 			'TITLE' => Loc::getMessage('SENDER_ENTITY_LETTER_COPY_PREFIX') . ' ' . $this->get('TITLE'),
 			'SEGMENTS_INCLUDE' => $this->get('SEGMENTS_INCLUDE'),

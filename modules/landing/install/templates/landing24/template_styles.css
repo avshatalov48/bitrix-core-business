@@ -5,7 +5,7 @@
 	flex-direction: column;
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 768px) {
 
 	.landing-layout-flex {
 		flex-direction: row;
@@ -18,16 +18,27 @@
 	.landing-layout-flex.without-left {
 		flex-direction: row-reverse;
 	}
-
-	.g-width-25x--lg {
-		width: 25% !important;
+	
+	.landing-layout-flex .landing-sidebar {
+		width: 30%;
 	}
-
-	.g-width-75x--lg {
-		width: 75% !important;
+	
+	.landing-layout-flex .landing-main {
+		width: 70%;
 	}
 }
 
+@media (min-width: 992px) {
+	
+	.landing-layout-flex .landing-sidebar {
+		width: 300px;
+		min-width: 300px;	/* 30% * 992px */
+	}
+	
+	.landing-layout-flex .landing-main {
+		width: calc(100% - 300px);
+	}
+}
 
 .g-pt-30 {
 	padding-top: 2.14286rem !important;

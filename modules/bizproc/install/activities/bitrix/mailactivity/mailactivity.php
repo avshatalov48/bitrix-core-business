@@ -1,6 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Mail;
 use Bitrix\Disk;
@@ -243,14 +244,9 @@ class CBPMailActivity extends CBPActivity
 			),
 		));
 
-		$mailboxes = static::getMailboxes();
-
-		if (!empty($mailboxes))
-		{
-			$dialog->setRuntimeData(array(
-				'mailboxes' => $mailboxes
-			));
-		}
+		$dialog->setRuntimeData(array(
+			'mailboxes' => (array) Main\Mail\Sender::prepareUserMailboxes()
+		));
 
 		return $dialog;
 	}
@@ -487,22 +483,6 @@ class CBPMailActivity extends CBPActivity
 		return array($arUsers, $arEmails);
 	}
 
-
-	private static function getMailboxes()
-	{
-		$mailboxes = [];
-		CBitrixComponent::includeComponentClass('bitrix:main.mail.confirm');
-		if (
-			class_exists('MainMailConfirmComponent')
-			&& method_exists('MainMailConfirmComponent', 'prepareMailboxes')
-		)
-		{
-			$mailboxes = (array)MainMailConfirmComponent::prepareMailboxes();
-		}
-
-		return $mailboxes;
-	}
-
 	private static function getMailUserPropertyGetter()
 	{
 		return function($dialog, $property, $arCurrentActivity, $compatible = false)
@@ -511,6 +491,10 @@ class CBPMailActivity extends CBPActivity
 			$k = $property['Id'];
 
 			$result = $arCurrentActivity["Properties"][$k."Array"];
+			if (!is_array($result))
+			{
+				$result = [];
+			}
 
 			if ($compatible)
 			{

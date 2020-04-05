@@ -93,7 +93,7 @@ return array(
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-end u-bg-overlay g-min-height-100vh g-min-height-600 g-bg-img-hero g-bg-black-opacity-0_5--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img7.jpg);">
 			<div class="u-bg-overlay__inner w-100">
-				<div class="g-max-width-645 py-0 g-px-30 g-pb-30">
+				<div class="g-max-width-645 py-0 g-px-30 g-pb-30" data-stop-propagation>
 					<h2 class="landing-block-node-card-title js-animation fadeInUp g-font-montserrat g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						Company24 agency</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
@@ -104,7 +104,7 @@ return array(
 							</p>
 						</div>
 						<div class="col-md-3">
-							<a href="/"
+							<a href="#"
 							   class="landing-block-node-card-button text-uppercase btn u-btn-outline-white btn-md rounded-0">
 								Read more
 							</a>
@@ -117,7 +117,7 @@ return array(
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-end u-bg-overlay g-min-height-100vh g-min-height-600 g-bg-img-hero g-bg-black-opacity-0_5--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img8.jpg);">
 			<div class="u-bg-overlay__inner w-100">
-				<div class="g-max-width-645 py-0 g-px-30 g-pb-30">
+				<div class="g-max-width-645 py-0 g-px-30 g-pb-30" data-stop-propagation>
 					<h2 class="landing-block-node-card-title js-animation fadeInUp g-font-montserrat g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						So smooth!</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
@@ -128,7 +128,7 @@ return array(
 							</p>
 						</div>
 						<div class="col-md-3">
-							<a href="/"
+							<a href="#"
 							   class="landing-block-node-card-button text-uppercase btn u-btn-outline-white btn-md rounded-0">
 								Read more
 							</a>
@@ -148,7 +148,7 @@ return array(
 				'CONTENT' => '<section class="landing-block g-pt-40 g-pb-40 g-theme-architecture-bg-blue-dark-v3">
 	<div class="container px-0">
 		<!-- Row -->
-		<div class="row no-gutters">
+		<div class="row no-gutters landing-block-inner">
 			<div class="landing-block-node-card col-md-6 col-lg-3 js-animation animation-none">
 				<div class="landing-block-node-card-bgimg g-bg-img-hero h-100" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x390/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
 					<div class="g-theme-architecture-bg-blue-dark-v3 d-flex flex-column h-100 g-opacity-1 g-opacity-0_8--hover g-py-50 g-px-15 g-pa-100-30--sm g-transition-0_2 g-transition--ease-in">
@@ -312,7 +312,7 @@ return array(
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block g-pb-70 g-bg-main g-pt-20">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
 					<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15 g-color-primary">
 						<i class="landing-block-node-card-icon icon-magic-wand"></i>
@@ -385,7 +385,7 @@ return array(
 						<span>for more info</span></a>
 				</div>
 			</div>
-			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-contain--xs g-bg-size-cover--sm" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x372/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
+			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x372/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 		</div>
 	</div>
 </section>',
@@ -414,7 +414,7 @@ return array(
 				'SORT' => '5000',
 				'CONTENT' => '<section class="landing-block g-pt-0 g-pb-70">
         <div class="container">
-            <div class="row">
+            <div class="row landing-block-inner">
 
                 <div class="landing-block-card g-mb-40 g-mb-0--lg  col-lg-3 js-animation fadeIn">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
@@ -458,30 +458,18 @@ return array(
 			array (
 				'CODE' => '28.2.team',
 				'SORT' => '5500',
-				'CONTENT' => '<section class="landing-block g-py-30 g-pb-80--md">
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_7--after g-pt-30 g-pt-80--md g-pb-250" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x585/img1.jpg);">
+				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-80">
+	<div class="landing-block-node-bgimg u-bg-overlay g-bg-black-opacity-0_7--after g-pt-30 g-pt-80--md g-pb-250"
+		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1400x585/img1.jpg);">
 		<div class="container text-center u-bg-overlay__inner g-max-width-800">
 			<div class="landing-block-node-header text-uppercase g-brd-primary g-mb-30 u-heading-v2-4--bottom">
 				<h3 class="landing-block-node-subtitle g-font-weight-600 g-font-size-12 g-color-primary g-mb-20">Our
 					team</h3>
-				<h2 class="landing-block-node-title u-heading-v2__title g-line-height-1 g-letter-spacing-2 g-font-weight-700 g-font-size-30 g-font-size-40--md g-color-white mb-0">
+				<h2 class="landing-block-node-title u-heading-v2__title g-line-height-1 g-letter-spacing-2 g-font-weight-700 g-font-size-40 g-color-white mb-0">
 					Work with professionals</h2>
 			</div>
 
-			<div class="landing-block-node-text mb-0 g-color-gray-light-v2">
+			<div class="landing-block-node-text g-color-white-opacity-0_5 mb-0">
 				<p>Praesent eu nibh malesuada, condimentum nibh hendrerit, viverra
 					sem. Nulla porttitor eget ante ullamcorper convallis. Integer dictum lorem arcu, eget tempus nulla
 					accumsan id.</p>
@@ -491,50 +479,55 @@ return array(
 
 	<div class="container g-mt-minus-200">
 		<!-- Team Block -->
-		<div class="row">
-			<div class="landing-block-card-employee js-animation col-md-6 col-lg-3 g-mb-30 g-mb-0--lg pulse">
+		<div class="row landing-block-inner">
+			<div class="landing-block-card-employee js-animation pulse col-md-6 col-lg-3 g-mb-30 g-mb-0--lg">
 				<div class="text-center">
 					<!-- Figure -->
 					<figure class="g-pos-rel g-parent g-mb-30">
 						<!-- Figure Image -->
-						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img1.jpg" alt="" />
+						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img1.jpg"
+							 alt="">
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">Changing
-								your mind and changing world</div>
-						
+						<figcaption
+								class="g-mt-0 g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">
+								Changing your mind and changing world
+							</div>
+						</figcaption>
 						<!-- End Figure Caption -->
-					</figcaption></figure>
+					</figure>
 					<!-- End Figure -->
-
 					<!-- Figure Info -->
 					<div class="landing-block-node-employee-post d-block text-uppercase g-font-style-normal g-font-weight-700 g-font-size-11 g-color-primary g-mb-5">Photographer</div>
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Ralf
 						Smith</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0 g-color-gray-dark-v5">head
+					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
 
-			<div class="landing-block-card-employee js-animation col-md-6 col-lg-3 g-mb-30 g-mb-0--lg pulse">
+			<div class="landing-block-card-employee js-animation pulse col-md-6 col-lg-3 g-mb-30 g-mb-0--lg">
 				<div class="text-center">
 					<!-- Figure -->
 					<figure class="g-pos-rel g-parent g-mb-30">
 						<!-- Figure Image -->
-						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img2.jpg" alt="" />
+						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img2.jpg"
+							 alt="">
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">Changing
-								your mind and changing world</div>
-						
+						<figcaption
+								class="g-mt-0 g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">
+								Changing your mind and changing world
+							</div>
+						</figcaption>
 						<!-- End Figure Caption -->
-					</figcaption></figure>
+					</figure>
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
@@ -542,27 +535,30 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Monica
 						Gaudy</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0 g-color-gray-dark-v5">head
+					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
 
-			<div class="landing-block-card-employee js-animation col-md-6 col-lg-3 g-mb-30 g-mb-0--md pulse">
+			<div class="landing-block-card-employee js-animation pulse col-md-6 col-lg-3 g-mb-30 g-mb-0--md">
 				<div class="text-center">
 					<!-- Figure -->
 					<figure class="g-pos-rel g-parent g-mb-30">
 						<!-- Figure Image -->
-						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img3.jpg" alt="" />
+						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img3.jpg"
+							 alt="">
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">Changing
-								your mind and changing world</div>
-						
+						<figcaption
+								class="g-mt-0 g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">
+								Changing your mind and changing world
+							</div>
+						</figcaption>
 						<!-- End Figure Caption -->
-					</figcaption></figure>
+					</figure>
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
@@ -570,27 +566,30 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Julia
 						Exon</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0 g-color-gray-dark-v5">head
+					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
 			</div>
 
-			<div class="landing-block-card-employee js-animation col-md-6 col-lg-3 pulse">
+			<div class="landing-block-card-employee js-animation pulse col-md-6 col-lg-3">
 				<div class="text-center">
 					<!-- Figure -->
 					<figure class="g-pos-rel g-parent g-mb-30">
 						<!-- Figure Image -->
-						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img4.jpg" alt="" />
+						<img class="landing-block-node-employee-photo w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/270x450/img4.jpg"
+							 alt="">
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">Changing
-								your mind and changing world</div>
-						
+						<figcaption
+								class="g-mt-0 g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">
+								Changing your mind and changing world
+							</div>
+						</figcaption>
 						<!-- End Figure Caption -->
-					</figcaption></figure>
+					</figure>
 					<!-- End Figure -->
 
 					<!-- Figure Info -->
@@ -598,7 +597,7 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Jacob
 						Assange</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0 g-color-gray-dark-v5">head
+					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>

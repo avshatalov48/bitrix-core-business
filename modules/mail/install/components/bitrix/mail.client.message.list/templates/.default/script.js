@@ -27,6 +27,18 @@
 			// todo delete this hack
 			// it is here to prevent grid's title changing after filter apply
 			BX.ajax.UpdatePageData = (function() {});
+
+			BX.addCustomEvent(
+				'onSubMenuShow',
+				function ()
+				{
+					BX.data(
+						this.getSubMenu().getPopupWindow().getPopupContainer(),
+						'grid-row-id',
+						this.gridRowId || BX.data(this.getMenuWindow().getPopupWindow().getPopupContainer(), 'grid-row-id')
+					);
+				}
+			);
 		},
 		showLicensePopup: function (code)
 		{
@@ -38,9 +50,8 @@
 		},
 		onCrmClick: function (id)
 		{
-			this.resetGridSelection();
-			var selectedIds = this.getGridInstance().getRows().getSelectedIds();
-			var row = this.getGridInstance().getRows().getById(id ? id : selectedIds[0]);
+			var selected = this.getGridInstance().getRows().getSelected();
+			var row = id ? this.getGridInstance().getRows().getById(id) : selected[0];
 			if (!(row && row.node))
 			{
 				return;
@@ -51,6 +62,9 @@
 			{
 				return;
 			}
+
+			this.resetGridSelection();
+
 			if (addToCrm)
 			{
 				if (typeof this.isAddingToCrmInProgress !== "object")
@@ -69,21 +83,37 @@
 						mode: 'ajax',
 						data: {
 							messageId: messageIdNode.dataset.messageId
+						},
+						analyticsLabel: {
+							'groupCount': selected.length,
+							'bindings': this.getRowsBindings([row])
 						}
 					}
-				).then(function (id, json)
-				{
-					this.isAddingToCrmInProgress[id] = false;
-					if (json.data && json.data.length > 0)
+				).then(
+					function (id, json)
 					{
+						this.isAddingToCrmInProgress[id] = false;
 						this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'));
 						this.userInterfaceManager.onBindingCreated();
-					}
-					else
+					}.bind(this, id),
+					function (json)
 					{
-						this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_NOT_ADDED_TO_CRM'));
-					}
-				}.bind(this, id));
+						this.isAddingToCrmInProgress[id] = false;
+						if (json.errors && json.errors.length > 0)
+						{
+							this.notify(json.errors.map(
+								function (item)
+								{
+									return item.message;
+								}
+							).join('<br>'), 5000);
+						}
+						else
+						{
+							this.notify(BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR'));
+						}
+					}.bind(this)
+				);
 			}
 			else
 			{
@@ -94,6 +124,10 @@
 						mode: 'ajax',
 						data: {
 							messageId: messageIdNode.dataset.messageId
+						},
+						analyticsLabel: {
+							'groupCount': selected.length,
+							'bindings': this.getRowsBindings([row])
 						}
 					}
 				).then(function (messageIdNode)
@@ -116,7 +150,8 @@
 		},
 		onDeleteClick: function (id)
 		{
-			if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0)
+			var selected = this.getGridInstance().getRows().getSelected();
+			if (id === undefined && selected.length === 0)
 			{
 				return;
 			}
@@ -126,6 +161,10 @@
 				return;
 			}
 			var options = {
+				analyticsLabel: {
+					'groupCount': selected.length,
+					'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
+				},
 				onSuccess: function ()
 				{
 					this.reloadGrid({});
@@ -150,13 +189,9 @@
 			var folderOptions = event.currentTarget.dataset;
 			var id = null;
 			var popupSubmenu = BX.findParent(event.currentTarget, {className: 'popup-window'});
-			if (popupSubmenu && popupSubmenu.id)
+			if (popupSubmenu)
 			{
-				id = popupSubmenu.id.match(new RegExp(this.moveBtnMailIdPrefix + '.*'));
-				if (id !== null && Array.isArray(id))
-				{
-					id = id[0].substr(this.moveBtnMailIdPrefix.length);
-				}
+				id = BX.data(popupSubmenu, 'grid-row-id');
 			}
 			var isDisabled = JSON.parse(folderOptions.isDisabled);
 			var folderPath = folderOptions.folderPath;
@@ -164,19 +199,32 @@
 			{
 				return;
 			}
-			var multiSelectedIds = this.getGridInstance().getRows().getSelectedIds();
-			var resultIds = multiSelectedIds.length ? multiSelectedIds : (id ? [id] : []);
+			var selected = this.getGridInstance().getRows().getSelected();
+			var resultIds = (id ? [id] : this.getGridInstance().getRows().getSelectedIds());
 			resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
 			if (!resultIds.length)
 			{
 				return;
 			}
 			this.resetGridSelection();
-			this.runAction('moveToFolder', {ids: resultIds, params: {folder: folderPath}});
+			this.runAction(
+				'moveToFolder',
+				{
+					ids: resultIds,
+					params: {
+						folder: folderPath
+					},
+					analyticsLabel: {
+						'groupCount': selected.length,
+						'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
+					}
+				}
+			);
 		},
 		onReadClick: function (id)
 		{
-			if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0)
+			var selected = this.getGridInstance().getRows().getSelected();
+			if (id === undefined && selected.length === 0)
 			{
 				return;
 			}
@@ -202,12 +250,17 @@
 				ids: resultIds,
 				keepRows: true,
 				successParams: actionName,
+				analyticsLabel: {
+					'groupCount': selected.length,
+					'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
+				},
 				onSuccess: false
 			});
 		},
 		onSpamClick: function (id)
 		{
-			if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0)
+			var selected = this.getGridInstance().getRows().getSelected();
+			if (id === undefined && selected.length === 0)
 			{
 				return;
 			}
@@ -224,6 +277,10 @@
 				return;
 			}
 			var options = {
+				analyticsLabel: {
+					'groupCount': selected.length,
+					'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
+				},
 				onSuccess: function ()
 				{
 					this.reloadGrid({});
@@ -294,7 +351,7 @@
 			this.getGridInstance().getRows().unselectAll();
 			// todo there is no other way to hide panel for now
 			// please delete this line below
-			document.querySelector('#pagetitle').click();
+			BX.onCustomEvent('Grid::updated');
 		},
 		isSelectedRowsHaveClass: function (className, id)
 		{
@@ -346,10 +403,10 @@
 			}
 			return resultIds;
 		},
-		notify: function (text)
+		notify: function (text, delay)
 		{
-			BX.UI.Notification.Center.notify({
-				autoHideDelay: 2000,
+			top.BX.UI.Notification.Center.notify({
+				autoHideDelay: delay > 0 ? delay : 2000,
 				content: text ? text : BX.message('MAIL_MESSAGE_LIST_NOTIFY_SUCCESS')
 			});
 		},
@@ -386,7 +443,8 @@
 			}
 			BX.ajax.runComponentAction('bitrix:mail.client', actionName, {
 				mode: 'ajax',
-				data: data
+				data: data,
+				analyticsLabel: options.analyticsLabel
 			}).then(
 				function (response)
 				{
@@ -485,6 +543,24 @@
 		getGridInstance: function ()
 		{
 			return BX.Main.gridManager.getById(this.gridId).instance;
+		},
+		getRowsBindings: function (rows)
+		{
+			return BX.util.array_unique(Array.prototype.concat.apply(
+				[],
+				rows.map(
+					function (row)
+					{
+						return Array.prototype.map.call(
+							row.node.querySelectorAll('[class^="js-bind-"] [data-type]'),
+							function (node)
+							{
+								return node.dataset.type;
+							}
+						)
+					}
+				)
+			));
 		}
 	};
 })();

@@ -358,7 +358,7 @@ if ($bShowStat || $bShowCacheStat) //2
 		<p><?echo GetMessage("debug_info_search")?>: <input type="text" style="height:16px" onkeydown="filterTable(this, 'queryDebug<?echo $i?>', 1)" onpaste="filterTable(this, 'queryDebug<?echo $i?>', 1)" oninput="filterTable(this, 'queryDebug<?echo $i?>', 1)"></p>
 		<?
 		$obJSPopup->StartContent(array('buffer' => true));
-		if(count($arIncludeDebug["QUERIES"]) > 0)
+		if (!empty($arIncludeDebug["QUERIES"]))
 		{
 			?><div class="bx-debug-content bx-debug-content-table"><?
 				$arQueries = array();

@@ -14,8 +14,6 @@ if (!$USER->CanDoOperation("bitrixcloud_cdn"))
 $strError = "";
 if (!CModule::IncludeModule("bitrixcloud"))
 	$strError = GetMessage("MODULE_INCLUDE_ERROR");
-elseif (IsModuleInstalled('intranet'))
-	$strError = GetMessage("MODULE_INTRANET_ERROR");
 
 if ($strError != "")
 {

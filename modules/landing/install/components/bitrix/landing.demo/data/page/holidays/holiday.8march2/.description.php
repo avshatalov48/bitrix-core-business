@@ -256,7 +256,7 @@ return array(
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block g-pb-30 g-pt-20">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation col-md-6 col-lg-6 g-pt-30 g-mb-50 g-mb-0--md fadeIn">
 				<!-- Article -->
 				<article class="text-center">
@@ -323,7 +323,7 @@ return array(
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block g-pt-10 g-pb-20 g-bg-primary">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md g-pt-10 js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img15.jpg" alt="" data-fileid="-1" />
@@ -385,7 +385,7 @@ return array(
 				'SORT' => '9000',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-65">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article class="h-100 text-center u-block-hover u-block-hover__additional--jump g-brd-around g-bg-gray-light-v5 g-brd-gray-light-v4 d-flex flex-column">

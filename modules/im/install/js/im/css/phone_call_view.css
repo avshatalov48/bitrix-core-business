@@ -350,21 +350,25 @@
 	border: 1px solid #4B535D;
 	padding: 15px;
 }
-.im-phone-calling-progress-container-block-l {left: 50px;}
-.im-phone-calling-progress-container-block-r {right:50px;}
+.im-phone-calling-progress-container-block-l {
+	left: 50px;
+}
+.im-phone-calling-progress-container-block-r {
+	right: 50px;
+}
 
 .im-phone-calling-progress-phone {
-	height:113px;
+	height: 113px;
 	width: 113px;
 	border-radius: 50%;
 	background: #29AD49 url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NCIgaGVpZ2h0PSI1NSIgdmlld0JveD0iMCAwIDU0IDU1Ij48cGF0aCBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNDguNzEyMjA5LDIwNi42NTQ3MzggQzE1MC45MDE4MDMsMjA4Ljg0NDMzMiAxNTEuMzM3ODk1LDIxNS4zODExNDYgMTUwLjE5MTcyNiwyMTUuNDE3Njc3IEMxNDkuMDQ1NTU3LDIxNS40NTQyMDkgMTM2LjM5NjYwNCwyMjEuMTU3NjU0IDEzNS4yNTI3MTksMjIxLjE5NjQ2OCBDMTMyLjg5NDQ2LDIxOS44ODA1MDkgMTMwLjc3OTg4MywyMTguMTY5MDc2IDEyOS4wMDEzMDUsMjE2LjEzNjg4NyBDMTI3Ljg1OTcwMywyMTQuOTk1Mjg1IDExOC4wMzUwNzMsMjIzLjY0NjM0NyAxMTcuODQ3ODUxLDIyMy44MTA3MzcgQzExNy42NjA2MjgsMjIzLjk3NTEyOCAxMDkuMDE0MTMyLDIzMy43OTk3NTcgMTEwLjE2MDMwMSwyMzQuOTQxMzU5IEMxMTIuMTk1Mzk3LDIzNi43MTQ1MTkgMTEzLjkwOTM0MSwyMzguODI1NDc0IDExNS4yMjY3MzIsMjQxLjE4MTM1NyBDMTE1LjE4NzkxNywyNDIuMzI1MjQzIDEwOS40Nzc2MjMsMjU0Ljk0OTA4MSAxMDkuNDQzMzc1LDI1Ni4wOTc1MzMgQzEwOS40MDkxMjcsMjU3LjI0NTk4NCAxMDIuODUxNzYzLDI1Ni44MTIxNzYgMTAwLjY2MjE3LDI1NC42MjI1ODIgQzk4Ljc5MjIyNTcsMjUyLjc1MjYzOCA5MS45NTg1OTQ2LDI0My4xMDE1MzIgMTAzLjc4Nzg3NywyMjYuNTc3OTgxIEMxMDYuMDE1MDk3LDIyMy4yODA3NjQgMTA4LjYxODc0NiwyMjAuMjU0MTU2IDExMS41NDYyMDYsMjE3LjU1OTMyMyBMMTExLjU3ODE3MSwyMTcuNTI3MzU4IEMxMTQuMjc4NjYzLDIxNC42MDQzMDYgMTE3LjMxMDY2OSwyMTIuMDA1OTkxIDEyMC42MTI4MTEsMjA5Ljc4NTAxMiBDMTM3LjE3MDYxMSwxOTcuOTY3MTQ1IDE0Ni44NDIyNjUsMjA0Ljc4NDc5NCAxNDguNzEyMjA5LDIwNi42NTQ3MzgiIHRyYW5zZm9ybT0icm90YXRlKC05MCAtMjUuNTk3IDE3Ny4zNTcpIi8+PC9zdmc+) no-repeat center;
 }
 .im-phone-calling-progress-customer {
-	height:113px;
+	height: 113px;
 	width: 113px;
 	border-radius: 50%;
-	background: #525C68 url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI3MyIgdmlld0JveD0iMCAwIDY0IDczIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00NTYuMDkzNzUzLDI2Ni4yNzM5NjcgQzQ1Ni4wOTM3NTMsMjYxLjk3MzA2MiA0NTEuMjY3NDM1LDI0My43Nzg3NzcgNDUxLjI2NzQzNSwyNDMuNzc4Nzc3IEM0NTEuMjY3NDM1LDI0MS4xMTk2MjMgNDQ3Ljc5MTQxNiwyMzguMDgyMTE3IDQ0MC45NDYzMzMsMjM2LjMxMjAyMSBDNDM4LjYyNzI0MywyMzUuNjY1MTc1IDQzNi40MjI2NywyMzQuNjYyMTEzIDQzNC40MTE0MTcsMjMzLjMzODY4OCBDNDMzLjk3MTU2NywyMzMuMDg3MzQ2IDQzNC4wMzg0MTQsMjMwLjc2NTA5OCA0MzQuMDM4NDE0LDIzMC43NjUwOTggTDQzMS44MzM4MTUsMjMwLjQyOTUyOCBDNDMxLjgzMzgxNSwyMzAuMjQxMDIxIDQzMS42NDUzMDgsMjI3LjQ1NjE5NSA0MzEuNjQ1MzA4LDIyNy40NTYxOTUgQzQzNC4yODMwNzIsMjI2LjU2OTgxIDQzNC4wMTE2NzUsMjIxLjM0MTA3NiA0MzQuMDExNjc1LDIyMS4zNDEwNzYgQzQzNS42ODY4NDksMjIyLjI3MDI0MiA0MzYuNzc3Nzg0LDIxOC4xMzI0NDMgNDM2Ljc3Nzc4NCwyMTguMTMyNDQzIEM0MzguNzU5MTE1LDIxMi4zODM2NDIgNDM1Ljc5MTEyOSwyMTIuNzMxMjQ0IDQzNS43OTExMjksMjEyLjczMTI0NCBDNDM2LjMxMDM2NywyMDkuMjIxNzQxIDQzNi4zMTAzNjcsMjA1LjY1NDkzMyA0MzUuNzkxMTI5LDIwMi4xNDU0MyBDNDM0LjQ3MTU3OSwxOTAuNTAzNDQgNDE0LjYwNDc5NCwxOTMuNjYzOTQ0IDQxNi45NjA0NjUsMTk3LjQ2NjE3NCBDNDExLjE1NDE3NywxOTYuMzk2NjI5IDQxMi40NzkwNzUsMjA5LjYwODE3NSA0MTIuNDc5MDc1LDIwOS42MDgxNzUgTDQxMy43Mzg0NjMsMjEzLjAyOTM4IEM0MTEuMjY1MTQyLDIxNC42MzM2OTYgNDEyLjk4NDQzNSwyMTYuNTczNTgyIDQxMy4wNjk5OTgsMjE4LjgwNjI1NiBDNDEzLjE5MTY1OSwyMjIuMTAzMTI2IDQxNS4yMDkwODcsMjIxLjQxOTk1NCA0MTUuMjA5MDg3LDIyMS40MTk5NTQgQzQxNS4zMzM0MjEsMjI2Ljg2MTI2MSA0MTguMDE2NjQsMjI3LjU2OTgzNCA0MTguMDE2NjQsMjI3LjU2OTgzNCBDNDE4LjUyMDY2MywyMzAuOTg3MDI4IDQxOC4yMDY0ODUsMjMwLjQwNTQ2MyA0MTguMjA2NDg1LDIzMC40MDU0NjMgTDQxNS44MTg3MjcsMjMwLjY5NDI0IEM0MTUuODUxMDUsMjMxLjQ3MTM0NyA0MTUuNzg3NzQsMjMyLjI0OTQ4IDQxNS42MzAyMiwyMzMuMDExMTQgQzQxMi44MjI2NjYsMjM0LjI2MjUwNyA0MTIuMjE4Mzc0LDIzNC45OTY0ODIgNDA5LjQyODIsMjM2LjIxOTc3MyBDNDA0LjAzNzY5NywyMzguNTgyMTI5IDM5OC4xNzkyNjgsMjQxLjY1NDM5NSAzOTcuMTM3Nzk5LDI0NS43OTA4NTggQzM5Ni4wOTYzMzEsMjQ5LjkyNzMyIDM5MywyNjYuMjczOTY3IDM5MywyNjYuMjczOTY3IEw0NTYuMDkxMDc5LDI2Ni4yNzM5NjcgTDQ1Ni4wOTEwNzksMjY2LjI3Mzk2NyBMNDU2LjA5MTA3OSwyNjYuMjczOTY3IEw0NTYuMDkzNzUzLDI2Ni4yNzM5NjcgWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTM5MyAtMTk0KSIvPjwvc3ZnPg==) no-repeat center;
-	background-size: 100% 100%;
+	background: #525C68 url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI3MyIgdmlld0JveD0iMCAwIDY0IDczIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00NTYuMDkzNzUzLDI2Ni4yNzM5NjcgQzQ1Ni4wOTM3NTMsMjYxLjk3MzA2MiA0NTEuMjY3NDM1LDI0My43Nzg3NzcgNDUxLjI2NzQzNSwyNDMuNzc4Nzc3IEM0NTEuMjY3NDM1LDI0MS4xMTk2MjMgNDQ3Ljc5MTQxNiwyMzguMDgyMTE3IDQ0MC45NDYzMzMsMjM2LjMxMjAyMSBDNDM4LjYyNzI0MywyMzUuNjY1MTc1IDQzNi40MjI2NywyMzQuNjYyMTEzIDQzNC40MTE0MTcsMjMzLjMzODY4OCBDNDMzLjk3MTU2NywyMzMuMDg3MzQ2IDQzNC4wMzg0MTQsMjMwLjc2NTA5OCA0MzQuMDM4NDE0LDIzMC43NjUwOTggTDQzMS44MzM4MTUsMjMwLjQyOTUyOCBDNDMxLjgzMzgxNSwyMzAuMjQxMDIxIDQzMS42NDUzMDgsMjI3LjQ1NjE5NSA0MzEuNjQ1MzA4LDIyNy40NTYxOTUgQzQzNC4yODMwNzIsMjI2LjU2OTgxIDQzNC4wMTE2NzUsMjIxLjM0MTA3NiA0MzQuMDExNjc1LDIyMS4zNDEwNzYgQzQzNS42ODY4NDksMjIyLjI3MDI0MiA0MzYuNzc3Nzg0LDIxOC4xMzI0NDMgNDM2Ljc3Nzc4NCwyMTguMTMyNDQzIEM0MzguNzU5MTE1LDIxMi4zODM2NDIgNDM1Ljc5MTEyOSwyMTIuNzMxMjQ0IDQzNS43OTExMjksMjEyLjczMTI0NCBDNDM2LjMxMDM2NywyMDkuMjIxNzQxIDQzNi4zMTAzNjcsMjA1LjY1NDkzMyA0MzUuNzkxMTI5LDIwMi4xNDU0MyBDNDM0LjQ3MTU3OSwxOTAuNTAzNDQgNDE0LjYwNDc5NCwxOTMuNjYzOTQ0IDQxNi45NjA0NjUsMTk3LjQ2NjE3NCBDNDExLjE1NDE3NywxOTYuMzk2NjI5IDQxMi40NzkwNzUsMjA5LjYwODE3NSA0MTIuNDc5MDc1LDIwOS42MDgxNzUgTDQxMy43Mzg0NjMsMjEzLjAyOTM4IEM0MTEuMjY1MTQyLDIxNC42MzM2OTYgNDEyLjk4NDQzNSwyMTYuNTczNTgyIDQxMy4wNjk5OTgsMjE4LjgwNjI1NiBDNDEzLjE5MTY1OSwyMjIuMTAzMTI2IDQxNS4yMDkwODcsMjIxLjQxOTk1NCA0MTUuMjA5MDg3LDIyMS40MTk5NTQgQzQxNS4zMzM0MjEsMjI2Ljg2MTI2MSA0MTguMDE2NjQsMjI3LjU2OTgzNCA0MTguMDE2NjQsMjI3LjU2OTgzNCBDNDE4LjUyMDY2MywyMzAuOTg3MDI4IDQxOC4yMDY0ODUsMjMwLjQwNTQ2MyA0MTguMjA2NDg1LDIzMC40MDU0NjMgTDQxNS44MTg3MjcsMjMwLjY5NDI0IEM0MTUuODUxMDUsMjMxLjQ3MTM0NyA0MTUuNzg3NzQsMjMyLjI0OTQ4IDQxNS42MzAyMiwyMzMuMDExMTQgQzQxMi44MjI2NjYsMjM0LjI2MjUwNyA0MTIuMjE4Mzc0LDIzNC45OTY0ODIgNDA5LjQyODIsMjM2LjIxOTc3MyBDNDA0LjAzNzY5NywyMzguNTgyMTI5IDM5OC4xNzkyNjgsMjQxLjY1NDM5NSAzOTcuMTM3Nzk5LDI0NS43OTA4NTggQzM5Ni4wOTYzMzEsMjQ5LjkyNzMyIDM5MywyNjYuMjczOTY3IDM5MywyNjYuMjczOTY3IEw0NTYuMDkxMDc5LDI2Ni4yNzM5NjcgTDQ1Ni4wOTEwNzksMjY2LjI3Mzk2NyBMNDU2LjA5MTA3OSwyNjYuMjczOTY3IEw0NTYuMDkzNzUzLDI2Ni4yNzM5NjcgWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTM5MyAtMTk0KSIvPjwvc3ZnPg==) no-repeat;
+	background-size: cover;
 }
 .im-phone-calling-progress-container-block-r {}
 .im-phone-calling-progress-container-block-c {}
@@ -380,11 +384,31 @@
 	text-align: center;
 	box-sizing: border-box;
 	padding:0 45px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
 }
+
 .im-phone-call-buttons-container-left{
 	position: absolute;
 	left:25px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-pack: start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
 }
+
 .im-phone-call-buttons-container-right{
 	position: absolute;
 	right:85px;
@@ -423,7 +447,7 @@
 
 .im-phone-call-btn-arrow{ padding-right:13px;}
 .im-phone-call-btn-arrow:after {
-	background: url(../images/im-sprite.svg) no-repeat center -98px;
+	background: url(../images/im-sprite.svg?v=2) no-repeat center -98px;
 	width:11px;
 	height:30px;
 	display: inline-block;
@@ -437,7 +461,7 @@
 
 .im-phone-call-btn-tube{ padding-left:15px;}
 .im-phone-call-btn-tube:before {
-	background: url(../images/im-sprite.svg) no-repeat center -26px;
+	background: url(../images/im-sprite.svg?v=2) no-repeat center -26px;
 	width:22px;
 	height:30px;
 	display: inline-block;
@@ -463,7 +487,7 @@
 	position: absolute;
 	width: 14px;
 	height:14px;
-	background: url(../images/im-sprite.svg) no-repeat center 0;
+	background: url(../images/im-sprite.svg?v=2) no-repeat center 0;
 	top: 50%;
 	left:50%;
 	margin-top:-7px;
@@ -508,24 +532,23 @@
 	top: 50%;
 	left: 0;
 	margin-top: -5px;
-	-webkit-transition: opacity 250ms linear;
-	-moz-transition: opacity 250ms linear;
-	-ms-transition: opacity 250ms linear;
-	-o-transition: opacity 250ms linear;
 	transition: opacity 250ms linear;
 }
 .im-phone-call-btn-signal-background {
-	background: url(../images/im-sprite.svg) no-repeat 0 -72px;
+	background: url(../images/im-sprite.svg?v=2) no-repeat 0 -72px;
 	opacity: .3;
 	z-index:5;
 	width:25px;
 }
+
 .im-phone-call-btn-signal-active {
-	background: url(../images/im-sprite.svg) no-repeat 0 -72px;
+	background: url(../images/im-sprite.svg?v=2) no-repeat 0 -72px;
 	opacity: .7;
 	z-index:10;
 }
+
 .im-phone-call-btn-signal:hover .im-phone-call-btn-signal-background{ opacity:.7;}
+
 .im-phone-call-btn-signal:hover .im-phone-call-btn-signal-active{ opacity: 1;}
 
 
@@ -534,20 +557,15 @@
 .im-phone-call-btn-mute,
 .im-phone-call-btn-transfer,
 .im-phone-call-btn-dialpad {
-	display: inline-block;
+	display: block;
 	position: relative;
 	width: 36px;
 	height:36px;
 	cursor: pointer;
 	outline: none;
 	margin:16px 10px 16px 0;
-	vertical-align: middle;
-	-webkit-transition: opacity 250ms linear, background 250ms linear, border 250ms linear;
-	-moz-transition: opacity 250ms linear, background 250ms linear, border 250ms linear;
-	-ms-transition: opacity 250ms linear, background 250ms linear, border 250ms linear;
-	-o-transition: opacity 250ms linear, background 250ms linear, border 250ms linear;
 	transition: opacity 250ms linear, background 250ms linear, border 250ms linear;
-	border-radius:50%;
+	border-radius: 50%;
 	border: 1px solid rgba(255,255,255,.7);
 	box-sizing: border-box !important;
 	background-color: transparent;
@@ -557,7 +575,9 @@
 .bx-retina .im-phone-call-btn-hold,
 .bx-retina .im-phone-call-btn-mute,
 .bx-retina .im-phone-call-btn-transfer,
-.bx-retina .im-phone-call-btn-dialpad { border-width:.5px;}
+.bx-retina .im-phone-call-btn-dialpad {
+	border-width:.5px;
+}
 
 .im-phone-call-btn-phone:hover,
 .im-phone-call-btn-hold:hover,
@@ -589,22 +609,23 @@
 .im-phone-call-btn-transfer:after,
 .im-phone-call-btn-dialpad:after{
 	position: absolute;
-	top:   0;
-	right: 0;
-	bottom:0;
-	left:  0;
+	top:   50%;
+	left:  50%;
+	width: 34px;
+	height: 34px;
+	transform: translate(-50%, -50%);
 	content:"";
 	display: block;
 	opacity:.7;
 }
 
-.im-phone-call-btn-hold:after		 {background: url(../images/im-sprite.svg) no-repeat center -145px;}
-.im-phone-call-btn-mute:after	 	 {background: url(../images/im-sprite.svg) no-repeat center -181px;}
-.im-phone-call-btn-mute.active:after	 {background: url(../images/im-sprite.svg) no-repeat center -217px;}
-.im-phone-call-btn-dialpad:after		 {background: url(../images/im-sprite.svg) no-repeat center -253px;}
-.im-phone-call-btn-transfer:after		 {background: url(../images/im-sprite.svg) no-repeat center -289px;}
-.im-phone-call-btn-phone:after		 {background: url(../images/im-sprite.svg) no-repeat center -325px; opacity: 1;}
-.im-phone-call-btn-phone.active:after{background: url(../images/im-sprite.svg) no-repeat center -361px;}
+.im-phone-call-btn-hold:after		 {background: url(../images/im-sprite.svg?v=2) no-repeat center -145px;}
+.im-phone-call-btn-mute:after	 	 {background: url(../images/im-sprite.svg?v=2) no-repeat center -181px;}
+.im-phone-call-btn-mute.active:after	 {background: url(../images/im-sprite.svg?v=2) no-repeat center -217px;}
+.im-phone-call-btn-dialpad:after		 {background: url(../images/im-sprite.svg?v=2) no-repeat center -253px;}
+.im-phone-call-btn-transfer:after		 {background: url(../images/im-sprite.svg?v=2) no-repeat center -289px;}
+.im-phone-call-btn-phone:after		 {background: url(../images/im-sprite.svg?v=2) no-repeat center -325px; opacity: 1;}
+.im-phone-call-btn-phone.active:after{background: url(../images/im-sprite.svg?v=2) no-repeat center -361px;}
 
 .im-phone-call-btn-phone:hover:after,
 .im-phone-call-btn-hold:hover:after,

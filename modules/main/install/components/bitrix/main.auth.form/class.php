@@ -37,6 +37,14 @@ class MainAuthFormComponent extends \CBitrixComponent
 		'action' => 'AUTH_ACTION'
 	];
 
+	public function onPrepareComponentParams($params)
+	{
+		$params['DISABLE_SOCSERV_AUTH'] = $params['DISABLE_SOCSERV_AUTH'] ?? 'N';
+		$params['DISABLE_SOCSERV_AUTH'] = $params['DISABLE_SOCSERV_AUTH'] === 'Y' ? 'Y' : 'N';
+
+		return parent::onPrepareComponentParams($params);
+	}
+
 	/**
 	 * Get global Application.
 	 * @return \CMain
@@ -252,6 +260,11 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		$services = null;
 		$intranet = false;
+
+		if ($this->arParams['DISABLE_SOCSERV_AUTH'] === 'Y')
+		{
+			return $services;
+		}
 
 		if (
 			ModuleManager::isModuleInstalled('intranet') ||

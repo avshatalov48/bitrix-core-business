@@ -13,6 +13,7 @@
 	BX.Landing.Block.Node.Component = function(options)
 	{
 		BX.Landing.Block.Node.apply(this, arguments);
+		this.type = "component";
 	};
 
 

@@ -9,6 +9,7 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\BasketItem;
+use Bitrix\Sale;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ShipmentCollection;
 use Bitrix\Sale\ShipmentItemCollection;
@@ -18,30 +19,41 @@ class ShipmentItem extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\ShipmentItem::class,
+			Sale\ShipmentItem::class,
 			'shipmentItem',
 			function($className, $id) {
 
-				$si = \Bitrix\Sale\ShipmentItem::getList([
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var Sale\ShipmentItem $shipmentItemClass */
+				$shipmentItemClass = $registry->getShipmentItemClassName();
+
+				$si = $shipmentItemClass::getList([
 					'select'=>['ORDER_DELIVERY_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($siRow = $si->fetch())
 				{
-					$r = \Bitrix\Sale\Shipment::getList([
+					/** @var Sale\Shipment $shipmentClass */
+					$shipmentClass = $registry->getShipmentClassName();
+
+					$r = $shipmentClass::getList([
 						'select'=>['ORDER_ID'],
 						'filter'=>['ID'=>$siRow['ORDER_DELIVERY_ID']]
 					]);
 
 					if($row = $r->fetch())
 					{
-						$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+						/** @var Sale\Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+
+						$order = $orderClass::load($row['ORDER_ID']);
 						/** @var \Bitrix\Sale\Shipment $shipment */
 						$shipment = $order->getShipmentCollection()->getItemById($siRow['ORDER_DELIVERY_ID']);
 						$shipmentItem = $shipment->getShipmentItemCollection()->getItemById($id);
 
-						if($shipmentItem instanceof \Bitrix\Sale\ShipmentItem)
+						if ($shipmentItem)
 						{
 							return $shipmentItem;
 						}
@@ -95,19 +107,28 @@ class ShipmentItem extends Controller
 	{
 		$result = new Result();
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+
 		$basketId = $fields['BASKET_ID'];
 		$shipmentId = $fields['ORDER_DELIVERY_ID'];
 
 		unset($fields['ORDER_DELIVERY_ID'], $fields['BASKET_ID']);
 
-		$r = \Bitrix\Sale\Basket::getList([
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$r = $basketClass::getList([
 			'select'=>['ORDER_ID'],
 			'filter'=>['ID'=>$basketId]
 		]);
 
 		if($row = $r->fetch())
 		{
-			$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			$order = $orderClass::load($row['ORDER_ID']);
 			$basketItem = $order->getBasket()->getItemByBasketCode($basketId);
 			if($basketItem instanceof BasketItem)
 			{

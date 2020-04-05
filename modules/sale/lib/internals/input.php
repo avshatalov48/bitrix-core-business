@@ -942,9 +942,13 @@ class Enum extends Base
 		foreach ($array as $key => $value)
 		{
 			if (is_array($value))
-				$result = array_merge($result, $value);
+			{
+				$result = $result + $value;
+			}
 			else
+			{
 				$result[$key] = $value;
+			}
 		}
 
 		return $result;

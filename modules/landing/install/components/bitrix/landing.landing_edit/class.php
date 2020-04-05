@@ -4,8 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Main\Localization\Loc;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
@@ -201,6 +202,18 @@ class LandingEditComponent extends LandingBaseFormComponent
 	}
 
 	/**
+	 * Returns true, if this site without external domain.
+	 * @return bool
+	 */
+	protected function isIntranet()
+	{
+		return
+			isset($this->arResult['SITES'][$this->arParams['SITE_ID']]) &&
+			isset($this->arResult['SITES'][$this->arParams['SITE_ID']]['DOMAIN_ID']) &&
+			$this->arResult['SITES'][$this->arParams['SITE_ID']]['DOMAIN_ID'] == '0';
+	}
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
@@ -212,14 +225,18 @@ class LandingEditComponent extends LandingBaseFormComponent
 		{
 			$this->checkParam('SITE_ID', 0);
 			$this->checkParam('LANDING_ID', 0);
+			$this->checkParam('TYPE', '');
 			$this->checkParam('PAGE_URL_LANDINGS', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
 
+			\Bitrix\Landing\Site\Type::setScope(
+				$this->arParams['TYPE']
+			);
+
 			$this->id = $this->arParams['LANDING_ID'];
 			$this->successSavePage = $this->arParams['PAGE_URL_LANDINGS'];
 
-			$this->arResult['LANDING_INST'] = null;
 			$this->arResult['TEMPLATES'] = $this->getTemplates();
 			$this->arResult['LANDING'] = $this->getRow();
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
@@ -230,49 +247,83 @@ class LandingEditComponent extends LandingBaseFormComponent
 											))
 										: array();
 
-			// if current page in folder
-			$this->arResult['FOLDER'] = array();
-			if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
-			{
-				$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
-				$res = Landing::getList(array(
-					'select' => array(
-						'*'
-					),
-					'filter' => array(
-						'ID' => $folderId
-					)
-				));
-				if ($row = $res->fetch())
-				{
-					$this->arResult['FOLDER'] = $row;
-				}
-			}
-
+			// if access denied, or not found
 			if (!$this->arResult['LANDING'])
 			{
 				$this->id = 0;
 			}
-
-			$this->arResult['HOOKS'] = $this->getHooks();
-			$this->arResult['HOOKS_SITE'] = $this->getHooks('Site', $this->arParams['SITE_ID']);
-			$this->arResult['TEMPLATES_REF'] = TemplateRef::getForLanding($this->id);
-			$this->arResult['META'] = $this->getMeta();
-			$this->arResult['SITES'] = $this->getSites();
-			$this->arResult['DOMAINS'] = $this->getDomains();
-
-			if ($this->id > 0)
+			if (
+				$this->id &&
+				!Rights::hasAccessForSite(
+					$this->arParams['SITE_ID'],
+					Rights::ACCESS_TYPES['sett']
+				)
+			)
 			{
-				$this->arResult['LANDING_INST'] = Landing::createInstance($this->id);
+				$this->id = 0;
+				$this->arParams['LANDING_ID'] = 0;
+				$this->addError('ACCESS_DENIED', '', true);
+			}
+
+			// if current page in folder
+			if ($this->id)
+			{
+				$this->arResult['FOLDER'] = array();
+				if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
+				{
+					$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
+					$res = Landing::getList(array(
+						'select' => array(
+							'*'
+						),
+						'filter' => array(
+							'ID' => $folderId
+						)
+					));
+					if ($row = $res->fetch())
+					{
+						$this->arResult['FOLDER'] = $row;
+					}
+				}
+			}
+
+			if ($this->id)
+			{
+				$this->arResult['SITES'] = $sites = $this->getSites();
+
+				// types mismatch
+				if (
+					!isset($sites[$this->arParams['SITE_ID']]) ||
+					$sites[$this->arParams['SITE_ID']]['TYPE'] != $this->arParams['TYPE']
+				)
+				{
+					\localRedirect($this->getRealFile());
+				}
+
+				$this->arResult['IS_INTRANET'] = $this->isIntranet();
+				\Bitrix\Landing\Hook::setEditMode();
+				$this->arResult['HOOKS'] = $this->getHooks();
+				$this->arResult['HOOKS_SITE'] = $this->getHooks('Site', $this->arParams['SITE_ID']);
+				$this->arResult['TEMPLATES_REF'] = TemplateRef::getForLanding($this->id);
+				$this->arResult['META'] = $this->getMeta();
+				$this->arResult['DOMAINS'] = $this->getDomains();
 			}
 		}
 
 		// callback for update landing
 		$tplRef = $this->request('TPL_REF');
-		\Bitrix\Landing\Landing::callback('OnAfterUpdate',
+		Landing::callback('OnAfterUpdate',
 			function(\Bitrix\Main\Event $event) use ($tplRef)
 			{
+				static $updated = false;
+
+				if ($updated)
+				{
+					return;
+				}
+
 				$primary = $event->getParameter('primary');
+				$updated = true;
 				$areaCount = 0;
 				$tplId = $this->arResult['LANDING']['TPL_ID']['CURRENT'];
 				$siteId = $this->arResult['LANDING']['SITE_ID']['CURRENT'];

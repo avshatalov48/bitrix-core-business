@@ -255,7 +255,7 @@ BX.adminLogin.prototype.showError = function(field, error, callback, bSkipCount)
 			top: pos.top + 'px',
 			left: pos.right + 'px'
 		},
-		html: '<div class="login-error-message" id="error-message">'+(error.TITLE||BX.message('admin_authorize_error'))+'<span class="login-error-red">'+error.MESSAGE+'</span></div>'
+		html: '<div class="login-error-message" id="error-message">'+(error.TITLE||BX.message('admin_authorize_error'))+'<span class="login-error-red">'+BX.util.htmlspecialchars(error.MESSAGE)+'</span></div>'
 	}));
 
 	this.error_block.style.display = 'block';

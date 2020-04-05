@@ -457,4 +457,23 @@ class BlogUser
 		
 		return $isGivenAgreement;
 	}
+
+	/**
+	 * Handles onUserDelete main module event
+	 *
+	 * @return bool
+	 */
+	public static function onUserDelete($userId = NULL)
+	{
+		$userId = intval($userId);
+		if ($userId <= 0)
+		{
+			return false;
+		}
+
+		\Bitrix\Blog\PostSocnetRightsTable::deleteByEntity('U'.$userId);
+
+		return \CBlogUser::delete($userId);
+	}
+
 }

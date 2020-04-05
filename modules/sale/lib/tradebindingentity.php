@@ -16,6 +16,14 @@ class TradeBindingEntity extends Internals\CollectableEntity
 	/**
 	 * @return string
 	 */
+	public static function getRegistryEntity()
+	{
+		return Registry::ENTITY_TRADE_BINDING_ENTITY;
+	}
+
+	/**
+	 * @return string
+	 */
 	public static function getRegistryType()
 	{
 		return Registry::REGISTRY_TYPE_ORDER;
@@ -230,6 +238,16 @@ class TradeBindingEntity extends Internals\CollectableEntity
 	protected function addInternal(array $data)
 	{
 		return TradingPlatform\OrderTable::add($data);
+	}
+
+	/**
+	 * @return null|string
+	 * @internal
+	 *
+	 */
+	public static function getEntityEventName()
+	{
+		return 'SaleTradeBindingEntity';
 	}
 
 }

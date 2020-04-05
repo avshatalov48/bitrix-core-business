@@ -48,12 +48,12 @@
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_FB_POST_FULL"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_POST_FULL"),
 						selector: "show_text",
 						content: settings.show_text === "true" || settings.show_text === true,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
 						]
 					})
 				);

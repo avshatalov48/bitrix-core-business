@@ -139,6 +139,11 @@ class CAllVote
 		if (is_set($arFields, "EVENT2")) $arFields["EVENT2"] = trim($arFields["EVENT2"]);
 		if (is_set($arFields, "EVENT3")) $arFields["EVENT3"] = trim($arFields["EVENT3"]);
 		if (is_set($arFields, "UNIQUE_TYPE")) $arFields["UNIQUE_TYPE"] = intval($arFields["UNIQUE_TYPE"]);
+		if (is_set($arFields, "OPTIONS"))
+		{
+
+			$arFields["OPTIONS"] = intval($arFields["OPTIONS"]);
+		}
 
 		if (is_set($arFields, "DELAY") && array_key_exists("DELAY_TYPE", $arFields))
 		{
@@ -181,92 +186,60 @@ class CAllVote
 		return true;
 	}
 
+	/**
+	 * @deprecated 18.5.1
+	 * @param array $arFields
+	 * @param bool $strUploadDir
+	 * @return array|bool|int
+	 * @throws Exception
+	 */
 	public static function Add($arFields, $strUploadDir = false)
 	{
-		global $DB;
-		$arBinds = array();
-		$strUploadDir = ($strUploadDir === false ? "vote" : $strUploadDir);
-
-		if (!CVote::CheckFields("ADD", $arFields))
+		$result = \Bitrix\Vote\VoteTable::add($arFields);
+		if (!$result->isSuccess())
+		{
+			$aMsg = [];
+			$error = $result->getErrorCollection()->rewind();
+			do
+			{
+				$aMsg[] = ["id" => $error->getCode(), "text" => $error->getMessage()];
+			} while ($error = $result->getErrorCollection()->next());
+			if (!empty($aMsg))
+			{
+				global $APPLICATION;
+				$APPLICATION->ThrowException((new CAdminException(array_reverse($aMsg))));
+			}
 			return false;
-/***************** Event onBeforeVoteAdd ***************************/
-		foreach (GetModuleEvents("vote", "onBeforeVoteAdd", true) as $arEvent)
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
-				return false;
-/***************** /Event ******************************************/
-		if (empty($arFields))
-			return false;
-
-		if (
-			array_key_exists("IMAGE_ID", $arFields)
-			&& is_array($arFields["IMAGE_ID"])
-			&& (
-				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
-			)
-		)
-			$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
-
-		CFile::SaveForDB($arFields, "IMAGE_ID", $strUploadDir);
-
-		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
-		if (is_set($arFields, "DESCRIPTION"))
-			$arBinds["DESCRIPTION"] = $arFields["DESCRIPTION"];
-
-		$ID = $DB->Add("b_vote", $arFields, $arBinds);
-
-/***************** Event onAfterVoteAdd ****************************/
-		foreach (GetModuleEvents("vote", "onAfterVoteAdd", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-/***************** /Event ******************************************/
-		return $ID;
+		}
+		return $result->getId();
 	}
 
+	/**
+	 * @deprecated 18.5.1
+	 * @param $ID
+	 * @param $arFields
+	 * @param bool $strUploadDir
+	 * @return bool|int
+	 */
 	public static function Update($ID, $arFields, $strUploadDir = false)
 	{
-		global $DB;
-		$arBinds = array();
-		$strUploadDir = ($strUploadDir === false ? "vote" : $strUploadDir);
-		$ID = intval($ID);
-
-		if ($ID <= 0 || !CVote::CheckFields("UPDATE", $arFields, $ID))
+		$result = \Bitrix\Vote\VoteTable::update($ID, $arFields);
+		if (!$result->isSuccess())
+		{
+			$aMsg = [];
+			$error = $result->getErrorCollection()->rewind();
+			do
+			{
+				$aMsg[] = ["id" => $error->getCode(), "text" => $error->getMessage()];
+			} while ($error = $result->getErrorCollection()->next());
+			if (!empty($aMsg))
+			{
+				global $APPLICATION;
+				$APPLICATION->ThrowException((new CAdminException(array_reverse($aMsg))));
+			}
 			return false;
-
-/***************** Event onBeforeVoteUpdate ************************/
-		foreach (GetModuleEvents("vote", "onBeforeVoteUpdate", true) as $arEvent)
-			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$arFields)) === false)
-				return false;
-/***************** /Event ******************************************/
-		if (empty($arFields))
-			return false;
-
-		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
-		if (is_set($arFields, "DESCRIPTION"))
-			$arBinds["DESCRIPTION"] = $arFields["DESCRIPTION"];
-
-		if (
-			array_key_exists("IMAGE_ID", $arFields)
-			&& is_array($arFields["IMAGE_ID"])
-			&& (
-				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
-			)
-		)
-			$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
-
-		CFile::SaveForDB($arFields, "IMAGE_ID", $strUploadDir);
-
-		$strUpdate = $DB->PrepareUpdateBind("b_vote", $arFields, $strUploadDir, false, $arBinds);
-
-		if (!empty($strUpdate)):
-			$strSql = "UPDATE b_vote SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds);
-		endif;
-/***************** Event onAfterVoteUpdate *************************/
-		foreach (GetModuleEvents("vote", "onAfterVoteUpdate", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
-/***************** /Event ******************************************/
-		return $ID;
+		}
+		return $result->getId();
 	}
 
 	public static function Delete($ID)
@@ -311,6 +284,8 @@ class CAllVote
 	{
 		\Bitrix\Vote\Event::resetStatistic($ID);
 		unset($GLOBALS["VOTE_CACHE_VOTING"][$ID]);
+		if (array_key_exists("VOTE", $_SESSION) && array_key_exists("VOTES", $_SESSION["VOTE"]))
+			unset($_SESSION["VOTE"]["VOTES"][$ID]);
 		return true;
 	}
 

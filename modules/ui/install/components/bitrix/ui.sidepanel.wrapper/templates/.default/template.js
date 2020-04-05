@@ -1,8 +1,8 @@
 ;(function ()
 {
+	BX.namespace("BX.UI.SidePanel");
 
-	BX.namespace('BX.UI');
-	if (BX.UI.SidePanelWrapper)
+	if (BX.UI.SidePanel.Wrapper)
 	{
 		return;
 	}
@@ -10,33 +10,71 @@
 	function Wrapper (parameters)
 	{
 	}
+
 	Wrapper.prototype.init = function (parameters)
 	{
 		this.container = BX(parameters.containerId);
 		this.isCloseAfterSave = parameters.isCloseAfterSave || false;
 		this.isReloadGridAfterSave = parameters.isReloadGridAfterSave || false;
 		this.isReloadPageAfterSave = parameters.isReloadPageAfterSave || false;
+		this.skipNotification = parameters.skipNotification || false;
 		this.useLinkTargetsReplacing = parameters.useLinkTargetsReplacing || false;
 		this.notification = parameters.notification || {};
 
+		var previousSlider = BX.SidePanel.Instance.getPreviousSlider(BX.SidePanel.Instance.getSliderByWindow(window));
+		this.parentWindow = previousSlider ? previousSlider.getWindow() : top;
+
 		this.initEditableTitle(parameters);
 
-		if (this.hasSidePanel())
+		if (this.isReloadGridAfterSave)
 		{
-			parent.BX.addCustomEvent(
-				parent.BX.SidePanel.Instance.getTopSlider(),
-				"SidePanel.Slider:onReload",
-				this.onSidePanelReload.bind(this)
-			);
+			if (this.getParam("reloadGridAfterSave"))
+			{
+				//This code executes after a page reload.
+				this.reloadGridOnParentPage();
+			}
+
+			this.setParam("reloadGridAfterSave", true);
+		}
+
+		if (this.isCloseAfterSave)
+		{
+			if (this.getParam("closeAfterSave"))
+			{
+				//This code executes after a page reload.
+				var handler;
+				if (this.notification.content && top.BX && !this.getParam("skipNotification"))
+				{
+					handler = function() {
+						top.BX.loadExt("ui.notification").then(function() {
+							top.BX.UI.Notification.Center.notify(this.notification);
+						}.bind(this));
+					}.bind(this);
+				}
+				else if (this.isReloadPageAfterSave)
+				{
+					handler = function () {
+						this.parentWindow.location.reload();
+					}.bind(this);
+				}
+
+				BX.SidePanel.Instance.close(false, handler);
+			}
+
+			if (this.skipNotification)
+			{
+				this.setParam("skipNotification", true);
+			}
+
+			this.setParam("closeAfterSave", true);
 		}
 
 		if (this.useLinkTargetsReplacing)
 		{
 			this.initLinkTargetsReplacing();
 		}
-
-		this.isNotificationWillShowed();
 	};
+
 	Wrapper.prototype.initEditableTitle = function (parameters)
 	{
 		if (!parameters.title || !parameters.title.selector || !parameters.title.defaultTitle)
@@ -63,6 +101,7 @@
 			defaultTitle: parameters.title.defaultTitle
 		});
 	};
+
 	Wrapper.prototype.initLinkTargetsReplacing = function ()
 	{
 		this.replaceLinkTargets();
@@ -74,6 +113,7 @@
 		var observer = new MutationObserver(this.domMutationHandler.bind(this));
 		observer.observe(this.container, {childList: true, subtree: true});
 	};
+
 	Wrapper.prototype.domMutationHandler = function (mutations)
 	{
 		mutations.forEach(function (mutation) {
@@ -89,6 +129,7 @@
 			}
 		}, this);
 	};
+
 	Wrapper.prototype.replaceLinkTargets = function (context)
 	{
 		if (!context)
@@ -117,99 +158,62 @@
 			a.target = '_top';
 		});
 	};
-	Wrapper.prototype.hasSidePanel = function ()
+
+	Wrapper.prototype.setParam = function(name, value)
 	{
-		return parent && parent.BX && parent.BX.SidePanel;
-	};
-	Wrapper.prototype.onSidePanelReload = function ()
-	{
-		if (!this.hasSidePanel())
+		var slider = BX.SidePanel.Instance.getSliderByWindow(window);
+		if (slider)
 		{
-			return;
-		}
-
-		if (this.isReloadGridAfterSave)
-		{
-			this.reloadGridOnParentPage();
-		}
-
-		if (this.isCloseAfterSave)
-		{
-			var handler;
-			if (this.isNotificationWillShowed())
-			{
-				handler = this.showNotification.bind(this);
-			}
-			else if (this.isReloadPageAfterSave)
-			{
-				handler = function () {
-					parent.window.location.reload();
-				};
-			}
-
-			parent.BX.SidePanel.Instance.close(false, handler);
+			slider.getData().set(name, value);
 		}
 	};
-	Wrapper.prototype.isNotificationWillShowed = function ()
+
+	/**
+	 *
+	 * @param name
+	 * @returns {undefined|*}
+	 */
+	Wrapper.prototype.getParam = function(name)
 	{
-		if (!this.notification.content || !parent.BX)
+		var slider = BX.SidePanel.Instance.getSliderByWindow(window);
+		if (slider)
 		{
-			return false;
+			return slider.getData().get(name);
 		}
 
-		if (!this.hasSidePanel())
-		{
-			return false;
-		}
-
-		if (this.sidePanelParam() === true)
-		{
-			return true;
-		}
-
-		var isShow = window.location.search.substr(1)
-			.split('&')
-			.filter(function(item) {
-				return item === 'notifyAfterSave=N';
-			})
-			.length === 0;
-
-		this.sidePanelParam(isShow);
-		return isShow;
+		return undefined;
 	};
-	Wrapper.prototype.sidePanelParam = function (val)
-	{
-		var slider = parent.BX.SidePanel.Instance.getTopSlider();
-		if (!slider)
-		{
-			return null;
-		}
 
-		var dictionary = slider.getData();
-		if (typeof (val) === "undefined")
+	/**
+	 *
+	 * @param name
+	 * @returns {void}
+	 */
+	Wrapper.prototype.removeParam = function(name)
+	{
+		var slider = BX.SidePanel.Instance.getSliderByWindow(window);
+		if (slider)
 		{
-			return dictionary.get('isNotificationWillShowed');
-		}
-		else
-		{
-			return dictionary.set('isNotificationWillShowed', val);
+			slider.getData().delete(name);
 		}
 	};
-	Wrapper.prototype.showNotification = function ()
-	{
-		if (!parent.BX.UI || !parent.BX.UI.Notification)
-		{
-			return;
-		}
 
-		parent.BX.UI.Notification.Center.notify(this.notification);
-		this.sidePanelParam(null);
-	};
 	Wrapper.prototype.reloadGridOnParentPage = function ()
 	{
+		var parent = this.parentWindow;
+
 		var id = BX.type.isString(this.isReloadGridAfterSave) ? this.isReloadGridAfterSave : null;
 		if (!parent.BX.Main || !parent.BX.Main.gridManager)
 		{
+			return;
+		}
+
+		if (id === 'all')
+		{
+			parent.BX.Main.gridManager.data.forEach(function(grid) {
+				grid.instance.reload();
+			});
+
 			return;
 		}
 
@@ -333,6 +337,6 @@
 		}
 	};
 
-	BX.UI.SidePanelWrapper = new Wrapper;
+	BX.UI.SidePanel.Wrapper = new Wrapper;
 
 })();

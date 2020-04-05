@@ -257,11 +257,15 @@ class Parser
 		$result->setHasPlus($hasPlus);
 		$result->setCountry($country);
 		$result->setCountryCode($countryCode);
-		$result->setNationalNumber($localNumber);
 		$result->setNumberType($numberType);
-		$result->setInternational($isInternational);
-		$result->setNationalPrefix($nationalPrefix);
 		$result->setValid($numberType !== false);
+
+		if($result->isValid())
+		{
+			$result->setNationalNumber($localNumber);
+			$result->setInternational($isInternational);
+			$result->setNationalPrefix($nationalPrefix);
+		}
 
 		return $result;
 	}
@@ -430,7 +434,7 @@ class Parser
 			// Check leading digits first
 			if(isset($countryMetadata['leadingDigits']))
 			{
-				$leadingDigitsRegex = '/^'.$countryMetadata['leadingDigits'].'/';
+				$leadingDigitsRegex = '/^('.$countryMetadata['leadingDigits'].')/';
 				if(preg_match($leadingDigitsRegex, $localNumber))
 				{
 					return $possibleCountry;

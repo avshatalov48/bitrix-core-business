@@ -7,7 +7,6 @@
 	var isArray = BX.Landing.Utils.isArray;
 	var isString = BX.Landing.Utils.isString;
 	var isEmpty = BX.Landing.Utils.isEmpty;
-	var isPlainObject = BX.Landing.Utils.isPlainObject;
 	var append = BX.Landing.Utils.append;
 	var remove = BX.Landing.Utils.remove;
 	var data = BX.Landing.Utils.data;
@@ -28,7 +27,6 @@
 	var BaseButton = BX.Landing.UI.Button.BaseButton;
 	var Dropdown = BX.Landing.UI.Field.Dropdown;
 	var Menu = BX.Landing.UI.Tool.Menu;
-	var Cache = BX.Landing.Cache;
 
 	/** @type {string} */
 	var TYPE_BLOCK = "block";
@@ -107,7 +105,14 @@
 		this.disallowType = isBoolean(data.disallowType) ? data.disallowType : false;
 		this.iblocks = isArray(data.iblocks) ? data.iblocks : null;
 		this.allowedCatalogEntityTypes = isArray(data.allowedCatalogEntityTypes) ? data.allowedCatalogEntityTypes : null;
+		this.onInitHandler = BX.type.isFunction(data.onInit) ? data.onInit : (function() {});
+		this.onNewPageHandler = BX.type.isFunction(data.onNewPage) ? data.onNewPage : (function() {});
 		this.enableAreas = data.enableAreas;
+		this.customPlaceholder = data.customPlaceholder;
+		this.detailPageMode = data.detailPageMode === true;
+		this.sourceField = data.sourceField;
+		this.currentPageOnly = data.currentPageOnly;
+		this.panelTitle = data.panelTitle;
 
 		this.onListShow = this.onListShow.bind(this, this.requestOptions);
 		this.onSelectButtonClick = this.onSelectButtonClick.bind(this);
@@ -143,6 +148,7 @@
 		}
 	};
 
+	BX.Landing.UI.Field.LinkURL.cache = new BX.Cache.MemoryCache();
 
 	BX.Landing.UI.Field.LinkURL.TYPE_BLOCK = TYPE_BLOCK;
 	BX.Landing.UI.Field.LinkURL.TYPE_PAGE = TYPE_PAGE;
@@ -199,7 +205,15 @@
 			{
 				valuePromise
 					.then(proxy(this.createPlaceholder, this))
-					.then(proxy(this.setValue, this))
+					.then(function(data) {
+						this.setValue(data, true);
+						if (!this.inited)
+						{
+							this.inited = true;
+							this.onInitHandler();
+						}
+						return data;
+					}.bind(this))
 					.catch(function() {});
 				this.disableHrefTypeSwitcher();
 				this.setHrefTypeSwitcherValue(TYPE_HREF_LINK);
@@ -319,38 +333,43 @@
 		 */
 		setHrefPlaceholderByType: function(type)
 		{
-			var placeholder = this.placeholder || BX.message("FIELD_LINK_HREF_PLACEHOLDER");
+			var placeholder = this.placeholder || BX.Landing.Loc.getMessage("FIELD_LINK_HREF_PLACEHOLDER");
 
 			switch (type)
 			{
 				case TYPE_HREF_LINK:
 					if (this.disableBlocks && this.disableCustomURL)
 					{
-						placeholder = BX.message("FIELD_LINK_HREF_PLACEHOLDER_PAGES_ONLY");
+						placeholder = BX.Landing.Loc.getMessage("FIELD_LINK_HREF_PLACEHOLDER_PAGES_ONLY");
 					}
 
 					if (!this.disableBlocks && this.disableCustomURL)
 					{
-						placeholder = BX.message("FIELD_LINK_HREF_PLACEHOLDER_WITHOUT_CUSTOM_URL");
+						placeholder = BX.Landing.Loc.getMessage("FIELD_LINK_HREF_PLACEHOLDER_WITHOUT_CUSTOM_URL");
 					}
 
 					if (this.allowedTypes.length === 1 && this.allowedTypes[0] === TYPE_CATALOG)
 					{
-						placeholder = BX.message("FIELD_LINK_HREF_PLACEHOLDER_CATALOG_ONLY");
+						placeholder = BX.Landing.Loc.getMessage("FIELD_LINK_HREF_PLACEHOLDER_CATALOG_ONLY");
+					}
+
+					if (this.customPlaceholder)
+					{
+						placeholder = this.customPlaceholder;
 					}
 
 					break;
 				case TYPE_HREF_TEL:
-					placeholder = BX.message("LANDING_LINK_FIELD_URL_TYPE_PHONE_PLACEHOLDER");
+					placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_PHONE_PLACEHOLDER");
 					break;
 				case TYPE_HREF_SKYPE:
-					placeholder = BX.message("LANDING_LINK_FIELD_URL_TYPE_SKYPE_PLACEHOLDER");
+					placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_SKYPE_PLACEHOLDER");
 					break;
 				case TYPE_HREF_SMS:
-					placeholder = BX.message("LANDING_LINK_FIELD_URL_TYPE_SMS_PLACEHOLDER");
+					placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_SMS_PLACEHOLDER");
 					break;
 				case TYPE_HREF_MAILTO:
-					placeholder = BX.message("LANDING_LINK_FIELD_URL_TYPE_EMAIL_PLACEHOLDER");
+					placeholder = BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_EMAIL_PLACEHOLDER");
 					break;
 			}
 
@@ -432,11 +451,11 @@
 		{
 			return new Dropdown({
 				items: [
-					{name: BX.message("LANDING_LINK_FIELD_URL_TYPE_LINK"), value: TYPE_HREF_LINK},
-					{name: BX.message("LANDING_LINK_FIELD_URL_TYPE_PHONE"), value: TYPE_HREF_TEL},
-					{name: BX.message("LANDING_LINK_FIELD_URL_TYPE_SKYPE"), value: TYPE_HREF_SKYPE},
-					{name: BX.message("LANDING_LINK_FIELD_URL_TYPE_SMS"), value: TYPE_HREF_SMS},
-					{name: BX.message("LANDING_LINK_FIELD_URL_TYPE_EMAIL"), value: TYPE_HREF_MAILTO}
+					{name: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_LINK"), value: TYPE_HREF_LINK},
+					{name: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_PHONE"), value: TYPE_HREF_TEL},
+					{name: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_SKYPE"), value: TYPE_HREF_SKYPE},
+					{name: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_SMS"), value: TYPE_HREF_SMS},
+					{name: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_EMAIL"), value: TYPE_HREF_MAILTO}
 				],
 				onValueChange: this.onTypeChange
 			});
@@ -449,7 +468,7 @@
 		createButton: function()
 		{
 			return new BaseButton("dropdown_button", {
-				text: BX.message("LINK_URL_SUGGESTS_SELECT"),
+				text: BX.Landing.Loc.getMessage("LINK_URL_SUGGESTS_SELECT"),
 				className: "landing-ui-button-select-link",
 				onClick: this.onSelectButtonClick
 			})
@@ -491,7 +510,7 @@
 			this.customTypeSuggestTimeout = setTimeout(function() {
 				BX.Landing.UI.Tool.Suggest.getInstance()
 					.show(this.button.layout, {
-						description: BX.message("LANDING_LINK_FIELD_URL_TYPE_CUSTOM_BUTTON_TITLE")
+						description: BX.Landing.Loc.getMessage("LANDING_LINK_FIELD_URL_TYPE_CUSTOM_BUTTON_TITLE")
 					});
 
 				this.pulseTimeout = setTimeout(function() {
@@ -519,8 +538,8 @@
 		 */
 		getBlockData: function(block)
 		{
-			return BX.Landing.UI.Panel.URLList.getInstance()
-				.getBlock(block.replace("#block", ""))
+			return BX.Landing.Backend.getInstance()
+				.getBlock({blockId: block.replace("#block", "")})
 				.then(function(result) {
 					return (result.type = "block"), result;
 				});
@@ -529,151 +548,95 @@
 		/**
 		 * Gets page data
 		 * @param {string} page - (#landing123)
-		 * @return {Promise<T>}
 		 */
 		getPageData: function(page)
 		{
-			if (Cache.has(hash(page)))
-			{
-				var cacheResult = Cache.get(hash(page));
+			return BX.Landing.UI.Field.LinkURL.cache.remember(page, function() {
+				var pageId = parseInt(page.replace("#landing", ""));
 
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
-				{
-					return cacheResult;
-				}
+				return BX.Landing.Backend.getInstance()
+					.getLanding({landingId: pageId})
+					.then(function(landing) {
+						if (!landing)
+						{
+							if (BX.Text.toNumber(pageId) === 0)
+							{
+								this.onNewPageHandler();
 
-				return Promise.resolve(cacheResult);
-			}
+								return {
+									type: "landing",
+									id: 0,
+									name: BX.Landing.Loc.getMessage('LANDING_LINK_PLACEHOLDER_NEW_PAGE'),
+									siteId: BX.Landing.Main.getInstance().options.site_id
+								};
+							}
+							else
+							{
+								return null;
+							}
+						}
 
-			var pageId = parseInt(page.replace("#landing", ""));
-
-			var resultPromise = BX.Landing.UI.Panel.URLList.getInstance()
-				.getLanding(pageId, this.requestOptions)
-				.then(function(landing) {
-					landing = landing[0];
-					if (landing)
-					{
-						var resultData = {
+						return {
 							type: "landing",
 							id: landing.ID,
-							name: landing.TITLE
+							name: landing.TITLE,
+							siteId: landing.SITE_ID
 						};
-
-						Cache.set(hash(page), resultData);
-
-						return resultData;
-					}
-				});
-
-			Cache.set(hash(page), resultPromise);
-
-			return resultPromise;
+					}.bind(this));
+			}.bind(this));
 		},
 
 		/**
 		 * Gets system page data
 		 * @param {string} page - (#system_([a-z]))
-		 * @return Promise<T>
 		 */
 		getSystemPage: function(page)
 		{
-			if (Cache.has(hash(page)))
-			{
-				var cacheResult = Cache.get(hash(page));
+			return BX.Landing.UI.Field.LinkURL.cache.remember(page, function() {
+				var systemCode = this.content.replace("#system_", "");
+				var systemPages = BX.Landing.Main.getInstance().options.syspages;
 
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
+				if (systemCode in systemPages)
 				{
-					return cacheResult;
+					return Promise.resolve({
+						type: "system",
+						id: "_" + systemCode,
+						name: systemPages[systemCode].name
+					});
 				}
 
-				return Promise.resolve(cacheResult);
-			}
-
-			var systemCode = this.content.replace("#system_", "");
-			var systemPages = BX.Landing.Main.getInstance().options.syspages;
-
-			if (systemCode in systemPages)
-			{
-				var resultData = {
-					type: "system",
-					id: "_" + systemCode,
-					name: systemPages[systemCode].name
-				};
-
-				Cache.set(hash(page), resultData);
-
-				return Promise.resolve(resultData);
-			}
-
-			return Promise.reject();
+				return Promise.reject();
+			}.bind(this));
 		},
 
 		/**
 		 * Gets catalog element data
 		 * @param {string} element
-		 * @return {Promise<T>}
 		 */
 		getCatalogElementData: function(element)
 		{
-			if (Cache.has(hash(element)))
-			{
-				var cacheResult = Cache.get(hash(element));
+			return BX.Landing.UI.Field.LinkURL.cache.remember(element, function() {
+				var elementId = element.match(matchers.catalogElement)[1];
+				var requestBody = {elementId: elementId};
 
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
-				{
-					return cacheResult;
-				}
-
-				return Promise.resolve(cacheResult);
-			}
-
-			var elementId = element.match(matchers.catalogElement)[1];
-			var requestBody = {elementId: elementId};
-
-			return BX.Landing.Backend.getInstance()
-				.action("Utils::getCatalogElement", requestBody)
-				.then(function(response) {
-					Cache.set(hash(element), response);
-					return response;
-				});
+				return BX.Landing.Backend.getInstance()
+					.action("Utils::getCatalogElement", requestBody);
+			}.bind(this));
 		},
 
 		/**
 		 * Gets catalog section data
 		 * @param {string} section
-		 * @return {Promise<T>}
 		 */
 		getCatalogSectionData: function(section)
 		{
-			if (Cache.has(hash(section)))
-			{
-				var cacheResult = Cache.get(hash(section));
+			return BX.Landing.UI.Field.LinkURL.cache.remember(section, function() {
+				var sectionId = section.match(matchers.catalogSection)[1];
+				var requestBody = {sectionId: sectionId};
 
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
-				{
-					return cacheResult;
-				}
-
-				return Promise.resolve(cacheResult);
-			}
-
-			var sectionId = section.match(matchers.catalogSection)[1];
-			var requestBody = {sectionId: sectionId};
-
-			return BX.Landing.Backend.getInstance()
-				.action("Utils::getCatalogSection", requestBody)
-				.then(function(response) {
-					Cache.set(hash(section), response);
-					return response;
-				});
+				return BX.Landing.Backend.getInstance()
+					.action("Utils::getCatalogSection", requestBody);
+			}.bind(this));
 		},
 
 		/**
@@ -687,7 +650,7 @@
 			if (this.allowedTypes.includes(TYPE_BLOCK))
 			{
 				buttons.push({
-					text: BX.message("LANDING_LINKS_BUTTON_BLOCKS"),
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_BLOCKS"),
 					onclick: this.onListShow.bind(this, TYPE_BLOCK)
 				});
 			}
@@ -695,7 +658,7 @@
 			if (this.allowedTypes.includes(TYPE_PAGE))
 			{
 				buttons.push({
-					text: BX.message("LANDING_LINKS_BUTTON_LANDINGS"),
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_LANDINGS"),
 					onclick: this.onListShow.bind(this, TYPE_PAGE)
 				});
 			}
@@ -703,7 +666,7 @@
 			if (this.allowedTypes.includes(TYPE_CATALOG))
 			{
 				buttons.push({
-					text: BX.message("LANDING_LINKS_BUTTON_CATALOG"),
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_CATALOG"),
 					onclick: this.onListShow.bind(this, TYPE_CATALOG)
 				});
 			}
@@ -725,9 +688,9 @@
 
 		onSelectButtonClick: function()
 		{
-			if (this.allowedTypes.length === 1 && this.allowedTypes[0] === TYPE_CATALOG)
+			if (this.allowedTypes.length === 1)
 			{
-				this.onListShow(TYPE_CATALOG);
+				this.onListShow(this.allowedTypes[0]);
 				return;
 			}
 
@@ -765,9 +728,25 @@
 			}
 
 			options.enableAreas = this.enableAreas;
-			void BX.Landing.UI.Panel.URLList.getInstance()
-				.show(type, options)
-				.then(this.onListItemClick);
+			options.dynamicMode = true;
+			options.currentPageOnly = this.currentPageOnly;
+			options.panelTitle = this.panelTitle;
+
+			if (this.detailPageMode)
+			{
+				options.source = this.sourceField.getValue().source;
+				void BX.Landing.UI.Panel.DetailPage.getInstance()
+					.show(options)
+					.then(this.onListItemClick);
+			}
+			else
+			{
+				var panel = BX.Landing.UI.Panel.URLList.getInstance();
+
+				void panel
+					.show(type, options)
+					.then(this.onListItemClick);
+			}
 		},
 
 
@@ -910,6 +889,35 @@
 			}.bind(this));
 		},
 
+		getNewLabel: function()
+		{
+			if (!this.newLabel)
+			{
+				this.newLabel = BX.create({
+					tag: 'div',
+					props: {className: 'landing-ui-field-link-new-label'},
+					text: BX.Landing.Loc.getMessage('LANDING_LINK_NEW_PAGE_LABEL')
+				});
+			}
+
+			return this.newLabel;
+		},
+
+		showNewLabel: function()
+		{
+			BX.Dom.style(this.gridCenterCell, {
+				position: 'relative',
+				overflow: 'visible',
+			});
+			BX.Dom.append(this.getNewLabel(), this.gridCenterCell);
+		},
+
+		hideNewLabel: function()
+		{
+			BX.Dom.style(this.gridCenterCell, 'overflow', null);
+			BX.Dom.remove(this.getNewLabel());
+		},
+
 		/**
 		 * Sets value
 		 * @param {object|string} value
@@ -917,7 +925,7 @@
 		 */
 		setValue: function(value, preventEvent)
 		{
-			if (typeof value === "object")
+			if (typeof value === "object" && !BX.Type.isNil(value))
 			{
 				this.disableEdit();
 				this.setEditPrevented(true);
@@ -926,23 +934,45 @@
 				this.value = value.dataset.placeholder;
 				this.dynamic = value.dataset.dynamic;
 
+				if (this.value === '#landing0')
+				{
+					this.showNewLabel();
+				}
+				else
+				{
+					this.hideNewLabel();
+				}
+
 				if (!preventEvent)
 				{
 					this.onInputHandler(this.input.innerText);
 				}
 			}
-			else
+			else if (!BX.Type.isNil(value))
 			{
 				this.setEditPrevented(false);
 				this.input.innerText = value.toString().trim();
 				this.value = null;
 				this.dynamic = null;
 				this.enableHrefTypeSwitcher();
+				this.hideNewLabel();
 			}
 
 			if (!preventEvent)
 			{
-				this.onValueChangeHandler();
+				if (BX.type.isString(this.value))
+				{
+					this.getPlaceholderData(this.value)
+						.then(function(data) {
+							this.onValueChangeHandler(data);
+						}.bind(this))
+						.catch(function() {
+
+						});
+					return;
+				}
+
+				this.onValueChangeHandler(null);
 			}
 		},
 

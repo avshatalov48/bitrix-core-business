@@ -74,6 +74,11 @@ class IblockPriceChanger
 			}
 		}
 
+		$_SESSION['CHANGE_PRICE_PARAMS']['PRICE_TYPE'] = $userDialogParams['PRICE_TYPE'];
+		$_SESSION['CHANGE_PRICE_PARAMS']['UNITS'] = $userDialogParams['UNITS'];
+		$_SESSION['CHANGE_PRICE_PARAMS']['FORMAT_RESULTS'] = $userDialogParams['FORMAT_RESULTS'];
+		$_SESSION['CHANGE_PRICE_PARAMS']['INITIAL_PRICE_TYPE'] = $userDialogParams['INITIAL_PRICE_TYPE'];
+
 		return $this->userDialogParams = $userDialogParams;
 	}
 
@@ -256,7 +261,18 @@ class IblockPriceChanger
 			$priceElementsListSplitedByType['SIMPLE_ELEMENTS'] = $productsIdList['ELEMENTS'];
 		}
 		$parameters = array(
-			"select" => array('*', 'ELEMENT_NAME' => 'ELEMENT.NAME', 'ELEMENT_IBLOCK_ID' => 'ELEMENT.IBLOCK_ID'),
+			"select" => array(
+				'ID',
+				'PRODUCT_ID',
+				'CATALOG_GROUP_ID',
+				'PRICE',
+				'CURRENCY',
+				'EXTRA_ID',
+				'QUANTITY_FROM',
+				'QUANTITY_TO',
+				'ELEMENT_NAME' => 'ELEMENT.NAME',
+				'ELEMENT_IBLOCK_ID' => 'ELEMENT.IBLOCK_ID'
+			),
 			"filter" => $this->initFilterParams(),
 			'order' => array('PRODUCT_ID' => 'ASC', 'CATALOG_GROUP_ID' => 'ASC')
 		);
@@ -292,6 +308,7 @@ class IblockPriceChanger
 		if ($initialType > 0 && $targetType == $initialType)
 			return $result;
 
+		Catalog\Product\Sku::enableDeferredCalculation();
 		foreach ($priceElementsListSplitedByType as $typeElements => $priceElementsIdList)
 		{
 			$priceElementsIdList = array_chunk($priceElementsIdList, 500);
@@ -299,7 +316,7 @@ class IblockPriceChanger
 			{
 				$parameters['filter']['@PRODUCT_ID'] = $productIdList;
 
-				$cpriceResult = Catalog\PriceTable::getList($parameters);
+				$cpriceResult = Catalog\Model\Price::getList($parameters);
 
 				$elementsCPriceList = array();
 
@@ -362,6 +379,10 @@ class IblockPriceChanger
 				unset($elementsCPriceList);
 			}
 		}
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
+		Catalog\Model\Price::clearCache();
+
 		return $result;
 	}
 
@@ -456,30 +477,36 @@ class IblockPriceChanger
 				{
 					if (!empty($destinationPrice['ID']))
 					{
-						$priceResult = \CPrice::Update(
-							$destinationPrice['ID'],
-							array(
-								'PRODUCT_ID' => $productId,
-								'CATALOG_GROUP_ID' => $destinationPrice['CATALOG_GROUP_ID'],
+						$data = [
+							'fields' => [
 								'PRICE' => $destinationPrice['PRICE'],
-								'CURRENCY' => $destinationPrice['CURRENCY'],
-							),
-							$basePriceId == $targetType
-						);
+								'CURRENCY' => $destinationPrice['CURRENCY']
+							],
+							'external_fields' => [
+								'IBLOCK_ID' => $destinationPrice['ELEMENT_IBLOCK_ID']
+							]
+						];
+						if ($basePriceId == $targetType)
+						{
+							$data['actions']['PARENT_PRICE'] = true;
+						}
+						$priceResult = Catalog\Model\Price::update($destinationPrice['ID'], $data);
+						unset($data);
 					}
 					else
 					{
-						$priceResult = \CPrice::Add(array(
+						$priceResult = Catalog\Model\Price::add([
 							'PRODUCT_ID' => $productId,
 							'CATALOG_GROUP_ID' => $targetType,
 							'PRICE' => $destinationPrice['PRICE'],
 							'CURRENCY' => $destinationPrice['CURRENCY'],
 							'EXTRA_ID' => $destinationPrice['EXTRA_ID'],
-							'QUANTITY_FROM' => ($destinationPrice['QUANTITY_FROM'] !== null ? $destinationPrice['QUANTITY_FROM'] : false),
-							'QUANTITY_TO' => ($destinationPrice['QUANTITY_TO'] !== null ? $destinationPrice['QUANTITY_TO'] : false)
-						));
+							'QUANTITY_FROM' => $destinationPrice['QUANTITY_FROM'],
+							'QUANTITY_TO' => $destinationPrice['QUANTITY_TO']
+						]);
+
 					}
-					if ($priceResult)
+					if ($priceResult->isSuccess())
 					{
 						Iblock\PropertyIndex\Manager::updateElementIndex($destinationPrice['ELEMENT_IBLOCK_ID'], $destinationPrice['PRODUCT_ID']);
 						$ipropValues = new Iblock\InheritedProperty\ElementValues($destinationPrice['ELEMENT_IBLOCK_ID'], $destinationPrice['PRODUCT_ID']);

@@ -19,7 +19,7 @@ final class ClosureWrapper extends Base
 	 */
 	public function __construct(Closure $closure)
 	{
-		$this->closure = $closure->bindTo($this);
+		$this->closure = $closure->bindTo($this, $this);
 		parent::__construct();
 	}
 

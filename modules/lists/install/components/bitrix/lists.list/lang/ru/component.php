@@ -28,4 +28,6 @@ $MESS["CT_BLL_ENLARGE"] = "Увеличить";
 $MESS["CT_BLL_DOWNLOAD"] = "Скачать";
 $MESS["CT_BLL_GRID_PAGE_SIZES_ALL"] = "Все";
 $MESS["CC_BLL_ELEMENT_ACTION_MENU_OPEN"] = "Открыть";
+$MESS["CC_BLL_EXTERNAL_LOCK"] = "Блокировка";
+$MESS["CT_BLL_UN_LOCK_ELEMENT"] = "Разблокировать";
 ?>

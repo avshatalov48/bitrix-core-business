@@ -19,6 +19,8 @@
 			this.sectionIndex[taskSection.id] = this.sections.length - 1;
 		}
 
+		BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
+
 		this.sortSections();
 	}
 
@@ -41,11 +43,11 @@
 			this.sectionIndex = {};
 			this.sections = this.sections.sort(function(a, b)
 			{
-				if (a.isPseudo())
+				if (BX.type.isFunction(a.isPseudo) && a.isPseudo())
 				{
 					return 1;
 				}
-				else if (b.isPseudo())
+				else if (BX.type.isFunction(b.isPseudo) && b.isPseudo())
 				{
 					return -1;
 				}
@@ -106,6 +108,7 @@
 			var i, result = [];
 			for (i = 0; i < this.sections.length; i++)
 			{
+				this.sections[i].id = parseInt(this.sections[i].id);
 				if (this.sections[i].canDo('view_event') && this.sections[i].isActive())
 				{
 					result.push(this.sections[i]);
@@ -186,6 +189,10 @@
 
 		saveSection: function(name, color, access, params)
 		{
+			var promise = new BX.Promise();
+
+			name = BX.util.trim(name) || BX.message('EC_SEC_SLIDER_NEW_SECTION');
+
 			if (params.section.id)
 			{
 				BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionChange', [
@@ -203,42 +210,69 @@
 				}]);
 			}
 
-			var url = this.calendar.util.getActionUrl();
-			url += (url.indexOf('?') == -1) ? '?' : '&';
-			url += '&markAction=' + (params.section.id ? 'editSection' : 'newSection');
-			url += '&markType=' + this.calendar.util.type;
-
-			this.calendar.request({
-				url: url,
-				type: 'post',
-				data: {
-					action: 'section_edit',
-					id: params.section.id || 0,
-					name: name,
-					color: color,
-					access: access
-				},
-				handler: BX.delegate(function(response)
-				{
-					//if (oRes.accessNames)
-					//	_this.HandleAccessNames(oRes.accessNames);
-					if (params.section.id)
-					{
-						this.sections[this.sectionIndex[params.section.id]].updateData(response.calendar);
-					}
-					else
-					{
-						this.prepareData({sections: [response.calendar]});
-					}
-					this.sortSections();
-
-					BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionAdd', [{
+			var isCustomization = params.section.id && params.section.isPseudo();
+			BX.ajax.runAction('calendar.api.calendarajax.editCalendarSection', {
+					data: {
+						analyticsLabel: {
+							action: params.section.id ? 'editSection' : 'newSection',
+							type: params.section.type || this.calendar.util.type
+						},
+						id: params.section.id || 0,
 						name: name,
-						color: color
-					}]);
+						type: params.section.type || this.calendar.util.type,
+						ownerId: params.section.ownerId || this.calendar.util.ownerId,
+						color: color,
+						access: access || null,
+						userId: this.calendar.util.userId,
+						customization: isCustomization ? 'Y' : 'N'
+					}
+				})
+				.then(
+					// Success
+					BX.delegate(function (response)
+					{
+						if (params.section.id && params.section.color.toLowerCase() !== color.toLowerCase())
+						{
+							this.calendar.reload();
+						}
 
-				}, this)
-			});
+						if (isCustomization)
+						{
+							this.sections[this.sectionIndex[params.section.id]].updateData({NAME: name, COLOR: color});
+						}
+						else
+						{
+							var section = response.data.section;
+							if (section)
+							{
+								if (params.section.id)
+								{
+									this.sections[this.sectionIndex[params.section.id]].updateData(section);
+								}
+								else
+								{
+									this.prepareData({sections: [section]});
+								}
+								this.sortSections();
+							}
+						}
+
+						BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionAdd', [{
+							name: name,
+							color: color
+						}]);
+
+						promise.fulfill(response.data);
+					}, this),
+					// Failure
+					BX.delegate(function (response)
+					{
+						this.calendar.displayError(response.errors);
+						promise.fulfill(response.errors);
+					}, this)
+				);
+
+			return promise;
 		},
 
 		sectionIsShown: function(id)
@@ -294,6 +328,18 @@
 				hidden: hidden,
 				allActive: allActive
 			};
+		},
+
+		unsetSectionHandler: function(sectionId)
+		{
+			if (this.sectionIndex[sectionId] !== undefined)
+			{
+				this.sections = BX.util.deleteFromArray(this.sections, this.sectionIndex[sectionId]);
+				for (var i = 0; i < this.sections.length; i++)
+				{
+					this.sectionIndex[this.sections[i].id] = i;
+				}
+			}
 		}
 	};
 
@@ -308,7 +354,6 @@
 		{
 			this.data = data || {};
 			this.color = data.COLOR;
-			this.textColor = data.TEXT_COLOR || '';
 			this.name = data.NAME || '';
 			this.type = data.CAL_TYPE || '';
 
@@ -320,11 +365,6 @@
 				},
 				color: {
 					value: data.COLOR,
-					writable: true,
-					enumerable : true
-				},
-				textColor: {
-					value: data.TEXT_COLOR,
 					writable: true,
 					enumerable : true
 				}
@@ -363,19 +403,23 @@
 			if (confirm(BX.message('EC_SEC_DELETE_CONFIRM')))
 			{
 				BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
-
-				this.calendar.request({
-					type: 'post',
+				BX.ajax.runAction('calendar.api.calendarajax.deleteCalendarSection', {
 					data: {
-						action: 'section_delete',
 						id: this.id
-					},
-					handler: BX.delegate(function(response)
+					}
+				})
+				.then(
+					// Success
+					BX.delegate(function (response)
 					{
 						this.calendar.reload();
-						//return oRes.result ? _this.DeleteSectionClientSide(el) : false;
+					}, this),
+					// Failure
+					BX.delegate(function (response)
+					{
+						this.calendar.displayError(response.errors);
 					}, this)
-				});
+				);
 			}
 		},
 
@@ -386,17 +430,23 @@
 				this.hide();
 				BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
 
-				this.calendar.request({
-					type: 'post',
+				BX.ajax.runAction('calendar.api.calendarajax.hideExternalCalendarSection', {
 					data: {
-						action: 'section_caldav_hide',
 						id: this.id
-					},
-					handler: BX.delegate(function(response)
+					}
+				})
+				.then(
+					// Success
+					BX.delegate(function (response)
 					{
 						this.calendar.reload();
+					}, this),
+					// Failure
+					BX.delegate(function (response)
+					{
+						this.calendar.displayError(response.errors);
 					}, this)
-				});
+				);
 			}
 		},
 
@@ -456,7 +506,7 @@
 				return false;
 			}
 
-			if (action == 'view_event')
+			if (action === 'view_event')
 				action = 'view_time';
 
 			return this.data.PERM && this.data.PERM[action];
@@ -490,18 +540,23 @@
 
 		isCompanyCalendar: function()
 		{
-			return !this.isPseudo() && this.type != 'user' && this.type != 'group' && !parseInt(this.data.OWNER_ID);
+			return !this.isPseudo() && this.type !== 'user' && this.type !== 'group' && !parseInt(this.data.OWNER_ID);
 		},
 
 		belongsToView: function()
 		{
-			return this.type == this.calendar.util.type && this.data.OWNER_ID == this.calendar.util.ownerId;
+			return this.type === this.calendar.util.type && parseInt(this.data.OWNER_ID) === parseInt(this.calendar.util.ownerId);
 		},
 
-		belongToOwner: function()
+		belongsToOwner: function()
 		{
-			return this.data.CAL_TYPE == 'user'
-				&& this.data.OWNER_ID == this.calendar.util.userId
+			return this.belongsToUser(this.calendar.util.userId);
+		},
+
+		belongsToUser: function(userId)
+		{
+			return this.data.CAL_TYPE === 'user'
+				&& parseInt(this.data.OWNER_ID) === parseInt(userId)
 				&& this.data.ACTIVE !== 'N';
 		},
 
@@ -553,6 +608,29 @@
 	TaskSection.prototype.isPseudo = function()
 	{
 		return true;
+	};
+	TaskSection.prototype.updateData = function(data)
+	{
+		if (!this.data)
+		{
+			this.data = data || {};
+			this.type = data.CAL_TYPE || '';
+
+			Object.defineProperties(this, {
+				id: {
+					value: data.ID,
+					writable: false
+				},
+				color: {
+					value: data.COLOR,
+					writable: true,
+					enumerable : true
+				}
+			});
+		}
+
+		this.color = this.data.COLOR = data.COLOR;
+		this.name = this.data.NAME = data.NAME;
 	};
 
 	if (window.BXEventCalendar)

@@ -118,11 +118,6 @@ BX.Lists.ListsElementAttachedCrm = (function ()
 
 	ListsElementAttachedCrm.prototype.addElement = function ()
 	{
-		this.performExternalRequest();
-	};
-
-	ListsElementAttachedCrm.prototype.performExternalRequest = function()
-	{
 		var url = this.listElementTemplateUrl[this.iblockId];
 		url = url.replace('#section_id#', 0).replace('#element_id#', 0);
 		var urlParams = {external_context: this.externalContext};
@@ -133,6 +128,20 @@ BX.Lists.ListsElementAttachedCrm = (function ()
 		}
 		url = BX.util.add_url_param(url, urlParams);
 
+		this.performExternalRequest(url);
+	};
+
+	ListsElementAttachedCrm.prototype.editElement = function (elementId)
+	{
+		var url = this.listElementTemplateUrl[this.iblockId];
+		url = url.replace('#section_id#', 0).replace('#element_id#', elementId);
+		url = BX.util.add_url_param(url, {external_context: this.externalContext});
+
+		this.performExternalRequest(url);
+	};
+
+	ListsElementAttachedCrm.prototype.performExternalRequest = function(url)
+	{
 		if(!this.externalRequestData)
 		{
 			this.externalRequestData = {};

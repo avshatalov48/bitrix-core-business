@@ -8,7 +8,7 @@
  */
 
 import {BaseRestAnswerHandler} from "./base.answer";
-import {ImRestAnswerHandler} from "./im.rest.handler.js";
+import {ImRestAnswerHandler} from "./im.rest.handler";
 
 export {
 	ImRestAnswerHandler,

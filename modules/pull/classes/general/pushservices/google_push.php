@@ -2,6 +2,7 @@
 
 class CGoogleMessage extends CPushMessage
 {
+	const DEFAULT_PAYLOAD_MAXIMUM_SIZE = 4096;
 	public function __construct($sDeviceToken = null)
 	{
 		if (isset($sDeviceToken))
@@ -16,7 +17,17 @@ class CGoogleMessage extends CPushMessage
 	 */
 	public function getBatch()
 	{
+		$data = $this->getPayload();
+		$batch = "Content-type: application/json\r\n";
+		$batch .= "Content-length: " . CUtil::BinStrlen($data) . "\r\n";
+		$batch .= "\r\n";
+		$batch .= $data;
 
+		return base64_encode($batch);
+	}
+
+	public function getPayload()
+	{
 		$data = [
 			"data" => [
 				'contentTitle' => $this->title,
@@ -30,15 +41,44 @@ class CGoogleMessage extends CPushMessage
 			"priority" => "high",
 			"registration_ids" => $this->deviceTokens
 		];
+		$jsonPayload = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 
-		$data = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
-		$batch = "Content-type: application/json\r\n";
-		$batch .= "Content-length: " . CUtil::BinStrlen($data) . "\r\n";
-		$batch .= "\r\n";
-		$batch .= $data;
+		$payloadLength = CUtil::BinStrlen($jsonPayload);
+		if ($payloadLength > self::DEFAULT_PAYLOAD_MAXIMUM_SIZE)
+		{
+			$text = $this->text;
+			$useSenderText = false;
+			if(array_key_exists("senderMessage", $this->customProperties))
+			{
+				$useSenderText = true;
+				$text = $this->customProperties["senderMessage"];
+			}
+			$maxTextLength = $nTextLen = CUtil::BinStrlen($text) - ($payloadLength - self::DEFAULT_PAYLOAD_MAXIMUM_SIZE);
+			if ($maxTextLength > 0)
+			{
+				while (CUtil::BinStrlen($text = substr($text, 0, --$nTextLen)) > $maxTextLength) ;
+				if($useSenderText)
+				{
+					$this->setCustomProperty("senderMessage", $text);
+				}
+				else
+				{
+					$this->setText($text);
+				}
 
-		return base64_encode($batch);
+
+				return $this->getPayload();
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		return $jsonPayload;
 	}
+
+
 }
 
 class CGooglePush extends CPushService
@@ -82,6 +122,11 @@ class CGooglePush extends CPushService
 	function getMessageInstance($token)
 	{
 		return new CGoogleMessage($token);
+	}
+
+	public static function shouldBeSent($messageRowData)
+	{
+		return true;
 	}
 }
 

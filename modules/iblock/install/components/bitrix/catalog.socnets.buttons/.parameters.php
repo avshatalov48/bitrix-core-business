@@ -8,9 +8,6 @@ $arComponentParameters = array(
 		"TW" => array(
 			"NAME" => GetMessage("CATALOG_SB_TW_SECTION_TITLE"),
 		),
-		"GP" => array(
-			"NAME" => GetMessage("CATALOG_SB_GP_SECTION_TITLE"),
-		),
 		"VK" => array(
 			"NAME" => GetMessage("CATALOG_SB_VK_SECTION_TITLE"),
 		)
@@ -55,14 +52,6 @@ $arComponentParameters = array(
 			"REFRESH" => "Y",
 		),
 
-/*G+*/
-		"GP_USE" => array(
-			"NAME" => GetMessage("CATALOG_SB_GP_USE"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y",
-			"PARENT" => "GP"
-		),
-
 /*VK*/
 		"VK_USE" => array(
 			"NAME" => GetMessage("CATALOG_SB_VK_USE"),
@@ -72,7 +61,6 @@ $arComponentParameters = array(
 		)
 	)
 );
-
 
 if(!isset($arCurrentValues["TW_USE"]) || $arCurrentValues["TW_USE"] == "Y")
 {
@@ -94,5 +82,3 @@ if(!isset($arCurrentValues["TW_USE"]) || $arCurrentValues["TW_USE"] == "Y")
 		"PARENT" => "TW"
 	);
 }
-
-?>

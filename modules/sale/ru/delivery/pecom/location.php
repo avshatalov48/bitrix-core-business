@@ -151,7 +151,7 @@ class Location extends ExternalLocationMap
 			"disableSslVerification" => true
 		));
 
-		$jsnData = $http->get("http://www.pecom.ru/ru/calc/towns.php");
+		$jsnData = $http->get("https://www.pecom.ru/ru/calc/towns.php");
 		$errors = $http->getError();
 
 		if (!$jsnData && !empty($errors))

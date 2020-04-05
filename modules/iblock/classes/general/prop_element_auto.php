@@ -424,7 +424,17 @@ class CIBlockPropertyElementAutoComplete
 					$arFilter['CHECK_PERMISSIONS'] = 'Y';
 					$arFilter['MIN_PERMISSION'] = 'R';
 				}
-				$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array('ID', 'XML_ID', 'IBLOCK_ID', 'NAME', 'DETAIL_PAGE_URL'));
+				$rsElements = CIBlockElement::GetList(
+					array(),
+					$arFilter,
+					false,
+					false,
+					array('ID', 'XML_ID', 'IBLOCK_ID', 'NAME', 'DETAIL_PAGE_URL')
+				);
+				if (isset($strHTMLControlName['DETAIL_URL']))
+				{
+					$rsElements->SetUrlTemplates($strHTMLControlName['DETAIL_URL']);
+				}
 				$cache[$arValue['VALUE']] = $rsElements->GetNext(true, true);
 				unset($rsElements);
 			}
@@ -756,6 +766,11 @@ class CIBlockPropertyElementAutoComplete
 		$fields["property"] = $property;
 		$fields["customRender"] = ["\Bitrix\Iblock\Helpers\Filter\Property", "render"];
 		$fields["customFilter"] = ["Bitrix\Iblock\Helpers\Filter\Property", "addFilter"];
+		$fields["operators"] = array(
+			"default" => "=",
+			"exact" => "=",
+			"enum" => "@"
+		);
 	}
 
 	protected static function GetLinkElement($intElementID, $intIBlockID)

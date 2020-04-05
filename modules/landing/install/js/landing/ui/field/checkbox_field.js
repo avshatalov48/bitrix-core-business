@@ -36,6 +36,7 @@
 		this.value = isArray(options.value) ? options.value : null;
 		this.depth = isNumber(options.depth) ? options.depth : 0;
 		this.compact = isBoolean(options.compact) ? options.compact : false;
+		this.multiple = options.multiple !== false;
 
 		data(this.layout, "data-depth", this.depth);
 		data(this.layout, "data-compact", this.compact);
@@ -157,13 +158,20 @@
 		 */
 		getValue: function()
 		{
-			return slice(this.input.children)
+			var values = slice(this.input.children)
 				.filter(function(element) {
 					return element.querySelector("input").checked;
 				})
 				.map(function(element) {
 					return decodeDataValue(element.querySelector("input").value);
-				})
+				});
+
+			if (!this.multiple)
+			{
+				return values.length > 0 ? values[0] : false;
+			}
+
+			return values;
 		}
 	};
 })();

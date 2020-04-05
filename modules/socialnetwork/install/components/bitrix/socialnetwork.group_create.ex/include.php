@@ -54,6 +54,7 @@ if (!function_exists('__GCE_GetGroup'))
 			$arGroupTmp["IMAGE_ID_FILE"] = CFile::GetFileArray($arGroup["IMAGE_ID"]);
 			$arGroupTmp["IMAGE_ID_IMG"] = '<img src="'.($arGroupTmp["IMAGE_ID_FILE"] != false ? $arGroupTmp["IMAGE_ID_FILE"]["SRC"] : "/bitrix/images/1.gif").'" height="60" class="sonet-group-create-popup-image" id="sonet_group_create_popup_image" border="0">';
 			$arGroupTmp["MODERATOR_IDS"] = array();
+			$arGroupTmp["LANDING"] = ($arGroup["LANDING"] == 'Y' ? 'Y' : 'N');
 
 			foreach($arGroupProperties as $field => $arUserField)
 			{

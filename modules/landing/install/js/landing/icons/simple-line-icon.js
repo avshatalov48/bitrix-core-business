@@ -9,7 +9,7 @@
 		categories: [
 			{
 				"id": "all",
-				"name": BX.message("LANDING_ICONS_SIMPLE_LINE_ICONS_ALL"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SIMPLE_LINE_ICONS_ALL"),
 				"items": [
 					"icon-user",
 					"icon-people",

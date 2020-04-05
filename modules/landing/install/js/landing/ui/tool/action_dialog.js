@@ -7,8 +7,7 @@
 	function createPopup()
 	{
 		return new BX.PopupWindow("action_dialog_" + (+new Date()), null, {
-			titleBar: BX.message("LANDING_ACTION_DIALOG_TITLE"),
-			offsetTop: 100,
+			titleBar: BX.Landing.Loc.getMessage("LANDING_ACTION_DIALOG_TITLE"),
 			overlay: 0.5
 		});
 	}
@@ -18,7 +17,7 @@
 		return new BX.PopupWindowButton({
 			id: "action_dialog_confirm",
 			className: "popup-window-button-accept",
-			text: text || BX.message("LANDING_ACTION_DIALOG_CONFIRM_BUTTON"),
+			text: text || BX.Landing.Loc.getMessage("LANDING_ACTION_DIALOG_CONFIRM_BUTTON"),
 			events: {click: callback}
 		});
 	}
@@ -27,7 +26,7 @@
 	{
 		return new BX.PopupWindowButtonLink({
 			id: "action_dialog_cancel",
-			text: text || BX.message("LANDING_ACTION_DIALOG_CANCEL_BUTTON"),
+			text: text || BX.Landing.Loc.getMessage("LANDING_ACTION_DIALOG_CANCEL_BUTTON"),
 			events: {click: callback}
 		});
 	}
@@ -83,8 +82,8 @@
 		show: function(options)
 		{
 			options = typeof options === "object" ? options : {};
-			options.title = options.title || BX.message("LANDING_ACTION_DIALOG_TITLE");
-			options.content = options.content || BX.message("LANDING_ACTION_DIALOG_CONTENT");
+			options.title = options.title || BX.Landing.Loc.getMessage("LANDING_ACTION_DIALOG_TITLE");
+			options.content = options.content || BX.Landing.Loc.getMessage("LANDING_ACTION_DIALOG_CONTENT");
 
 			if (BX.type.isNotEmptyString(options.content))
 			{

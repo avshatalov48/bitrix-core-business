@@ -6,6 +6,8 @@ use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Vote\EventTable;
 use Bitrix\Vote\User;
 
@@ -15,35 +17,35 @@ Loc::loadMessages(__FILE__);
 class Controller extends \Bitrix\Vote\Base\Controller
 {
 	/**
-	 * @var $attach Attach
+	 * @var $attach \Bitrix\Vote\Attach
 	 */
 	var $attach;
 
 	protected function listActions()
 	{
 		return array(
-			'vote' => array(
-				'need_auth' => false,
-				'method' => array('POST')
+			"vote" => array(
+				"need_auth" => false,
+				"method" => array("POST")
 			),
-			'getBallot' => array(
-				'method' => array('POST', 'GET')
+			"getBallot" => array(
+				"method" => array("POST", "GET")
 			),
-			'stop' => array(
-				'method' => array('POST', 'GET')
+			"stop" => array(
+				"method" => array("POST", "GET")
 			),
-			'resume' => array(
-				'method' => array('POST', 'GET')
+			"resume" => array(
+				"method" => array("POST", "GET")
 			),
-			'getvoted' => array(
-				'method' => array('POST', 'GET')
+			"getvoted" => array(
+				"method" => array("POST", "GET")
 			),
-			'getmobilevoted' => array(
-				'method' => array('POST', 'GET'),
-				'check_sessid' => false
+			"getmobilevoted" => array(
+				"method" => array("POST", "GET"),
+				"check_sessid" => false
 			),
-			'exportXls' => array(
-				'method' => array('POST', 'GET')
+			"exportXls" => array(
+				"method" => array("POST", "GET")
 			)
 		);
 	}
@@ -51,9 +53,9 @@ class Controller extends \Bitrix\Vote\Base\Controller
 	protected function init()
 	{
 		if ($this->request->getQuery("attachId"))
-			$this->attach = Attach::loadFromAttachId($this->request->getQuery("attachId"));
+			$this->attach = Manager::loadFromAttachId($this->request->getQuery("attachId"));
 		else if ($this->request->getQuery("voteId"))
-			$this->attach = Attach::loadFromVoteId(array(
+			$this->attach = Manager::loadFromVoteId(array(
 				"MODULE_ID" => "vote",
 				"ENTITY_TYPE" => "VOTE",
 				"ENTITY_ID" => $this->request->getQuery("voteId")
@@ -91,17 +93,17 @@ class Controller extends \Bitrix\Vote\Base\Controller
 						foreach ($question["ANSWERS"] as $answer)
 						{
 							$result[$question["ID"]]["ANSWERS"][$answer["ID"]] = array(
-								'PERCENT' => $answer["PERCENT"],
-								'USERS' => $answer["USERS"],
-								'COUNTER' => $answer["COUNTER"]
+								"PERCENT" => $answer["PERCENT"],
+								"USERS" => [],
+								"COUNTER" => $answer["COUNTER"]
 							);
 						}
 					}
-					\CPullWatch::AddToStack('VOTE_'.$this->attach["VOTE_ID"],
+					\CPullWatch::AddToStack("VOTE_".$this->attach["VOTE_ID"],
 						Array(
-							'module_id' => 'vote',
-							'command' => 'voting',
-							'params' => Array(
+							"module_id" => "vote",
+							"command" => "voting",
+							"params" => Array(
 								"VOTE_ID" => $this->attach["VOTE_ID"],
 								"AUTHOR_ID" => $this->getUser()->getId(),
 								"COUNTER" => $this->attach["COUNTER"],
@@ -112,9 +114,9 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				}
 
 				$this->sendJsonSuccessResponse(array(
-					'action' => $this->getAction(),
-					'data' => array(
-						'attach' => array(
+					"action" => $this->getAction(),
+					"data" => array(
+						"attach" => array(
 							"ID" => $this->attach["ID"],
 							"VOTE_ID" => $this->attach["VOTE_ID"],
 							"COUNTER" => $this->attach["COUNTER"],
@@ -140,49 +142,68 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		else
 		{
 			$userId = $this->getUser()->getId();
-			if ($attach->canRead($userId) && $attach->isVotedFor($userId))
-				$eventId = $_SESSION["VOTE"]["VOTES"][$attach["VOTE_ID"]];
+			if ($attach->canRead($userId) && ($result = $attach->canRevote($userId)) && $result->isSuccess())
+			{
+				$event = reset($result->getData());
+				$eventId = $event["ID"];
+			}
 		}
 		$stat = array();
+		$extras = array();
 		if ($eventId > 0)
 		{
 			$dbRes = EventTable::getList(array(
-				'select' => array(
-					'V_' => '*',
-					'Q_' => 'QUESTION.*',
-					'A_' => 'QUESTION.ANSWER.*',
-					'U_' => 'USER.USER.*',
+				"select" => array(
+					"V_" => "*",
+					"Q_" => "QUESTION.*",
+					"A_" => "QUESTION.ANSWER.*",
+					"U_" => "USER.USER.*",
 				),
-				'filter' => array('ID' => $eventId, 'VOTE_ID' => $attach["VOTE_ID"])
+				"filter" => array(
+					"ID" => $eventId,
+					"VOTE_ID" => $attach["VOTE_ID"]
+				)
 			));
 			$questions = $attach["QUESTIONS"];
-			while ($dbRes && ($res = $dbRes->fetch()))
+			if ($dbRes && ($res = $dbRes->fetch()))
 			{
-				if (!array_key_exists($res["Q_QUESTION_ID"], $questions) ||
-					!array_key_exists($res["A_ANSWER_ID"], $questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
-					continue;
-				if (!array_key_exists($res["Q_QUESTION_ID"], $stat))
-					$stat[$res["Q_QUESTION_ID"]] = array();
 				$userId = $res["U_ID"];
-
-				$stat[$res["Q_QUESTION_ID"]][$res["A_ANSWER_ID"]] = array(
-					"ID" => $res["A_ID"],
-					"MESSAGE" => $res["A_MESSAGE"]
+				$extras = array(
+					"VISIBLE" => $res["V_VISIBLE"],
+					"VALID" => $res["V_VALID"]
 				);
+				do
+				{
+					if (!array_key_exists($res["Q_QUESTION_ID"], $questions) ||
+						!array_key_exists($res["A_ANSWER_ID"], $questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
+						continue;
+					if (!array_key_exists($res["Q_QUESTION_ID"], $stat))
+						$stat[$res["Q_QUESTION_ID"]] = array();
+
+					$stat[$res["Q_QUESTION_ID"]][$res["A_ANSWER_ID"]] = array(
+						"EVENT_ID" => $res["A_ID"],
+						"EVENT_QUESTION_ID" => $res["Q_ID"],
+						"ANSWER_ID" => $res["ANSWER_ID"],
+						"ID" => $res["A_ID"], // delete this
+						"MESSAGE" => $res["A_MESSAGE"]
+					);
+				} while ($res = $dbRes->fetch());
 			}
 		}
 		$this->sendJsonSuccessResponse(array(
-			'action' => $this->getAction(),
-			'data' => array(
-				'attach' => array(
+			"action" => $this->getAction(),
+			"data" => array(
+				"attach" => array(
 					"ID" => $attach["ID"],
 					"VOTE_ID" => $attach["VOTE_ID"],
+					"FIELD_NAME" => $attach["FIELD_NAME"],
 					"QUESTIONS" => $attach["QUESTIONS"]
 				),
-				'event' => array(
-					'id' => $eventId,
-					'userId' => $userId,
-					'ballot' => $stat
+				"event" => array(
+					"id" => $eventId,
+					"userId" => $userId,
+					"ballot" => $stat,
+					"extras" => $extras
 				)
 			)
 		));
@@ -196,7 +217,15 @@ class Controller extends \Bitrix\Vote\Base\Controller
 			throw new AccessDeniedException();
 		$attach->stop();
 		$this->sendJsonSuccessResponse(array(
-			'action' => $this->getAction()
+			"action" => $this->getAction(),
+			"data" => array(
+				"attach" => array(
+					"ID" => $this->attach["ID"],
+					"VOTE_ID" => $this->attach["VOTE_ID"],
+					"COUNTER" => $this->attach["COUNTER"],
+					"QUESTIONS" => $this->attach["QUESTIONS"]
+				)
+			)
 		));
 	}
 
@@ -208,7 +237,15 @@ class Controller extends \Bitrix\Vote\Base\Controller
 			throw new AccessDeniedException();
 		$attach->resume();
 		$this->sendJsonSuccessResponse(array(
-			'action' => $this->getAction()
+			"action" => $this->getAction(),
+			"data" => array(
+				"attach" => array(
+					"ID" => $this->attach["ID"],
+					"VOTE_ID" => $this->attach["VOTE_ID"],
+					"COUNTER" => $this->attach["COUNTER"],
+					"QUESTIONS" => $this->attach["QUESTIONS"]
+				)
+			)
 		));
 	}
 
@@ -227,23 +264,44 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		$cache = new \CPHPCache();
 		$result = array(
 			"statusPage" => "done",
-			"items" => array()
+			"items" => array(),
+			"hiddenItems" => 0
 		);
 
 		$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
 		$cacheId = "voted_".serialize(array($cacheParams["answerId"], $nPageSize, $iNumPage));
-		$cacheDir = '/vote/'.$cacheParams["voteId"]."/voted/";
+		$cacheDir = "/vote/".$cacheParams["voteId"]."/voted/";
 
-		if(\Bitrix\Main\Config\Option::get("main", "component_cache_on", "Y") == "Y" && $cache->initCache($cacheTtl, $cacheId, $cacheDir))
+		if (\Bitrix\Main\Config\Option::get("main", "component_cache_on", "Y") == "Y" && $cache->initCache($cacheTtl, $cacheId, $cacheDir))
 		{
 			$result = $cache->getVars();
 		}
 		else
 		{
+			if ($iNumPage <= 1)
+			{
+				$res = EventTable::getList(array(
+					"select" => array(
+						"CNT" => "CNT"
+					),
+					"runtime" => array(
+						new ExpressionField("CNT", "COUNT(*)")
+					),
+					"filter" => array(
+						"VOTE_ID" => $cacheParams["voteId"],
+						"!=VISIBLE" => "Y",
+						"VALID" => "Y",
+						"QUESTION.ANSWER.ANSWER_ID" => $cacheParams["answerId"],
+					)
+				))->fetch();
+				$result["hiddenItems"] = $res["CNT"];
+			}
+
 			$dbRes = \CVoteEvent::getUserAnswerStat(array(),
 				array(
 					"ANSWER_ID" => $cacheParams["answerId"],
 					"VALID" => "Y",
+					"VISIBLE" => "Y",
 					"bGetVoters" => "Y",
 					"bGetMemoStat" => "N"
 				),
@@ -263,19 +321,19 @@ class Controller extends \Bitrix\Vote\Base\Controller
 			else
 			{
 				$departments = array();
-				if (IsModuleInstalled('extranet') &&
-					($iblockId = \COption::GetOptionInt('intranet', 'iblock_structure', 0)) &&
+				if (IsModuleInstalled("extranet") &&
+					($iblockId = \COption::GetOptionInt("intranet", "iblock_structure", 0)) &&
 					$iblockId > 0)
 				{
 					$dbRes = \CIBlockSection::GetList(
-						array('LEFT_MARGIN' => 'DESC'),
-						array('IBLOCK_ID' => $iblockId),
+						array("LEFT_MARGIN" => "DESC"),
+						array("IBLOCK_ID" => $iblockId),
 						false,
-						array('ID', 'NAME')
+						array("ID", "NAME")
 					);
 
-					while ($arRes = $dbRes->fetch())
-						$departments[$arRes["ID"]] = $arRes["NAME"];
+					while ($res = $dbRes->fetch())
+						$departments[$res["ID"]] = $res["NAME"];
 				}
 
 				$dbRes = \CUser::getList(
@@ -284,8 +342,8 @@ class Controller extends \Bitrix\Vote\Base\Controller
 					array("ID" => implode("|", $userIds)),
 					array(
 						"FIELDS" => array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO") +
-							(IsModuleInstalled('mail') ? array("EXTERNAL_AUTH_ID") : array()),
-						"SELECT" => (IsModuleInstalled('extranet') ? array("UF_DEPARTMENT") : array())
+							(IsModuleInstalled("mail") ? array("EXTERNAL_AUTH_ID") : array()),
+						"SELECT" => (IsModuleInstalled("extranet") ? array("UF_DEPARTMENT") : array())
 					)
 				);
 				while ($res = $dbRes->fetch())
@@ -305,7 +363,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 						}
 						else
 						{
-							$res["PHOTO"] = $res["PHOTO_SRC"] = '';
+							$res["PHOTO"] = $res["PHOTO_SRC"] = "";
 						}
 					}
 					$res["TYPE"] = "";
@@ -318,12 +376,12 @@ class Controller extends \Bitrix\Vote\Base\Controller
 						else
 						{
 							$ds = array();
-							foreach ($res['UF_DEPARTMENT'] as $departmentId)
+							foreach ($res["UF_DEPARTMENT"] as $departmentId)
 							{
 								if (array_key_exists($departmentId, $departments))
 									$ds[] = $departments[$departmentId];
 							}
-							$res["TAGS"] = empty($res['WORK_POSITION']) ? array() : array($res['WORK_POSITION']);
+							$res["TAGS"] = empty($res["WORK_POSITION"]) ? array() : array($res["WORK_POSITION"]);
 							$res["TAGS"] = implode(",", array_merge($res["TAGS"], $ds));
 							$res["WORK_DEPARTMENTS"] = $ds;
 						}
@@ -332,7 +390,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				}
 			}
 
-			if (!empty($result["items"]))
+			if (!empty($result["items"]) || !empty($result["hiddenItems"]))
 			{
 				$cache->startDataCache($cacheTtl, $cacheId, $cacheDir);
 				\CVoteCacheManager::setTag($cacheDir, "V", $cacheParams["voteId"]);
@@ -368,6 +426,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		$nameTemplate = $this->request->getPost("nameTemplate") ?: \CSite::getNameFormat(null, $this->request->getPost("SITE_ID"));
 		$iNumPage = $this->request->getPost("iNumPage");
 		$nPageSize = 50;
+		$items = array();
 
 		$result = self::getVoted(
 			array(
@@ -379,7 +438,14 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				"bShowAll" => false)
 			);
 
-		$items = array();
+		if ($result["hiddenItems"] > 0)
+		{
+			$items[] = array(
+				"ID" => "HIDDEN",
+				"COUNT" => $result["hiddenItems"],
+				"FULL_NAME" => Loc::getMessage("VOTE_HIDDEN_VOTES_COUNT", ["#COUNT#" => $result["hiddenItems"]]),
+			);
+		}
 		foreach ($result["items"] as $k => $res)
 		{
 			$items[] = array(
@@ -394,8 +460,8 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		$result["pageSize"] = $nPageSize;
 		$result["iNumPage"] = $iNumPage;
 		$this->sendJsonSuccessResponse(array(
-			'action' => $this->getAction(),
-			'data' => $result
+			"action" => $this->getAction(),
+			"data" => $result
 		));
 	}
 
@@ -454,12 +520,12 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		}
 		$result["items"] = $items;
 		$this->sendJsonSuccessResponse(array(
-			'action' => $this->getAction(),
-			'data' => array(
-				'voted' => $items
+			"action" => $this->getAction(),
+			"data" => array(
+				"voted" => $items
 			),
-			'names' => array(
-				'voted' =>  'Voted users'
+			"names" => array(
+				"voted" =>  "Voted users"
 			)
 		));
 	}
@@ -484,6 +550,6 @@ class Controller extends \Bitrix\Vote\Base\Controller
 	 */
 	public function clearCache($voteId)
 	{
-		BXClearCache(true, '/vote/'.$voteId."/voted/");
+		BXClearCache(true, "/vote/".$voteId."/voted/");
 	}
 }

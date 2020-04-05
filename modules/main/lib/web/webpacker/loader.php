@@ -16,6 +16,8 @@ class Loader
 
 	protected $skipMoving = false;
 
+	protected $tagAttributes = [];
+
 	/**
 	 * Loader constructor.
 	 *
@@ -51,6 +53,28 @@ class Loader
 	}
 
 	/**
+	 * Set tag attributes.
+	 *
+	 * @param array $tagAttributes Tag attributes.
+	 * @return $this
+	 */
+	public function setTagAttributes(array $tagAttributes = [])
+	{
+		$this->tagAttributes = $tagAttributes;
+		return $this;
+	}
+
+	/**
+	 * Return loader file url.
+	 *
+	 * @return string
+	 */
+	public function getFileUrl()
+	{
+		return $this->file->getUri();
+	}
+
+	/**
 	 * Return loader string.
 	 *
 	 * @return string
@@ -58,9 +82,19 @@ class Loader
 	public function getString()
 	{
 		$content = $this->getStringJs();
-		$skipMoving = $this->skipMoving ? ' data-skip-moving="true"' : '';
+		$attributes = $this->tagAttributes;
+		if ($this->skipMoving)
+		{
+			$attributes['data-skip-moving'] = 'true';
+		}
+		$attrs = '';
+		foreach ($attributes as $key => $value)
+		{
+			$attrs .= " " . htmlspecialcharsbx($key) . '="'
+				. htmlspecialcharsbx($value) . '"';
+		}
 		return <<<EOD
-<script{$skipMoving}>
+<script{$attrs}>
 $content
 </script>
 EOD;

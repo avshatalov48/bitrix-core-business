@@ -85,3 +85,19 @@ div#wiki_category .ilike-light .bx-ilike-text {
 	border: 1px solid #B6B6B8;
 	padding: 2px 5px;
 }
+
+.wiki-category-rating .feed-inform-ilike.feed-new-like {
+	float: right;
+}
+
+.wiki-category-rating .feed-post-emoji-top-panel-outer {
+	padding-bottom: 0;
+}
+
+.wiki-category-rating .feed-post-emoji-top-panel-box.feed-post-emoji-top-panel-container-active {
+	background: transparent;
+	padding-left: 7px;
+	margin: 5px 11px 5px 0;
+	float: right;
+}
+

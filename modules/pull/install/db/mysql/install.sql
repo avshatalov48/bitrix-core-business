@@ -11,7 +11,7 @@ CREATE TABLE b_pull_stack (
 CREATE TABLE b_pull_channel (
 	ID int(18) not null auto_increment,
 	USER_ID int(18) not null,
-	CHANNEL_TYPE varchar(50) null,
+	CHANNEL_TYPE varchar(255) null,
 	CHANNEL_ID varchar(50) not null,
 	CHANNEL_PUBLIC_ID varchar(50) null,
 	LAST_ID int(18) null,

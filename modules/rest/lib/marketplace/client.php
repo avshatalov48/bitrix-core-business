@@ -135,6 +135,8 @@ class Client
 
 		$cacheId = 'rest|marketplace|categories|'.LANGUAGE_ID;
 
+		$requestNeeded = true;
+
 		if(
 			$forceReload === false
 			&& static::CATEGORIES_CACHE_TTL > 0
@@ -142,13 +144,27 @@ class Client
 		)
 		{
 			$categoriesList = $managedCache->get($cacheId);
+			if (is_array($categoriesList))
+			{
+				$requestNeeded = false;
+			}
+			elseif (intval($categoriesList) > time())
+			{
+				$requestNeeded = false;
+				$categoriesList = [];
+			}
 		}
-		else
+
+		if ($requestNeeded)
 		{
 			$categoriesList = Transport::instance()->call(Transport::METHOD_GET_CATEGORIES);
-			if($categoriesList)
+			if(is_array($categoriesList))
 			{
 				$categoriesList = $categoriesList["ITEMS"];
+			}
+			else
+			{
+				$categoriesList = time() + 300;
 			}
 
 			if(static::CATEGORIES_CACHE_TTL > 0)
@@ -157,7 +173,7 @@ class Client
 			}
 		}
 
-		return $categoriesList;
+		return (is_array($categoriesList) ? $categoriesList : []);
 	}
 
 	public static function getCategory($code, $page = false, $pageSize = false)
@@ -182,7 +198,7 @@ class Client
 		);
 	}
 
-	public static function getByTag($tag, $page = false)
+	public static function getByTag($tag, $page = false, $pageSize = false)
 	{
 		$queryFields = Array(
 			"tag" => $tag
@@ -193,10 +209,30 @@ class Client
 			$queryFields["page"] = $page;
 		}
 
+		if($pageSize > 0)
+		{
+			$queryFields["onPageSize"] = $pageSize;
+		}
+
 		return Transport::instance()->call(
 			Transport::METHOD_GET_TAG,
 			$queryFields
 		);
+	}
+
+	public static function getLastByTag($tag, $pageSize = false)
+	{
+		$queryFields = Array(
+			"tag" => $tag,
+			"sort" => "date_public"
+		);
+
+		if($pageSize > 0)
+		{
+			$queryFields["onPageSize"] = $pageSize;
+		}
+
+		return Transport::instance()->call(Transport::METHOD_GET_TAG, $queryFields);
 	}
 
 	public static function getApp($code, $version = false, $checkHash = false, $installHash = false)
@@ -372,6 +408,29 @@ class Client
 		$tag[] = $placement;
 
 		return $tag;
+	}
+
+	public static function getTagByAppType($type)
+	{
+		$tag = [];
+		$tag[] = $type;
+		return $tag;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isSubscriptionAvailable()
+	{
+		return \Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid", "N") === "Y";
+	}
+
+	/**
+	 * @return \Bitrix\Main\Type\Date
+	 */
+	public static function getSubscriptionFinalDate()
+	{
+		return new \Bitrix\Main\Type\Date(\Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid_date"));
 	}
 
 }

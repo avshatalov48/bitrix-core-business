@@ -56,7 +56,12 @@ class BundleCollection extends BasketItemCollection
 	 */
 	public static function getList(array $parameters)
 	{
-		return Basket::getList($parameters);
+		$registry = Registry::getInstance(static::getRegistryType());
+
+		/** @var Basket $basketClassName */
+		$basketClassName = $registry->getBasketClassName();
+
+		return $basketClassName::getList($parameters);
 	}
 
 	/**
@@ -171,7 +176,7 @@ class BundleCollection extends BasketItemCollection
 	}
 
 	/**
-	 * @return BasketItemCollection
+	 * @return BasketBase
 	 */
 	public function getBasket()
 	{

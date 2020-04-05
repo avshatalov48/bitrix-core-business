@@ -28,8 +28,8 @@ if($_REQUEST['action'] === 'attachUrlPreview')
 	{
 		$urlPattern = "~^
 				(https?://|//)?       # protocol (optional)
-				(([\w-]+:)?([\w-]+)@)?    # basic auth
-				([\w-\.]+?)               # hostname or ip address
+				(([\w\-]+:)?([\w\-]+)@)?    # basic auth
+				([\w\-\.]+?)               # hostname or ip address
 				(:[0-9]+)?                # a port (optional)
 				(/?|/\S+|\?\S*|\#\S*)   # a /, nothing, a / with something, a query or a fragment
 			$~ixu";

@@ -1,6 +1,6 @@
 <section class="landing-block g-pt-50 g-pb-50">
 	<div class="container">
-		<div class="row g-mx-minus-25 justify-content-center">
+		<div class="row g-mx-minus-25 justify-content-center landing-block-inner">
 			<div class="landing-block-card-member col-6 col-md-3 col-lg-3 g-px-25 g-pb-0 js-animation fadeInUp">
 				<!-- Team -->
 				<div class="text-center">

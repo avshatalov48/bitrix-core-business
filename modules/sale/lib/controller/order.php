@@ -12,6 +12,7 @@ use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Helpers\Order\Builder\BuildingException;
 use Bitrix\Sale\PaySystem\Manager;
 use Bitrix\Sale\Registry;
+use Bitrix\Sale;
 use Bitrix\Sale\Rest\Synchronization\Loader\Factory;
 use Bitrix\Sale\Rest\Synchronization\LoggerDiag;
 use Bitrix\Sale\Result;
@@ -21,13 +22,17 @@ class Order extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\Order::class,
+			Sale\Order::class,
 			'order',
 			function($className, $id) {
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
 				/** @var \Bitrix\Sale\Order $className */
-				$order = $className::load($id);
-				if($order instanceof $className)
+				$orderClass = $registry->getOrderClassName();
+
+				/** @var \Bitrix\Sale\Order $className */
+				$order = $orderClass::load($id);
+				if ($order)
 				{
 					return $order;
 				}
@@ -255,7 +260,12 @@ class Order extends Controller
 			)
 		];
 
-		$orders = \Bitrix\Sale\Order::getList(
+		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$orders = $orderClass::getList(
 			[
 				'select'=>$select,
 				'filter'=>$filter,
@@ -268,8 +278,13 @@ class Order extends Controller
 
 		return new Page('ORDERS', $orders, function() use ($select, $filter, $runtime)
 		{
+			$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
 			return count(
-				\Bitrix\Sale\Order::getList(['select'=>$select, 'filter'=>$filter, 'runtime'=>$runtime])->fetchAll()
+				$orderClass::getList(['select'=>$select, 'filter'=>$filter, 'runtime'=>$runtime])->fetchAll()
 			);
 		});
 	}
@@ -597,7 +612,12 @@ class Order extends Controller
 		}
 		else
 		{
-			$order = \Bitrix\Sale\Order::load($internalId);
+			$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			$order = $orderClass::load($internalId);
 			$fields['ORDER']['PERSON_TYPE_ID'] = $order->getPersonTypeId();
 			$fields['ORDER']['USER_ID'] = $order->getUserId();
 			$fields['ORDER']['SITE_ID'] = $order->getSiteId();

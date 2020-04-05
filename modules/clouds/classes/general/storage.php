@@ -189,6 +189,11 @@ class CCloudStorage
 			}
 		}
 
+		if (!$arFile["SRC"])
+		{
+			$arFile["SRC"] = $obSourceBucket->GetFileSRC($arFile);
+		}
+
 		if (defined("BX_MOBILE") && constant("BX_MOBILE") === true)
 			$bImmediate = true;
 		else
@@ -840,11 +845,33 @@ class CCloudStorage
 			}
 		}
 
+		if (!strlen($newPath))
+		{
+			if ($arFile["EXTERNAL_ID"] == "")
+			{
+				$arFile["EXTERNAL_ID"] = md5(mt_rand());
+			}
+
+			\Bitrix\Clouds\FileSaveTable::startFileOperation(
+				$bucket->ID
+				,$arFile["SUBDIR"]
+				,$newName
+				,$arFile["EXTERNAL_ID"]
+			);
+		}
+
 		$result = $bucket->FileCopy($arFile, $filePath);
 
 		if ($result)
 		{
-			$bucket->IncFileCounter($arFile["FILE_SIZE"]);
+			$copySize = $arFile["FILE_SIZE"];
+			$bucket->IncFileCounter($copySize);
+			\Bitrix\Clouds\FileSaveTable::setFileSize(
+				$bucket->ID
+				,$arFile["SUBDIR"]
+				,$newName
+				,$copySize
+			);
 
 			if (strlen($newPath))
 			{
@@ -1110,6 +1137,18 @@ class CCloudStorage
 				$filePath = "/".$subDir."/".$newName;
 			}
 
+			if (!isset($arFile["external_id"]))
+			{
+				$arFile["external_id"] = md5(mt_rand());
+			}
+
+			\Bitrix\Clouds\FileSaveTable::startFileOperation(
+				$bucket->ID
+				,$subDir
+				,$newName
+				,$arFile["external_id"]
+			);
+
 			$targetPath = $bucket->GetFileSRC("/");
 			if (strpos($arFile["tmp_name"], $targetPath) === 0)
 			{
@@ -1147,7 +1186,9 @@ class CCloudStorage
 				}
 
 				if (!$bucket->SaveFile($filePath, $arFile))
+				{
 					return false;
+				}
 			}
 		}
 
@@ -1169,10 +1210,23 @@ class CCloudStorage
 			$arFile["HEIGHT"] = $arFile["height"];
 			$arFile["size"] = $copySize;
 			$bucket->IncFileCounter($copySize);
+			\Bitrix\Clouds\FileSaveTable::setFileSize(
+				$bucket->ID
+				,$subDir
+				,$newName
+				,$copySize
+			);
 		}
 		else
 		{
-			$bucket->IncFileCounter(filesize($arFile["tmp_name"]));
+			$fileSize = filesize($arFile["tmp_name"]);
+			$bucket->IncFileCounter($fileSize);
+			\Bitrix\Clouds\FileSaveTable::setFileSize(
+				$bucket->ID
+				,$subDir
+				,$newName
+				,$fileSize
+			);
 			$flashEnabled = !CFile::IsImage($arFile["ORIGINAL_NAME"], $arFile["type"]);
 			$imgArray = CFile::GetImageSize($arFile["tmp_name"], true, $flashEnabled);
 			if (is_array($imgArray))
@@ -1183,9 +1237,69 @@ class CCloudStorage
 		}
 
 		if (isset($arFile["old_file"]))
+		{
 			CFile::DoDelete($arFile["old_file"]);
+		}
 
 		return true;
+	}
+
+	public static function OnAfterFileSave($arFile)
+	{
+		\Bitrix\Clouds\FileSaveTable::endFileOperation(
+			$arFile["HANDLER_ID"]
+			,$arFile["SUBDIR"]
+			,$arFile["FILE_NAME"]
+		);
+	}
+
+	public static function CleanUp()
+	{
+		$buckets = array();
+		$date = new \Bitrix\Main\Type\DateTime();
+		$date->add("-1D");
+		$savedFiles = \Bitrix\Clouds\FileSaveTable::getList(array(
+			"filter" => array(
+				"<TIMESTAMP_X" => $date,
+			),
+		));
+		while ($saveFile = $savedFiles->fetchObject())
+		{
+			$dbFile = CFile::GetList(array(), array(
+				"EXTERNAL_ID" => $saveFile->getExternalId(),
+				"SUBDIR" => $saveFile->getSubdir(),
+				"FILE_NAME" => $saveFile->getFileName(),
+				"HANDLER_ID" => $saveFile->getBucketId(),
+			));
+			if ($dbFile->Fetch())
+			{
+				$saveFile->delete();
+			}
+			else
+			{
+				$bucketId = $saveFile->getBucketId();
+				if (!isset($buckets[$bucketId]))
+				{
+					$buckets[$bucketId] = new \CCloudStorageBucket($bucketId);
+				}
+				$bucket = $buckets[$bucketId];
+
+				if ($bucket->Init())
+				{
+					$filePath = "/".$saveFile->getSubdir()."/".$saveFile->getFileName();
+					if ($bucket->DeleteFile($filePath))
+					{
+						$fileSize = $saveFile->getFileSize();
+						if ($fileSize >= 0)
+						{
+							$bucket->DecFileCounter($fileSize);
+						}
+					}
+					$saveFile->delete();
+				}
+			}
+		}
+		return "CCloudStorage::CleanUp();";
 	}
 
 	public static function FindBucketByFile($file_name)

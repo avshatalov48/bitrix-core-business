@@ -275,7 +275,11 @@ class BasketComponentHelper
 			'BASKET_ITEMS' => $basketList
 		);
 
-		$basket = Basket::create(SITE_ID);
+		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Basket $basketClassName */
+		$basketClassName = $registry->getBasketClassName();
+
+		$basket = $basketClassName::create(SITE_ID);
 		$basket->setFUserId($fuserId);
 		foreach ($basketList as $oldItem)
 		{

@@ -71,6 +71,9 @@ if($IBLOCK_OFFERS_ID == false)
 	if ($IBLOCK_OFFERS_ID < 1)
 		return;
 
+	$iblock = new CIBlock;
+	$iblock->Update($IBLOCK_CATALOG_ID, array("LIST_MODE" => \Bitrix\Iblock\IblockTable::LIST_MODE_SEPARATE));
+
 	$_SESSION["WIZARD_OFFERS_IBLOCK_ID"] = $IBLOCK_OFFERS_ID;
 }
 else

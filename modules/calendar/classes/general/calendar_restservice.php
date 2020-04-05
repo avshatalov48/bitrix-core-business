@@ -626,7 +626,7 @@ final class CCalendarRestService extends IRestService
 			$arFields["IS_MEETING"] = $params['is_meeting'] == "Y";
 
 		if (isset($params['location']))
-			$arFields["LOCATION"] = $params['LOCATION'];
+			$arFields["LOCATION"] = $params['location'];
 
 		if (isset($params['remind']))
 			$arFields["REMIND"] = $params['remind'];
@@ -1722,6 +1722,33 @@ final class CCalendarRestService extends IRestService
 			'fromLimit' => $from,
 			'toLimit' => $to
 		], $attendees);
+
+		$eventIdList = [];
+		$eventIndex = [];
+
+		foreach($entries as $i => $eventEntry)
+		{
+			$eventIdList[] = $eventEntry['ID'];
+			$eventIndex[$eventEntry['ID']] = $i;
+			$entries[$i]['RESOURCE_BOOKING_ID'] = null;
+		}
+
+		$resourseList = \Bitrix\Calendar\Internals\ResourceTable::getList(
+			array(
+				"select" => ["ID","EVENT_ID"],
+				"filter" => array(
+					"=EVENT_ID" => $eventIdList
+				)
+			)
+		);
+
+		while ($resBooking = $resourseList->fetch())
+		{
+			if ($eventIndex[$resBooking['EVENT_ID']] >= 0)
+			{
+				$entries[$eventIndex[$resBooking['EVENT_ID']]]['RESOURCE_BOOKING_ID'] = $resBooking['ID'];
+			}
+		}
 
 		return $entries;
 	}

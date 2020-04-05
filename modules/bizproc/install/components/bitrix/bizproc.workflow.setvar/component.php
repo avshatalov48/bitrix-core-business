@@ -111,11 +111,6 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 				$arRequest,
 				$arErrorsTmp
 			);
-			$arResult["VARIABLES"][$variableKey]['Default_printable'] = $arResult["DocumentService"]->GetFieldInputValuePrintable(
-				$arResult["DOCUMENT_TYPE"],
-				$arResult["VARIABLES"][$variableKey],
-				$arResult["VARIABLES"][$variableKey]["Default"]
-			);
 
 			if (count($arErrorsTmp) > 0)
 			{

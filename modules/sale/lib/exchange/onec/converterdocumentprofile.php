@@ -105,6 +105,9 @@ class ConverterDocumentProfile extends Converter
 		if(!empty($profile["OKPO_CODE"]))
 			$profile["OKPO"] = $profile["OKPO_CODE"];
 
+		if(strlen($profile["OFICIAL_NAME"]) > 0 && empty($profile["FULL_NAME"]))
+			$profile["FULL_NAME"] = $profile["OFICIAL_NAME"];
+
 		if(strlen($profile["OFICIAL_NAME"]) > 0 && strlen($profile["INN"]) > 0)
 			$profile["TYPE"] = "UR";
 		elseif(strlen($profile["INN"]) > 0)
@@ -122,6 +125,7 @@ class ConverterDocumentProfile extends Converter
 					case 'ID':
 					case 'VERSION':
 					case 'ITEM_NAME':
+					case 'AGENT_NAME':
 					case 'OFICIAL_NAME':
 					case 'FULL_NAME':
 					case 'INN':

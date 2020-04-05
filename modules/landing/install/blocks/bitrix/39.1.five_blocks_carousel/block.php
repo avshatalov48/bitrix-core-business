@@ -1,5 +1,5 @@
 <section class="landing-block g-pt-30 g-pb-30">
-	<div class="js-carousel"
+	<div class="js-carousel row"
 		 data-infinite="true"
 		 data-slides-show="5"
 		 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-60 g-font-size-60 g-color-white g-bg-primary"
@@ -20,10 +20,17 @@
                "settings": {
                  "slidesToShow": 1
                }
-             }]'>
-		<div class="landing-block-node-card js-slide g-px-15">
+             }]'
+		 data-init-classes-exclude='[{
+				 "selector": ".landing-block-node-card",
+				 "class": "col-12 col-sm-4 col-lg-3"
+			   }, {
+				 "selector": ".js-carousel",
+				 "class": "row"
+			   }]'>
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -41,7 +48,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img3.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img3.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
@@ -72,9 +79,9 @@
 			<!-- End Article -->
 		</div>
 
-		<div class="landing-block-node-card js-slide g-px-15">
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -92,7 +99,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img4.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img4.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
@@ -121,9 +128,9 @@
 			<!-- End Article -->
 		</div>
 
-		<div class="landing-block-node-card js-slide g-px-15">
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -141,7 +148,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img5.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img5.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
@@ -170,9 +177,9 @@
 			<!-- End Article -->
 		</div>
 
-		<div class="landing-block-node-card js-slide g-px-15">
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -190,7 +197,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img6.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img6.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
@@ -219,9 +226,9 @@
 			<!-- End Article -->
 		</div>
 
-		<div class="landing-block-node-card js-slide g-px-15">
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -239,7 +246,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img7.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img7.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->
@@ -268,9 +275,9 @@
 			<!-- End Article -->
 		</div>
 
-		<div class="landing-block-node-card js-slide g-px-15">
+		<div class="landing-block-node-card h-auto d-flex js-slide g-px-15 col-12 col-sm-4 col-lg-3">
 			<!-- Article -->
-			<article class="landing-block-node-card-bg js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
+			<article class="landing-block-node-card-bg d-flex flex-column js-animation fadeInUp text-center g-bg-white g-brd-around g-brd-gray-light-v3 g-rounded-4 g-my-2">
 				<!-- Article Header -->
 				<header class="g-pa-25">
 					<div class="landing-block-node-card-subtitle text-uppercase g-letter-spacing-1 g-color-gray-dark-v5 g-mb-15">
@@ -288,7 +295,7 @@
 				<!-- End Article Header -->
 
 				<!-- Article Image -->
-				<img class="landing-block-node-card-img w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img8.jpg" alt="">
+				<img class="landing-block-node-card-img w-100 mt-auto" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x534/img8.jpg" alt="">
 				<!-- End Article Image -->
 
 				<!-- Article Footer -->

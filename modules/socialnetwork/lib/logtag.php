@@ -145,14 +145,22 @@ class LogTagTable extends Entity\DataManager
 			'itemId' => intval($params['itemId'])
 		));
 
+		$addedLowerCaseTagsList = [];
+
 		foreach($params['tags'] as $tag)
 		{
+			$lowerCaseTag = toLower($tag);
+			if (in_array($lowerCaseTag, $addedLowerCaseTagsList))
+			{
+				continue;
+			}
 			self::add(array(
 				'ITEM_TYPE' => $params['itemType'],
 				'ITEM_ID' => intval($params['itemId']),
 				'LOG_ID' => intval($params['logId']),
 				'NAME' => $tag
 			));
+			$addedLowerCaseTagsList[] = $lowerCaseTag; // index requirement;
 		}
 
 		return true;

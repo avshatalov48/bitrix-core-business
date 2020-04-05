@@ -6,6 +6,8 @@
  * @copyright 2001-2018 Bitrix
  */
 
+use Bitrix\Main\Type\Date;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/admin_informer.php");
 
@@ -72,16 +74,16 @@ class CMpNotifications
 			if (isset($arUpdateList["MODULE"]) && is_array($arUpdateList["MODULE"]))
 			{
 				$daysCheck += 30;
-				$curDateFrom = new \Bitrix\Main\Type\Date;
-				$curDateTo = new \Bitrix\Main\Type\Date;
+				$curDateFrom = new Date;
+				$curDateTo = new Date;
 				$curDateFrom = $curDateFrom->add("30 days");
 				$curDateTo = $curDateTo->add(strval($daysCheck)." days");
 
 				for ($i = 0, $cnt = count($arUpdateList["MODULE"]); $i < $cnt; $i++)
 				{
-					if (strlen($arUpdateList["MODULE"][$i]['@']['DATE_TO']) > 0)
+					if (strlen($arUpdateList["MODULE"][$i]['@']['DATE_TO']) > 0 && Date::isCorrect($arUpdateList["MODULE"][$i]['@']['DATE_TO']))
 					{
-						$dateTo = new \Bitrix\Main\Type\Date($arUpdateList["MODULE"][$i]['@']['DATE_TO']);
+						$dateTo = new Date($arUpdateList["MODULE"][$i]['@']['DATE_TO']);
 						$ID = $arUpdateList["MODULE"][$i]["@"]["ID"];
 						if ($dateTo >= $curDateFrom && $dateTo < $curDateTo)
 						{

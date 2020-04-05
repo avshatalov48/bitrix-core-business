@@ -6,6 +6,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\Contract\DynamicConfigurable;
 use Bitrix\Main\Numerator\Generator\NumberGenerator;
 use Bitrix\Sale\Internals\OrderTable;
+use Bitrix\Sale\Internals\OrderArchiveTable;
 use Bitrix\Sale\Registry;
 
 /**
@@ -65,6 +66,20 @@ class OrderUserOrdersNumberGenerator extends NumberGenerator implements DynamicC
 		if ($userIdOfOrder)
 		{
 			$userIdOfOrder = intval($userIdOfOrder['USER_ID']);
+			$countArchiveOrderOfUser = OrderArchiveTable::query()
+				->addSelect('ORDERS_COUNT')
+				->registerRuntimeField(
+					new ExpressionField(
+						'ORDERS_COUNT',
+						'COUNT(ID)'
+					)
+				)
+				->where('USER_ID', $userIdOfOrder)
+				->addGroup('USER_ID')
+				->exec()
+				->fetch();
+			$countArchiveOrderOfUser = (int)$countArchiveOrderOfUser['ORDERS_COUNT'];
+
 			$countOrderOfUser = $tableName::query()
 				->addSelect('ORDERS_COUNT')
 				->registerRuntimeField(
@@ -78,15 +93,9 @@ class OrderUserOrdersNumberGenerator extends NumberGenerator implements DynamicC
 				->exec()
 				->fetch();
 
-			if ($countOrderOfUser)
-			{
-				$numID = (intval($countOrderOfUser["ORDERS_COUNT"]) > 0) ? $countOrderOfUser["ORDERS_COUNT"] : 1;
-				$value = $userIdOfOrder . "_" . $numID;
-			}
-			else
-			{
-				$value = $userIdOfOrder . "_1";
-			}
+			$countOrderOfUser = (int)$countOrderOfUser['ORDERS_COUNT'] + $countArchiveOrderOfUser;
+			$numID = ($countOrderOfUser > 0) ? $countOrderOfUser : 1;
+			$value = $userIdOfOrder . "_" . $numID;
 		}
 		else
 		{

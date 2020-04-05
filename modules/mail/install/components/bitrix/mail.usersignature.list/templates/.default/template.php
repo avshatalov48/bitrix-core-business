@@ -20,11 +20,11 @@ if ($isIframe):?>
 	<div class="mail-signature-is-iframe">
 <?endif;
 
-if (SITE_TEMPLATE_ID == 'bitrix24' && !$isIframe)
+if (SITE_TEMPLATE_ID == 'bitrix24' || $isIframe)
 {
 	$this->setViewTarget('inside_pagetitle'); ?>
 
-	<div class="pagetitle-container pagetitle-flexible-space">
+	<div class="pagetitle-container mail-pagetitle-flexible-space">
 		<? $APPLICATION->includeComponent(
 			'bitrix:main.ui.filter', '',
 			$arResult['FILTER']
@@ -43,12 +43,12 @@ else
 		'bitrix:main.ui.filter', '',
 		$arResult['FILTER']
 	); ?>
-	<?$this->setViewTarget('pagetitle');?>
+
 	<button class="ui-btn ui-btn-primary mail-signature-create-btn" onclick="BX.Mail.UserSignature.List.openUrl('<?=CUtil::JSEscape($arResult['addUrl']);?>');">
 		<?= Loc::getMessage('MAIL_USERSIGNATURE_ADD_BUTTON') ?>
 	</button>
+
 	<?
-	$this->endViewTarget('pagetitle');
 }
 
 $APPLICATION->SetTitle(Loc::getMessage('MAIL_USERSIGNATURE_LIST_TITLE'));

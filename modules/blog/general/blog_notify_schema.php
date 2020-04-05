@@ -52,6 +52,10 @@ class CBlogNotifySchema
 				"PUSH" => "Y",
 				"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP)
 			);
+			$ar["grat"] = Array(
+				"NAME" => GetMessage('BLG_NS_GRAT'),
+				"PUSH" => "Y"
+			);
 		}
 
 		if (IsModuleInstalled('socialnetwork'))

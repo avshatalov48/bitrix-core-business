@@ -853,24 +853,6 @@ do{ //one iteration loop
 						}
 						include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/admin/templates/product_edit_validator.php");
 					}
-					if ($arShowTabs['sku'])
-					{
-						if ($bCopy || $ID == 0)
-						{
-							$arFilter = array(
-								'IBLOCK_ID' => $arMainCatalog['IBLOCK_ID'],
-								'=PROPERTY_'.$arMainCatalog['SKU_PROPERTY_ID'] => '-'.$str_TMP_ID
-							);
-							if ((int)CIBlockElement::GetList(
-								array(),
-								$arFilter,
-								array()
-							) == 0)
-							{
-								$strWarning .= GetMessage('IBLOCK_ELEMENT_OFFERS_IS_ABSENT').'<br>';
-							}
-						}
-					}
 					if ($arShowTabs['product_set'])
 					{
 						CCatalogAdminProductSetEdit::setProductFormParams(array('TYPE' => CCatalogProductSet::TYPE_SET));
@@ -1073,6 +1055,7 @@ do{ //one iteration loop
 						{
 							if ($arShowTabs['sku'])
 							{
+								$offersFound = false;
 								Catalog\Product\Sku::enableDeferredCalculation();
 								$arFilter = array(
 									'IBLOCK_ID' => $arMainCatalog['IBLOCK_ID'],
@@ -1087,6 +1070,7 @@ do{ //one iteration loop
 								);
 								while ($arOfferItem = $rsOffersItems->Fetch())
 								{
+									$offersFound = true;
 									CIBlockElement::SetPropertyValues(
 										$arOfferItem['ID'],
 										$arMainCatalog['IBLOCK_ID'],
@@ -1101,6 +1085,35 @@ do{ //one iteration loop
 
 								$boolFlagClear = CIBlockOffersTmp::Delete($str_TMP_ID);
 								$boolFlagClearAll = CIBlockOffersTmp::DeleteOldID($IBLOCK_ID);
+
+								if (!$offersFound)
+								{
+									$iterator = Catalog\Model\Product::getList(array(
+										'select' => array('ID', 'TYPE'),
+										'filter' => array('=ID' => $ID)
+									));
+									$productRow = $iterator->fetch();
+									if (empty($productRow))
+									{
+										$productResult = Catalog\Model\Product::add(array(
+											'fields' => array(
+												'ID' => $ID,
+												'TYPE' => Catalog\ProductTable::TYPE_EMPTY_SKU
+											),
+											'external_fields' => array(
+												'IBLOCK_ID' => $IBLOCK_ID
+											)
+										));
+										if (!$productResult->isSuccess())
+										{
+											$strWarning .= implode('. ', $productResult->getErrorMessages());
+										}
+										unset($productResult);
+									}
+									unset($productRow);
+									unset($iterator);
+								}
+								unset($offersFound);
 							}
 						}
 					}
@@ -2401,60 +2414,38 @@ if($bVarsFromForm && !array_key_exists("PREVIEW_PICTURE", $_REQUEST) && $arEleme
 	<tr id="tr_PREVIEW_PICTURE" class="adm-detail-file-row">
 		<td width="40%" class="adm-detail-valign-top"><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td width="60%">
-			<?if($historyId > 0):?>
-				<?echo CFileInput::Show("PREVIEW_PICTURE", $str_PREVIEW_PICTURE, array(
-					"IMAGE" => "Y",
-					"PATH" => "Y",
-					"FILE_SIZE" => "Y",
-					"DIMENSIONS" => "Y",
-					"IMAGE_POPUP" => "Y",
-					"MAX_SIZE" => array(
-						"W" => COption::GetOptionString("iblock", "detail_image_size"),
-						"H" => COption::GetOptionString("iblock", "detail_image_size"),
-					),
-				));
-				?>
-			<?else:?>
-				<?
-				if (class_exists('\Bitrix\Main\UI\FileInput', true))
-				{
-					echo \Bitrix\Main\UI\FileInput::createInstance(array(
-							"name" => "PREVIEW_PICTURE",
-							"description" => true,
-							"upload" => true,
-							"allowUpload" => "I",
-							"medialib" => true,
-							"fileDialog" => true,
-							"cloud" => true,
-							"delete" => true,
-							"maxCount" => 1
-						))->show(($bVarsFromForm ? $_REQUEST["PREVIEW_PICTURE"] : ($ID > 0 && !$bCopy ? $str_PREVIEW_PICTURE: 0)), $bVarsFromForm);
-				}
-				else
-				{
-					echo CFileInput::Show("PREVIEW_PICTURE", ($ID > 0 && !$bCopy? $str_PREVIEW_PICTURE: 0),
-						array(
-							"IMAGE" => "Y",
-							"PATH" => "Y",
-							"FILE_SIZE" => "Y",
-							"DIMENSIONS" => "Y",
-							"IMAGE_POPUP" => "Y",
-							"MAX_SIZE" => array(
-								"W" => COption::GetOptionString("iblock", "detail_image_size"),
-								"H" => COption::GetOptionString("iblock", "detail_image_size"),
-							),
-						), array(
-							'upload' => true,
-							'medialib' => true,
-							'file_dialog' => true,
-							'cloud' => true,
-							'del' => true,
-							'description' => true,
+			<?if($historyId > 0):
+				echo CFileInput::Show(
+					"PREVIEW_PICTURE",
+					$str_PREVIEW_PICTURE,
+					array(
+						"IMAGE" => "Y",
+						"PATH" => "Y",
+						"FILE_SIZE" => "Y",
+						"DIMENSIONS" => "Y",
+						"IMAGE_POPUP" => "Y",
+						"MAX_SIZE" => array(
+							"W" => COption::GetOptionString("iblock", "detail_image_size"),
+							"H" => COption::GetOptionString("iblock", "detail_image_size"),
 						)
-					);
-				}
-				?>
-			<?endif?>
+					)
+				);
+			else:
+				echo \Bitrix\Main\UI\FileInput::createInstance(array(
+					"name" => "PREVIEW_PICTURE",
+					"description" => true,
+					"upload" => true,
+					"allowUpload" => "I",
+					"medialib" => true,
+					"fileDialog" => true,
+					"cloud" => true,
+					"delete" => true,
+					"maxCount" => 1
+				))->show(
+					($bVarsFromForm ? $_REQUEST["PREVIEW_PICTURE"] : ($ID > 0 && !$bCopy ? $str_PREVIEW_PICTURE: 0)),
+					$bVarsFromForm
+				);
+			endif;?>
 		</td>
 	</tr>
 <?
@@ -2528,59 +2519,38 @@ if($bVarsFromForm && !array_key_exists("DETAIL_PICTURE", $_REQUEST) && $arElemen
 	<tr id="tr_DETAIL_PICTURE" class="adm-detail-file-row">
 		<td width="40%" class="adm-detail-valign-top"><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td width="60%">
-			<?if($historyId > 0):?>
-				<?echo CFileInput::Show("DETAIL_PICTURE", $str_DETAIL_PICTURE, array(
-					"IMAGE" => "Y",
-					"PATH" => "Y",
-					"FILE_SIZE" => "Y",
-					"DIMENSIONS" => "Y",
-					"IMAGE_POPUP" => "Y",
-					"MAX_SIZE" => array(
-						"W" => COption::GetOptionString("iblock", "detail_image_size"),
-						"H" => COption::GetOptionString("iblock", "detail_image_size"),
-					),
-				));
-				?>
-			<?else:?>
-				<?if (class_exists('\Bitrix\Main\UI\FileInput', true))
-				{
-					echo \Bitrix\Main\UI\FileInput::createInstance(array(
-							"name" => "DETAIL_PICTURE",
-							"description" => true,
-							"upload" => true,
-							"allowUpload" => "I",
-							"medialib" => true,
-							"fileDialog" => true,
-							"cloud" => true,
-							"delete" => true,
-							"maxCount" => 1
-						))->show($bVarsFromForm ? $_REQUEST["DETAIL_PICTURE"] : ($ID > 0 && !$bCopy? $str_DETAIL_PICTURE: 0), $bVarsFromForm);
-				}
-				else
-				{
-					echo CFileInput::Show("DETAIL_PICTURE", ($ID > 0 && !$bCopy? $str_DETAIL_PICTURE: 0),
-						array(
-							"IMAGE" => "Y",
-							"PATH" => "Y",
-							"FILE_SIZE" => "Y",
-							"DIMENSIONS" => "Y",
-							"IMAGE_POPUP" => "Y",
-							"MAX_SIZE" => array(
-								"W" => COption::GetOptionString("iblock", "detail_image_size"),
-								"H" => COption::GetOptionString("iblock", "detail_image_size"),
-							),
-						), array(
-							'upload' => true,
-							'medialib' => true,
-							'file_dialog' => true,
-							'cloud' => true,
-							'del' => true,
-							'description' => true,
+			<?if($historyId > 0):
+				echo CFileInput::Show(
+					"DETAIL_PICTURE",
+					$str_DETAIL_PICTURE,
+					array(
+						"IMAGE" => "Y",
+						"PATH" => "Y",
+						"FILE_SIZE" => "Y",
+						"DIMENSIONS" => "Y",
+						"IMAGE_POPUP" => "Y",
+						"MAX_SIZE" => array(
+							"W" => COption::GetOptionString("iblock", "detail_image_size"),
+							"H" => COption::GetOptionString("iblock", "detail_image_size"),
 						)
-					);
-				}
-				?>
-			<?endif?>
+					)
+				);
+			else:
+				echo \Bitrix\Main\UI\FileInput::createInstance(array(
+					"name" => "DETAIL_PICTURE",
+					"description" => true,
+					"upload" => true,
+					"allowUpload" => "I",
+					"medialib" => true,
+					"fileDialog" => true,
+					"cloud" => true,
+					"delete" => true,
+					"maxCount" => 1
+				))->show(
+					$bVarsFromForm ? $_REQUEST["DETAIL_PICTURE"] : ($ID > 0 && !$bCopy? $str_DETAIL_PICTURE: 0),
+					$bVarsFromForm
+				);
+			endif;?>
 		</td>
 	</tr>
 <?

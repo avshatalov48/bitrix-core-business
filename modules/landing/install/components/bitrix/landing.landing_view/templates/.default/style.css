@@ -11,7 +11,7 @@
 	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
-	padding-right: 10px;
+	padding-right: 17px;
 	padding-left: 16px;
 	height: 62px;
 	background: #fff;
@@ -313,7 +313,6 @@
 
 .ui-btn-icon-setting.landing-ui-panel-top-menu-link-settings {
 	display: none;
-	padding-left: 25px !important;
 }
 
 .landing-ui-panel-top-history-undo.landing-ui-onload,
@@ -508,4 +507,37 @@
 .landing-view-loader-container .main-ui-loader {
 	position: static;
 	transform: none;
+}
+
+.landing-ui-panel-top-light {
+	padding-left: 11px;
+}
+
+.landing-ui-panel-top-light .landing-ui-panel-top-logo,
+.landing-ui-panel-top-light .landing-ui-panel-top-devices,
+.landing-ui-panel-top-light .landing-ui-panel-top-chain-link-separator,
+.landing-ui-panel-top-light .landing-ui-panel-top-menu-link-help {
+	display: none;
+}
+
+.landing-ui-panel-top-light .landing-ui-panel-top-chain .landing-ui-panel-top-chain-link-site,
+.landing-ui-panel-top-light .landing-ui-panel-top-chain .landing-ui-panel-top-chain-link-site + strong {
+	display: block;
+}
+
+.landing-ui-panel-top-light .landing-ui-panel-top-chain {
+	flex-grow: 1;
+}
+
+.landing-ui-panel-top-light .landing-ui-panel-top-menu-link.landing-ui-panel-top-menu-link-settings::before {
+	display: none;
+}
+
+.landing-ui-panel-top .landing-ui-panel-top-menu-link,
+.landing-ui-panel-top .landing-btn-menu {
+	margin-left: 6px;
+}
+
+.landing-ui-panel-top-light .landing-ui-panel-top-chain .landing-ui-panel-top-chain-link-sites {
+	display: none;
 }

@@ -169,8 +169,10 @@
 			}
 
 			this.calendar.entryController.saveEntry(this.getPopupData());
-			if (this.params.saveCallback && typeof this.params.saveCallback == 'function')
+			if (BX.type.isFunction(this.params.saveCallback))
+			{
 				this.params.saveCallback();
+			}
 			this.close();
 		},
 
@@ -199,8 +201,10 @@
 				BX.onCustomEvent('OnCalendarPlannerDoUninstall', [{plannerId: this.plannerId}]);
 			}
 
-			if (this.params.closeCallback && typeof this.params.closeCallback == 'function')
+			if (BX.type.isFunction(this.params.closeCallback))
+			{
 				this.params.closeCallback();
+			}
 
 			BX.unbind(document, 'keydown', BX.proxy(this.keyHandler, this));
 		},
@@ -333,7 +337,7 @@
 			this.backButton = this.secondSlide.appendChild(BX.create('DIV', {props: {className: 'calendar-add-popup-second-slide-header'}})).appendChild(BX.create('SPAN', {props: {className: 'calendar-add-popup-second-slide-back-btn'}, html: BX.message('EC_SIMPLE_FORM_BACK')}));
 
 			BX.bind(this.backButton, 'click', BX.proxy(this.closeSecondSlide, this));
-			BX.bind(document, "keyup", BX.proxy(function(e){if(e.keyCode == 27){this.closeSecondSlide()}}, this));
+			BX.bind(document, "keyup", BX.proxy(function(e){if(e.keyCode === 27){this.closeSecondSlide()}}, this));
 
 			this.popup.setClosingByEsc(false);
 			this.popupButtonsContainer.style.display = 'none';
@@ -347,7 +351,7 @@
 			if(this.closeSecondSlideCallback)
 				this.closeSecondSlideCallback();
 
-			BX.unbind(document, "keyup", BX.proxy(function(e){if(e.keyCode == 27){this.closeSecondSlide()}}, this));
+			BX.unbind(document, "keyup", BX.proxy(function(e){if(e.keyCode === 27){this.closeSecondSlide()}}, this));
 			BX.removeClass(this.popup.contentContainer, 'calendar-add-popup-wrap-second-tab-active');
 
 			this.popupButtonsContainer.style.display = '';
@@ -442,7 +446,7 @@
 								_this.sectionField.innerValue.style.backgroundColor = _this.params.section.color;
 								_this.sectionMenu.close();
 
-								if (_this.params.changeSectionCallback && typeof _this.params.changeSectionCallback == 'function')
+								if (BX.type.isFunction(_this.params.changeSectionCallback))
 								{
 									_this.params.changeSectionCallback(_this.params.section);
 								}
@@ -566,7 +570,7 @@
 						this.params.timeNode.innerHTML = this.calendar.util.formatTime(fromTime.h, fromTime.m);
 					}
 
-					if (this.params.changeTimeCallback && typeof this.params.changeTimeCallback == 'function')
+					if (BX.type.isFunction(this.params.changeTimeCallback))
 					{
 						this.params.changeTimeCallback(fromTime, toTime);
 					}
@@ -739,7 +743,10 @@
 
 		showPlannerSlide: function()
 		{
-			this.popup.setAutoHide(false);
+			if (this.popup)
+			{
+				this.popup.setAutoHide(false);
+			}
 			this.prepareSecondSlide({
 				closeCallback : BX.proxy(this.hidePlannerSlide, this)
 			});
@@ -776,7 +783,11 @@
 
 		hidePlannerSlide: function()
 		{
-			this.popup.setAutoHide(true);
+			if (this.popup)
+			{
+				this.popup.setAutoHide(true);
+			}
+
 			if (this.allowInviteField)
 			{
 				this.allowInvite = !!this.allowInviteField.checkbox.checked;
@@ -798,8 +809,10 @@
 				this.params.nameNode.innerHTML = BX.util.htmlspecialchars(value);
 			}
 
-			if (this.params.changeNameCallback && typeof this.params.changeNameCallback == 'function')
+			if (BX.type.isFunction(this.params.changeNameCallback))
+			{
 				this.params.changeNameCallback(value);
+			}
 		},
 
 		initPlannerControl: function()
@@ -924,7 +937,7 @@
 
 					for (i = 0; i < response.entries.length; i++)
 					{
-						if (response.entries[i].type == 'user')
+						if (response.entries[i].type === 'user')
 						{
 							attendees.push({
 								id: response.entries[i].id,
@@ -1016,7 +1029,9 @@
 				plannerShown = this.plannerIsShown();
 
 			if (params.focusSelector == undefined)
+			{
 				params.focusSelector = true;
+			}
 
 			if (!plannerShown && !params.data)
 			{
@@ -1074,8 +1089,8 @@
 				{
 					if (this.plannerData.entries.hasOwnProperty(i) &&
 						this.plannerData.entries[i].id &&
-						this.plannerData.entries[i].status != 'h' &&
-						this.plannerData.entries[i].strictStatus &&
+						this.plannerData.entries[i].status !== 'h' &&
+						parseInt(this.plannerData.entries[i].strictStatus) &&
 						!this.plannerData.entries[i].currentStatus
 					)
 					{
@@ -1097,7 +1112,7 @@
 
 		keyHandler: function(e)
 		{
-			if(e.keyCode == this.calendar.util.KEY_CODES['enter'])
+			if(e.keyCode === this.calendar.util.KEY_CODES['enter'])
 			{
 				this.save();
 			}

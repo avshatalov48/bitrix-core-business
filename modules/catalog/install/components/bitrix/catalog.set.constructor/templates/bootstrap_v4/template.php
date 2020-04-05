@@ -56,17 +56,17 @@ $curJsId = $this->randString();
 							<tbody data-role="set-items">
 							<?foreach($arResult["SET_ITEMS"]["DEFAULT"] as $key => $arItem):?>
 								<tr
-									data-id="<?=$arItem["ID"]?>"
-									data-img="<?=$arItem["DETAIL_PICTURE"]["src"]?>"
-									data-url="<?=$arItem["DETAIL_PAGE_URL"]?>"
-									data-name="<?=$arItem["NAME"]?>"
-									data-price="<?=$arItem["PRICE_DISCOUNT_VALUE"]?>"
-									data-print-price="<?=$arItem["PRICE_PRINT_DISCOUNT_VALUE"]?>"
-									data-old-price="<?=$arItem["PRICE_VALUE"]?>"
-									data-print-old-price="<?=$arItem["PRICE_PRINT_VALUE"]?>"
-									data-diff-price="<?=$arItem["PRICE_DISCOUNT_DIFFERENCE_VALUE"]?>"
-									data-measure="<?=$arItem["MEASURE"]["SYMBOL_RUS"];?>"
-									data-quantity="<?=$arItem["BASKET_QUANTITY"];?>"
+									data-id="<?=htmlspecialcharsbx($arItem["ID"])?>"
+									data-img="<?=htmlspecialcharsbx($arItem["DETAIL_PICTURE"]["src"])?>"
+									data-url="<?=htmlspecialcharsbx($arItem["DETAIL_PAGE_URL"])?>"
+									data-name="<?=htmlspecialcharsbx($arItem["NAME"])?>"
+									data-price="<?=htmlspecialcharsbx($arItem["PRICE_DISCOUNT_VALUE"])?>"
+									data-print-price="<?=htmlspecialcharsbx($arItem["PRICE_PRINT_DISCOUNT_VALUE"])?>"
+									data-old-price="<?=htmlspecialcharsbx($arItem["PRICE_VALUE"])?>"
+									data-print-old-price="<?=htmlspecialcharsbx($arItem["PRICE_PRINT_VALUE"])?>"
+									data-diff-price="<?=htmlspecialcharsbx($arItem["PRICE_DISCOUNT_DIFFERENCE_VALUE"])?>"
+									data-measure="<?=htmlspecialcharsbx($arItem["MEASURE"]["SYMBOL_RUS"])?>"
+									data-quantity="<?=htmlspecialcharsbx($arItem["BASKET_QUANTITY"])?>"
 								>
 									<td class="catalog-set-constructor-items-list-table-cell-img">
 										<?if ($arItem["DETAIL_PICTURE"]["src"]):?>

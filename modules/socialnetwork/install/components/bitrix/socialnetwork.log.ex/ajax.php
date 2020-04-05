@@ -46,8 +46,6 @@ if (empty($lng))
 	$lng = LANGUAGE_ID;
 }
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.log.ex/include.php");
-
 Loc::loadLanguageFile(__FILE__, $lng);
 
 if(CModule::IncludeModule("compression"))
@@ -76,7 +74,7 @@ if(CModule::IncludeModule("socialnetwork"))
 	{
 		$arResult[0] = "*";
 	}
-	elseif ($action == "get_raw_data")
+	elseif ($action == "get_raw_data") // deprecated, see socialnetwork.api.livefeed.getRawEntryData
 	{
 		$provider = \Bitrix\Socialnetwork\Livefeed\Provider::init(array(
 			'ENTITY_TYPE' => (isset($_REQUEST['ENTITY_TYPE']) ? preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['ENTITY_TYPE']) : false),
@@ -133,7 +131,7 @@ if(CModule::IncludeModule("socialnetwork"))
 			}
 		}
 	}
-	elseif ($action == "create_task_comment")
+	elseif ($action == "create_task_comment") // deprecated, see socialnetwork.api.livefeed.createTaskComment
 	{
 		if (
 			isset($_REQUEST['ENTITY_TYPE'])

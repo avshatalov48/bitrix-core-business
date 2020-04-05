@@ -29,7 +29,7 @@ class UserTypeField extends ExpressionField
 	{
 		if ($this->isMultiple)
 		{
-			if ($value !== false) // empty value for multiple field
+			if ($value !== false && $value !== null) // empty value for multiple field
 			{
 				//if (!\is_iterable($value)) PHP 7
 				if (!is_array($value) && !($value instanceof \Traversable))

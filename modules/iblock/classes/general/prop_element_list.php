@@ -185,7 +185,7 @@ class CIBlockPropertyElementList
 			}
 			$html .= '</table>';
 
-			$html .= '<input type="button" value="'.Loc::getMessage("IBLOCK_PROP_ELEMENT_LIST_ADD").'" onClick="if(window.addNewRow){addNewRow(\'tb'.md5($name).'\', -1)}else{addNewTableRow(\'tb'.md5($name).'\', 1, /\[(n)([0-9]*)\]/g, 2)}">';
+			$html .= '<input type="button" value="'.Loc::getMessage("IBLOCK_PROP_ELEMENT_LIST_ADD").'" onClick="BX.IBlock.Tools.addNewRow(\'tb'.md5($name).'\', -1)">';
 		}
 		return  $html;
 	}
@@ -226,6 +226,10 @@ class CIBlockPropertyElementList
 	{
 		$fields["type"] = "list";
 		$fields["items"] = self::getItemsForUiFilter($arProperty);
+		$fields["operators"] = array(
+			"default" => "=",
+			"enum" => "@"
+		);
 	}
 
 	private static function getItemsForUiFilter($arProperty)
@@ -324,7 +328,17 @@ class CIBlockPropertyElementList
 					$arFilter['CHECK_PERMISSIONS'] = 'Y';
 					$arFilter['MIN_PERMISSION'] = 'R';
 				}
-				$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID","IBLOCK_ID","NAME","DETAIL_PAGE_URL"));
+				$rsElements = CIBlockElement::GetList(
+					array(),
+					$arFilter,
+					false,
+					false,
+					array("ID","IBLOCK_ID","NAME","DETAIL_PAGE_URL")
+				);
+				if (isset($strHTMLControlName['DETAIL_URL']))
+				{
+					$rsElements->SetUrlTemplates($strHTMLControlName['DETAIL_URL']);
+				}
 				$cache[$arValue['VALUE']] = $rsElements->GetNext(true, true);
 				unset($rsElements);
 			}

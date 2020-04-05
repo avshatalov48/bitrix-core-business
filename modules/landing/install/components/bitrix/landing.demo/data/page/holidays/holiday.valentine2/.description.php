@@ -32,7 +32,7 @@ return array(
 	<div class="u-header__section g-bg-black-opacity-0_4 g-transition-0_3 g-py-8 g-py-17--md" data-header-fix-moment-exclude="g-bg-black-opacity-0_4 g-py-17--md" data-header-fix-moment-classes="u-theme-architecture-shadow-v1 g-bg-white g-py-10--md">
 		<nav class="navbar navbar-expand-lg p-0 g-px-15">
 			<div class="container">
-				<a href="/" class="landing-block-node-menu-logo-link-small g-hidden-lg-up navbar-brand mr-0 p-0" target="_self">
+				<a href="#" class="landing-block-node-menu-logo-link-small g-hidden-lg-up navbar-brand mr-0 p-0" target="_self">
 					<img class="landing-block-node-menu-logo-small d-block g-max-width-180" src="https://cdn.bitrix24.site/bitrix/images/landing/logos/valentine-logo-white.png" alt="" data-header-fix-moment-exclude="d-block" data-header-fix-moment-classes="d-none" />
 
 					<img class="landing-block-node-menu-logo-small-2 d-none g-max-width-180" src="https://cdn.bitrix24.site/bitrix/images/landing/logos/valentine-logo-black.png" alt="" data-header-fix-moment-exclude="d-none" data-header-fix-moment-classes="d-block" />
@@ -225,10 +225,10 @@ return array(
 				'CODE' => '21.3.two_cols_big_bgimg_title_text_button',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
-       <div class="row no-gutters g-overflow-hidden">
+       <div class="row no-gutters g-overflow-hidden landing-block-inner">
 
-			<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img5.jpg);">
-				<div class="text-center u-bg-overlay__inner g-pa-40">
+			<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img5.jpg);">
+				<div class="text-center u-bg-overlay__inner" data-stop-propagation>
 					<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-font-size-28 js-animation fadeIn"><span style="font-style: italic;">Flowers</span></h3>
 					<div class="landing-block-node-text g-color-white-opacity-0_7 js-animation fadeIn"><p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p></div>
 					<div class="landing-block-node-button-container">
@@ -237,8 +237,8 @@ return array(
 				</div>
             </div>
 
-			<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-img-hero row no-gutters align-items-center justify-content-center g-bg-black-opacity-0_6--after u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img6.jpg);">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+			<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-img-hero row no-gutters align-items-center justify-content-center g-bg-black-opacity-0_6--after u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img6.jpg);">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-font-size-28 js-animation fadeIn"><span style="font-style: italic;">travelling</span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 js-animation fadeIn"><p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p></div>
                         <div class="landing-block-node-button-container">
@@ -255,10 +255,10 @@ return array(
 				'CODE' => '21.3.two_cols_big_bgimg_title_text_button',
 				'SORT' => '3000',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
-       <div class="row no-gutters g-overflow-hidden">
+       <div class="row no-gutters g-overflow-hidden landing-block-inner">
 
-            <div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img7.jpg);">
-				<div class="text-center u-bg-overlay__inner g-pa-40">
+            <div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img7.jpg);">
+				<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-font-size-28 js-animation fadeIn"><span style="font-style: italic;">plush</span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 js-animation fadeIn">
 							<p>1At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
@@ -269,8 +269,8 @@ return array(
                 </div>
             </div>
 
-            <div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img8.jpg);">
-				<div class="text-center u-bg-overlay__inner g-pa-40">
+            <div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img8.jpg);">
+				<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-font-size-28 js-animation fadeIn"><span style="font-style: italic;">Candies</span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 js-animation fadeIn">
 							<p>2At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>

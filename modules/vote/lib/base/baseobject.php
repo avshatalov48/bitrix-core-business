@@ -13,12 +13,12 @@ class BaseObject
 	/** @var  ErrorCollection */
 	protected $errorCollection;
 
-	protected static $userGroups = array();
+	protected static $userGroups = [];
+
+	protected static $objectStorage = [];
 
 	public function __construct($id)
 	{
-		if (!($id > 0))
-			throw new \Bitrix\Main\ArgumentNullException("id");
 		$this->id = $id;
 		$this->errorCollection = new ErrorCollection;
 		$this->init();
@@ -61,8 +61,15 @@ class BaseObject
 	 */
 	public function canRead($userId)
 	{
-		$groups = self::loadUserGroups($userId);
-		$right = \CMain::getUserRight("vote", $groups);
+		if ($userId == $this->getUser()->getId())
+		{
+			$right = \CMain::getUserRight("vote");
+		}
+		else
+		{
+			$groups = self::loadUserGroups($userId);
+			$right = \CMain::getUserRight("vote", $groups);
+		}
 		return ($right >= "R");
 	}
 
@@ -72,8 +79,15 @@ class BaseObject
 	 */
 	public function canEdit($userId)
 	{
-		$groups = self::loadUserGroups($userId);
-		$right = \CMain::getUserRight("vote", $groups);
+		if ($userId == $this->getUser()->getId())
+		{
+			$right = \CMain::getUserRight("vote");
+		}
+		else
+		{
+			$groups = self::loadUserGroups($userId);
+			$right = \CMain::getUserRight("vote", $groups);
+		}
 		return ($right >= "W");
 	}
 
@@ -121,11 +135,48 @@ class BaseObject
 	}
 	/**
 	 * @param integer $id Entity ID.
-	 * @return mixed
+	 * @param bool $shouldBeNewIfIdIsNull
+	 * @return BaseObject
 	 */
-	public static function loadFromId($id)
+	public static function loadFromId($id, $shouldBeNewIfIdIsNull = false)
 	{
+
+		if (empty(self::$objectStorage))
+		{
+			register_shutdown_function([__CLASS__, "shutdown"]);
+		}
+		$obj = null;
 		$c = get_called_class();
-		return new $c(intval($id));
+		$innerId = $id = intval($id);
+		if (!array_key_exists($c, self::$objectStorage))
+		{
+			self::$objectStorage[$c] = ["maxId" => 0, "data" => []];
+		}
+		if ($shouldBeNewIfIdIsNull === true && $id <= 0)
+		{
+			$innerId = implode("", ["n", self::$objectStorage[$c]["maxId"]++]);
+		}
+		if (array_key_exists($innerId, self::$objectStorage[$c]["data"]))
+		{
+			$obj = self::$objectStorage[$c]["data"][$innerId];
+		}
+		if ($obj === null)
+		{
+			$obj = new $c($id);
+			self::$objectStorage[$c]["data"][$innerId] = $obj;
+		}
+		return $obj;
+	}
+
+	/**
+	 * Debug function
+	 */
+	public static function shutdown()
+	{
+		$res = [];
+		foreach (self::$objectStorage as $c => $r)
+		{
+			$res[$c] = array_keys($r["data"]);
+		}
 	}
 }

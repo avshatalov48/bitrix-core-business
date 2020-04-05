@@ -7,7 +7,6 @@ $MESS["STE_ERROR_SAVE_ACCOUNT"] = "Error saving the account";
 $MESS["STE_TITLE"] = "New transaction";
 $MESS["STE_TO_LIST"] = "Transactions";
 $MESS["STE_USER"] = "User:";
-$MESS["STE_DATE"] = "Transaction date";
 $MESS["STE_SUM"] = "Amount:";
 $MESS["STE_CURRENCY"] = "Currency:";
 $MESS["STE_TYPE"] = "Record type:";

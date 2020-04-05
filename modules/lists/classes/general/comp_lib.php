@@ -63,6 +63,9 @@ class CListFileControl
 				$show_info = (bool)$params['show_info'];
 		}
 
+		if ($download_url)
+			$url_template = $download_url;
+
 		if($show_input)
 		{
 			$html .= $this->_ob_file->GetInputHTML(array(
@@ -78,10 +81,11 @@ class CListFileControl
 			));
 		}
 
-		if($this->_ob_file->IsImage() && $this->_ob_file->GetSize() < $max_size)
+		CUtil::InitJSCore(array("ui.viewer"));
+
+		if ($this->_ob_file->IsImage() && $this->_ob_file->GetSize() < $max_size)
 		{
 			$img_src = $this->_ob_file->GetImgSrc(array('url_template'=>$url_template));
-			CUtil::InitJSCore(array("viewer"));
 			self::$_counter++;
 			$divId = 'lists-image-' . self::$_counter;
 
@@ -95,11 +99,9 @@ class CListFileControl
 					'data-bx-image' => $img_src,
 				),
 			));
-			$html .= '</div><script>BX.ready(function(){if(BX["viewElementBind"]){BX.viewElementBind("'.$divId.'");}});</script>';
+			$html .= '</div>';
 		}
 
-		if ($download_url)
-			$url_template = $download_url;
 		$html .= $this->_ob_file->GetLinkHtml(array(
 			'url_template' => $url_template,
 			'download_text' => $params['download_text'],

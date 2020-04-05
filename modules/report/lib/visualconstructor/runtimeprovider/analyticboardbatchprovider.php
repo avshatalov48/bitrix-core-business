@@ -39,4 +39,17 @@ class AnalyticBoardBatchProvider extends Base
 	{
 		return $this->getManagerInstance()->getIndices();
 	}
+
+	/**
+	 * @param AnalyticBoardBatch[] $result
+	 */
+	protected function sortResults(&$result)
+	{
+		usort($result, function($a, $b)
+		{
+			/** @var \Bitrix\Report\VisualConstructor\AnalyticBoardBatch $a */
+			/** @var \Bitrix\Report\VisualConstructor\AnalyticBoardBatch $b */
+			return $a->getOrder() <=> $b->getOrder();
+		});
+	}
 }

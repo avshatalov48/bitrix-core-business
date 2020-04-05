@@ -1,6 +1,7 @@
 <?
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE"] = "SMS информирование &ndash; это просто";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2"] = "Сервис предоставлен компанией SMS-ассистент";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_3"] = "Сервис предоставлен компанией SMS-ассистент (Беларусь)";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_TITLE"] = "Используйте все возможности мобильного SMS маркетинга";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION"] = "Отправку SMS легко настроить и использовать в CRM Битрикс24.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_FEATURES_LIST_DESCRIPTION_ADMIN"] = "Отправку SMS легко настроить и использовать.";
@@ -24,9 +25,11 @@ $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_ERROR"] = "Некоррек
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1"] = "Простое подключение";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2"] = "Мгновенная доставка";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3"] = "Оплата только за доставленные";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_RING_4"] = "Кешбек до 20%";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_TITLE"] = "Попробуйте «SMS-ассистент» прямо сейчас!";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_1"] = "Заполните форму ниже.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_2"] = "Получите доступ к сервису и 30 бесплатных SMS.";
+$MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_3"] = "Заявки обрабатываются в рабочее время клиентской поддержки.";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_SUBMIT"] = "Активировать демо-режим";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_UNP"] = "УНП";
 $MESS["MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_TEL"] = "Контактный телефон";

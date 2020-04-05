@@ -94,9 +94,12 @@ class QueryData
 		$result->addFetchDataModifier(
 			function ($data)
 			{
-				if (!isset($data['EMAIL']) || !$data['EMAIL'])
 				{
-					if (isset($data['EMAIL_HOME']) && $data['EMAIL_HOME'])
+					if (isset($data['EMAIL_MAILING']) && $data['EMAIL_MAILING'])
+					{
+						$data['EMAIL'] = $data['EMAIL_MAILING'];
+					}
+					elseif (isset($data['EMAIL_HOME']) && $data['EMAIL_HOME'])
 					{
 						$data['EMAIL'] = $data['EMAIL_HOME'];
 					}
@@ -105,10 +108,13 @@ class QueryData
 						$data['EMAIL'] = $data['EMAIL_WORK'];
 					}
 				}
-
-				if (!isset($data['PHONE']) || !$data['PHONE'])
+				
 				{
-					if (isset($data['PHONE_MOBILE']) && $data['PHONE_MOBILE'])
+					if (isset($data['PHONE_MAILING']) && $data['PHONE_MAILING'])
+					{
+						$data['PHONE'] = $data['PHONE_MAILING'];
+					}
+					elseif (isset($data['PHONE_MOBILE']) && $data['PHONE_MOBILE'])
 					{
 						$data['PHONE'] = $data['PHONE_MOBILE'];
 					}

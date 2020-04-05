@@ -170,7 +170,7 @@
 
 		BX.ajax({
 			method: 'POST',
-			url: this.options.ajaxUrl,
+			url: BX.util.add_url_param(this.options.ajaxUrl, {'action': 'log'}),
 			data: data,
 			dataType: 'json',
 			onsuccess: function(json)
@@ -276,7 +276,7 @@
 
 				BX.ajax({
 					method: 'POST',
-					url: this.options.ajaxUrl,
+					url: BX.util.add_url_param(this.options.ajaxUrl, {'action': 'logitem'}),
 					data: data,
 					dataType: 'json',
 					onsuccess: function (json)
@@ -448,9 +448,12 @@
 					{
 						return item.message;
 					}
-				).join('\n');
+				).join('<br>');
 
-				// @TODO: error
+				top.BX.UI.Notification.Center.notify({
+					autoHideDelay: 5000,
+					content: error
+				});
 			}
 		};
 
@@ -478,33 +481,22 @@
 					{
 						item.enable();
 
-						if (json.data && json.data.length > 0)
-						{
-							top.BX.UI.Notification.Center.notify({
-								autoHideDelay: 2000,
-								content: BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')
-							});
+						top.BX.UI.Notification.Center.notify({
+							autoHideDelay: 2000,
+							content: BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')
+						});
 
-							ctrl.options.createMenu['CRM_ACTIVITY'].binded = true;
+						ctrl.options.createMenu['CRM_ACTIVITY'].binded = true;
 
-							BX.PopupMenu.destroy('mail-msg-view-create-menu');
+						BX.PopupMenu.destroy('mail-msg-view-create-menu');
 
-							BX.show(
-								BX.findChildByClassName(
-									BX('mail-msg-view-details-'+ctrl.options.messageId),
-									'js-msg-view-control-skip',
-									true
-								)
-							);
-						}
-						else
-						{
-							top.BX.UI.Notification.Center.notify({
-								autoHideDelay: 2000,
-								content: BX.message('MAIL_MESSAGE_LIST_NOTIFY_NOT_ADDED_TO_CRM')
-							});
-							// @TODO: error
-						}
+						BX.show(
+							BX.findChildByClassName(
+								BX('mail-msg-view-details-'+ctrl.options.messageId),
+								'js-msg-view-control-skip',
+								true
+							)
+						);
 					},
 					failHandler
 				);
@@ -1161,16 +1153,6 @@
 		window.dispatchEvent(event);
 	};
 
-	BXMailMailbox.onFolderCheckboxClickHandler = function (event)
-	{
-		var selectedFolders = document.querySelectorAll('.mail-connect-form-input-check:checked');
-		if (selectedFolders.length === 0)
-		{
-			event.stopPropagation();
-			event.preventDefault();
-		}
-	};
-
 	BXMailMailbox.setupDirs = function (callback)
 	{
 		var imapOptions = {}
@@ -1187,9 +1169,16 @@
 		var ignore = imapOptions.ignore || [];
 		var disabled = imapOptions.disabled || [];
 
-		var outcome = BX.type.isArray(imapOptions.outcome) && imapOptions.outcome[0] ? imapOptions.outcome[0] : 'INBOX';
-		var trash = BX.type.isArray(imapOptions.trash) && imapOptions.trash[0] ? imapOptions.trash[0] : '';
-		var spam = BX.type.isArray(imapOptions.spam) && imapOptions.spam[0] ? imapOptions.spam[0] : trash;
+		var dirsTypes = {
+			'outcome': BX.type.isArray(imapOptions.outcome) && imapOptions.outcome[0] ? imapOptions.outcome[0] : '',
+			'trash': BX.type.isArray(imapOptions.trash) && imapOptions.trash[0] ? imapOptions.trash[0] : '',
+			'spam': BX.type.isArray(imapOptions.spam) && imapOptions.spam[0] ? imapOptions.spam[0] : ''
+		};
+
+		if (dirsTypes.spam == '')
+		{
+			dirsTypes.spam = dirsTypes.trash;
+		}
 
 		if (dirs)
 		{
@@ -1238,7 +1227,7 @@
 							flag = dirsTree[i].disabled ? 'disabled' : (!dirsTree[i].ignore ? 'checked' : '');
 
 							html += '<div class="mail-connect-option-email mail-connect-form-check-hidden" style="padding-left: '+(25*dirsTree[i].level)+'px">';
-							html += '<input onclick="BXMailMailbox.onFolderCheckboxClickHandler(event)" class="mail-connect-form-input mail-connect-form-input-check" id="imap-dir-sync-n'+i+'" type="checkbox" name="imap_dirs[sync]['+i+']" value="'+dirsTree[i].path+'" '+flag+'>';
+							html += '<input onclick="return document.querySelectorAll(\'.mail-connect-form-input-check:checked\').length > 0; " class="mail-connect-form-input mail-connect-form-input-check" id="imap-dir-sync-n'+i+'" type="checkbox" name="imap_dirs[sync]['+i+']" value="'+dirsTree[i].path+'" '+flag+'>';
 							html += '<label class="mail-connect-form-label mail-connect-form-label-check" for="imap-dir-sync-n'+i+'" '+(dirsTree[i].disabled ? 'style="color: #a0a0a0;"' : '')+'>'+dirsTree[i].name+'</label>';
 							html += '</div>';
 						}
@@ -1252,107 +1241,42 @@
 						html += BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_FOR');
 						html += '</div></div>';
 
-						subhtml = '';
-						checkedSingle = '';
-						placeholder = '<input id="mail_connect_setup_dirs_outcome_placeholder" type="radio" name="imap_dirs[outcome]" value="" checked>';
-						placeholder += '<label for="mail_connect_setup_dirs_outcome_placeholder">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_EMPTY_DEFAULT') + '</label>';
-						for (i = 0; i < count; i++)
+						for (var type in dirsTypes)
 						{
-							if (dirsTree[i].disabled)
+							subhtml = '';
+							checkedSingle = '';
+							placeholder = '<input id="mail_connect_setup_dirs_' + type + '_placeholder" type="radio" name="imap_dirs[' + type + ']" value="" checked>';
+							placeholder += '<label for="mail_connect_setup_dirs_' + type + '_placeholder">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_EMPTY_DEFAULT') + '</label>';
+							for (i = 0; i < count; i++)
 							{
-								continue;
+								if (dirsTree[i].disabled)
+								{
+									continue;
+								}
+
+								flag = '';
+								if (dirsTree[i].path == dirsTypes[type])
+								{
+									flag = 'checked';
+									placeholder = '';
+									checkedSingle = 'mail_connect_setup_dirs_' + type + '_' + (i + 1);
+								}
+
+								subhtml += '<input type="radio" name="imap_dirs[' + type + ']" value="' + BX.util.htmlspecialchars(dirsTree[i].path) + '" id="mail_connect_setup_dirs_' + type + '_' + (i + 1) + '" ' + flag + '>';
+								subhtml += '<label for="mail_connect_setup_dirs_' + type + '_' + (i + 1) + '">' + BX.util.htmlspecialchars(dirsTree[i].item.join(' / ')) + '</label>';
 							}
 
-							flag = '';
-							if (dirsTree[i].path == outcome)
-							{
-								flag = 'checked';
-								placeholder = '';
-								checkedSingle = 'mail_connect_setup_dirs_outcome_' + (i + 1);
-							}
-
-							subhtml += '<input type="radio" name="imap_dirs[outcome]" value="' + BX.util.htmlspecialchars(dirsTree[i].path) + '" id="mail_connect_setup_dirs_outcome_' + (i + 1) + '" ' + flag + '>';
-							subhtml += '<label for="mail_connect_setup_dirs_outcome_' + (i + 1) + '">' + BX.util.htmlspecialchars(dirsTree[i].item.join(' / ')) + '</label>';
-						}
-
-						html += '<div class="mail-connect-option-email mail-connect-form-check-hidden">'
-							+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_OUTCOME') +
-							'<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="' + checkedSingle + '">\
-								<input id="mail_connect_setup_dirs_outcome_0" type="radio" name="imap_dirs[outcome]" value="0">\
-								<div class="mail-set-singleselect-wrapper">'
+							html += '<div class="mail-connect-option-email mail-connect-form-check-hidden">'
+								+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_' + type.toUpperCase()) +
+								'<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="' + checkedSingle + '">\
+									<input id="mail_connect_setup_dirs_' + type + '_0" type="radio" name="imap_dirs[' + type + ']" value="0">\
+									<div class="mail-set-singleselect-wrapper">'
 									+ subhtml +
-								'</div>'
-								+ placeholder +
-							'</label>\
-						</div>';
-
-						subhtml = '';
-						checkedSingle = '';
-						placeholder = '<input id="mail_connect_setup_dirs_trash_placeholder" type="radio" name="imap_dirs[trash]" value="" checked>';
-						placeholder += '<label for="mail_connect_setup_dirs_trash_placeholder">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_EMPTY_DEFAULT') + '</label>';
-						for (i = 0; i < count; i++)
-						{
-							if (dirsTree[i].disabled)
-							{
-								continue;
-							}
-
-							flag = '';
-							if (dirsTree[i].path == trash)
-							{
-								flag = 'checked';
-								placeholder = '';
-								checkedSingle = 'mail_connect_setup_dirs_trash_' + (i + 1);
-							}
-
-							subhtml += '<input type="radio" name="imap_dirs[trash]" value="' + BX.util.htmlspecialchars(dirsTree[i].path) + '" id="mail_connect_setup_dirs_trash_' + (i + 1) + '" ' + flag + '>';
-							subhtml += '<label for="mail_connect_setup_dirs_trash_' + (i + 1) + '">' + BX.util.htmlspecialchars(dirsTree[i].item.join(' / ')) + '</label>';
+									'</div>'
+									+ placeholder +
+								'</label>\
+							</div>';
 						}
-
-						html += '<div class="mail-connect-option-email mail-connect-form-check-hidden">'
-							+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_TRASH') +
-							'<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="' + checkedSingle + '">\
-								<input id="mail_connect_setup_dirs_trash_0" type="radio" name="imap_dirs[trash]" value="0">\
-								<div class="mail-set-singleselect-wrapper">'
-									+ subhtml +
-								'</div>'
-								+ placeholder +
-							'</label>\
-						</div>';
-
-						subhtml = '';
-						checkedSingle = '';
-						placeholder = '<input id="mail_connect_setup_dirs_spam_placeholder" type="radio" name="imap_dirs[spam]" value="" checked>';
-						placeholder += '<label for="mail_connect_setup_dirs_spam_placeholder">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_EMPTY_DEFAULT') + '</label>';
-						for (i = 0; i < count; i++)
-						{
-							if (dirsTree[i].disabled)
-							{
-								continue;
-							}
-
-							flag = '';
-							if (dirsTree[i].path == spam)
-							{
-								flag = 'checked';
-								placeholder = '';
-								checkedSingle = 'mail_connect_setup_dirs_spam_' + (i + 1);
-							}
-
-							subhtml += '<input type="radio" name="imap_dirs[spam]" value="' + BX.util.htmlspecialchars(dirsTree[i].path) + '" id="mail_connect_setup_dirs_spam_' + (i + 1) + '" ' + flag + '>';
-							subhtml += '<label for="mail_connect_setup_dirs_spam_' + (i + 1) + '">' + BX.util.htmlspecialchars(dirsTree[i].item.join(' / ')) + '</label>';
-						}
-
-						html += '<div class="mail-connect-option-email mail-connect-form-check-hidden">'
-							+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_SPAM') +
-							'<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="' + checkedSingle + '">\
-								<input id="mail_connect_setup_dirs_spam_0" type="radio" name="imap_dirs[spam]" value="0">\
-								<div class="mail-set-singleselect-wrapper">'
-									+ subhtml +
-								'</div>'
-								+ placeholder +
-							'</label>\
-						</div>';
 
 						html += '</div>';
 
@@ -1360,7 +1284,11 @@
 							'<form class="mail-connect-setup-dirs-form" style="display: flex; flex-direction: column; height: 100%; ">\
 								<div style="padding: 0 20px 20px 20px; flex: 1; overflow: auto; ">\
 									<div class="mail-msg-sidepanel-header">\
-										<div class="mail-msg-sidepanel-title">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_TITLE') + '</div>\
+										<div class="mail-msg-sidepanel-title-container">\
+											<div class="mail-msg-sidepanel-title">\
+												<span class="mail-msg-sidepanel-title-text">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_TITLE') + '</span>\
+											</div>\
+										</div>\
 									</div>\
 									<div class="mail-connect mail-connect-slider">' + html + '</div>\
 								</div>\
@@ -1508,57 +1436,44 @@
 
 })();
 
-if (window === window.top)
-{
+(function() {
+
+	if (window !== window.top)
+	{
+		return;
+
+		BX.bind(
+			window,
+			'beforeunload',
+			function ()
+			{
+				document.body.style.opacity = '0.4';
+			}
+		);
+	}
+
+	var siteDir = ('/' + (BX.message.SITE_DIR || '/').replace(/[\\*+?.()|[\]{}]/g, '\\$&') + '/').replace(/\/+/g, '/');
+
 	top.BX.SidePanel.Instance.bindAnchors({
 		rules: [
 			{
 				condition: [
-					'^/mail/message/',
-				],
-				options: {
-					width: 1080,
-					cacheable: true
-				}
-			},
-			{
-				condition: [
-					'^/mail/config/(new|edit)',
+					'^' + siteDir + 'mail/config/(new|edit)',
 				],
 				options: {
 					width: 760,
-					cacheable: false,
-					allowChangeHistory: false
+					cacheable: false
 				}
 			},
 			{
 				condition: [
-					'^/mail/config/',
+					'^' + siteDir + 'mail/(blacklist|signature|config|message)'
 				],
 				options: {
-					width: 1080,
-					cacheable: true,
-					allowChangeHistory: false
-				}
-			},
-			{
-				condition: [
-					'^/mail/blacklist'
-				],
-				options: {
-					width: 1080,
-					cacheable: true
-				}
-			},
-			{
-				condition: [
-					'^/mail/signature'
-				],
-				options: {
-					width: 1080,
-					cacheable: true
+					width: 1080
 				}
 			}
 		]
 	});
-}
+
+})();

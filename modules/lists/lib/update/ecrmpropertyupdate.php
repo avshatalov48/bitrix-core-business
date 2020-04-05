@@ -10,7 +10,7 @@ use Bitrix\Main\Application;
 class EcrmPropertyUpdate extends Stepper
 {
 	protected static $moduleId = "lists";
-	protected $deleteFile = true;
+	protected $deleteFile = false;
 
 	public function execute(array &$result)
 	{

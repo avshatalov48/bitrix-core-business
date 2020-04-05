@@ -161,6 +161,10 @@ class TransportBase implements Transport\iBase
 				break;
 
 			case MessageBase::CODE_RC_DEAL:
+				if (empty($entityFields['SOURCE_ID']))
+				{
+					$entityFields['SOURCE_ID'] = 'RC_GENERATOR';
+				}
 				$entityFields['CATEGORY_ID'] = $this->detectDealCategoryId(
 					$config->get('CATEGORY_ID'),
 					$facility

@@ -82,7 +82,7 @@ class CAllPullStack
 			'extra' => $extra
 		);
 
-		if (!is_array($channelId) && CPullOptions::GetQueueServerVersion() == 1)
+		if (!is_array($channelId) && !CPullOptions::IsServerShared() && CPullOptions::GetQueueServerVersion() == 1)
 		{
 			$arData['extra']['channel'] = $channelId;
 		}

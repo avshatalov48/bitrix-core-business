@@ -22,11 +22,12 @@ $MESS["MAIL_CLIENT_CONFIG_IMAP_SSL"] = "использовать защищен�
 $MESS["MAIL_CLIENT_CONFIG_IMAP_LOGIN"] = "Логин";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_PASS"] = "Пароль";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE"] = "Забрать из ящика письма за #AGE#";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_1"] = "1 день";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_3"] = "3 дня";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_7"] = "7 дней";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_30"] = "месяц";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_I"] = "все время";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_1"] = "1 день";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_7"] = "7 дней";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_30"] = "1 месяц";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_60"] = "2 месяца";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_90"] = "3 месяца";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_I"] = "все время";
 
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS"] = "Настройки папок";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_DIRS_LINK"] = "Настроить папки для синхронизации";

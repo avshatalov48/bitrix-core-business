@@ -8,7 +8,8 @@
  */
 
 import {Timer} from 'im.tools.timer';
-import {RestMethod} from "im.const";
+import {DialogCrmType, DialogType, RestMethod} from "im.const";
+import {Utils} from "im.utils";
 
 class ApplicationController
 {
@@ -16,6 +17,7 @@ class ApplicationController
 	{
 		this.store = null;
 		this.restClient = null;
+		this.templateEngine = null;
 
 		this.timer = new Timer();
 
@@ -28,12 +30,17 @@ class ApplicationController
 		this.messageReadQueue = {};
 	}
 
+	setTemplateEngine(template)
+	{
+		this.templateEngine = template;
+	}
+
 	setRestClient(client)
 	{
 		this.restClient = client;
 	}
 
-	setVuexStore(store)
+	setStore(store)
 	{
 		this.store = store;
 	}
@@ -43,14 +50,24 @@ class ApplicationController
 		return this.store.state.application.common.siteId;
 	}
 
-	getChatId()
-	{
-		return this.store.state.application.dialog.chatId;
-	}
-
 	getUserId()
 	{
 		return this.store.state.application.common.userId;
+	}
+
+	getLanguageId()
+	{
+		return this.store.state.application.common.languageId;
+	}
+
+	getCurrentUser()
+	{
+		return this.store.getters['users/get'](this.store.state.application.common.userId, true);
+	}
+
+	getChatId()
+	{
+		return this.store.state.application.dialog.chatId;
 	}
 
 	getDialogId()
@@ -58,9 +75,61 @@ class ApplicationController
 		return this.store.state.application.dialog.dialogId;
 	}
 
-	getDialogIdByChatId(chatId) // TODO error with work user dialog id (not chat)
+	getDialogData(dialogId = this.getDialogId())
 	{
-		return 'chat'+chatId;
+		if (this.store.state.dialogues.collection[dialogId])
+		{
+			return this.store.state.dialogues.collection[dialogId];
+		}
+
+		return this.store.getters['dialogues/getBlank']();
+	}
+
+	getDialogCrmData(dialogId = this.getDialogId())
+	{
+		let result = {
+			enabled: false,
+			entityType: DialogCrmType.none,
+			entityId: 0
+		};
+
+		let dialogData = this.getDialogData(dialogId);
+		if (dialogData.type === DialogType.call)
+		{
+			if (dialogData.entityData1 && typeof dialogData.entityData1 === 'string')
+			{
+				let [enabled, entityType, entityId] = dialogData.entityData1.split('|');
+				if (enabled)
+				{
+					entityType = entityType? entityType.toString().toLowerCase(): DialogCrmType.none;
+					result = {enabled, entityType, entityId};
+				}
+			}
+		}
+		else if (dialogData.type === DialogType.crm)
+		{
+			let [entityType, entityId] = dialogData.entityId.split('|');
+			entityType = entityType? entityType.toString().toLowerCase(): DialogCrmType.none;
+			result = {enabled: true, entityType, entityId};
+		}
+
+		return result;
+	}
+
+	getDialogIdByChatId(chatId)
+	{
+		if (this.getDialogId() === 'chat'+chatId)
+		{
+			return this.getDialogId();
+		}
+
+		let dialog = this.store.getters['dialogues/getByChatId'](chatId);
+		if (!dialog)
+		{
+			return 0;
+		}
+
+		return dialog.dialogId;
 	}
 
 	getDiskFolderId()
@@ -82,6 +151,80 @@ class ApplicationController
 	{
 		return this.requestMessageLimit;
 	}
+
+	emit(eventName, params = {})
+	{
+		this.templateEngine.$emit(eventName, params);
+
+		return true;
+	}
+
+	listen(eventName, callback)
+	{
+		if (typeof callback !== 'function')
+		{
+			return false;
+		}
+
+		this.templateEngine.$on(eventName, callback);
+
+		return true;
+	}
+
+	getReadedList()
+	{
+		let dialog = this.store.state.dialogues.collection[this.getDialogId()];
+		if (!dialog)
+		{
+			return [];
+		}
+
+		return dialog.readedList;
+	}
+
+	muteDialog(action = null, dialogId = this.getDialogId())
+	{
+		if (Utils.dialog.isEmptyDialogId(dialogId))
+		{
+			return false;
+		}
+
+		if (action === null)
+		{
+			action = !this.isDialogMuted();
+		}
+
+		this.timer.start('muteDialog', dialogId, .3, (id) => {
+			this.restClient.callMethod(RestMethod.imChatMute, {
+				'DIALOG_ID': dialogId,
+				'ACTION': action? 'Y': 'N'
+			})
+		});
+
+		let muteList = [];
+		if (action)
+		{
+			muteList = this.getDialogData().muteList;
+			muteList.push(this.getUserId());
+		}
+		else
+		{
+			muteList = this.getDialogData().muteList.filter(userId => userId !== this.getUserId());
+		}
+
+		this.store.dispatch('dialogues/update', {
+			dialogId,
+			fields: {muteList},
+		});
+
+		return true;
+	}
+
+	isDialogMuted(dialogId = this.getDialogId())
+	{
+		return this.getDialogData().muteList.includes(this.getUserId());
+	}
+
 
 	isUnreadMessagesLoaded()
 	{
@@ -159,28 +302,77 @@ class ApplicationController
 		return true;
 	}
 
-	startWriting()
+	startWriting(dialogId = this.getDialogId())
 	{
-		if (!this.getChatId() || this.timer.has('writes'))
+		if (Utils.dialog.isEmptyDialogId(dialogId) || this.timer.has('writes', dialogId))
 		{
 			return false;
 		}
 
-		this.timer.start('writes', null, 28);
-
-		this.timer.start('writesSend', null, 5, (id) => {
-			this.restClient.callMethod(RestMethod.imChatSendTyping, {
-				'CHAT_ID': this.getChatId()
+		this.timer.start('writes', dialogId, 28);
+		this.timer.start('writesSend', dialogId, 5, (id) => {
+			this.restClient.callMethod(RestMethod.imDialogWriting, {
+				'DIALOG_ID': dialogId
 			}).catch(() => {
-				this.timer.stop('writes', this.getChatId());
+				this.timer.stop('writes', dialogId);
 			});
 		});
 	}
 
-	stopWriting()
+	stopWriting(dialogId = this.getDialogId())
 	{
-		this.timer.stop('writes');
-		this.timer.stop('writesSend');
+		this.timer.stop('writes', dialogId, true);
+		this.timer.stop('writesSend', dialogId, true);
+	}
+
+	joinParentChat(messageId, dialogId)
+	{
+		return new Promise((resolve, reject) =>
+		{
+			if (!messageId || !dialogId)
+			{
+				return reject();
+			}
+
+			if (typeof this.tempJoinChat === 'undefined')
+			{
+				this.tempJoinChat = {};
+			}
+			else if (this.tempJoinChat['wait'])
+			{
+				return reject();
+			}
+
+			this.tempJoinChat['wait'] = true;
+
+			this.restClient.callMethod(RestMethod.imChatParentJoin, {
+				'DIALOG_ID': dialogId,
+				'MESSAGE_ID': messageId
+			}).then(() => {
+				this.tempJoinChat['wait'] = false;
+				this.tempJoinChat[dialogId] = true;
+				return resolve(dialogId);
+			}).catch(() => {
+				this.tempJoinChat['wait'] = false;
+				return reject();
+			});
+		});
+
+	};
+
+	setTextareaMessage(params)
+	{
+		let {
+			message = '',
+			dialogId = this.getDialogId()
+		} = params;
+
+		this.store.dispatch('dialogues/update', {
+			dialogId,
+			fields: {
+				textareaMessage: message
+			},
+		});
 	}
 
 	setSendingMessageFlag(messageId)
@@ -191,15 +383,23 @@ class ApplicationController
 		});
 	}
 
-	readMessage(messageId = null)
+	reactMessage(messageId, type = 'like', action = 'auto')
+	{
+		this.restClient.callMethod(RestMethod.imMessageLike, {
+			'MESSAGE_ID': messageId,
+			'ACTION': action === 'auto'? 'auto': (action === 'set'? 'plus': 'minus')
+		});
+	}
+
+	readMessage(messageId = null, force = false, skipAjax = false)
 	{
 		let chatId = this.getChatId();
 
-		if (typeof this.messageLastReadId[chatId] == 'undefined')
+		if (typeof this.messageLastReadId[chatId] === 'undefined')
 		{
 			this.messageLastReadId[chatId] = null;
 		}
-		if (typeof this.messageReadQueue[chatId] == 'undefined')
+		if (typeof this.messageReadQueue[chatId] === 'undefined')
 		{
 			this.messageReadQueue[chatId] = [];
 		}
@@ -209,43 +409,146 @@ class ApplicationController
 			this.messageReadQueue[chatId].push(parseInt(messageId));
 		}
 
-		this.timer.start('readMessage', chatId, .1, (chatId, params) =>
-		{
-			this.messageReadQueue[chatId] = this.messageReadQueue[chatId].filter(elementId => {
-				if (!this.messageLastReadId[chatId])
-				{
-					this.messageLastReadId[chatId] = elementId;
-				}
-				else if (this.messageLastReadId[chatId] < elementId)
-				{
-					this.messageLastReadId[chatId] = elementId;
-				}
-				return false;
-			});
+		this.timer.stop('readMessage', chatId, true);
+		this.timer.stop('readMessageServer', chatId, true);
 
-			if (this.messageLastReadId[chatId] <= 0)
+		if (force)
+		{
+			return this.readMessageExecute(chatId, skipAjax);
+		}
+
+		return new Promise((resolve, reject) => {
+			this.timer.start('readMessage', chatId, .1, (chatId, params) => this.readMessageExecute(chatId, skipAjax).then((result) => resolve(result)));
+		});
+	}
+
+	readMessageExecute(chatId, skipAjax = false)
+	{
+		return new Promise((resolve, reject) =>
+		{
+			if (this.messageReadQueue[chatId])
 			{
-				return false
+				this.messageReadQueue[chatId] = this.messageReadQueue[chatId].filter(elementId => {
+					if (!this.messageLastReadId[chatId])
+					{
+						this.messageLastReadId[chatId] = elementId;
+					}
+					else if (this.messageLastReadId[chatId] < elementId)
+					{
+						this.messageLastReadId[chatId] = elementId;
+					}
+				});
+			}
+
+			let dialogId = this.getDialogIdByChatId(chatId);
+			let lastId = this.messageLastReadId[chatId] || 0;
+			if (lastId <= 0)
+			{
+				resolve({dialogId, lastId: 0});
+				return true;
 			}
 
 			this.store.dispatch('messages/readMessages', {
 				chatId: chatId,
-				readId: this.messageLastReadId[chatId]
-			}).then(result => {
+				readId: lastId
+			}).then(result =>
+			{
 				this.store.dispatch('dialogues/decreaseCounter', {
-					dialogId: this.getDialogIdByChatId(chatId),
+					dialogId,
 					count: result.count
 				});
-			});
 
-			this.timer.start('readMessageServer', chatId, .5, (chatId, params) => {
-				this.restClient.callMethod(RestMethod.imDialogRead, {
-					'DIALOG_ID': this.getDialogIdByChatId(chatId),
-					'MESSAGE_ID': this.messageLastReadId[chatId]
-				})
-				// TODO catch set message to unread status
+				if (this.getChatId() === chatId && this.store.getters['dialogues/canSaveChat'])
+				{
+					let dialog = this.store.getters['dialogues/get'](dialogId);
+					if (dialog.counter <= 0)
+					{
+						this.store.commit('application/clearDialogExtraCount');
+					}
+				}
+
+				if (skipAjax)
+				{
+					resolve({dialogId, lastId});
+				}
+				else
+				{
+					this.timer.start('readMessageServer', chatId, .5, () => {
+						this.restClient.callMethod(RestMethod.imDialogRead, {
+							'DIALOG_ID': dialogId,
+							'MESSAGE_ID': lastId
+						}).then(() => resolve({dialogId, lastId})).catch(() => resolve({dialogId, lastId}));
+					});
+				}
+
+			}).catch(() => {
+				resolve();
 			});
 		});
+	}
+
+	unreadMessage(messageId = null, skipAjax = false)
+	{
+		let chatId = this.getChatId();
+
+		if (typeof this.messageLastReadId[chatId] === 'undefined')
+		{
+			this.messageLastReadId[chatId] = null;
+		}
+		if (typeof this.messageReadQueue[chatId] === 'undefined')
+		{
+			this.messageReadQueue[chatId] = [];
+		}
+
+		if (messageId)
+		{
+			this.messageReadQueue[chatId] = this.messageReadQueue[chatId].filter(id => id < messageId);
+		}
+
+		this.timer.stop('readMessage', chatId, true);
+		this.timer.stop('readMessageServer', chatId, true);
+
+		this.messageLastReadId[chatId] = messageId;
+
+		this.store.dispatch('messages/unreadMessages', {
+			chatId: chatId,
+			unreadId: this.messageLastReadId[chatId]
+		}).then(result => {
+
+			let dialogId = this.getDialogIdByChatId(chatId);
+
+			this.store.dispatch('dialogues/update', {
+				dialogId,
+				fields: {
+					unreadId: messageId
+				},
+			});
+
+			this.store.dispatch('dialogues/increaseCounter', {
+				dialogId,
+				count: result.count
+			});
+
+			if (!skipAjax)
+			{
+				this.restClient.callMethod(RestMethod.imDialogUnread, {
+					'DIALOG_ID': dialogId,
+					'MESSAGE_ID': this.messageLastReadId[chatId]
+				});
+			}
+
+		}).catch(() => {});
+	}
+
+	shareMessage(messageId, type, date = null)
+	{
+		this.restClient.callMethod(RestMethod.imMessageShare, {
+			'DIALOG_ID': this.getDialogId(),
+			'MESSAGE_ID': messageId,
+			'TYPE': type,
+		});
+
+		return true;
 	}
 }
 

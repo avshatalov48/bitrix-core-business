@@ -179,6 +179,7 @@
 	margin-right: 5px;
 	width: 16px;
 	height: 16px;
+	line-height: 16px;
 	transition: .1s;
 	text-align: center;
 }
@@ -276,22 +277,7 @@
 .ui-action-panel-item-popup-menu .menu-popup-items:hover::-webkit-scrollbar-thumb:hover {
 	background: #c8cdd2;
 }
-/*
-.ui-action-panel-item-popup-menu {
-	animation: ui-action-panel-item-popup-menu-show .1s linear forwards;;
-}
 
-@keyframes ui-action-panel-item-popup-menu-show {
-	from {
-		opacity: 0;
-		transform: translateY(5px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-*/
 .ui-action-panel-total {
 	display: flex;
 	padding: 0 15px 0 19px;

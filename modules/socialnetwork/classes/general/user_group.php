@@ -660,8 +660,8 @@ class CAllSocNetUserToGroup
 						"NOTIFY_TAG" => "SOCNET|REQUEST_GROUP|".intval($userID)."|".$groupID."|".intval($ID)."|".$arRequests["USER_ID"],
 						"NOTIFY_SUB_TAG" => "SOCNET|REQUEST_GROUP|".intval($userID)."|".$groupID."|".intval($ID),
 						"NOTIFY_TITLE" => str_replace(
-							"#GROUP_NAME#", 
-							$arGroup["NAME"],
+							"#GROUP_NAME#",
+							truncateText($arGroup["NAME"], 150),
 							GetMessage("SONET_UG_REQUEST_CONFIRM_TEXT_EMPTY")
 						),
 						"NOTIFY_MESSAGE" => str_replace(
@@ -825,7 +825,11 @@ class CAllSocNetUserToGroup
 				"NOTIFY_MODULE" => "socialnetwork",
 				"NOTIFY_EVENT" => "invite_group_btn",
 				"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|".intval($arFields['USER_ID'])."|".intval($ID),
-				"NOTIFY_TITLE" => str_replace("#GROUP_NAME#", $arGroup["NAME"], GetMessage("SONET_UG_INVITE_CONFIRM_TEXT_EMPTY")),
+				"NOTIFY_TITLE" => str_replace(
+					"#GROUP_NAME#",
+					truncateText($arGroup["NAME"], 150),
+					GetMessage("SONET_UG_INVITE_CONFIRM_TEXT_EMPTY")
+				),
 				"NOTIFY_MESSAGE" => str_replace(Array("#TEXT#", "#GROUP_NAME#"), Array($message, $arGroup["NAME"]), (empty($message)?GetMessage("SONET_UG_INVITE_CONFIRM_TEXT_EMPTY"):GetMessage("SONET_UG_INVITE_CONFIRM_TEXT"))),
 				"NOTIFY_BUTTONS" => Array(
 					Array('TITLE' => GetMessage('SONET_UG_INVITE_CONFIRM'), 'VALUE' => 'Y', 'TYPE' => 'accept'),

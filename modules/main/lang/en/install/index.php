@@ -1,11 +1,22 @@
 <?
 $MESS["MAIN_ADMIN_GROUP_DESC"] = "Full access.";
 $MESS["MAIN_ADMIN_GROUP_NAME"] = "Administrators";
+$MESS["MAIN_DEFAULT_LANGUAGE_AM_VALUE"] = "am";
+$MESS["MAIN_DEFAULT_LANGUAGE_DAY_MONTH_FORMAT"] = "F j";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_CHARSET"] = "iso-8859-1";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATE"] = "MM/DD/YYYY";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATETIME"] = "MM/DD/YYYY H:MI:SS T";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_NAME"] = "#NAME# #LAST_NAME#";
+$MESS["MAIN_DEFAULT_LANGUAGE_FULL_DATE_FORMAT"] = "l, F j, Y";
+$MESS["MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"] = "F j, Y";
+$MESS["MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"] = "g:i:s a";
+$MESS["MAIN_DEFAULT_LANGUAGE_MEDIUM_DATE_FORMAT"] = "M j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "English";
+$MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_DECIMAL_SEPARATOR"] = ".";
+$MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_THOUSANDS_SEPARATOR"] = ",";
+$MESS["MAIN_DEFAULT_LANGUAGE_PM_VALUE"] = "pm";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_DATE_FORMAT"] = "n/j/Y";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_TIME_FORMAT"] = "g:i a";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_CHARSET"] = "iso-8859-1";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_DATE"] = "MM/DD/YYYY";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_DATETIME"] = "MM/DD/YYYY H:MI:SS T";
@@ -23,9 +34,46 @@ $MESS["MAIN_DESKTOP_RESPONSIBLE_VALUE"] = "John Doe";
 $MESS["MAIN_DESKTOP_RSS_TITLE"] = "Bitrix News";
 $MESS["MAIN_DESKTOP_URL_KEY"] = "Website URL";
 $MESS["MAIN_DESKTOP_URL_VALUE"] = "<a href=\"http://www.bitrixsoft.com\">www.bitrixsoft.com</a>";
+$MESS["MAIN_EVENT_MESS_NOTIFICATION"] = "Event log notification: #NAME#";
+$MESS["MAIN_EVENT_MESS_NOTIFICATION_TEXT"] = "Log events matching the notification parameters are found:
+
+Event type: #AUDIT_TYPE_ID#
+Object: #ITEM_ID#
+User: #USER_ID# 
+IP address: #REMOTE_ADDR#
+Browser: #USER_AGENT#
+Page URL: #REQUEST_URI# 
+
+Number of events: #EVENT_COUNT# 
+
+#ADDITIONAL_TEXT#
+
+Go to event log:
+http://#SERVER_NAME#/bitrix/admin/event_log.php?set_filter=Y&find_audit_type_id=#AUDIT_TYPE_ID#";
 $MESS["MAIN_EVERYONE_GROUP_DESC"] = "All users (including non-authorized users).";
 $MESS["MAIN_EVERYONE_GROUP_NAME"] = "All users (with non-authorized users)";
 $MESS["MAIN_INSTALL_DB_ERROR"] = "Cannot connect to the database. Please check the parameters.";
+$MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION"] = "Event log notification";
+$MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC"] = "#EMAIL# - Recipient email
+#ADDITIONAL_TEXT# - Action additional text
+#NAME# - Notification name
+#AUDIT_TYPE_ID# - Event type
+#ITEM_ID# - Object
+#USER_ID# - User
+#REMOTE_ADDR# - IP address
+#USER_AGENT# - Browser
+#REQUEST_URI# - Page URL
+#EVENT_COUNT# - Number of events";
+$MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC_SMS"] = "#PHONE_NUMBER# - Recipient phone number
+#ADDITIONAL_TEXT# - Action additional text
+#NAME# - Notification name
+#AUDIT_TYPE_ID# - Event type
+#ITEM_ID# - Object
+#USER_ID# - User
+#REMOTE_ADDR# - IP address
+#USER_AGENT# - Browser
+#REQUEST_URI# - Page URL
+#EVENT_COUNT# - Number of events";
 $MESS["MAIN_MAIL_CONFIRM_EVENT_TYPE_DESC"] = "
 
 #EMAIL_TO# - confirmation email address
@@ -231,5 +279,6 @@ $MESS["main_install_sms_event_restore_descr"] = "#USER_PHONE# - phone number
 #CODE# - recovery confirmation code";
 $MESS["main_install_sms_event_restore_name"] = "Recover password using SMS";
 $MESS["main_install_sms_template_confirm_mess"] = "Confirmation code: #CODE#";
+$MESS["main_install_sms_template_notification_mess"] = "#NAME#: #ADDITIONAL_TEXT# (events: #EVENT_COUNT#)";
 $MESS["main_install_sms_template_restore_mess"] = "Code to recover password: #CODE#";
 ?>

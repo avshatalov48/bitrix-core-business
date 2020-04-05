@@ -66,5 +66,10 @@ $application = new Application();
 // register  commands
 $application->add(new \Bitrix\Main\Cli\OrmAnnotateCommand());
 
+if (\Bitrix\Main\ModuleManager::isModuleInstalled('translate') && \Bitrix\Main\Loader::includeModule('translate'))
+{
+	$application->add(new \Bitrix\Translate\Cli\IndexCommand());
+}
+
 // run console
 $application->run();

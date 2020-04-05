@@ -224,9 +224,9 @@ class Chat extends AbstractEntity
 		return true;
 	}
 
-	public function onStateChange($state)
+	public function onStateChange($state, $prevState)
 	{
-		if($state === Call::STATE_INVITING)
+		if($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
 		{
 			$initiator = \Bitrix\Im\User::getInstance($this->call->getInitiatorId());
 

@@ -52,7 +52,7 @@ class LandingBlock
 	}
 
 	/**
-	 * Main executable method.
+	 *  Method, which executes just before block.
 	 * @param Block $block Block instance.
 	 * @return void
 	 */

@@ -1,0 +1,34 @@
+<?
+$MESS["SALE_WRONG_TIMESTAMP_FROM"] = "Введіть у фільтрі правильну дату змінення «з»";
+$MESS["SALE_WRONG_TIMESTAMP_TILL"] = "Введіть у фільтрі правильну дату змінення «до»";
+$MESS["SALE_FROM_TILL_TIMESTAMP"] = "Дата змінення «до» повинна бути більше ніж дата «з»";
+$MESS["SALE_WRONG_LAST_LOGIN_FROM"] = "Введіть у фільтрі правильну дату останньої авторизації «з»";
+$MESS["SALE_WRONG_LAST_LOGIN_TILL"] = "Введіть у фільтрі правильну дату останньої авторизації «до»";
+$MESS["SALE_FROM_TILL_LAST_LOGIN"] = "Дата останньої авторизації «до» повинна бути більше ніж дата «з»";
+$MESS["SALE_F_ID"] = "ID:";
+$MESS["SALE_F_LAST_LOGIN"] = "Остання авторизація";
+$MESS["SALE_F_TIMESTAMP"] = "Дата змінення";
+$MESS["SALE_F_EMAIL"] = "E-mail:";
+$MESS["SALE_F_KEYWORDS"] = "Поля профайлу:";
+$MESS["SALE_PAGE_TITLE"] = "Пошук користувача";
+$MESS["SALE_F_LOGIN"] = "Логін:";
+$MESS["SALE_F_ACTIVE"] = "Активність:";
+$MESS["SALE_YES"] = "Так";
+$MESS["SALE_NO"] = "Ні";
+$MESS["SALE_ALL"] = "(всі)";
+$MESS["SALE_F_NAME"] = "Ім'я:";
+$MESS["SALE_F_GROUP"] = "Група користувачів:";
+$MESS["SALE_F_SET_FILTER"] = "Встановити";
+$MESS["SALE_F_DEL_FILTER"] = "Скинути";
+$MESS["SALE_PAGES"] = "Користувачі";
+$MESS["SALE_TIMESTAMP"] = "Дата змінення";
+$MESS["SALE_ACTIVE"] = "Активність";
+$MESS["SALE_LOGIN"] = "Логін";
+$MESS["SALE_NAME"] = "Ім'я";
+$MESS["SALE_LAST_NAME"] = "Прізвище";
+$MESS["SALE_EMAIL"] = "E-mail";
+$MESS["SALE_ACTION"] = "Дії";
+$MESS["SALE_SELECT"] = "Вибрати";
+$MESS["SALE_TOTAL"] = "Всього";
+$MESS["SALE_CLOSE"] = "Закрити";
+?>

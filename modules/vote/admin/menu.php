@@ -58,23 +58,28 @@ if (CModule::IncludeModule('vote'))
 				($this->IsSectionActive("vote_channel_".$arChannel["ID"]) ||
 					$this->IsSectionActive("menu_vote_channels")))
 			{
-				$obVote = CVote::GetList($by , $order, array("CHANNEL_ID"=>$arChannel["ID"]), $is_filtered);
-				while ($arVote = $obVote->GetNext())
+				$dbRes = \Bitrix\Vote\VoteTable::getList(array(
+					"select" => array("ID", "TITLE"),
+					"filter" => array("CHANNEL_ID" => $arChannel["ID"]),
+					"order" => array("ID" => "DESC"),
+					"limit" => 50));
+				while ($row = $dbRes->fetch())
 				{
 					$menuChannel1["items"][] = array(
-						"items_id" => "vote_item_".$arVote['ID'],
-						"text" => $arVote["TITLE"],
-						"title" => GetMessage("VOTE_MENU_POLL_DESCRIPTION").'\''.htmlspecialcharsEx($arVote["TITLE"]).'\'',
+						"items_id" => "vote_item_".$row['ID'],
+						"text" => htmlspecialcharsEx($row["TITLE"]),
+						"title" => GetMessage("VOTE_MENU_POLL_DESCRIPTION").'\''.htmlspecialcharsEx($row["TITLE"]).'\'',
 						"module_id" => "vote",
-						"url" => (array_key_exists($arChannel["ID"], $channels) ? "vote_edit.php?lang=".LANGUAGE_ID."&ID=".$arVote['ID'] : "vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID']),
+						"url" => (array_key_exists($arChannel["ID"], $channels) ? "vote_edit.php?lang=".LANGUAGE_ID."&ID=".$row['ID'] : "vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID']),
 						"more_url" => Array(
-							"vote_edit.php?lang=".LANGUAGE_ID."&COPY_ID=".$arVote['ID'],
-							"vote_question_list.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-							"vote_question_edit.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-							"vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-							"vote_preview.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-							"vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-							"vote_user_results_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID']
+							"vote_edit.php?lang=".LANGUAGE_ID."&COPY_ID=".$row['ID'],
+							"vote_question_list.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID'],
+							"vote_question_edit.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID'],
+							"vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID'],
+							"vote_preview.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID'],
+							"vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID'],
+							"vote_user_votes.php?lang=".LANGUAGE_ID."&find_vote_id=".$row['ID']."&set_filter=Y",
+							"vote_user_results_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$row['ID']
 						),
 					);
 				}

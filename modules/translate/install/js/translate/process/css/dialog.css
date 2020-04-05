@@ -1,0 +1,83 @@
+
+
+/* Dialog process */
+
+.bx-translate-dialog-process-options {
+	margin-top: 10px;
+}
+.bx-translate-dialog-process-options > div
+{
+	margin-bottom: 10px;
+	padding-left: 15px;
+}
+
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-title
+{
+	vertical-align: top;
+	line-height: 16px;
+	display: inline-block;
+	width: 35%;
+	text-align: right;
+	padding-right: 10px;
+	font-size: 13px;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-input
+{
+	line-height: 16px;
+	display: inline-block;
+	width: 40%;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-input label
+{
+	display: block;
+	padding-bottom: 5px;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-input input
+{
+	vertical-align: bottom;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-input textarea
+{
+	width: 100%;
+	white-space: pre;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-options-title label
+{
+	cursor: pointer;
+	vertical-align: middle;
+	margin-top: 5px;
+}
+.bx-translate-dialog-process-options .bx-translate-dialog-process-option-text .bx-translate-dialog-process-options-title,
+.bx-translate-dialog-process-options .bx-translate-dialog-process-option-text .bx-translate-dialog-process-options-input
+{
+	text-align: left;
+	width: 97%;
+}
+
+.bx-translate-dialog-process-options input[type="checkbox"]
+{
+	margin: 0 4px 0 0;
+}
+
+.bx-translate-dialog-process-progressbar {
+	margin: 10px 0;
+	padding: 10px 0;
+}
+
+.bx-translate-dialog-process-popup
+{
+	overflow: hidden;
+	font-size: 14px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.bx-translate-dialog-process .bx-translate-dialog-process-popup
+{
+	min-width: 650px;
+	max-width: 1500px;
+}
+
+.bx-translate-dialog-process-popup > .ui-alert
+{
+	margin-top: 10px;
+}

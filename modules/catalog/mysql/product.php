@@ -1,5 +1,5 @@
 <?
-/** @global \CMain $APPLICATION */
+/** @global CMain $APPLICATION */
 use Bitrix\Main,
 	Bitrix\Main\Config\Option,
 	Bitrix\Catalog;
@@ -267,17 +267,23 @@ class CCatalogProduct extends CAllCatalogProduct
 		return $result;
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see Catalog\Model\Product::update
+	 * @param int $intID
+	 * @param int $intTypeID
+	 * @return bool
+	 */
 	public static function SetProductType($intID, $intTypeID)
 	{
-		global $DB;
-		$intID = intval($intID);
-		if (0 >= $intID)
+		$intID = (int)$intID;
+		if ($intID <= 0)
 			return false;
-		$intTypeID = intval($intTypeID);
-		if (self::TYPE_PRODUCT != $intTypeID && self::TYPE_SET != $intTypeID)
+		$intTypeID = (int)$intTypeID;
+		if ($intTypeID != Catalog\ProductTable::TYPE_PRODUCT && $intTypeID != Catalog\ProductTable::TYPE_SET)
 			return false;
-		$strSql = 'update b_catalog_product set TYPE='.$intTypeID.' where ID='.$intID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		return true;
+
+		$result = Catalog\Model\Product::update($intID, ['TYPE' => $intTypeID]);
+		return $result->isSuccess();
 	}
 }

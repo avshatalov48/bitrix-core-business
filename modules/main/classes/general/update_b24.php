@@ -28,12 +28,66 @@ class CB24Updater
 
 	private static function GetOption($name, $def = "")
 	{
-		return COption::GetOptionString('main', $name, $def);
+		$cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
+
+		$cacheFlags = \Bitrix\Main\Config\Configuration::getValue("cache_flags");
+		if (isset($cacheFlags["config_options"]))
+			$cacheTtl = $cacheFlags["config_options"];
+		else
+			$cacheTtl = 0;
+
+		if ($cache->read($cacheTtl, "b_option:main", "b_option"))
+		{
+			$options = $cache->get("b_option:main");
+			return $options["-"][$name];
+		}
+
+		$con = \Bitrix\Main\Application::getConnection();
+		$sqlHelper = $con->getSqlHelper();
+
+		$query = "
+			SELECT VALUE 
+			FROM b_option 
+			WHERE MODULE_ID = 'main'
+				AND NAME = '{$sqlHelper->forSql($name)}' 
+		";
+
+		$res = $con->query($query);
+		if ($ar = $res->fetch())
+		{
+			return $ar["VALUE"];
+		}
+
+		return $def;
 	}
 
 	private static function SetOption($name, $value = "")
 	{
-		COption::SetOptionString('main', $name, $value);
+		$con = \Bitrix\Main\Application::getConnection();
+		$sqlHelper = $con->getSqlHelper();
+
+		$updateFields = [
+			"VALUE" => $value,
+		];
+
+		$insertFields = [
+			"MODULE_ID" => "main",
+			"NAME" => $name,
+			"VALUE" => $value,
+		];
+
+		$keyFields = ["MODULE_ID", "NAME"];
+
+		$sql = $sqlHelper->prepareMerge("b_option", $keyFields, $insertFields, $updateFields);
+
+		$con->queryExecute(current($sql));
+
+		$cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
+		$cache->clean("b_option:main", "b_option");
+
+//		$path = \Bitrix\Main\Loader::getLocal("modules/main/option_triggers.php");
+//		if ($path !== false)
+//			include($path);
 	}
 
 	private static function GetServerUniqID()
@@ -147,8 +201,13 @@ class CB24Updater
 
 	private static function SetDatabaseVersions($arDBVersions)
 	{
+		global $DB;
+
 		if(is_array($arDBVersions))
+		{
 			self::SetOption("BITRIX24_VERSIONS", serialize($arDBVersions));
+			$DB->Query("INSERT INTO b_sm_version_history(DATE_INSERT, VERSIONS) VALUES(NOW(), '".$DB->ForSql(serialize($arDBVersions))."')", true);
+		}
 	}
 
 	private function InitializeFileData()
@@ -239,12 +298,39 @@ class CB24Updater
 		$arResult = array();
 		foreach ($arFileVersions as $moduleId => $version)
 		{
-			if ($this->isProcessingMain && $moduleId != "main" || !$this->isProcessingMain && $moduleId == "main")
+			if (($this->isProcessingMain && ($moduleId !== "main"))
+				|| (!$this->isProcessingMain && ($moduleId === "main")))
 				continue;
 
 			if (CUpdateClient::CompareVersions($version, $arDBVersions[$moduleId]) > 0)
 				$arResult[$moduleId] = $arDBVersions[$moduleId];
 		}
+
+		// Das ist strashnyy kostyl' for new Options
+		global $DB;
+
+		if ($this->isProcessingMain && !empty($arResult))
+		{
+			if(!$DB->TableExists("b_option_site"))
+			{
+				$DB->Query("
+					CREATE TABLE b_option_site
+					(
+						MODULE_ID VARCHAR(50) not null,
+						NAME VARCHAR(50) not null,
+						SITE_ID CHAR(2) not null,
+						VALUE TEXT,
+						PRIMARY KEY(MODULE_ID, NAME, SITE_ID),
+						INDEX ix_option_site_module_site(MODULE_ID, SITE_ID)
+					)
+				", true);
+			}
+			if(!$DB->Query("SELECT UNIQUE_ID FROM b_module_to_module WHERE 1=0", true))
+			{
+				$DB->Query("ALTER TABLE b_module_to_module ADD UNIQUE_ID VARCHAR(32) NOT NULL", true);
+			}
+		}
+		// End of strashnyy kostyl'
 
 		return $arResult;
 	}

@@ -17,6 +17,7 @@
 		BX.Landing.UI.Card.BaseCard.apply(this, arguments);
 		this.items = data.items;
 		this.layout.classList.add("landing-ui-card-field-group");
+		this.fields = new BX.Landing.Collection.BaseCollection();
 		this.init();
 	};
 
@@ -37,6 +38,7 @@
 				var item = BX.Landing.UI.Card.FieldGroup.createItem();
 				item.appendChild(field.layout);
 				this.body.appendChild(item);
+				this.fields.add(item);
 			}, this);
 		}
 	};

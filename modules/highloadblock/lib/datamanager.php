@@ -92,8 +92,22 @@ abstract class DataManager extends Entity\DataManager
 		$event = new Entity\Event($entity, self::EVENT_ON_ADD, array("fields"=>$data), true);
 		$event->send();
 
+		// insert base row
+		$connection = Main\Application::getConnection();
+
+		$tableName = $entity->getDBTableName();
+		$identity = $entity->getAutoIncrement();
+
+		$id = $connection->add($tableName, [$identity => new Main\DB\SqlExpression('DEFAULT')], $identity);
+
 		// format data before save
 		$fields = $USER_FIELD_MANAGER->getUserFields('HLBLOCK_'.$hlblock['ID']);
+
+		foreach ($fields as $k => $field)
+		{
+			$fields[$k]['VALUE_ID'] = $id;
+		}
+
 		list($data, $multiValues) = static::convertValuesBeforeSave($data, $fields);
 
 		// use save modifiers
@@ -104,12 +118,11 @@ abstract class DataManager extends Entity\DataManager
 		}
 
 		// save data
-		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$update = $helper->prepareUpdate($tableName, $data);
 
-		$tableName = $entity->getDBTableName();
-		$identity = $entity->getAutoIncrement();
-
-		$id = $connection->add($tableName, $data, $identity);
+		$sql = "UPDATE ".$helper->quote($tableName)." SET ".$update[0]." WHERE ".$helper->quote($identity)." = ".((int) $id);
+		$connection->queryExecute($sql, $update[1]);
 
 		// save multi values
 		if (!empty($multiValues))
@@ -395,7 +408,7 @@ abstract class DataManager extends Entity\DataManager
 		return $result;
 	}
 
-	protected function convertValuesBeforeSave($data, $userfields)
+	protected static function convertValuesBeforeSave($data, $userfields)
 	{
 		$multiValues = array();
 
@@ -448,7 +461,7 @@ abstract class DataManager extends Entity\DataManager
 	 * @param array $userfield Field array.
 	 * @return boolean|null
 	 */
-	protected function convertSingleValueBeforeSave($value, $userfield)
+	protected static function convertSingleValueBeforeSave($value, $userfield)
 	{
 		if (!isset($userfield['USER_TYPE']) || !is_array($userfield['USER_TYPE']))
 		{

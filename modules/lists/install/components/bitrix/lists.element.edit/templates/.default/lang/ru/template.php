@@ -51,4 +51,5 @@ $MESS["CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT"] = "К СПИСКУ";
 $MESS["CT_BLEE_DELETE_POPUP_TITLE"] = "Подтверждение удаления";
 $MESS["CT_BLEE_DELETE_POPUP_ACCEPT_BUTTON"] = "Удалить";
 $MESS["CT_BLEE_DELETE_POPUP_CANCEL_BUTTON"] = "Отмена";
+$MESS["CT_BLEE_UN_LOCK_ELEMENT"] = "Разблокировать";
 ?>

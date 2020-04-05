@@ -91,8 +91,6 @@ initReportControls();
 
 <div class="reports-constructor">
 
-
-
 <!-- period -->
 <div class="webform-main-fields">
 	<div class="webform-corners-top">
@@ -853,12 +851,22 @@ initReportControls();
 	</div>
 </div>
 
-<!-- choose filter column popup -->
+<!-- choose filter column popup --><?php
+$refChooseParam = call_user_func([$arParams['REPORT_HELPER_CLASS'], 'getFiltrableColumnGroups']);
+if (!is_array($refChooseParam) || empty($refChooseParam))
+{
+	$refChooseParam = true;
+}
+?>
 <div class="reports-add_col-popup-cont reports-add_filcol-popup-cont" id="reports-add_filcol-popup-cont" style="display:none;">
 	<div class="reports-add_col-popup-title"><?=GetMessage('REPORT_POPUP_FILTER_TITLE')?></div>
 	<div class="popup-window-hr popup-window-buttons-hr"><i></i></div>
 	<div class="reports-add_col-popup">
-		<?=call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'buildHTMLSelectTreePopup'), $arResult['fieldsTree'], true)?>
+		<?php echo call_user_func(
+			[$arParams['REPORT_HELPER_CLASS'], 'buildHTMLSelectTreePopup'],
+			$arResult['fieldsTree'],
+			$refChooseParam
+		); ?>
 	</div>
 </div>
 
@@ -1093,6 +1101,7 @@ $name = $APPLICATION->IncludeComponent(
 	</a>
 	&nbsp;
 	<? endif ?>
+
 	<a class="webform-small-button webform-small-button-blue webform-small-button-back"
 		href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>">
 		<span class="webform-small-button-icon"></span>

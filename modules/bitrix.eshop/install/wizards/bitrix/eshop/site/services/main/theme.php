@@ -5,7 +5,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 if (!defined("WIZARD_TEMPLATE_ID"))
 	return;
 
-$templateDir = BX_PERSONAL_ROOT."/templates/".WIZARD_TEMPLATE_ID."_".WIZARD_THEME_ID;
+$templateDir = BX_PERSONAL_ROOT."/templates/".WIZARD_TEMPLATE_ID;
 
 CopyDirFiles(
 	WIZARD_THEME_ABSOLUTE_PATH,
@@ -16,7 +16,7 @@ CopyDirFiles(
 	$exclude = "description.php"
 );
 
-COption::SetOptionString("main", "wizard_".WIZARD_TEMPLATE_ID."_theme_id", WIZARD_THEME_ID, "", WIZARD_SITE_ID);
+COption::SetOptionString("main", "wizard_eshop_bootstrap_theme_id", WIZARD_THEME_ID, "", WIZARD_SITE_ID);
 
 //Color scheme for main.interface.grid/form
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");

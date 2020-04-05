@@ -11,6 +11,7 @@ BX.Lists.ListsEditClass = (function ()
 		this.listsUrl = parameters.listsUrl || '';
 		this.listAction = parameters.listAction;
 		this.listTemplateEditUrl = parameters.listTemplateEditUrl;
+		this.listElementUrl = parameters.listElementUrl;
 
 		this.init();
 	};
@@ -65,83 +66,58 @@ BX.Lists.ListsEditClass = (function ()
 
 	ListsEditClass.prototype.copyIblock = function()
 	{
-		BX.Lists.modalWindow({
-			modalId: 'bx-lists-migrate-list',
-			title: BX.message('CT_BLLE_COPY_POPUP_TITLE'),
-			draggable: true,
-			contentClassName: '',
-			contentStyle: {
-				width: '400px',
-				padding: '20px 20px 20px 20px'
-			},
-			events: {
-				onPopupClose : function() {
-					this.destroy();
-				}
-			},
-			content: BX.message('CT_BLLE_COPY_POPUP_CONTENT'),
+		var popup = new BX.PopupWindow({
+			titleBar: BX.message("CT_BLLE_COPY_POPUP_TITLE"),
+			closeIcon: true,
+			autoHide: true,
+			closeByEsc: true,
+			content: BX.message("CT_BLLE_COPY_POPUP_CONTENT"),
 			buttons: [
-				BX.create('span', {
-					text : BX.message("CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"),
-					props: {
-						id: 'lists-popup-button-copy-accept',
-						className: 'webform-small-button webform-small-button-accept'
-					},
-					events : {
-						click : BX.delegate(function() {
-							if(BX.hasClass(BX('lists-popup-button-copy-accept'), 'webform-small-button-wait')) return;
-							BX.addClass(BX('lists-popup-button-copy-accept'), 'webform-small-button-wait');
-							BX.Lists.ajax({
-								method: 'POST',
-								dataType: 'json',
-								url: BX.Lists.addToLinkParam(this.ajaxUrl, 'action', 'copyIblock'),
-								data: {
-									iblockTypeId: this.iblockTypeId,
-									iblockId: this.iblockId,
-									socnetGroupId: this.socnetGroupId
-								},
-								onsuccess: BX.delegate(function (result)
-								{
-									if(result.status == 'success')
-									{
-										BX.Lists.showModalWithStatusAction({
-											status: 'success',
-											message: result.message
-										});
-										this.listTemplateEditUrl = this.listTemplateEditUrl
-											.replace('#list_id#', result.copyIblockId)
-											.replace('#group_id#', this.socnetGroupId);
-										setTimeout(BX.delegate(function() {
-											document.location.href = this.listTemplateEditUrl
-										}, this), 1000);
-										BX.removeClass(BX('lists-popup-button-copy-accept'), 'webform-small-button-wait');
-									}
-									else
-									{
-										result.errors = result.errors || [{}];
-										BX.Lists.showModalWithStatusAction({
-											status: 'error',
-											message: result.errors.pop().message
-										});
-									}
-								}, this)
+				new BX.UI.Button({
+					text: BX.message("CT_BLLE_COPY_POPUP_ACCEPT_BUTTON"),
+					size: BX.UI.Button.Size.MEDIUM,
+					color: BX.UI.Button.Color.SUCCESS,
+					onclick: function(button, event) {
+						button.setWaiting();
+						BX.ajax.runAction("lists.controller.iblock.copy", {
+							data: {
+								iblock_type_id: this.iblockTypeId,
+								iblock_id: this.iblockId,
+								socnet_group_id: this.socnetGroupId,
+								list_element_url: this.listElementUrl
+							}
+						}).then(function (response) {
+							this.listTemplateEditUrl = this.listTemplateEditUrl
+								.replace("#list_id#", response.data)
+								.replace("#group_id#", this.socnetGroupId);
+							BX.UI.Notification.Center.notify({
+								content: BX.message("CT_BLLE_COPY_POPUP_COPIED_SUCCESS").replace(
+									"#URL#", BX.util.htmlspecialchars(this.listTemplateEditUrl)),
+								position: "top-right",
+								closeButton: false
 							});
-						}, this)
-					}
+							popup.close();
+						}.bind(this), function (response) {
+							button.setWaiting(false);
+							BX.UI.Notification.Center.notify({
+								content: response.errors.pop().message,
+								position: "top-right",
+								closeButton: false
+							});
+						});
+					}.bind(this)
 				}),
-				BX.create('span', {
-					text : BX.message("CT_BLLE_COPY_POPUP_CANCEL_BUTTON"),
-					props: {
-						className: 'popup-window-button popup-window-button-link popup-window-button-link-cancel'
-					},
-					events : {
-						click : BX.delegate(function() {
-							BX.PopupWindowManager.getCurrentPopup().close();
-						}, this)
+				new BX.UI.Button({
+					text: BX.message("CT_BLLE_COPY_POPUP_CANCEL_BUTTON"),
+					size: BX.UI.Button.Size.MEDIUM,
+					color: BX.UI.Button.Color.LINK,
+					onclick: function(button, event) {
+						popup.close();
 					}
 				})
 			]
 		});
+		popup.show();
 	};
 
 	ListsEditClass.prototype.deleteIblock = function(form_id, message)

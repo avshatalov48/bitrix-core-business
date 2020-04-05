@@ -422,12 +422,12 @@ class CAllForumMessage
 				if ($arMessage_prev["FORUM_INFO"]["INDEXATION"] == "Y" &&
 					$arMessage["FORUM_INFO"]["INDEXATION"] != "Y")
 				{
-					CSearch::DeleteIndex("forum", $ID);
+					\CSearch::DeleteIndex("forum", $ID);
 				}
 				elseif ($arMessage["FORUM_INFO"]["INDEXATION"] == "Y" &&
 					$arMessage_prev["APPROVED"] != "N" && $arMessage["APPROVED"] == "N")
 				{
-					CSearch::DeleteIndex("forum", $ID);
+					\CSearch::DeleteIndex("forum", $ID);
 				}
 				elseif ($arMessage["APPROVED"] == "Y")
 				{
@@ -753,40 +753,53 @@ class CAllForumMessage
 	}
 
 	//---------------> Message utils
-	public static function GetMessagePage($ID, $mess_per_page, $arUserGroups, $TID = false, $arAddParams = array())
+	public static function GetMessagePage($ID, $messagePerPage, $arUserGroups, $TID = 0, $addParams = [])
 	{
-		$ID = intVal($ID);
-		$mess_per_page = intVal($mess_per_page);
+		$ID = intval($ID);
+		$TID = intval($TID);
+		$messagePerPage = intval($messagePerPage);
 
-		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
-		$arAddParams["ORDER_DIRECTION"] = ($arAddParams["ORDER_DIRECTION"] == "DESC" ? "DESC" : "ASC");
-		$arAddParams["FILTER"] = (is_array($arAddParams["FILTER"]) ? $arAddParams["FILTER"] : array());
-
-		if ($mess_per_page <= 0)
+		if ($messagePerPage <= 0 || $ID <= 0)
 			return 0;
 
-		if (!empty($arAddParams["PERMISSION_EXTERNAL"])):
-			$arMessage = array("TOPIC_ID" => $TID);
-			$permission = $arAddParams["PERMISSION_EXTERNAL"];
-		else:
-			$arMessage = CForumMessage::GetByID($ID, array("FILTER" => "N"));
-			$permission = CForumNew::GetUserPermission($arMessage["FORUM_ID"], $arUserGroups);
-		endif;
+		$addParams = (is_array($addParams) ? $addParams : []);
 
-		$arFilter = $arAddParams["FILTER"] + array("TOPIC_ID" => $arMessage["TOPIC_ID"]);
-		if ($permission < "Q"):
-			$arFilter["APPROVED"] = "Y";
-		endif;
+		$permission = \Bitrix\Forum\Permission::CAN_READ;
+		if (!empty($addParams["PERMISSION_EXTERNAL"]))
+		{
+			$permission = $addParams["PERMISSION_EXTERNAL"];
+		}
+		else if ($message = CForumMessage::GetByID($ID, array("FILTER" => "N")))
+		{
+			$permission = CForumNew::GetUserPermission($message["FORUM_ID"], $arUserGroups);
+		}
+		else if ($TID > 0 && ($topic = \Bitrix\Forum\Topic::getById($TID)))
+		{
+			$permission = CForumNew::GetUserPermission($topic["FORUM_ID"], $arUserGroups);
+		}
 
-		if ($arAddParams["ORDER_DIRECTION"] == "DESC"):
-			$arFilter[">ID"] = $ID;
-		else:
-			$arFilter["<ID"] = $ID;
-		endif;
+		$filter = (is_array($addParams["FILTER"]) ? $addParams["FILTER"] : []);
+		if ($permission < "Q")
+		{
+			$filter["APPROVED"] = "Y";
+		}
+		if ($TID > 0)
+		{
+			$filter["TOPIC_ID"] = $TID;
+		}
 
-		$iCnt = CForumMessage::GetList(array("ID" => $arAddParams["ORDER_DIRECTION"]), $arFilter, True);
-		$iCnt = intVal($iCnt);
-		return intVal($iCnt/$mess_per_page) + 1;
+		$order = ($addParams["ORDER_DIRECTION"] == "DESC" ? "DESC" : "ASC");
+		if ($order == "DESC")
+		{
+			$filter[">ID"] = $ID;
+		}
+		else
+		{
+			$filter["<ID"] = $ID;
+		}
+
+		$iCnt = intval(intval(CForumMessage::GetList(array("ID" => $order), $filter, true)) / $messagePerPage);
+		return ++$iCnt;
 	}
 
 	public static function SendMailMessage($MID, $arFields = array(), $strLang = false, $mailTemplate = false)
@@ -1507,45 +1520,26 @@ class CALLForumFiles
 
 	public static function Save(&$arFields, $arParams, $bCheckFields = true)
 	{
-		global $DB;
-		if ($bCheckFields && !CForumFiles::CheckFields($arFields, $arParams, "ADD"))
-			return false;
-		$arFiles = array();
-		$arParams = (is_array($arParams) ? $arParams : array($arParams));
-		$strUploadDir = (!is_set($arParams, "upload_dir") ? "forum/upload" : $arParams["upload_dir"]);
-		$arParams = array("FORUM_ID" => intVal($arParams["FORUM_ID"]), "USER_ID" => intVal($arParams["USER_ID"]),
-			"TOPIC_ID" => 0, "MESSAGE_ID" => 0);
-		foreach ($arFields as $key => $val):
-			$val["MODULE_ID"] = "forum";
-			$val["FILE_ID"] = intVal($val["FILE_ID"]);
-			$val["old_file"] = intVal($val["old_file"]);
-			if ($val["FILE_ID"] <= 0 && $val["old_file"] > 0)
-				$val["FILE_ID"] = $val["old_file"];
-			$old_file = $val["FILE_ID"];
-			unset($val["old_file"]);
-			if (!empty($val["name"])):
+		if ($bCheckFields)
+		{
+			$result = \Bitrix\Forum\File::checkFiles(\Bitrix\Forum\Forum::getById($arParams["FORUM_ID"]), $arFields, $arParams);
+			if (!$result->isSuccess())
 			{
-				$res = CFile::SaveFile($val, $strUploadDir, true, true);
-				$DB->Commit();
-				if ($res > 0)
-				{
-					CForumFiles::Add($res, $arParams);
-					$arFiles[$res] = $arParams;
-				}
-				if (($res > 0 || !empty($val["del"])) && $old_file > 0)
-				{
-					CFile::Delete($old_file);
-					unset($arFields[$key]);
-				}
+				return false;
 			}
-			elseif (!empty($val["del"])):
-				CFile::Delete($val["FILE_ID"]);
-				unset($arFields[$key]);
-			else:
-				$arFiles[$val["FILE_ID"]] = $val;
-			endif;
-		endforeach;
-		return $arFiles;
+		}
+
+		$result = \Bitrix\Forum\File::saveFiles($arFields, $arParams);
+
+		$files = [];
+		foreach ($arFields as $file)
+		{
+			if ($file["FILE_ID"] > 0)
+			{
+				$files[$file["FILE_ID"]] = $file;
+			}
+		}
+		return $files;
 	}
 
 	public static function UpdateByID($ID, $arFields)

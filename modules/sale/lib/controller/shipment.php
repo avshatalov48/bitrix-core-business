@@ -9,6 +9,7 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
+use Bitrix\Sale;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ShipmentCollection;
 
@@ -17,20 +18,28 @@ class Shipment extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\Shipment::class,
+			Sale\Shipment::class,
 			'shipment',
 			function($className, $id) {
 
-				$r = \Bitrix\Sale\Shipment::getList([
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var Sale\Shipment $shipmentClass */
+				$shipmentClass = $registry->getShipmentClassName();
+
+				$r = $shipmentClass::getList([
 					'select'=>['ORDER_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($row = $r->fetch())
 				{
-					$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+					/** @var Sale\Order $orderClass */
+					$orderClass = $registry->getOrderClassName();
+
+					$order = $orderClass::load($row['ORDER_ID']);
 					$shipment = $order->getShipmentCollection()->getItemById($id);
-					if($shipment instanceof \Bitrix\Sale\Shipment)
+					if ($shipment)
 					{
 						return $shipment;
 					}

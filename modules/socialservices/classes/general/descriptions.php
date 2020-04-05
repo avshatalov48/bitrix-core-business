@@ -27,6 +27,12 @@ class CSocServDescription
 				"ICON" => "yandex",
 			),
 			array(
+				"ID" => "MailRu2",
+				"CLASS" => "CSocServMailRu2",
+				"NAME" => GetMessage("socserv_mailru2_name"),
+				"ICON" => "mailru2",
+			),
+			array(
 				"ID" => "MyMailRu",
 				"CLASS" => "CSocServMyMailRu",
 				"NAME" => GetMessage("socserv_mailru_name"),
@@ -49,7 +55,7 @@ class CSocServDescription
 			array(
 				"ID" => "MailRuOpenID",
 				"CLASS" => "CSocServMailRu",
-				"NAME" => "Mail.Ru",
+				"NAME" => GetMessage("socserv_mailru_openid_name"),
 				"ICON" => "openid-mail-ru",
 			),
 			array(

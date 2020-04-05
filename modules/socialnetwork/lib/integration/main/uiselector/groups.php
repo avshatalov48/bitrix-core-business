@@ -26,7 +26,12 @@ class Groups extends \Bitrix\Main\UI\Selector\EntityBase
 			&& !Handler::isExtranetUser()
 		)
 		{
-			if (\Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination())
+			$allowToAllDestination = (
+				!isset($options['context'])
+				|| !in_array($options['context'], [ 'BLOG_POST', 'FEED_FILTER_TO' ])
+				|| \Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination()
+			);
+			if ($allowToAllDestination)
 			{
 				$result['ITEMS_LAST'][] = 'UA';
 			}
@@ -38,7 +43,7 @@ class Groups extends \Bitrix\Main\UI\Selector\EntityBase
 						? 'MAIN_UI_SELECTOR_ITEM_TOALL_INTRANET'
 						: 'MAIN_UI_SELECTOR_ITEM_TOALL'
 				),
-				'searchable' => 'Y'
+				'searchable' => ($allowToAllDestination ? 'Y' : 'N')
 			);
 		}
 
@@ -52,6 +57,20 @@ class Groups extends \Bitrix\Main\UI\Selector\EntityBase
 			$result['ITEMS']['EMPTY'] = array(
 				'id' => 'EMPTY',
 				'name' => Loc::getMessage('MAIN_UI_SELECTOR_ITEM_EMPTY'),
+				'searchable' => 'N'
+			);
+		}
+
+		if (
+			!empty($options['enableUserManager'])
+			&& $options['enableUserManager'] == 'Y'
+		)
+		{
+			$result['ITEMS_LAST'][] = 'USER_MANAGER';
+
+			$result['ITEMS']['USER_MANAGER'] = array(
+				'id' => 'USER_MANAGER',
+				'name' => Loc::getMessage('MAIN_UI_SELECTOR_ITEM_USER_MANAGER'),
 				'searchable' => 'N'
 			);
 		}

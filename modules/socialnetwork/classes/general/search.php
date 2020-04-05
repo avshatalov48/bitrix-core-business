@@ -95,57 +95,60 @@ class CSocNetSearch
 				CBlogPost::ChangeSocNetPermission($entity_type, $entity_id, $operation);
 			}
 
-			if($operation == "view_post")
+			if(CModule::IncludeModule('search'))
 			{
-				$arPost = CBlogPost::GetSocNetPostsPerms($entity_type, $entity_id);
-				foreach($arPost as $id => $perms)
+				if($operation == "view_post")
 				{
-					CSearch::ChangePermission("blog", $perms["PERMS"], "P".$id);
-				}
-			}
-			else
-			{
-				$arTmpCache = Array();
-				$arPost = CBlogPost::GetSocNetPostsPerms($entity_type, $entity_id);
-				$dbComment = CBlogComment::GetSocNetPostsPerms($entity_type, $entity_id);
-				while($arComment = $dbComment->Fetch())
-				{
-					if(!empty($arPost[$arComment["POST_ID"]]))
+					$arPost = CBlogPost::GetSocNetPostsPerms($entity_type, $entity_id);
+					foreach($arPost as $id => $perms)
 					{
-						if(empty($arPost[$arComment["POST_ID"]]["PERMS_CALC"]))
+						CSearch::ChangePermission("blog", $perms["PERMS"], "P".$id);
+					}
+				}
+				else
+				{
+					$arTmpCache = Array();
+					$arPost = CBlogPost::GetSocNetPostsPerms($entity_type, $entity_id);
+					$dbComment = CBlogComment::GetSocNetPostsPerms($entity_type, $entity_id);
+					while($arComment = $dbComment->Fetch())
+					{
+						if(!empty($arPost[$arComment["POST_ID"]]))
 						{
-							$arPost[$arComment["POST_ID"]]["PERMS_CALC"] = array();
-							if(is_array($arPost[$arComment["POST_ID"]]["PERMS_FULL"]) && !empty($arPost[$arComment["POST_ID"]]["PERMS_FULL"]))
+							if(empty($arPost[$arComment["POST_ID"]]["PERMS_CALC"]))
 							{
-								foreach($arPost[$arComment["POST_ID"]]["PERMS_FULL"] as $e => $v)
+								$arPost[$arComment["POST_ID"]]["PERMS_CALC"] = array();
+								if(is_array($arPost[$arComment["POST_ID"]]["PERMS_FULL"]) && !empty($arPost[$arComment["POST_ID"]]["PERMS_FULL"]))
 								{
-									if(in_array($v["TYPE"], Array("SG", "U")))
+									foreach($arPost[$arComment["POST_ID"]]["PERMS_FULL"] as $e => $v)
 									{
-										$type = $v["TYPE"] == "SG" ? "G" : "U";
-										if(array_key_exists($type.$v["ID"], $arTmpCache))
+										if(in_array($v["TYPE"], Array("SG", "U")))
 										{
-											$spt = $arTmpCache[$type.$v["ID"]];
+											$type = $v["TYPE"] == "SG" ? "G" : "U";
+											if(array_key_exists($type.$v["ID"], $arTmpCache))
+											{
+												$spt = $arTmpCache[$type.$v["ID"]];
+											}
+											else
+											{
+												$spt = CBlogPost::GetSocnetGroups($type, $v["ID"], "view_comment");
+												$arTmpCache[$type.$v["ID"]] = $spt;
+											}
+											foreach($spt as $vv)
+											{
+												if(!in_array($vv, $arPost[$arComment["POST_ID"]]["PERMS_CALC"]))
+													$arPost[$arComment["POST_ID"]]["PERMS_CALC"][] = $vv;
+											}
 										}
 										else
 										{
-											$spt = CBlogPost::GetSocnetGroups($type, $v["ID"], "view_comment");
-											$arTmpCache[$type.$v["ID"]] = $spt;
+											$arPost[$arComment["POST_ID"]]["PERMS_CALC"][] = $e;
 										}
-										foreach($spt as $vv)
-										{
-											if(!in_array($vv, $arPost[$arComment["POST_ID"]]["PERMS_CALC"]))
-												$arPost[$arComment["POST_ID"]]["PERMS_CALC"][] = $vv;
-										}
-									}
-									else
-									{
-										$arPost[$arComment["POST_ID"]]["PERMS_CALC"][] = $e;
 									}
 								}
 							}
-						}
 
-						CSearch::ChangePermission("blog", $arPost[$arComment["POST_ID"]]["PERMS_CALC"], "C".$arComment["ID"]);
+							CSearch::ChangePermission("blog", $arPost[$arComment["POST_ID"]]["PERMS_CALC"], "C".$arComment["ID"]);
+						}
 					}
 				}
 			}

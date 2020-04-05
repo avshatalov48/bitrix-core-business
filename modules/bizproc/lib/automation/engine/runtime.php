@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation\Engine;
 
-use Bitrix\Bizproc\WorkflowInstanceTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Localization\Loc;

@@ -250,7 +250,7 @@ $MESS["SOE_ORDER_FULL_DIVIDE_HINT"] = "Wenn diese Option aktiv ist, wird die Sum
 $MESS["SALE_F_XML_ID"] = "Externe ID";
 $MESS["SOE_RECOUNT_CONF"] = "Sind Sie sicher, dass  Sie die automatische Neuberechnung der Bestellungen aktivieren wollen? Alle Daten, die manuell eingegeben worden sind, können verloren gehen.";
 $MESS["SALE_F_ALERT_ORDER_DIV"] = "Alle ausgewählten Artikel werden beim Speichern der neuen Bestellung hinzugefügt";
-$MESS["SOE_AJAX_WAIT"] = "Bitte warten";
+$MESS["SOE_AJAX_WAIT"] = "Bitte warten...";
 $MESS["SOE_AJAX_RECALC"] = "Neu berechnen";
 $MESS["SOE_VAT"] = "MwSt.";
 $MESS["SOE_COUNT_TAX_FOR_DELIVERY"] = "Steuer für den Versand berechnen";

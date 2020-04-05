@@ -162,13 +162,13 @@ class OrderInfo
 		$result = '
 			<div class="adm-bus-orderinfoblock adm-detail-tabs-block-pin" id="sale-order-edit-block-order-info">
 				<div class="adm-bus-orderinfoblock-container">
-				<div class="adm-bus-orderinfoblock-title">'.
-				Loc::getMessage("SALE_ORDER_INFO", array(
+				<div class="adm-bus-orderinfoblock-title">
+					<div class="adm-bus-orderinfoblock-title-text">'.Loc::getMessage("SALE_ORDER_INFO", array(
 					"#ID#" => $order->getId(),
 					"#NUM#" => strlen($order->getField("ACCOUNT_NUMBER")) > 0 ? $order->getField("ACCOUNT_NUMBER") : $order->getId(),
 					"#DATE#" => $order->getDateInsert()->toString())
-				)." [".$order->getSiteId()."]".
-				'<div class="adm-bus-orderinfoblock-status success" id="order_info_order_status_name">'.$order->getField('STATUS_ID').'</div> <!-- TODO -->
+				)." [".$order->getSiteId()."]".'</div>
+					<div class="adm-bus-orderinfoblock-status success" id="order_info_order_status_name">'.$order->getField('STATUS_ID').'</div> <!-- TODO -->
 				</div>
 				<div class="adm-bus-orderinfoblock-content">
 					<div class="adm-bus-orderinfoblock-content-block-customer">

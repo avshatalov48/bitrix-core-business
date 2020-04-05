@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\UI\Viewer\ItemAttributes;
+
 IncludeModuleLangFile(__FILE__);
 
 class CListFile
@@ -50,16 +53,17 @@ class CListFile
 			$intHeight = $this->_height;
 			$img_src = '';
 			$divId = '';
-			if(isset($params['url_template']) && $intWidth > 0 && $intHeight > 0)
+			if (isset($params['url_template']))
 			{
 				$img_src = $this->GetImgSrc(array('url_template' => $params['url_template']));
 				if ($img_src)
 				{
-					CUtil::InitJSCore(array("viewer"));
 					self::$_counter++;
 					$divId = 'lists-image-info-'.self::$_counter;
 				}
 			}
+
+			$attributes = ItemAttributes::buildByFileData($this->_file, $img_src);
 
 			if ($divId)
 			{
@@ -78,19 +82,11 @@ class CListFile
 					$info .= $intWidth.'x'.$intHeight.', ';
 				}
 				$info .= CFile::FormatSize($this->_file['FILE_SIZE']).')';
-
-				if ($divId)
-					$html .= GetMessage('FILE_TEXT').': <span style="cursor:pointer" data-bx-viewer="image" data-bx-src="'.htmlspecialcharsbx($img_src).'">'.htmlspecialcharsex($info).'</span>';
-				else
-					$html .= GetMessage('FILE_TEXT').': '.htmlspecialcharsex($info);
-
+				$html .= GetMessage('FILE_TEXT').': <span class="lists-file-preview-data" '.$attributes.'>'.htmlspecialcharsex($info).'</span>';
 			}
 			else
 			{
-				if ($divId)
-					$html .= GetMessage('FILE_TEXT').': <span style="cursor:pointer" data-bx-viewer="image" data-bx-src="'.htmlspecialcharsbx($img_src).'">'.htmlspecialcharsex($this->_file["FILE_NAME"]).'</span>';
-				else
-					$html .= GetMessage('FILE_TEXT').': '.htmlspecialcharsex($this->_file["FILE_NAME"]);
+				$html .= GetMessage('FILE_TEXT').': <span class="lists-file-preview-data" '.$attributes.'>'.htmlspecialcharsex($this->_file["FILE_NAME"]).'</span>';
 
 				if($intWidth > 0 && $intHeight > 0)
 				{
@@ -100,14 +96,7 @@ class CListFile
 				$html .= '<br>'.GetMessage('FILE_SIZE').': '.CFile::FormatSize($this->_file['FILE_SIZE']);
 			}
 
-			if ($divId)
-			{
-				$html .= '</div><script>BX.ready(function(){if(BX["viewElementBind"]){BX.viewElementBind("'.$divId.'");}});</script>';
-			}
-			else
-			{
-				$html .= '</div>';
-			}
+			$html .= '</div>';
 		}
 
 		return $html;
@@ -163,7 +152,7 @@ class CListFile
 				array($this->_list_id, $this->_section_id, $this->_element_id, $this->_field_id, $this->_file_id, $this->_socnet_group_id),
 				$params['url_template']
 			);
-			return CHTTP::urlAddParams($result, array("ncc" => "y"));
+			return CHTTP::urlAddParams($result, array("ncc" => "y", "download" => "y"));
 		}
 		elseif(is_array($this->_file))
 		{
@@ -203,7 +192,8 @@ class CListFile
 			}
 
 			$src = $this->GetImgSrc($params);
-			$html = '<img src="'.htmlspecialcharsbx($src).'" width="'.$intWidth.'" height="'.$intHeight.'"';
+			$attributes = ItemAttributes::buildByFileData($this->_file, $src);
+			$html = '<img class="lists-file-preview-data" src="'.htmlspecialcharsbx($src).'" '.$attributes.' width="'.$intWidth.'" height="'.$intHeight.'"';
 			if(is_array($params) && isset($params['html_attributes']) && is_array($params['html_attributes']))
 			{
 				foreach($params['html_attributes'] as $name => $value)

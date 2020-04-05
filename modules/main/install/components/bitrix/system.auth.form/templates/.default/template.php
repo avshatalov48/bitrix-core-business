@@ -42,7 +42,7 @@ if ($arResult['SHOW_ERRORS'] == 'Y' && $arResult['ERROR'])
 		<tr>
 			<td colspan="2">
 			<?=GetMessage("AUTH_PASSWORD")?>:<br />
-			<input type="password" name="USER_PASSWORD" maxlength="50" size="17" autocomplete="off" />
+			<input type="password" name="USER_PASSWORD" maxlength="255" size="17" autocomplete="off" />
 <?if($arResult["SECURE_AUTH"]):?>
 				<span class="bx-auth-secure" id="bx_auth_secure<?=$arResult["RND"]?>" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>

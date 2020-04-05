@@ -21,6 +21,7 @@ Loc::loadMessages(__FILE__);
 $adminAjaxHelper->sendJsonSuccessResponse();
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/lib/helpers/admin/businessvalue.php');
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/cashbox/inputs/file.php");
 
 $isSuccess = true;
 

@@ -44,7 +44,9 @@ class EntityImportLoaderFactory
         {
             return new PaymentImportLoader();
         }
-        elseif($entityTypeID == EntityType::USER_PROFILE)
+        elseif($entityTypeID == EntityType::USER_PROFILE ||
+			$entityTypeID == EntityType::USER_PROFILE ||
+			$entityTypeID == EntityType::USER_PROFILE_CONTACT_COMPANY)
         {
             return new UserProfileImportLoader();
         }

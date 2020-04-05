@@ -13,9 +13,15 @@ define("NOT_CHECK_PERMISSIONS", true);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
+\Bitrix\Main\Loader::includeModule('sale');
+
 $instance = Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
+$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+/** @var Order $orderClass */
+$orderClass = $registry->getOrderClassName();
 
 $lang = ($request->get('lang') !== null) ? trim($request->get('lang')) : "ru";
 \Bitrix\Main\Context::getCurrent()->setLanguage($lang);
@@ -23,9 +29,6 @@ $lang = ($request->get('lang') !== null) ? trim($request->get('lang')) : "ru";
 Loc::loadMessages(__FILE__);
 
 $arResult = array("ERROR" => "");
-
-if (!\Bitrix\Main\Loader::includeModule('sale'))
-	$arResult["ERROR"] = "Error! Can't include module \"Sale\"";
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/internals/input.php");
 
@@ -198,7 +201,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			{
 				$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-				$order = Order::load($orderId);
+				$order = $orderClass::load($orderId);
 				if ($order === null)
 				{
 					$arResult["ERROR"] = "Error! Access denied";
@@ -258,7 +261,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			{
 				$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-				$order = Order::load($orderId);
+				$order = $orderClass::load($orderId);
 				if ($order === null)
 				{
 					$arResult["ERROR"] = "Order not found";
@@ -334,7 +337,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			$entityCode = $formData['data']['ENTITY_CODE'];
 			list($entityType, $entityId) = explode('_', $entityCode);
 
-			$order = Order::load($orderId);
+			$order = $orderClass::load($orderId);
 
 			$userId = $USER->GetID();
 			$userCompanyList = \Bitrix\Sale\Services\Company\Manager::getUserCompanyList($userId);

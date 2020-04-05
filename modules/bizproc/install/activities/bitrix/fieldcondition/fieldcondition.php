@@ -74,6 +74,16 @@ class CBPFieldCondition
 		return sizeof($result) > 0 ? true : false;
 	}
 
+	public function collectUsages(CBPActivity $ownerActivity)
+	{
+		$usages = [];
+		foreach ($this->condition as $cond)
+		{
+			$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::DocumentField, $cond[0]];
+		}
+		return $usages;
+	}
+
 	/**
 	 * @param $fieldName
 	 * @param $field
@@ -183,31 +193,8 @@ class CBPFieldCondition
 
 			if ($baseType == "datetime" || $baseType == "date")
 			{
-				if (($f1Tmp = MakeTimeStamp($f1, FORMAT_DATETIME)) === false)
-				{
-					if (($f1Tmp = MakeTimeStamp($f1, FORMAT_DATE)) === false)
-					{
-						if (($f1Tmp = MakeTimeStamp($f1, "YYYY-MM-DD HH:MI:SS")) === false)
-						{
-							if (($f1Tmp = MakeTimeStamp($f1, "YYYY-MM-DD")) === false)
-								$f1Tmp = 0;
-						}
-					}
-				}
-				$f1 = $f1Tmp;
-
-				if (($v1Tmp = MakeTimeStamp($v1, FORMAT_DATETIME)) === false)
-				{
-					if (($v1Tmp = MakeTimeStamp($v1, FORMAT_DATE)) === false)
-					{
-						if (($v1Tmp = MakeTimeStamp($v1, "YYYY-MM-DD HH:MI:SS")) === false)
-						{
-							if (($v1Tmp = MakeTimeStamp($v1, "YYYY-MM-DD")) === false)
-								$v1Tmp = 0;
-						}
-					}
-				}
-				$v1 = $v1Tmp;
+				$f1 = \CBPHelper::makeTimestamp($f1);
+				$v1 = \CBPHelper::makeTimestamp($v1);
 			}
 
 			if ($baseType === 'bool')

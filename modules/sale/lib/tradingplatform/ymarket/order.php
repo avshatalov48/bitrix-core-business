@@ -6,6 +6,7 @@ use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\BasketItem;
+use Bitrix\Sale;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Result;
 use Bitrix\Main\Error;
@@ -52,7 +53,11 @@ class Order
 			return $result;
 		}
 
-		$order = \Bitrix\Sale\Order::create($params['SITE_ID'], \CSaleUser::GetAnonymousUserID(), $currency);
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::create($params['SITE_ID'], \CSaleUser::GetAnonymousUserID(), $currency);
 		/** @var \Bitrix\Sale\Result $res */
 		$res = $order->setPersonTypeId(intval($params['PERSON_TYPE_ID']));
 
@@ -70,7 +75,11 @@ class Order
 
 		$fUserId = $order->getUserId() > 0 ? \Bitrix\Sale\Fuser::getIdByUserId($order->getUserId()) : null;
 		$isStartField = $order->isStartField();
-		$basket = \Bitrix\Sale\Basket::create($params['SITE_ID']);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$basket = $basketClass::create($params['SITE_ID']);
 		$res = $order->setBasket($basket);
 
 		if (!$res->isSuccess())

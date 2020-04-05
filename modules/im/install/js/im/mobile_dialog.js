@@ -1991,7 +1991,7 @@ BX.ImMessengerMobile.prototype.dialogStatusRedrawDelay = function(params)
 				}
 				if (this.chat[chatId].owner == this.BXIM.userId)
 				{
-					items.push({ icon: 'pause', name: BX.message(session.pin == "Y"? "IM_M_OL_PAUSE_OFF": "IM_M_OL_PAUSE_ON"), action:BX.delegate(function() {  this.linesTogglePinMode(); }, this)});
+					items.push({ icon: 'pause', name: BX.message(session.pin == "Y"? "IM_M_OL_ASSIGN_OFF": "IM_M_OL_ASSIGN_ON"), action:BX.delegate(function() {  this.linesTogglePinMode(); }, this)});
 					if (session.crm != 'Y')
 					{
 						items.push({ name: BX.message('IM_M_OL_ADD_LEAD'), action:BX.delegate(function() {  this.linesCreateLead(); }, this)});
@@ -3262,7 +3262,7 @@ BX.ImDiskManagerMobile.prototype.uploadFromDisk = function(selected, text)
 	{
 		this.files[chatId]['disk'+fileId] = {
 			'id': 'disk'+fileId,
-			'tempId': 'disk'+fileId,
+			'templateId': 'disk'+fileId,
 			'chatId': chatId,
 			'date': new Date(selected[fileId].modifyDateInt*1000),
 			'type': 'file',
@@ -3431,7 +3431,7 @@ BX.ImDiskManagerMobile.prototype.diskChatDialogFileInited = function(id, file, a
 
 	this.files[chatId][id] = {
 		'id': id,
-		'tempId': id,
+		'templateId': id,
 		'chatId': chatId,
 		'date': new Date(),
 		'type': file.isImage? 'image': 'file',

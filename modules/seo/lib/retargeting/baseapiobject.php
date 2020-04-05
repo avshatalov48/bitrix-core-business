@@ -35,6 +35,7 @@ class BaseApiObject
 	public function __construct()
 	{
 		$this->request = Request::create(static::TYPE_CODE);
+		$this->request->setUseDirectQuery($this instanceof IRequestDirectly);
 	}
 
 	/**

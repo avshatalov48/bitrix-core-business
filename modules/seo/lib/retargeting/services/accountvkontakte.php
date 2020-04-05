@@ -12,8 +12,6 @@ class AccountVkontakte extends Account
 {
 	const TYPE_CODE = 'vkontakte';
 
-	const MAX_ADS_EDIT = 20;
-
 	protected static $listRowMap = array(
 		'ID' => 'ACCOUNT_ID',
 		'NAME' => 'NAME',
@@ -21,39 +19,24 @@ class AccountVkontakte extends Account
 
 	public function getList()
 	{
-		// https://vk.com/dev/ads.getAccounts
-
-		$result =  $this->getRequest()->send([
-			'method' => 'GET',
-			'endpoint' => 'ads.getAccounts',
-		]);
-		if ($result->isSuccess())
-		{
-			$list = [];
-			while ($item = $result->fetch())
-			{
-				if ($item['ACCOUNT_TYPE'] === 'general')
-				{
-					$list[] = $item;
-				}
-			}
-			$result->setData($list);
-		}
-
-		return $result;
+		$response = $this->getRequest()->send(array(
+			'methodName' => 'retargeting.account.list',
+			'parameters' => array()
+		));
+		$data = $response->getData();
+		$data = array_values(array_filter($data, function ($item) {
+			return ($item['account_type'] == 'general'); // only "general" is supported
+		}));
+		$response->setData($data);
+		return $response;
 	}
 
 	public function getProfile()
 	{
 		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'users.get',
-			'fields' => array(
-				//'user_ids' => array(),
-				'fields' => 'photo_50,screen_name'
-			)
+			'methodName' => 'retargeting.profile',
+			'parameters' => array()
 		));
-
 
 		if ($response->isSuccess())
 		{
@@ -65,9 +48,7 @@ class AccountVkontakte extends Account
 				'PICTURE' => $data['PHOTO_50'],
 			);
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 }

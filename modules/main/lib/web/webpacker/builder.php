@@ -207,6 +207,7 @@ class Builder
 				}
 			}
 		}
+		$profile->useAllLangs(!!self::getValueByKey($webPacker, Resource\Profile::USE_ALL_LANGS));
 		$profile->useLangCamelCase(!!self::getValueByKey($webPacker, Resource\Profile::USE_LANG_CAMEL_CASE));
 		$deleteLangPrefixes = self::getValueByKey($webPacker, Resource\Profile::DELETE_LANG_PREFIXES);
 		if (is_array($deleteLangPrefixes))

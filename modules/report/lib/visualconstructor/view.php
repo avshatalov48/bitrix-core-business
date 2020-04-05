@@ -32,7 +32,6 @@ abstract class View
 	private $label;
 	private $logoUri;
 	private $previewImageUri;
-
 	private $compatibleDataType;
 	private $height;
 	private $jsClassName;
@@ -156,10 +155,8 @@ abstract class View
 		$widgetHandler->getWidget()->setBoardId($boardId);
 		$widgetHandler->getWidget()->setViewKey($this->getKey());
 		$widgetHandler->getCollectedFormElements();
-
 		return $widgetHandler;
 	}
-
 
 	/**
 	 * When building new widget, add default Report handlers to widget.
@@ -231,10 +228,8 @@ abstract class View
 		));
 		$label->setIsDisplayLabel(false);
 
-
 		$timePeriod = new TimePeriod('time_period', $widgetHandler->getWidget()->getFilterId());
 		$timePeriod->setLabel(Loc::getMessage('REPORT_CALCULATION_PERIOD'));
-
 
 		$colorPicker = new ColorPicker('color');
 		$colorPicker->setLabel(Loc::getMessage('BACKGROUND_COLOR_OF_WIDGET'));
@@ -298,10 +293,8 @@ abstract class View
 			'css' => array('/bitrix/js/report/css/visualconstructor/configheader.css')
 		));
 
-
 		$widgetHandler = $reportHandler->getWidgetHandler();
 		$previewBlock = $widgetHandler->getFormElement('view_type');
-
 
 		$headContainer->setKey('head_container');
 		$headContainer->addClass('report-configuration-head');
@@ -329,7 +322,6 @@ abstract class View
 			'class' => 'BX.Report.VisualConstructor.FieldEventHandlers.ColorField',
 			'action' => 'selectColorInConfigurationForm'
 		));
-
 
 		if ($reportHandler->getConfiguration('color'))
 		{
@@ -360,8 +352,6 @@ abstract class View
 		));
 
 		$container->addElement($removeButton);
-
-
 		$headContainerStart = $headContainer->start();
 		$headContainerEnd = $headContainer->end();
 		$containerStartElement = $labelColorContainer->start();
@@ -375,7 +365,6 @@ abstract class View
 		$reportHandler->addFormElementAfter($containerEndElement, $container);
 		$reportHandler->addFormElementAfter($headContainerEnd, $containerEndElement);
 	}
-
 
 	/**
 	 * @return string
@@ -396,7 +385,6 @@ abstract class View
 		$this->jsClassName = $jsClassName;
 	}
 
-
 	/**
 	 * Method to modify Content which pass to widget view, in absolute end.
 	 *
@@ -409,6 +397,7 @@ abstract class View
 		$resultWidget = array(
 			'id' => $widget->getGId(),
 			'title' => 'No Title',
+			'isHeadEnabled' => true,
 			'draggable' => $this->isDraggable(),
 			'droppable' => true,
 			'loaded' => $withCalculatedData,
@@ -430,7 +419,6 @@ abstract class View
 		$colorValue = $color->getValue();
 		$resultWidget['config']['color'] = htmlspecialcharsbx($colorValue);
 		$resultWidget['config']['header']['color'] = htmlspecialcharsbx($colorValue);
-
 
 		/** @var LabelField $label */
 		$label = $widgetHandler->getFormElement('label');
@@ -499,7 +487,6 @@ abstract class View
 			'#9dcf00',
 			'#f6ce00'
 		);
-
 		return $defaultColorList[$num % count($defaultColorList)];
 	}
 

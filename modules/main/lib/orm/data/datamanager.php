@@ -74,12 +74,11 @@ abstract class DataManager
 	 */
 	public static function getEntity()
 	{
-		$class = get_called_class();
-		$class = Entity::normalizeEntityClass($class);
+		$class = static::getEntityClass()::normalizeEntityClass(get_called_class());
 
 		if (!isset(static::$entity[$class]))
 		{
-			static::$entity[$class] = Entity::getInstance($class);
+			static::$entity[$class] = static::getEntityClass()::getInstance($class);
 		}
 
 		return static::$entity[$class];
@@ -87,7 +86,7 @@ abstract class DataManager
 
 	public static function unsetEntity($class)
 	{
-		$class = Entity::normalizeEntityClass($class);
+		$class = static::getEntityClass()::normalizeEntityClass($class);
 
 		if (isset(static::$entity[$class]))
 		{
@@ -116,6 +115,14 @@ abstract class DataManager
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function getTitle()
+	{
+		return null;
+	}
+
+	/**
 	 * Returns class of Object for current entity.
 	 *
 	 * @return string|EntityObject
@@ -124,31 +131,7 @@ abstract class DataManager
 	{
 		if (!isset(static::$objectClass[get_called_class()]))
 		{
-			$objectClass = Entity::normalizeName(get_called_class());
-
-			// make class name more unique
-			$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
-			$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
-
-			$className = Entity::getDefaultObjectClassName($className);
-
-
-
-			// with prefix EO_ it's not actual anymore
-			/*if (in_array(strtolower($className), static::$reservedWords))
-			{
-				// add postfix to reserved word
-				$className .= 'Object';
-			}*/
-
-			// the same reason
-			/*if (class_exists($objectClass) && !is_subclass_of($objectClass, EntityObject::class))
-			{
-				// add unique postfix to existing class
-				$className .= substr(md5($objectClass), 0, 6);
-			}*/
-
-			static::$objectClass[get_called_class()] = $namespace.$className;
+			static::$objectClass[get_called_class()] = static::getObjectClassByDataClass(get_called_class());
 		}
 
 		return static::$objectClass[get_called_class()];
@@ -165,6 +148,19 @@ abstract class DataManager
 		return substr($class, strrpos($class, '\\')+1);
 	}
 
+	protected static function getObjectClassByDataClass($dataClass)
+	{
+		$objectClass = static::getEntityClass()::normalizeName($dataClass);
+
+		// make class name more unique
+		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
+		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
+
+		$className = static::getEntityClass()::getDefaultObjectClassName($className);
+
+		return $namespace.$className;
+	}
+
 	/**
 	 * Returns class of Object collection for current entity.
 	 *
@@ -174,15 +170,7 @@ abstract class DataManager
 	{
 		if (!isset(static::$collectionClass[get_called_class()]))
 		{
-			$objectClass = Entity::normalizeName(get_called_class());
-
-			// make class name more unique
-			$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
-			$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
-
-			$className = Entity::getDefaultCollectionClassName($className);
-
-			static::$collectionClass[get_called_class()] = $namespace.$className;
+			static::$collectionClass[get_called_class()] = static::getCollectionClassByDataClass(get_called_class());
 		}
 
 		return static::$collectionClass[get_called_class()];
@@ -197,6 +185,51 @@ abstract class DataManager
 	{
 		$class = static::getCollectionClass();
 		return substr($class, strrpos($class, '\\')+1);
+	}
+
+	protected static function getCollectionClassByDataClass($dataClass)
+	{
+		$objectClass = static::getEntityClass()::normalizeName($dataClass);
+
+		// make class name more unique
+		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
+		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
+
+		$className = static::getEntityClass()::getDefaultCollectionClassName($className);
+
+		return $namespace.$className;
+	}
+
+	/**
+	 * @return EntityObject|string
+	 */
+	public static function getObjectParentClass()
+	{
+		return EntityObject::class;
+	}
+
+	/**
+	 * @return Collection|string
+	 */
+	public static function getCollectionParentClass()
+	{
+		return Collection::class;
+	}
+
+	/**
+	 * @return Query|string
+	 */
+	public static function getQueryClass()
+	{
+		return Query::class;
+	}
+
+	/**
+	 * @return Entity|string
+	 */
+	public static function getEntityClass()
+	{
+		return Entity::class;
 	}
 
 	/**
@@ -251,7 +284,7 @@ abstract class DataManager
 
 	/**
 	 * Returns entity map definition.
-	 * To get initialized fields @see \Bitrix\Main\ORM\Entity::getFields() and \Bitrix\Main\ORM\Base::getField()
+	 * To get initialized fields @see \Bitrix\Main\ORM\Entity::getFields() and \Bitrix\Main\ORM\Entity::getField()
 	 */
 	public static function getMap()
 	{
@@ -512,7 +545,8 @@ abstract class DataManager
 	 */
 	public static function query()
 	{
-		return new Query(static::getEntity());
+		$queryClass = static::getQueryClass();
+		return new $queryClass(static::getEntity());
 	}
 
 	/**
@@ -749,7 +783,14 @@ abstract class DataManager
 					{
 						if ($entity->getField($fieldName) instanceof ScalarField && $entity->getField($fieldName)->isPrimary())
 						{
-							// and ignore primary
+							// ignore old primary
+							if (array_key_exists($fieldName, $primary) && $primary[$fieldName] == $value)
+							{
+								unset($fields[$fieldName]);
+								continue;
+							}
+
+							// but prevent primary changing
 							trigger_error(sprintf(
 								'Primary of %s %s can not be changed. You can delete this row and add a new one',
 								static::getObjectClass(), Main\Web\Json::encode($object->primary)
@@ -962,7 +1003,7 @@ abstract class DataManager
 			trigger_error(
 				'Multi-insert doesn\'t work with events as far as we can not get last inserted IDs that we need for the events. '.
 				'Insert query was forced to multiple separate queries.',
-				E_USER_WARNING
+				E_USER_NOTICE
 			);
 		}
 
@@ -1211,7 +1252,7 @@ abstract class DataManager
 			// check if there is still some data
 			if (!count($fields + $ufdata))
 			{
-				$result->addError(new EntityError("There is no data to update."));
+				return $result;
 			}
 
 			// return if any error

@@ -3,8 +3,7 @@
 		<div class="row">
 			<div class="col-md-6 col-lg-4 g-mb-30 g-mb-0--lg">
 				<!-- Article -->
-				<article
-						class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
+				<article class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
 					<!-- Article Image -->
 					<img class="landing-block-node-img1 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img1.jpg"
 						 alt="">
@@ -31,8 +30,7 @@
 
 			<div class="col-md-6 col-lg-4 g-mb-30 g-mb-0--lg">
 				<!-- Article -->
-				<article
-						class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
+				<article class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
 					<!-- Article Image -->
 					<img class="landing-block-node-img2 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img2.jpg"
 						 alt="">
@@ -72,8 +70,7 @@
 				<!-- End Article -->
 
 				<!-- Article -->
-				<article
-						class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
+				<article class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
 					<!-- Article Image -->
 					<img class="landing-block-node-img-mini w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x401/img1.jpg"
 						 alt="">

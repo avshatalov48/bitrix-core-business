@@ -1,4 +1,8 @@
 
+.mail-msg-list-grid {
+	min-width: 800px;
+}
+
 .mail-msg-list-grid .main-grid-table {
 	width: 100%;
 }
@@ -59,16 +63,12 @@
 	cursor: pointer;
 }
 
-.ui-action-panel {
+.ui-action-panel.mail-msg-list-action-panel {
 	height: 45px !important;
 }
 
 .mail-connect-lock-text {
 	vertical-align: middle;
-}
-
-.mail-pagetitle-flexible-space {
-	flex: 1 1 auto;
 }
 
 .menu-popup-item.menu-popup-no-icon[data-is-disabled=true] {
@@ -87,4 +87,11 @@
 .mail-msg-list-stepper-wrapper .main-stepper.main-stepper-show,
 .mail-msg-list-stepper-wrapper .main-stepper.main-stepper-hide {
 	animation-duration: 0s;
+}
+
+/* http://jabber.bx/view.php?id=110191 */
+.mail-msg-list-stepper-wrapper .main-stepper.main-stepper-show {
+	height: 42px;
+	opacity: 1;
+	visibility: visible;
 }

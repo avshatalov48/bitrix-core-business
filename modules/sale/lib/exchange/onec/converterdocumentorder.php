@@ -4,14 +4,13 @@ namespace Bitrix\Sale\Exchange\OneC;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Sale\Exchange\EntityType;
 use Bitrix\Sale\Exchange\ImportBase;
 use Bitrix\Sale\Exchange\ImportOneCBase;
 use Bitrix\Sale\Exchange\ISettings;
 use Bitrix\Sale\Exchange\ISettingsExport;
 use Bitrix\Sale\Exchange\ISettingsImport;
 use Bitrix\Sale\Internals\StatusLangTable;
-use Bitrix\Sale\Order;
+use Bitrix\Sale;
 
 /**
  * Class ConverterDocumentOrder
@@ -42,7 +41,11 @@ class ConverterDocumentOrder extends Converter
 
 		$params = $documentImport->getFieldValues();
 
-		$availableFields = Order::getAvailableFields();
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$availableFields = $orderClass::getAvailableFields();
 
 		foreach ($availableFields as $k)
 		{
@@ -120,7 +123,7 @@ class ConverterDocumentOrder extends Converter
 	 */
 	static public function sanitizeFields($order=null, array &$fields, ISettings $settings)
 	{
-		if(!empty($order) && !($order instanceof Order))
+		if(!empty($order) && !($order instanceof Sale\Order))
 			throw new ArgumentException("Entity must be instanceof Order");
 
 		if(empty($order))

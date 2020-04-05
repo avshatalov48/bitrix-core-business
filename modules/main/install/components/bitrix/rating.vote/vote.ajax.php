@@ -21,15 +21,20 @@ if ($_POST['RATING_VOTE_LIST'] == 'Y'
 		"LIST_TYPE" => isset($_POST['RATING_VOTE_LIST_TYPE']) && $_POST['RATING_VOTE_LIST_TYPE'] == 'minus'? 'minus': 'plus',
 	);
 
-	$bExtranetInstalled = $bMailInstalled = false;
-	if (IsModuleInstalled('extranet'))
+	$bMailInstalled = IsModuleInstalled('mail');
+	$bReplicaInstalled = IsModuleInstalled('replica');
+	$bExtranetInstalled = IsModuleInstalled('extranet');
+
+	if ($bExtranetInstalled)
 	{
-		$bExtranetInstalled = true;
 		$ar["USER_SELECT"] = array("UF_DEPARTMENT");
 	}
-	if (IsModuleInstalled('mail'))
+
+	if (
+		$bMailInstalled
+		|| $bReplicaInstalled
+	)
 	{
-		$bMailInstalled = true;
 		$ar["USER_FIELDS"] = array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "EXTERNAL_AUTH_ID");
 	}
 
@@ -69,6 +74,13 @@ if ($_POST['RATING_VOTE_LIST'] == 'Y'
 		)
 		{
 			$arUserVote["USER_TYPE"] = "mail";
+		}
+		elseif (
+			$bReplicaInstalled
+			&& $value["EXTERNAL_AUTH_ID"] == "replica"
+		)
+		{
+			$arUserVote["USER_TYPE"] = "extranet";
 		}
 		elseif (
 			$bExtranetInstalled

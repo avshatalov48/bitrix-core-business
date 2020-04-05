@@ -10,7 +10,7 @@
 		categories: [
 			{
 				"id": "CHRISTMAS",
-				"name": BX.message("LANDING_ICONS_SECTION_CHRISTMAS"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_CHRISTMAS"),
 				"items": [
 					"icon-christmas-001 u-line-icon-pro",
 					"icon-christmas-014 u-line-icon-pro",
@@ -116,7 +116,7 @@
 			},
 			{
 				"id": "COMMUNICATION",
-				"name": BX.message("LANDING_ICONS_SECTION_COMMUNICATION"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_COMMUNICATION"),
 				"items": [
 					"icon-communication-001 u-line-icon-pro",
 					"icon-communication-002 u-line-icon-pro",
@@ -302,7 +302,7 @@
 			},
 			{
 				"id": "ELECTRONICS",
-				"name": BX.message("LANDING_ICONS_SECTION_ELECTRONICS"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_ELECTRONICS"),
 				"items": [
 					"icon-electronics-001 u-line-icon-pro",
 					"icon-electronics-014 u-line-icon-pro",
@@ -468,7 +468,7 @@
 			},
 			{
 				"id": "FURNITURE",
-				"name": BX.message("LANDING_ICONS_SECTION_FURNITURE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_FURNITURE"),
 				"items": [
 					"icon-furniture-001 u-line-icon-pro",
 					"icon-furniture-014 u-line-icon-pro",
@@ -574,7 +574,7 @@
 			},
 			{
 				"id": "MEDIA",
-				"name": BX.message("LANDING_ICONS_SECTION_PLAYER"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_PLAYER"),
 				"items": [
 					"icon-media-001 u-line-icon-pro",
 					"icon-media-014 u-line-icon-pro",
@@ -710,7 +710,7 @@
 			},
 			{
 				"id": "MUSIC",
-				"name": BX.message("LANDING_ICONS_SECTION_MUSIC"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_MUSIC"),
 				"items": [
 					"icon-music-001 u-line-icon-pro",
 					"icon-music-014 u-line-icon-pro",
@@ -816,7 +816,7 @@
 			},
 			{
 				"id": "SCIENCE",
-				"name": BX.message("LANDING_ICONS_SECTION_SCIENCE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_SCIENCE"),
 				"items": [
 					"icon-science-001 u-line-icon-pro",
 					"icon-science-014 u-line-icon-pro",
@@ -982,7 +982,7 @@
 			},
 			{
 				"id": "SPORTS",
-				"name": BX.message("LANDING_ICONS_SECTION_SPORTS"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_SPORTS"),
 				"items": [
 					"icon-sport-001 u-line-icon-pro",
 					"icon-sport-014 u-line-icon-pro",
@@ -1188,7 +1188,7 @@
 			},
 			{
 				"id": "WEATHER",
-				"name": BX.message("LANDING_ICONS_SECTION_WEATHER"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_WEATHER"),
 				"items": [
 					"icon-weather-001 u-line-icon-pro",
 					"icon-weather-014 u-line-icon-pro",

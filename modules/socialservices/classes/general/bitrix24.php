@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Socialservices\UserTable;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocServBitrixOAuth extends CSocServAuth
@@ -69,8 +72,16 @@ class CSocServBitrixOAuth extends CSocServAuth
 		$userId = intval($this->userId);
 		if($userId > 0)
 		{
-			$dbSocservUser = CSocServAuthDB::GetList(array(), array('USER_ID' => $userId, 'XML_ID' => $this->appID, "EXTERNAL_AUTH_ID" => "Bitrix24OAuth", 'PERSONAL_WWW' => $this->portalURI), false, false, array("OATOKEN", "REFRESH_TOKEN", "OATOKEN_EXPIRES", "OASECRET"));
-			if($arOauth = $dbSocservUser->Fetch())
+			$dbSocservUser = UserTable::getList([
+				'filter' => [
+					'=USER_ID' => $userId,
+					'=XML_ID' => $this->appID,
+					"=EXTERNAL_AUTH_ID" => "Bitrix24OAuth",
+					'=PERSONAL_WWW' => $this->portalURI
+				],
+				'select' => ["OATOKEN", "REFRESH_TOKEN", "OATOKEN_EXPIRES", "OASECRET"]
+			]);
+			if($arOauth = $dbSocservUser->fetch())
 			{
 				$accessToken = $arOauth["OATOKEN"];
 				if(
@@ -290,7 +301,14 @@ class CBitrixOAuthInterface extends CSocServOAuthTransport
 	{
 		global $USER;
 
-		$dbSocUser = CSocServAuthDB::GetList(array(), array('XML_ID' => $this->appID, 'PERSONAL_WWW' => $this->portalURI, 'EXTERNAL_AUTH_ID' => "Bitrix24OAuth"), false, false, array("ID"));
+		$dbSocUser = UserTable::getList([
+			'filter' => [
+				'=XML_ID' => $this->appID,
+				'=PERSONAL_WWW' => $this->portalURI,
+				'=EXTERNAL_AUTH_ID' => 'Bitrix24OAuth'
+			],
+			'select' => ['ID']
+		]);
 
 		if($USER->IsAuthorized())
 		{
@@ -310,13 +328,15 @@ class CBitrixOAuthInterface extends CSocServOAuthTransport
 				$arFields['REFRESH_TOKEN'] = $this->refresh_token;
 			}
 
-			if($arUser = $dbSocUser->Fetch())
+			if($arUser = $dbSocUser->fetch())
 			{
-				return CSocServAuthDB::Update($arUser["ID"], $arFields);
+				$result = UserTable::update($arUser["ID"], $arFields);
+				return $result->isSuccess() ? $arUser["ID"] : false;
 			}
 			else
 			{
-				return CSocServAuthDB::Add($arFields);
+				$result = UserTable::add($arFields);
+				return $result->isSuccess() ? $result->getId() : false;
 			}
 		}
 		return true;

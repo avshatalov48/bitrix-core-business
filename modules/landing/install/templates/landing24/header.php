@@ -8,6 +8,8 @@ if (!\Bitrix\Main\Loader::includeModule('landing'))
 {
 	return;
 }
+
+\Bitrix\Landing\Connector\Mobile::prologMobileHit();
 ?><!DOCTYPE html>
 <html xml:lang="<?= LANGUAGE_ID;?>" lang="<?= LANGUAGE_ID;?>" class="<?$APPLICATION->ShowProperty('HtmlClass');?>">
 <head>
@@ -48,7 +50,6 @@ if (!\Bitrix\Main\Loader::includeModule('landing'))
 	<?
 	$APPLICATION->ShowHead();
 	$APPLICATION->ShowProperty('MetaOG');
-	IncludeTemplateLangFile(__FILE__);
 	$APPLICATION->ShowProperty('BeforeHeadClose');
 	?>
 </head>
@@ -63,4 +64,4 @@ $APPLICATION->ShowPanel();
 */
 ?>
 <?$APPLICATION->ShowProperty('AfterBodyOpen');?>
-<main class="<?$APPLICATION->ShowProperty('MainClass');?>">
+<main class="w-100 <?$APPLICATION->ShowProperty('MainClass');?>">

@@ -81,7 +81,6 @@ final class IndexCalendar extends Stepper
 					'steps' => $newStatus['steps']
 				);
 
-
 				return self::CONTINUE_EXECUTION;
 			}
 

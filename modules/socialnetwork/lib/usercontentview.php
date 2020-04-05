@@ -116,9 +116,16 @@ class UserContentViewTable extends Entity\DataManager
 			}
 		}
 
-		try
+		if ($save)
 		{
-			if ($save)
+			$listRes = self::getList([
+				'filter' => [
+					"USER_ID" => $userId,
+					"RATING_TYPE_ID" => $typeId,
+					"RATING_ENTITY_ID" => $entityId,
+				]
+			]);
+			if (!$listRes->fetch())
 			{
 				$connection = \Bitrix\Main\Application::getConnection();
 				$helper = $connection->getSqlHelper();
@@ -136,13 +143,10 @@ class UserContentViewTable extends Entity\DataManager
 				$tableName = static::getTableName();
 				list($prefix, $values) = $helper->prepareInsert($tableName, $insertFields);
 
-				$connection->queryExecute("INSERT INTO {$tableName} ({$prefix}) VALUES ({$values})");
+				$connection->queryExecute("INSERT IGNORE INTO {$tableName} ({$prefix}) VALUES ({$values})");
 
 				$saved = true;
 			}
-		}
-		catch(SqlQueryException $exception)
-		{
 		}
 
 		return array(

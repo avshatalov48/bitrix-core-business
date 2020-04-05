@@ -113,8 +113,6 @@ $BX_GLOBAL_AREA_EDIT_ICON = false;
 
 if($APPLICATION->GetShowIncludeAreas())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_admin.php");
-
 	$aUserOpt = CUserOptions::GetOption("global", "settings", array());
 	if ($aUserOpt["page_edit_control_enable"] != "N")
 	{

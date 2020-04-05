@@ -14,18 +14,9 @@ BX.viewElementBind = function(div, params, isTarget, groupBy)
 		}
 	}
 
-	if (BX.getClass('BX.UI.Viewer') && BX(div))
-	{
-		BX.ready(function(){
-			BX.UI.Viewer.bind(BX(div), isTarget);
-		});
-	}
-	else
-	{
-		BX.ready(function(){
-			_viewerElementBind(div, isTarget, groupBy, obElementViewer);
-		});
-	}
+	BX.ready(function(){
+		_viewerElementBind(div, isTarget, groupBy, obElementViewer);
+	});
 
 	return obElementViewer;
 };
@@ -36,6 +27,27 @@ function _viewerElementBind(div, isTarget, groupBy, obElementViewer)
 	var div = BX(div);
 	if (!!div)
 	{
+		if (BX.getClass('BX.UI.Viewer') && BX(div))
+		{
+			BX.findChildren(div, isTarget, true).forEach(function(node){
+				if (node.dataset.bxSrc)
+				{
+					node.dataset.src = node.dataset.bxSrc;
+				}
+				if (node.dataset.bxImage)
+				{
+					node.dataset.src = node.dataset.bxImage;
+				}
+				if (node.dataset.bxViewer === 'image')
+				{
+					node.dataset.viewerType = 'image';
+				}
+			});
+
+			BX.UI.Viewer.bind(BX(div), isTarget);
+			return;
+		}
+
 		BX.bindDelegate(div, 'click', isTarget, function(e)
 		{
 			if(BX.findParent(this, {tagName: 'a', attribute: {target: '_blank'}}, 5))
@@ -3964,7 +3976,7 @@ BX.CViewer.prototype.adjustSizeTitle = function()
 	}
 	return false;
 }
-	
+
 BX.CViewer.prototype.adjustSize = function()
 {
 	var wndSize = BX.GetWindowSize(), currentElement = this.getCurrent();
@@ -5235,7 +5247,7 @@ BX.CViewer.prototype.createWithoutPreviewEditableElement = function(element, par
 	nonPreviewEditableElement.buttons.push(nonPreviewEditableElement.getComplexSaveButton(this, {
 		downloadUrl: nonPreviewEditableElement.downloadUrl
 	}));
-	
+
 	return nonPreviewEditableElement;
 }
 

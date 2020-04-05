@@ -389,6 +389,15 @@
 	border-color: #80868e transparent transparent transparent;
 }
 
+.feed-add-post-more-icon-waiter {
+	width: 15px;
+	height: 15px;
+	position: absolute;
+	right: -18px;
+	top: 12px;
+	display: none;
+}
+
 .feed-add-post-form-link-active .feed-add-post-more-icon {
 	border-top-color: #185ccd;
 }

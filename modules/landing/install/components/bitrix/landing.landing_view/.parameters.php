@@ -28,6 +28,22 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_LANDING_ID'),
 			'TYPE' => 'STRING'
 		),
+		'PANEL_LIGHT_MODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PANEL_LIGHT_MODE'),
+			'TYPE' => 'CHECKBOX'
+		),
+		'FULL_PUBLICATION' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_FULL_PUBLICATION'),
+			'TYPE' => 'CHECKBOX'
+		),
+		'DONT_LEAVE_AFTER_PUBLICATION' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_DONT_LEAVE_AFTER_PUBLICATION'),
+			'TYPE' => 'CHECKBOX'
+		),
+		'DRAFT_MODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_DRAFT_MODE'),
+			'TYPE' => 'CHECKBOX'
+		),
 		'PAGE_URL_URL_SITES' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_URL_SITES'),
 			'TYPE' => 'STRING'
@@ -46,6 +62,10 @@ $arComponentParameters = Array(
 		),
 		'PARAMS' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PARAMS'),
+			'TYPE' => 'STRING'
+		),
+		'SEF' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_SEF'),
 			'TYPE' => 'STRING'
 		)
 	)

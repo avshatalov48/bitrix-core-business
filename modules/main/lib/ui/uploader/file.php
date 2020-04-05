@@ -39,7 +39,8 @@ class File
 			"files" => array(
 				"default" => array()
 			)
-		);
+		) + $file;
+
 		$this->package = $package;
 
 		if (FileInputUtility::instance()->checkFile($this->package->getCid(), $hash))

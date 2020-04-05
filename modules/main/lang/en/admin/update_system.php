@@ -1,6 +1,6 @@
 <?
 $MESS["SUP_SU_UPD_HINT_CHECK_VERS"] = "Update channel: #NAME#";
-$MESS["SUP_MYSQL_LM1010"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql MariaDB versions below 10.0.5. You are currently using MySql MariaDB #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
+$MESS["SUP_MYSQL_LM1010"] = "As of June 30, 2019 only limited support will be provided for our products running on MariaDB versions below 10.0.5. You are currently using MariaDB #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
 $MESS["SUP_MYSQL_L560"] = "As of June 30, 2019 only limited support will be provided for our products running on MySql versions below 5.6. MySql 5.7 or higher is recommended. You are currently using MySql #VERS#. Please update your MySql installation or contact your hosting service provider for assistance.";
 $MESS["SUP_TITLE_BASE"] = "SiteUpdate";
 $MESS["SUP_CHECK_UPDATES"] = "Check for updates";
@@ -170,7 +170,7 @@ $MESS["SUP_CANT_CONTRUPDATE"] = "Please use the controller update system to upda
 $MESS["SUP_SUBA_UI_EXIST"] = "I already have a user account and want to use it to access Helpdesk and Download site sections;";
 $MESS["SUP_SUBA_UI_LOGIN_EXIST"] = "Existing user login";
 $MESS["SUP_SUBA_CONFIRM_ERROR"] = "Required fields not entered!";
-$MESS["SUP_MYSQL_L4111"] = "You are using MySql version #VERS#, but the system requires version 5.0.0 or higher. Please update your MySql installation or contact the technical support.";
+$MESS["SUP_MYSQL_L4111"] = "You are using MySql version #VERS#, but the system requires version 5.6.0 or higher. Please update your MySql installation or contact the technical support.";
 $MESS["SUP_MSSQL_L4111"] = "You are using MS SQL #VERS#, but the system requires version 10.0 or higher (Microsoft SQL Server 2008 or higher). Please update your MS SQL installation or contact the techsupport.";
 $MESS["SUP_MSSQL_LNATIVE"] = "You are using an ODBC driver to connect with the MSSQL server. Please switch to the SQLSRV expansion or refer to technical support.";
 $MESS["SUP_PHP_L439"] = "You are using PHP version #VERS#, but the system requires version 5.3.0 or higher. Please update your PHP installation or contact the technical support.";
@@ -196,4 +196,9 @@ $MESS["SUP_NO_MS_ORACLE"] = "As of January 1, 2017 we provide only limited suppo
 $MESS["SUP_PHP_L560"] = "As of January 1, 2018 we will no longer support PHP versions older than 5.6. You are currently using PHP version #VERS#. Please update your PHP version or contact your hosting provider's helpdesk. If you don't do that, your Bitrix24 installation may not function properly.";
 $MESS["SUP_PHP_L560F"] = "You are using PHP version #VERS#, but the system requires version 5.6.0 or higher. Please update your PHP installation or contact the technical support.";
 $MESS["SUP_PHP_L710"] = "As of June 30, 2019 only limited support will be provided for our products running on PHP versions below 7.1. You are currently using PHP #VERS#. Please update your PHP installation or contact your hosting service provider for assistance.";
+
+$MESS["SUP_MYSQL_LERR_V"] = "You are using #DB# version #VERS#, but the system requires version #REQ# or higher. Please update your #DB# installation or contact the technical support.";
+$MESS["SUP_MYSQL_LWARN_V"] = "As of #DATE# only limited support will be provided for our products running on #DB# versions below #REQ#. #DB# #BEST_VERS# or higher is recommended. You are currently using #DB# #VERS#. Please update your #DB# installation or contact your hosting service provider for assistance.";
+$MESS["SUP_PHP_LERR_F"] = "You are using PHP version #VERS#, but the system requires version #REQ# or higher. Please update your PHP installation or contact the technical support.";
+$MESS["SUP_PHP_LWARN_F"] = "As of #DATE# only limited support will be provided for our products running on PHP versions below #REQ#. PHP #BEST_VERS# or higher is recommended. You are currently using PHP #VERS#. Please update your PHP installation or contact your hosting service provider for assistance.";
 ?>

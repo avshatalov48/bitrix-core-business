@@ -8,7 +8,6 @@ $MESS["MAIN_UI_FILTER__THIS_WEEK"] = "Текущая неделя";
 $MESS["MAIN_UI_FILTER__LAST_WEEK"] = "Прошлая неделя";
 $MESS["MAIN_UI_FILTER__THIS_MONTH"] = "Текущий месяц";
 $MESS["MAIN_UI_FILTER__LAST_MONTH"] = "Прошлый месяц";
-$MESS["MAIN_UI_FILTER__DAYS"] = "За последние (дней)";
 $MESS["MAIN_UI_FILTER__SINGLE"] = "Точная дата";
 $MESS["MAIN_UI_FILTER__RANGE"] = "Свой диапазон";
 $MESS["MAIN_UI_FILTER__BEFORE"] = "Раньше чем";

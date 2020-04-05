@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?$APPLICATION->IncludeComponent("bitrix:catalog.viewed.products", "", array(
+<?$APPLICATION->IncludeComponent("bitrix:catalog.viewed.products", "bootstrap_v4", array(
 		"HIDE_NOT_AVAILABLE" => "N",
 		"PAGE_ELEMENT_COUNT" => "5",
 		"SHOW_DISCOUNT_PERCENT" => "Y",

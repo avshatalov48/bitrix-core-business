@@ -9,10 +9,9 @@ namespace Bitrix\Sale;
 
 use Bitrix\Main;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale;
 use Bitrix\Main\Entity\ExpressionField;
-use Bitrix\Main\Type\Date;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
@@ -84,27 +83,31 @@ class BuyerStatistic
 			return $result;
 		}
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		$lastOrderDate = null;
 		$lastArchiveDate = null;
 
-		$orderData = Order::getList(array(
-			'select' => array('DATE_INSERT'),
-			'filter' => array('=USER_ID' => $userId, '=CURRENCY' => $currency, '=LID' => $lid),
-			'order' => array('DATE_INSERT' => 'DESC'),
+		$orderData = $orderClass::getList([
+			'select' => ['DATE_INSERT'],
+			'filter' => ['=USER_ID' => $userId, '=CURRENCY' => $currency, '=LID' => $lid],
+			'order' => ['DATE_INSERT' => 'DESC'],
 			'limit' => 1
-		));
+		]);
 
 		if ($resultOrder = $orderData->fetch())
 		{
 			$lastOrderDate = $resultOrder['DATE_INSERT'];
 		}
 
-		$archiveData = Archive\Manager::getList(array(
-			'select' => array('DATE_INSERT'),
-			'filter' => array('=USER_ID' => $userId, '=CURRENCY' => $currency, '=LID' => $lid),
-			'order' => array('DATE_INSERT' => 'DESC'),
+		$archiveData = Archive\Manager::getList([
+			'select' => ['DATE_INSERT'],
+			'filter' => ['=USER_ID' => $userId, '=CURRENCY' => $currency, '=LID' => $lid],
+			'order' => ['DATE_INSERT' => 'DESC'],
 			'limit' => 1
-		));
+		]);
 
 		if ($resultOrder = $archiveData->fetch())
 		{
@@ -122,21 +125,21 @@ class BuyerStatistic
 
 			if ($lastOrderDate)
 			{
-				$orderDataCount = Order::getList(array(
-					'select' => array('FULL_SUM_PAID', 'COUNT_FULL_PAID_ORDER', 'COUNT_PART_PAID_ORDER'),
-					'filter' => array(
+				$orderDataCount = $orderClass::getList([
+					'select' => ['FULL_SUM_PAID', 'COUNT_FULL_PAID_ORDER', 'COUNT_PART_PAID_ORDER'],
+					'filter' => [
 						'=USER_ID' => $userId,
 						'=CURRENCY' => $currency,
 						'=LID' => $lid,
 						'>SUM_PAID' => 0
-					),
-					'group' => array('USER_ID'),
-					'runtime' => array(
+					],
+					'group' => ['USER_ID'],
+					'runtime' => [
 						new ExpressionField('COUNT_PART_PAID_ORDER', 'COUNT(1)'),
 						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = "Y" THEN 1 ELSE 0 END)'),
 						new ExpressionField('FULL_SUM_PAID', 'SUM(SUM_PAID)')
-					),
-				));
+					],
+				]);
 
 				$countData = $orderDataCount->fetch();
 
@@ -147,21 +150,21 @@ class BuyerStatistic
 
 			if ($lastArchiveDate)
 			{
-				$archiveDataCount = Archive\Manager::getList(array(
-					'select' => array('FULL_SUM_PAID', 'COUNT_FULL_PAID_ORDER', 'COUNT_PART_PAID_ORDER'),
-					'filter' => array(
+				$archiveDataCount = Archive\Manager::getList([
+					'select' => ['FULL_SUM_PAID', 'COUNT_FULL_PAID_ORDER', 'COUNT_PART_PAID_ORDER'],
+					'filter' => [
 						'=USER_ID' => $userId,
 						'=CURRENCY' => $currency,
 						'=LID' => $lid,
 						'>SUM_PAID' => 0
-					),
-					'group' => array('USER_ID'),
-					'runtime' => array(
+					],
+					'group' => ['USER_ID'],
+					'runtime' => [
 						new ExpressionField('COUNT_PART_PAID_ORDER', 'COUNT(1)'),
 						new ExpressionField('COUNT_FULL_PAID_ORDER', 'SUM(CASE WHEN PAYED = "Y" THEN 1 ELSE 0 END)'),
 						new ExpressionField('FULL_SUM_PAID', 'SUM(SUM_PAID)')
-					),
-				));
+					],
+				]);
 
 				$countArchiveData = $archiveDataCount->fetch();
 

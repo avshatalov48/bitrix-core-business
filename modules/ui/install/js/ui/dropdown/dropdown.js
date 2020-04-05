@@ -33,6 +33,10 @@
 		this.isChanged = false;
 		this.isDisabled = BX.prop.getBoolean(options, "isDisabled", false);
 		this.enableCreation = BX.prop.getBoolean(options, "enableCreation", false);
+		this.enableCreationOnBlur = BX.prop.getBoolean(options, "enableCreationOnBlur", true);
+
+		this.isEmbedded = BX.prop.getBoolean(BX.prop.getObject(options, "context", {}), "isEmbedded", false);
+		this.quickForm = document.querySelectorAll('.crm-kanban-quick-form');
 
 		this.documentClickHandler = BX.delegate(this.onDocumentClick, this);
 
@@ -49,29 +53,33 @@
 			this.init();
 		}
 	};
-
 	BX.UI.Dropdown.prototype =
 		{
 			init: function ()
 			{
-				BX.bind(this.targetElement, "input", function()
-				{
-                    if (this.isDisabled)
-                    {
-                        return;
-                    }
-
-					if (this.targetElement.value.length === 0)
+				setTimeout(function() {
+					BX.bind(this.targetElement, "input", function()
 					{
-						this.enableTargetElement();
-						return;
-					}
+						if (this.isDisabled)
+						{
+							return;
+						}
 
-					this.getPopupWindow().show();
+						if (this.targetElement.value.length === 0)
+						{
+							this.enableTargetElement();
+							return;
+						}
 
-				}.bind(this));
+						this.getPopupWindow().show();
+
+					}.bind(this));
+				}.bind(this), 100);
+
 				this.targetElement.addEventListener("click", function(e)
 				{
+					this.destroyPopupWindow();
+
                     if (this.isDisabled)
                     {
                         return;
@@ -91,31 +99,31 @@
 					{
 						BX.PreventDefault(e);
 					}
-
 					this.getPopupWindow().show();
 				}.bind(this), true);
 
-				this.targetElement.addEventListener("focus", function()
-				{
-                    if (this.isDisabled)
-                    {
-                        return;
-                    }
-
-					this.getPopupWindow().show();
-
-					if(!this.popupAlertContainer)
+				setTimeout(function() {
+					this.targetElement.addEventListener("focus", function()
 					{
-						return;
-					}
-				}.bind(this), true);
+						if (this.isDisabled)
+						{
+							return;
+						}
+
+						this.getPopupWindow().show();
+
+						if(!this.popupAlertContainer)
+						{
+							return;
+						}
+					}.bind(this), true);
+				}.bind(this), 100);
 
 				BX.bind(
 					this.targetElement,
 					"keyup",
 					BX.throttle(
 						function(e) {
-
                             if (this.isDisabled)
                             {
                                 return;
@@ -266,23 +274,25 @@
 					}
 				}
 			},
-			cancelCreationOnBlur: function()
-			{
-				if(!this.enableCreation)
-				{
-					this.targetElement.addEventListener("blur", function()
-					{
-						this.resetInputValue();
-					}.bind(this));
-				}
-			},
 			onDocumentClick: function()
 			{
 				if((this.CurrentItem && this.CurrentItem.title.length !== this.targetElement.value.length)
 					|| (!this.CurrentItem && this.targetElement.value.length > 0)
 				)
 				{
-					this.onEmptyValueEvent();
+					if(!this.enableCreationOnBlur)
+					{
+						this.resetInputValue();
+						this.setItems(this.getDefaultItems());
+						BX.cleanNode(this.popupAlertContainer);
+						this.newAlertContainer = null;
+						
+						return;
+					}
+					else
+					{
+						this.onEmptyValueEvent();
+					}
 				}
 			},
 			getDefaultItems: function()
@@ -327,7 +337,7 @@
 					this.setItems(this.getDefaultItems());
 					loader.classList.remove('ui-dropdown-loader-active');
 					BX.cleanNode(this.popupAlertContainer);
-					this.alertEmptyContainer = null;
+					this.newAlertContainer = null;
 
 					BX.onCustomEvent(this, "BX.UI.Dropdown:onReset", [this]);
 				}
@@ -337,14 +347,9 @@
 					this.searchItemsByStr(this.targetElement.value).then(
 						function (items)
 						{
-                            if (this.isDisabled)
-                            {
-                                return;
-                            }
-
-							if(!this.alertEmptyContainer)
+							if(!this.newAlertContainer && this.enableCreation)
 							{
-								this.popupAlertContainer.appendChild(this.getAlertEmptyContainer(items));
+								this.popupAlertContainer.appendChild(this.getNewAlertContainer(items));
 								BX.bind(document, "click", this.documentClickHandler);
 							}
 							this.setItems(items);
@@ -395,11 +400,18 @@
 								this.popupWindow = null;
 								this.itemListContainer = null;
 								this.itemListInnerContainer = null;
-								this.alertEmptyContainer = null;
+								this.newAlertContainer = null;
 								this.popupAlertContainer = null;
 							}.bind(this)
 						}
 					});
+
+					if(this.isEmbedded && this.quickForm)
+					{
+						this.popupWindow.setOffset({
+							offsetLeft: this.getQuickFormOffsetWidth(),
+						});
+					}
 				}
 
 				this.setWidthPopup();
@@ -407,11 +419,23 @@
 
 				return this.popupWindow;
 			},
+			getQuickFormOffsetWidth: function()
+			{
+				var currentElement = BX.findParent(this.getPopupWindow().bindElement, {className: 'crm-kanban-quick-form'});
+
+				this.popupWindow.popupContainer.style.width = currentElement.offsetWidth + "px";
+				var equalWidth = - (this.targetElement.getBoundingClientRect().left - currentElement.getBoundingClientRect().left);
+
+				return equalWidth;
+			},
 			setWidthPopup: function()
 			{
-				if(this.popupWindow && this.targetElement)
+				if(!this.isEmbedded && this.quickForm)
 				{
-					this.popupWindow.popupContainer.style.width = this.targetElement.offsetWidth + "px"
+					if(this.popupWindow && this.targetElement)
+					{
+						this.popupWindow.popupContainer.style.width = this.targetElement.offsetWidth + "px"
+					}
 				}
 			},
 			onEmptyValueEvent: function()
@@ -426,7 +450,7 @@
 
 							this.setItems(this.getDefaultItems());
 							BX.cleanNode(this.popupAlertContainer);
-							this.alertEmptyContainer = null;
+							this.newAlertContainer = null;
 						}
 						else
 						{
@@ -470,7 +494,6 @@
 			},
 			getPopupAlertContainer: function()
 			{
-
 				if(!this.popupAlertContainer)
 				{
 					this.popupAlertContainer = BX.create("div", {
@@ -480,24 +503,24 @@
 
 				return this.popupAlertContainer;
 			},
-			getAlertEmptyContainer: function(items)
+			getNewAlertContainer: function(items)
 			{
-				if(!this.alertEmptyContainer)
+				if(!this.newAlertContainer)
 				{
-					this.alertEmptyContainer = BX.create('div', {
+					this.newAlertContainer = BX.create('div', {
 						props: {
-							className: 'ui-dropdown-alert-new'
+							className: 'ui-dropdown-alert'
 						},
 						events: {
 							click: this.onEmptyValueEvent.bind(this)
 						},
 						children: [
-							this.alertEmptyContainerValue = BX.create('div', {
-								attrs: { className: 'ui-dropdown-alert-new-name' },
+							this.alertContainerValue = BX.create('div', {
+								attrs: { className: 'ui-dropdown-alert-name' },
 								text: this.targetElement.value
 							}),
 							BX.create('div', {
-								attrs: { className: 'ui-dropdown-alert-new-text' },
+								attrs: { className: 'ui-dropdown-alert-text' },
 								text: BX.prop.getString(this.messages, this.enableCreation ? "creationLegend" : "notFound", "")
 							})
 						]
@@ -505,28 +528,28 @@
 
 					this.targetElement.addEventListener("input", function()
 					{
-						this.alertEmptyContainerValue.innerHTML = this.targetElement.value;
+						this.alertContainerValue.textContent = this.targetElement.value;
 					}.bind(this));
 
 					if(!this.enableCreation)
 					{
 						this.targetElement.addEventListener("input", function()
 						{
-							this.alertEmptyContainerValue.style.display = "none";
+							this.alertContainerValue.style.display = "none";
 						}.bind(this));
 					}
 				}
 
 				if(items.length > 0 && !this.enableCreation)
 				{
-					this.alertEmptyContainer.style.display = "none";
+					this.newAlertContainer.style.display = "none";
 				}
 				else
 				{
-					this.alertEmptyContainer.style.display = "";
+					this.newAlertContainer.style.display = "";
 				}
 
-				return this.alertEmptyContainer;
+				return this.newAlertContainer;
 			},
 			getItemsListContainer: function()
 			{
@@ -685,7 +708,7 @@
 			},
 			handleUpArrow: function()
 			{
-				if(this.alertEmptyContainer && this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
+				if(this.newAlertContainer && this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
 				{
 					if (this.items && this.items.length > 0)
 					{
@@ -725,14 +748,14 @@
 			{
 				var highlightElementIndex = this.getHighlightItemIndex();
 
-				if(this.alertEmptyContainer && this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
+				if(this.newAlertContainer && this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
 				{
 					return;
 				}
 
 				if (!this.items || this.items.length === 0)
 				{
-					if(this.alertEmptyContainer && !this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
+					if(this.newAlertContainer && !this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
 					{
 						this.popupAlertContainer.classList.add('ui-dropdown-item-highlight');
 					}
@@ -742,7 +765,7 @@
 
 				if(highlightElementIndex === this.items.length - 1)
 				{
-					if(this.alertEmptyContainer && !this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
+					if(this.newAlertContainer && !this.popupAlertContainer.classList.contains('ui-dropdown-item-highlight'))
 					{
 						this.cleanHighlightingItem();
 						this.popupAlertContainer.classList.add('ui-dropdown-item-highlight');
@@ -778,7 +801,8 @@
 				if(deltaBottom < 0)
 				{
 					parent.scrollTop = parent.scrollTop + Math.abs(deltaBottom)
-				} else if(deltaTop > 0)
+				}
+				else if(deltaTop > 0)
 				{
 					parent.scrollTop = parent.scrollTop - deltaTop
 				}
@@ -812,7 +836,6 @@
 				}
 				return result;
 			},
-
 			getItemIndex: function(item)
 			{
 				var items = this.getItems();
@@ -879,6 +902,7 @@
 
 				this.targetElement.addEventListener("keyup", function(e)
 				{
+					console.log("this.targetElement", this.targetElement);
 					var key = e.charCode || e.keyCode;
 
 					if(this.targetElement === document.activeElement)

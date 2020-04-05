@@ -133,7 +133,7 @@
 					if (!BX.util.in_array(id, this.entities[type]["value"]))
 					{
 						var node = BX.create("DD", {attrs : { id : id }, html : [
-							title,
+							BX.util.htmlspecialchars(title),
 							'<del></del>',
 							'<input type="hidden" name="', this.controlName,'" value="' + id + '" />'
 						].join("")});

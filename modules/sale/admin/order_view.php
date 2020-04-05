@@ -1,11 +1,8 @@
 <?
-/**
- * @var  CUser $USER
- * @var  CMain $APPLICATION
- */
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Helpers\Admin;
+use Bitrix\Sale;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
@@ -30,15 +27,23 @@ $isAllowView = false;
 $isAllowUpdate = false;
 $isAllowDelete = false;
 
+$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+/** @var Sale\Order $orderClass */
+$orderClass = $registry->getOrderClassName();
+
 //load order
 if(!empty($_REQUEST["ID"]) && intval($_REQUEST["ID"]) > 0)
-	$saleOrder = Bitrix\Sale\Order::load($_REQUEST["ID"]);
+	$saleOrder = $orderClass::load($_REQUEST["ID"]);
 
 if($saleOrder)
 {
-	$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
-	$allowedStatusesUpdate = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
-	$allowedStatusesDelete = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('delete'));
+	/** @var Sale\OrderStatus $orderStatusClass */
+	$orderStatusClass = $registry->getOrderStatusClassName();
+
+	$allowedStatusesView = $orderStatusClass::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
+	$allowedStatusesUpdate = $orderStatusClass::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
+	$allowedStatusesDelete = $orderStatusClass::getStatusesUserCanDoOperations($USER->GetID(), array('delete'));
 	$isAllowView = in_array($saleOrder->getField("STATUS_ID"), $allowedStatusesView);
 	$isAllowUpdate = in_array($saleOrder->getField("STATUS_ID"), $allowedStatusesUpdate);
 	$isAllowDelete = in_array($saleOrder->getField("STATUS_ID"), $allowedStatusesDelete);
@@ -71,27 +76,31 @@ if ($saleModulePermissions == 'P')
 }
 
 $ID = intval($_REQUEST["ID"]);
-$boolLocked = \Bitrix\Sale\Order::isLocked($ID);
+$boolLocked = $orderClass::isLocked($ID);
 
 //Unlocking if we leave this page
 if(isset($_REQUEST['unlock']) && 'Y' == $_REQUEST['unlock'])
 {
-	$lockStatusRes = \Bitrix\Sale\Order::getLockedStatus($ID);
+	$lockStatusRes = $orderClass::getLockedStatus($ID);
 
 	if($lockStatusRes->isSuccess())
 		$lockStatusData = $lockStatusRes->getData();
 
 	if(isset($lockStatusData['LOCK_STATUS'])
 		&&
-		(	$lockStatusData['LOCK_STATUS'] != \Bitrix\Sale\Order::SALE_ORDER_LOCK_STATUS_RED
+		(	$lockStatusData['LOCK_STATUS'] != $orderClass::SALE_ORDER_LOCK_STATUS_RED
 			|| !isset($_REQUEST['target'])
 		)
 	)
 	{
-		$res = \Bitrix\Sale\Order::unlock($ID);
+		$res = $orderClass::unlock($ID);
 
 		if($res->isSuccess())
-			\Bitrix\Sale\DiscountCouponsManager::clearByOrder($ID);
+		{
+			/** @var Sale\DiscountCouponsManager $discountCouponsClass */
+			$discountCouponsClass = $registry->getDiscountCouponClassName();
+			$discountCouponsClass::clearByOrder($ID);
+		}
 	}
 
 	if(isset($_REQUEST['target']) && 'list' == $_REQUEST['target'])
@@ -103,12 +112,12 @@ if(isset($_REQUEST['unlock']) && 'Y' == $_REQUEST['unlock'])
 if ($boolLocked)
 	$errorMsgs[] = Admin\OrderEdit::getLockingMessage($ID);
 else
-	\Bitrix\Sale\Order::lock($ID);
+	$orderClass::lock($ID);
 
 $customTabber = new CAdminTabEngine("OnAdminSaleOrderView", array("ID" => $ID));
 $customDraggableBlocks = new CAdminDraggableBlockEngine('OnAdminSaleOrderViewDraggable', array('ORDER' => $saleOrder));
 
-/** @var Bitrix\Sale\Order $saleOrder */
+/** @var Sale\Order $saleOrder */
 Admin\OrderEdit::initCouponsData(
 	$saleOrder->getUserId(),
 	$ID,
@@ -411,6 +420,7 @@ if (empty($statusOnPaid) && (empty($statusOnAllowDelivery) || empty($statusOnPai
 					break;
 				case "delivery":
 					\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_shipment_basket.js");
+					\Bitrix\Main\UI\Extension::load('sale.admin_order');
 					echo '<div id="sale-adm-order-shipments-content"><img src="/bitrix/images/sale/admin-loader.gif"/></div>';
 
 					if ($isAllowUpdate)

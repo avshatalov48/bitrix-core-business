@@ -17,6 +17,7 @@ CModule::AddAutoloadClasses(
 		"CSecuritySessionVirtual" => "classes/general/session_virtual.php",
 		"CSecuritySessionDB" => "classes/general/session_db.php",
 		"CSecuritySessionMC" => "classes/general/session_mc.php",
+		"CSecuritySessionRedis" => "classes/general/session_redis.php",
 		"CSecuritySession" => "classes/general/session.php",
 		"CSecurityDB" => "classes/".strtolower($DB->type)."/database.php",
 		"CSecurityUser" => "classes/general/user.php",
@@ -43,3 +44,4 @@ CModule::AddAutoloadClasses(
 		"CSecurityRequirementsException" => "classes/general/requirements_exception.php"
 	)
 );
+

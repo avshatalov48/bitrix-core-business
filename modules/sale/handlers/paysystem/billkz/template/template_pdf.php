@@ -742,7 +742,7 @@ do
 	$newLine = false;
 	foreach ($arCols as $columnId => $column)
 	{
-		list($string, $arCols[$columnId]['NAME']) = $pdf->splitString($column['NAME'], $arRowsContentWidth[$columnId]);
+		list($string, $arCols[$columnId]['NAME']) = $pdf->splitString($column['NAME'], $arRowsWidth[$columnId]);
 		if ($vat > 0 || $columnId !== 'VAT_RATE')
 			$pdf->Cell($arRowsWidth[$columnId], 20, $string, 0, 0, $k ? 'L' : 'C');
 
@@ -974,7 +974,7 @@ if ($params['BILLKZ_SIGN_SHOW'] == 'Y')
 	if (!$blank && $params['BILLKZ_PATH_TO_STAMP'])
 	{
 		list($stampHeight, $stampWidth) = $pdf->GetImageSize($params['BILLKZ_PATH_TO_STAMP']);
-	
+
 		if ($stampHeight && $stampWidth)
 		{
 			if ($stampHeight > 120 || $stampWidth > 120)
@@ -983,16 +983,16 @@ if ($params['BILLKZ_SIGN_SHOW'] == 'Y')
 				$stampHeight = $ratio * $stampHeight;
 				$stampWidth  = $ratio * $stampWidth;
 			}
-	
+
 			$imageY = $pdf->GetY();
 			$pageNumBefore = $pdf->PageNo();
-	
+
 			$pdf->Image(
 				$params['BILLKZ_PATH_TO_STAMP'],
 				$margin['left']+40, null,
 				$stampWidth, $stampHeight
 			);
-	
+
 			$pageNumAfter = $pdf->PageNo();
 			if ($pageNumAfter === $pageNumBefore)
 				$pdf->SetY($imageY);

@@ -117,7 +117,11 @@ BX.CAutoSave.prototype._PrepareAfter = function()
 		var o = this._NotifyContext();
 		if (o)
 		{
-			o.Notify(BX.message('AUTOSAVE') + ' <a href="javascript:void(0)" onclick="BX.CAutoSave.Restore(\'' + BX.util.urlencode(id) + '\', this); return false;">' + BX.message('AUTOSAVE_R') + '</a>');
+			o.Notify(
+				BX.message('AUTOSAVE') + ' <a href="javascript:void(0)" onclick="BX.CAutoSave.Restore(\'' + BX.util.urlencode(id) + '\', this); return false;">' +	BX.message('AUTOSAVE_R') + '</a>',
+				false,
+				true
+			);
 		}
 
 		// may be useful sometimes

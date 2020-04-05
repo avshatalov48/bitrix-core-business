@@ -13,7 +13,11 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-CJSCore::Init(array('lists', 'popup'));
+CJSCore::Init(["lists", "popup"]);
+
+Bitrix\Main\UI\Extension::load("popup");
+Bitrix\Main\UI\Extension::load("ui.buttons");
+Bitrix\Main\UI\Extension::load("ui.notification");
 
 $jsClass = 'ListsEditClass_'.$arResult['RAND_STRING'];
 if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_iblock_type_id"))
@@ -70,17 +74,17 @@ elseif(!IsModuleInstalled("intranet"))
 {
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
-?>
+
+use Bitrix\Main\UI\Extension; ?>
 <div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
 	<?if($arResult["IBLOCK_ID"]):?>
-	<a href="<?=$arResult["LIST_URL"]?>" class="lists-list-back">
+	<a href="<?=$arResult["LIST_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 		<?=GetMessage("CT_BLLE_TOOLBAR_RETURN_LIST_ELEMENT")?>
 	</a>
 	<?endif;?>
 	<?if($listAction):?>
-	<span id="lists-title-action" class="webform-small-button webform-small-button-transparent bx-filter-button">
-		<span class="webform-small-button-text"><?=GetMessage("CT_BLLE_TOOLBAR_ACTION")?></span>
-		<span id="lists-title-action-icon" class="webform-small-button-icon"></span>
+	<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
+		<?=GetMessage("CT_BLLE_TOOLBAR_ACTION")?>
 	</span>
 	<?endif;?>
 </div>
@@ -150,6 +154,12 @@ else
 		);
 }
 
+$arTab1["fields"][] = array(
+	"id" => "LOCK_FEATURE",
+	"name" => GetMessage("CT_BLLE_FIELD_LOCK"),
+	"type"=>"checkbox",
+);
+
 $backUrl = $arResult["IBLOCK"] ? $arResult["~LIST_URL"] : $arResult["~LISTS_URL"];
 
 $APPLICATION->IncludeComponent(
@@ -199,7 +209,8 @@ $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0
 			socnetGroupId: '<?=$socnetGroupId?>',
 			listsUrl: '<?=CUtil::JSEscape($arResult["LISTS_URL"])?>',
 			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,
-			listTemplateEditUrl: '<?=$arParams["LIST_EDIT_URL"]?>'
+			listTemplateEditUrl: '<?=$arParams["LIST_EDIT_URL"]?>',
+			listElementUrl: '<?=htmlspecialcharsbx($arParams["LIST_ELEMENT_URL"])?>'
 		});
 
 		BX.message({
@@ -213,6 +224,7 @@ $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0
 			CT_BLLE_COPY_POPUP_TITLE: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_TITLE")?>',
 			CT_BLLE_COPY_POPUP_CONTENT: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_CONTENT")?>',
 			CT_BLLE_COPY_POPUP_ACCEPT_BUTTON: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_ACCEPT_BUTTON")?>',
+			CT_BLLE_COPY_POPUP_COPIED_SUCCESS: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_COPIED_SUCCESS".$typeTranslation)?>',
 			CT_BLLE_COPY_POPUP_CANCEL_BUTTON: '<?=GetMessageJS("CT_BLLE_COPY_POPUP_CANCEL_BUTTON")?>'
 		});
 	});

@@ -61,6 +61,11 @@ class LinearGraph extends Serial
 		}
 		$result['categoryAxis']['parseDates'] = $isAllReportModeIsDate;
 
+		if (!empty($dataFromReport[0]['config']['categoryAxis']['labelFrequency']))
+		{
+			$result['categoryAxis']['labelFrequency'] = $dataFromReport[0]['config']['categoryAxis']['labelFrequency'];
+		}
+
 		return $result;
 	}
 }

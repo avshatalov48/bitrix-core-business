@@ -6,7 +6,7 @@
 			 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--md g-top-100x g-top-50x--md g-width-50 g-height-50 g-rounded-50x g-font-size-12 g-color-white g-bg-white-opacity-0_4 g-bg-white-opacity-0_7--hover g-mt-30 g-mt-0--md"
 			 data-arrow-left-classes="fa fa-chevron-left g-left-0"
 			 data-arrow-right-classes="fa fa-chevron-right g-right-0">
-			<div class="landing-block-node-card  js-slide">
+			<div class="landing-block-node-card js-slide">
 				<!-- Testimonial Block -->
 				<div class="text-center g-max-width-600 mx-auto">
 					<img class="landing-block-node-card-photo w-100 img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/600x315/img1.jpg"

@@ -40,6 +40,10 @@ class EventAttachmentTable extends Entity\DataManager
 				'values' => array('N', 'Y'),
 				'default_value' => 'Y'
 			),
+			'EVENT' => array(
+				'data_type' => EventTable::class,
+				'reference' => array('=this.EVENT_ID' => 'ref.ID'),
+			),
 		);
 	}
 

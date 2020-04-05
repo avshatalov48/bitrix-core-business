@@ -9,7 +9,6 @@
 $pageId = "";
 include("util_group_menu.php");
 
-global $APPLICATION;
 $componentParameters = array(
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],

@@ -71,7 +71,40 @@ class Service
 	}
 
 	/**
+	 * Send recordered audio file.
+	 *
+	 * @param string $outputNumber Id of the line to perform outgoing call.
+	 * @param string $number Number to be called.
+	 * @param string $fileUrl Audio file to be voiced.
+	 * @return string|null
+	 */
+	public static function sendFile($outputNumber, $number, $fileUrl)
+	{
+		if (!static::canUse())
+		{
+			return false;
+		}
+
+		$result = \CVoxImplantOutgoing::StartInfoCallWithSound(
+			$outputNumber,
+			$number,
+			$fileUrl
+		);
+
+		$data = $result->getData();
+		if (!is_array($data) || !isset($data['CALL_ID']))
+		{
+			return null;
+		}
+
+		return $data['CALL_ID'];
+	}
+
+	/**
 	 * OnInfoCallResult event handler.
+	 * @param int  $callId Call id.
+	 * @param array $callData Call data.
+	 * @return void
 	 */
 	public static function onInfoCallResult($callId, $callData)
 	{
@@ -87,5 +120,23 @@ class Service
 		}
 
 		CallLogTable::removeByCallId($callId);
+	}
+
+	public static function getFormattedOutputNumber($value)
+	{
+		static $lines;
+		if (null === $lines)
+		{
+			if (static::canUse())
+			{
+				$lines = \CVoxImplantConfig::GetPortalNumbers(false);
+			}
+			else
+			{
+				$lines = [];
+			}
+		}
+
+		return $lines[$value] ?: $value;
 	}
 }

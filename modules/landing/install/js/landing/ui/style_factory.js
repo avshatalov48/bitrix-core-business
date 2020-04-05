@@ -9,7 +9,6 @@
 	 * @param {{
 	 * 		frame: ?HTMLDocument|Window,
 	 * 		[postfix]: ?string,
-	 * 		[propertyMap]: ?BX.Landing.UI.PropertyMap
 	 * 	}} options
 	 * @constructor
 	 */
@@ -17,7 +16,6 @@
 	{
 		this.frame = !!options.frame ? options.frame : null;
 		this.postfix = typeof options.postfix === "string" ? options.postfix : "";
-		this.propertyMap = !!options.propertyMap ? options.propertyMap : new BX.Landing.UI.PropertyMap();
 	};
 
 

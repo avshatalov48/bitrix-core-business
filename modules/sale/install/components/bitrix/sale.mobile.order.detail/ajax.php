@@ -20,7 +20,12 @@ if ($saleModulePermissions == "D")
 if(!isset($_REQUEST['id'])) die();
 
 $id = (int)($_REQUEST['id']);
-$order = \Bitrix\Sale\Order::load($id);
+$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+/** @var \Bitrix\Sale\Order $orderClass */
+$orderClass = $registry->getOrderClassName();
+
+$order = $orderClass::load($id);
 $allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
 $isAllowView = in_array($order->getField('STATUS_ID'), $allowedStatusesView);
 

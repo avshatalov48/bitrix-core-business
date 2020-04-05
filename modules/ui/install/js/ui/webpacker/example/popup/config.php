@@ -11,6 +11,7 @@ return [
 	"lang" => "/bitrix/modules/ui/install/index.php",
 	"options" => [
 		"webpacker" => [
+			"useAllLangs" => true,
 			"useLangCamelCase" => true,
 			"deleteLangPrefixes" => ["UI_"],
 		]

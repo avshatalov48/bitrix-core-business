@@ -8,7 +8,6 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Authentication\ApplicationPasswordTable;
-use Bitrix\Main\PhoneNumber;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -464,7 +463,7 @@ abstract class CAllUser extends CDBResult
 
 		if ($user_id)
 		{
-			$hash = md5(uniqid(rand(), true));
+			$hash = Main\Security\Random::getString(32);
 			$arFields = array(
 				'USER_ID' => $user_id,
 				'URL' => $DB->ForSqlLike(trim($url), 500),
@@ -722,6 +721,9 @@ abstract class CAllUser extends CDBResult
 			{
 				Main\Composite\Engine::onUserLogin();
 			}
+
+			//we need it mostrly for the $this->justAuthorized flag
+			$this->CheckAuthActions();
 
 			return true;
 		}
@@ -1536,12 +1538,15 @@ abstract class CAllUser extends CDBResult
 		if($bOk)
 		{
 			$f = false;
-			if($arParams["PHONE_NUMBER"] <> '' && COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y")
+			if($arParams["PHONE_NUMBER"] <> '')
 			{
 				//user registered by phone number
 				$number = Main\UserPhoneAuthTable::normalizePhoneNumber($arParams["PHONE_NUMBER"]);
 
-				$select = ["USER_ID"];
+				$select = [
+					"USER_ID" => "USER_ID",
+					"LANGUAGE_ID" => "USER.LANGUAGE_ID",
+				];
 				if($arParams["SITE_ID"] === false)
 				{
 					$select["LID"] = "USER.LID";
@@ -1571,6 +1576,11 @@ abstract class CAllUser extends CDBResult
 						]
 					);
 					$sms->setSite($arParams["SITE_ID"]);
+					if($row["LANGUAGE_ID"] <> '')
+					{
+						//user preferred language
+						$sms->setLanguage($row["LANGUAGE_ID"]);
+					}
 					$smsResult = $sms->send(true);
 
 					if($smsResult->isSuccess())
@@ -2438,11 +2448,6 @@ abstract class CAllUser extends CDBResult
 			{
 				$resultError .= implode("<br>", $passwordErrors)."<br>";
 			}
-
-			if(strlen($arFields["PASSWORD"]) > 50)
-			{
-				$resultError .= GetMessage("main_user_check_max_pass")."<br>";
-			}
 		}
 
 		if(is_set($arFields, "EMAIL"))
@@ -2766,18 +2771,13 @@ abstract class CAllUser extends CDBResult
 					if(is_object($USER) && $USER->GetID() == $ID)
 					{
 						//changed password by himself
-						$USER->SetParam("SELF_CHANGED_PASSWORD", true);
+						$USER->SetParam("AUTH_ACTION_SKIP_LOGOUT", true);
 					}
 				}
 
 				if($authAction)
 				{
-					Main\UserAuthActionTable::add(array(
-						'USER_ID' => $ID,
-						'PRIORITY' => Main\UserAuthActionTable::PRIORITY_HIGH,
-						'ACTION' => Main\UserAuthActionTable::ACTION_LOGOUT,
-						'ACTION_DATE' => new Main\Type\DateTime(),
-					));
+					Main\UserAuthActionTable::addLogoutAction($ID);
 				}
 			}
 
@@ -2828,7 +2828,7 @@ abstract class CAllUser extends CDBResult
 				$CACHE_MANAGER->ClearByTag("USER_CARD_".intval($ID / TAGGED_user_card_size));
 				$CACHE_MANAGER->ClearByTag($isRealUser? "USER_CARD": "EXTERNAL_USER_CARD");
 
-				static $arNameFields = array("NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "EMAIL", "PERSONAL_GENDER", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "TITLE", "EXTERNAL_AUTH_ID", "UF_DEPARTMENT");
+				static $arNameFields = array("NAME", "ACTIVE", "LAST_NAME", "SECOND_NAME", "LOGIN", "EMAIL", "PERSONAL_GENDER", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "TITLE", "EXTERNAL_AUTH_ID", "UF_DEPARTMENT");
 				$bClear = false;
 				foreach($arNameFields as $val)
 				{
@@ -2872,28 +2872,34 @@ abstract class CAllUser extends CDBResult
 		$inserted = array();
 		if(is_array($arGroups))
 		{
+			$values = [];
 			foreach($arGroups as $group)
 			{
 				if(!is_array($group))
 				{
 					$group = array("GROUP_ID" => $group);
 				}
+				//we must preserve fields order for the insertion sql
+				$groupFields = [
+					"GROUP_ID" => $group["GROUP_ID"],
+					"DATE_ACTIVE_FROM" => (isset($group["DATE_ACTIVE_FROM"])? $group["DATE_ACTIVE_FROM"] : ''),
+					"DATE_ACTIVE_TO" => (isset($group["DATE_ACTIVE_TO"])? $group["DATE_ACTIVE_TO"] : ''),
+				];
 
-				$group_id = intval($group["GROUP_ID"]);
+				$group_id = intval($groupFields["GROUP_ID"]);
 				if($group_id > 0 && $group_id <> 2 && !isset($inserted[$group_id]))
 				{
-					$arInsert = $DB->PrepareInsert("b_user_group", $group);
-					$strSql = "
-						INSERT INTO b_user_group (
-							USER_ID, ".$arInsert[0]."
-						) VALUES (
-							".$USER_ID.",
-							".$arInsert[1]."
-						)
-					";
-					$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-					$inserted[$group_id] = $group;
+					$arInsert = $DB->PrepareInsert("b_user_group", $groupFields);
+					$values[] = "(".$USER_ID.",	".$arInsert[1].")";
+					$inserted[$group_id] = $groupFields;
 				}
+			}
+			if(!empty($values))
+			{
+				$strSql = "
+					INSERT IGNORE INTO b_user_group (USER_ID, GROUP_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO) 
+					VALUES ".implode(", ", $values);
+				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			}
 		}
 		self::clearUserGroupCache($USER_ID);
@@ -2919,12 +2925,7 @@ abstract class CAllUser extends CDBResult
 							if($date > $now)
 							{
 								//group membership is in the future, we need separate records for each group
-								Main\UserAuthActionTable::add(array(
-									'USER_ID' => $USER_ID,
-									'PRIORITY' => Main\UserAuthActionTable::PRIORITY_LOW,
-									'ACTION' => Main\UserAuthActionTable::ACTION_UPDATE,
-									'ACTION_DATE' => $date,
-								));
+								Main\UserAuthActionTable::addUpdateAction($USER_ID, $date);
 							}
 							else
 							{
@@ -2941,12 +2942,7 @@ abstract class CAllUser extends CDBResult
 				if($authActionCommon == true)
 				{
 					//one action for all groups without dates in the future
-					Main\UserAuthActionTable::add(array(
-						'USER_ID' => $USER_ID,
-						'PRIORITY' => Main\UserAuthActionTable::PRIORITY_LOW,
-						'ACTION' => Main\UserAuthActionTable::ACTION_UPDATE,
-						'ACTION_DATE' => new Main\Type\DateTime(),
-					));
+					Main\UserAuthActionTable::addUpdateAction($USER_ID);
 				}
 			}
 
@@ -3088,12 +3084,7 @@ abstract class CAllUser extends CDBResult
 
 		self::clearUserGroupCache($ID);
 
-		Main\UserAuthActionTable::add(array(
-			'USER_ID' => $ID,
-			'PRIORITY' => Main\UserAuthActionTable::PRIORITY_HIGH,
-			'ACTION' => Main\UserAuthActionTable::ACTION_LOGOUT,
-			'ACTION_DATE' => new Main\Type\DateTime(),
-		));
+		Main\UserAuthActionTable::addLogoutAction($ID);
 
 		if(Main\Config\Option::get("main", "user_profile_history") === "Y")
 		{
@@ -3592,8 +3583,6 @@ abstract class CAllUser extends CDBResult
 
 		if($userId == $USER->GetId())
 		{
-			$_SESSION['SESS_AUTH']['PREV_LAST_ACTIVITY'] = $_SESSION['SESS_AUTH']['SET_LAST_ACTIVITY'];
-
 			if ($cache)
 			{
 				if (
@@ -3604,6 +3593,8 @@ abstract class CAllUser extends CDBResult
 					return false;
 				}
 			}
+
+			$_SESSION['SESS_AUTH']['PREV_LAST_ACTIVITY'] = $_SESSION['SESS_AUTH']['SET_LAST_ACTIVITY'];
 			$_SESSION['SESS_AUTH']['SET_LAST_ACTIVITY'] = time();
 		}
 
@@ -4193,6 +4184,12 @@ abstract class CAllUser extends CDBResult
 				continue;
 			}
 
+			if($action["APPLICATION_ID"] <> '' && $this->GetParam("APPLICATION_ID") <> $action["APPLICATION_ID"])
+			{
+				//this action is for the specific application only
+				continue;
+			}
+
 			/** @var Main\Type\DateTime() $actionDate */
 			$actionDate = $action["ACTION_DATE"];
 
@@ -4210,10 +4207,10 @@ abstract class CAllUser extends CDBResult
 				switch($action["ACTION"])
 				{
 					case Main\UserAuthActionTable::ACTION_LOGOUT:
-						if($this->GetParam("SELF_CHANGED_PASSWORD") == true)
+						if($this->GetParam("AUTH_ACTION_SKIP_LOGOUT") == true)
 						{
 							//user's changed password by himself, skip logout
-							$this->SetParam("SELF_CHANGED_PASSWORD", false);
+							$this->SetParam("AUTH_ACTION_SKIP_LOGOUT", false);
 							break;
 						}
 						//redirect is possible
@@ -4978,6 +4975,8 @@ class CAllGroup
 
 class CAllTask
 {
+	protected static $TASK_OPERATIONS_CACHE = array();
+
 	public static function err_mess()
 	{
 		return "<br>Class: CAllTask<br>File: ".__FILE__;
@@ -5222,22 +5221,22 @@ class CAllTask
 	public static function GetOperations($ID, $return_names = false)
 	{
 		global $DB, $CACHE_MANAGER;
-		static $TASK_OPERATIONS_CACHE = array();
+
 		$ID = intval($ID);
 
-		if (!isset($TASK_OPERATIONS_CACHE[$ID]))
+		if (!isset(static::$TASK_OPERATIONS_CACHE[$ID]))
 		{
 			if(CACHED_b_task_operation !== false)
 			{
 				$cacheId = "b_task_operation_".$ID;
 				if($CACHE_MANAGER->Read(CACHED_b_task_operation, $cacheId, "b_task_operation"))
 				{
-					$TASK_OPERATIONS_CACHE[$ID] = $CACHE_MANAGER->Get($cacheId);
+					static::$TASK_OPERATIONS_CACHE[$ID] = $CACHE_MANAGER->Get($cacheId);
 				}
 			}
 		}
 
-		if (!isset($TASK_OPERATIONS_CACHE[$ID]))
+		if (!isset(static::$TASK_OPERATIONS_CACHE[$ID]))
 		{
 			$sql_str = '
 				SELECT T_O.OPERATION_ID, O.NAME
@@ -5246,25 +5245,25 @@ class CAllTask
 				WHERE T_O.TASK_ID = '.$ID.'
 			';
 
-			$TASK_OPERATIONS_CACHE[$ID] = array(
+			static::$TASK_OPERATIONS_CACHE[$ID] = array(
 				'names' => array(),
 				'ids' => array(),
 			);
 			$z = $DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 			while($r = $z->Fetch())
 			{
-				$TASK_OPERATIONS_CACHE[$ID]['names'][] = $r['NAME'];
-				$TASK_OPERATIONS_CACHE[$ID]['ids'][] = $r['OPERATION_ID'];
+				static::$TASK_OPERATIONS_CACHE[$ID]['names'][] = $r['NAME'];
+				static::$TASK_OPERATIONS_CACHE[$ID]['ids'][] = $r['OPERATION_ID'];
 			}
 
 			if(CACHED_b_task_operation !== false)
 			{
 				/** @noinspection PhpUndefinedVariableInspection */
-				$CACHE_MANAGER->Set($cacheId, $TASK_OPERATIONS_CACHE[$ID]);
+				$CACHE_MANAGER->Set($cacheId, static::$TASK_OPERATIONS_CACHE[$ID]);
 			}
 		}
 
-		return $TASK_OPERATIONS_CACHE[$ID][$return_names ? 'names' : 'ids'];
+		return static::$TASK_OPERATIONS_CACHE[$ID][$return_names ? 'names' : 'ids'];
 	}
 
 	public static function SetOperations($ID, $arr, $bOpNames=false)
@@ -5320,6 +5319,8 @@ class CAllTask
 				);
 			}
 		}
+
+		unset(static::$TASK_OPERATIONS_CACHE[$ID]);
 
 		if(CACHED_b_task_operation !== false)
 			$CACHE_MANAGER->CleanDir("b_task_operation");

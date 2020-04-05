@@ -54,6 +54,10 @@ class EntityImportFactory
         {
             return new UserProfileImport();
         }
+		elseif($entityTypeID === Exchange\EntityType::USER_PROFILE_CONTACT_COMPANY)
+		{
+			return new UserProfileContactCompany();
+		}
 		elseif($entityTypeID === Exchange\EntityType::INVOICE)
 		{
 			return new Invoice(null);

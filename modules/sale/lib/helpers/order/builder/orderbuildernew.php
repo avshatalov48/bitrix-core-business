@@ -4,8 +4,7 @@ namespace Bitrix\Sale\Helpers\Order\Builder;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
-use Bitrix\Sale\Order;
-use Bitrix\Sale\Registry;
+use Bitrix\Sale;
 use Bitrix\Sale\Shipment;
 
 final class OrderBuilderNew implements IOrderBuilderDelegate
@@ -83,7 +82,12 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 		}
 		else
 		{
-			if($basket = \Bitrix\Sale\Basket::create($this->builder->getOrder()->getSiteId()))
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
+			if($basket = $basketClass::create($this->builder->getOrder()->getSiteId()))
 			{
 				$this->builder->getOrder()->setBasket($basket);
 			}

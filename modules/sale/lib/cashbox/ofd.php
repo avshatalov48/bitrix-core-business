@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Cashbox;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Sale\Result;
+use Bitrix\Main;
 
 /**
  * Class Ofd
@@ -12,12 +13,15 @@ use Bitrix\Sale\Result;
  */
 abstract class Ofd
 {
+	protected const EVENT_ON_GET_CUSTOM_OFD_HANDLERS = 'OnGetCustomOfdHandlers';
+
 	/**
 	 * @return array
+	 * @throws NotImplementedException
 	 */
 	public static function getHandlerList()
 	{
-		return array(
+		$handlerList = [
 			'\Bitrix\Sale\Cashbox\FirstOfd' => FirstOfd::getName(),
 			'\Bitrix\Sale\Cashbox\PlatformaOfd' => PlatformaOfd::getName(),
 			'\Bitrix\Sale\Cashbox\YarusOfd' => YarusOfd::getName(),
@@ -25,7 +29,29 @@ abstract class Ofd
 			'\Bitrix\Sale\Cashbox\OfdruOfd' => OfdruOfd::getName(),
 			'\Bitrix\Sale\Cashbox\TenzorOfd' => TenzorOfd::getName(),
 			'\Bitrix\Sale\Cashbox\ConturOfd' => ConturOfd::getName(),
-		);
+		];
+
+		$event = new Main\Event('sale', static::EVENT_ON_GET_CUSTOM_OFD_HANDLERS);
+		$event->send();
+		$resultList = $event->getResults();
+
+		if (is_array($resultList) && !empty($resultList))
+		{
+			foreach ($resultList as $eventResult)
+			{
+				/** @var  Main\EventResult $eventResult */
+				if ($eventResult->getType() === Main\EventResult::SUCCESS)
+				{
+					$params = $eventResult->getParameters();
+					if (!empty($params) && is_array($params))
+					{
+						$handlerList = array_merge($handlerList, $params);
+					}
+				}
+			}
+		}
+
+		return $handlerList;
 	}
 
 	/**

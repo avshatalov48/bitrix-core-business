@@ -1,7 +1,6 @@
 <?
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
-
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main;
 
 class CBPDocumentService
 	extends CBPRuntimeService
@@ -12,6 +11,8 @@ class CBPDocumentService
 	private $arDocumentsCache = array();
 	private $documentTypesCache = array();
 	private $typesMapCache = array();
+
+	private $tzFlag;
 
 	public function getEntityName($moduleId, $entity)
 	{
@@ -27,6 +28,7 @@ class CBPDocumentService
 
 	public function GetDocument($parameterDocumentId, $parameterDocumentType = null)
 	{
+		$this->checkCache();
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
 
 		$documentType = ($parameterDocumentType && is_array($parameterDocumentType)) ? $parameterDocumentType[2] : null;
@@ -42,7 +44,7 @@ class CBPDocumentService
 
 		if (class_exists($entity))
 		{
-			$this->arDocumentsCache[$k] = call_user_func_array(array($entity, "GetDocument"), array($documentId, $documentType));
+			$this->arDocumentsCache[$k] = call_user_func_array([$entity, "GetDocument"], [$documentId, $documentType]);
 			return $this->arDocumentsCache[$k];
 		}
 
@@ -188,9 +190,9 @@ class CBPDocumentService
 		UnRegisterModuleDependences($moduleId, $entity."_OnUnlockDocument", "bizproc", "CBPDocumentService", "OnUnlockDocument", "", array($workflowId,  $eventName));
 	}
 
-	public static function OnUnlockDocument($workflowId, $eventName, $documentId = array())
+	public static function OnUnlockDocument($workflowId, $eventName, $documentId = [])
 	{
-		CBPRuntime::SendExternalEvent($workflowId, $eventName, array());
+		CBPRuntime::SendExternalEvent($workflowId, $eventName, []);
 	}
 
 	public function GetDocumentType($parameterDocumentId)
@@ -206,7 +208,7 @@ class CBPDocumentService
 
 		if (class_exists($entity) && method_exists($entity, "GetDocumentType"))
 		{
-			$this->documentTypesCache[$k] = array($moduleId, $entity, call_user_func_array(array($entity, "GetDocumentType"), array($documentId)));
+			$this->documentTypesCache[$k] = [$moduleId, $entity, call_user_func_array([$entity, "GetDocumentType"], [$documentId])];
 			return $this->documentTypesCache[$k];
 		}
 
@@ -223,11 +225,7 @@ class CBPDocumentService
 
 		if (class_exists($entity) && method_exists($entity, "normalizeDocumentId"))
 		{
-			$normalized = array(
-				$moduleId,
-				$entity,
-				call_user_func_array(array($entity, "normalizeDocumentId"), array($documentId))
-			);
+			$normalized = [$moduleId, $entity, call_user_func_array([$entity, "normalizeDocumentId"], [$documentId])];
 		}
 
 		return $normalized;
@@ -238,29 +236,36 @@ class CBPDocumentService
 		list($moduleId, $entity, $documentType) = CBPHelper::ParseDocumentId($parameterDocumentType);
 
 		if (strlen($moduleId) > 0)
+		{
 			CModule::IncludeModule($moduleId);
+		}
 
 		if (class_exists($entity))
 		{
-			$ar = call_user_func_array(array($entity, "GetDocumentFields"), array($documentType, $importExportMode));
-			if (is_array($ar))
+			$fields = call_user_func_array(array($entity, "GetDocumentFields"), array($documentType, $importExportMode));
+			if (is_array($fields))
 			{
-				$arKeys = array_keys($ar);
-				if (!array_key_exists("BaseType", $ar[$arKeys[0]]) || strlen($ar[$arKeys[0]]["BaseType"]) <= 0)
+				foreach ($fields as $key => $prop)
 				{
-					foreach ($arKeys as $key)
+					if ($prop["Type"] === 'integer')
 					{
-						if ($ar[$key]["Type"] == 'integer')
-							$ar[$key]["Type"] = 'int';
-						if (in_array($ar[$key]["Type"], array("int", "double", "date", "datetime", "user", "string", "bool", "file", "text", "select")))
-							$ar[$key]["BaseType"] = $ar[$key]["Type"];
-						elseif (!(isset($ar[$key]["BaseType"]) && $ar[$key]["BaseType"] !== ""))
-							$ar[$key]["BaseType"] = "string";
+						$fields[$key]["Type"] = 'int';
+					}
+					if (empty($prop['BaseType']))
+					{
+						if (in_array($prop["Type"], ["int", "double", "date", "datetime", "user", "string", "bool", "file", "text", "select"]))
+						{
+							$fields[$key]["BaseType"] = $prop["Type"];
+						}
+						else
+						{
+							$fields[$key]["BaseType"] = "string";
+						}
 					}
 				}
 			}
 
-			return $ar;
+			return $fields;
 		}
 
 		return null;
@@ -599,6 +604,27 @@ $objectName.GetFieldInputValue = function(type, name, func)
 		'rnd' : Math.random(),
 		'sessid' : '$bitrixSessId'
 	};
+	
+	if (name['Form'])
+	{
+		var objForm = document.getElementById(name['Form']);
+		if (!objForm)
+		{
+			for (var i in document.forms)
+			{
+				if (document.forms[i].name == name['Form'])
+				{
+					objForm = document.forms[i];
+					break;
+				}
+			}
+		}
+
+		if (objForm)
+		{
+			BX.ajax.prepareForm(objForm, s);
+		}
+	}
 
 	if (type != null && type['Type'] != "F")
 	{
@@ -1151,16 +1177,16 @@ EOS;
 		return array();
 	}
 
-	public function GetAllowableUserGroups($parameterDocumentId, $withExtended = false)
+	public function GetAllowableUserGroups($parameterDocumentType, $withExtended = false)
 	{
-		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($parameterDocumentId);
+		list($moduleId, $entity, $documentType) = CBPHelper::ParseDocumentId($parameterDocumentType);
 
 		if (strlen($moduleId) > 0)
 			CModule::IncludeModule($moduleId);
 
 		if (class_exists($entity))
 		{
-			$result = call_user_func_array(array($entity, "GetAllowableUserGroups"), array($documentId, $withExtended));
+			$result = call_user_func_array(array($entity, "GetAllowableUserGroups"), array($documentType, $withExtended));
 			$result1 = array();
 			foreach ($result as $key => $value)
 				$result1[strtolower($key)] = $value;
@@ -1294,5 +1320,15 @@ EOS;
 	private function clearCache()
 	{
 		$this->arDocumentsCache = [];
+	}
+
+	private function checkCache()
+	{
+		$state = \CTimeZone::Enabled();
+		if ($this->tzFlag !== null && $this->tzFlag !== $state)
+		{
+			$this->clearCache();
+		}
+		$this->tzFlag = $state;
 	}
 }

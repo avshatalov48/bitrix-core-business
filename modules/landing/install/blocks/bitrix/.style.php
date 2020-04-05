@@ -1,10 +1,11 @@
 <?
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 use \Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(
 	\Bitrix\Landing\Manager::getDocRoot() .
 	'/bitrix/modules/landing/blocks/.style.php'
@@ -17,11 +18,22 @@ return array(
 			'property' => 'text-align',
 			'type' => 'buttons',
 			'items' => array(
-				array('name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>', 'value' => 'text-left'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>', 'value' => 'text-center'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>', 'value' => 'text-right'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-justify"><em></em></span>', 'value' => 'text-justify'),
-			)
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>', 'value' => 'text-left',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>',
+					'value' => 'text-center',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>',
+					'value' => 'text-right',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-justify"><em></em></span>',
+					'value' => 'text-justify',
+				),
+			),
 		),
 		'font-size' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_FONT_SIZE'),
@@ -72,8 +84,8 @@ return array(
 				array('name' => '90', 'value' => 'g-font-size-90'),
 				array('name' => '120', 'value' => 'g-font-size-120'),
 				array('name' => '180', 'value' => 'g-font-size-180'),
-				array('name' => '200', 'value' => 'g-font-size-200')
-			)
+				array('name' => '200', 'value' => 'g-font-size-200'),
+			),
 		),
 		'font-family' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_FONT_FAMILY'),
@@ -92,9 +104,9 @@ return array(
 				array('name' => 'Alegreya Sans', 'value' => 'g-font-alegreya-sans'),
 				array('name' => 'Lobster', 'value' => 'g-font-lobster'),
 				array('name' => 'Menlo', 'value' => 'g-font-code'),
-			)
+			),
 		),
-
+		
 		'text-decoration' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_TEXT_DECORATION'),
 			'property' => 'text-transform',
@@ -114,13 +126,13 @@ return array(
 				array(
 					'name' => '<span class="landing-ui-icon-editor-underline"></span>',
 					'value' => 'g-text-underline',
-					'title' => Loc::getMessage('LANDING_STYLE_UNDERLINE2')
+					'title' => Loc::getMessage('LANDING_STYLE_UNDERLINE2'),
 				),
 				array(
 					'name' => '<span class="landing-ui-icon-editor-strike"></span>',
 					'value' => 'g-text-strike',
-					'title' => Loc::getMessage('LANDING_STYLE_STRIKE2')
-				)
+					'title' => Loc::getMessage('LANDING_STYLE_STRIKE2'),
+				),
 			),
 		),
 		'text-transform' => array(
@@ -132,7 +144,7 @@ return array(
 				array('name' => Loc::getMessage('LANDING_STYLE_UPPERCASE'), 'value' => 'text-uppercase'),
 				array('name' => Loc::getMessage('LANDING_STYLE_LOWERCASE'), 'value' => 'text-lowercase'),
 				array('name' => Loc::getMessage('LANDING_STYLE_CAPITALIZE'), 'value' => 'text-capitalize'),
-			)
+			),
 		),
 		'line-height' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_LINE_HEIGHT'),
@@ -150,9 +162,10 @@ return array(
 				array('name' => '1.4', 'value' => 'g-line-height-1_4'),
 				array('name' => '1.5', 'value' => 'g-line-height-1_5'),
 				array('name' => '1.6', 'value' => 'g-line-height-1_6'),
+				array('name' => '1.7', 'value' => 'g-line-height-1_7'),
 				array('name' => '1.8', 'value' => 'g-line-height-1_8'),
-				array('name' => '2', 'value' => 'g-line-height-2')
-			)
+				array('name' => '2', 'value' => 'g-line-height-2'),
+			),
 		),
 		'letter-spacing' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_LETTER_SPACING'),
@@ -175,18 +188,30 @@ return array(
 				array('name' => '9', 'value' => 'g-letter-spacing-9'),
 				array('name' => '10', 'value' => 'g-letter-spacing-10'),
 				array('name' => '11', 'value' => 'g-letter-spacing-11'),
-				array('name' => '12', 'value' => 'g-letter-spacing-12')
-			)
+				array('name' => '12', 'value' => 'g-letter-spacing-12'),
+			),
 		),
 		'row-align' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ROW_ALIGN'),
 			'type' => 'buttons',
 			'items' => array(
-				array('name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>', 'value' => 'justify-content-start'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>', 'value' => 'justify-content-center'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-around"><em></em></span>', 'value' => 'justify-content-around'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>', 'value' => 'justify-content-end')
-			)
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>',
+					'value' => 'justify-content-start',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>',
+					'value' => 'justify-content-center',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>',
+					'value' => 'justify-content-end',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-around"><em></em></span>',
+					'value' => 'justify-content-around',
+				),
+			),
 		),
 		'color' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_TEXT_COLOR'),
@@ -250,7 +275,8 @@ return array(
 				array('name' => 'g-color-bluegray', 'value' => 'g-color-bluegray'),
 				
 				array('name' => 'g-theme-event-color-gray-dark-v1', 'value' => 'g-theme-event-color-gray-dark-v1'),
-			)
+				array('name' => 'g-theme-bitrix-color-v4', 'value' => 'g-theme-bitrix-color-v4'),
+			),
 		),
 		'color-hover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_COLOR_HOVER'),
@@ -313,7 +339,10 @@ return array(
 				array('name' => 'g-color-teal--hover', 'value' => 'g-color-teal--hover'),
 				array('name' => 'g-color-brown--hover', 'value' => 'g-color-brown--hover'),
 				array('name' => 'g-color-bluegray--hover', 'value' => 'g-color-bluegray--hover'),
-				array('name' => 'g-theme-event-color-gray-dark-v1--hover', 'value' => 'g-theme-event-color-gray-dark-v1--hover'),
+				array(
+					'name' => 'g-theme-event-color-gray-dark-v1--hover', 'value' => 'g-theme-event-color-gray-dark-v1--hover',
+				),
+				array('name' => 'g-theme-bitrix-color-v4--hover', 'value' => 'g-theme-bitrix-color-v4--hover'),
 			),
 		),
 		'background-color' => array(
@@ -348,15 +377,15 @@ return array(
 				array('name' => 'g-bg-black-opacity-0_9', 'value' => 'g-bg-black-opacity-0_9'),
 				array('name' => 'g-bg-white', 'value' => 'g-bg-white'),
 				array('name' => 'g-bg-white-opacity-0_1', 'value' => 'g-bg-white-opacity-0_1'),
+				array('name' => 'g-bg-white-opacity-0_2', 'value' => 'g-bg-white-opacity-0_2'),
 				array('name' => 'g-bg-white-opacity-0_3', 'value' => 'g-bg-white-opacity-0_3'),
+				array('name' => 'g-bg-white-opacity-0_4', 'value' => 'g-bg-white-opacity-0_4'),
 				array('name' => 'g-bg-white-opacity-0_5', 'value' => 'g-bg-white-opacity-0_5'),
+				array('name' => 'g-bg-white-opacity-0_6', 'value' => 'g-bg-white-opacity-0_6'),
 				array('name' => 'g-bg-white-opacity-0_7', 'value' => 'g-bg-white-opacity-0_7'),
 				array('name' => 'g-bg-white-opacity-0_8', 'value' => 'g-bg-white-opacity-0_8'),
 				array('name' => 'g-bg-white-opacity-0_9', 'value' => 'g-bg-white-opacity-0_9'),
 				array('name' => 'g-bg-gray-dark-v1', 'value' => 'g-bg-gray-dark-v1'),
-				array('name' => 'g-theme-photography-bg-gray-dark-v2', 'value' => 'g-theme-photography-bg-gray-dark-v2'),
-				array('name' => 'g-theme-photography-bg-gray-dark-v3', 'value' => 'g-theme-photography-bg-gray-dark-v3'),
-				array('name' => 'g-theme-photography-bg-gray-dark-v4', 'value' => 'g-theme-photography-bg-gray-dark-v4'),
 				array('name' => 'g-bg-gray-dark-v2', 'value' => 'g-bg-gray-dark-v2'),
 				array('name' => 'g-bg-gray-dark-v3', 'value' => 'g-bg-gray-dark-v3'),
 				array('name' => 'g-bg-gray-dark-v4', 'value' => 'g-bg-gray-dark-v4'),
@@ -369,6 +398,9 @@ return array(
 				array('name' => 'g-bg-beige', 'value' => 'g-bg-beige'),
 				array('name' => 'g-bg-green', 'value' => 'g-bg-green'),
 				array('name' => 'g-bg-green-opacity-0_1', 'value' => 'g-bg-green-opacity-0_1'),
+				array('name' => 'g-bg-green-opacity-0_3', 'value' => 'g-bg-green-opacity-0_3'),
+				array('name' => 'g-bg-green-opacity-0_5', 'value' => 'g-bg-green-opacity-0_5'),
+				array('name' => 'g-bg-green-opacity-0_7', 'value' => 'g-bg-green-opacity-0_7'),
 				array('name' => 'g-bg-blue', 'value' => 'g-bg-blue'),
 				array('name' => 'g-bg-blue-opacity-0_1', 'value' => 'g-bg-blue-opacity-0_1'),
 				array('name' => 'g-bg-blue-opacity-0_7', 'value' => 'g-bg-blue-opacity-0_7'),
@@ -424,7 +456,10 @@ return array(
 				array('name' => 'g-bg-bluegray-opacity-0_7', 'value' => 'g-bg-bluegray-opacity-0_7'),
 				
 				array('name' => 'g-theme-business-bg-blue-dark-v1', 'value' => 'g-theme-business-bg-blue-dark-v1'),
-				array('name' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9', 'value' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9'),
+				array(
+					'name' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9',
+					'value' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9',
+				),
 				array('name' => 'g-theme-business-bg-blue-dark-v2', 'value' => 'g-theme-business-bg-blue-dark-v2'),
 				array('name' => 'g-theme-business-bg-blue-dark-v3', 'value' => 'g-theme-business-bg-blue-dark-v3'),
 				array('name' => 'g-theme-architecture-bg-blue-dark-v1', 'value' => 'g-theme-architecture-bg-blue-dark-v1'),
@@ -433,7 +468,29 @@ return array(
 				array('name' => 'g-theme-lawyer-bg-gray-dark-v1', 'value' => 'g-theme-lawyer-bg-gray-dark-v1'),
 				array('name' => 'g-theme-event-bg-blue-dark-v2', 'value' => 'g-theme-event-bg-blue-dark-v2'),
 				array('name' => 'g-theme-travel-bg-black-v1', 'value' => 'g-theme-travel-bg-black-v1'),
-			)
+				array(
+					'name' => 'g-theme-travel-bg-black-v1-opacity-0_8',
+					'value' => 'g-theme-travel-bg-black-v1-opacity-0_8',
+				),
+				array('name' => 'g-theme-photography-bg-gray-dark-v2', 'value' => 'g-theme-photography-bg-gray-dark-v2'),
+				array('name' => 'g-theme-photography-bg-gray-dark-v3', 'value' => 'g-theme-photography-bg-gray-dark-v3'),
+				array('name' => 'g-theme-photography-bg-gray-dark-v4', 'value' => 'g-theme-photography-bg-gray-dark-v4'),
+				array('name' => 'g-theme-bitrix-bg-dark-v1', 'value' => 'g-theme-bitrix-bg-dark-v1'),
+
+				array('name' => 'g-bg-facebook', 'value' => 'g-bg-facebook'),
+				array('name' => 'g-bg-twitter', 'value' => 'g-bg-twitter'),
+				array('name' => 'g-bg-skype', 'value' => 'g-bg-skype'),
+				array('name' => 'g-bg-pinterest', 'value' => 'g-bg-pinterest'),
+				array('name' => 'g-bg-vine', 'value' => 'g-bg-vine'),
+				array('name' => 'g-bg-youtube', 'value' => 'g-bg-youtube'),
+				array('name' => 'g-bg-google-plus', 'value' => 'g-bg-google-plus'),
+				array('name' => 'g-bg-dribbble', 'value' => 'g-bg-dribbble'),
+				array('name' => 'g-bg-vk', 'value' => 'g-bg-vk'),
+				array('name' => 'g-bg-linkedin', 'value' => 'g-bg-linkedin'),
+				array('name' => 'g-bg-instagram', 'value' => 'g-bg-instagram'),
+				array('name' => 'g-theme-bitrix-bg-dark-v2', 'value' => 'g-theme-bitrix-bg-dark-v2'),
+				array('name' => 'g-theme-bitrix-bg-v3', 'value' => 'g-theme-bitrix-bg-v3'),
+			),
 		),
 		'background-hover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_HOVER'),
@@ -441,16 +498,37 @@ return array(
 			'type' => 'palette',
 			'pseudo-class' => ':hover',
 			'items' => array(
+				array('name' => 'g-bg-transparent--hover', 'value' => 'g-bg-transparent--hover'),
+				array('name' => 'g-bg-primary--hover', 'value' => 'g-bg-primary--hover'),
+				array('name' => 'g-bg-primary-opacity-0_1--hover', 'value' => 'g-bg-primary-opacity-0_1--hover'),
+				array('name' => 'g-bg-primary-opacity-0_2--hover', 'value' => 'g-bg-primary-opacity-0_2--hover'),
+				array('name' => 'g-bg-primary-opacity-0_3--hover', 'value' => 'g-bg-primary-opacity-0_3--hover'),
+				array('name' => 'g-bg-primary-opacity-0_4--hover', 'value' => 'g-bg-primary-opacity-0_4--hover'),
+				array('name' => 'g-bg-primary-opacity-0_6--hover', 'value' => 'g-bg-primary-opacity-0_6--hover'),
+				array('name' => 'g-bg-primary-opacity-0_8--hover', 'value' => 'g-bg-primary-opacity-0_8--hover'),
+				array('name' => 'g-bg-primary-opacity-0_9--hover', 'value' => 'g-bg-primary-opacity-0_9--hover'),
+				array('name' => 'g-bg-primary-dark-v1--hover', 'value' => 'g-bg-primary-dark-v1--hover'),
+				array('name' => 'g-bg-primary-dark-v2--hover', 'value' => 'g-bg-primary-dark-v2--hover'),
+				array('name' => 'g-bg-primary-dark-v3--hover', 'value' => 'g-bg-primary-dark-v3--hover'),
+				array('name' => 'g-bg-main--hover', 'value' => 'g-bg-main--hover'),
+				array('name' => 'g-bg-secondary--hover', 'value' => 'g-bg-secondary--hover'),
 				array('name' => 'g-bg-black--hover', 'value' => 'g-bg-black--hover'),
+				array('name' => 'g-bg-black-opacity-0_1--hover', 'value' => 'g-bg-black-opacity-0_1--hover'),
+				array('name' => 'g-bg-black-opacity-0_2--hover', 'value' => 'g-bg-black-opacity-0_2--hover'),
 				array('name' => 'g-bg-black-opacity-0_3--hover', 'value' => 'g-bg-black-opacity-0_3--hover'),
+				array('name' => 'g-bg-black-opacity-0_4--hover', 'value' => 'g-bg-black-opacity-0_4--hover'),
 				array('name' => 'g-bg-black-opacity-0_5--hover', 'value' => 'g-bg-black-opacity-0_5--hover'),
 				array('name' => 'g-bg-black-opacity-0_6--hover', 'value' => 'g-bg-black-opacity-0_6--hover'),
+				array('name' => 'g-bg-black-opacity-0_7--hover', 'value' => 'g-bg-black-opacity-0_7--hover'),
 				array('name' => 'g-bg-black-opacity-0_8--hover', 'value' => 'g-bg-black-opacity-0_8--hover'),
 				array('name' => 'g-bg-black-opacity-0_9--hover', 'value' => 'g-bg-black-opacity-0_9--hover'),
 				array('name' => 'g-bg-white--hover', 'value' => 'g-bg-white--hover'),
+				array('name' => 'g-bg-white-opacity-0_1--hover', 'value' => 'g-bg-white-opacity-0_1--hover'),
 				array('name' => 'g-bg-white-opacity-0_2--hover', 'value' => 'g-bg-white-opacity-0_2--hover'),
 				array('name' => 'g-bg-white-opacity-0_3--hover', 'value' => 'g-bg-white-opacity-0_3--hover'),
 				array('name' => 'g-bg-white-opacity-0_4--hover', 'value' => 'g-bg-white-opacity-0_4--hover'),
+				array('name' => 'g-bg-white-opacity-0_5--hover', 'value' => 'g-bg-white-opacity-0_5--hover'),
+				array('name' => 'g-bg-white-opacity-0_6--hover', 'value' => 'g-bg-white-opacity-0_6--hover'),
 				array('name' => 'g-bg-white-opacity-0_7--hover', 'value' => 'g-bg-white-opacity-0_7--hover'),
 				array('name' => 'g-bg-white-opacity-0_8--hover', 'value' => 'g-bg-white-opacity-0_8--hover'),
 				array('name' => 'g-bg-white-opacity-0_9--hover', 'value' => 'g-bg-white-opacity-0_9--hover'),
@@ -459,26 +537,93 @@ return array(
 				array('name' => 'g-bg-gray-dark-v3--hover', 'value' => 'g-bg-gray-dark-v3--hover'),
 				array('name' => 'g-bg-gray-dark-v4--hover', 'value' => 'g-bg-gray-dark-v4--hover'),
 				array('name' => 'g-bg-gray-dark-v5--hover', 'value' => 'g-bg-gray-dark-v5--hover'),
-				array('name' => 'g-bg-gray-light-v2--hover', 'value' => 'g-bg-gray-light-v2--hover'),
 				array('name' => 'g-bg-gray-light-v1--hover', 'value' => 'g-bg-gray-light-v1--hover'),
+				array('name' => 'g-bg-gray-light-v2--hover', 'value' => 'g-bg-gray-light-v2--hover'),
 				array('name' => 'g-bg-gray-light-v3--hover', 'value' => 'g-bg-gray-light-v3--hover'),
 				array('name' => 'g-bg-gray-light-v4--hover', 'value' => 'g-bg-gray-light-v4--hover'),
 				array('name' => 'g-bg-gray-light-v5--hover', 'value' => 'g-bg-gray-light-v5--hover'),
-				array('name' => 'g-bg-transparent--hover', 'value' => 'g-bg-transparent--hover'),
+				array('name' => 'g-bg-beige--hover', 'value' => 'g-bg-beige--hover'),
 				array('name' => 'g-bg-green--hover', 'value' => 'g-bg-green--hover'),
+				array('name' => 'g-bg-green-opacity-0_1--hover', 'value' => 'g-bg-green-opacity-0_1--hover'),
+				array('name' => 'g-bg-green-opacity-0_3--hover', 'value' => 'g-bg-green-opacity-0_3--hover'),
+				array('name' => 'g-bg-green-opacity-0_5--hover', 'value' => 'g-bg-green-opacity-0_5--hover'),
+				array('name' => 'g-bg-green-opacity-0_7--hover', 'value' => 'g-bg-green-opacity-0_7--hover'),
 				array('name' => 'g-bg-blue--hover', 'value' => 'g-bg-blue--hover'),
+				array('name' => 'g-bg-blue-opacity-0_1--hover', 'value' => 'g-bg-blue-opacity-0_1--hover'),
+				array('name' => 'g-bg-blue-opacity-0_7--hover', 'value' => 'g-bg-blue-opacity-0_7--hover'),
+				array('name' => 'g-bg-blue-opacity-0_9--hover', 'value' => 'g-bg-blue-opacity-0_9--hover'),
+				array('name' => 'g-bg-lightblue--hover', 'value' => 'g-bg-lightblue--hover'),
+				array('name' => 'g-bg-lightblue-opacity-0_1--hover', 'value' => 'g-bg-lightblue-opacity-0_1--hover'),
+				array('name' => 'g-bg-lightblue-v1--hover', 'value' => 'g-bg-lightblue-v1--hover'),
+				array('name' => 'g-bg-lightblue-v1-opacity-0_1--hover', 'value' => 'g-bg-lightblue-v1-opacity-0_1--hover'),
+				array('name' => 'g-bg-darkblue--hover', 'value' => 'g-bg-darkblue--hover'),
+				array('name' => 'g-bg-darkblue-opacity-0_1--hover', 'value' => 'g-bg-darkblue-opacity-0_1--hover'),
+				array('name' => 'g-bg-indigo--hover', 'value' => 'g-bg-indigo--hover'),
+				array('name' => 'g-bg-indigo-opacity-0_1--hover', 'value' => 'g-bg-indigo-opacity-0_1--hover'),
 				array('name' => 'g-bg-red--hover', 'value' => 'g-bg-red--hover'),
+				array('name' => 'g-bg-red-opacity-0_1--hover', 'value' => 'g-bg-red-opacity-0_1--hover'),
+				array('name' => 'g-bg-red-opacity-0_2--hover', 'value' => 'g-bg-red-opacity-0_2--hover'),
+				array('name' => 'g-bg-red-opacity-0_5--hover', 'value' => 'g-bg-red-opacity-0_5--hover'),
+				array('name' => 'g-bg-red-opacity-0_8--hover', 'value' => 'g-bg-red-opacity-0_8--hover'),
 				array('name' => 'g-bg-lightred--hover', 'value' => 'g-bg-lightred--hover'),
+				array('name' => 'g-bg-lightred-opacity-0_1--hover', 'value' => 'g-bg-lightred-opacity-0_1--hover'),
+				array('name' => 'g-bg-darkred--hover', 'value' => 'g-bg-darkred--hover'),
+				array('name' => 'g-bg-darkred-opacity-0_1--hover', 'value' => 'g-bg-darkred-opacity-0_1--hover'),
 				array('name' => 'g-bg-purple--hover', 'value' => 'g-bg-purple--hover'),
+				array('name' => 'g-bg-purple-opacity-0_1--hover', 'value' => 'g-bg-purple-opacity-0_1--hover'),
+				array('name' => 'g-bg-purple-opacity-0_7--hover', 'value' => 'g-bg-purple-opacity-0_7--hover'),
+				array('name' => 'g-bg-purple-opacity-0_9--hover', 'value' => 'g-bg-purple-opacity-0_9--hover'),
+				array('name' => 'g-bg-darkpurple--hover', 'value' => 'g-bg-darkpurple--hover'),
+				array('name' => 'g-bg-darkpurple-opacity-0_1--hover', 'value' => 'g-bg-darkpurple-opacity-0_1--hover'),
 				array('name' => 'g-bg-pink--hover', 'value' => 'g-bg-pink--hover'),
+				array('name' => 'g-bg-pink-opacity-0_1--hover', 'value' => 'g-bg-pink-opacity-0_1--hover'),
+				array('name' => 'g-bg-pink-opacity-0_9--hover', 'value' => 'g-bg-pink-opacity-0_9--hover'),
 				array('name' => 'g-bg-orange--hover', 'value' => 'g-bg-orange--hover'),
+				array('name' => 'g-bg-orange-opacity-0_1--hover', 'value' => 'g-bg-orange-opacity-0_1--hover'),
+				array('name' => 'g-bg-orange-opacity-0_2--hover', 'value' => 'g-bg-orange-opacity-0_2--hover'),
 				array('name' => 'g-bg-deeporange--hover', 'value' => 'g-bg-deeporange--hover'),
+				array('name' => 'g-bg-deeporange-opacity-0_1--hover', 'value' => 'g-bg-deeporange-opacity-0_1--hover'),
 				array('name' => 'g-bg-yellow--hover', 'value' => 'g-bg-yellow--hover'),
+				array('name' => 'g-bg-yellow-opacity-0_1--hover', 'value' => 'g-bg-yellow-opacity-0_1--hover'),
+				array('name' => 'g-bg-yellow-opacity-0_7--hover', 'value' => 'g-bg-yellow-opacity-0_7--hover'),
 				array('name' => 'g-bg-aqua--hover', 'value' => 'g-bg-aqua--hover'),
+				array('name' => 'g-bg-aqua-opacity-0_1--hover', 'value' => 'g-bg-aqua-opacity-0_1--hover'),
+				array('name' => 'g-bg-aqua-opacity-0_9--hover', 'value' => 'g-bg-aqua-opacity-0_9--hover'),
 				array('name' => 'g-bg-cyan--hover', 'value' => 'g-bg-cyan--hover'),
+				array('name' => 'g-bg-cyan-opacity-0_1--hover', 'value' => 'g-bg-cyan-opacity-0_1--hover'),
+				array('name' => 'g-bg-cyan-opacity-0_9--hover', 'value' => 'g-bg-cyan-opacity-0_9--hover'),
 				array('name' => 'g-bg-teal--hover', 'value' => 'g-bg-teal--hover'),
+				array('name' => 'g-bg-teal-opacity-0_1--hover', 'value' => 'g-bg-teal-opacity-0_1--hover'),
+				array('name' => 'g-bg-teal-opacity-0_9--hover', 'value' => 'g-bg-teal-opacity-0_9--hover'),
 				array('name' => 'g-bg-brown--hover', 'value' => 'g-bg-brown--hover'),
+				array('name' => 'g-bg-brown-opacity-0_1--hover', 'value' => 'g-bg-brown-opacity-0_1--hover'),
 				array('name' => 'g-bg-bluegray--hover', 'value' => 'g-bg-bluegray--hover'),
+				array('name' => 'g-bg-bluegray-opacity-0_3--hover', 'value' => 'g-bg-bluegray-opacity-0_3--hover'),
+				array('name' => 'g-bg-bluegray-opacity-0_5--hover', 'value' => 'g-bg-bluegray-opacity-0_5--hover'),
+				array('name' => 'g-bg-bluegray-opacity-0_7--hover', 'value' => 'g-bg-bluegray-opacity-0_7--hover'),
+
+				array('name' => 'g-theme-business-bg-blue-dark-v1--hover', 'value' => 'g-theme-business-bg-blue-dark-v1--hover'),
+				array(
+					'name' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9--hover',
+					'value' => 'g-theme-business-bg-blue-dark-v1-opacity-0_9--hover',
+				),
+				array('name' => 'g-theme-business-bg-blue-dark-v2--hover', 'value' => 'g-theme-business-bg-blue-dark-v2--hover'),
+				array('name' => 'g-theme-business-bg-blue-dark-v3--hover', 'value' => 'g-theme-business-bg-blue-dark-v3--hover'),
+				array('name' => 'g-theme-architecture-bg-blue-dark-v1--hover', 'value' => 'g-theme-architecture-bg-blue-dark-v1--hover'),
+				array('name' => 'g-theme-architecture-bg-blue-dark-v3--hover', 'value' => 'g-theme-architecture-bg-blue-dark-v3--hover'),
+				array('name' => 'g-theme-architecture-bg-blue-dark-v4--hover', 'value' => 'g-theme-architecture-bg-blue-dark-v4--hover'),
+				array('name' => 'g-theme-lawyer-bg-gray-dark-v1--hover', 'value' => 'g-theme-lawyer-bg-gray-dark-v1--hover'),
+				array('name' => 'g-theme-event-bg-blue-dark-v2--hover', 'value' => 'g-theme-event-bg-blue-dark-v2--hover'),
+				array('name' => 'g-theme-travel-bg-black-v1--hover', 'value' => 'g-theme-travel-bg-black-v1--hover'),
+				array(
+					'name' => 'g-theme-travel-bg-black-v1-opacity-0_8--hover',
+					'value' => 'g-theme-travel-bg-black-v1-opacity-0_8--hover',
+				),
+				array('name' => 'g-theme-photography-bg-gray-dark-v2--hover', 'value' => 'g-theme-photography-bg-gray-dark-v2--hover'),
+				array('name' => 'g-theme-photography-bg-gray-dark-v3--hover', 'value' => 'g-theme-photography-bg-gray-dark-v3--hover'),
+				array('name' => 'g-theme-photography-bg-gray-dark-v4--hover', 'value' => 'g-theme-photography-bg-gray-dark-v4--hover'),
+				array('name' => 'g-theme-bitrix-bg-dark-v1--hover', 'value' => 'g-theme-bitrix-bg-dark-v1--hover'),
+
 				array('name' => 'g-bg-facebook--hover', 'value' => 'g-bg-facebook--hover'),
 				array('name' => 'g-bg-twitter--hover', 'value' => 'g-bg-twitter--hover'),
 				array('name' => 'g-bg-skype--hover', 'value' => 'g-bg-skype--hover'),
@@ -490,18 +635,9 @@ return array(
 				array('name' => 'g-bg-vk--hover', 'value' => 'g-bg-vk--hover'),
 				array('name' => 'g-bg-linkedin--hover', 'value' => 'g-bg-linkedin--hover'),
 				array('name' => 'g-bg-instagram--hover', 'value' => 'g-bg-instagram--hover'),
-				array('name' => 'g-bg-primary--hover', 'value' => 'g-bg-primary--hover'),
-				array('name' => 'g-bg-primary-opacity-0_2--hover', 'value' => 'g-bg-primary-opacity-0_2--hover'),
-				array('name' => 'g-bg-primary-opacity-0_3--hover', 'value' => 'g-bg-primary-opacity-0_3--hover'),
-				array('name' => 'g-bg-primary-opacity-0_4--hover', 'value' => 'g-bg-primary-opacity-0_4--hover'),
-				array('name' => 'g-bg-primary-opacity-0_6--hover', 'value' => 'g-bg-primary-opacity-0_6--hover'),
-				array('name' => 'g-bg-primary-opacity-0_8--hover', 'value' => 'g-bg-primary-opacity-0_8--hover'),
-				array('name' => 'g-bg-primary-opacity-0_9--hover', 'value' => 'g-bg-primary-opacity-0_9--hover'),
-				array('name' => 'g-bg-primary-dark-v1--hover', 'value' => 'g-bg-primary-dark-v1--hover'),
-				array('name' => 'g-bg-primary-dark-v2--hover', 'value' => 'g-bg-primary-dark-v2--hover'),
-				array('name' => 'g-bg-primary-dark-v3--hover', 'value' => 'g-bg-primary-dark-v3--hover'),
-				array('name' => 'g-theme-travel-bg-black-v1-opacity-0_8--hover', 'value' => 'g-theme-travel-bg-black-v1-opacity-0_8--hover'),
-			)
+				array('name' => 'g-theme-bitrix-bg-dark-v2--hover', 'value' => 'g-theme-bitrix-bg-dark-v2--hover'),
+				array('name' => 'g-theme-bitrix-bg-v3--hover', 'value' => 'g-theme-bitrix-bg-v3--hover'),
+			),
 		),
 		'background-gradient' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_GRADIENT'),
@@ -535,20 +671,28 @@ return array(
 				array('name' => 'g-bg-lightblue-radialgradient-circle', 'value' => 'g-bg-lightblue-radialgradient-circle'),
 				array('name' => 'g-bg-blue-radialgradient-circle', 'value' => 'g-bg-blue-radialgradient-circle'),
 				array('name' => 'g-bg-darkgray-radialgradient-circle', 'value' => 'g-bg-darkgray-radialgradient-circle'),
-				array('name' => 'g-bg-blue-radialgradient-circle-endless', 'value' => 'g-bg-blue-radialgradient-circle-endless'),
+				array(
+					'name' => 'g-bg-blue-radialgradient-circle-endless', 'value' => 'g-bg-blue-radialgradient-circle-endless',
+				),
 				array('name' => 'g-bg-gray-verticalstripes-endless', 'value' => 'g-bg-gray-verticalstripes-endless'),
 				array('name' => 'g-bg-pattern-gray-v1', 'value' => 'g-bg-pattern-gray-v1'),
 				array('name' => 'g-bg-pattern-green-v1', 'value' => 'g-bg-pattern-green-v1'),
 				array('name' => 'g-bg-pattern-dark-v1', 'value' => 'g-bg-pattern-dark-v1'),
-			)
+			),
 		),
 		'background-attachment' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT'),
 			'property' => 'background-attachment',
 			'type' => 'list',
 			'items' => array(
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_SCROLL'), 'value' => 'g-bg-attachment-scroll'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_FIXED'), 'value' => 'g-bg-attachment-fixed'),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_SCROLL'),
+					'value' => 'g-bg-attachment-scroll',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_FIXED'),
+					'value' => 'g-bg-attachment-fixed',
+				),
 			),
 		),
 		'background-size' => array(
@@ -557,7 +701,10 @@ return array(
 			'type' => 'list',
 			'items' => array(
 				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_SIZE_COVER'), 'value' => 'g-bg-size-cover'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_SIZE_CONTAIN'), 'value' => 'g-bg-size-contain-no-repeat'),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BACKGROUND_SIZE_CONTAIN'),
+					'value' => 'g-bg-size-contain-no-repeat',
+				),
 			),
 		),
 		'background-overlay' => array(
@@ -566,6 +713,7 @@ return array(
 			'pseudo-element' => '::after',
 			'type' => 'palette',
 			'items' => array(
+				array('name' => 'g-bg-none--after', 'value' => 'g-bg-none--after'),
 				array('name' => 'g-bg-primary-opacity-0_2--after', 'value' => 'g-bg-primary-opacity-0_2--after'),
 				array('name' => 'g-bg-primary-opacity-0_3--after', 'value' => 'g-bg-primary-opacity-0_3--after'),
 				array('name' => 'g-bg-primary-opacity-0_4--after', 'value' => 'g-bg-primary-opacity-0_4--after'),
@@ -624,7 +772,7 @@ return array(
 				array('name' => 'g-bg-darkblue-opacity-0_3--after', 'value' => 'g-bg-darkblue-opacity-0_3--after'),
 				array('name' => 'g-bg-darkblue-opacity-0_5--after', 'value' => 'g-bg-darkblue-opacity-0_5--after'),
 				array('name' => 'g-bg-darkblue-opacity-0_7--after', 'value' => 'g-bg-darkblue-opacity-0_7--after'),
-			)
+			),
 		),
 		'background-color-before' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BG_COLOR_BEFORE'),
@@ -692,7 +840,7 @@ return array(
 				array('name' => 'g-bg-cyan--before', 'value' => 'g-bg-cyan--before'),
 				array('name' => 'g-bg-teal--before', 'value' => 'g-bg-teal--before'),
 				array('name' => 'g-bg-brown--before', 'value' => 'g-bg-brown--before'),
-			)
+			),
 		),
 		'navbar-color' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_COLOR'),
@@ -736,7 +884,7 @@ return array(
 				array('name' => 'u-navbar-color-teal', 'value' => 'u-navbar-color-teal'),
 				array('name' => 'u-navbar-color-brown', 'value' => 'u-navbar-color-brown'),
 				array('name' => 'u-navbar-color-bluegray', 'value' => 'u-navbar-color-bluegray'),
-			)
+			),
 		),
 		'navbar-color-hover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_COLOR_HOVER'),
@@ -781,7 +929,7 @@ return array(
 				array('name' => 'u-navbar-color-teal--hover', 'value' => 'u-navbar-color-teal--hover'),
 				array('name' => 'u-navbar-color-brown--hover', 'value' => 'u-navbar-color-brown--hover'),
 				array('name' => 'u-navbar-color-bluegray--hover', 'value' => 'u-navbar-color-bluegray--hover'),
-			)
+			),
 		),
 		'navbar-color-fix-moment' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_COLOR_FIX_MOMENT'),
@@ -793,21 +941,50 @@ return array(
 				array('name' => 'u-navbar-color-main--fix-moment', 'value' => 'u-navbar-color-main--fix-moment'),
 				array('name' => 'u-navbar-color-black--fix-moment', 'value' => 'u-navbar-color-black--fix-moment'),
 				array('name' => 'u-navbar-color-white--fix-moment', 'value' => 'u-navbar-color-white--fix-moment'),
-				array('name' => 'u-navbar-color-gray-light-v1--fix-moment', 'value' => 'u-navbar-color-gray-light-v1--fix-moment'),
-				array('name' => 'u-navbar-color-gray-light-v2--fix-moment', 'value' => 'u-navbar-color-gray-light-v2--fix-moment'),
-				array('name' => 'u-navbar-color-gray-light-v3--fix-moment', 'value' => 'u-navbar-color-gray-light-v3--fix-moment'),
-				array('name' => 'u-navbar-color-gray-light-v4--fix-moment', 'value' => 'u-navbar-color-gray-light-v4--fix-moment'),
-				array('name' => 'u-navbar-color-gray-light-v5--fix-moment', 'value' => 'u-navbar-color-gray-light-v5--fix-moment'),
-				array('name' => 'u-navbar-color-gray-dark-v1--fix-moment', 'value' => 'u-navbar-color-gray-dark-v1--fix-moment'),
-				array('name' => 'u-navbar-color-gray-dark-v2--fix-moment', 'value' => 'u-navbar-color-gray-dark-v2--fix-moment'),
-				array('name' => 'u-navbar-color-gray-dark-v3--fix-moment', 'value' => 'u-navbar-color-gray-dark-v3--fix-moment'),
-				array('name' => 'u-navbar-color-gray-dark-v4--fix-moment', 'value' => 'u-navbar-color-gray-dark-v4--fix-moment'),
-				array('name' => 'u-navbar-color-gray-dark-v5--fix-moment', 'value' => 'u-navbar-color-gray-dark-v5--fix-moment'),
+				array(
+					'name' => 'u-navbar-color-gray-light-v1--fix-moment',
+					'value' => 'u-navbar-color-gray-light-v1--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v2--fix-moment',
+					'value' => 'u-navbar-color-gray-light-v2--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v3--fix-moment',
+					'value' => 'u-navbar-color-gray-light-v3--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v4--fix-moment',
+					'value' => 'u-navbar-color-gray-light-v4--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v5--fix-moment',
+					'value' => 'u-navbar-color-gray-light-v5--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v1--fix-moment', 'value' => 'u-navbar-color-gray-dark-v1--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v2--fix-moment', 'value' => 'u-navbar-color-gray-dark-v2--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v3--fix-moment', 'value' => 'u-navbar-color-gray-dark-v3--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v4--fix-moment', 'value' => 'u-navbar-color-gray-dark-v4--fix-moment',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v5--fix-moment', 'value' => 'u-navbar-color-gray-dark-v5--fix-moment',
+				),
 				array('name' => 'u-navbar-color-green--fix-moment', 'value' => 'u-navbar-color-green--fix-moment'),
 				array('name' => 'u-navbar-color-blue--fix-moment', 'value' => 'u-navbar-color-blue--fix-moment'),
-				array('name' => 'u-navbar-color-blue-dark-v1--fix-moment', 'value' => 'u-navbar-color-blue-dark-v1--fix-moment'),
+				array(
+					'name' => 'u-navbar-color-blue-dark-v1--fix-moment', 'value' => 'u-navbar-color-blue-dark-v1--fix-moment',
+				),
 				array('name' => 'u-navbar-color-lightblue--fix-moment', 'value' => 'u-navbar-color-lightblue--fix-moment'),
-				array('name' => 'u-navbar-color-lightblue-v1--fix-moment', 'value' => 'u-navbar-color-lightblue-v1--fix-moment'),
+				array(
+					'name' => 'u-navbar-color-lightblue-v1--fix-moment', 'value' => 'u-navbar-color-lightblue-v1--fix-moment',
+				),
 				array('name' => 'u-navbar-color-darkblue--fix-moment', 'value' => 'u-navbar-color-darkblue--fix-moment'),
 				array('name' => 'u-navbar-color-indigo--fix-moment', 'value' => 'u-navbar-color-indigo--fix-moment'),
 				array('name' => 'u-navbar-color-red--fix-moment', 'value' => 'u-navbar-color-red--fix-moment'),
@@ -816,17 +993,21 @@ return array(
 				array('name' => 'u-navbar-color-purple--fix-moment', 'value' => 'u-navbar-color-purple--fix-moment'),
 				array('name' => 'u-navbar-color-darkpurple--fix-moment', 'value' => 'u-navbar-color-darkpurple--fix-moment'),
 				array('name' => 'u-navbar-color-pink--fix-moment', 'value' => 'u-navbar-color-pink--fix-moment'),
-				array('name' => 'u-navbar-color-pink-dark-v1--fix-moment', 'value' => 'u-navbar-color-pink-dark-v1--fix-moment'),
+				array(
+					'name' => 'u-navbar-color-pink-dark-v1--fix-moment', 'value' => 'u-navbar-color-pink-dark-v1--fix-moment',
+				),
 				array('name' => 'u-navbar-color-orange--fix-moment', 'value' => 'u-navbar-color-orange--fix-moment'),
 				array('name' => 'u-navbar-color-deeporange--fix-moment', 'value' => 'u-navbar-color-deeporange--fix-moment'),
 				array('name' => 'u-navbar-color-yellow--fix-moment', 'value' => 'u-navbar-color-yellow--fix-moment'),
 				array('name' => 'u-navbar-color-aqua--fix-moment', 'value' => 'u-navbar-color-aqua--fix-moment'),
-				array('name' => 'u-navbar-color-aqua-dark-v1--fix-moment', 'value' => 'u-navbar-color-aqua-dark-v1--fix-moment'),
+				array(
+					'name' => 'u-navbar-color-aqua-dark-v1--fix-moment', 'value' => 'u-navbar-color-aqua-dark-v1--fix-moment',
+				),
 				array('name' => 'u-navbar-color-cyan--fix-moment', 'value' => 'u-navbar-color-cyan--fix-moment'),
 				array('name' => 'u-navbar-color-teal--fix-moment', 'value' => 'u-navbar-color-teal--fix-moment'),
 				array('name' => 'u-navbar-color-brown--fix-moment', 'value' => 'u-navbar-color-brown--fix-moment'),
 				array('name' => 'u-navbar-color-bluegray--fix-moment', 'value' => 'u-navbar-color-bluegray--fix-moment'),
-			)
+			),
 		),
 		'navbar-color-fix-moment-hover' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_COLOR_FIX_MOMENT_HOVER'),
@@ -834,55 +1015,257 @@ return array(
 			'type' => 'palette',
 			'pseudo-class' => '::after',
 			'items' => array(
-				array('name' => 'u-navbar-color-primary--fix-moment--hover', 'value' => 'u-navbar-color-primary--fix-moment--hover'),
-				array('name' => 'u-navbar-color-main--fix-moment--hover', 'value' => 'u-navbar-color-main--fix-moment--hover'),
-				array('name' => 'u-navbar-color-black--fix-moment--hover', 'value' => 'u-navbar-color-black--fix-moment--hover'),
-				array('name' => 'u-navbar-color-white--fix-moment--hover', 'value' => 'u-navbar-color-white--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-light-v1--fix-moment--hover', 'value' => 'u-navbar-color-gray-light-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-light-v2--fix-moment--hover', 'value' => 'u-navbar-color-gray-light-v2--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-light-v3--fix-moment--hover', 'value' => 'u-navbar-color-gray-light-v3--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-light-v4--fix-moment--hover', 'value' => 'u-navbar-color-gray-light-v4--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-light-v5--fix-moment--hover', 'value' => 'u-navbar-color-gray-light-v5--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-dark-v1--fix-moment--hover', 'value' => 'u-navbar-color-gray-dark-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-dark-v2--fix-moment--hover', 'value' => 'u-navbar-color-gray-dark-v2--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-dark-v3--fix-moment--hover', 'value' => 'u-navbar-color-gray-dark-v3--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-dark-v4--fix-moment--hover', 'value' => 'u-navbar-color-gray-dark-v4--fix-moment--hover'),
-				array('name' => 'u-navbar-color-gray-dark-v5--fix-moment--hover', 'value' => 'u-navbar-color-gray-dark-v5--fix-moment--hover'),
-				array('name' => 'u-navbar-color-green--fix-moment--hover', 'value' => 'u-navbar-color-green--fix-moment--hover'),
-				array('name' => 'u-navbar-color-blue--fix-moment--hover', 'value' => 'u-navbar-color-blue--fix-moment--hover'),
-				array('name' => 'u-navbar-color-blue-dark-v1--fix-moment--hover', 'value' => 'u-navbar-color-blue-dark-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-lightblue--fix-moment--hover', 'value' => 'u-navbar-color-lightblue--fix-moment--hover'),
-				array('name' => 'u-navbar-color-lightblue-v1--fix-moment--hover', 'value' => 'u-navbar-color-lightblue-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-darkblue--fix-moment--hover', 'value' => 'u-navbar-color-darkblue--fix-moment--hover'),
-				array('name' => 'u-navbar-color-indigo--fix-moment--hover', 'value' => 'u-navbar-color-indigo--fix-moment--hover'),
+				array(
+					'name' => 'u-navbar-color-primary--fix-moment--hover',
+					'value' => 'u-navbar-color-primary--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-main--fix-moment--hover', 'value' => 'u-navbar-color-main--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-black--fix-moment--hover', 'value' => 'u-navbar-color-black--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-white--fix-moment--hover', 'value' => 'u-navbar-color-white--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-light-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v2--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-light-v2--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v3--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-light-v3--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v4--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-light-v4--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-light-v5--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-light-v5--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-dark-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v2--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-dark-v2--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v3--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-dark-v3--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v4--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-dark-v4--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-gray-dark-v5--fix-moment--hover',
+					'value' => 'u-navbar-color-gray-dark-v5--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-green--fix-moment--hover', 'value' => 'u-navbar-color-green--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-blue--fix-moment--hover', 'value' => 'u-navbar-color-blue--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-blue-dark-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-blue-dark-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-lightblue--fix-moment--hover',
+					'value' => 'u-navbar-color-lightblue--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-lightblue-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-lightblue-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-darkblue--fix-moment--hover',
+					'value' => 'u-navbar-color-darkblue--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-indigo--fix-moment--hover',
+					'value' => 'u-navbar-color-indigo--fix-moment--hover',
+				),
 				array('name' => 'u-navbar-color-red--fix-moment--hover', 'value' => 'u-navbar-color-red--fix-moment--hover'),
-				array('name' => 'u-navbar-color-lightred--fix-moment--hover', 'value' => 'u-navbar-color-lightred--fix-moment--hover'),
-				array('name' => 'u-navbar-color-darkred--fix-moment--hover', 'value' => 'u-navbar-color-darkred--fix-moment--hover'),
-				array('name' => 'u-navbar-color-purple--fix-moment--hover', 'value' => 'u-navbar-color-purple--fix-moment--hover'),
-				array('name' => 'u-navbar-color-darkpurple--fix-moment--hover', 'value' => 'u-navbar-color-darkpurple--fix-moment--hover'),
-				array('name' => 'u-navbar-color-pink--fix-moment--hover', 'value' => 'u-navbar-color-pink--fix-moment--hover'),
-				array('name' => 'u-navbar-color-pink-dark-v1--fix-moment--hover', 'value' => 'u-navbar-color-pink-dark-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-orange--fix-moment--hover', 'value' => 'u-navbar-color-orange--fix-moment--hover'),
-				array('name' => 'u-navbar-color-deeporange--fix-moment--hover', 'value' => 'u-navbar-color-deeporange--fix-moment--hover'),
-				array('name' => 'u-navbar-color-yellow--fix-moment--hover', 'value' => 'u-navbar-color-yellow--fix-moment--hover'),
-				array('name' => 'u-navbar-color-aqua--fix-moment--hover', 'value' => 'u-navbar-color-aqua--fix-moment--hover'),
-				array('name' => 'u-navbar-color-aqua-dark-v1--fix-moment--hover', 'value' => 'u-navbar-color-aqua-dark-v1--fix-moment--hover'),
-				array('name' => 'u-navbar-color-cyan--fix-moment--hover', 'value' => 'u-navbar-color-cyan--fix-moment--hover'),
-				array('name' => 'u-navbar-color-teal--fix-moment--hover', 'value' => 'u-navbar-color-teal--fix-moment--hover'),
-				array('name' => 'u-navbar-color-brown--fix-moment--hover', 'value' => 'u-navbar-color-brown--fix-moment--hover'),
-				array('name' => 'u-navbar-color-bluegray--fix-moment--hover', 'value' => 'u-navbar-color-bluegray--fix-moment--hover'),
-			)
+				array(
+					'name' => 'u-navbar-color-lightred--fix-moment--hover',
+					'value' => 'u-navbar-color-lightred--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-darkred--fix-moment--hover',
+					'value' => 'u-navbar-color-darkred--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-purple--fix-moment--hover',
+					'value' => 'u-navbar-color-purple--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-darkpurple--fix-moment--hover',
+					'value' => 'u-navbar-color-darkpurple--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-pink--fix-moment--hover', 'value' => 'u-navbar-color-pink--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-pink-dark-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-pink-dark-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-orange--fix-moment--hover',
+					'value' => 'u-navbar-color-orange--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-deeporange--fix-moment--hover',
+					'value' => 'u-navbar-color-deeporange--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-yellow--fix-moment--hover',
+					'value' => 'u-navbar-color-yellow--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-aqua--fix-moment--hover', 'value' => 'u-navbar-color-aqua--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-aqua-dark-v1--fix-moment--hover',
+					'value' => 'u-navbar-color-aqua-dark-v1--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-cyan--fix-moment--hover', 'value' => 'u-navbar-color-cyan--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-teal--fix-moment--hover', 'value' => 'u-navbar-color-teal--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-brown--fix-moment--hover', 'value' => 'u-navbar-color-brown--fix-moment--hover',
+				),
+				array(
+					'name' => 'u-navbar-color-bluegray--fix-moment--hover',
+					'value' => 'u-navbar-color-bluegray--fix-moment--hover',
+				),
+			),
+		),
+		'navbar-bg' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_BG'),
+			'property' => 'background-color',
+			'type' => 'palette',
+			'pseudo-class' => '::after',	//hack. not delete!
+			'items' => array(
+				array('name' => 'u-navbar-bg-primary', 'value' => 'u-navbar-bg-primary'),
+				array('name' => 'u-navbar-bg-main', 'value' => 'u-navbar-bg-main'),
+				array('name' => 'u-navbar-bg-black', 'value' => 'u-navbar-bg-black'),
+				array('name' => 'u-navbar-bg-white', 'value' => 'u-navbar-bg-white'),
+				array('name' => 'u-navbar-bg-gray-light-v1', 'value' => 'u-navbar-bg-gray-light-v1'),
+				array('name' => 'u-navbar-bg-gray-light-v2', 'value' => 'u-navbar-bg-gray-light-v2'),
+				array('name' => 'u-navbar-bg-gray-light-v3', 'value' => 'u-navbar-bg-gray-light-v3'),
+				array('name' => 'u-navbar-bg-gray-light-v4', 'value' => 'u-navbar-bg-gray-light-v4'),
+				array('name' => 'u-navbar-bg-gray-light-v5', 'value' => 'u-navbar-bg-gray-light-v5'),
+				array('name' => 'u-navbar-bg-gray-dark-v1', 'value' => 'u-navbar-bg-gray-dark-v1'),
+				array('name' => 'u-navbar-bg-gray-dark-v2', 'value' => 'u-navbar-bg-gray-dark-v2'),
+				array('name' => 'u-navbar-bg-gray-dark-v3', 'value' => 'u-navbar-bg-gray-dark-v3'),
+				array('name' => 'u-navbar-bg-gray-dark-v4', 'value' => 'u-navbar-bg-gray-dark-v4'),
+				array('name' => 'u-navbar-bg-gray-dark-v5', 'value' => 'u-navbar-bg-gray-dark-v5'),
+				array('name' => 'u-navbar-bg-green', 'value' => 'u-navbar-bg-green'),
+				array('name' => 'u-navbar-bg-blue', 'value' => 'u-navbar-bg-blue'),
+				array('name' => 'u-navbar-bg-blue-dark-v1', 'value' => 'u-navbar-bg-blue-dark-v1'),
+				array('name' => 'u-navbar-bg-lightblue', 'value' => 'u-navbar-bg-lightblue'),
+				array('name' => 'u-navbar-bg-lightblue-v1', 'value' => 'u-navbar-bg-lightblue-v1'),
+				array('name' => 'u-navbar-bg-darkblue', 'value' => 'u-navbar-bg-darkblue'),
+				array('name' => 'u-navbar-bg-indigo', 'value' => 'u-navbar-bg-indigo'),
+				array('name' => 'u-navbar-bg-red', 'value' => 'u-navbar-bg-red'),
+				array('name' => 'u-navbar-bg-lightred', 'value' => 'u-navbar-bg-lightred'),
+				array('name' => 'u-navbar-bg-darkred', 'value' => 'u-navbar-bg-darkred'),
+				array('name' => 'u-navbar-bg-purple', 'value' => 'u-navbar-bg-purple'),
+				array('name' => 'u-navbar-bg-darkpurple', 'value' => 'u-navbar-bg-darkpurple'),
+				array('name' => 'u-navbar-bg-pink', 'value' => 'u-navbar-bg-pink'),
+				array('name' => 'u-navbar-bg-pink-dark-v1', 'value' => 'u-navbar-bg-pink-dark-v1'),
+				array('name' => 'u-navbar-bg-orange', 'value' => 'u-navbar-bg-orange'),
+				array('name' => 'u-navbar-bg-deeporange', 'value' => 'u-navbar-bg-deeporange'),
+				array('name' => 'u-navbar-bg-yellow', 'value' => 'u-navbar-bg-yellow'),
+				array('name' => 'u-navbar-bg-aqua', 'value' => 'u-navbar-bg-aqua'),
+				array('name' => 'u-navbar-bg-aqua-dark-v1', 'value' => 'u-navbar-bg-aqua-dark-v1'),
+				array('name' => 'u-navbar-bg-cyan', 'value' => 'u-navbar-bg-cyan'),
+				array('name' => 'u-navbar-bg-teal', 'value' => 'u-navbar-bg-teal'),
+				array('name' => 'u-navbar-bg-brown', 'value' => 'u-navbar-bg-brown'),
+				array('name' => 'u-navbar-bg-bluegray', 'value' => 'u-navbar-bg-bluegray'),
+				array('name' => 'u-navbar-bg-transparent', 'value' => 'u-navbar-bg-transparent'),
+			),
+		),
+		'navbar-bg-hover' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_BG_HOVER'),
+			'property' => 'background-color',
+			'type' => 'palette',
+			'pseudo-class' => '::after',	//hack. not delete!
+			'items' => array(
+				array('name' => 'u-navbar-bg-primary--hover', 'value' => 'u-navbar-bg-primary--hover'),
+				array('name' => 'u-navbar-bg-main--hover', 'value' => 'u-navbar-bg-main--hover'),
+				array('name' => 'u-navbar-bg-black--hover', 'value' => 'u-navbar-bg-black--hover'),
+				array('name' => 'u-navbar-bg-white--hover', 'value' => 'u-navbar-bg-white--hover'),
+				array('name' => 'u-navbar-bg-gray-light-v1--hover', 'value' => 'u-navbar-bg-gray-light-v1--hover'),
+				array('name' => 'u-navbar-bg-gray-light-v2--hover', 'value' => 'u-navbar-bg-gray-light-v2--hover'),
+				array('name' => 'u-navbar-bg-gray-light-v3--hover', 'value' => 'u-navbar-bg-gray-light-v3--hover'),
+				array('name' => 'u-navbar-bg-gray-light-v4--hover', 'value' => 'u-navbar-bg-gray-light-v4--hover'),
+				array('name' => 'u-navbar-bg-gray-light-v5--hover', 'value' => 'u-navbar-bg-gray-light-v5--hover'),
+				array('name' => 'u-navbar-bg-gray-dark-v1--hover', 'value' => 'u-navbar-bg-gray-dark-v1--hover'),
+				array('name' => 'u-navbar-bg-gray-dark-v2--hover', 'value' => 'u-navbar-bg-gray-dark-v2--hover'),
+				array('name' => 'u-navbar-bg-gray-dark-v3--hover', 'value' => 'u-navbar-bg-gray-dark-v3--hover'),
+				array('name' => 'u-navbar-bg-gray-dark-v4--hover', 'value' => 'u-navbar-bg-gray-dark-v4--hover'),
+				array('name' => 'u-navbar-bg-gray-dark-v5--hover', 'value' => 'u-navbar-bg-gray-dark-v5--hover'),
+				array('name' => 'u-navbar-bg-green--hover', 'value' => 'u-navbar-bg-green--hover'),
+				array('name' => 'u-navbar-bg-blue--hover', 'value' => 'u-navbar-bg-blue--hover'),
+				array('name' => 'u-navbar-bg-blue-dark-v1--hover', 'value' => 'u-navbar-bg-blue-dark-v1--hover'),
+				array('name' => 'u-navbar-bg-lightblue--hover', 'value' => 'u-navbar-bg-lightblue--hover'),
+				array('name' => 'u-navbar-bg-lightblue-v1--hover', 'value' => 'u-navbar-bg-lightblue-v1--hover'),
+				array('name' => 'u-navbar-bg-darkblue--hover', 'value' => 'u-navbar-bg-darkblue--hover'),
+				array('name' => 'u-navbar-bg-indigo--hover', 'value' => 'u-navbar-bg-indigo--hover'),
+				array('name' => 'u-navbar-bg-red--hover', 'value' => 'u-navbar-bg-red--hover'),
+				array('name' => 'u-navbar-bg-lightred--hover', 'value' => 'u-navbar-bg-lightred--hover'),
+				array('name' => 'u-navbar-bg-darkred--hover', 'value' => 'u-navbar-bg-darkred--hover'),
+				array('name' => 'u-navbar-bg-purple--hover', 'value' => 'u-navbar-bg-purple--hover'),
+				array('name' => 'u-navbar-bg-darkpurple--hover', 'value' => 'u-navbar-bg-darkpurple--hover'),
+				array('name' => 'u-navbar-bg-pink--hover', 'value' => 'u-navbar-bg-pink--hover'),
+				array('name' => 'u-navbar-bg-pink-dark-v1--hover', 'value' => 'u-navbar-bg-pink-dark-v1--hover'),
+				array('name' => 'u-navbar-bg-orange--hover', 'value' => 'u-navbar-bg-orange--hover'),
+				array('name' => 'u-navbar-bg-deeporange--hover', 'value' => 'u-navbar-bg-deeporange--hover'),
+				array('name' => 'u-navbar-bg-yellow--hover', 'value' => 'u-navbar-bg-yellow--hover'),
+				array('name' => 'u-navbar-bg-aqua--hover', 'value' => 'u-navbar-bg-aqua--hover'),
+				array('name' => 'u-navbar-bg-aqua-dark-v1--hover', 'value' => 'u-navbar-bg-aqua-dark-v1--hover'),
+				array('name' => 'u-navbar-bg-cyan--hover', 'value' => 'u-navbar-bg-cyan--hover'),
+				array('name' => 'u-navbar-bg-teal--hover', 'value' => 'u-navbar-bg-teal--hover'),
+				array('name' => 'u-navbar-bg-brown--hover', 'value' => 'u-navbar-bg-brown--hover'),
+				array('name' => 'u-navbar-bg-bluegray--hover', 'value' => 'u-navbar-bg-bluegray--hover'),
+				array('name' => 'u-navbar-bg-transparent--hover', 'value' => 'u-navbar-bg-transparent--hover'),
+			),
 		),
 		'navbar-align' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_NAVBAR_ALIGN'),
 			'property' => 'text-align',
 			'type' => 'buttons',
 			'items' => array(
-				array('name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>', 'value' => 'u-navbar-align-left'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>', 'value' => 'u-navbar-align-center'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-around"><em></em></span>', 'value' => 'u-navbar-align-around'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>', 'value' => 'u-navbar-align-right')
-			)
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-left"><em></em></span>',
+					'value' => 'u-navbar-align-left',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-center"><em></em></span>',
+					'value' => 'u-navbar-align-center',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-around"><em></em></span>',
+					'value' => 'u-navbar-align-around',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-right"><em></em></span>',
+					'value' => 'u-navbar-align-right',
+				),
+			),
 		),
 		'border-color' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BORDER_COLOR'),
@@ -891,9 +1274,9 @@ return array(
 			'items' => array(
 				array('name' => 'g-brd-primary', 'value' => 'g-brd-primary'),
 				array('name' => 'g-brd-primary-opacity-0_3', 'value' => 'g-brd-primary-opacity-0_3'),
-				array('name' => 'g-brd-primary-dark-dark-v1', 'value' => 'g-brd-primary-dark-dark-v1'),
-				array('name' => 'g-brd-primary-dark-dark-v2', 'value' => 'g-brd-primary-dark-dark-v2'),
-				array('name' => 'g-brd-primary-dark-dark-v3', 'value' => 'g-brd-primary-dark-dark-v3'),
+				array('name' => 'g-brd-primary-dark-v1', 'value' => 'g-brd-primary-dark-v1'),
+				array('name' => 'g-brd-primary-dark-v2', 'value' => 'g-brd-primary-dark-v2'),
+				array('name' => 'g-brd-primary-dark-v3', 'value' => 'g-brd-primary-dark-v3'),
 				array('name' => 'g-brd-main', 'value' => 'g-brd-main'),
 				array('name' => 'g-brd-black', 'value' => 'g-brd-black'),
 				array('name' => 'g-brd-black-opacity-0_1', 'value' => 'g-brd-black-opacity-0_1'),
@@ -941,9 +1324,68 @@ return array(
 				array('name' => 'g-brd-teal', 'value' => 'g-brd-teal'),
 				array('name' => 'g-brd-brown', 'value' => 'g-brd-brown'),
 				array('name' => 'g-brd-bluegray', 'value' => 'g-brd-bluegray'),
-				array('name' => 'g-brd-pinterest', 'value' => 'g-brd-pinterest'),
-				array('name' => 'g-brd-cyan-gradient-opacity-v1', 'value' => 'g-brd-cyan-gradient-opacity-v1'),
-			)
+				array('name' => 'g-theme-bitrix-brd-v3', 'value' => 'g-theme-bitrix-brd-v3'),
+
+			),
+		),
+		'border-top-color' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BORDER_TOP_COLOR'),
+			'property' => 'border-top-color',
+			'type' => 'palette',
+			'items' => array(
+				array('name' => 'g-brd-top-primary', 'value' => 'g-brd-primary-top'),
+				array('name' => 'g-brd-top-primary-opacity-0_3', 'value' => 'g-brd-primary-opacity-0_3-top'),
+				array('name' => 'g-brd-top-primary-dark-v1', 'value' => 'g-brd-primary-dark-v1-top'),
+				array('name' => 'g-brd-top-primary-dark-v2', 'value' => 'g-brd-primary-dark-v2-top'),
+				array('name' => 'g-brd-top-primary-dark-v3', 'value' => 'g-brd-primary-dark-v3-top'),
+				array('name' => 'g-brd-top-main', 'value' => 'g-brd-main-top'),
+				array('name' => 'g-brd-top-black', 'value' => 'g-brd-black-top'),
+				array('name' => 'g-brd-top-black-opacity-0_1', 'value' => 'g-brd-black-opacity-0_1-top'),
+				array('name' => 'g-brd-top-black-opacity-0_2', 'value' => 'g-brd-black-opacity-0_2-top'),
+				array('name' => 'g-brd-top-black-opacity-0_3', 'value' => 'g-brd-black-opacity-0_3-top'),
+				array('name' => 'g-brd-top-black-opacity-0_4', 'value' => 'g-brd-black-opacity-0_4-top'),
+				array('name' => 'g-brd-top-black-opacity-0_5', 'value' => 'g-brd-black-opacity-0_5-top'),
+				array('name' => 'g-brd-top-black-opacity-0_6', 'value' => 'g-brd-black-opacity-0_6-top'),
+				array('name' => 'g-brd-top-black-opacity-0_8', 'value' => 'g-brd-black-opacity-0_8-top'),
+				array('name' => 'g-brd-top-white', 'value' => 'g-brd-white-top'),
+				array('name' => 'g-brd-top-white-opacity-0_1', 'value' => 'g-brd-white-opacity-0_1-top'),
+				array('name' => 'g-brd-top-white-opacity-0_2', 'value' => 'g-brd-white-opacity-0_2-top'),
+				array('name' => 'g-brd-top-white-opacity-0_3', 'value' => 'g-brd-white-opacity-0_3-top'),
+				array('name' => 'g-brd-top-white-opacity-0_4', 'value' => 'g-brd-white-opacity-0_4-top'),
+				array('name' => 'g-brd-top-white-opacity-0_5', 'value' => 'g-brd-white-opacity-0_5-top'),
+				array('name' => 'g-brd-top-white-opacity-0_6', 'value' => 'g-brd-white-opacity-0_6-top'),
+				array('name' => 'g-brd-top-white-opacity-0_8', 'value' => 'g-brd-white-opacity-0_8-top'),
+				array('name' => 'g-brd-top-gray-dark-v1', 'value' => 'g-brd-gray-dark-v1-top'),
+				array('name' => 'g-brd-top-gray-dark-v2', 'value' => 'g-brd-gray-dark-v2-top'),
+				array('name' => 'g-brd-top-gray-dark-v3', 'value' => 'g-brd-gray-dark-v3-top'),
+				array('name' => 'g-brd-top-gray-dark-v4', 'value' => 'g-brd-gray-dark-v4-top'),
+				array('name' => 'g-brd-top-gray-dark-v5', 'value' => 'g-brd-gray-dark-v5-top'),
+				array('name' => 'g-brd-top-gray-light-v1', 'value' => 'g-brd-gray-light-v1-top'),
+				array('name' => 'g-brd-top-gray-light-v2', 'value' => 'g-brd-gray-light-v2-top'),
+				array('name' => 'g-brd-top-gray-light-v3', 'value' => 'g-brd-gray-light-v3-top'),
+				array('name' => 'g-brd-top-gray-light-v4', 'value' => 'g-brd-gray-light-v4-top'),
+				array('name' => 'g-brd-top-gray-light-v5', 'value' => 'g-brd-gray-light-v5-top'),
+				array('name' => 'g-brd-top-transparent', 'value' => 'g-brd-transparent-top'),
+				array('name' => 'g-brd-top-green', 'value' => 'g-brd-green-top'),
+				array('name' => 'g-brd-top-blue', 'value' => 'g-brd-blue-top'),
+				array('name' => 'g-brd-top-lightblue', 'value' => 'g-brd-lightblue-top'),
+				array('name' => 'g-brd-top-darkblue', 'value' => 'g-brd-darkblue-top'),
+				array('name' => 'g-brd-top-indigo', 'value' => 'g-brd-indigo-top'),
+				array('name' => 'g-brd-top-purple', 'value' => 'g-brd-purple-top'),
+				array('name' => 'g-brd-top-darkpurple', 'value' => 'g-brd-darkpurple-top'),
+				array('name' => 'g-brd-top-pink', 'value' => 'g-brd-pink-top'),
+				array('name' => 'g-brd-top-red', 'value' => 'g-brd-red-top'),
+				array('name' => 'g-brd-top-lightred', 'value' => 'g-brd-lightred-top'),
+				array('name' => 'g-brd-top-darkred', 'value' => 'g-brd-darkred-top'),
+				array('name' => 'g-brd-top-orange', 'value' => 'g-brd-orange-top'),
+				array('name' => 'g-brd-top-deeporange', 'value' => 'g-brd-deeporange-top'),
+				array('name' => 'g-brd-top-yellow', 'value' => 'g-brd-yellow-top'),
+				array('name' => 'g-brd-top-aqua', 'value' => 'g-brd-aqua-top'),
+				array('name' => 'g-brd-top-cyan', 'value' => 'g-brd-cyan-top'),
+				array('name' => 'g-brd-top-teal', 'value' => 'g-brd-teal-top'),
+				array('name' => 'g-brd-top-brown', 'value' => 'g-brd-brown-top'),
+				array('name' => 'g-brd-top-bluegray', 'value' => 'g-brd-bluegray-top'),
+			),
 		),
 		'border-radius' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BORDER_RADIUS'),
@@ -965,7 +1407,7 @@ return array(
 				array('name' => '30', 'value' => 'g-rounded-30'),
 				array('name' => '50', 'value' => 'g-rounded-50'),
 				array('name' => '50%', 'value' => 'g-rounded-50x'),
-			)
+			),
 		),
 		'border-width' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_BORDER_WIDTH'),
@@ -983,7 +1425,7 @@ return array(
 				array('name' => '10', 'value' => 'g-brd-10'),
 				array('name' => '12', 'value' => 'g-brd-12'),
 				array('name' => '15', 'value' => 'g-brd-15'),
-			)
+			),
 		),
 		'box-shadow' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW'),
@@ -991,44 +1433,45 @@ return array(
 			'type' => 'list',
 			'items' => array(
 				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_WITHOUT_SHADOW'), 'value' => 'g-box-shadow-none'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 1", 'value' => 'u-shadow-v1-1'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 2", 'value' => 'u-shadow-v1-2'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 3", 'value' => 'u-shadow-v1-3'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 4", 'value' => 'u-shadow-v1-4'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 5", 'value' => 'u-shadow-v1-5'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 6", 'value' => 'u-shadow-v1-6'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 7", 'value' => 'u-shadow-v1-7'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 8", 'value' => 'u-shadow-v6'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 9", 'value' => 'u-shadow-v7'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 10", 'value' => 'u-shadow-v8'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 11", 'value' => 'u-shadow-v9'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 12", 'value' => 'u-shadow-v10'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 13", 'value' => 'u-shadow-v11'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 14", 'value' => 'u-shadow-v12'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 15", 'value' => 'u-shadow-v13'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 16", 'value' => 'u-shadow-v14'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 17", 'value' => 'u-shadow-v15'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 18", 'value' => 'u-shadow-v16'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 19", 'value' => 'u-shadow-v17'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 20", 'value' => 'u-shadow-v18'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 21", 'value' => 'u-shadow-v19'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 22", 'value' => 'u-shadow-v20'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 23", 'value' => 'u-shadow-v21'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 24", 'value' => 'u-shadow-v22'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 25", 'value' => 'u-shadow-v23'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 26", 'value' => 'u-shadow-v24'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 27", 'value' => 'u-shadow-v25'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 28", 'value' => 'u-shadow-v26'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 29", 'value' => 'u-shadow-v27'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 30", 'value' => 'u-shadow-v28'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 31", 'value' => 'u-shadow-v29'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 32", 'value' => 'u-shadow-v30'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 33", 'value' => 'u-shadow-v31'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 34", 'value' => 'u-shadow-v32'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 35", 'value' => 'u-shadow-v33'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 36", 'value' => 'u-shadow-v34'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 37", 'value' => 'u-shadow-v35'),
-			)
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 1", 'value' => 'u-shadow-v1-1'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 2", 'value' => 'u-shadow-v1-2'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 3", 'value' => 'u-shadow-v1-3'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 4", 'value' => 'u-shadow-v1-4'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 5", 'value' => 'u-shadow-v1-5'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 6", 'value' => 'u-shadow-v1-6'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 7", 'value' => 'u-shadow-v1-7'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 8", 'value' => 'u-shadow-v6'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 9", 'value' => 'u-shadow-v7'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 10", 'value' => 'u-shadow-v8'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 11", 'value' => 'u-shadow-v9'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 12", 'value' => 'u-shadow-v10'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 13", 'value' => 'u-shadow-v11'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 14", 'value' => 'u-shadow-v12'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 15", 'value' => 'u-shadow-v13'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 16", 'value' => 'u-shadow-v14'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 17", 'value' => 'u-shadow-v15'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 18", 'value' => 'u-shadow-v16'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 19", 'value' => 'u-shadow-v17'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 20", 'value' => 'u-shadow-v18'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 21", 'value' => 'u-shadow-v19'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 22", 'value' => 'u-shadow-v20'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 23", 'value' => 'u-shadow-v21'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 24", 'value' => 'u-shadow-v22'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 25", 'value' => 'u-shadow-v23'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 26", 'value' => 'u-shadow-v24'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 27", 'value' => 'u-shadow-v25'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 28", 'value' => 'u-shadow-v26'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 29", 'value' => 'u-shadow-v27'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 30", 'value' => 'u-shadow-v28'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 31", 'value' => 'u-shadow-v29'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 32", 'value' => 'u-shadow-v30'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 33", 'value' => 'u-shadow-v31'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 34", 'value' => 'u-shadow-v32'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 35", 'value' => 'u-shadow-v33'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 36", 'value' => 'u-shadow-v34'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 37", 'value' => 'u-shadow-v35'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 38", 'value' => 'u-shadow-custom-v1'),
+			),
 		),
 		'text-shadow' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_TEXT_SHADOW'),
@@ -1036,18 +1479,40 @@ return array(
 			'type' => 'list',
 			'items' => array(
 				array('name' => Loc::getMessage('LANDING_TEXT_STYLE_WITHOUT_SHADOW'), 'value' => 'g-text-shadow-none'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 1", 'value' => 'custom-text-shadow-1'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 2", 'value' => 'custom-text-shadow-2'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 3", 'value' => 'custom-text-shadow-3'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 4", 'value' => 'custom-text-shadow-4'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 5", 'value' => 'custom-text-shadow-5'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 6", 'value' => 'custom-text-shadow-6'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 7", 'value' => 'custom-text-shadow-7'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 8", 'value' => 'custom-text-shadow-8'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 9", 'value' => 'custom-text-shadow-9'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 10", 'value' => 'custom-text-shadow-10'),
-				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME')." 11", 'value' => 'custom-text-shadow-11')
-			)
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 1", 'value' => 'custom-text-shadow-1',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 2", 'value' => 'custom-text-shadow-2',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 3", 'value' => 'custom-text-shadow-3',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 4", 'value' => 'custom-text-shadow-4',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 5", 'value' => 'custom-text-shadow-5',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 6", 'value' => 'custom-text-shadow-6',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 7", 'value' => 'custom-text-shadow-7',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 8", 'value' => 'custom-text-shadow-8',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 9", 'value' => 'custom-text-shadow-9',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 10", 'value' => 'custom-text-shadow-10',
+				),
+				array(
+					'name' => Loc::getMessage('LANDING_BLOCK_STYLE_SHADOW_NAME') . " 11", 'value' => 'custom-text-shadow-11',
+				),
+			),
 		),
 		'opacity' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_OPACITY'),
@@ -1062,18 +1527,24 @@ return array(
 				array('name' => '60%', 'value' => 'g-opacity-0_4'),
 				array('name' => '70%', 'value' => 'g-opacity-0_3'),
 				array('name' => '100%', 'value' => 'opacity-0'),
-			)
+			),
 		),
 		'padding-top' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_PADDING_TOP'),
 			'property' => 'padding-top',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-pt-auto'),
 				array('name' => '0', 'value' => 'g-pt-0'),
+				array('name' => '1', 'value' => 'g-pt-1'),
 				array('name' => '2', 'value' => 'g-pt-2'),
 				array('name' => '3', 'value' => 'g-pt-3'),
+				array('name' => '4', 'value' => 'g-pt-4'),
 				array('name' => '5', 'value' => 'g-pt-5'),
+				array('name' => '6', 'value' => 'g-pt-6'),
 				array('name' => '7', 'value' => 'g-pt-7'),
+				array('name' => '8', 'value' => 'g-pt-8'),
+				array('name' => '9', 'value' => 'g-pt-9'),
 				array('name' => '10', 'value' => 'g-pt-10'),
 				array('name' => '14', 'value' => 'g-pt-14'),
 				array('name' => '15', 'value' => 'g-pt-15'),
@@ -1103,19 +1574,25 @@ return array(
 				array('name' => '135', 'value' => 'g-pt-135'),
 				array('name' => '140', 'value' => 'g-pt-140'),
 				array('name' => '145', 'value' => 'g-pt-145'),
-				array('name' => '150', 'value' => 'g-pt-150')
-			)
+				array('name' => '150', 'value' => 'g-pt-150'),
+			),
 		),
 		'padding-bottom' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_PADDING_BOTTOM'),
 			'property' => 'padding-bottom',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-pb-auto'),
 				array('name' => '0', 'value' => 'g-pb-0'),
+				array('name' => '1', 'value' => 'g-pb-1'),
 				array('name' => '2', 'value' => 'g-pb-2'),
 				array('name' => '3', 'value' => 'g-pb-3'),
+				array('name' => '4', 'value' => 'g-pb-4'),
 				array('name' => '5', 'value' => 'g-pb-5'),
+				array('name' => '6', 'value' => 'g-pb-6'),
 				array('name' => '7', 'value' => 'g-pb-7'),
+				array('name' => '8', 'value' => 'g-pb-8'),
+				array('name' => '9', 'value' => 'g-pb-9'),
 				array('name' => '10', 'value' => 'g-pb-10'),
 				array('name' => '14', 'value' => 'g-pb-14'),
 				array('name' => '15', 'value' => 'g-pb-15'),
@@ -1145,14 +1622,15 @@ return array(
 				array('name' => '135', 'value' => 'g-pb-135'),
 				array('name' => '140', 'value' => 'g-pb-140'),
 				array('name' => '145', 'value' => 'g-pb-145'),
-				array('name' => '150', 'value' => 'g-pb-150')
-			)
+				array('name' => '150', 'value' => 'g-pb-150'),
+			),
 		),
 		'padding-left' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_PADDING_LEFT'),
 			'property' => 'padding-left',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-pl-auto'),
 				array('name' => '0', 'value' => 'g-pl-0'),
 				array('name' => '1', 'value' => 'g-pl-1'),
 				array('name' => '2', 'value' => 'g-pl-2'),
@@ -1195,14 +1673,15 @@ return array(
 				array('name' => '155', 'value' => 'g-pl-155'),
 				array('name' => '160', 'value' => 'g-pl-160'),
 				array('name' => '165', 'value' => 'g-pl-165'),
-				array('name' => '170', 'value' => 'g-pl-170')
-			)
+				array('name' => '170', 'value' => 'g-pl-170'),
+			),
 		),
 		'padding-right' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_PADDING_RIGHT'),
 			'property' => 'padding-right',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-pr-auto'),
 				array('name' => '0', 'value' => 'g-pr-0'),
 				array('name' => '1', 'value' => 'g-pr-1'),
 				array('name' => '2', 'value' => 'g-pr-2'),
@@ -1245,14 +1724,17 @@ return array(
 				array('name' => '155', 'value' => 'g-pr-155'),
 				array('name' => '160', 'value' => 'g-pr-160'),
 				array('name' => '165', 'value' => 'g-pr-165'),
-				array('name' => '170', 'value' => 'g-pr-170')
-			)
+				array('name' => '170', 'value' => 'g-pr-170'),
+			),
 		),
 		'margin-top' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_MARGIN_TOP'),
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_MARGIN_TOP_1'),
 			'property' => 'margin-top',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-mt-auto'),
+				array('name' => '-10', 'value' => 'g-mt-minus-10'),
+				array('name' => '-5', 'value' => 'g-mt-minus-5'),
 				array('name' => '0', 'value' => 'g-mt-0'),
 				array('name' => '1', 'value' => 'g-mt-1'),
 				array('name' => '2', 'value' => 'g-mt-2'),
@@ -1295,14 +1777,17 @@ return array(
 				array('name' => '155', 'value' => 'g-mt-155'),
 				array('name' => '160', 'value' => 'g-mt-160'),
 				array('name' => '165', 'value' => 'g-mt-165'),
-				array('name' => '170', 'value' => 'g-mt-170')
-			)
+				array('name' => '170', 'value' => 'g-mt-170'),
+			),
 		),
 		'margin-bottom' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_MARGIN_BOTTOM'),
 			'property' => 'margin-bottom',
 			'type' => 'slider',
 			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-mb-auto'),
+				array('name' => '-10', 'value' => 'g-mb-minus-10'),
+				array('name' => '-5', 'value' => 'g-mb-minus-5'),
 				array('name' => '0', 'value' => 'g-mb-0'),
 				array('name' => '1', 'value' => 'g-mb-1'),
 				array('name' => '2', 'value' => 'g-mb-2'),
@@ -1345,8 +1830,114 @@ return array(
 				array('name' => '155', 'value' => 'g-mb-155'),
 				array('name' => '160', 'value' => 'g-mb-160'),
 				array('name' => '165', 'value' => 'g-mb-165'),
-				array('name' => '170', 'value' => 'g-mb-170')
-			)
+				array('name' => '170', 'value' => 'g-mb-170'),
+			),
+		),
+		'margin-left' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_MARGIN_LEFT'),
+			'property' => 'margin-left',
+			'type' => 'slider',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-ml-auto'),
+				array('name' => '-10', 'value' => 'g-ml-minus-10'),
+				array('name' => '-5', 'value' => 'g-ml-minus-5'),
+				array('name' => '0', 'value' => 'g-ml-0'),
+				array('name' => '1', 'value' => 'g-ml-1'),
+				array('name' => '2', 'value' => 'g-ml-2'),
+				array('name' => '3', 'value' => 'g-ml-3'),
+				array('name' => '4', 'value' => 'g-ml-4'),
+				array('name' => '5', 'value' => 'g-ml-5'),
+				array('name' => '6', 'value' => 'g-ml-6'),
+				array('name' => '7', 'value' => 'g-ml-7'),
+				array('name' => '8', 'value' => 'g-ml-8'),
+				array('name' => '9', 'value' => 'g-ml-9'),
+				array('name' => '10', 'value' => 'g-ml-10'),
+				array('name' => '15', 'value' => 'g-ml-15'),
+				array('name' => '20', 'value' => 'g-ml-20'),
+				array('name' => '25', 'value' => 'g-ml-25'),
+				array('name' => '30', 'value' => 'g-ml-30'),
+				array('name' => '35', 'value' => 'g-ml-35'),
+				array('name' => '40', 'value' => 'g-ml-40'),
+				array('name' => '45', 'value' => 'g-ml-45'),
+				array('name' => '50', 'value' => 'g-ml-50'),
+				array('name' => '55', 'value' => 'g-ml-55'),
+				array('name' => '60', 'value' => 'g-ml-60'),
+				array('name' => '65', 'value' => 'g-ml-65'),
+				array('name' => '70', 'value' => 'g-ml-70'),
+				array('name' => '75', 'value' => 'g-ml-75'),
+				array('name' => '80', 'value' => 'g-ml-80'),
+				array('name' => '85', 'value' => 'g-ml-85'),
+				array('name' => '90', 'value' => 'g-ml-90'),
+				array('name' => '95', 'value' => 'g-ml-95'),
+				array('name' => '100', 'value' => 'g-ml-100'),
+				array('name' => '105', 'value' => 'g-ml-105'),
+				array('name' => '110', 'value' => 'g-ml-110'),
+				array('name' => '115', 'value' => 'g-ml-115'),
+				array('name' => '120', 'value' => 'g-ml-120'),
+				array('name' => '125', 'value' => 'g-ml-125'),
+				array('name' => '130', 'value' => 'g-ml-130'),
+				array('name' => '135', 'value' => 'g-ml-135'),
+				array('name' => '140', 'value' => 'g-ml-140'),
+				array('name' => '145', 'value' => 'g-ml-145'),
+				array('name' => '150', 'value' => 'g-ml-150'),
+				array('name' => '155', 'value' => 'g-ml-155'),
+				array('name' => '160', 'value' => 'g-ml-160'),
+				array('name' => '165', 'value' => 'g-ml-165'),
+				array('name' => '170', 'value' => 'g-ml-170'),
+			),
+		),
+		'margin-right' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_MARGIN_RIGHT'),
+			'property' => 'margin-right',
+			'type' => 'slider',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_STYLE_AUTO'), 'value' => 'g-mr-auto'),
+				array('name' => '-10', 'value' => 'g-mr-minus-10'),
+				array('name' => '-5', 'value' => 'g-mr-minus-5'),
+				array('name' => '0', 'value' => 'g-mr-0'),
+				array('name' => '1', 'value' => 'g-mr-1'),
+				array('name' => '2', 'value' => 'g-mr-2'),
+				array('name' => '3', 'value' => 'g-mr-3'),
+				array('name' => '4', 'value' => 'g-mr-4'),
+				array('name' => '5', 'value' => 'g-mr-5'),
+				array('name' => '6', 'value' => 'g-mr-6'),
+				array('name' => '7', 'value' => 'g-mr-7'),
+				array('name' => '8', 'value' => 'g-mr-8'),
+				array('name' => '9', 'value' => 'g-mr-9'),
+				array('name' => '10', 'value' => 'g-mr-10'),
+				array('name' => '15', 'value' => 'g-mr-15'),
+				array('name' => '20', 'value' => 'g-mr-20'),
+				array('name' => '25', 'value' => 'g-mr-25'),
+				array('name' => '30', 'value' => 'g-mr-30'),
+				array('name' => '35', 'value' => 'g-mr-35'),
+				array('name' => '40', 'value' => 'g-mr-40'),
+				array('name' => '45', 'value' => 'g-mr-45'),
+				array('name' => '50', 'value' => 'g-mr-50'),
+				array('name' => '55', 'value' => 'g-mr-55'),
+				array('name' => '60', 'value' => 'g-mr-60'),
+				array('name' => '65', 'value' => 'g-mr-65'),
+				array('name' => '70', 'value' => 'g-mr-70'),
+				array('name' => '75', 'value' => 'g-mr-75'),
+				array('name' => '80', 'value' => 'g-mr-80'),
+				array('name' => '85', 'value' => 'g-mr-85'),
+				array('name' => '90', 'value' => 'g-mr-90'),
+				array('name' => '95', 'value' => 'g-mr-95'),
+				array('name' => '100', 'value' => 'g-mr-100'),
+				array('name' => '105', 'value' => 'g-mr-105'),
+				array('name' => '110', 'value' => 'g-mr-110'),
+				array('name' => '115', 'value' => 'g-mr-115'),
+				array('name' => '120', 'value' => 'g-mr-120'),
+				array('name' => '125', 'value' => 'g-mr-125'),
+				array('name' => '130', 'value' => 'g-mr-130'),
+				array('name' => '135', 'value' => 'g-mr-135'),
+				array('name' => '140', 'value' => 'g-mr-140'),
+				array('name' => '145', 'value' => 'g-mr-145'),
+				array('name' => '150', 'value' => 'g-mr-150'),
+				array('name' => '155', 'value' => 'g-mr-155'),
+				array('name' => '160', 'value' => 'g-mr-160'),
+				array('name' => '165', 'value' => 'g-mr-165'),
+				array('name' => '170', 'value' => 'g-mr-170'),
+			),
 		),
 		'height-vh' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_HEIGHT_VH'),
@@ -1365,7 +1956,7 @@ return array(
 				array('name' => '90%', 'value' => 'g-min-height-90vh'),
 				array('name' => '95%', 'value' => 'g-min-height-95vh'),
 				array('name' => '100%', 'value' => 'g-min-height-100vh'),
-			)
+			),
 		),
 		'columns' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_COLUMNS_ON_ROW'),
@@ -1377,8 +1968,8 @@ return array(
 				array('name' => '3', 'value' => 'col-lg-4'),
 				array('name' => '4', 'value' => 'col-lg-3'),
 				array('name' => '6', 'value' => 'col-lg-2'),
-				array('name' => '12', 'value' => 'col-lg-1')
-			)
+				array('name' => '12', 'value' => 'col-lg-1'),
+			),
 		),
 		'display' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_DEVICE_DISPLAY'),
@@ -1387,8 +1978,8 @@ return array(
 			'items' => array(
 				array('name' => '<span class="landing-ui-button-desktop"></span>', 'value' => 'l-d-lg-none'),
 				array('name' => '<span class="landing-ui-button-tablet"></span>', 'value' => 'l-d-md-none'),
-				array('name' => '<span class="landing-ui-button-mobile"></span>', 'value' => 'l-d-xs-none')
-			)
+				array('name' => '<span class="landing-ui-button-mobile"></span>', 'value' => 'l-d-xs-none'),
+			),
 		),
 		'button-color' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_COLOR_BUTTON'),
@@ -1400,6 +1991,8 @@ return array(
 				array('name' => 'u-btn-white', 'value' => 'u-btn-white'),
 				array('name' => 'u-btn-black', 'value' => 'u-btn-black'),
 				array('name' => 'u-btn-darkgray', 'value' => 'u-btn-darkgray'),
+				array('name' => 'u-btn-gray', 'value' => 'u-btn-gray'),
+				array('name' => 'u-btn-lightgray', 'value' => 'u-btn-lightgray'),
 				array('name' => 'u-btn-red', 'value' => 'u-btn-red'),
 				array('name' => 'u-btn-lightred', 'value' => 'u-btn-lightred'),
 				array('name' => 'u-btn-darkred', 'value' => 'u-btn-darkred'),
@@ -1417,8 +2010,9 @@ return array(
 				array('name' => 'u-btn-brown', 'value' => 'u-btn-brown'),
 				array('name' => 'u-btn-bluegray', 'value' => 'u-btn-bluegray'),
 				array('name' => 'u-btn-facebook', 'value' => 'u-btn-facebook'),
-				array('name' => 'u-btn-twitter', 'value' => 'u-btn-twitter')
-			)
+				array('name' => 'u-btn-twitter', 'value' => 'u-btn-twitter'),
+				array('name' => 'u-theme-bitrix-btn-v4', 'value' => 'u-theme-bitrix-btn-v4'),
+			),
 		),
 		'button-outline-color' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_COLOR_BUTTON_OUTLINE'),
@@ -1430,6 +2024,8 @@ return array(
 				array('name' => 'u-btn-outline-white', 'value' => 'u-btn-outline-white'),
 				array('name' => 'u-btn-outline-black', 'value' => 'u-btn-outline-black'),
 				array('name' => 'u-btn-outline-darkgray', 'value' => 'u-btn-outline-darkgray'),
+				array('name' => 'u-btn-outline-gray', 'value' => 'u-btn-outline-gray'),
+				array('name' => 'u-btn-outline-lightgray', 'value' => 'u-btn-outline-lightgray'),
 				array('name' => 'u-btn-outline-red', 'value' => 'u-btn-outline-red'),
 				array('name' => 'u-btn-outline-lightred', 'value' => 'u-btn-outline-lightred'),
 				array('name' => 'u-btn-outline-darkred', 'value' => 'u-btn-outline-darkred'),
@@ -1447,18 +2043,47 @@ return array(
 				array('name' => 'u-btn-outline-brown', 'value' => 'u-btn-outline-brown'),
 				array('name' => 'u-btn-outline-bluegray', 'value' => 'u-btn-outline-bluegray'),
 				array('name' => 'u-btn-outline-facebook', 'value' => 'u-btn-outline-facebook'),
-				array('name' => 'u-btn-outline-twitter', 'value' => 'u-btn-outline-twitter')
-			)
+				array('name' => 'u-btn-outline-twitter', 'value' => 'u-btn-outline-twitter'),
+				array('name' => 'u-theme-bitrix-btn-outline-v4', 'value' => 'u-theme-bitrix-btn-outline-v4'),
+			),
 		),
 		'align-items' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ALIGN_ITEMS'),
 			'property' => 'align-items',
 			'type' => 'buttons',
 			'items' => array(
-				array('name' => '<span class="landing-ui-align landing-ui-align-items-start"></span>', 'value' => 'align-items-start'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-items-center"></span>', 'value' => 'align-items-center'),
-				array('name' => '<span class="landing-ui-align landing-ui-align-items-end"></span>', 'value' => 'align-items-end'),
-			)
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-start"></span>',
+					'value' => 'align-items-start',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-center"></span>',
+					'value' => 'align-items-center',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-end"></span>',
+					'value' => 'align-items-end',
+				),
+			),
+		),
+		'align-self' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ALIGN_ITEMS'),
+			'property' => 'align-self',
+			'type' => 'buttons',
+			'items' => array(
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-start"></span>',
+					'value' => 'align-self-start',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-center"></span>',
+					'value' => 'align-self-center',
+				),
+				array(
+					'name' => '<span class="landing-ui-align landing-ui-align-items-end"></span>',
+					'value' => 'align-self-end',
+				),
+			),
 		),
 		'animation' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE_ANIMATION'),
@@ -1510,63 +2135,107 @@ return array(
 				array('name' => 'slideInLeft', 'value' => 'slideInLeft'),
 				array('name' => 'slideInRight', 'value' => 'slideInRight'),
 				array('name' => 'slideInUp', 'value' => 'slideInUp'),
-			)
+			),
+		),
+		'block-border-type' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER'),
+			'type' => 'list',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_N'), 'value' => 'u-block-border-none'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_Y'), 'value' => 'u-block-border'),
+			),
+		),
+		'block-border-margin' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_MARGIN'),
+			'type' => 'list',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_MARGIN_N'), 'value' => 'u-block-border-margin-none'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_MARGIN_SM'), 'value' => 'u-block-border-margin-sm'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_MARGIN_MD'), 'value' => 'u-block-border-margin-md'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_MARGIN_LG'), 'value' => 'u-block-border-margin-lg'),
+			),
+		),
+		'block-border-position' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_POSITION'),
+			'type' => 'list',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_POSITION_ALL'), 'value' => 'u-block-border-all'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_POSITION_START'), 'value' => 'u-block-border-first'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_POSITION_MIDDLE'), 'value' => 'u-block-border-middle'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_POSITION_END'), 'value' => 'u-block-border-end'),
+			),
+		),
+		
+		'container-max-width' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER'),
+			'type' => 'list',
+			'items' => array(
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_CONTAINER'), 'value' => 'g-max-width-container'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_FULL'), 'value' => 'g-max-width-100x'),
+				array('name' => Loc::getMessage('LANDING_BLOCK_STYLE-TEXT_CONTAINER_MINI'), 'value' => 'g-max-width-800'),
+			),
 		),
 	),
 	'group' => array(
 		'block-default' => array(
 			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
-			'background-color', 'background-gradient'
+			'background-color', 'background-gradient',
 		),
-		'paddings' => ['padding-top', 'padding-bottom', 'padding-left', 'padding-right'],
 		'block-default-background-overlay' => array(
-			'display', 'background-attachment',
-			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',  'background-overlay'
+			'display', 'background-attachment', 'background-size',
+			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
 		),
 		'block-default-background-overlay-paddings-x' => array(
-			'display', 'background-attachment', 'padding-left', 'padding-right', 'margin-top', 'background-overlay'
+			'display', 'background-attachment', 'background-size', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
 		),
 		'block-default-background-overlay-height-vh' => array(
-			'display', 'background-attachment', 'height-vh',
-			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay'
+			'display', 'background-attachment', 'background-size', 'height-vh',
+			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
 		),
 		'block-default-wo-background' => array(
-			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top'
+			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
 		),
 		'block-default-wo-background-height-vh' => array(
-			'display', 'height-vh', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top'
+			'display', 'height-vh', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
 		),
 		'block-default-wo-paddings' => array(
-			'display', 'background-color', 'background-gradient'
+			'display', 'background-color', 'background-gradient',
 		),
 		'block-default-wo-background-vh-animation' => array(
 			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
-			'height-vh', 'animation'
+			'height-vh', 'animation',
 		),
+		'block-border' => array(
+			'background-color', 'block-border-type', 'block-border-margin', 'border-radius', 'block-border-position',  /*'box-shadow',*/
+		),
+		'paddings' => ['padding-top', 'padding-bottom', 'padding-left', 'padding-right'],
+		'margins' => ['margin-top', 'margin-bottom', 'margin-left', 'margin-right'],
 		'typo' => array(
 			'text-align', 'color', 'font-size', 'font-family',
-			'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'text-shadow'
+			'text-decoration', 'text-transform', 'line-height', 'letter-spacing', 'text-shadow', 'margin-bottom'
 		),
 		'typo-simple' => array(
-			'font-size', 'font-family', 'text-decoration', 'text-transform', 'line-height', 'letter-spacing'
+			'font-size', 'font-family', 'text-decoration', 'text-transform', 'line-height', 'letter-spacing',
 		),
 		'typo-link' => array(
 			'color', 'color-hover', 'font-size', 'font-family',
-			'text-decoration', 'text-transform', 'letter-spacing', 'text-shadow'
+			'text-decoration', 'text-transform', 'letter-spacing', 'text-shadow',
 		),
 		'box' => array(
-			'background-color', 'background-gradient', 'box-shadow', 'opacity'
+			'background-color', 'background-gradient', 'box-shadow', 'opacity',
 		),
 		'bg' => array(
-			'background-color', 'background-gradient'
+			'background-color', 'background-gradient',
 		),
 		'button' => array(
 			'button-color', 'button-outline-color', 'border-width', 'border-radius',
-			'color', 'font-family', 'text-decoration', 'text-transform',
+			'color', 'color-hover', 'font-family', 'text-decoration', 'text-transform',
 		),
 		'navbar' => array('navbar-align', 'navbar-color', 'navbar-color-hover'),
+		'navbar-bg' => array('navbar-align', 'navbar-color', 'navbar-bg', 'navbar-color-hover', 'navbar-bg-hover'),
 		'navbar-full' => array(
-			'navbar-align', 'navbar-color', 'navbar-color-hover', 'navbar-color-fix-moment', 'navbar-color-fix-moment-hover'
-		)
-	)
+			'navbar-align', 'navbar-color', 'navbar-color-hover', 'navbar-color-fix-moment', 'navbar-color-fix-moment-hover',
+		),
+		'container' => ['container-max-width', 'padding-left', 'padding-right']
+	),
 );

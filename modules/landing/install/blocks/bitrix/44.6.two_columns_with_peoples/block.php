@@ -1,6 +1,6 @@
 <section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeIn col-md-6 col-lg-6 g-pt-30 g-mb-50 g-mb-0--md">
 				<!-- Article -->
 				<article class="text-center">

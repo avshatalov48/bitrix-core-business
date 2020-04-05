@@ -1,0 +1,17 @@
+{
+  "name": "imagecompressor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bundle.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "compressorjs": "^1.0.5"
+  }
+}

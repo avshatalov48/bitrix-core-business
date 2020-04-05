@@ -117,9 +117,6 @@ return array(
 				'.landing-block-node-card-bgimg' => array(
 					0 => 'landing-block-node-card-bgimg g-bg-img-hero u-bg-overlay g-bg-black-opacity-0_4--after d-flex align-items-center justify-content-center w-100 h-100 g-min-height-100vh',
 				),
-				'.landing-block-node-card-container' => array(
-					0 => 'landing-block-node-card-container js-animation fadeIn container g-mx-0',
-				),
 				'.landing-block-node-card-button-container' => array(
 					0 => 'landing-block-node-card-button-container',
 				),
@@ -197,15 +194,15 @@ return array(
 			'code' => '27.3.one_col_fix_title',
 			'nodes' => array(
 				'.landing-block-node-title' => array(
-					0 => 'What we offer<br /><div st="" yle="position: absolute; border: 2px dashed rgb(254, 84, 30); top: 0px; right: 0px; bottom: 0px; left: 0px; z-index: 9999; opacity: 0.4; pointer-events: none; transform: translateZ(0px);"></div>',
+					0 => 'What we offer<br /><div style="position: absolute; border: 2px dashed rgb(254, 84, 30); top: 0px; right: 0px; bottom: 0px; left: 0px; z-index: 9999; opacity: 0.4; pointer-events: none; transform: translateZ(0px);"></div>',
 				),
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-color-white g-font-russo-one g-font-size-55',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-color-white g-font-russo-one g-font-size-55 container g-pl-0 g-pr-0',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block js-animation g-bg-primary-dark-v3 g-pb-0 g-pt-45 animation-none',
+					0 => 'landing-block js-animation g-bg-primary-dark-v3 g-pb-0 g-pt-45 animation-none text-center',
 				),
 			),
 		),
@@ -250,9 +247,9 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-card' => array(
-					0 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4',
-					1 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4',
-					2 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4',
+					0 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4 g-mb-0--last',
+					1 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4 g-mb-0--last',
+					2 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4 g-mb-0--last',
 				),
 				'.landing-block-node-card-text' => array(
 					0 => 'landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v2',

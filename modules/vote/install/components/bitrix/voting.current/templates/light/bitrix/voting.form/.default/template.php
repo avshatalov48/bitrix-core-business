@@ -144,7 +144,7 @@ if (isset($arResult["CAPTCHA_CODE"])):  ?>
 		</div>
 		<div class="vote-reply-field-captcha-label">
 			<label for="captcha_word"><?=GetMessage("F_CAPTCHA_PROMT")?><span class='starrequired'>*</span></label><br />
-			<input type="text" size="20" name="captcha_word" />
+			<input type="text" size="20" name="captcha_word" autocomplete="off" />
 		</div>
 	</div>
 <? endif //endregion?>

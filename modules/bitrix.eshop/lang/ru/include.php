@@ -8,4 +8,10 @@ $MESS["STOM_BUTTON_NAME_W5"] = "Мастер создания мобильног
 $MESS["STOM_BUTTON_TITLE_W3"] = "Удаление демонстрационного каталога";
 $MESS["STOM_BUTTON_NAME_W3"] = "Удалить демо-каталог";
 $MESS["STOM_BUTTON_CONFIRM_W2"] = "Каталог мебели, установленный в качестве демонстрационного, будет удален. При этом все ваши изменения внутри него будут потеряны. Удалить демо-каталог?";
+$MESS["ESHOP_BUTTON_THEME"] = "Настройка темы";
+$MESS["ESHOP_BUTTON_THEME_TEXT"] = "Сменить цветовую тему магазина";
+$MESS["ESHOP_BUTTON_THEME_GREEN"] = "Зелено-бирюзовая";
+$MESS["ESHOP_BUTTON_THEME_BLUE"] = "Синяя";
+$MESS["ESHOP_BUTTON_THEME_RED"] = "Красная";
+$MESS["ESHOP_BUTTON_THEME_YELLOW"] = "Желтая";
 ?>

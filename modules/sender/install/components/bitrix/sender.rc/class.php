@@ -23,7 +23,7 @@ class SenderRcComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		return Integration\Bitrix24\Service::isAvailable();
+		return true;
 	}
 
 	protected function initParams()
@@ -128,7 +128,6 @@ class SenderRcComponent extends CBitrixComponent
 	protected function prepareResult()
 	{
 		Preset\Installation\Installer::installNewest();
-		Security\Agreement::requestFromCurrentUser();
 
 		return true;
 	}

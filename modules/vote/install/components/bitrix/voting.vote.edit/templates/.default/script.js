@@ -1,7 +1,6 @@
 (function() {
-if (window.BVoteConstructor)
-	return;
-// uploader section
+	if (window.BVoteConstructor)
+		return;
 	BX.addCustomEvent('onClickMulti', function(node){
 		var answers = BX.findChildren(node.parentNode.previousSibling, {attribute : {"data-bx-answer-field" : "field-type"}}, true);
 		for (var i = 0; i < answers.length; i++)
@@ -9,219 +8,525 @@ if (window.BVoteConstructor)
 			answers[i].value = node.checked ? "1" : "0";
 		}
 	});
-top.BVoteConstructor = window.BVoteConstructor = function(Params)
-{
-	this.controller = Params.controller;
-	this.maxQ = parseInt(Params['maxQ']);
-	this.maxA = parseInt(Params['maxA']);
-	this.q = {num : 0, cnt : 0};
-	this.a = [{num : 0, cnt : 0}];
-	this.InitVoteForm();
-
-};
-window.BVoteConstructor.prototype.checkAnswerAdding = function(qId) {
-	var nodeQuestion = BX('question_' + qId);
-	if (this.a[qId].list) {
-		if (this.a[qId].list.firstChild) {
-			BX.unbindAll(nodeQuestion);
-			var node = this.a[qId].list.firstChild;
-			do {
-				BX.unbind(node.firstChild, "focus", BX.proxy(this._do, this));
-			} while ((node = node.nextSibling) && BX(node));
-		}
-	}
-
-	if (this.maxA > 0 && this.a[qId].cnt >= this.maxA) {
-		if (this.a[qId].node) { BX.hide(this.a[qId].node); }
-		return false;
-	}
-	if (this.a[qId].node) { BX.show(this.a[qId].node); }
-	else if (this.a[qId].list) {
-		if (this.a[qId].list.lastChild) {
-			BX.bind(this.a[qId].list.lastChild.firstChild, "focus", BX.proxy(this._do, this));
-		} else {
-			BX.bind(nodeQuestion, "focus", BX.proxy(this._do, this));
-		}
-	}
-	return true;
-};
-
-window.BVoteConstructor.prototype.checkQuestionAdding = function() {
-	if (this.maxQ > 0 && this.q.cnt >= this.maxQ)
-	{
-		if (this.q.node)
-			this.q.node.style.display = "none";
-		return false;
-	}
-	if (this.q.node)
-		this.q.node.style.display = "";
-	return true;
-};
-
-window.BVoteConstructor.prototype.InitVoteForm = function() {
-	var
-		vOl = BX.findChild(this.controller, {"tagName" : "OL", "className" : "vote-questions"}, true),
-		vLi = vOl.childNodes,
-		regexp = /question_(\d+)/ig,
-		num = !!vLi ? regexp.exec(vOl.lastChild.firstChild.firstChild.id) : [0, 0, 0];
-	this.q.cnt = vLi.length;
-	this.q.num = parseInt(num[1]);
-	this.q.node = BX.findChild(this.controller, {"tagName" : "A", "className" : "addq"}, true);
-	var
-		aOl,
-		aLi,
-		regexpa,
-		ii;
-	for (ii = 0; ii < vLi.length; ii++)
-	{
-		if (vLi[ii] && vLi[ii]["tagName"] == "LI")
-		{
-			aOl = BX.findChild(vLi[ii], {"tagName" : "OL"}, true);
-			aLi = BX.findChildren(aOl, {"tagName" : "LI"}, false);
-			regexpa = /answer_(\d+)__(\d+)_/gi;
-			num = [0, 0, 0];
-			if (aOl.lastChild)
+	//region Collecion
+	var Collection = function(params) {
+		this.map = new Map();
+		this.maxSort = 0;
+		this.currentId = 0;
+		params = (params || {});
+		this.maxCount = parseInt(params["maxCount"] || 0);
+		this.onEntityHasBeenDeleted = this.onEntityHasBeenDeleted.bind(this);
+	};
+	Collection.prototype = {
+		set : function (key, obj) {
+			this.map.set(key, obj);
+			BX.addCustomEvent(obj, "onEntityHasBeenDeleted", this.onEntityHasBeenDeleted);
+			this.maxSort = Math.max(this.maxSort, obj.getSort());
+			this.currentId++;
+		},
+		get : function (key) {
+			return this.map.get(key)
+		},
+		keys : function() {
+			return this.map.keys();
+		},
+		delete : function(key) {
+			return this.map.delete(key);
+		},
+		onEntityHasBeenDeleted : function (entityId, entitySort, entity) {
+			this.delete(entityId);
+			if (this.maxSort === parseInt(entitySort))
 			{
-				num = regexpa.exec(aOl.lastChild.firstChild.id);
+				var maxSort = 0;
+				this.map.forEach(function(value) {
+					maxSort = Math.max(maxSort, parseInt(value.getSort()));
+				});
+				this.maxSort = maxSort;
+			}
+		},
+		getNextId : function() {
+			return this.currentId;
+		},
+		getMaxSort : function() {
+			return this.maxSort;
+		},
+		canAdd : function() {
+			return !(this.maxCount > 0 && this.maxCount <= this.map.size);
+		}
+	};
+	//endregion
+	//region Entity
+	var Entity = function(node, param) {
+		this.id = [(param["groupId"] || "vote"), node.getAttribute("data-bx-number").toString()];
+		this.eventObject = param["eventObject"];
+		this.nodes = {
+			main : node,
+			sort : null
+		};
+		this.delete = this.delete.bind(this);
+		this.__sortDD = this.__sortDD.bind(this);
+		this.onbxdragstart = this.onbxdragstart.bind(this);
+		this.onbxdragstop = this.onbxdragstop.bind(this);
+		this.onbxdrag = this.onbxdrag.bind(this);
+		this.onbxdraghout = this.onbxdraghout.bind(this);
+		this.onbxdestdraghover = this.onbxdestdraghover.bind(this);
+		this.onbxdestdraghout = this.onbxdestdraghout.bind(this);
+		this.onbxdestdragfinish = this.onbxdestdragfinish.bind(this);
+
+		BX.addCustomEvent(this.eventObject, "onEntityHasBeenSorted", this.__sortDD);
+		this.init(param);
+		Entity.repo.set(this.id, this);
+	};
+	Entity.repo = new Map();
+	Entity.getByFullId = function(id) {
+		return Entity.repo.get(id);
+	};
+	Entity.deleteByFullId = function(id) {
+		return Entity.repo.delete(id);
+	};
+	Entity.prototype = {
+		init : function(param) { },
+		bind : function(node) {
+			var nodes, ii, methd;
+			if (BX(node))
+			{
+				nodes = BX.findChildren(node, {attribute : "data-bx-action"}, true);
+				if (node.hasAttribute("data-bx-action"))
+				{
+					nodes.unshift(node)
+				}
 			}
 			else
 			{
-				num = regexp.exec(vLi[ii].firstChild.firstChild.id);
-				num[2] = 0;
+				nodes = BX.findChildren(this.nodes.main, {attribute : "data-bx-action"}, true);
 			}
-			this.a[num[1]] = {
-				cnt : aLi.length,
-				num : parseInt(num[2]),
-				node: false,
-				"list": aOl};
-			this.checkAnswerAdding(num[1]);
-		}
-	}
-	this.checkQuestionAdding();
-
-	var nodeTags = ["LABEL", "A"],
-		a;
-	for (var nodeTag in nodeTags)
-	{
-		if (nodeTags.hasOwnProperty(nodeTag))
-		{
-			a = BX.findChildren(vOl.parentNode, {"tagName" : nodeTags[nodeTag]}, true);
-			for (ii in a)
+			for (ii = 0; ii < nodes.length; ii++)
 			{
-				if (a.hasOwnProperty(ii) && !BX.hasClass(a[ii], "vote-checkbox-label"))
+				if (!nodes[ii].hasAttribute("data-bx-bo und"))
 				{
-					BX.bind(a[ii], "click", BX.delegate(this._do, this));
+					methd = "__" + nodes[ii].getAttribute("data-bx-action");
+					if (typeof this[methd] === "function")
+					{
+						nodes[ii].setAttribute("data-bx-bound", "Y");
+						BX.bind(nodes[ii], "click", this[methd].bind(this));
+					}
+				}
+			}
+			this.nodes.main["entityId"] = this.getFullId();
+		},
+		initDD : function(){
+			if (window["jsDD"] && !this.nodes.main.hasAttribute("data-bx-drag-sensitive"))
+			{
+				var nodes = BX.findChildren(this.nodes.main, {attribute : "data-bx-action"}, true),
+					ii;
+
+				for (ii = 0; ii < nodes.length; ii++)
+				{
+					if ((nodes[ii].getAttribute("data-bx-action") === "sortDD") &&
+						!nodes[ii].hasAttribute("data-bx-bound-dd") &&
+						nodes[ii].getAttribute("data-bx-bound") === "Y"
+					)
+					{
+						BX.unbindAll(nodes[ii], "click");
+						this.nodes.dd = nodes[ii];
+						this.nodes.dd.setAttribute("data-bx-bound-dd", "Y");
+						this.nodes.dd["entityId"] = this.getFullId();
+						BX.addClass(this.nodes.dd, "bx-drag-draggable");
+						this.nodes.main.hasAttribute("data-bx-drag-sensitive", "Y");
+
+						BX.addClass(this.nodes.main, "bx-drag-drag-sensitive");
+						window.jsDD.registerObject(this.nodes.dd);
+						this.nodes.dd.onbxdragstart = this.onbxdragstart;
+						this.nodes.dd.onbxdragstop = this.onbxdragstop;
+						this.nodes.dd.onbxdrag = this.onbxdrag;
+						this.nodes.dd.onbxdraghout = this.onbxdraghout;
+
+						window.jsDD.registerDest(this.nodes.main);
+						this.nodes.main.onbxdestdraghover = this.onbxdestdraghover;
+						this.nodes.main.onbxdestdraghout = this.onbxdestdraghout;
+						this.nodes.main.onbxdestdragfinish = this.onbxdestdragfinish;
+						var inputs = BX.findChild(this.nodes.main, {tagName : "INPUT", props : {"type" : "text"}}, true, true);
+						for (ii = 0; ii <= inputs.length; ii++)
+						{
+							BX.bind(inputs[ii], "mousedown", BX.eventCancelBubble);
+						}
+					}
+				}
+			}
+		},
+		getSort : function() {
+			if (!this.__sort)
+				this.__sort = parseInt(this.nodes["sort"].value);
+			return this.__sort;
+		},
+		setSort : function(sort) {
+			this.__sort = this.nodes["sort"].value = parseInt(sort);
+		},
+		__sortDD: function(fromSort, toSort, fromEntity, toEntity) {
+			if (BX.type.isInteger(fromSort) && fromEntity.getGroupId() === this.getGroupId())
+			{
+				if (this === fromEntity)
+				{
+					this.setSort(toSort);
+				}
+				else if (fromSort > toSort)
+				{
+					if (toSort <= this.getSort() && this.getSort() <= fromSort)
+					{
+						this.setSort(this.getSort() + 10);
+					}
+				}
+				else if (fromSort < toSort)
+				{
+					if (fromSort < this.getSort() && this.getSort() <= toSort)
+					{
+						this.setSort(this.getSort() - 10);
+					}
+				}
+			}
+		},
+		__sortDown: function() {
+			if (this.nodes.main.nextSibling && this.nodes.main.nextSibling["entityId"])
+			{
+				var entity = Entity.getByFullId(this.nodes.main.nextSibling["entityId"]);
+				this.nodes.main.parentNode.insertBefore(this.nodes.main.nextSibling, this.nodes.main);
+				BX.onCustomEvent(this.eventObject, "onEntityHasBeenSorted", [this.getSort(), entity.getSort(), this, entity]);
+			}
+		},
+		__sortUp: function() {
+			if (this.nodes.main.previousSibling && this.nodes.main.previousSibling["entityId"])
+			{
+				var entity = Entity.getByFullId(this.nodes.main.previousSibling["entityId"]);
+				this.nodes.main.parentNode.insertBefore(this.nodes.main, this.nodes.main.previousSibling);
+				BX.onCustomEvent(this.eventObject, "onEntityHasBeenSorted", [this.getSort(), entity.getSort(), this, entity]);
+			}
+		},
+		getFullId : function(join) {
+			return (join === true ? this.id.join("_") : this.id);
+		},
+		getId : function() {
+			return this.id[1];
+		},
+		getGroupId : function() {
+			return this.id[0];
+		},
+		"delete" : function() {
+			var buf = [], ii,
+			sort = this.getSort();
+			for (ii in this.nodes)
+			{
+				if (this.nodes.hasOwnProperty(ii))
+				{
+					buf.push(ii);
+				}
+			}
+			for (ii = 0; ii <= buf.length; ii++)
+			{
+				if (this.nodes.hasOwnProperty(buf[ii]))
+				{
+					this.nodes[buf[ii]] = null;
+					delete this.nodes[buf[ii]];
+				}
+			}
+			Entity.deleteByFullId(this.getFullId());
+			BX.onCustomEvent(this, "onEntityHasBeenDeleted", [this.getFullId(), sort, this]);
+		},
+		onbxdragstart : function() {
+			var __dragNode = BX.create("DIV", {
+					attrs : {
+						className : "bx-drag-object",
+					},
+					style : {
+						position : "absolute",
+						zIndex : 10,
+						width : this.nodes.main.parentNode.clientWidth + 'px'
+					},
+					html : this.nodes.main.outerHTML.replace(new RegExp(this.nodes.main.getAttribute("id"), "gi"), "DragCopy")
+				});
+			this.nodes.drag = __dragNode;
+			this.nodes.dd["entitySort"] = this.getSort();
+			this.dragPos = {
+				"main" : BX.pos(this.nodes.main),
+				"parent" : BX.pos(this.nodes.main.parentNode)
+			};
+			document.body.appendChild(this.nodes.drag);
+			BX.addClass(this.nodes.main, "bx-drag-source");
+			__dragNode = null;
+		},
+		onbxdragstop : function() {
+			if (this.dragPos)
+			{
+				BX.removeClass(this.nodes.main, "bx-drag-source");
+				this.nodes.drag.parentNode.removeChild(this.nodes.drag);
+				this.nodes.drag = null;
+				delete this.nodes.drag;
+				delete this.dragPos;
+			}
+			return true;
+		},
+		onbxdrag : function(x, y) {
+			if (this.nodes.drag)
+			{
+				if (this.dragPos)
+				{
+					if (!this.dragPos.main.deltaX)
+						this.dragPos.main.deltaX = this.dragPos.main.left - x;
+					if (!this.dragPos.main.deltaY)
+						this.dragPos.main.deltaY = this.dragPos.main.top - y;
+					x += this.dragPos.main.deltaX;
+					y += this.dragPos.main.deltaY;
+					y = Math.min(Math.max(y, this.dragPos.parent.top), this.dragPos.parent.bottom);
+				}
+				this.nodes.drag.style.left = x + 'px';
+				this.nodes.drag.style.top = y + 'px';
+			}
+		},
+		onbxdraghout : function() { },
+		onbxdestdraghover : function(currentNode) {
+			if (this.nodes.dd !== currentNode)
+			{
+				var sort = parseInt(currentNode["entitySort"]);
+				if (this.getSort() < sort)
+					BX.addClass(this.nodes.main, "bx-drag-over-up");
+				else
+					BX.addClass(this.nodes.main, "bx-drag-over-down");
+			}
+		},
+		onbxdestdraghout : function() {
+			BX.removeClass(this.nodes.main, "bx-drag-over-up");
+			BX.removeClass(this.nodes.main, "bx-drag-over-down");
+		},
+		onbxdestdragfinish : function(currentNode) {
+			BX.removeClass(this.nodes.main, "bx-drag-over-up");
+			BX.removeClass(this.nodes.main, "bx-drag-over-down");
+			if (this.nodes.dd !== currentNode)
+			{
+				var entity = Entity.getByFullId(currentNode["entityId"]);
+				if (entity.getGroupId() === this.getGroupId())
+				{
+					var sort = parseInt(currentNode["entitySort"]);
+					if (this.getSort() < sort)
+					{
+						this.nodes.main.parentNode.insertBefore(entity.nodes.main, this.nodes.main);
+						BX.onCustomEvent(this.eventObject, "onEntityHasBeenSorted", [entity.getSort(), this.getSort(), entity, this]);
+					}
+					else
+					{
+						if (this.nodes.main.nextSibling)
+							this.nodes.main.parentNode.insertBefore(entity.nodes.main, this.nodes.main.nextSibling);
+						else
+							this.nodes.main.parentNode.appendChild(entity.nodes.main);
+						BX.onCustomEvent(this.eventObject, "onEntityHasBeenSorted", [entity.getSort(), this.getSort(), entity, this]);
+					}
 				}
 			}
 		}
-	}
-};
-
-window.BVoteConstructor.prototype._do = function(e)
-{
-	BX.PreventDefault(e);
-	var
-		reg = /(add|del)\w/,
-		node = BX.proxy_context,
-		className = reg.exec(BX.proxy_context.className),
-		res,
-		ii,
-		a,
-		q,
-		aOl,
-		qOl,
-		regexp;
-	if (!!className)
-	{
-		switch (className[0])
+	};
+	//endregion
+	//region Question
+	var Question = function(node, param) {
+		this.answers = new Collection({maxCount : param["maxAnswersCount"]});
+		this.visibleId = 0;
+		Question.superclass.constructor.apply(this, arguments);
+		this.nodes.sort = BX.findChild(this.nodes["main"], {attribute : {"data-bx-question-field" : "C_SORT"}}, true);
+	};
+	BX.extend(Question, Entity);
+	Question.prototype.init = function(params) {
+		this.nodes.answerList = BX.findChild(this.nodes.main, {attribute : {"data-bx-role" : "answer-list"}}, true);
+		var nodes = BX.findChild(this.nodes.answerList, {tagName : "LI", attribute : {"data-bx-role" : "answer"}}, false, true),
+			ii, res;
+		for (ii = 0; ii < nodes.length; ii++)
 		{
-			case "adda" :
-				var qLi = BX.findParent(node, {"className" : "vote-question", "tagName" : "li"});
-				aOl = BX.findChild(qLi, {"tagName" : "OL"}, true);
-				regexp = /answer_(\d+)__(\d+)_/i;
-				q = regexp.exec(node.getAttribute("id"));
-				if (!q)
+			res = new Answer(
+				nodes[ii],
 				{
-					regexp = /question_(\d+)/i;
-					q = regexp.exec(node.getAttribute("id"));
+					eventObject : params["eventObject"],
+					groupId : this.getId()
 				}
-				q = (!!q ? q[1] : null);
-				if (q != null && this.checkAnswerAdding(q))
-				{
-					this.a[q].num++; this.a[q].cnt++;
-					res = BX.create('DIV', {'html' : BX.message('VOTE_TEMPLATE_ANSWER').
-							replace(/#Q#/gi, q).replace(/#A#/gi, this.a[q].num).
-							replace(/#A_FIELD_TYPE#/gi, (BX("multi_" + q) && BX("multi_" + q).checked ? "1" : "0")).
-							replace(/#A_VALUE#/gi, "").replace(/#A_PH#/gi, (this.a[q].num + 1))});
-					a = BX.findChildren(res.firstChild, {"tagName" : "LABEL"}, true);
-					for (ii in a)
-					{
-						if (a.hasOwnProperty(ii) && !BX.hasClass(a[ii], "vote-checkbox-label"))
-						{
-							BX.bind(a[ii], "click", BX.delegate(this._do, this));
-						}
-					}
-					aOl.appendChild(res.firstChild);
-					this.checkAnswerAdding(q);
-				}
-				break;
-			case "dela" :
-				regexp = /answer_(\d+)__(\d+)_/i;
-				q = regexp.exec(node.getAttribute("for"));
-				q = (!!q ? q[1] : null);
-				var aLi = BX.findParent(node, {"tagName" : "li"});
-				aOl = BX.findParent(aLi, {"tagName" : "OL"});
-				node = BX(node.getAttribute("for"));
-				if (node.value != '' && !confirm(BX.message("VVE_ANS_DELETE")))
-					return false;
-				aOl.removeChild(aLi);
-				this.a[q].cnt--;
-				this.checkAnswerAdding(q);
-				break;
-			case "addq" :
-				if (this.checkQuestionAdding())
-				{
-					qOl = BX.findChild(node.parentNode, {"tag" : "OL"}, false);
-					this.q.num++; this.q.cnt++;
-					res = BX.message('VOTE_TEMPLATE_ANSWER').replace(/#A#/gi, 0).replace(/#A_PH#/gi, 1).replace(/#A_FIELD_TYPE#/gi, "0").replace(/#A_VALUE#/gi, "") +
-						BX.message('VOTE_TEMPLATE_ANSWER').replace(/#A#/gi, 1).replace(/#A_PH#/gi, 2).replace(/#A_FIELD_TYPE#/gi, "0").replace(/#A_VALUE#/gi, "");
-					res = BX.create("DIV", {html : BX.message('VOTE_TEMPLATE_QUESTION').
-						replace(/#ANSWERS#/gi, res).replace(/#Q#/gi, this.q.num).
-						replace(/#Q_VALUE#/gi, "").replace(/#Q_MULTY#/gi, "")});
-					a = BX.findChildren(res.firstChild, {"tagName" : "LABEL"}, true);
-					for (ii in a)
-					{
-						if (a.hasOwnProperty(ii) && !BX.hasClass(a[ii], "vote-checkbox-label"))
-						{
-							BX.bind(a[ii], "click", BX.delegate(this._do, this));
-						}
-					}
-
-					this.a[this.q.num] = {
-						num : 1,
-						cnt : 2,
-						node: false,
-						"list": BX.findChild(res, {"tag" : "OL"}, true, false)};
-
-					qOl.appendChild(res.firstChild);
-					BX('question_' + this.q.num).focus();
-					this.checkQuestionAdding();
-					this.checkAnswerAdding(this.q.num);
-				}
-				break;
-			case "delq" :
-				q = node.getAttribute("for");
-				var question = node.previousSibling;
-				qOl = BX.findParent(question, {"tagName" : "OL"});
-				q = parseInt(q.replace(/question_/gi, ""));
-				if (question.value != '' && !confirm(BX.message("VVE_QUESTION_DELETE")))
-					return false;
-				qOl.removeChild(BX.findParent(question, {"tagName" : "LI"}));
-				this.q.cnt--;
-				this.checkQuestionAdding();
-				break;
+			);
+			this.answers.set(res.getId(), res);
+			this.visibleId++;
 		}
-	}
-	return true;
+		this.bind();
+		this.initDD();
+		this.addAnswer = this.addAnswer.bind(this);
+		this.toggleAddNode = this.toggleAddNode.bind(this);
+		this.toggleAddNode(null, null);
+		BX.addCustomEvent(this.eventObject, "onAnswerHasBeenAdded", this.toggleAddNode);
+		BX.addCustomEvent(this.eventObject, "onAnswerHasBeenDeleted", this.toggleAddNode);
+	};
+	Question.prototype.toggleAddNode = function(answerId, answer) {
+		if (answer === null || answer.getGroupId() === this.getId())
+		{
+			var nodes = BX.findChild(this.nodes["main"], {attribute : {"data-bx-action" : "adda"}}, true, true),
+				ii;
+			for (ii = 0; ii < nodes.length; ii++)
+			{
+				BX.unbind(nodes[ii], "focus", this.addAnswer);
+			}
+			if (this.answers.canAdd())
+			{
+				BX.bind(nodes[nodes.length - 1], "focus", this.addAnswer);
+			}
+		}
+	};
+	Question.prototype.addAnswer = function() {
+		var answerId = this.answers.getNextId(),
+		replacement = {
+			"#Q#" : this.getId(),
+			"#A#" : answerId,
+			"#A_FIELD_TYPE#": (BX("multi_" + this.getId()) && BX("multi_" + this.getId()).checked ? "1" : "0"),
+			"#A_VALUE#" : "",
+			"#A_C_SORT#" : this.answers.getMaxSort() + 10,
+			"#A_PH#" : (++this.visibleId)
+		},
+		text = BX.message('VOTE_TEMPLATE_ANSWER'), ii;
+		for (ii in replacement)
+		{
+			if (replacement.hasOwnProperty(ii))
+			{
+				text = text.replace(new RegExp(ii, "gi"), replacement[ii]);
+			}
+		}
+		var node = (BX.create('DIV', {'html' : text})).firstChild;
+		this.nodes.answerList.appendChild(node);
+		var res = new Answer(
+			node,
+			{
+				eventObject : this.eventObject,
+				groupId : this.getId()
+			}
+		);
+		this.bind(node);
+		this.initDD(node);
+		this.answers.set(res.getId(), res);
+		BX.onCustomEvent(this.eventObject, "onAnswerHasBeenAdded", [res.getFullId(), res]);
+	};
+	Question.prototype.__delq = function() {
+		var buf = BX.findChild(this.nodes.main, {attribute : {"data-bx-question-field" : "MESSAGE"}}, true);
+		if (!buf || buf.value === '' || confirm(BX.message("VVE_QUESTION_DELETE")))
+		{
+			var ids = this.answers.keys(),
+				answerId = ids.next();
+			buf = this.nodes.main;
+			while(!answerId.done)
+			{
+				this.answers.get(answerId.value).delete();
+				answerId = ids.next();
+			}
+			this.delete();
+			buf.parentNode.removeChild(buf);
+			BX.onCustomEvent(this.eventObject, "onQuestionHasBeenDeleted", [this.getFullId(), this]);
+		}
+	};
+	//endregion
+	//region Answer
+	var Answer = function(node, param) {
+		Answer.superclass.constructor.apply(this, arguments);
+		this.nodes.sort = BX.findChild(this.nodes["main"], {attribute : {"data-bx-answer-field" : "C_SORT"}}, true);
+	};
+	BX.extend(Answer, Entity);
+	Answer.prototype.init = function(param) {
+		this.bind();
+		this.initDD(this.nodes.main);
+	};
+	Answer.prototype.__dela = function(e) {
+		var buf = BX.findChild(this.nodes.main, {attribute : {"data-bx-answer-field" : "MESSAGE"}}, true), ii;
+		if (!buf || buf.value === '' || confirm(BX.message("VVE_ANS_DELETE")))
+		{
+			buf = this.nodes.main;
+			this.delete();
+			buf.parentNode.removeChild(buf);
+			BX.onCustomEvent(this.eventObject, "onAnswerHasBeenDeleted", [this.getFullId(), this]);
+		}
+	};
+	//endregion
+	//region Vote
+top.BVoteConstructor = window.BVoteConstructor = function(Params)
+{
+	this.controller = Params.controller;
+	this.questions = new Collection({maxCount : Params["maxQ"]});
+	this.nodes = {
+		questionList : BX.findChild(this.controller, { attribute : {"data-bx-role" : "question-list"}}, true),
+		action : BX.findChild(this.controller, { attribute : {"data-bx-action" : "addq"}}, true)
+	};
+	this.toggleAddNode = this.toggleAddNode.bind(this);
+	this.visibleId = 0;
+	this.maxAnswersCount = Params["maxA"];
+	this.init(Params);
 };
+window.BVoteConstructor.prototype.init = function() {
+	var qNodes = BX.findChild(
+		this.controller,
+		{
+			tagName : "LI",
+			attribute : {"data-bx-role" : "question"}
+		},
+		true,
+		true
+	), ii, res;
+	for (ii = 0; ii < qNodes.length; ii++)
+	{
+		res = new Question(
+			qNodes[ii],
+			{
+				eventObject : this,
+				maxAnswersCount : this.maxAnswersCount
+			}
+		);
+		this.questions.set(res.getId(), res);
+	}
+
+	this.toggleAddNode();
+	BX.addCustomEvent(this, "onQuestionHasBeenAdded", this.toggleAddNode);
+	BX.addCustomEvent(this, "onQuestionHasBeenDeleted", this.toggleAddNode);
+	BX.bind(this.nodes.action, "click", this.addq.bind(this));
+};
+window.BVoteConstructor.prototype.toggleAddNode = function() {
+	if (this.questions.canAdd())
+	{
+		BX.show(this.nodes.action);
+	}
+	else
+	{
+		BX.hide(this.nodes.action);
+	}
+};
+
+window.BVoteConstructor.prototype.addq = function(e) {
+	BX.PreventDefault(e);
+	if (this.questions.canAdd())
+	{
+		var res = BX.message('VOTE_TEMPLATE_ANSWER').
+			replace(/#A#/gi, 0).
+			replace(/#A_PH#/gi, 1).
+			replace(/#A_FIELD_TYPE#/gi, "0").
+			replace(/#A_C_SORT#/gi, "10").
+			replace(/#A_VALUE#/gi, "") +
+			BX.message('VOTE_TEMPLATE_ANSWER').
+			replace(/#A#/gi, 1).
+			replace(/#A_PH#/gi, 2).
+			replace(/#A_FIELD_TYPE#/gi, "0").
+			replace(/#A_C_SORT#/gi, "20").
+			replace(/#A_VALUE#/gi, "");
+		res = BX.create("DIV", {html : BX.message('VOTE_TEMPLATE_QUESTION').
+			replace(/#ANSWERS#/gi, res).
+			replace(/#Q#/gi, this.questions.getNextId()).
+			replace(/#Q_C_SORT#/gi, this.questions.getMaxSort() + 10).
+			replace(/#Q_PH#/gi, (++this.visibleId)).
+			replace(/#Q_VALUE#/gi, "").replace(/#Q_MULTY#/gi, "")});
+		var buf = new Question(
+			res.firstChild,
+			{
+				eventObject : this,
+				maxAnswersCount : this.maxAnswersCount
+			}
+		);
+		buf.visibleId = 2;
+		this.questions.set(buf.getId(), buf);
+		this.nodes.questionList.appendChild(res.firstChild);
+		BX.onCustomEvent(this, "onQuestionHasBeenAdded", [buf.getFullId(), buf]);
+	}
+};
+	//endregion
 })();

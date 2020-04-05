@@ -9,6 +9,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	<? $APPLICATION->IncludeComponent(
 		'bitrix:landing.blocks.html',
 		'',
-		array()
+		array(
+			'ONLY_PAYED' => 'Y'
+		)
 	); ?>
 </section>

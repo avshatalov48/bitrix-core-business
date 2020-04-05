@@ -169,18 +169,19 @@ if($request->isPost() && check_bitrix_sessid())
 
 		if($result->isSuccess())
 		{
-			if($justCreated)
+			$arResult['INFO']['ID'] = $result->getId();
+
+			$url = (new \Bitrix\Main\Web\Uri(str_replace(
+				'#id#', $arResult['INFO']['ID'], $arParams['EDIT_URL_TPL']
+			)))->addParams(array('success' => 1));
+
+			if (\CRestUtil::isSlider())
 			{
-				$arResult['INFO']['ID'] = $result->getId();
-
-				$url = new \Bitrix\Main\Web\Uri(str_replace(
-					'#id#', $arResult['INFO']['ID'], $arParams['EDIT_URL_TPL']
-				));
-
-				LocalRedirect(
-					$url->addParams(array('success' => 1))
-						->getLocator()
-				);
+				$url->addParams(array('IFRAME' => 'Y'));
+			}
+			if ($justCreated || \CRestUtil::isSlider())
+			{
+				LocalRedirect($url->getLocator());
 			}
 			else
 			{

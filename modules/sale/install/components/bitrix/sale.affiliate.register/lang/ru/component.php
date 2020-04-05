@@ -18,4 +18,6 @@ $MESS ['SPCR1_NO_PLANS'] = "На сайте нет активных планов
 $MESS ['SPCR1_ERR_AFF'] = "Ошибка регистрации аффилиата";
 $MESS ['SPCR1_NO_SHOP'] = "Модуль магазина не установлен";
 $MESS ['INFO_REQ'] = "Вы были успешно зарегистрированы.";
+$MESS ["SPCR1_SITE_URL_CONSENT"] = "Адрес вашего сайта";
+$MESS ["SPCR1_SITE_DESCR_CONSENT"] = "Описание вашего сайта";
 ?>

@@ -142,7 +142,7 @@ BX.Access.ShowForm = function(arParams)
 		BX.Access.obAlreadySelected = {};
 
 	BX.Access.callback = arParams.callback;
-	BX.Access.popup.params.zIndex = (BX.WindowManager? BX.WindowManager.GetZIndex() : 0);
+	BX.Access.popup.params.zIndex = (arParams.zIndex ? arParams.zIndex : (BX.WindowManager? BX.WindowManager.GetZIndex() : 0));
 	BX.Access.popup.show();
 };
 

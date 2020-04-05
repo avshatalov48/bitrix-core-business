@@ -7,9 +7,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Numerator\Numerator;
 use Bitrix\Main\Localization\Loc;
 
-\Bitrix\Main\UI\Extension::load("ui.alerts");
-\Bitrix\Main\UI\Extension::load("ui.buttons");
-\Bitrix\Main\UI\Extension::load("ui.buttons.icons");
+\Bitrix\Main\UI\Extension::load(['ui.alerts','ui.buttons','ui.buttons.icons','ui.hint']);
+
 if ($arResult['IS_SLIDER'])
 {
 	\CJSCore::init("sidepanel");
@@ -41,7 +40,7 @@ if ($arResult['IS_SLIDER'])
 			</div>
 		<? endif; ?>
 
-		<div class="main-numerator-edit-wrap">
+		<div class="main-numerator-edit-wrap" data-role="numerator-container">
 			<form action="" method="post" data-role="numerator-edit-form">
 				<? foreach ($arResult['numeratorSettingsFields'][Numerator::getType()] as $setting) : ?>
 					<? $attributeName = htmlspecialcharsbx(Numerator::getType() . '[' . $setting['settingName'] . ']'); ?>
@@ -133,10 +132,21 @@ if ($arResult['IS_SLIDER'])
 										</div>
 									</div>
 								<? elseif (in_array($setting['type'], ['string', 'int'])): ?>
-									<div class="main-numerator-edit-field-wrap"
-										data-role="<?= htmlspecialcharsbx($setting['settingName']); ?>-wrapper"
+									<?php
+									$extraCssClass = '';
+									if (in_array($setting['settingName'], ['padString', 'length'], true))
+									{
+										$extraCssClass .= ' main-numerator-edit-field-wrap-half ';
+									}
+									?>
+									<div class="main-numerator-edit-field-wrap <?php echo $extraCssClass; ?>"
+											data-role="<?= htmlspecialcharsbx($setting['settingName']); ?>-wrapper"
 									>
-										<div class="main-numerator-edit-caption"><?= htmlspecialcharsbx($setting['title']); ?></div>
+										<div class="main-numerator-edit-caption"><?= htmlspecialcharsbx($setting['title']); ?>
+											<? if ($setting['settingName'] === 'padString'): ?>
+												<span class="ui-hint" data-hint="<?php echo htmlspecialcharsbx(Loc::getMessage('NUMERATOR_EDIT_FORM_PAD_STRING_HINT')); ?>"></span>
+											<? endif; ?>
+										</div>
 										<input type="<?= $setting['type'] == 'string' ? 'text' : 'number'; ?>"
 											   class="main-numerator-edit-input "
 											   value="<?= htmlspecialcharsbx($setting['value'])?>"

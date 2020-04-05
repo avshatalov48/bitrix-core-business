@@ -112,7 +112,7 @@ class SenderSegmentListComponent extends CBitrixComponent
 		// get rows
 		$list = GroupTable::getList(array(
 			'select' => array(
-				'ID', 'NAME', 'ADDRESS_COUNT', 'USE_COUNT',
+				'ID', 'DATE_INSERT', 'NAME', 'ADDRESS_COUNT', 'USE_COUNT',
 			),
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),

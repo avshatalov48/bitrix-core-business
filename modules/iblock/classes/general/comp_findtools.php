@@ -222,6 +222,10 @@ class CIBlockFindTools
 
 		$sectionPath = explode("/", $arVariables["SECTION_CODE_PATH"]);
 
+		// B24 fix
+		if (count($sectionPath) > 61)
+			return false;
+
 		$strFrom = "";
 		$joinField = "";
 		$strWhere = "";

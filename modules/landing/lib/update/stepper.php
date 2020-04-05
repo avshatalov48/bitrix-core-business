@@ -14,8 +14,13 @@ class Stepper
 		return array(
 			'Bitrix\Landing\Update\Block\NodeAttributes',
 			'Bitrix\Landing\Update\Block\NodeImg',
+			'Bitrix\Landing\Update\Block\FixSrcImg',
+			'Bitrix\Landing\Update\Block\SearchContent',
 			'Bitrix\Landing\Update\Block',
-			'Bitrix\Landing\Update\Domain\Check'
+			'Bitrix\Landing\Update\Landing\InitApp',
+			'Bitrix\Landing\Update\Landing\SearchContent',
+			'Bitrix\Landing\Update\Domain\Check',
+			'Bitrix\Landing\Update\Assets\WebpackClear',
 		);
 	}
 	
@@ -41,7 +46,10 @@ class Stepper
 				// if not exist agent - something went wrong, need rollback
 				else
 				{
-					Option::delete('main.stepper.' . $moduleId, $className);
+					Option::delete(
+						'main.stepper.' . $moduleId,
+						['name' => $className]
+					);
 					
 					// journal
 					$eventLog = new \CEventLog;

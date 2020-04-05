@@ -18,11 +18,11 @@ if ($isIframe):?>
 <div class="mail-blacklist-is-iframe">
 <?endif;
 
-if (SITE_TEMPLATE_ID == 'bitrix24' && !$isIframe)
+if (SITE_TEMPLATE_ID == 'bitrix24' || $isIframe)
 {
 	$this->setViewTarget('inside_pagetitle'); ?>
 
-	<div class="pagetitle-container pagetitle-flexible-space">
+	<div class="pagetitle-container mail-pagetitle-flexible-space">
 		<? $APPLICATION->includeComponent(
 			'bitrix:main.ui.filter', '',
 			[
@@ -34,8 +34,9 @@ if (SITE_TEMPLATE_ID == 'bitrix24' && !$isIframe)
 		); ?>
 	</div>
 
-	<button class="ui-btn ui-btn-primary mail-blacklist-create-btn" data-role="blacklist-create-btn">
-		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST') ?>
+	<button class="ui-btn ui-btn-primary mail-blacklist-create-btn" data-role="blacklist-create-btn"
+		style="<? if ($_REQUEST['IFRAME'] != 'Y'): ?> margin-right: 20px;<? endif ?>">
+		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2') ?>
 	</button>
 
 	<? $this->endViewTarget();
@@ -51,14 +52,15 @@ else
 			'FILTER' => $arResult['FILTER'],
 		]
 	);?>
-	<?$this->setViewTarget('pagetitle');?>
+
 	<button class="ui-btn ui-btn-primary mail-blacklist-create-btn" data-role="blacklist-create-btn">
-		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST') ?>
+		<?= Loc::getMessage('MAIL_BLACKLIST_LIST_CREATE_BLACKLIST_2') ?>
 	</button>
-	<?$this->endViewTarget('pagetitle');
+
+	<?
 }
 
-$APPLICATION->SetTitle(Loc::getMessage('MAIL_BLACKLIST_LIST_PAGE_TITLE'));
+$APPLICATION->SetTitle(Loc::getMessage('MAIL_BLACKLIST_LIST_PAGE_TITLE_2'));
 
 $arResult['GRID_DATA'] = $arColumns = [];
 

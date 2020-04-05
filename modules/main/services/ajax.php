@@ -11,6 +11,10 @@ if(!empty($siteId) && is_string($siteId))
 {
 	define('SITE_ID', $siteId);
 }
+if (isset($_REQUEST['admin_section']) && $_REQUEST['admin_section'] === 'Y')
+{
+	define('ADMIN_SECTION', true);
+}
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 

@@ -189,8 +189,7 @@ else
 								'allowAddSocNetGroup' => 'N',
 								'allowSearchEmailUsers' => 'N',
 								'allowSearchCrmEmailUsers' => 'N',
-								'allowSearchNetworkUsers' => 'N',
-								'allowSonetGroupsAjaxSearchFeatures' => 'N'
+								'allowSearchNetworkUsers' => 'N'
 							)
 						),
 						false,
@@ -309,8 +308,7 @@ else
 								'allowAddSocNetGroup' => 'N',
 								'allowSearchEmailUsers' => 'N',
 								'allowSearchCrmEmailUsers' => 'N',
-								'allowSearchNetworkUsers' => 'N',
-								'allowSonetGroupsAjaxSearchFeatures' => 'N'
+								'allowSearchNetworkUsers' => 'N'
 							)
 						),
 						false,
@@ -507,7 +505,7 @@ else
 
 							?><span class="sonet-members-member-text"><?
 								?><span class="sonet-members-member-title"><?
-									?><a href="<?=$arDepartment["URL"]?>" class="sonet-members-member-link" target="_top"><?=$arDepartment["NAME"]?></a><?
+									?><a href="<?=$arDepartment["URL"]?>" class="sonet-members-member-link" target="_top"><?=htmlspecialcharsEx($arDepartment["NAME"])?></a><?
 								?></span><?
 							?></span><?
 						?></span><?

@@ -6,7 +6,11 @@ define("ADMIN_THEME_ID", CAdminTheme::GetCurrentTheme());
 
 global $adminPage, $adminMenu, $adminChain, $adminAjaxHelper, $adminSidePanelHelper;
 $adminPage = new CAdminPage();
-$adminAjaxHelper = new CAdminAjaxHelper();
+if(class_exists('CAdminAjaxHelper'))
+{
+	//updater sequence
+	$adminAjaxHelper = new CAdminAjaxHelper();
+}
 $adminSidePanelHelper = new CAdminSidePanelHelper();
 $adminMenu = new CAdminMenu();
 $adminChain = new CAdminMainChain("main_navchain");

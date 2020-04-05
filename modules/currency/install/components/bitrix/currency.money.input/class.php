@@ -97,8 +97,16 @@ class CCurrencyMoneyInputComponent extends \CBitrixComponent
 		if($currentValue !== '')
 		{
 			$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
-			$currentValue = number_format((float)$currentValue, $format['DECIMALS'], $format['DEC_POINT'], $format['THOUSANDS_SEP']);
+			//TODO: in the future - remove this hack
+			if ($format['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE)
+			{
+				$format['THOUSANDS_VARIANT'] = \CCurrencyLang::SEP_SPACE;
+				$separators = \CCurrencyLang::GetSeparators();
+				$format['THOUSANDS_SEP'] = $separators[\CCurrencyLang::SEP_SPACE];
+				unset($separators);
+			}
+			$currentValue = \CCurrencyLang::formatValue($currentValue, $format, false);
+			unset($format);
 		}
 
 		return $currentValue;

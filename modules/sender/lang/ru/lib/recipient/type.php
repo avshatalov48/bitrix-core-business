@@ -4,4 +4,8 @@ $MESS["SENDER_TYPE_CAPTION_PHONE"] = "Телефон";
 $MESS["SENDER_TYPE_CAPTION_IM"] = "Мессенджер";
 $MESS["SENDER_TYPE_CAPTION_CRM_CONTACT_ID"] = "Контакт";
 $MESS["SENDER_TYPE_CAPTION_CRM_COMPANY_ID"] = "Компания";
+$MESS["SENDER_TYPE_CAPTION_CRM_DEAL_PRODUCT_CONTACT_ID"] = "Контакт (товары в сделках)";
+$MESS["SENDER_TYPE_CAPTION_CRM_ORDER_PRODUCT_CONTACT_ID"] = "Контакт (товары в заказах)";
+$MESS["SENDER_TYPE_CAPTION_CRM_DEAL_PRODUCT_COMPANY_ID"] = "Компания (товары в сделках)";
+$MESS["SENDER_TYPE_CAPTION_CRM_ORDER_PRODUCT_COMPANY_ID"] = "Компания (товары в заказах)";
 ?>

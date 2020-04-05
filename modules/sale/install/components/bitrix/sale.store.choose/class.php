@@ -111,6 +111,8 @@ class CSaleStoreChooseComponent extends CBitrixComponent
 				$stores[$storeParams["ID"]]["IMAGE_URL"] = $arImage["SRC"];
 			}
 
+			$stores[$storeParams["ID"]]["ADDRESS"] = TruncateText($storeParams["ADDRESS"], 150);
+
 			if(!empty($arStoreLocation))
 			{
 				$latMapParamName = self::getMapParamLatName();

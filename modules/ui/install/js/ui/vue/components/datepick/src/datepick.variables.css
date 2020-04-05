@@ -1,0 +1,9 @@
+.vdpComponent {
+	--b24-text-color: #000;
+	/*--b24-font-family: "Helvetica Neue";*/
+	--b24-background-color: #fff;
+	--b24-field-background-color: rgba(0, 0, 0, .08);
+	--b24-field-focus-background-color: #fff;
+	--b24-primary-text-color: #fff;
+	--b24-primary-color: #0f58d0;
+}

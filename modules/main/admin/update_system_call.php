@@ -137,7 +137,8 @@ if ($queryType == "M")
 
 	if (strlen($errorMessage) <= 0)
 	{
-		if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage, defined("US_BITRIX24_MODE") && US_BITRIX24_MODE))
+		$isB24Mode = defined("US_BITRIX24_MODE") && US_BITRIX24_MODE;
+		if (!CUpdateClient::UpdateStepModules($temporaryUpdatesDir, $errorMessage, $isB24Mode, $isB24Mode))
 		{
 			$errorMessage .= "[CL04] ".GetMessage("SUPC_ME_UPDATE").". ";
 			CUpdateClient::AddMessage2Log(GetMessage("SUPC_ME_UPDATE"), "CL04");

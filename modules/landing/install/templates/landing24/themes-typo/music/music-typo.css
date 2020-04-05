@@ -21,8 +21,3 @@ body {
 }
 
 /* Tabs */
-@media (min-width: 768px) {
-  [class*="u-nav-v5"].u-nav-primary .nav-link {
-    font-size: 0.92857rem;
-  }
-}

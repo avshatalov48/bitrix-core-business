@@ -19,7 +19,7 @@
 		this.inputName = params.inputName;
 		this.inputId = params.inputName;
 		this.isInputMultiple = params.isInputMultiple;
-		this.inputNode = this.container.querySelector('input[name="' + params.inputName + '"]');
+		this.inputNode = (this.container ? this.container.querySelector('input[name="' + params.inputName + '"]') : null);
 		this.useSymbolicId = params.useSymbolicId;
 		this.openDialogWhenInit = !!params.openDialogWhenInit;
 
@@ -37,6 +37,7 @@
 
 		BX.addCustomEvent(this.selector, this.selector.events.buttonSelect, this.openDialog.bind(this));
 		BX.addCustomEvent(this.selector, this.selector.events.tileRemove, this.removeTile.bind(this));
+		BX.addCustomEvent(this.selector, this.selector.events.tileClick, this.clickTile.bind(this));
 		BX.Main.User.SelectorController.init(this);
 	}
 	UserSelector.prototype = {
@@ -58,6 +59,27 @@
 		{
 			this.unsetValue(tile.id);
 		},
+		clickTile: function(tile)
+		{
+			if (
+				BX.type.isNotEmptyObject(tile.data)
+				&& BX.type.isNotEmptyString(tile.data.url)
+			)
+			{
+				if (
+					BX.type.isNotEmptyString(tile.data.urlUseSlider)
+					&& tile.data.urlUseSlider == 'Y'
+					&& BX.type.isNotEmptyObject(BX.SidePanel)
+				)
+				{
+					BX.SidePanel.Instance.open(tile.data.url);
+				}
+				else
+				{
+					window.open(tile.data.url, '_blank');
+				}
+			}
+		},
 		setUsers: function(list)
 		{
 			list = list || [];
@@ -69,6 +91,7 @@
 			else
 			{
 				this.inputNode.value = list.join(',');
+				BX.fireEvent(this.inputNode, "change");
 			}
 		},
 		getUsers: function()
@@ -152,7 +175,26 @@
 			}
 			else
 			{
+				var jsonValue = false;
+				if (BX.type.isNotEmptyObject(BX.Main.selectorManagerV2))
+				{
+					var mainSelectorInstance = BX.Main.selectorManagerV2.getById(this.id);
+					if (mainSelectorInstance.getOption('returnJsonValue') == 'Y')
+					{
+						jsonValue = true;
+					}
+				}
+
 				var list = this.getUsers().filter(function (id) {
+					if (jsonValue)
+					{
+						var parsedItem = JSON.parse(id);
+						if (BX.type.isNotEmptyObject(parsedItem))
+						{
+							id = parsedItem.id;
+						}
+
+					}
 					return id !== value;
 				});
 				this.setUsers(list);
@@ -164,7 +206,8 @@
 			inputNode.type = 'hidden';
 			inputNode.name = this.inputName;
 			inputNode.value = value;
-			this.container.insertBefore(inputNode, this.container.firstElementChild);
+			this.container.appendChild(inputNode);
+			BX.fireEvent(inputNode, "change");
 		},
 		addInputs: function(list)
 		{
@@ -172,6 +215,16 @@
 			list.forEach(function (value) {
 				this.addInput(value);
 			}, this);
+
+			if (
+				list.length <= 0
+				&& this.isInputMultiple
+			)
+			{
+				this.addInput('');
+			}
+
+
 		},
 		getInputs: function()
 		{
@@ -180,6 +233,7 @@
 		removeInputs: function()
 		{
 			this.getInputs().forEach(function (inputNode) {
+				BX.fireEvent(inputNode, "change");
 				BX.remove(inputNode);
 			});
 		}
@@ -255,8 +309,35 @@
 				bindNode: userSelector.container
 			}]);
 		},
+		formatName: function(params)
+		{
+			var result = '';
+			var nameTemplate = (BX.type.isNotEmptyString(params.nameTemplate) ? BX.util.htmlspecialcharsback(BX.util.htmlspecialcharsback(params.nameTemplate)) : '#NAME#');
+
+			if (BX.type.isNotEmptyObject(params.item))
+			{
+				var item = params.item;
+				result = nameTemplate;
+			}
+			else
+			{
+				return result;
+			}
+
+			for (var field in item)
+			{
+				if (item.hasOwnProperty(field))
+				{
+					result = result.replace('#' + field.toUpperCase() + '#', BX.util.htmlspecialcharsback(item[field]));
+				}
+			}
+
+			return result;
+		},
 		select: function (params)
 		{
+			var mainSelectorInstance = (BX.type.isNotEmptyObject(BX.Main.selectorManagerV2) ? BX.Main.selectorManagerV2.getById(params.selectorId) : null);
+
 			var self = BX.Main.User.SelectorController;
 			var userSelector = self.getUserSelector(params.selectorId);
 			if (
@@ -270,11 +351,27 @@
 			if (
 				BX.type.isNotEmptyObject(params.item.params)
 				&& BX.type.isNotEmptyString(params.item.params.email)
+				&& (
+					!mainSelectorInstance
+					|| mainSelectorInstance.getOption('returnJsonValue') != 'Y'
+				)
 			)
 			{
-				entityId = 'UE' + entityId;
+				entityId = (BX.type.isNotEmptyString(params.prefix) ? params.prefix : 'UE') + entityId;
 			}
-			userSelector.setValue(entityId);
+
+			var jsonValue = false;
+			if (
+				mainSelectorInstance
+				&& mainSelectorInstance.getOption('returnJsonValue') == 'Y'
+			)
+			{
+				userSelector.setValue(JSON.stringify(params.item));
+			}
+			else
+			{
+				userSelector.setValue(entityId);
+			}
 
 			var data = {
 				readonly: !!params.undeletable
@@ -282,6 +379,14 @@
 			if (BX.type.isNotEmptyString(params.entityType))
 			{
 				data.entityType = params.entityType;
+			}
+			if (BX.type.isNotEmptyString(params.item.url))
+			{
+				data.url = params.item.url;
+			}
+			if (BX.type.isNotEmptyString(params.item.urlUseSlider))
+			{
+				data.urlUseSlider = params.item.urlUseSlider;
 			}
 			if (
 				BX.type.isNotEmptyString(params.item.isExtranet)
@@ -297,8 +402,15 @@
 			{
 				data.crmEmail = true;
 			}
+			if (BX.type.isNotEmptyString(params.state))
+			{
+				data.state = params.state;
+			}
 
-			userSelector.selector.addTile(params.item.name, data, entityId);
+			userSelector.selector.addTile(self.formatName({
+				item: params.item,
+				nameTemplate:  mainSelectorInstance.getOption('nameTemplate')
+			}), data, entityId);
 			userSelector.selector.input.value = '';
 
 			if (
@@ -314,7 +426,9 @@
 			BX.onCustomEvent('BX.Main.User.SelectorController:select', [ {
 				selectorId: params.selectorId,
 				item: params.item,
-				contextNode: userSelector.selector.context
+				contextNode: userSelector.selector.context,
+				containerId: userSelector.containerId,
+				inputName: userSelector.inputName
 			} ]);
 		},
 		unSelect: function (params)
@@ -355,10 +469,22 @@
 				}
 			}
 
+			if (
+				!userSelector.isInputMultiple
+				|| !BX.type.isNotEmptyString(params.tab)
+				|| params.tab != 'search'
+			)
+			{
+				userSelector.selector.input.style.display = 'none';
+				userSelector.selector.buttonSelect.style.display = '';
+			}
+
 			BX.onCustomEvent('BX.Main.User.SelectorController:unSelect', [ {
 				selectorId: params.selectorId,
 				item: params.item,
-				contextNode: userSelector.selector.context
+				contextNode: userSelector.selector.context,
+				containerId: userSelector.containerId,
+				inputName: userSelector.inputName
 			} ]);
 		},
 		openDialog: function (params)
@@ -415,11 +541,36 @@
 		},
 		closeSearch: function (params)
 		{
+			var self = BX.Main.User.SelectorController;
+			var userSelector = self.getUserSelector(params.selectorId);
+			if (!userSelector)
+			{
+				return;
+			}
+
+			if (userSelector.selector)
+			{
+				var selectorInstance = BX.UI.SelectorManager.instances[params.selectorId];
+				if (
+					!selectorInstance
+					|| !selectorInstance.closeByEmptySearchResult
+				) // e.g. autohide
+				{
+					userSelector.selector.input.style.display = 'none';
+					userSelector.selector.buttonSelect.style.display = '';
+				}
+			}
 		},
 		getUserSelector: function (id)
 		{
 			var userSelector = this.list.filter(function (selector) {
-				return selector.id === id;
+				return (
+					selector.id === id
+					&& (
+						!selector.container
+						|| document.body.contains(selector.container)
+					)
+				);
 			});
 
 			return userSelector[0];

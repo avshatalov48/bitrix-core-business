@@ -2,7 +2,11 @@
 	vertical-align: top;
 }
 
-.affiliate-agreement-text
-{
+.affiliate-agreement-text {
 	width:100%;
+	margin: 20px 0 10px 0;
+}
+
+.affiliate-agreement-label {
+	font-size: 13px;
 }

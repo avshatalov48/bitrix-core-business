@@ -41,7 +41,7 @@ function getTreeOffsetWidth($level = 0)
 	return 30 + $level * 21;
 }
 
-function renderTree($sections, $level = 0, $tableId)
+function renderTree($sections, $level, $tableId)
 {
 	$content = '';
 	$level = (int)$level;
@@ -337,7 +337,7 @@ else
 			else
 			{
 				$arActions[] = array(
-					"TEXT" => GetMessage("SPS_SELECT"),
+					"TEXT" => GetMessage("BX_CATALOG_CPS_TPL_MESS_APPEND_SECTION"),
 					"DEFAULT" => "Y",
 					"ACTION" => $tableId.'_helper.onSectionClick('.$arItems["ID"].');'
 				);

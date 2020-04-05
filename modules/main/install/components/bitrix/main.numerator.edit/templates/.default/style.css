@@ -278,3 +278,12 @@
 [data-role="numerator-periodicBy"] {
 	margin-bottom: 4px;
 }
+
+.main-numerator-edit-field-wrap-half {
+	width: 48%;
+	display: inline-block;
+}
+
+.main-numerator-edit-field-wrap-half:nth-child(2n) {
+	margin-left: 3%;
+}

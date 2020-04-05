@@ -19,15 +19,15 @@
 				 data-arrows-classes="u-arrow-v1 g-absolute-centered--x g-bottom-0 g-width-40 g-height-40 g-rounded-50x g-font-size-default g-color-gray-light-v2 g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
 				 data-arrow-left-classes="fa fa-angle-left g-ml-minus-30"
 				 data-arrow-right-classes="fa fa-angle-right g-ml-30">
-				<div class="landing-block-node-card js-slide">
+				<div class="landing-block-node-card js-slide align-self-center g-pt-10">
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
-						<div class="g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid rounded-circle img-bordered g-brd-white mx-auto"
+						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
+							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img11.jpg" alt="">
 						</div>
 
-						<div class="media-body align-self-center text-sm-left text-center g-color-white">
+						<div class="landing-block-text-container align-self-center media-body text-center text-sm-left g-color-white g-px-5">
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>
@@ -37,15 +37,15 @@
 					<!-- End Testimonial Block -->
 				</div>
 
-				<div class="landing-block-node-card js-slide">
+				<div class="landing-block-node-card js-slide align-self-center g-pt-10">
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
-						<div class="g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid rounded-circle img-bordered g-brd-white mx-auto"
+						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
+							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img12.jpg" alt="">
 						</div>
 
-						<div class="media-body align-self-center text-center text-sm-left g-color-white">
+						<div class="landing-block-text-container align-self-center media-body text-center text-sm-left g-color-white g-px-5">
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>
@@ -55,15 +55,15 @@
 					<!-- End Testimonial Block -->
 				</div>
 
-				<div class="landing-block-node-card js-slide">
+				<div class="landing-block-node-card js-slide align-self-center g-pt-10">
 					<!-- Testimonial Block -->
 					<div class="landing-block-node-card-container js-animation fadeIn media d-block d-md-flex">
-						<div class="g-mb-30 g-mb-0--md g-pr-30--sm">
-							<img class="landing-block-node-card-photo img-fluid rounded-circle img-bordered g-brd-white mx-auto"
+						<div class="landing-block-img-container align-self-center g-mb-30 g-mb-0--md g-pr-30--sm">
+							<img class="landing-block-node-card-photo img-fluid g-rounded-50x g-width-120 g-height-120 g-object-fit-cover img-bordered g-brd-white mx-auto"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/120x120/img13.jpg" alt="">
 						</div>
 
-						<div class="media-body align-self-center text-center text-sm-left g-color-white">
+						<div class="landing-block-text-container align-self-center media-body text-center text-sm-left g-color-white g-px-5">
 							<div class="landing-block-node-card-text g-mb-25">The customisation options you implemented are countless, and I
 								feel sorry I can't use them all. Good job, and keep going! are countless, and I feel
 							</div>

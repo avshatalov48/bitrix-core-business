@@ -9,7 +9,8 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions < "W")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+\Bitrix\Main\Loader::includeModule('sale');
+
 IncludeModuleLangFile(__FILE__);
 
 ClearVars();
@@ -242,7 +243,7 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td width="40%"><?echo GetMessage("SPTEN_NAME")?>:</td>
 		<td width="60%">
-			<input type="text" name="NAME" size="30" maxlength="100" value="<?= $personType['NAME']?>">
+			<input type="text" name="NAME" size="30" maxlength="100" value="<?= htmlspecialcharsbx($personType['NAME']);?>">
 		</td>
 	</tr>
 	<tr>
@@ -250,9 +251,9 @@ $tabControl->BeginNextTab();
 		<td width="60%">
 			<?if ($personType['CODE'] === 'CRM_COMPANY' || $personType['CODE'] === 'CRM_CONTACT'):?>
 				<?=$personType['CODE'];?>
-				<input type="hidden" name="CODE" size="30" maxlength="100" value="<?= $personType['CODE'] ?>">
+				<input type="hidden" name="CODE" size="30" maxlength="100" value="<?= htmlspecialcharsbx($personType['CODE']);?>">
 			<?else:?>
-				<input type="text" name="CODE" size="30" maxlength="100" value="<?= $personType['CODE'] ?>">
+				<input type="text" name="CODE" size="30" maxlength="100" value="<?= htmlspecialcharsbx($personType['CODE']) ?>">
 			<?endif;?>
 		</td>
 	</tr>
@@ -265,7 +266,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td width="40%"><?echo GetMessage("SPTEN_XML_ID")?>:</td>
 		<td width="60%">
-			<input type="text" name="XML_ID" size="30" value="<?= $personType['XML_ID'] ?: \Bitrix\Sale\PersonType::generateXmlId() ?>">
+			<input type="text" name="XML_ID" size="30" value="<?= $personType['XML_ID'] ? htmlspecialcharsbx($personType['XML_ID']): \Bitrix\Sale\PersonType::generateXmlId() ?>">
 		</td>
 	</tr>
 	<?

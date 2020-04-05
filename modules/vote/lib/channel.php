@@ -214,7 +214,18 @@ class Channel extends BaseObject implements \ArrayAccess
 	private $data = array();
 
 	/**
-	 * @throws \Bitrix\Main\ArgumentException
+	 * Channel constructor.
+	 * @param $id
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 */
+	public function __construct($id)
+	{
+		if (!($id > 0))
+			throw new \Bitrix\Main\ArgumentNullException("id");
+		parent::__construct($id);
+	}
+	/**
+	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
 	public function init()
 	{

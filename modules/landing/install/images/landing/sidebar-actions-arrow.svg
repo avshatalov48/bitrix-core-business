@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="10px" height="5px" viewBox="0 0 10 5" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FAFAFA" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="45.0380068%"></stop>
+            <stop stop-color="#EEF2F4" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#FAFAFA" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="45.0380068%"></stop>
+            <stop stop-color="#EEF2F4" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02-Контролы-2" transform="translate(-1025.000000, -714.000000)">
+            <g id="Group-2" transform="translate(507.000000, 52.000000)">
+                <rect id="grey" fill="#FFFFFF" x="328" y="0" width="1022" height="1041"></rect>
+                <rect id="Rectangle" fill="url(#linearGradient-1)" x="328" y="22" width="431" height="1019"></rect>
+                <rect id="Rectangle" fill="url(#linearGradient-2)" x="0" y="0" width="759" height="1041"></rect>
+            </g>
+            <g id="left" transform="translate(171.000000, 66.000000)" fill="#000000" opacity="0.47593471">
+                <rect id="Rectangle" x="1" y="0" width="1685" height="1019"></rect>
+            </g>
+            <g id="Group-9" transform="translate(991.000000, 697.000000)">
+                <path d="M18.5,-0.5 L37.5,-0.5 C47.9934102,-0.5 56.5,8.00658975 56.5,18.5 C56.5,28.9934102 47.9934102,37.5 37.5,37.5 L18.5,37.5 C8.00658975,37.5 -0.5,28.9934102 -0.5,18.5 C-0.5,8.00658975 8.00658975,-0.5 18.5,-0.5 Z" id="Rectangle-3-Copy-8" stroke-opacity="0.801403986" stroke="#525C69" fill="#FFFFFF"></path>
+                <polygon id="Rectangle-5" fill="#5F6875" opacity="0.5" transform="translate(39.000000, 17.171573) rotate(-45.000000) translate(-39.000000, -17.171573) " points="36 14.1715729 42 20.1715729 36 20.1715729"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -21,6 +21,77 @@ class MainMailFormComponent extends CBitrixComponent
 			$params['USE_SIGNATURES'] = false;
 		}
 
+		$params['VERSION'] = (isset($params['VERSION']) && intval($params['VERSION']) > 0 ? intval($params['VERSION']) : 1);
+//		$params['VERSION'] = 1;
+
+		if (
+			!empty($params['FIELDS'])
+			&& $params['VERSION'] < 2
+		)
+		{
+			foreach($params['FIELDS'] as $fieldKey => $field)
+			{
+				if (!empty($field['selector']))
+				{
+					if (
+						!empty($field['selector']['items'])
+						&& !empty($field['selector']['items']['mailcontacts'])
+					)
+					{
+						if (empty($field['selector']['items']['users']))
+						{
+							$field['selector']['items']['users'] = [];
+							$field['selector']['items']['emails'] = [];
+						}
+						foreach($field['selector']['items']['mailcontacts'] as $itemKey => $item)
+						{
+							$newItemKey = preg_replace('/^MC(.*)/', '$1', $itemKey);
+							$newItemKey = 'U'.md5($newItemKey);
+							$item['id'] = $newItemKey;
+							$field['selector']['items']['users'][$newItemKey] = $item;
+							$field['selector']['items']['emails'][$newItemKey] = $item;
+							unset($field['selector']['items']['emails'][$itemKey]);
+						}
+						unset($field['selector']['items']['mailcontacts']);
+					}
+					if (
+						!empty($field['selector']['itemsLast'])
+						&& !empty($field['selector']['itemsLast']['mailcontacts'])
+					)
+					{
+						if (empty($field['selector']['itemsLast']['users']))
+						{
+							$field['selector']['itemsLast']['users'] = [];
+							$field['selector']['itemsLast']['emails'] = [];
+						}
+						foreach($field['selector']['itemsLast']['mailcontacts'] as $itemKey => $value)
+						{
+							$newItemKey = preg_replace('/^MC(.*)/', '$1', $itemKey);
+							$newItemKey = 'U'.md5($newItemKey);
+							$field['selector']['itemsLast']['users'][$newItemKey] = $newItemKey;
+							$field['selector']['itemsLast']['emails'][$newItemKey] = $newItemKey;
+							unset($field['selector']['itemsLast']['mailcontacts'][$itemKey]);
+							unset($field['selector']['itemsLast']['emails'][$itemKey]);
+						}
+						unset($field['selector']['itemsLast']['mailcontacts']);
+					}
+					if (!empty($field['selector']['itemsSelected']))
+					{
+						foreach($field['selector']['itemsSelected'] as $itemKey => $value)
+						{
+							if ($value == 'mailcontacts')
+							{
+								$newItemKey = preg_replace('/^MC(.*)/', '$1', $itemKey);
+								$newItemKey = 'U'.md5($newItemKey);
+								$field['selector']['itemsSelected'][$newItemKey] = 'users';
+								unset($field['selector']['itemsSelected'][$itemKey]);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		return $params;
 	}
 
@@ -29,7 +100,12 @@ class MainMailFormComponent extends CBitrixComponent
 		global $APPLICATION;
 
 		\CModule::includeModule('socialnetwork');
-		\CJSCore::init(array('socnetlogdest', 'admin_interface'));
+		$extensionsList = [ 'admin_interface' ];
+		if ($this->arParams['VERSION'] < 2)
+		{
+			$extensionsList[] = 'socnetlogdest';
+		}
+		\CJSCore::init($extensionsList);
 
 		$this->arParams['FIELDS'] = $this->arParams['~FIELDS'];
 		$this->arParams['FIELDS_EXT'] = $this->arParams['~FIELDS_EXT'];
@@ -73,7 +149,10 @@ class MainMailFormComponent extends CBitrixComponent
 				'type'        => 'from',
 				'name'        => 'from',
 				'title'       => Loc::getMessage('MAIN_MAIL_FORM_FROM_FIELD'),
-				'placeholder' => Loc::getMessage('MAIN_MAIL_FORM_FROM_FIELD_HINT'),
+				'placeholders' => array(
+					'default' => Loc::getMessage('MAIN_MAIL_FORM_FROM_FIELD_HINT'),
+					'required' => Loc::getMessage('MAIN_MAIL_FORM_FROM_FIELD_REQUIRED_HINT'),
+				),
 			),
 			'rcpt' => array(
 				'type'        => 'rcpt',
@@ -106,6 +185,39 @@ class MainMailFormComponent extends CBitrixComponent
 			),
 		);
 
+		if ($this->arParams['VERSION'] >= 2)
+		{
+			$presets['entity'] = array(
+				'type'        => 'entity',
+				'name'        => 'entity',
+				'title'       => Loc::getMessage('MAIN_MAIL_FORM_TO_FIELD'),
+				'placeholder' => Loc::getMessage('MAIN_MAIL_FORM_TO_FIELD_HINT'),
+				'email'       => true,
+				'multiple'    => true,
+				'selector'    => array(
+					'items' => array(
+						'users'     => array(),
+						'emails'    => array(),
+						'companies' => array(),
+						'contacts'  => array(),
+						'deals'     => array(),
+						'leads'     => array(),
+					),
+					'itemsLast' => array(
+						'users'     => array(),
+						'emails'    => array(),
+						'crm'       => array(),
+						'companies' => array(),
+						'contacts'  => array(),
+						'deals'     => array(),
+						'leads'     => array(),
+					),
+					'itemsSelected' => array(),
+					'destSort'      => array(),
+				),
+			);
+		}
+
 		foreach (array('FIELDS', 'FIELDS_EXT') as $set)
 		{
 			$fields = &$this->arParams[$set];
@@ -131,6 +243,13 @@ class MainMailFormComponent extends CBitrixComponent
 
 	protected function prepareField($formId, &$field)
 	{
+		if (!array_key_exists('placeholder', $field) && array_key_exists('placeholders', $field))
+		{
+			$field['placeholder'] = empty($field['required'])
+				? $field['placeholders']['default']
+				: $field['placeholders']['required'];
+		}
+
 		if (empty($field['type']) || !trim($field['type']))
 			$field['type'] = 'text';
 
@@ -155,13 +274,12 @@ class MainMailFormComponent extends CBitrixComponent
 					reset($field['list']);
 					$field['value'] = key($field['list']);
 				}
-
 				break;
 			}
 			case 'from':
 			{
-				\CBitrixComponent::includeComponentClass('bitrix:main.mail.confirm');
-				$field['mailboxes'] = \MainMailConfirmComponent::prepareMailboxes();
+				$field['mailboxes'] = \Bitrix\Main\Mail\Sender::prepareUserMailboxes();
+
 				if($this->arParams['USE_SIGNATURES'])
 				{
 					$field['signatures'] = $this->loadSignatures($field['mailboxes']);

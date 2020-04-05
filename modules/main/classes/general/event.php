@@ -566,6 +566,30 @@ class CAllEventMessage
 			unset($data['EVENT_MESSAGE_TYPE_NAME']);
 			unset($data['EVENT_MESSAGE_TYPE_EVENT_NAME']);
 		}
+
+		if (!empty($data['ADDITIONAL_FIELD']) && is_array($data['ADDITIONAL_FIELD']))
+		{
+			foreach ($data['ADDITIONAL_FIELD'] as $index => $aField)
+			{
+				$index++;
+				$oldKeyName = "FIELD{$index}_NAME";
+				$oldKeyValue = "FIELD{$index}_VALUE";
+				if (!array_key_exists($oldKeyName, $data))
+				{
+					continue;
+				}
+
+				if (!empty($data[$oldKeyName]))
+				{
+					continue;
+				}
+
+				$data[$oldKeyName] = $aField['NAME'];
+				$data[$oldKeyValue] = $aField['VALUE'];
+			}
+		}
+
+		return $data;
 	}
 
 	public static function GetList(&$by, &$order, $arFilter=Array())

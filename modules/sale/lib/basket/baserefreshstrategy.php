@@ -2,21 +2,15 @@
 
 namespace Bitrix\Sale\Basket;
 
-use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sale\BasketBase;
-use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\BasketItemBase;
 use Bitrix\Sale\EventActions;
-use Bitrix\Sale\Fuser;
-use Bitrix\Sale\Internals\PoolQuantity;
-use Bitrix\Sale\Internals\SiteCurrencyTable;
-use Bitrix\Sale\OrderBase;
-use Bitrix\Sale\PriceMaths;
 use Bitrix\Sale\Internals\Catalog\Provider;
-use Bitrix\Sale\ProviderBase;
+use Bitrix\Sale\Internals\PoolQuantity;
+use Bitrix\Sale\PriceMaths;
 use Bitrix\Sale\Registry;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ResultError;
@@ -164,9 +158,11 @@ abstract class BaseRefreshStrategy
 				$preparedData['PRICE'] = $preparedData['BASE_PRICE'] - $preparedData['DISCOUNT_PRICE'];
 			}
 
-			if (empty($preparedData)
-				|| (isset($preparedData['QUANTITY']) && $preparedData['QUANTITY'] == 0)
-				|| (isset($data['ACTIVE']) && $data['ACTIVE'] == 'N'))
+			if (
+				empty($preparedData)
+				|| (isset($preparedData['QUANTITY']) && $preparedData['QUANTITY'] <= 0)
+				|| (isset($data['ACTIVE']) && $data['ACTIVE'] === 'N')
+			)
 			{
 				$preparedData['CAN_BUY'] = 'N';
 				unset($preparedData['QUANTITY']);

@@ -294,7 +294,7 @@ CJSCore::RegisterExt('content_view', array(
 	'lang_additional' => array(
 		'SONET_CONTENTVIEW_JS_HIDDEN_COUNT' => GetMessage("SONET_CONTENTVIEW_JS_HIDDEN_COUNT"),
 	),
-	'rel' => array('ajax', 'popup')
+	'rel' => [ 'ajax', 'popup', 'main.polyfill.intersectionobserver' ]
 ));
 
 $arLogEvents = array(

@@ -9,6 +9,7 @@
 	 * @param {object} [options.config]
 	 * @param {number} [options.weight]
 	 * @param {object} [options.data]
+	 * @param {bool} [options.isHeadEnabled]
 	 * @param {object} [options.events]
 	 * @param {number} [options.width]
 	 * @param {number} [options.height]
@@ -27,6 +28,7 @@
 		this.title = options.title || 'No title';
 		this.weight = options.weight || 0;
 		this.data = options.data || {};
+		this.isHeadEnabled = options.isHeadEnabled !== false;
 
 		this.setContent(options.content || null);
 		this.width = options.width || '100%';
@@ -171,11 +173,11 @@
 				// var draggableContainer = this.getWidgetContainer();
 
 				//main events
-				draggableContainer.onbxdragstart = BX.delegate(this.onDragStart, this);
-				draggableContainer.onbxdrag = BX.delegate(this.onDrag, this);
-				draggableContainer.onbxdragstop = BX.delegate(this.onDragStop, this);
-				draggableContainer.onbxdragfinish = BX.delegate(this.onDragFinish, this);
-				draggableContainer.onbxdragrelease = BX.delegate(this.onDragEnd, this);
+				draggableContainer.onbxdragstart = this.onDragStart.bind(this);
+				draggableContainer.onbxdrag = this.onDrag.bind(this);
+				draggableContainer.onbxdragstop = this.onDragStop.bind(this);
+				draggableContainer.onbxdragfinish = this.onDragFinish.bind(this);
+				draggableContainer.onbxdragrelease = this.onDragEnd.bind(this);
 
 				jsDD.registerObject(draggableContainer);
 			},
@@ -520,36 +522,35 @@
 			render: function ()
 			{
 				var widgetContainer = this.getWidgetContainer();
+				var widgetWrapper = this.getWidgetWrapper();
 				var content = this.getContent();
 
 				if (this.loaded)
 				{
-					var headContainer = this.getHeadContainer();
-					var headWrapper = this.getHeadWrapper();
-					var controlsContainer = this.getControlsContainer();
-					var contentContainer = this.getContentContainer();
-					var contentWrapper = this.getContentWrapper();
 					if (this.checkIsRendered())
 					{
-						BX.cleanNode(widgetContainer);
-						BX.cleanNode(contentContainer);
-						BX.cleanNode(contentWrapper);
+						this.clean();
 					}
-					contentWrapper = this.getContentWrapper();
-					contentContainer.appendChild(contentWrapper);
 
-					var titleContainer = this.getTitleContainer();
-					titleContainer.innerHTML = this.config.title;
-					headWrapper.appendChild(titleContainer);
-					var widgetWrapper = this.getWidgetWrapper();
+					if(this.isHeadEnabled)
+					{
+						var headContainer = this.getHeadContainer();
+						var headWrapper = this.getHeadWrapper();
+						var controlsContainer = this.getControlsContainer();
+						var titleContainer = this.getTitleContainer();
+						titleContainer.innerHTML = this.config.title;
+						headWrapper.appendChild(titleContainer);
+						controlsContainer.appendChild(this.getPropertiesOpenButton());
+						headWrapper.appendChild(controlsContainer);
+						headContainer.appendChild(headWrapper);
+						widgetWrapper.appendChild(headContainer);
+					}
+
 					this.applyColor();
-
+					var contentWrapper = this.getContentWrapper();
+					var contentContainer = this.getContentContainer();
+					contentContainer.appendChild(contentWrapper);
 					contentWrapper.appendChild(content.render());
-					controlsContainer.appendChild(this.getPropertiesOpenButton());
-					headWrapper.appendChild(controlsContainer);
-					headContainer.appendChild(headWrapper);
-
-					widgetWrapper.appendChild(headContainer);
 					widgetWrapper.appendChild(contentContainer);
 					this.getLazyLoadPresetContainer().classList.add('report-visualconstructor-dashboard-widget-lazy-load-preset-disable');
 					widgetContainer.appendChild(widgetWrapper);
@@ -560,11 +561,14 @@
 					widgetContainer.appendChild(lazyLoadContainer);
 				}
 
-
 				this.setRenderStatus(true);
-
-
 				return widgetContainer;
+			},
+			clean: function()
+			{
+				BX.cleanNode(this.getWidgetContainer());
+				BX.cleanNode(this.getContentContainer());
+				BX.cleanNode(this.getContentWrapper());
 			},
 			remove: function ()
 			{
@@ -723,13 +727,13 @@
 					return;
 				}
 				this.isScrollingUp = true;
-				this.timer = setInterval(BX.delegate(function ()
+				this.timer = setInterval(function ()
 				{
 					var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 					window.scrollTo(0, scrollTop - 10);
 					mouseCurrentYPosition -= 10;
 					this.moveDragWidget(mouseCurrentXPosition, mouseCurrentYPosition);
-				}, this), 20);
+				}.bind(this), 20);
 			},
 			scrollDown: function (mouseCurrentXPosition, mouseCurrentYPosition)
 			{
@@ -738,13 +742,13 @@
 					return;
 				}
 				this.isScrollingDown = true;
-				this.timer = setInterval(BX.delegate(function ()
+				this.timer = setInterval(function ()
 				{
 					var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 					window.scrollTo(0, scrollTop + 10);
 					mouseCurrentYPosition += 10;
 					this.moveDragWidget(mouseCurrentXPosition, mouseCurrentYPosition);
-				}, this), 20);
+				}.bind(this), 20);
 			},
 
 			stopScroll: function ()

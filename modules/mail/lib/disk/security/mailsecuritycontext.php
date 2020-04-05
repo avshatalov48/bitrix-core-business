@@ -2,8 +2,14 @@
 
 namespace Bitrix\Mail\Disk\Security;
 
+use Bitrix\Main;
 use Bitrix\Mail;
 use Bitrix\Disk;
+
+if (!Main\Loader::includeModule('disk'))
+{
+	return false;
+}
 
 class MailSecurityContext extends Disk\Security\SecurityContext
 {

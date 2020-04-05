@@ -6,6 +6,7 @@ $MESS["BLOG_BLOG_BLOG_EDIT"] = "Edit";
 $MESS["BLOG_BLOG_BLOG_DELETE"] = "Delete";
 $MESS["BLOG_POST_CREATE_TASK"] = "Create task";
 $MESS["BLOG_POST_VOTE_EXPORT"] = "Export poll results";
+$MESS["BLOG_POST_MOD_PUB"] = "Publish";
 $MESS["BLOG_MES_HIDE"] = "Hide";
 $MESS["BLOG_MES_HIDE_POST_CONFIRM"] = "Are you sure you want to hide the conversation?";
 $MESS["BLOG_MONTH_01"] = "January";

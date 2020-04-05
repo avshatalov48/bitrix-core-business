@@ -518,7 +518,7 @@ BX.SocNetLogDestination.init = function(arParams)
 	BX.SocNetLogDestination.obItems[arParams.name] = BX.clone(arParams.items);
 	BX.SocNetLogDestination.obItemsLast[arParams.name] = BX.clone(arParams.itemsLast);
 	BX.SocNetLogDestination.obItemsSelected[arParams.name] = BX.clone(arParams.itemsSelected);
-	BX.SocNetLogDestination.obItemsSelectedUndeleted[arParams.name] = (typeof arParams.itemsSelectedUndeleted != 'undefined' ? BX.clone(arParams.itemsSelectedUndeleted) : {}) ;
+	BX.SocNetLogDestination.obItemsSelectedUndeleted[arParams.name] = (typeof arParams.itemsSelectedUndeleted != 'undefined' ? BX.clone(arParams.itemsSelectedUndeleted) : []) ;
 
 	for (var itemId in BX.SocNetLogDestination.obItemsSelected[arParams.name])
 	{
@@ -630,7 +630,9 @@ BX.SocNetLogDestination.openContainer = function(name, params)
 			: BX.SocNetLogDestination.obElementBindMainPopup[name].node
 	);
 
-	BX.SocNetLogDestination.containerWindow = new BX.PopupWindow('BXSocNetLogDestinationContainer', bindNode, {
+	BX.SocNetLogDestination.containerWindow = new BX.PopupWindow({
+		id: 'BXSocNetLogDestinationContainer',
+		bindElement: bindNode,
 		autoHide: true,
 		zIndex: 1200,
 		className: 'bx-finder-popup bx-finder-v2',
@@ -1429,7 +1431,9 @@ BX.SocNetLogDestination.openDialog = function(name, params)
 				: BX.SocNetLogDestination.obElementBindMainPopup[name].node
 		);
 
-		BX.SocNetLogDestination.popupWindow = new BX.PopupWindow('BXSocNetLogDestination', bindNode, {
+		BX.SocNetLogDestination.popupWindow = new BX.PopupWindow({
+			id: 'BXSocNetLogDestination',
+			bindElement: bindNode,
 			autoHide: true,
 			zIndex: 1200,
 			className: 'bx-finder-popup bx-finder-v2',
@@ -1971,7 +1975,9 @@ BX.SocNetLogDestination.search = function(text, sendAjax, name, nameTemplate, pa
 					{
 						if (BX.SocNetLogDestination.createSocNetGroupWindow === null)
 						{
-							BX.SocNetLogDestination.createSocNetGroupWindow = new BX.PopupWindow("invite-dialog-creategroup-popup", BX.SocNetLogDestination.obElementBindSearchPopup[name].node, {
+							BX.SocNetLogDestination.createSocNetGroupWindow = new BX.PopupWindow({
+								id: "invite-dialog-creategroup-popup",
+								bindElement: BX.SocNetLogDestination.obElementBindSearchPopup[name].node,
 								offsetTop : 1,
 								autoHide : true,
 								content : BX.SocNetLogDestination.createSocNetGroupContent(text),
@@ -2419,7 +2425,9 @@ BX.SocNetLogDestination.openSearch = function(items, name, params)
 				: BX.SocNetLogDestination.obElementBindSearchPopup[name].node
 		);
 
-		BX.SocNetLogDestination.popupSearchWindow = new BX.PopupWindow('BXSocNetLogDestinationSearch', bindNode, {
+		BX.SocNetLogDestination.popupSearchWindow = new BX.PopupWindow({
+			id: "BXSocNetLogDestinationSearch",
+			bindElement: bindNode,
 			autoHide: true,
 			zIndex: 1200,
 			className: 'bx-finder-popup bx-finder-v2',
@@ -3142,7 +3150,9 @@ BX.SocNetLogDestination.getHtmlByTemplate7 = function(name, item, params, type)
 	}
 
 	if (
-		typeof BX.SocNetLogDestination.obShowVacations[name] != 'undefined'
+		BX.type.isNotEmptyString(params.itemType)
+		&& params.itemType == 'users'
+		&& typeof BX.SocNetLogDestination.obShowVacations[name] != 'undefined'
 		&& BX.SocNetLogDestination.obShowVacations[name] === true
 		&& typeof BX.SocNetLogDestination.usersVacation[item.entityId] != 'undefined'
 		&& BX.SocNetLogDestination.usersVacation[item.entityId]
@@ -4659,6 +4669,7 @@ BX.SocNetLogDestination.BXfpCloseDialogCallback = function()
 {
 	if (
 		!BX.SocNetLogDestination.isOpenSearch()
+		&& BX(this.inputName)
 		&& BX(this.inputName).value.length <= 0
 	)
 	{
@@ -5167,7 +5178,9 @@ BX.SocNetLogDestination.openInviteEmailUserDialog = function(obUserEmail, name, 
 
 	if (BX.SocNetLogDestination.inviteEmailUserWindow === null)
 	{
-		BX.SocNetLogDestination.inviteEmailUserWindow = new BX.PopupWindow("invite-email-email-user-popup", BX.SocNetLogDestination.obElementSearchInput[name], {
+		BX.SocNetLogDestination.inviteEmailUserWindow = new BX.PopupWindow({
+			id: "invite-email-email-user-popup",
+			bindElement: BX.SocNetLogDestination.obElementSearchInput[name],
 			offsetTop : 1,
 			content : BX.SocNetLogDestination.inviteEmailUserContent(obUserEmail, name, bCrm),
 			zIndex : 1250,

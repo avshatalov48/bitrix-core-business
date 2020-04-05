@@ -26,6 +26,19 @@ $arParams["PATH_TO_DETAIL"] = Trim($arParams["PATH_TO_DETAIL"]);
 if (strlen($arParams["PATH_TO_DETAIL"]) <= 0)
 	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?"."ID=#ID#");
 
+if (strlen($id) <= 0 && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
+{
+	LocalRedirect($arParams["PATH_TO_LIST"]);
+}
+
+if (strlen($id) <= 0)
+{
+	$arResult["URL_TO_LIST"] = $arParams['PATH_TO_LIST'];
+	$arResult["ERROR_MESSAGE"] = GetMessage("SPOC_EMPTY_ORDER_ID");
+	$this->IncludeComponentTemplate();
+	return;
+}
+
 if ($arParams["SET_TITLE"] == 'Y')
 	$APPLICATION->SetTitle(str_replace("#ID#", $id, GetMessage("SPOC_TITLE")));
 
@@ -33,20 +46,19 @@ $bUseAccountNumber = \Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNu
 
 $errors = array();
 
-if (strlen($id) <= 0 && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
-{
-	LocalRedirect($arParams["PATH_TO_LIST"]);
-}
+$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+/** @var \Bitrix\Sale\Order $orderClass */
+$orderClass = $registry->getOrderClassName();
 
 $order = null;
 if ($bUseAccountNumber)
 {
-	$order = \Bitrix\Sale\Order::loadByAccountNumber($id);
+	$order = $orderClass::loadByAccountNumber($id);
 }
 
 if (!$order)
 {
-	$order = \Bitrix\Sale\Order::load($id);
+	$order = $orderClass::load($id);
 }
 
 if (!$order)

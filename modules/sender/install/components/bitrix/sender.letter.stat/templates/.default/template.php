@@ -33,7 +33,7 @@ $containerId = htmlspecialcharsbx($containerId);
 				'allPostings' => Loc::getMessage('SENDER_LETTER_STAT_STATS_POSTINGS_ALL'),
 				'readByTimeBalloon' => Loc::getMessage('SENDER_LETTER_STAT_STATS_READ_BY_TIME_CHART_BALLOON'),
 			)
-		))?>;
+		), JSON_PARTIAL_OUTPUT_ON_ERROR)?>;
 
 		params.context = BX('<?=$containerId?>');
 		BX.Sender.PostingsStats.load(params);

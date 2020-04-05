@@ -154,48 +154,6 @@ return [
 		],
 	],
 	
-	'vine' => [
-		'name' => '<span class="fa fa-vine"></span> Vine',
-		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
-			data-card-preset="vine">
-			<a class="landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-vine--hover g-bg-vine g-color-white text-center" href="https://vine.co/" target="_blank">
-				<i class="landing-block-node-list-icon fa fa-vine"></i>
-			</a>
-		</li>',
-		'disallow' => ['.landing-block-node-list-icon'],
-		'values' => [
-			'.landing-block-node-list-link' => [
-				'href' => 'https://vine.co/',
-				'target' => '_blank',
-			],
-			'.landing-block-node-list-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-vine'],
-			],
-		],
-	],
-	
-	'google-plus' => [
-		'name' => '<span class="fa fa-google-plus"></span> Google Plus',
-		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
-			data-card-preset="google-plus">
-			<a class="landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-google-plus--hover g-bg-google-plus g-color-white text-center" href="https://plus.google.com/" target="_blank">
-				<i class="landing-block-node-list-icon fa fa-google-plus"></i>
-			</a>
-		</li>',
-		'disallow' => ['.landing-block-node-list-icon'],
-		'values' => [
-			'.landing-block-node-list-link' => [
-				'href' => 'https://plus.google.com/',
-				'target' => '_blank',
-			],
-			'.landing-block-node-list-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-google-plus'],
-			],
-		],
-	],
-	
 	'dribbble' => [
 		'name' => '<span class="fa fa-dribbble"></span> Dribbble',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"

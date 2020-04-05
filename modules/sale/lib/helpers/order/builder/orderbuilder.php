@@ -1,7 +1,7 @@
 <?
 namespace Bitrix\Sale\Helpers\Order\Builder;
 
-use Bitrix\Crm\Order\Shipment;
+use Bitrix\Sale\Shipment;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -9,6 +9,7 @@ use Bitrix\Main\ObjectException;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Helpers\Admin\Blocks\OrderBuyer;
+use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaySystem\Manager;
 use Bitrix\Sale\Services\PaySystem;
 use Bitrix\Main\Type\Date;
@@ -138,26 +139,12 @@ abstract class OrderBuilder
 
 	protected function getSettableShipmentFields()
 	{
-		return [];
+		return Shipment::getAvailableFields();
 	}
 
 	protected function getSettablePaymentFields()
 	{
-		return [
-			'IS_RETURN',
-			'PAY_SYSTEM_ID',
-			'COMPANY_ID',
-			'PAY_SYSTEM_NAME',
-			'RESPONSIBLE_ID',
-			'EMP_RESPONSIBLE_ID',
-			'DATE_RESPONSIBLE_ID',
-			'SUM',
-			'PRICE_COD',
-			'DATE_BILL',
-			'PAY_RETURN_DATE',
-			'PAY_VOUCHER_DATE',
-			'PAID'
-		];
+		return Payment::getAvailableFields();
 	}
 
 	protected function getSettableOrderFields()
@@ -346,6 +333,7 @@ abstract class OrderBuilder
 			{
 				//for backward compatibility
 				$product = $item['PRODUCT'];
+				$storeId = $item['DELIVERY_STORE_ID'];
 				$item = array_intersect_key($item, array_flip($settableShipmentFields));
 				$item['PRODUCT'] = $product;
 			}
@@ -442,22 +430,33 @@ abstract class OrderBuilder
 			{
 				$shipmentFields['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
 				$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->GetID();
-				$shipmentFields['DATE_RESPONSIBLE_ID'] = new DateTime();
-			}
-
-			if($item['DELIVERY_DOC_DATE'])
-			{
-				try
-				{
-					$shipmentFields['DELIVERY_DOC_DATE'] = new Date($item['DELIVERY_DOC_DATE']);
-				}
-				catch (ObjectException $exception)
-				{
-					$this->errorsContainer->addError(new Error(Loc::getMessage("SALE_HLP_ORDERBUILDER_DATE_FORMAT_ERROR")));
-				}
 			}
 
 			$shipmentFields['DELIVERY_ID'] = ((int)$item['PROFILE_ID'] > 0) ? (int)$item['PROFILE_ID'] : (int)$item['DELIVERY_ID'];
+
+			$dateFields = ['DELIVERY_DOC_DATE', 'DATE_DEDUCTED', 'DATE_MARKED', 'DATE_CANCELED', 'DATE_RESPONSIBLE_ID'];
+
+			foreach($dateFields as $fieldName)
+			{
+				if(isset($item[$fieldName]))
+				{
+					if (is_string($item[$fieldName]))
+					{
+						try
+						{
+							$shipmentFields[$fieldName] = new Date($item[$fieldName]);
+						}
+						catch (ObjectException $exception)
+						{
+							$this->errorsContainer->addError(new Error('Wrong field "'.$fieldName.'"'));
+						}
+					}
+					elseif ($item[$fieldName] instanceof Date)
+					{
+						$shipmentFields[$fieldName] = $item[$fieldName];
+					}
+				}
+			}
 
 			try
 			{
@@ -495,7 +494,6 @@ abstract class OrderBuilder
 				if(!empty($shipmentFields['RESPONSIBLE_ID']))
 				{
 					$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->getID();
-					$shipmentFields['DATE_RESPONSIBLE_ID'] = new DateTime();
 				}
 			}
 
@@ -511,7 +509,7 @@ abstract class OrderBuilder
 				$this->errorsContainer->addErrors($setFieldsResult->getErrors());
 			}
 
-			$shipment->setStoreId($item['DELIVERY_STORE_ID']);
+			$shipment->setStoreId((int)$storeId);
 
 			if($item['DEDUCTED'] == 'N' && $products !== null)
 			{
@@ -658,12 +656,13 @@ abstract class OrderBuilder
 				$tmp = array(
 					'BASKET_CODE' => $basketCode,
 					'AMOUNT' => $items['AMOUNT'],
-					'ORDER_DELIVERY_BASKET_ID' => isset($items['ORDER_DELIVERY_BASKET_ID']) ? $items['ORDER_DELIVERY_BASKET_ID']:0,
+					'ORDER_DELIVERY_BASKET_ID' => isset($items['ORDER_DELIVERY_BASKET_ID']) ? $items['ORDER_DELIVERY_BASKET_ID'] : 0,
 					'XML_ID' => $items['XML_ID'],
+					'IS_SUPPORTED_MARKING_CODE' => $items['IS_SUPPORTED_MARKING_CODE']
 				);
 				$idsFromForm[$basketCode] = array();
 
-				if ($items['BARCODE_INFO'] && $useStoreControl)
+				if ($items['BARCODE_INFO'] && ($useStoreControl || $items['IS_SUPPORTED_MARKING_CODE'] == 'Y'))
 				{
 					foreach ($items['BARCODE_INFO'] as $item)
 					{
@@ -676,7 +675,7 @@ abstract class OrderBuilder
 						$tmp['BARCODE'] = array(
 							'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'],
 							'STORE_ID' => $item['STORE_ID'],
-							'QUANTITY' => ($basketItem->isBarcodeMulti()) ? 1 : $item['QUANTITY']
+							'QUANTITY' => ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode()) ? 1 : $item['QUANTITY']
 						);
 
 						$barcodeCount = 0;
@@ -685,28 +684,36 @@ abstract class OrderBuilder
 							foreach ($item['BARCODE'] as $barcode)
 							{
 								$idsFromForm[$basketCode]['BARCODE_IDS'][$barcode['ID']] = true;
+
 								if ($barcode['ID'] > 0)
-									$tmp['BARCODE']['ID'] = $barcode['ID'];
+								{
+									$tmp['BARCODE']['ID'] = (int)$barcode['ID'];
+								}
 								else
+								{
 									unset($tmp['BARCODE']['ID']);
-								$tmp['BARCODE']['BARCODE'] = $barcode['VALUE'];
+								}
+
+								$tmp['BARCODE']['BARCODE'] = (string)$barcode['VALUE'];
+								$tmp['BARCODE']['MARKING_CODE'] = (string)$barcode['MARKING_CODE'];
 								$shippingItems[] = $tmp;
 								$barcodeCount++;
 							}
 						}
-						elseif (!$basketItem->isBarcodeMulti())
+						elseif (!$basketItem->isBarcodeMulti() && !$basketItem->isSupportedMarkingCode())
 						{
 							$shippingItems[] = $tmp;
 							continue;
 						}
 
 
-						if ($basketItem->isBarcodeMulti())
+						if ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode())
 						{
 							while ($barcodeCount < $item['QUANTITY'])
 							{
 								unset($tmp['BARCODE']['ID']);
 								$tmp['BARCODE']['BARCODE'] = '';
+								$tmp['BARCODE']['MARKING_CODE'] = '';
 								$shippingItems[] = $tmp;
 								$barcodeCount++;
 							}
@@ -718,7 +725,6 @@ abstract class OrderBuilder
 					$shippingItems[] = $tmp;
 				}
 			}
-
 		}
 
 		// DELETE FROM COLLECTION
@@ -841,16 +847,25 @@ abstract class OrderBuilder
 			$this->order->setMathActionOnly(false);
 
 			if (!$setFieldResult->isSuccess())
+			{
 				$result->addErrors($setFieldResult->getErrors());
-
-			$r = $this->setBarcodeShipmentItem($shipmentItem, $params);
-			if($r->isSuccess() == false)
-				$result->addErrors($r->getErrors());
-
-			$setFieldResult = $shipmentItem->setField('QUANTITY', $params['AMOUNT']);
-			if (!$setFieldResult->isSuccess())
-				$result->addErrors($setFieldResult->getErrors());
+			}
 		}
+
+		$r = $this->setBarcodeShipmentItem($shipmentItem, $params);
+
+		if($r->isSuccess() == false)
+		{
+			$result->addErrors($r->getErrors());
+		}
+
+		$setFieldResult = $shipmentItem->setField('QUANTITY', $params['AMOUNT']);
+
+		if (!$setFieldResult->isSuccess())
+		{
+			$result->addErrors($setFieldResult->getErrors());
+		}
+
 		return $result;
 	}
 
@@ -861,13 +876,13 @@ abstract class OrderBuilder
 
 		$useStoreControl = Configuration::useStoreControl();
 
-		if (!empty($params['BARCODE']) && $useStoreControl)
+		if (!empty($params['BARCODE']) && ($useStoreControl || $params['IS_SUPPORTED_MARKING_CODE'] == 'Y' ))
 		{
 			$barcode = $params['BARCODE'];
 
 			/** @var \Bitrix\Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
 			$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-			if (!$basketItem->isBarcodeMulti())
+			if (!$basketItem->isBarcodeMulti() && !$basketItem->isSupportedMarkingCode())
 			{
 				/** @var Result $r */
 				$r = $shipmentItemStoreCollection->setBarcodeQuantityFromArray($params);
@@ -975,6 +990,11 @@ abstract class OrderBuilder
 			if($isNew)
 			{
 				$paymentItem = $paymentCollection->createItem();
+				if (isset($paymentData['CURRENCY']) && !empty($paymentData['CURRENCY']) && $paymentData['CURRENCY'] !== $this->order->getCurrency())
+				{
+					$paymentData["SUM"] = \CCurrencyRates::ConvertCurrency($paymentData["SUM"], $paymentData["CURRENCY"], $this->order->getCurrency());
+					$paymentData['CURRENCY'] = $this->order->getCurrency();
+				}
 			}
 			else
 			{
@@ -1012,7 +1032,24 @@ abstract class OrderBuilder
 				{
 					$paymentData['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
 					$paymentData['EMP_RESPONSIBLE_ID'] = $USER->GetID();
-					$paymentData['DATE_RESPONSIBLE_ID'] = new DateTime();
+				}
+			}
+
+			$dateFields = ['DATE_PAID', 'DATE_PAY_BEFORE', 'DATE_BILL', 'PAY_RETURN_DATE', 'PAY_VOUCHER_DATE', 'DATE_RESPONSIBLE_ID'];
+
+			foreach($dateFields as $fieldName)
+			{
+				if(isset($paymentData[$fieldName]) && is_string($paymentData[$fieldName]))
+				{
+					try
+					{
+						$paymentData[$fieldName] = new Date($paymentData[$fieldName]);
+					}
+					catch (ObjectException $exception)
+					{
+						$this->errorsContainer->addError(new Error('Wrong field "'.$fieldName.'"'));
+						$hasError = true;
+					}
 				}
 			}
 
@@ -1039,36 +1076,6 @@ abstract class OrderBuilder
 				$paymentData['PRICE_COD'] = $paymentData['PRICE_COD'];
 			}
 
-			if($isNew)
-			{
-				$paymentData['DATE_BILL'] = new DateTime();
-			}
-
-			if(!empty($paymentData['PAY_RETURN_DATE']))
-			{
-				try
-				{
-					$paymentData['PAY_RETURN_DATE'] = new \Bitrix\Main\Type\Date($paymentData['PAY_RETURN_DATE']);
-				}
-				catch (ObjectException $exception)
-				{
-					$this->errorsContainer->addError(new Error(Loc::getMessage("SALE_HLP_ORDERBUILDER_DATE_FORMAT_RES_ERROR")));
-					$hasError = true;
-				}
-			}
-
-			if(!empty($paymentData['PAY_VOUCHER_DATE']))
-			{
-				try
-				{
-					$paymentData['PAY_VOUCHER_DATE'] = new Date($paymentData['PAY_VOUCHER_DATE']);
-				}
-				catch (ObjectException $exception)
-				{
-					$this->errorsContainer->addError(new Error(Loc::getMessage("SALE_HLP_ORDERBUILDER_DATE_FORMAT_VOU_ERROR")));
-					$hasError = true;
-				}
-			}
 
 			if(isset($paymentData['RESPONSIBLE_ID']))
 			{
@@ -1076,8 +1083,6 @@ abstract class OrderBuilder
 
 				if($paymentData['RESPONSIBLE_ID'] != $paymentItem->getField('RESPONSIBLE_ID'))
 				{
-					$paymentData['DATE_RESPONSIBLE_ID'] = new DateTime();
-
 					if(!$isNew)
 					{
 						$paymentData['EMP_RESPONSIBLE_ID'] = $USER->GetID();
@@ -1112,11 +1117,11 @@ abstract class OrderBuilder
 				if(!empty($paymentFields['PAID']))
 				{
 					$setResult = $paymentItem->setPaid($paymentFields['PAID']);
-				}
 
-				if(!$setResult->isSuccess())
-				{
-					$this->errorsContainer->addErrors($setResult->getErrors());
+					if(!$setResult->isSuccess())
+					{
+						$this->errorsContainer->addErrors($setResult->getErrors());
+					}
 				}
 			}
 		}

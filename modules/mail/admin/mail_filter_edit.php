@@ -17,8 +17,8 @@ $message = null;
 $MOD_RIGHT = $APPLICATION->GetGroupRight("mail");
 if($MOD_RIGHT<"R") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 IncludeModuleLangFile(__FILE__);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/include.php");
 
+\Bitrix\Main\Loader::includeModule('mail');
 
 $aTabs = array();
 $aTabs[] = array("DIV" => "edit1", "TAB" => GetMessage("MAIL_FLT_EDT_PARAMS"), "ICON"=>"mail_filter_edit", "TITLE"=>GetMessage("MAIL_FLT_EDT_PARAMS"));

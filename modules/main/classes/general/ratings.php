@@ -1807,7 +1807,7 @@ class CAllRatings
 						$ar['PHOTO'] = CFile::ShowImage($arFileTmp['src'], 21, 21, 'border=0');
 						$ar['PHOTO_SRC'] = $arFileTmp['src'];
 					}
-					$ar['FULL_NAME'] = CUser::FormatName(CSite::GetNameFormat(false), $row, $bIntranetInstalled);
+					$ar['FULL_NAME'] = CUser::FormatName(CSite::GetNameFormat(false), $row, true);
 				}
 				else
 					$arUserID[] = $row["ID"];
@@ -1868,7 +1868,7 @@ class CAllRatings
 						$arUser["PHOTO_SRC"] = $arFileTmp["src"];
 						$arUser["PHOTO"] = CFile::ShowImage($arFileTmp["src"], 21, 21, "border=0");
 					}
-					$arUser["FULL_NAME"] = CUser::FormatName(CSite::GetNameFormat(false), $arUser, $bIntranetInstalled);
+					$arUser["FULL_NAME"] = CUser::FormatName(CSite::GetNameFormat(false), $arUser, true);
 					$arUsers[$arUser["ID"]] = $arUser;
 				}
 

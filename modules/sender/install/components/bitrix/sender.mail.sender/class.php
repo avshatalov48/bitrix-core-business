@@ -121,24 +121,9 @@ class SenderUiMailboxSelectorComponent extends CBitrixComponent
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 
 
-		$list = $GLOBALS['APPLICATION']->IncludeComponent('bitrix:main.mail.confirm', '', array());
 		$address = new Address();
-		foreach (\Bitrix\Sender\MailingChainTable::getEmailFromList() as $email)
-		{
-			$address->set($email);
-			$formatted = $address->get();
-			if (!$formatted)
-			{
-				continue;
-			}
 
-			$list[] = [
-				'name' => $address->getName(),
-				'email' => $address->getEmail(),
-				'formatted' => $address->get(),
-			];
-		}
-
+		$list = \Bitrix\Sender\Integration\Sender\AllowedSender::getList();
 		foreach ($list as $item)
 		{
 			$item['sender'] = $address

@@ -136,6 +136,9 @@ class CIBlockXMLFile
 		{
 			global $DB;
 
+			if ($DB->TableExists($this->_table_name))
+				return false;
+
 			if(defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE) > 0)
 				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 

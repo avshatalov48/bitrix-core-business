@@ -17,8 +17,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 ?>
 
 <div class="mp_wrap">
-<?php/*
-$APPLICATION->IncludeComponent("bitrix:rest.marketplace.toolbar", '', array(
+<?php
+/*$APPLICATION->IncludeComponent("bitrix:rest.marketplace.toolbar", '', array(
 	"COMPONENT_PAGE" => $arParams["COMPONENT_PAGE"],
 	"TOP_URL" => $arParams["TOP_URL"],
 	"CATEGORY_URL" => $arParams["CATEGORY_URL"],

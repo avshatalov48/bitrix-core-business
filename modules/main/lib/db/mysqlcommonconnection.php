@@ -6,6 +6,10 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 
 abstract class MysqlCommonConnection extends Connection
 {
+	const INDEX_UNIQUE = 'UNIQUE';
+	const INDEX_FULLTEXT = 'FULLTEXT';
+	const INDEX_SPATIAL = 'SPATIAL';
+
 	protected $engine = "";
 
 	/**
@@ -206,11 +210,12 @@ abstract class MysqlCommonConnection extends Connection
 	 * @param string          $indexName     Name of the new index.
 	 * @param string|string[] $columnNames   Name of the column or array of column names to be included into the index.
 	 * @param string[]        $columnLengths Array of column names and maximum length for them.
+	 * @param null            $indexType
 	 *
 	 * @return Result
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @throws SqlQueryException
 	 */
-	public function createIndex($tableName, $indexName, $columnNames, $columnLengths = null)
+	public function createIndex($tableName, $indexName, $columnNames, $columnLengths = null, $indexType = null)
 	{
 		if (!is_array($columnNames))
 		{
@@ -238,7 +243,17 @@ abstract class MysqlCommonConnection extends Connection
 		}
 		unset($columnName);
 
-		$sql = 'CREATE INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName).' ('.join(', ', $columnNames).')';
+		$indexTypeSql = '';
+
+		if ($indexType !== null
+			&& in_array(strtoupper($indexType), [static::INDEX_UNIQUE, static::INDEX_FULLTEXT, static::INDEX_SPATIAL], true)
+		)
+		{
+			$indexTypeSql = strtoupper($indexType);
+		}
+
+		$sql = 'CREATE '.$indexTypeSql.' INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName)
+			.' ('.join(', ', $columnNames).')';
 
 		return $this->query($sql);
 	}

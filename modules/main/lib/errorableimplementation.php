@@ -7,7 +7,7 @@ namespace Bitrix\Main;
 trait ErrorableImplementation
 {
 	/** @var ErrorCollection */
-	private $errorCollection;
+	protected $errorCollection;
 
 	/**
 	 * Return true if collection has errors.

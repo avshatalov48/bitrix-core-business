@@ -336,7 +336,7 @@ abstract class Field
 	}
 
 	/**
-	 * @param $modifier
+	 * @param \callable $modifier
 	 *
 	 * @return $this
 	 * @throws SystemException
@@ -357,7 +357,7 @@ abstract class Field
 	}
 
 	/**
-	 * @param $modifier
+	 * @param \callable $modifier
 	 *
 	 * @throws SystemException
 	 */
@@ -412,7 +412,7 @@ abstract class Field
 	}
 
 	/**
-	 * @param $modifier
+	 * @param \callable $modifier
 	 *
 	 * @return $this
 	 * @throws SystemException
@@ -433,7 +433,7 @@ abstract class Field
 	}
 
 	/**
-	 * @param $modifier
+	 * @param \callable $modifier
 	 *
 	 * @throws SystemException
 	 */
@@ -520,6 +520,23 @@ abstract class Field
 		}
 
 		return $this->title = $this->name;
+	}
+
+	public function setParameter($name, $value)
+	{
+		$this->initialParameters[$name] = $value;
+
+		return $this;
+	}
+
+	public function getParameter($name)
+	{
+		return $this->initialParameters[$name];
+	}
+
+	public function hasParameter($name)
+	{
+		return array_key_exists($name, $this->initialParameters);
 	}
 
 	/**

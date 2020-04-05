@@ -262,7 +262,7 @@ class CAllBlog
 		return True;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB;
 
@@ -1053,7 +1053,7 @@ class CAllBlog
 		return False;
 	}
 	
-	function GetBySocNetGroupID($ID, $arGroup = Array())
+	public static function GetBySocNetGroupID($ID, $arGroup = Array())
 	{
 		global $DB;
 

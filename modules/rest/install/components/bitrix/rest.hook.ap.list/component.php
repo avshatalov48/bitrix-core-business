@@ -24,12 +24,39 @@ if(
 	return;
 }
 
+$arResult["GRID_ID"] = "rest_hook_ap";
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$arResult["MESSAGES"] = [];
+if ($request->isPost() &&
+	check_bitrix_sessid() &&
+	\Bitrix\Main\Grid\Context::isInternalRequest() &&
+	$request->get("grid_id") == $arResult["GRID_ID"])
+{
+	$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
+
+	if ($request->getPost("action") == \Bitrix\Main\Grid\Actions::GRID_DELETE_ROW)
+	{
+		$ap = \Bitrix\Rest\APAuth\PasswordTable::getByPrimary($request->getPost("id"))->fetch();
+		if ($ap && $ap['USER_ID'] == $USER->GetID())
+		{
+			$result = \Bitrix\Rest\APAuth\PasswordTable::delete($ap['ID']);
+		}
+		else
+		{
+			$result = (new \Bitrix\Main\Result())->addError(new \Bitrix\Main\Error("Could not find application."));
+		}
+		if (!$result->isSuccess())
+		{
+			$arResult["MESSAGES"] = $result->getErrorMessages();
+		}
+	}
+}
+
 $arParams['PAGE_SIZE'] = intval($arParams['PAGE_SIZE']) > 0 ? intval($arParams['PAGE_SIZE']) : 20;
 $arParams['EDIT_URL_TPL'] = isset($arParams['EDIT_URL_TPL']) ? trim($arParams['EDIT_URL_TPL']) : SITE_DIR.'marketplace/hook/ap/#id#/';
 
 InitBVar($arParams['SET_TITLE']);
 
-$arResult["GRID_ID"] = "rest_hook_ap";
 $arResult["ELEMENTS_ROWS"] = array();
 
 $filter = array(
@@ -61,45 +88,15 @@ $arResult["NAV_OBJECT"] = $nav;
 $c = \Bitrix\Main\Text\Converter::getHtmlConverter();
 while($ap = $dbRes->fetch())
 {
-	$cols = array();
-
-	$data = array(
+	$arResult["ELEMENTS_ROWS"][$ap["ID"]] = [
 		"ID" => $ap['ID'],
 		"TITLE" => $c->encode($ap['TITLE']),
 		"COMMENT" => $c->encode($ap["COMMENT"]),
 		"DATE_CREATE" => $c->encode($ap['DATE_CREATE']),
 		"DATE_LOGIN" => $c->encode($ap['DATE_LOGIN']),
 		"LAST_IP" => $c->encode($ap['LAST_IP']),
-	);
-
-	$actions = array();
-	$actions[] = array(
-		'ICONCLASS' => 'edit',
-		'TITLE' => Loc::getMessage('REST_HOOK_EDIT'),
-		'TEXT' => Loc::getMessage('REST_HOOK_EDIT'),
-		'ONCLICK' => "jsUtils.Redirect([], '".CUtil::JSEscape(str_replace("#id#", $ap['ID'], $arParams['EDIT_URL_TPL']))."');",
-		'DEFAULT' => true
-	);
-
-	$actions[] = array(
-		'ICONCLASS' => 'delete',
-		'TITLE' => Loc::getMessage('REST_HOOK_DELETE'),
-		'TEXT' => Loc::getMessage('REST_HOOK_DELETE'),
-		'ONCLICK' => "BX.Marketplace.Hook.Ap.delete('".$ap["ID"]."');",
-		'DEFAULT' => false
-	);
-
-	$arResult["ELEMENTS_ROWS"][$ap["ID"]] = array("data" => $data, "columns" => $cols, 'actions' => $actions);
+	];
 }
-
-$arResult["HEADERS"] = array(
-	array("id" => "ID", "name" => "ID", "default" => false, "editable" => false),
-	array("id" => "TITLE", "name" => Loc::getMessage("REST_HOOK_HEADER_TITLE"), "default" => true, "editable" => false),
-	array("id" => "DATE_CREATE", "name" => Loc::getMessage("REST_HOOK_HEADER_DATE_CREATE"), "default" => true, "editable" => false),
-	array("id" => "DATE_LOGIN", "name" => Loc::getMessage("REST_HOOK_HEADER_DATE_LOGIN"), "default" => true, "editable" => false),
-	array("id" => "LAST_IP", "name" => Loc::getMessage("REST_HOOK_HEADER_LAST_IP"), "default" => true, "editable" => false),
-	array("id" => "COMMENT", "name" => Loc::getMessage("REST_HOOK_HEADER_COMMENT"), "default" => true, "editable" => false),
-);
 
 if($arParams['SET_TITLE'] == 'Y')
 {

@@ -3,6 +3,7 @@
 namespace Bitrix\Main\Web\WebPacker;
 
 use Bitrix\Main\InvalidOperationException;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
 /**
@@ -150,28 +151,59 @@ EOD;
 						throw new InvalidOperationException("Resource of type `$type` not allowed without core extension.");
 					}
 
+					$messages = [];
+					$languages = [];
+					$language = ($profile ? $profile->getLanguage() : null) ?: Loc::getCurrentLang();
+					$isAllLangs = $profile ? $profile->isAllLangs() : false;
 					foreach ($assets as $asset)
 					{
-						$messages = $asset->getContent();
-						if (!is_array($messages))
+						/** @var Resource\LangAsset $asset */
+						$mess = $asset->useAllLangs($isAllLangs)->getContent();
+						if (!is_array($mess))
 						{
 							break;
 						}
 
 						if ($profile)
 						{
-							$messages = Resource\LangAsset::deletePrefixes(
-								$messages,
-								$profile->getDeleteLangPrefixes()
-							);
-							if ($profile->isLangCamelCase())
+							foreach ($mess as $messLanguage => $messList)
 							{
-								$messages = Resource\LangAsset::toCamelCase($messages);
+								$messList = Resource\LangAsset::deletePrefixes(
+									$messList,
+									$profile->getDeleteLangPrefixes()
+								);
+								if ($profile->isLangCamelCase())
+								{
+									$messList = Resource\LangAsset::toCamelCase($messList);
+								}
+								if (!is_array($messages[$messLanguage]))
+								{
+									$messages[$messLanguage] = [];
+								}
+
+								$messages[$messLanguage] = array_merge(
+									$messages[$messLanguage],
+									$messList
+								);
 							}
 						}
-						$messages = Json::encode($messages);
-						$content .= "module.messages = $messages;" . self::getEol();
+
+						$languages = array_unique(array_merge(
+							$languages,
+							array_keys($messages)
+						));
 					}
+
+					if (count($messages) === 1)
+					{
+						$messages = current($messages);
+					}
+					$messages = Json::encode($messages);
+					$languages = Json::encode($languages);
+					$content .= "module.language = \"$language\";" . self::getEol(1);
+					$content .= "module.languages = $languages;" . self::getEol(1);
+					$content .= "module.messages = $messages;" . self::getEol();
+
 					break;
 			}
 		}

@@ -8,7 +8,7 @@ if (check_bitrix_sessid())
 {
 	echo "<script type=\"text/javascript\">\n";
 
-	$bNoTree = True;
+	$bNoTree = true;
 	$bIBlock = false;
 	$IBLOCK_ID = intval($_REQUEST['IBLOCK_ID']);
 	if ($IBLOCK_ID > 0)
@@ -20,19 +20,28 @@ if (check_bitrix_sessid())
 			$bRightBlock = CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_admin_display");
 			if ($bRightBlock)
 			{
-				echo "window.parent.Tree=new Array();";
-				echo "window.parent.Tree[0]=new Array();";
+				echo "window.parent.Tree = [];";
+				echo "window.parent.Tree[0] = [];";
 
 				$bIBlock = true;
-				$db_section = CIBlockSection::GetList(array("LEFT_MARGIN"=>"ASC"), array("IBLOCK_ID"=>$IBLOCK_ID));
-				while ($ar_section = $db_section->Fetch())
+				$iterator = CIBlockSection::GetList(
+					array("LEFT_MARGIN"=>"ASC"),
+					array("IBLOCK_ID"=>$IBLOCK_ID),
+					false,
+					array("ID", "IBLOCK_ID", "NAME", "IBLOCK_SECTION_ID", "LEFT_MARGIN", "RIGHT_MARGIN")
+				);
+				while ($row = $iterator->Fetch())
 				{
-					$bNoTree = False;
-					if (intval($ar_section["RIGHT_MARGIN"])-intval($ar_section["LEFT_MARGIN"])>1)
+					$bNoTree = false;
+					$row["ID"] = (int)$row["ID"];
+					$row["IBLOCK_SECTION_ID"] = (int)$row["IBLOCK_SECTION_ID"];
+					$row["LEFT_MARGIN"] = (int)$row["LEFT_MARGIN"];
+					$row["RIGHT_MARGIN"] = (int)$row["RIGHT_MARGIN"];
+					if ($row["RIGHT_MARGIN"] - $row["LEFT_MARGIN"] > 1)
 					{
-						?>window.parent.Tree[<?echo intval($ar_section["ID"]);?>]=new Array();<?
+						?>window.parent.Tree[<?=$row["ID"];?>] = [];<?
 					}
-					?>window.parent.Tree[<?echo intval($ar_section["IBLOCK_SECTION_ID"]);?>][<?echo intval($ar_section["ID"]);?>]=Array('<?echo CUtil::JSEscape(htmlspecialcharsbx($ar_section["NAME"]));?>', '');<?
+					?>window.parent.Tree[<?=$row["IBLOCK_SECTION_ID"];?>][<?=$row["ID"];?>]=Array('<?echo CUtil::JSEscape(htmlspecialcharsbx($row["NAME"]));?>', '');<?
 				}
 			}
 		}
@@ -48,4 +57,3 @@ if (check_bitrix_sessid())
 
 	echo "</script>";
 }
-?>

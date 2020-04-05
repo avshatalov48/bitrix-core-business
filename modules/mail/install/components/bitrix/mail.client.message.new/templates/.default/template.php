@@ -20,7 +20,6 @@ $this->setViewTarget('pagetitle_icon');
 ?>
 
 <span class="mail-msg-title-icon mail-msg-title-icon-outcome"></span>
-<span class="mail-msg-title-icon-placeholder ">&nbsp;</span>
 
 <?
 
@@ -229,7 +228,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 									$message['FIELD_DATE']->getTimestamp() + \CTimeZone::getOffset(),
 									time() + \CTimeZone::getOffset()
 								),
-								htmlspecialcharsbx(reset($message['__from'])['name'] ?: reset($message['__from'])['email']),
+								htmlspecialcharsbx(reset($message['__from'])['formated']),
 								$quote
 							) : '',
 						),

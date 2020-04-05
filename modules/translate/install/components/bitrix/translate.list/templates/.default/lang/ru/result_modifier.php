@@ -1,0 +1,32 @@
+<?
+$MESS["TR_FOLDER_TITLE"] = "Нажмите для перехода в папку";
+$MESS["TR_FILE_TITLE"] = "Нажмите для редактирования файла";
+$MESS["TR_UP_TITLE"] = "Нажмите для перехода на уровень выше";
+$MESS["TR_MESSAGE_EDIT"] = "Редактировать сообщения";
+$MESS["TR_FILE_EDIT"] = "Редактировать PHP";
+$MESS["TR_FILE_SHOW"] = "Показать PHP код";
+$MESS["TR_PATH_GO"] = "Перейти к папке";
+$MESS["TR_INDEX_VIEW_MODE_MENU_COUNT_PHRASES"] = "Показать общее количество фраз";
+$MESS["TR_INDEX_VIEW_MODE_MENU_COUNT_FILES"] = "Показать общее количество языковых файлов";
+$MESS["TR_INDEX_VIEW_MODE_MENU_UNTRANSLATED"] = "Показать количество неперереведённых фраз";
+$MESS["TR_INDEX_VIEW_MODE_MENU_UNTRANSLATED_FILES"] = "Показать количество файлов без переводов";
+$MESS["TR_INDEX_VIEW_MODE_MENU_EMPTY_FOLDERS"] = "Скрыть папки без языковых файлов";
+$MESS["TR_INDEX_VIEW_MODE_MENU_DIFF_LINKS"] = "Показать ссылки на файлы без переводов";
+$MESS["TR_INDEX_VIEW_MODE_TITLE_COUNT_PHRASES"] = "Общее количество фраз";
+$MESS["TR_INDEX_VIEW_MODE_TITLE_COUNT_FILES"] = "Общее количество языковых файлов";
+$MESS["TR_INDEX_VIEW_MODE_TITLE_UNTRANSLATED"] = "Количество неперереведённых фраз";
+$MESS["TR_INDEX_VIEW_MODE_TITLE_UNTRANSLATED_FILES"] = "Количество файлов без переводов";
+$MESS["TR_INDEX_ERROR_TRANSLATION_NOT_FOUND"] = "Переводы не найдены";
+$MESS["TR_INDEX_ERROR_SOURCE_FILE_NOT_FOUND"] = "Языковой файл отсутствует в основном репозитарии переводов";
+$MESS["TR_INDEX_ERROR_SOURCE_FOLDER_NOT_FOUND"] = "Папка отсутствует в основном репозитарии переводов";
+$MESS["TR_INDEX_ERROR_ETHALON_NOT_FOUND"] = "Переводы на текущем языке не найдены";
+$MESS["TR_INDEX_TRANSLATION_OK"] = "Перевод выполнен";
+$MESS["TR_INDEX_TRANSLATION_MORE"] = "Фраз перевода больше, чем на текущем языке";
+$MESS["TR_INDEX_TRANSLATION_LESS"] = "Фраз перевода меньше, чем на текущем языке";
+$MESS["TR_INDEX_TRANSLATION_USELESS"] = "Перевод на данный язык не требуется";
+$MESS["TR_INDEX_ERROR_ETHALON_FILE_NOT_FOUND"] = "Файл перевода на текущем языке не найден";
+$MESS["TR_INDEX_ERROR_TRANSLATION_FILE_NOT_FOUND"] = "Файл перевода не найден";
+$MESS["TR_INDEX_TRANSLATION_FILE_OK"] = "Файл перевода присутствует";
+$MESS["TR_INDEX_ERROR_NOINDEX"] = "Для текущей папки индекс языковых файлов не найден.";
+$MESS["TR_INDEX_START_INDEXING"] = "Выполнить индексацию.";
+?>

@@ -9,24 +9,42 @@ if (isset($arResult["VARIABLES"]["user_id"]) && $USER->GetID() !== $arResult["VA
 	return;
 }
 
-$APPLICATION->IncludeComponent("bitrix:main.app.passwords", "", array());
-?>
-<?
-if (IsModuleInstalled("intranet"))
+if (
+	\Bitrix\Main\ModuleManager::isModuleInstalled("intranet")
+	&& SITE_TEMPLATE_ID == "bitrix24"
+	&& \Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
+)
 {
-	$request = Bitrix\Main\Context::getCurrent()->getRequest();
-	$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.exe";
-	if (stripos($request->getUserAgent(), "Macintosh") !== false)
+	$APPLICATION->IncludeComponent(
+		"bitrix:ui.sidepanel.wrapper",
+		"",
+		array(
+			'POPUP_COMPONENT_NAME' => "bitrix:main.app.passwords",
+			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
+			"POPUP_COMPONENT_PARENT" => $this->getComponent()
+		)
+	);
+}
+else
+{
+	$APPLICATION->IncludeComponent("bitrix:main.app.passwords", "", array());
+
+	if (IsModuleInstalled("intranet"))
 	{
-		$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg";
+		$request = Bitrix\Main\Context::getCurrent()->getRequest();
+		$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.exe";
+		if (stripos($request->getUserAgent(), "Macintosh") !== false)
+		{
+			$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg";
+		}
+		?>
+		<div class="bx-apps-attached-block">
+			<span class="bx-apps-icon download"></span> <a href="<?=$downloadUrl?>" style="margin-right: 20px;text-transform: uppercase;"><?=GetMessage("main_app_pass_desktop")?></a>
+			<?=GetMessage("main_app_pass_mobile")?>
+			<span class="bx-apps-icon iOS"></span> <a href="https://itunes.apple.com/<?=\Bitrix\Main\Localization\Loc::getDefaultLang(LANGUAGE_ID)?>/app/bitrix24/id561683423?l=ru&ls=1&mt=8">iOS</a>
+			<span class="bx-apps-icon android"></span> <a href="https://play.google.com/store/apps/details?id=com.bitrix24.android">android</a>
+		</div>
+		<?
 	}
-	?>
-	<div class="bx-apps-attached-block">
-		<span class="bx-apps-icon download"></span> <a href="<?=$downloadUrl?>" style="margin-right: 20px;text-transform: uppercase;"><?=GetMessage("main_app_pass_desktop")?></a>
-		<?=GetMessage("main_app_pass_mobile")?>
-		<span class="bx-apps-icon iOS"></span> <a href="https://itunes.apple.com/<?=\Bitrix\Main\Localization\Loc::getDefaultLang(LANGUAGE_ID)?>/app/bitrix24/id561683423?l=ru&ls=1&mt=8">iOS</a>
-		<span class="bx-apps-icon android"></span> <a href="https://play.google.com/store/apps/details?id=com.bitrix24.android">android</a>
-	</div>
-<?
 }
 ?>

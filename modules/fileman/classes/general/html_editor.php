@@ -1265,6 +1265,8 @@ class CHTMLEditor
 	{
 		$output = array('result' => false, 'error' => "");
 		$http = new \Bitrix\Main\Web\HttpClient();
+		//prevents proxy to LAN
+		$http->setPrivateIp(false);
 		$http->setTimeout(5);
 		$http->setStreamTimeout(5);
 		$resp1 = $http->head($path);

@@ -97,6 +97,8 @@ class CAllCatalogStore
 			if(!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
 				return false;
 			CCatalogStoreControlUtil::clearStoreName($id);
+
+			Catalog\StoreTable::getEntity()->cleanCache();
 		}
 
 		if($bNeedConversion)
@@ -112,7 +114,7 @@ class CAllCatalogStore
 
 	public static function Delete($id)
 	{
-		global $DB;
+		global $DB, $USER_FIELD_MANAGER;
 		$id = intval($id);
 		if($id > 0)
 		{
@@ -131,6 +133,10 @@ class CAllCatalogStore
 
 			$DB->Query("delete from b_catalog_store_product where STORE_ID = ".$id, true);
 			$DB->Query("delete from b_catalog_store where ID = ".$id, true);
+
+			$USER_FIELD_MANAGER->Delete(Catalog\StoreTable::getUfId(), $id);
+
+			Catalog\StoreTable::getEntity()->cleanCache();
 
 			foreach(GetModuleEvents("catalog", "OnCatalogStoreDelete", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($id));

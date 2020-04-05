@@ -276,6 +276,28 @@ BX.Lists.ListClass = (function ()
 		});
 	};
 
+	ListClass.prototype.unLock = function (elementId)
+	{
+		BX.ajax.runAction("lists.controller.lock.unLock", {
+			data: {
+				element_id: elementId,
+				iblock_type_id: this.iblockTypeId,
+				iblock_id: this.iblockId,
+				socnet_group_id: this.socnetGroupId
+			}
+		}).then(function (response) {
+			this.reloadGrid();
+		}.bind(this), function (response) {});
+	};
+
+	ListClass.prototype.reloadGrid = function ()
+	{
+		var reloadParams = {}, gridObject;
+		gridObject = BX.Main.gridManager.getById(this.gridId);
+		if(gridObject.hasOwnProperty("instance"))
+			gridObject.instance.reloadTable("POST", reloadParams);
+	};
+
 	ListClass.prototype.editSection = function (currentSectionId)
 	{
 		if(!currentSectionId) return false;

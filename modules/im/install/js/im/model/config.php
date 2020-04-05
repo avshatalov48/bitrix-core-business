@@ -13,6 +13,7 @@ return [
 		'ui.vue',
 		'ui.vue.vuex',
 		'im.const',
+		'im.utils',
 	],
 	'skip_core' => true,
 ];

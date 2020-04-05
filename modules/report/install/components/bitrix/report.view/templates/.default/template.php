@@ -88,8 +88,7 @@ function reportViewShowTopButtons(&$component, &$arParams, &$arResult)
 </script>
 
 <button class="ui-btn ui-btn-light-border ui-btn-icon-setting ui-btn-themes" data-role="action-report"></button>
-<a class="ui-btn ui-btn-primary ui-btn-icon-back" href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>">
-	<?=GetMessage('REPORT_RETURN_TO_LIST')?></a>
+<a class="ui-btn ui-btn-primary ui-btn-icon-back" href="<?=CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_REPORT_LIST"], array());?>"><?=GetMessage('REPORT_RETURN_TO_LIST')?></a>
 
 <?php
 	$component->EndViewTarget();
@@ -735,7 +734,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 						foreach ($arCounting as $k => $v)
 						{
 							$arCounting[$k] = $v * 100 / $sumAll;
-							$sumAllPrcnt =+ $arCounting[$k];
+							$sumAllPrcnt += $arCounting[$k];
 						}
 						if (arsort($arCounting, SORT_NUMERIC))
 						{

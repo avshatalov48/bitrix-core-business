@@ -358,7 +358,7 @@ if ($errorCode === 0)
 				foreach ($arCounting as $k => $v)
 				{
 					$arCounting[$k] = $v * 100 / $sumAll;
-					$sumAllPrcnt =+ $arCounting[$k];
+					$sumAllPrcnt += $arCounting[$k];
 				}
 				if (arsort($arCounting, SORT_NUMERIC))
 				{

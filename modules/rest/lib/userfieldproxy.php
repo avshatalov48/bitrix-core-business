@@ -735,6 +735,18 @@ abstract class UserFieldProxy
 		switch ($userTypeID)
 		{
 			case 'string':
+			{
+				if(isset($settings['DEFAULT_VALUE']))
+				{
+					$effectiveSettings['DEFAULT_VALUE'] = $settings['DEFAULT_VALUE'];
+				}
+
+				if(isset($settings['ROWS']))
+				{
+					$effectiveSettings['ROWS'] = min(max($settings['ROWS'], 1), 50);
+				}
+				break;
+			}
 			case 'integer':
 			{
 				if(isset($settings['DEFAULT_VALUE']))
@@ -817,6 +829,11 @@ abstract class UserFieldProxy
 						$itemValue = isset($item['VALUE']) ? trim($item['VALUE'], " \t\n\r") : '';
 
 						$effectiveItem = array('VALUE' => $itemValue);
+						$itemXmlID = isset($item['XML_ID']) ? $item['XML_ID'] : '';
+						if($itemXmlID !== '')
+						{
+							$effectiveItem['XML_ID'] = $itemXmlID;
+						}
 						$itemSort = isset($item['SORT']) && is_numeric($item['SORT']) ? (int)$item['SORT'] : 0;
 						if($itemSort > 0)
 						{
@@ -827,8 +844,6 @@ abstract class UserFieldProxy
 						if($itemID > 0)
 						{
 							$itemKey = strval($itemID);
-							$effectiveItem['XML_ID'] = md5($itemKey.$effectiveItem['VALUE']);
-
 							if(isset($item['DEL']) && strtoupper($item['DEL']) === 'Y')
 							{
 								$effectiveItem['DEL'] = 'Y';

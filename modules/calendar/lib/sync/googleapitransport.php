@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Sync;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Web;
 
 /**
@@ -108,20 +109,32 @@ final class GoogleApiTransport //implements IErrorable
 	private function doRequest($type, $url, $requestParams = '')
 	{
 		$this->errors = $response = array();
+
 		if (!in_array($type, array(Web\HttpClient::HTTP_PATCH, Web\HttpClient::HTTP_PUT, Web\HttpClient::HTTP_DELETE, Web\HttpClient::HTTP_GET, Web\HttpClient::HTTP_POST)))
 		{
 			throw new ArgumentException('Bad request type');
 		}
+
 		$this->client->query($type, $url, ($requestParams ? $requestParams : null));
 
 		//Only "OK" response is acceptable.
 		if ($this->client->getStatus() == 200)
 		{
-			$response = Web\Json::decode($this->client->getResult());
+			$contentType = $this->client->getHeaders()->getContentType();
+
+			if ($contentType === 'multipart/mixed')
+			{
+				$response = $this->multipartDecode($this->client->getResult());
+			}
+			else
+			{
+				$response = Web\Json::decode($this->client->getResult());
+			}
 		}
 		else
 		{
-			try {
+			try
+			{
 				$error = Web\Json::decode($this->client->getResult());
 				$this->errors[] = array("code" => "CONNECTION", "message" => "[" . $error['error']['code'] . "] " . $error['error']['message']);
 			}
@@ -162,21 +175,22 @@ final class GoogleApiTransport //implements IErrorable
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($patchData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_PATCH, self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events/' . str_replace('@google.com', '', $eventId), $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_PATCH, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
 	}
+
 	/**
-	 * Updates event data at google calendar
+	 * Updates instance for recurring event
 	 *
 	 * @param $eventData
 	 * @param $calendarId
-	 * @param $eventId
+	 * @param $instanceId
 	 * @return array|mixed
 	 */
 	public function updateEvent($eventData, $calendarId, $eventId)
 	{
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_PATCH, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . str_replace('@google.com', '', $eventId), $requestBody);
+		return $this->doRequest(Web\HttpClient::HTTP_PUT, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/' . $eventId, $requestBody);
 	}
 
 	/**
@@ -191,6 +205,20 @@ final class GoogleApiTransport //implements IErrorable
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
 		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/', $requestBody);
+	}
+
+	/**
+	 * Creates event at google calendar
+	 *
+	 * @param $eventData
+	 * @param $calendarId
+	 * @return array|mixed
+	 */
+	public function importEvent($eventData, $calendarId)
+	{
+		$this->currentMethod = __METHOD__;
+		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/' . $calendarId . '/events/import', $requestBody);
 	}
 
 	/**
@@ -281,5 +309,174 @@ final class GoogleApiTransport //implements IErrorable
 		{
 			return array();
 		}
+	}
+
+	/**
+	 * getting id of the recurrent event instance
+	 *
+	 * @param $calendarId
+	 * @param $eventId
+	 * @param $originalStart
+	 * @return array|mixed
+	 */
+	public function getInstanceRecurringEvent($calendarId, $eventId, $originalStart)
+	{
+		$this->currentMethod = __METHOD__;
+
+		$requestParameters = ['originalStart' => $originalStart];
+		$requestParameters = array_filter($requestParameters);
+		$url = self::API_BASE_URL . 'calendars/' . urlencode($calendarId) . '/events/'.str_replace('@google.com', '', $eventId).'/instances/';
+		$url .= empty($requestParameters) ? '' : '?' . preg_replace('/(%3D)/', '=', http_build_query($requestParameters));
+
+		return $this->doRequest(Web\HttpClient::HTTP_GET, $url);
+	}
+
+	/**
+	 * Creates local calendar at google calendar
+	 *
+	 * @param $eventData
+	 * @return array|mixed
+	 */
+	public function insertCalendar($calendarData)
+	{
+		$this->currentMethod = __METHOD__;
+		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . 'calendars/', $requestBody);
+	}
+
+	public function sendBatchEvents($body, $calendarId, $params)
+	{
+		$url = "https://www.googleapis.com/batch/calendar/v3/";
+		$requestBody = $this->prepareMultipartMixed($body, $calendarId, $params);
+		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
+	}
+
+	/**
+	 * Performs multipart/mixed encoding.
+	 *
+	 * @param array $postData Entity of POST request
+	 * @return string
+	 */
+	protected function prepareMultipartMixed($postData, $calendarId, $params)
+	{
+		if (is_array($postData))
+		{
+			$boundary = 'BXC'.md5(rand().time());
+			$this->client->setHeader('Content-type', 'multipart/mixed; boundary='.$boundary);
+
+			$data = '';
+
+			foreach ($postData as $key => $value)
+			{
+				$data .= '--'.$boundary."\r\n";
+
+				if (is_array($value))
+				{
+					$contentId = '<item'.$key.':'.$key.'>';
+
+					if (is_array($value))
+					{
+						$data .= 'Content-Type: application/http'."\r\n";
+						$data .= 'Content-ID: '.$contentId."\r\n\r\n";
+
+						if (!empty($value['gEventId']))
+						{
+							$data .= $params['method'].' /calendar/v3/calendars/'.$calendarId.'/events/'.$value['gEventId']."\r\n";
+						}
+						else
+						{
+							$data .= 'POST /calendar/v3/calendars/'.$calendarId.'/events'."\r\n";
+						}
+
+						$data .= 'Content-type: application/json'."\r\n";
+
+						$data .= 'Content-Length: '.BinaryString::getLength($value['partBody'])."\r\n\r\n";
+						$data .= $value['partBody'];
+						$data .= "\r\n\r\n";
+					}
+				}
+			}
+
+			$data .= '--'.$boundary."--\r\n";
+			$postData = $data;
+		}
+
+		return $postData;
+	}
+
+	public function multipartDecode($response)
+	{
+		$events = [];
+		$boundaryParts = explode('=', $this->client->getHeaders()->getBoundary());
+		$boundary = $boundaryParts[1];
+
+		$response = str_replace("--$boundary--", "--$boundary", $response);
+		$parts = explode("--$boundary\r\n", $response);
+
+		foreach ($parts as $key => $part)
+		{
+			$part = trim($part);
+			if (!empty($part))
+			{
+				$partEvent = explode("\r\n\r\n", $part);
+				$data = static::getMetaInfo($partEvent[1]);
+
+				if ($data['status'] === 200)
+				{
+					$id = static::getId($partEvent[0]);
+					$event = Web\Json::decode($partEvent[2]);
+					$event['etag'] = $data['etag'];
+					$events[$id] = $event;
+				}
+				else
+				{
+					AddMessage2Log('Event sync error. ID: '.static::getId($partEvent[0]));
+				}
+			}
+		}
+
+		return $events;
+	}
+
+	private function getMetaInfo($headers)
+	{
+		foreach (explode("\n", $headers) as $k => $header)
+		{
+			if($k == 0)
+			{
+				if(preg_match('#HTTP\S+ (\d+)#', $header, $find))
+				{
+					$data['status'] = intval($find[1]);
+				}
+			}
+			elseif(strpos($header, ':') !== false)
+			{
+				list($headerName, $headerValue) = explode(':', $header, 2);
+				if(strtolower($headerName) == 'etag')
+				{
+					$data['etag'] = trim($headerValue);
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	private function getId ($headers)
+	{
+		foreach (explode("\n", $headers) as $k => $header)
+		{
+			if(strpos($header, ':') !== false)
+			{
+				list($headerName, $headerValue) = explode(':', $header, 2);
+				if(strtolower($headerName) == 'content-id')
+				{
+					$part = explode(':', $headerValue);
+					$id = rtrim($part[1], ">");
+				}
+			}
+		}
+
+		return $id;
 	}
 }

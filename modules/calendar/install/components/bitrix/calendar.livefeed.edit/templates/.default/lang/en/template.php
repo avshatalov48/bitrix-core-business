@@ -27,4 +27,6 @@ $MESS["ECLF_HIDE_ADD_SECT"] = "Hide extra parameters";
 $MESS["ECLF_PLANNER_FULL_FORM"] = "Details";
 $MESS["ECLF_PLANNER_TITLE"] = "Scheduler";
 $MESS["ECLF_PLANNER_PROPOSE_TIME"] = "Select time";
+$MESS["ECLF_DESTINATION_ADD_USERS"] = "Add persons, groups or department";
+$MESS["ECLF_DESTINATION_ADD_MORE"] = "Add more";
 ?>

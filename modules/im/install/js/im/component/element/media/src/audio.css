@@ -1,0 +1,21 @@
+.bx-im-element-file-audio {
+	width: 219px;
+	margin-bottom: -13px;
+	margin-right: -9px;
+	margin-top: 6px;
+}
+
+.bx-im-element-file-audio .ui-vue-audioplayer-timers-container {
+	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.bx-im-element-file-audio + .bx-im-message-content-body-with-text {
+	margin-top: 30px;
+}
+
+.bx-im-element-file-audio + .bx-im-element-file-audio {
+	margin-top: 25px
+}
+.bx-im-element-file-audio:first-child {
+	margin-top: 6px;
+}

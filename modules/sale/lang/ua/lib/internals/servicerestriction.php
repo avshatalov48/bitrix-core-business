@@ -1,0 +1,8 @@
+<?
+$MESS["SERVICE_RSTR_ENTITY_ID_FIELD"] = "Ідентифікатор";
+$MESS["SERVICE_RSTR_ENTITY_SERVICE_ID_FIELD"] = "Ідентифікатор сервісу";
+$MESS["SERVICE_RSTR_ENTITY_SORT_FIELD"] = "Сортування";
+$MESS["SERVICE_RSTR_ENTITY_CLASS_NAME_FIELD"] = "Клас обробника";
+$MESS["SERVICE_RSTR_ENTITY_PARAMS_FIELD"] = "Параметри";
+$MESS["SERVICE_RSTR_ENTITY_SERVICE_TYPE_FIELD"] = "Тип сервісу";
+?>

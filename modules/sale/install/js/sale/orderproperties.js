@@ -18,6 +18,7 @@ BX.Sale.PropertyCollection = (function () {
 	{
 		this.getId           = function () {return group.ID;};
 		this.getName         = function () {return group.NAME;};
+		this.getSort         = function () {return group.SORT;};
 		this.getPersonTypeId = function () {return group.PERSON_TYPE_ID;};
 		this.getIterator     = function () {return iterator(properties);};
 	};
@@ -152,7 +153,12 @@ BX.Sale.PropertyCollection = (function () {
 		// public interface
 
 		this.getIterator      = function () {return iterator(properties);};
-		this.getGroupIterator = function () {return iterator(groups);};
+		this.getGroupIterator = function () {
+			groups.sort(function(a, b){
+				return a.getSort() - b.getSort();
+			});
+			return iterator(groups);
+		};
 
 		this.getById = function (propertyId) {return propertyIndex[propertyId];};
 

@@ -466,7 +466,7 @@ if ($errors)
 	</tr>
 	<tr>
 		<td><?=$statusFields['XML_ID']->getTitle()?>:</td>
-		<td><input type="text" name="XML_ID" value="<?=$status['XML_ID'] ?: StatusTable::generateXmlId();?>" size="30"></td>
+		<td><input type="text" name="XML_ID" value="<?=$status['XML_ID'] ? htmlspecialcharsbx($status['XML_ID']): StatusTable::generateXmlId();?>" size="30"></td>
 	</tr>
 	<?foreach ($languages as $languageId => $languageName):?>
 		<tr class="heading">

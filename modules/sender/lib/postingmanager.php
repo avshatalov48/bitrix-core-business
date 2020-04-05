@@ -156,7 +156,8 @@ class PostingManager
 				}
 
 				$uri = new \Bitrix\Main\Web\Uri($url);
-				$fixedUrl = $uri->deleteParams($deleteParameters)->getLocator();
+				$fixedUrl = $uri->deleteParams($deleteParameters, true)->getUri();
+				$fixedUrl = urldecode($fixedUrl);
 				$addClickDb = PostingClickTable::add(array(
 					'POSTING_ID' => $row['POSTING_ID'],
 					'RECIPIENT_ID' => $row['ID'],
@@ -245,20 +246,25 @@ class PostingManager
 		$letter = new Entity\Letter($mailingChainId);
 		$message = $letter->getMessage();
 
+		$siteId = MailingTable::getMailingSiteId($mailingChain['MAILING_ID']);
+
 		$message->getReadTracker()
 			->setModuleId('sender')
-			->setFields(array('RECIPIENT_ID' => 0));
+			->setFields(array('RECIPIENT_ID' => 0))
+			->setSiteId($siteId);
 		$message->getClickTracker()
 			->setModuleId('sender')
 			->setFields(array('RECIPIENT_ID' => 0))
-			->setUriParameters(array('bx_sender_conversion_id' => 0));
+			->setUriParameters(array('bx_sender_conversion_id' => 0))
+			->setSiteId($siteId);
 		$message->getUnsubTracker()
 			->setModuleId('sender')
 			->setFields(array(
 				'MAILING_ID' => !empty($mailingChain) ? $mailingChain['MAILING_ID'] : 0,
 				'EMAIL' => $address,
 				'TEST' => 'Y'
-			));
+			))
+			->setSiteId($siteId);
 		$message->getUnsubTracker()
 			->setHandlerUri(Option::get('sender', 'unsub_link'));
 

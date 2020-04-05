@@ -1,10 +1,10 @@
+/*
+dbg: was deleted all font, except woff - it is all what we need
+*/
+
 @font-face {
 	font-family: 'et-line';
-	src:url('fonts/et-line.eot');
-	src:url('fonts/et-line.eot?#iefix') format('embedded-opentype'),
-		url('fonts/et-line.woff') format('woff'),
-		url('fonts/et-line.ttf') format('truetype'),
-		url('fonts/et-line.svg#et-line') format('svg');
+	src:url('/bitrix/templates/landing24/assets/vendor/icon-etlinefont/fonts/et-line.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }

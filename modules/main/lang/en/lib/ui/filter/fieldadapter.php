@@ -8,7 +8,6 @@ $MESS["MAIN_UI_FILTER__THIS_WEEK"] = "This week";
 $MESS["MAIN_UI_FILTER__LAST_WEEK"] = "Last week";
 $MESS["MAIN_UI_FILTER__THIS_MONTH"] = "This month";
 $MESS["MAIN_UI_FILTER__LAST_MONTH"] = "Last month";
-$MESS["MAIN_UI_FILTER__DAYS"] = "Last, days";
 $MESS["MAIN_UI_FILTER__SINGLE"] = "Exact date";
 $MESS["MAIN_UI_FILTER__RANGE"] = "Custom range";
 $MESS["MAIN_UI_FILTER__BEFORE"] = "Before";

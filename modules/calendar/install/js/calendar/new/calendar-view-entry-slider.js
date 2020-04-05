@@ -15,6 +15,8 @@
 			this.entry = params.entry;
 			this.formType = params.formType || 'slider_main';
 
+			this.calendar.util.doBxContextFix();
+
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.createContent, this),
 				events: {
@@ -66,6 +68,8 @@
 				}, this), 300);
 
 				this.opened = false;
+
+				this.calendar.util.restoreBxContextFix();
 			}
 		},
 
@@ -81,6 +85,7 @@
 
 		createContent: function(slider)
 		{
+			top.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
 			var promise = new BX.Promise();
 
 			this.xhr = BX.ajax.get(this.calendar.util.getActionUrl(), {
@@ -233,11 +238,12 @@
 		initUserListControl: function()
 		{
 			var userList = {y : [], i: [], q: [], n: []};
+
 			if (this.entry.isMeeting())
 			{
 				this.entry.getAttendees().forEach(function(user)
 				{
-					if (user.STATUS == 'H')
+					if (user.STATUS === 'H')
 					{
 						userList.y.push(user);
 					}
@@ -397,11 +403,10 @@
 
 		updateStatus: function()
 		{
-			if (this.status == 'Q')
+			if (this.status === 'Q')
 			{
 				this.selectorButton.style.display = 'none';
 				this.buttonY.style.display = '';
-				//this.buttonI.style.display = '';
 				this.buttonN.style.display = '';
 			}
 			else
@@ -424,7 +429,7 @@
 			}
 
 			var res = true;
-			if (this.changeStatusCallback && typeof this.changeStatusCallback == 'function')
+			if (BX.type.isFunction(this.changeStatusCallback))
 			{
 				res = this.changeStatusCallback(this.status);
 			}
@@ -444,33 +449,25 @@
 
 			var menuItems;
 
-			if (this.status == 'Y' || this.status == 'H')
+			if (this.status === 'Y' || this.status === 'H')
 			{
 				menuItems = [
 					{
 						text: BX.message('EC_VIEW_DESIDE_BUT_N'),
 						onclick: BX.proxy(function(){this.setStatus('N');}, this)
 					}
-					//{
-					//	text: BX.message('EC_VIEW_DESIDE_BUT_I'),
-					//	onclick: BX.proxy(function(){this.setStatus('I');}, this)
-					//}
 				];
 			}
-			else if(this.status == 'N')
+			else if(this.status === 'N')
 			{
 				menuItems = [
 					{
 						text: BX.message('EC_VIEW_DESIDE_BUT_Y'),
 						onclick: BX.proxy(function(){this.setStatus('Y');}, this)
 					}
-					//{
-					//	text: BX.message('EC_VIEW_DESIDE_BUT_I'),
-					//	onclick: BX.proxy(function(){this.setStatus('I');}, this)
-					//}
 				];
 			}
-			else if(this.status == 'I')
+			else if(this.status === 'I')
 			{
 				menuItems =[
 					{

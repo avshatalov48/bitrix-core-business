@@ -16,6 +16,8 @@ CREATE TABLE b_bp_workflow_template (
 	USER_ID int NULL,
 	SYSTEM_CODE varchar(50),
 	ACTIVE char(1) NOT NULL default 'Y',
+	ORIGINATOR_ID VARCHAR(255) NULL,
+	ORIGIN_ID VARCHAR(255) NULL,
 	primary key (ID),
 	index ix_bp_wf_template_mo(MODULE_ID, ENTITY, DOCUMENT_TYPE)
 );
@@ -81,7 +83,8 @@ CREATE TABLE b_bp_tracking (
 	COMPLETED char(1) NOT NULL default 'N',
 	primary key (ID),
 	index ix_bp_tracking_wf(WORKFLOW_ID),
-	index ix_bp_tracking_md(MODIFIED)
+	index ix_bp_tracking_md(MODIFIED),
+	index ix_bp_tracking_ctm(COMPLETED, TYPE, MODIFIED)
 );
 
 CREATE TABLE b_bp_task (

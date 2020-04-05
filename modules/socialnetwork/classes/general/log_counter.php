@@ -263,7 +263,6 @@ class CAllSocNetLogCounter
 										".(!$bForAllAccess ? "AND (UA.ACCESS_CODE = SLR.GROUP_CODE)" : "")."
 										AND (
 											SLR.GROUP_CODE LIKE 'SG%'
-											OR SLR.GROUP_CODE = 'U".$log_user_id."'
 											OR SLR.GROUP_CODE = ".$DB->Concat("'U'", ($DB->type == "MSSQL" ? "CAST(U.ID as varchar(17))" : "U.ID"))."
 										)
 									)
@@ -294,7 +293,6 @@ class CAllSocNetLogCounter
 										".($bForAllAccess ? "" : "AND (UA.ACCESS_CODE = SLR.GROUP_CODE)")."
 										AND (
 											SLR.GROUP_CODE LIKE 'SG%'
-											OR SLR.GROUP_CODE = 'U".$log_user_id."'
 											OR SLR.GROUP_CODE = ".$DB->Concat("'U'", ($DB->type == "MSSQL" ? "CAST(U.ID as varchar(17))" : "U.ID"))."
 										)
 									)

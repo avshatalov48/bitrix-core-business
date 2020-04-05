@@ -34,3 +34,5 @@ $MESS["CT_BLL_SHOW_SECTION_GRID"] = "Показать разделы";
 $MESS["CT_BLL_HIDE_SECTION_GRID"] = "Скрыть разделы";
 $MESS["CT_BLL_REBUILD_SEARCH_CONTENT_TITLE"] = "Перестроение поискового индекса";
 $MESS["CT_BLL_REBUILD_SEARCH_CONTENT_STATE"] = "#processed# из #total#";
+$MESS["CT_BLL_GROUP_STEPPER_PROGRESS_TITLE"] = "Копирование элементов";
+$MESS["CT_BLL_GROUP_STEPPER_PROGRESS_ERROR"] = "Не удалось скопировать элементы с идентификаторами: ";

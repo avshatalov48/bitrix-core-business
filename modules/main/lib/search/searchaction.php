@@ -15,6 +15,7 @@ abstract class SearchAction extends Engine\Action
 		{
 			return [
 				'items' => [],
+				'limits' => [],
 			];
 		}
 
@@ -29,8 +30,15 @@ abstract class SearchAction extends Engine\Action
 			$this->adjustResultItem($item);
 		}
 
+		$limits = $this->provideLimits($searchQuery, $options);
+		if (!is_array($limits) && !($limits instanceof \Traversable))
+		{
+			throw new ArgumentTypeException('The method ::provideLimits() has to return iterable data');
+		}
+
 		return [
 			'items' => $resultItems,
+			'limits' => $limits,
 		];
 	}
 
@@ -47,6 +55,11 @@ abstract class SearchAction extends Engine\Action
 	protected function prepareSearchQuery($searchQuery)
 	{
 		return trim($searchQuery);
+	}
+
+	protected function provideLimits($searchQuery, array $options = null)
+	{
+		return [];
 	}
 
 	/**

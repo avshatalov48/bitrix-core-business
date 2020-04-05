@@ -174,5 +174,13 @@ class CIBlockPropertySequence
 	{
 		$fields["type"] = "number";
 		$fields["filterable"] = "";
+		$fields["operators"] = array(
+			"default" => "=",
+			"exact" => "=",
+			"enum" => "@",
+			"range" => "><",
+			"more" => ">",
+			"less" => "<"
+		);
 	}
 }

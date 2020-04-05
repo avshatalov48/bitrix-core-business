@@ -592,7 +592,7 @@ class CBPRequestInformationActivity
 				break;
 		}
 
-		return $timeoutDuration;
+		return min($timeoutDuration, 3600 * 24 * 365 * 5);
 	}
 
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
@@ -771,5 +771,18 @@ class CBPRequestInformationActivity
 		}
 
 		return true;
+	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		if (is_array($this->arProperties["RequestedInformation"]))
+		{
+			foreach ($this->arProperties["RequestedInformation"] as $v)
+			{
+				$usages[] = $this->getObjectSourceType('Variable', $v["Name"]);
+			}
+		}
+		return $usages;
 	}
 }

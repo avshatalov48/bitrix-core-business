@@ -10,9 +10,8 @@ namespace Bitrix\Sender\Internals;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Conversion\DayContext;
 use Bitrix\Main\Context;
-use Bitrix\Sender\PostingClickTable;
+use Bitrix\Sender\MailingChainTable;
 use Bitrix\Sender\PostingRecipientTable;
-use Bitrix\Main\Type\Date;
 
 Loc::loadMessages(__FILE__);
 
@@ -76,25 +75,27 @@ class ConversionHandler
 					$filter = array();
 					if($list)
 					{
-						$filter['=POSTING.MAILING_CHAIN.ID'] = $list;
-					}
-					$itemDb = PostingClickTable::getList(array(
-						'select' => array(
-							'MAILING_CHAIN_ID' => 'POSTING.MAILING_CHAIN.ID',
-							'MAILING_CHAIN_SUBJECT' => 'POSTING.MAILING_CHAIN.SUBJECT',
-						),
-						'filter' => $filter,
-						'group' => array('MAILING_CHAIN_ID', 'MAILING_CHAIN_SUBJECT')
-					));
+						$filter['=ID'] = $list;
 
-					while($item = $itemDb->fetch())
-					{
-						if(strlen($item['MAILING_CHAIN_SUBJECT']) <= 0)
-							continue;
+						$itemDb = MailingChainTable::getList(array(
+							'select' => array(
+								'ID',
+								'TITLE',
+							),
+							'filter' => $filter,
+						));
 
-						$itemList[$item['MAILING_CHAIN_ID']] = array(
-							'NAME' => $item['MAILING_CHAIN_SUBJECT']
-						);
+						while ($item = $itemDb->fetch())
+						{
+							if (strlen($item['ID']) <= 0)
+							{
+								continue;
+							}
+
+							$itemList[$item['ID']] = array(
+								'NAME' => $item['TITLE']
+							);
+						}
 					}
 
 					return $itemList;

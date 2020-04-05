@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\BaseType;
 
+use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
@@ -115,6 +116,9 @@ class Date extends Base
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$name = static::generateControlName($field);
+		$value = static::internalizeValue($fieldType, 'Renderer', $value);
+		$offset = ($value instanceof Value\Date) ? $value->getOffset() : 0;
+
 		$className = static::generateControlClassName($fieldType, $field);
 		$renderResult = '';
 
@@ -143,9 +147,40 @@ class Date extends Base
 				.'" value="'.htmlspecialcharsbx($value).'" class="'.htmlspecialcharsbx($className).'"/>'
 				.'<img src="/bitrix/js/main/core/images/calendar-icon.gif" alt="calendar" class="calendar-icon" '
 				.'onclick="BX.calendar({node:this, field: this.previousSibling, bTime: '
-				.(static::getType() == FieldType::DATETIME ? 'true' : 'false').'});" '
+				.(static::getType() == FieldType::DATETIME ? 'true' : 'false')
+				.', bHideTime: '.(static::getType() == FieldType::DATETIME ? 'false' : 'true').'});" '
 				.'onmouseover="BX.addClass(this, \'calendar-icon-hover\');" '
 				.'onmouseout="BX.removeClass(this, \'calendar-icon-hover\');" border="0"/>';
+
+			$tzName = 'tz_'.$name;
+			$zones = self::getZones();
+
+			if (!$offset && $renderMode & FieldType::RENDER_MODE_PUBLIC)
+			{
+				$offset = 'current';
+			}
+
+			$tzClassName = 'bizproc-type-control-date-lc';
+			if ($fieldType->isMultiple())
+			{
+				$tzClassName .= ' bizproc-type-control-date-lc-multiple';
+			}
+
+			$renderResult .= '<select name="'.htmlspecialcharsbx($tzName).'" class="'.$tzClassName.'">';
+			foreach ($zones as $zone)
+			{
+				$selected = ($offset && $offset === $zone['offset']) ? 'selected' : '';
+				$renderResult .= '<option value="'.htmlspecialcharsbx($zone['value']).'" '.$selected.'>'
+					.htmlspecialcharsbx($zone['text']).'</option>';
+			}
+			$renderResult .= '</select>';
+
+			if ($fieldType->isMultiple())
+			{
+				$settings = $fieldType->getSettings();
+				$settings['timezones'] = $zones;
+				$fieldType->setSettings($settings);
+			}
 		}
 
 		return $renderResult;
@@ -162,7 +197,7 @@ class Date extends Base
 	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$allowSelectionOrig = $allowSelection;
-		if (($renderMode & FieldType::RENDER_MODE_PUBLIC))
+		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
 		{
 			$allowSelection = false;
 		}
@@ -264,7 +299,7 @@ class Date extends Base
 	 * @param FieldType $fieldType
 	 * @param array $field
 	 * @param array $request
-	 * @return null|string
+	 * @return null|string|Type\Date
 	 */
 	protected static function extractValue(FieldType $fieldType, array $field, array $request)
 	{
@@ -286,7 +321,14 @@ class Date extends Base
 				));
 			}
 			else
-				$value = \ConvertDateTime($value, $format);
+			{
+				$tzOffset = self::extractOffset($field, $request);
+				$value = (static::getType() == FieldType::DATETIME) ?
+					new Value\DateTime($value, $tzOffset) : new Value\Date($value, $tzOffset);
+
+				//have to serialize in design time.
+				$value = $value->serialize();
+			}
 		}
 		else
 		{
@@ -294,5 +336,173 @@ class Date extends Base
 		}
 
 		return $value;
+	}
+
+	private static function extractOffset(array $field, array $request)
+	{
+		$tzName = 'tz_'.$field['Field'];
+		$tz = isset($request[$tzName]) ? $request[$tzName] : null;
+		if (is_array($tz))
+		{
+			$tz = isset($field['Index']) ? $tz[$field['Index']] : $tz[0];
+		}
+
+		if ($tz === 'current')
+		{
+			return \CTimeZone::GetOffset();
+		}
+		elseif ($tz)
+		{
+			$localTime = new \DateTime();
+			$localOffset = $localTime->getOffset();
+
+			$userTime = new \DateTime(null, new \DateTimeZone($tz));
+			$userOffset = $userTime->getOffset();
+
+			return $userOffset - $localOffset;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Get formats list.
+	 * @return array
+	 */
+	public static function getFormats()
+	{
+		$formats = parent::getFormats();
+		$formats['server'] = [
+			'callable'  => 'formatValueServer',
+			'separator' => ', ',
+		];
+
+		$formats['author'] = $formats['responsible'] = [
+			'callable'  => 'formatValueAuthor',
+			'separator' => ', ',
+		];
+
+		return $formats;
+	}
+
+	/**
+	 * @param FieldType $fieldType
+	 * @param $value
+	 * @return string
+	 */
+	protected static function formatValueServer(FieldType $fieldType, $value)
+	{
+		if ($value instanceof Value\Date)
+		{
+			return date($value->getFormat(), $value->getTimestamp());
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @param FieldType $fieldType
+	 * @param $value
+	 * @return string
+	 */
+	protected static function formatValueAuthor(FieldType $fieldType, $value)
+	{
+		if ($value instanceof Value\Date)
+		{
+			$documentId = $fieldType->getDocumentId();
+
+			if ($documentId)
+			{
+				$userId = \CBPHelper::ExtractUsers('author', $documentId, true);
+				$offset = $userId ? \CTimeZone::GetOffset($userId, true) : 0;
+
+				$value = new Value\DateTime($value->getTimestamp(), $offset);
+			}
+
+			return (string) $value;
+		}
+
+		return $value;
+	}
+
+	public static function internalizeValue(FieldType $fieldType, $objectName, $value)
+	{
+		if ($value && is_string($value))
+		{
+			$offset = \CTimeZone::GetOffset();//($objectName === 'Document') ? \CTimeZone::GetOffset() : 0;
+			try
+			{
+				$obj = (static::getType() === FieldType::DATE)
+					? new Value\Date($value, $offset)
+					: new Value\DateTime($value, $offset);
+				//set value if everything is ok
+				if ($obj->getTimestamp() > 0)
+				{
+					$value = $obj;
+				}
+			}
+			catch(Main\ObjectException $e)
+			{
+			}
+		}
+		return $value;
+	}
+
+	public static function externalizeValue(FieldType $fieldType, $objectName, $value)
+	{
+		//serialized date string
+		if (is_string($value) && preg_match('#(.+)\s\[([0-9\-]+)\]#', $value))
+		{
+			$value = static::internalizeValue($fieldType, $objectName, $value);
+		}
+
+		if ($value instanceof Value\Date)
+		{
+			return (string) $value->toSystemObject();
+		}
+		return $value;
+	}
+
+	private static function getZones()
+	{
+		$serverOffset = (new \DateTime())->getOffset();
+
+		$timezones = [];
+		$exclude = ["Etc/", "GMT", "UTC", "UCT", "HST", "PST", "MST", "CST", "EST", "CET", "MET", "WET", "EET", "PRC", "ROC", "ROK", "W-SU"];
+		foreach (\DateTimeZone::listIdentifiers() as $tz)
+		{
+			foreach ($exclude as $ex)
+				if (strpos($tz, $ex) === 0)
+					continue 2;
+			try
+			{
+				$oTz = new \DateTimeZone($tz);
+				$timezones[$tz] = ['timezone_id' => $tz, 'offset' => $oTz->getOffset(new \DateTime("now", $oTz))];
+			} catch (\Exception $e)
+			{
+			}
+		}
+
+		uasort($timezones, function ($a, $b) {
+			if ($a['offset'] == $b['offset'])
+				return strcmp($a['timezone_id'], $b['timezone_id']);
+
+			return ($a['offset'] < $b['offset'] ? -1 : 1);
+		});
+
+		$result = [
+			['value' => '', 'text' => Loc::getMessage('BPDT_DATE_SERVER_TZ'), 'offset' => 0],
+			['value' => 'current', 'text' => Loc::getMessage('BPDT_DATE_CURRENT_TZ'), 'offset' => 'current']
+		];
+		foreach ($timezones as $z)
+		{
+			$result[] = [
+				'value' => $z['timezone_id'],
+				'text' => '(UTC'.($z['offset'] <> 0 ? ' '.($z['offset'] < 0 ? '-' : '+').sprintf("%02d", ($h = floor(abs($z['offset']) / 3600))).':'.sprintf("%02d", abs($z['offset']) / 60 - $h * 60) : '').') '.$z['timezone_id'],
+				'offset' => $z['offset'] - $serverOffset
+			];
+		}
+
+		return $result;
 	}
 }

@@ -908,6 +908,14 @@ if($arCurrentValues["USE_COMPARE"]=="Y")
 			);
 		}
 	}
+	if ($usePropertyFeatures)
+	{
+		unset($arComponentParameters["PARAMETERS"]["COMPARE_PROPERTY_CODE"]);
+		if (!empty($offers))
+		{
+			unset($arComponentParameters["PARAMETERS"]["COMPARE_OFFERS_PROPERTY_CODE"]);
+		}
+	}
 }
 
 if (!empty($offers))

@@ -40,6 +40,7 @@ class SharedMailboxesManager
 		$results = [];
 		foreach ($userCodes as $userAccessCode)
 		{
+			// @TODO: departments
 			if (preg_match('#U[0-9]+#', $userAccessCode['ACCESS_CODE']) === 1)
 			{
 				$results[] = substr($userAccessCode['ACCESS_CODE'], 1);

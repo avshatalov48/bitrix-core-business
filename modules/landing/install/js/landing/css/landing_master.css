@@ -32,6 +32,8 @@ body {
 .block-wrapper {
     position: relative;
 	box-sizing: border-box;
+	border-bottom: 1px solid transparent;
+	margin-bottom: -1px;
 }
 
 .block-wrapper::after {
@@ -223,7 +225,8 @@ main .landing-footer:not(.landing-empty):not(:hover) .landing-ui-panel-create-ac
 
 
 .landing-ui-panel-content-action,
-.landing-ui-panel-block-action {
+.landing-ui-panel-block-action,
+.landing-ui-panel-sidebar-actions {
 	background-color: #ffffff;
     top: 40px;
     left: 16px;
@@ -243,6 +246,13 @@ main .landing-footer:not(.landing-empty):not(:hover) .landing-ui-panel-create-ac
 .block-wrapper:hover .landing-ui-panel-block-action,
 .block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
 	opacity: 1;
+}
+
+.landing-sidebar .block-wrapper:hover .landing-ui-panel-content-action,
+.landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-content-action,
+.landing-sidebar .block-wrapper:hover .landing-ui-panel-block-action,
+.landing-sidebar .block-wrapper.landing-ui-hover .landing-ui-panel-block-action {
+	display: none!important;
 }
 
 body[style*="cursor: move;"] .landing-ui-panel-content-action,
@@ -682,19 +692,41 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 }
 
 
+/*for preview*/
 .l-d-lg-none,
 .l-d-md-none,
 .l-d-xs-none {
 	position: relative;
 }
 
+/* xl
+   Large devices more than 992px. In editor - show always
+ */
 @media (min-width: 992px) {
 	.l-d-lg-none {
 		display: block!important;
 	}
-
+	
 	.l-d-lg-none.g-flex-centered {
 		display: flex!important;
+	}
+}
+
+/* md
+   Medium devices less than 1200px and more than 576px
+*/
+@media (max-width: 991px) and (min-width: 576px) {
+	.block-wrapper .l-d-md-none {
+		display: none !important;
+	}
+}
+
+/* xs
+   Extra small devices less than 576px
+ */
+@media (max-width: 575px) {
+	.block-wrapper .l-d-xs-none {
+		display: none !important;
 	}
 }
 
@@ -811,6 +843,7 @@ main.landing-edit-mode.landing-ui-overlay::after {
 
 .landing-layout-flex {
 	overflow: visible!important;
+	min-height: 100vh;
 }
 
 .landing-ui-panel-create-action {
@@ -868,6 +901,11 @@ only screen and (min-resolution: 2dppx) {
 
 .bx-ie.bx-ie11 body {
 	overflow: hidden;
+}
+
+.bx-ie.bx-ie11 .g-upper-show,
+.bx-ie.bx-ie11 .template-bitrix24 {
+	overflow-y: auto;
 }
 
 .landing-ui-block-selectable-overlay {

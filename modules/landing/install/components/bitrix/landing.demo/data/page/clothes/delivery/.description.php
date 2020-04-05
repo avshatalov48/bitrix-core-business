@@ -84,7 +84,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-card' => array(
-					0 => 'landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 animated',
+					0 => 'landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-40 animated g-mb-0--last',
 				),
 				'.landing-block-node-card-text' => array(
 					0 => 'landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0 g-font-open-sans g-font-size-14',

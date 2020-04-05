@@ -362,16 +362,26 @@ if(
 		$strWarning .= $bs->LAST_ERROR;
 		$bVarsFromForm = true;
 		$DB->Rollback();
+		$message = null;
 		if($e = $APPLICATION->GetException())
 			$message = new CAdminMessage(GetMessage("admin_lib_error"), $e);
 
-		if (is_object($message))
-		{
-			$errorMessage = implode("; ", $message->GetMessages());
-		}
-		else
+		if ($strWarning !== '')
 		{
 			$errorMessage = $strWarning;
+		}
+		elseif ($message instanceof \CAdminMessage)
+		{
+			$messageList = array();
+			foreach ($message->GetMessages() as $item)
+			{
+				if (is_array($item))
+					$messageList[] = $item["text"];
+				else
+					$messageList[] = $item;
+			}
+			$errorMessage = implode("; ", $messageList);
+			unset($messageList);
 		}
 		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
@@ -586,7 +596,7 @@ if (!$bAutocomplete)
 			$deleteUrlParams['skip_public'] = true;
 		$urlDelete = $selfFolderUrl.CIBlock::GetAdminSectionListLink($IBLOCK_ID, $deleteUrlParams);
 		$urlDelete.= '&'.bitrix_sessid_get();
-		$urlDelete.= '&ID[]='.(preg_match('/^iblock_list_admin\.php/', $urlDelete) ? "S" : "").$ID;
+		$urlDelete.= '&ID[]='.(preg_match('/iblock_list_admin\.php/', $urlDelete) ? "S" : "").$ID;
 		$buttonAction = $adminSidePanelHelper->isPublicFrame() ? "ONCLICK" : "LINK";
 		$aMenu[] = array(
 			"TEXT" => htmlspecialcharsbx($arIBlock["SECTION_DELETE"]),
@@ -875,8 +885,6 @@ else
 	$tabControl->AddEditField("NAME", GetMessage("IBLOCK_FIELD_NAME").":", true, array("size" => 50, "maxlength" => 255), $str_NAME);
 }
 
-$newUploader = class_exists('\Bitrix\Main\UI\FileInput', true);
-
 $tabControl->BeginCustomField("PICTURE", GetMessage("IBSEC_E_PICTURE"), $arIBlock["FIELDS"]["SECTION_PICTURE"]["IS_REQUIRED"] === "Y");
 if($bVarsFromForm && !array_key_exists("PICTURE", $_REQUEST) && $arSection)
 	$str_PICTURE = intval($arSection["PICTURE"]);
@@ -884,43 +892,17 @@ if($bVarsFromForm && !array_key_exists("PICTURE", $_REQUEST) && $arSection)
 	<tr class="adm-detail-file-row">
 		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<td><?
-			if ($newUploader)
-			{
-				echo \Bitrix\Main\UI\FileInput::createInstance(array(
-					"name" => "PICTURE",
-					"description" => true,
-					"upload" => true,
-					"allowUpload" => "I",
-					"medialib" => true,
-					"fileDialog" => true,
-					"cloud" => true,
-					"delete" => true,
-					"maxCount" => 1
-				))->show(($bVarsFromForm ? $_REQUEST["PICTURE"] : $str_PICTURE), $bVarsFromForm);
-			}
-			else
-			{
-				echo CFileInput::Show("PICTURE", $str_PICTURE,
-					array(
-						"IMAGE" => "Y",
-						"PATH" => "Y",
-						"FILE_SIZE" => "Y",
-						"DIMENSIONS" => "Y",
-						"IMAGE_POPUP" => "Y",
-						"MAX_SIZE" => array(
-							"W" => COption::GetOptionString("iblock", "detail_image_size"),
-							"H" => COption::GetOptionString("iblock", "detail_image_size"),
-						),
-					), array(
-						'upload' => true,
-						'medialib' => true,
-						'file_dialog' => true,
-						'cloud' => true,
-						'del' => true,
-						'description' => false,
-					)
-				);
-			}
+			echo \Bitrix\Main\UI\FileInput::createInstance(array(
+				"name" => "PICTURE",
+				"description" => true,
+				"upload" => true,
+				"allowUpload" => "I",
+				"medialib" => true,
+				"fileDialog" => true,
+				"cloud" => true,
+				"delete" => true,
+				"maxCount" => 1
+			))->show(($bVarsFromForm ? $_REQUEST["PICTURE"] : $str_PICTURE), $bVarsFromForm);
 			?>
 		</td>
 	</tr>
@@ -1249,43 +1231,17 @@ if($bVarsFromForm && !array_key_exists("DETAIL_PICTURE", $_REQUEST) && $arSectio
 	<tr class="adm-detail-file-row">
 		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<td><?
-			if ($newUploader)
-			{
-				echo \Bitrix\Main\UI\FileInput::createInstance(array(
-					"name" => "DETAIL_PICTURE",
-					"description" => true,
-					"upload" => true,
-					"allowUpload" => "I",
-					"medialib" => true,
-					"fileDialog" => true,
-					"cloud" => true,
-					"delete" => true,
-					"maxCount" => 1
-				))->show(($bVarsFromForm ? $_REQUEST["DETAIL_PICTURE"] : $str_DETAIL_PICTURE), $bVarsFromForm);
-			}
-			else
-			{
-				echo CFileInput::Show("DETAIL_PICTURE", $str_DETAIL_PICTURE,
-					array(
-						"IMAGE" => "Y",
-						"PATH" => "Y",
-						"FILE_SIZE" => "Y",
-						"DIMENSIONS" => "Y",
-						"IMAGE_POPUP" => "Y",
-						"MAX_SIZE" => array(
-							"W" => COption::GetOptionString("iblock", "detail_image_size"),
-							"H" => COption::GetOptionString("iblock", "detail_image_size"),
-						),
-					), array(
-						'upload' => true,
-						'medialib' => true,
-						'file_dialog' => true,
-						'cloud' => true,
-						'del' => true,
-						'description' => false,
-					)
-				);
-			}
+			echo \Bitrix\Main\UI\FileInput::createInstance(array(
+				"name" => "DETAIL_PICTURE",
+				"description" => true,
+				"upload" => true,
+				"allowUpload" => "I",
+				"medialib" => true,
+				"fileDialog" => true,
+				"cloud" => true,
+				"delete" => true,
+				"maxCount" => 1
+			))->show(($bVarsFromForm ? $_REQUEST["DETAIL_PICTURE"] : $str_DETAIL_PICTURE), $bVarsFromForm);
 			?>
 		</td>
 	</tr>
@@ -1430,6 +1386,14 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 
 				}
 			}
+
+			\Bitrix\Main\Type\Collection::sortByColumn(
+				$arParents,
+				'LEFT_MARGIN',
+				'',
+				null,
+				true
+			);
 
 			$maxMargin = 0;
 			foreach ($arParents as $parent)
@@ -1685,7 +1649,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					row.insertCell(-1);
 					cell = row.cells[c];
 					cell.align = 'left';
-					cell.innerHTML = '<input type="hidden" name="SECTION_PROPERTY['+id+'][SHOW]" id="hidden_SECTION_PROPERTY_'+id+'" value="Y">'+name;
+					cell.innerHTML = '<input type="hidden" name="SECTION_PROPERTY['+id+'][SHOW]" id="hidden_SECTION_PROPERTY_'+id+'" value="Y">'+BX.util.htmlspecialchars(name);
 					cell.className = 'internal-left';
 
 					row.insertCell(-1);
@@ -2080,7 +2044,7 @@ if(CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit") && (!def
 	echo
 		BeginNote(),
 		GetMessage("IBSEC_E_IBLOCK_MANAGE_HINT"),
-		' <a href="iblock_edit.php?type='.htmlspecialcharsbx($type).'&amp;lang='.LANGUAGE_ID.'&amp;ID='.$IBLOCK_ID.'&amp;admin=Y&amp;return_url='.urlencode(CIBlock::GetAdminSectionEditLink($IBLOCK_ID, $ID, array("find_section_section" => intval($find_section_section), "return_url" => strlen($return_url) > 0? $return_url: null))).'">',
+		' <a href="iblock_edit.php?type='.htmlspecialcharsbx($type).'&amp;lang='.LANGUAGE_ID.'&amp;ID='.$IBLOCK_ID.'&amp;admin=Y&amp;return_url='.urlencode(CIBlock::GetAdminSectionEditLink($IBLOCK_ID, $ID, array("find_section_section" => intval($find_section_section), "IBLOCK_SECTION_ID" => intval($find_section_section), "return_url" => strlen($return_url) > 0? $return_url: null))).'">',
 		GetMessage("IBSEC_E_IBLOCK_MANAGE_HINT_HREF"),
 		'</a>',
 		EndNote()

@@ -20,7 +20,7 @@
 		this.layout.classList.add("landing-ui-button-editor-action-font");
 		this.content = BX.create("div", {props: {className: "landing-ui-button-editor-action-font-popup-content"}});
 		this.fontSize = new BX.Landing.UI.Field.Range({
-			title: BX.message("EDITOR_ACTION_FIELD_LABEL_FONT_SIZE"),
+			title: BX.Landing.Loc.getMessage("EDITOR_ACTION_FIELD_LABEL_FONT_SIZE"),
 			items: Array.apply(null, {length: 160}).map(function(item, index) {
 				return {value: index, name: index};
 			}),

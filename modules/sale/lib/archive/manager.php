@@ -17,7 +17,7 @@ Loc::loadMessages(__FILE__);
  */
 class Manager
 {
-	const SALE_ARCHIVE_VERSION = 1;
+	const SALE_ARCHIVE_VERSION = 2;
 
 	/**
 	 * @return array
@@ -284,48 +284,12 @@ class Manager
 		if ($id <= 0)
 			throw new Main\ArgumentNullException("id");
 
-		$archivedOrder = Internals\OrderArchiveTable::getList(
-			array(
-				"select" => array("*", "ORDER_FULL" => "ORDER_PACKED.ORDER_DATA"),
-				"filter" => array("=ID" => $id),
-				"limit" => 1
-			)
-		);
-		$orderFields = $archivedOrder->fetch();
-
-		if (!$orderFields)
+		$restorer = Recovery\Restorer::load($id);
+		if (!$restorer)
+		{
 			return null;
-
-		$recoveryName = "\\Bitrix\\Sale\\Archive\\Recovery\\Version" . $orderFields['VERSION'];
-		if (class_exists($recoveryName))
-		{
-			$orderFields['ORDER_DATA'] = unserialize($orderFields['ORDER_FULL']);
-			$orderFields['ORDER_DATA']['BASKET_ITEMS'] = array();
-
-			$basketArchivedItems = Internals\BasketArchiveTable::getList(
-				array(
-					"select" => array("BASKET_FULL" => "BASKET_PACKED.BASKET_DATA"),
-					"filter" => array("ARCHIVE_ID" => $orderFields['ID'])
-				)
-			);
-
-			while ($item = $basketArchivedItems->fetch())
-			{
-				$item['BASKET_DATA'] = unserialize($item['BASKET_FULL']);
-				$orderFields['ORDER_DATA']['BASKET_ITEMS'][$item['BASKET_DATA']['ID']] = $item['BASKET_DATA'];
-			}
-
-			/** @var Sale\Archive\Recovery\Base $orderRecovery */
-			$orderRecovery = new $recoveryName;
-			$order = $orderRecovery->restoreOrder($orderFields['ORDER_DATA']);
-			$order->setDateArchived($orderFields['DATE_ARCHIVED']);
-			$order->setVersion($orderFields['VERSION']);
-		}
-		else
-		{
-			throw new Main\ObjectNotFoundException('Class of restoring archive didn\'t find');
 		}
 
-		return $order;
+		return $restorer->restoreOrder();
 	}
 }

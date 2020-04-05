@@ -29,8 +29,6 @@
 		{
 			this.footer = BX.create("div", {props: {className: "landing-ui-card-footer"}, text: data.description});
 		}
-
-		this.layout.addEventListener("click", this.onClick.bind(this));
 	};
 
 

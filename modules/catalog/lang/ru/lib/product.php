@@ -27,6 +27,7 @@ $MESS["PRODUCT_ENTITY_AVAILABLE_FIELD"] = "Доступность к покуп�
 $MESS["PRODUCT_ENTITY_TYPE_PRODUCT"] = "простой";
 $MESS["PRODUCT_ENTITY_TYPE_SET"] = "комплект";
 $MESS["PRODUCT_ENTITY_TYPE_SKU"] = "товар с предложениями";
+$MESS["PRODUCT_ENTITY_TYPE_EMPTY_SKU"] = "невалидный товар с предложениями";
 $MESS["PRODUCT_ENTITY_TYPE_OFFER"] = "предложение";
 $MESS["PRODUCT_ENTITY_TYPE_FREE_OFFER"] = "предложение без товара";
 $MESS["PRODUCT_ENTITY_BUNDLE_FIELD"] = "Наличие набора";

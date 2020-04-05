@@ -1023,6 +1023,11 @@ BX.Sale.Admin.OrderPayment.prototype.showCreateCheckWindow = function(paymentId)
 					{
 						if (checkboxList.hasOwnProperty(i))
 						{
+							if (option.indexOf('prepayment') !== -1)
+							{
+								disabled = (checkboxList[i].name.indexOf('PAYMENT') !== -1);
+							}
+
 							var sibling = checkboxList[i].nextElementSibling;
 							if (disabled)
 							{
@@ -1136,16 +1141,15 @@ BX.Sale.Admin.OrderPayment.prototype.sendQueryCheckStatus = function(checkId)
 			{
 				BX.Sale.Admin.OrderEditPage.showDialog(result.ERROR);
 			}
-			else
+
+			var paymentId = result.PAYMENT_ID;
+			BX('PAYMENT_CHECK_LIST_ID_' + paymentId).innerHTML = result.CHECK_LIST_HTML;
+			if (BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== undefined && BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== null)
 			{
-				CloseWaitWindow();
-				var paymentId = result.PAYMENT_ID;
-				BX('PAYMENT_CHECK_LIST_ID_' + paymentId).innerHTML = result.CHECK_LIST_HTML;
-				if (BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== undefined && BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId) !== null)
-				{
-					BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId).innerHTML = result.CHECK_LIST_HTML;
-				}
+				BX('PAYMENT_CHECK_LIST_ID_SHORT_VIEW' + paymentId).innerHTML = result.CHECK_LIST_HTML;
 			}
+
+			CloseWaitWindow();
 		}, this)
 	};
 

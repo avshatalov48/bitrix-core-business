@@ -34,9 +34,16 @@ $aTabs = array(
 		"TITLE" => GetMessage("MAIN_TAB_TITLE_SET")),
 	array("DIV" => "edit2", "TAB" => GetMessage("MAIN_TAB_6"), "ICON" => "",
 		"TITLE" => GetMessage("MAIN_OPTION_REG")),
+	array("DIV" => "edit3", "TAB" => GetMessage("SOC_OPT_CRYPTO_TAB_TITLE"), "ICON" => "",
+		"TITLE" => GetMessage("SOC_OPT_CRYPTO_TAB_DESCR")),
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
+if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["activate_crypto_tokens"] <> '' && check_bitrix_sessid())
+{
+	Bitrix\Socialservices\EncryptedToken\Agent::init();
+	LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam().($_REQUEST["siteTabControl_active_tab"] <> ''? "&siteTabControl_active_tab=".urlencode($_REQUEST["siteTabControl_active_tab"]):''));
+}
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"].$_POST["Apply"].$_POST["RestoreDefaults"] <> '' && check_bitrix_sessid())
 {
 
@@ -249,7 +256,7 @@ endif;
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-<tr><td colspan="2">
+<tr><td colspan="2" style="padding-bottom: 20px;">
 <?
 $aSiteTabs = array(array("DIV" => "opt_common", "TAB" => GetMessage("socserv_sett_common"), 'TITLE' => GetMessage("socserv_sett_common_title"), 'ONSELECT'=>"document.forms['socserv_settings'].siteTabControl_active_tab.value='opt_common'"));
 foreach($arSites as $arSite)
@@ -342,13 +349,21 @@ foreach($arSiteList as $site):
 			$option[0] .= $suffix;
 		}
 
+		if (!empty($option['note']))
+		{
+			$option['note'] = '<div style="text-align: left; ">' . $option['note'] . '</div>';
+		}
+
 		__AdmSettingsDrawRow($module_id, $option);
 	}
 ?>
 </table>
 <?
 endforeach; //foreach($arSiteList as $site)
-
+?>
+	</td>
+</tr>
+<?
 $tabControl->BeginNextTab();
 
 $groups = array();
@@ -423,6 +438,48 @@ foreach($groups as $groupId => $groupTitle)
 $siteTabControl->End();
 ?>
 </td></tr>
+<?
+$tabControl->BeginNextTab();
+?>
+	<tr>
+		<?
+		if (COption::GetOptionString("socialservices", "allow_encrypted_tokens", false))
+		{
+			?>
+			<td width="40%"><?= GetMessage("SOC_OPT_CRYPTO_FIELD_TITLE") ?></td>
+			<td width="60%"><?ShowNote(GetMessage("SOC_OPT_CRYPTO_MESSAGE_ACTIVE"));?></td>
+			<?
+		}
+		else
+		{
+			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
+			{
+				?>
+				<td colspan="2">
+					<input type="submit" value="<?=GetMessage('SOC_OPT_CRYPTO_ACTIVATE')?>" name="activate_crypto_tokens" class="adm-btn-green" onclick="return confirmTokensEncryption()" />
+					<?=BeginNote();?>
+					<?=GetMessage('SOC_OPT_CRYPTO_NOTE');?>
+					<?=EndNote();?>
+					<script>
+						function confirmTokensEncryption()
+						{
+							return (confirm('<?=GetMessageJS('SOC_OPT_CRYPTO_CONFIRM')?>'));
+						}
+					</script>
+				</td>
+				<?
+			}
+			else
+			{
+				?>
+				<td width="40%"><?= GetMessage("SOC_OPT_CRYPTO_FIELD_TITLE") ?></td>
+				<td width="60%"><?ShowError(GetMessage('SOC_OPT_CRYPTO_NO_CRYPTOKEY'));?></td>
+				<?
+			}
+		}
+		?>
+		</td>
+	</tr>
 <?$tabControl->Buttons();?>
 	<input type="hidden" name="siteTabControl_active_tab" value="<?=htmlspecialcharsbx($_REQUEST["siteTabControl_active_tab"])?>">
 <?if($_REQUEST["back_url_settings"] <> ''):?>

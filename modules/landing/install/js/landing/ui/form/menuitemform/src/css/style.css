@@ -1,0 +1,68 @@
+.landing-ui-form-menuitem {
+	background: #ffffff;
+	border-bottom: 1px #EDEEF0 solid;
+	margin-bottom: 0;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header {
+	font-family: OpenSans-Regular, Helvetca, Arial, sans-sarif, serif;
+	font-size: 16px;
+	padding: 0;
+	display: flex;
+	height: 60px;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header-left,
+.landing-ui-form-menuitem .landing-ui-form-header-right {
+	height: 60px;
+	display: flex;
+	align-items: center;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header-title {
+
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header-drag-button {
+	height: 100%;
+	width: 20px;
+	cursor: grab;
+	margin-left: -2px;
+	margin-right: 2px;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header-remove-button {
+	background: url('../images/remove-icon.svg') center center no-repeat;
+	width: 40px;
+	height: 40px;
+	opacity: .5;
+	transition: all 200ms ease;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-header-remove-button:hover {
+	opacity: 1;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-description {
+	display: none;
+}
+
+.landing-ui-form-menuitem .landing-ui-form-body {
+	display: none;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.landing-ui-form-menuitem:last-child {
+	margin-bottom: 0!important;
+}
+
+.landing-ui-form-menuitem-open {
+	border-bottom: 1px #2FC6F6 solid;
+	box-shadow: 0 5px 10px -11px rgba(0, 0, 0, .75);
+	position: relative;
+}

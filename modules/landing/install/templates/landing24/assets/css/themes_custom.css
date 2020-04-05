@@ -37,11 +37,6 @@ img.u-block-hover__main--zoom-v1 {
 }
 
 
-/*content in correct charset*/
-.u-quote-v1::before {
-	content: "“";
-}
-
 /*rounded INSET for buttons without class u-btn-inset--rounded*/
 .u-btn-inset.rounded-0::before {
 	border-radius: 0 !important;
@@ -104,7 +99,14 @@ img.u-block-hover__main--zoom-v1 {
 }
 
 
+.info-v3-3__description-sm {
+	transform: translate3d(-12%, 0, 0);
+	transition: transform .5s;
+}
 
+.info-v3-3:hover .info-v3-3__description-sm {
+	transform: translate3d(0, 0, 0);
+}
 
 .g-transform-scale-1_03--hover:hover {
 	-webkit-transform: scale3d(1.03, 1.03, 1.03);

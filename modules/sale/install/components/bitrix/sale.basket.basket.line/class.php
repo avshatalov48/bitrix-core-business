@@ -1,6 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 use Bitrix\Main,
+	Bitrix\Main\Localization\Loc,
 	Bitrix\Sale;
 
 class SaleBasketLineComponent extends CBitrixComponent
@@ -186,6 +187,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 
 		$this->arResult = array(
 			"TOTAL_PRICE" => 0,
+			"TOTAL_PRICE_RAW" => 0,
 			"NUM_PRODUCTS" => 0,
 			"CATEGORIES" => array(),
 			"ERROR_MESSAGE" => '',
@@ -217,17 +219,49 @@ class SaleBasketLineComponent extends CBitrixComponent
 
 			$this->arResult["NUM_PRODUCTS"] = \Bitrix\Sale\BasketComponentHelper::getFUserBasketQuantity($this->getFuserId(), $this->getSiteId());
 		}
+		$this->arResult["TOTAL_PRICE_RAW"] = $this->arResult["TOTAL_PRICE"];
 
-		if($this->arParams["SHOW_TOTAL_PRICE"] == "Y")
-			$this->arResult["TOTAL_PRICE"] = CCurrencyLang::CurrencyFormat($this->arResult["TOTAL_PRICE"], CSaleLang::GetLangCurrency($this->getSiteId()), true);
+		if ($this->arParams["SHOW_TOTAL_PRICE"] == "Y")
+		{
+			$this->arResult["TOTAL_PRICE"] = CCurrencyLang::CurrencyFormat(
+				$this->arResult["TOTAL_PRICE"],
+				Sale\Internals\SiteCurrencyTable::getSiteCurrency($this->getSiteId()),
+				true
+			);
+		}
 
-		$productS = BasketNumberWordEndings($this->arResult["NUM_PRODUCTS"]);
-		$this->arResult["PRODUCT(S)"] = GetMessage("TSB1_PRODUCT") . $productS;
-
-		// compatibility!
-		$this->arResult["PRODUCTS"] = str_replace("#END#", $productS,
-			str_replace("#NUM#", $this->arResult["NUM_PRODUCTS"], GetMessage("TSB1_BASKET_TEXT"))
+		$messages = [
+			'ZERO' => 'BX_CP_SBBL_MESS_POSITION_DESCR_0',
+			'ONE' => 'BX_CP_SBBL_MESS_POSITION_DESCR_1',
+			'TEN' => 'BX_CP_SBBL_MESS_POSITION_DESCR_10_20',
+			'MOD_ONE' => 'BX_CP_SBBL_MESS_POSITION_DESCR_MOD_1',
+			'MOD_TWO' => 'BX_CP_SBBL_MESS_POSITION_DESCR_MOD_2_4',
+			'OTHER' => 'BX_CP_SBBL_MESS_POSITION_DESCR_OTHER'
+		];
+		$this->arResult['BASKET_COUNT_DESCRIPTION'] = $this->getBasketCountDescription(
+			$this->arResult["NUM_PRODUCTS"],
+			$messages
 		);
+
+		// compatibility begin!
+		$messages = [
+			'ZERO' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_0',
+			'ONE' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_1',
+			'TEN' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_10_20',
+			'MOD_ONE' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_MOD_1',
+			'MOD_TWO' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_MOD_2_4',
+			'OTHER' => 'BX_CP_SBBL_MESS_POSITION_SHORT_DESCR_OTHER'
+		];
+		$this->arResult['PRODUCT(S)'] = $this->getBasketCountDescription(
+			$this->arResult["NUM_PRODUCTS"],
+			$messages
+		);
+		$this->arResult["PRODUCTS"] = Loc::getMessage(
+			'BX_CP_SBBL_MESS_TOTAL_POSITITON',
+			['#VALUE#' => $this->arResult['BASKET_COUNT_DESCRIPTION']]
+		);
+		// compatibility end!
+		unset($messages);
 
 		// output
 		if ($this->arParams['AJAX'] == 'Y')
@@ -257,7 +291,12 @@ class SaleBasketLineComponent extends CBitrixComponent
 		if ($currentFuser <= 0)
 			return $result;
 
-		$fullBasket = Sale\Basket::loadItemsForFUser($currentFuser, $this->getSiteId());
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$fullBasket = $basketClass::loadItemsForFUser($currentFuser, $this->getSiteId());
 		if ($fullBasket->isEmpty())
 			return $result;
 
@@ -608,6 +647,50 @@ class SaleBasketLineComponent extends CBitrixComponent
 		$result['DISCOUNT_PRICE_PERCENT_FORMATED'] = $result['DISCOUNT_PRICE_PERCENT'].'%';
 
 		return $result;
+	}
+
+	/**
+	 * @param int $count
+	 * @param array $messages
+	 * @return string
+	 */
+	protected static function getBasketCountDescription(int $count, array $messages)
+	{
+		if ($count < 0)
+			return '';
+
+		$val = ($count < 100 ? $count : $count % 100);
+		$dec = $val % 10;
+
+		if ($val == 0)
+		{
+			$messageId = 'ZERO';
+		}
+		elseif ($val == 1)
+		{
+			$messageId = 'ONE';
+		}
+		elseif ($val >= 10 && $val <= 20)
+		{
+			$messageId = 'TEN';
+		}
+		elseif ($dec == 1)
+		{
+			$messageId = 'MOD_ONE';
+		}
+		elseif (2 <= $dec && $dec <= 4)
+		{
+			$messageId = 'MOD_TWO';
+		}
+		else
+		{
+			$messageId = 'OTHER';
+		}
+
+		return (isset($messages[$messageId])
+			? Loc::getMessage($messages[$messageId], ['#VALUE#' => $count])
+			: ''
+		);
 	}
 }
 

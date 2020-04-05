@@ -64,13 +64,11 @@ BX.CommentAux.getLiveText = function(type, params)
 	else if (type == 'createtask')
 	{
 		if (
-			typeof params == 'object'
+			BX.type.isNotEmptyObject(params)
 			&& typeof params.taskId != 'undefined'
 			&& parseInt(params.taskId) > 0
-			&& typeof params.taskName != 'undefined'
-			&& params.taskName.length > 0
-			&& typeof params.sourceEntityType != 'undefined'
-			&& params.sourceEntityType.length > 0
+			&& BX.type.isNotEmptyString(params.taskName)
+			&& BX.type.isNotEmptyString(params.sourceEntityType)
 			&& typeof params.sourceEntityId != 'undefined'
 			&& parseInt(params.sourceEntityId) > 0
 		)
@@ -78,7 +76,7 @@ BX.CommentAux.getLiveText = function(type, params)
 			var task = this.renderEntity({
 				ENTITY_TYPE: 'task',
 				NAME: params.taskName,
-				LINK: '',
+				LINK: (BX.type.isNotEmptyString(params.taskUrl) ? params.taskUrl : ''),
 				VISIBILITY: {
 					userId: (typeof params.taskResponsibleId != 'undefined' && parseInt(params.taskResponsibleId) > 0 ? parseInt(params.taskResponsibleId) : 0)
 				}

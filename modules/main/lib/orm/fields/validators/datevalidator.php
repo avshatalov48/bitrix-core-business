@@ -26,11 +26,6 @@ class DateValidator extends Validator
 			return true;
 		}
 
-		if (\CheckDateTime($value, FORMAT_DATE))
-		{
-			return true;
-		}
-
 		return $this->getErrorMessage($value, $field);
 	}
 }

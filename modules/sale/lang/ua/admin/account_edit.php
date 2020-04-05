@@ -1,0 +1,36 @@
+<?
+$MESS["SAE_NO_PERMS2ADD"] = "У вас недостатньо прав для додавання нового рахунку";
+$MESS["SAE_EMPTY_USER"] = "Не заповнене поле «Користувач»";
+$MESS["SAE_EMPTY_CURRENCY"] = "Не заповнене поле «Валюта»";
+$MESS["SAE_ALREADY_EXISTS"] = "Рахунок користувача ##USER# для валюти #CURRENCY# вже існує";
+$MESS["SAE_NO_ACCOUNT"] = "Рахунок ##ID# не знайдено";
+$MESS["SAE_ERROR_SAVING"] = "Помилка збереження рахунку";
+$MESS["SAE_ERROR_SAVING_SUM"] = "Помилка збереження рахунку. Будь ласка, перевірте правильність збереження суми на рахунку";
+$MESS["SAE_ERROR_SAVING_COMMENT"] = "Помилка збереження коментаря до рахунку";
+$MESS["SAE_UPDATING"] = "Зміна параметрів рахунку";
+$MESS["SAE_ADDING"] = "Додавання нового рахунку";
+$MESS["SAE_TO_LIST"] = "Список рахунків";
+$MESS["SAE_TIMESTAMP"] = "Дата останнього змінення:";
+$MESS["SAE_USER1"] = "Користувач:";
+$MESS["SAE_USER_PROFILE"] = "Профайл користувача";
+$MESS["SAE_SUM"] = "Сума на рахунку:";
+$MESS["SAE_UNLOCK"] = "Розблокувати бюджет:";
+$MESS["SAE_LOCKED"] = "(Заблоковано";
+$MESS["SAE_NOTES"] = "Нотатки:";
+$MESS["SAE_OSN"] = "Підстава зміни суми на рахунку:";
+$MESS["SAE_OSN_NOTE"] = "(заповнюється у разі зміни)";
+$MESS["SAE_SAVE"] = "Зберегти";
+$MESS["SAE_SAVE_ADD"] = "Додати";
+$MESS["SAE_APPLY"] = "Застосувати";
+$MESS["SAE_CANCEL"] = "Скинути";
+$MESS["SAEN_2FLIST"] = "Список рахунків";
+$MESS["SAEN_2FLIST_TITLE"] = "Переглянути список рахунків";
+$MESS["SAEN_NEW_ACCOUNT"] = "Додати рахунок";
+$MESS["SAEN_NEW_ACCOUNT_TITLE"] = "Створити новий рахунок";
+$MESS["SAEN_DELETE_ACCOUNT"] = "Видалити рахунок";
+$MESS["SAEN_DELETE_ACCOUNT_CONFIRM"] = "Ви впевнені, що хочете видалити цей рахунок?";
+$MESS["SAEN_TAB_ACCOUNT"] = "Рахунок користувача";
+$MESS["SAEN_TAB_ACCOUNT_DESCR"] = "Рахунок користувача";
+$MESS["SAE_ERROR"] = "Помилка збереження!";
+$MESS["SAE_LOCK"] = "Заблокувати бюджет:";
+?>

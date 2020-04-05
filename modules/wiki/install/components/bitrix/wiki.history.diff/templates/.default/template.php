@@ -1,6 +1,10 @@
-<?if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();?>
+<?if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
-<div id="wiki-post">
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
+?><div id="wiki-post">
 
 <? if(!empty($arResult['FATAL_MESSAGE'])):
 	?>
@@ -32,14 +36,14 @@ else:
 	<div id="wiki-post-content">
 	<span> <?=GetMessage('WIKI_VERSION_FROM')?> <a href="<?=$arResult['VERSION_DIFF']['SHOW_LINK']?>"><?=$arResult['VERSION_DIFF']['MODIFIED']?></a>
 	<? if (!empty($arResult['VERSION_DIFF']['USER_LINK'])): ?>
-		<a href="<?=$arResult['VERSION_DIFF']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_DIFF']['ID']?>"><?=$arResult['VERSION_DIFF']['USER_LOGIN']?></a>
+		<a href="<?=$arResult['VERSION_DIFF']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_DIFF']['ID']?>" bx-tooltip-user-id="<?=$arResult['VERSION_DIFF']["USER_ID"]?>"><?=$arResult['VERSION_DIFF']['USER_LOGIN']?></a>
 	<? else: ?>
 		<?=$arResult['VERSION_DIFF']['USER_LOGIN']?>
 	<? endif; ?>
 	<hr />
 	<span> <?=GetMessage('WIKI_DIFF_VERSION_FROM')?> <a href="<?=$arResult['VERSION_OLD']['SHOW_LINK']?>"><?=$arResult['VERSION_OLD']['MODIFIED']?></a>
 	<? if (!empty($arResult['VERSION_OLD']['USER_LINK'])): ?>
-		<a href="<?=$arResult['VERSION_OLD']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_OLD']['ID']?>"><?=$arResult['VERSION_OLD']['USER_LOGIN']?></a>
+		<a href="<?=$arResult['VERSION_OLD']['USER_LINK']?>" id="anchor_<?=$arResult['VERSION_OLD']['ID']?>" bx-tooltip-user-id="<?=$arResult['VERSION_OLD']["USER_ID"]?>"><?=$arResult['VERSION_OLD']['USER_LOGIN']?></a>
 	<? else: ?>
 		<?=$arResult['VERSION_OLD']['USER_LOGIN']?>
 	<? endif; ?>
@@ -51,11 +55,5 @@ else:
 	<b><?=GetMessage('WIKI_DIFF_TEXT')?></b><br/>
 	<?=$arResult['DIFF']?>
 	</div>
-	<? if ($arResult['SOCNET']) :?>
-	<script type="text/javascript">
-		BX.tooltip(<?=$arResult['VERSION_OLD']["USER_ID"]?>, "anchor_<?=$arResult['VERSION_OLD']['ID']?>", "<?=CUtil::JSEscape($arResult["AJAX_PAGE"])?>");
-		BX.tooltip(<?=$arResult['VERSION_DIFF']["USER_ID"]?>, "anchor_<?=$arResult['VERSION_DIFF']['ID']?>", "<?=CUtil::JSEscape($arResult["AJAX_PAGE"])?>");
-	</script>
-	<? endif;?>
 <? endif;?>
 </div>

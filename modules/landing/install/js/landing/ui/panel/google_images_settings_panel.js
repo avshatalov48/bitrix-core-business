@@ -12,19 +12,19 @@
 	BX.Landing.UI.Panel.GoogleImagesSettings = function()
 	{
 		BX.Landing.UI.Panel.Content.apply(this, ["google_images_settings", {
-			title: BX.message("LANDING_GOOGLE_IMAGES_KEY_PANEL_TITLE"),
+			title: BX.Landing.Loc.getMessage("LANDING_GOOGLE_IMAGES_KEY_PANEL_TITLE"),
 			footer: [
 				new BX.Landing.UI.Button.BaseButton("save_block_content", {
-					text: BX.message("BLOCK_SAVE"),
+					text: BX.Landing.Loc.getMessage("BLOCK_SAVE"),
 					onClick: this.onSaveClick.bind(this),
 					className: "landing-ui-button-content-save",
-					attrs: {title: BX.message("LANDING_TITLE_OF_SLIDER_SAVE")}
+					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_SLIDER_SAVE")}
 				}),
 				new BX.Landing.UI.Button.BaseButton("cancel_block_content", {
-					text: BX.message("BLOCK_CANCEL"),
+					text: BX.Landing.Loc.getMessage("BLOCK_CANCEL"),
 					onClick: this.onCancelClick.bind(this),
 					className: "landing-ui-button-content-cancel",
-					attrs: {title: BX.message("LANDING_TITLE_OF_SLIDER_CANCEL")}
+					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_SLIDER_CANCEL")}
 				})
 			]
 		}]);
@@ -35,9 +35,9 @@
 
 		this.settingsForm = new BX.Landing.UI.Form.BaseForm();
 		this.keyField = new BX.Landing.UI.Field.Text({
-			title: BX.message("LANDING_GOOGLE_IMAGES_KEY_FIELD_TITLE"),
+			title: BX.Landing.Loc.getMessage("LANDING_GOOGLE_IMAGES_KEY_FIELD_TITLE"),
 			textOnly: true,
-			description: BX.message("LANDING_GOOGLE_IMAGES_GET_KEY_GUIDE"),
+			description: BX.Landing.Loc.getMessage("LANDING_GOOGLE_IMAGES_GET_KEY_GUIDE"),
 			content: BX.Landing.Client.Google.key
 		});
 		this.settingsForm.addField(this.keyField);
@@ -76,7 +76,7 @@
 			this.resolver(key);
 			BX.Landing.Backend.getInstance()
 				.action("Utils::saveSettings", {
-					settings: {googleImages: key}
+					settings: {google_images_key: key}
 				});
 
 			BX.Landing.Client.Google.key = key;

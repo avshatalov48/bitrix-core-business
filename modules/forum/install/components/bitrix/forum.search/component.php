@@ -219,6 +219,7 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 			$arResult["order"]["topic"] = htmlspecialcharsbx($arResult["order"]["~topic"]);
 			$arResult["order"]["date"] = htmlspecialcharsbx($arResult["order"]["~date"]);
 			$arResult["EMPTY"] = "N";
+			$arResult["TOPICS"] = [];
 			do
 			{
 				if (intVal($res["ITEM_ID"]) > 0)

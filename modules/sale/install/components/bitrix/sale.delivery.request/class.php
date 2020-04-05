@@ -104,7 +104,11 @@ class CSaleDeliveryRequestComponent extends CBitrixComponent
 
 			$deliveries[$deliveryId]['SHIPMENT_IDS'][] = $shipmentFields['ID'];
 
-			if(!($order = \Bitrix\Sale\Order::load($shipmentFields['ORDER_ID'])))
+			$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+			/** @var \Bitrix\Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			if(!($order = $orderClass::load($shipmentFields['ORDER_ID'])))
 				continue;
 
 			if(!($shipmentCollection = $order->getShipmentCollection()))

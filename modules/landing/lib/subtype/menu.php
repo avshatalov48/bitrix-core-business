@@ -99,11 +99,8 @@ class Menu
 
 				// to work TWO MENUS together
 				// todo: check in manifest
-				$navbarCollapseSection =
-					isset($params['navbarCollapseSection']) ? $params['navbarCollapseSection'] : '.navbar-collapse';
-				$navbarTogglerButton = isset($params['navbarTogglerButton']) ?
-					$params['navbarTogglerButton'] :
-					'button.navbar-toggler';
+				$navbarCollapseSection = $params['navbarCollapseSection'] ?? '.navbar-collapse';
+				$navbarTogglerButton = $params['navbarTogglerButton'] ?? 'button.navbar-toggler';
 				
 				if (
 					isset($manifest['attrs'][$navbarCollapseSection])

@@ -19,7 +19,7 @@ $APPLICATION->IncludeComponent(
 		"SET_TITLE" => $arResult["SET_TITLE"],
 		"COLUMNS_COUNT" => 3,
 		"ITEMS_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
-		"PAGE" => "user_groups",
+		"PAGE" => "groups_list",
 		"PATH_TO_LOG" => $arResult["PATH_TO_LOG"],
 		"USE_KEYWORDS" => $arParams["GROUP_USE_KEYWORDS"],
 	),

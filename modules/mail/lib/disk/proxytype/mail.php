@@ -2,7 +2,13 @@
 
 namespace Bitrix\Mail\Disk\ProxyType;
 
+use Bitrix\Main;
 use Bitrix\Disk;
+
+if (!Main\Loader::includeModule('disk'))
+{
+	return false;
+}
 
 class Mail extends Disk\ProxyType\Base
 {

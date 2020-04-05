@@ -870,6 +870,29 @@ class Helper
 		}
 	}
 
+	/**
+	 * @param $url
+	 * @return mixed|string
+	 */
+	public static function getDomainName($url)
+	{
+		$url = filter_var($url, FILTER_SANITIZE_URL);
+		$url = trim($url, " \t\n\r\0\x0B/\\");
+		$components = parse_url($url);
+		if (isset($components["host"]) && !empty($components["host"]))
+		{
+			return $components["host"];
+		}
+		elseif (isset($components["path"]) && !empty($components["path"]))
+		{
+			return $components["path"];
+		}
+		else
+		{
+			return $url;
+		}
+	}
+
 	//region Deprecated Methods
 
 	/**

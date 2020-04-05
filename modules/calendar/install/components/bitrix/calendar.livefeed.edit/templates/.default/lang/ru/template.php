@@ -28,4 +28,6 @@ $MESS["ECLF_HIDE_ADD_SECT"] = "Скрыть дополнительные пар�
 $MESS["ECLF_PLANNER_FULL_FORM"] = "Подробно";
 $MESS["ECLF_PLANNER_TITLE"] = "Планировщик";
 $MESS["ECLF_PLANNER_PROPOSE_TIME"] = "Подобрать время";
+$MESS["ECLF_DESTINATION_ADD_USERS"] = "Добавить сотрудников, группы или отделы";
+$MESS["ECLF_DESTINATION_ADD_MORE"] = "Добавить еще";
 ?>

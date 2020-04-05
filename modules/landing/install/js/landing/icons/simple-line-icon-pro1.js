@@ -10,7 +10,7 @@
 		categories: [
 			{
 				"id": "simple_line_0",
-				"name": BX.message("LANDING_ICONS_SECTION_HOTEL_AND_RESTAURANT"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_HOTEL_AND_RESTAURANT"),
 				"items": [
 					"icon-hotel-restaurant-001 u-line-icon-pro",
 					"icon-hotel-restaurant-002 u-line-icon-pro",
@@ -266,7 +266,7 @@
 			},
 			{
 				"id": "simple_line_1",
-				"name": BX.message("LANDING_ICONS_SECTION_REAL_ESTATE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_REAL_ESTATE"),
 				"items": ["icon-real-estate-001 u-line-icon-pro",
 					"icon-real-estate-014 u-line-icon-pro",
 					"icon-real-estate-027 u-line-icon-pro",
@@ -361,7 +361,7 @@
 			},
 			{
 				"id": "simple_line_2",
-				"name": BX.message("LANDING_ICONS_SECTION_EDUCATION"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_EDUCATION"),
 				"items": [
 					"icon-education-001 u-line-icon-pro",
 					"icon-education-014 u-line-icon-pro",
@@ -565,7 +565,7 @@
 					"icon-education-195 u-line-icon-pro"]
 			}, {
 				"id": "simple_line_3",
-				"name": BX.message("LANDING_ICONS_SECTION_FINANCE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_FINANCE"),
 				"items": [
 					"icon-finance-260 u-line-icon-pro",
 					"icon-finance-259 u-line-icon-pro",
@@ -758,7 +758,6 @@
 					"icon-finance-086 u-line-icon-pro",
 					"icon-finance-087 u-line-icon-pro",
 					"icon-finance-074 u-line-icon-pro",
-					"icon-finance-075 u-line-icon-pro",
 					"icon-finance-088 u-line-icon-pro",
 					"icon-finance-089 u-line-icon-pro",
 					"icon-finance-076 u-line-icon-pro",
@@ -831,7 +830,7 @@
 			},
 			{
 				"id": "simple_line_4",
-				"name": BX.message("LANDING_ICONS_SECTION_TRANSPORTATION"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_TRANSPORTATION"),
 				"items": [
 					"icon-transport-001 u-line-icon-pro",
 					"icon-transport-014 u-line-icon-pro",
@@ -937,7 +936,7 @@
 			},
 			{
 				"id": "simple_line_5",
-				"name": BX.message("LANDING_ICONS_SECTION_TRAVEL"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_TRAVEL"),
 				"items": [
 					"icon-travel-001 u-line-icon-pro",
 					"icon-travel-014 u-line-icon-pro",
@@ -1093,7 +1092,7 @@
 			},
 			{
 				"id": "simple_line_6",
-				"name": BX.message("LANDING_ICONS_SECTION_FOOD"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_FOOD"),
 				"items": [
 					"icon-food-001 u-line-icon-pro",
 					"icon-food-014 u-line-icon-pro",
@@ -1399,7 +1398,7 @@
 			},
 			{
 				"id": "simple_line_7",
-				"name": BX.message("LANDING_ICONS_SECTION_MEDICINE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_MEDICINE"),
 				"items": [
 					"icon-medical-001 u-line-icon-pro",
 					"icon-medical-002 u-line-icon-pro",
@@ -1505,7 +1504,7 @@
 			},
 			{
 				"id": "simple_line_8",
-				"name": BX.message("LANDING_ICONS_SECTION_CLOTHES"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_CLOTHES"),
 				"items": [
 					"icon-clothes-014 u-line-icon-pro",
 					"icon-clothes-027 u-line-icon-pro",

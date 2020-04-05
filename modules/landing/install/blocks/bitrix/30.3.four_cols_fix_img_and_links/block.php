@@ -1,14 +1,14 @@
 <section class="landing-block g-pt-30 g-pb-20">
 
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 
-			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3">
+			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3 col-lg-3">
 				<article class="u-shadow-v28 g-bg-white">
 					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x335/img1.jpg" alt="">
-						<div class="landing-block-node-svg-container g-pos-rel">
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
 							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
 								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
 								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
@@ -37,12 +37,12 @@
 				</article>
 			</div>
 
-			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3">
+			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3 col-lg-3">
 				<article class="u-shadow-v28 g-bg-white">
 					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x335/img2.jpg" alt="">
-						<div class="landing-block-node-svg-container g-pos-rel">
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
 							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
 								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
 								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
@@ -72,12 +72,12 @@
 			</div>
 
 
-			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3">
+			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3 col-lg-3">
 				<article class="u-shadow-v28 g-bg-white">
 					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x335/img3.jpg" alt="">
-						<div class="landing-block-node-svg-container g-pos-rel">
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
 							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
 								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
 								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"
@@ -107,12 +107,12 @@
 			</div>
 
 
-			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3">
+			<div class="landing-block-card js-animation fadeIn col-sm-6 col-md-3 col-lg-3">
 				<article class="u-shadow-v28 g-bg-white">
 					<div class="landing-block-node-img-container">
 						<img class="landing-block-node-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x335/img4.jpg" alt="">
-						<div class="landing-block-node-svg-container g-pos-rel">
+						<div class="landing-block-node-svg-container g-pointer-events-none g-pos-rel">
 							<svg class="g-hidden-col-1 g-hidden-col-2 g-hidden-col-3--md g-pos-abs g-left-0 g-right-0 g-bottom-0"
 								 version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
 								 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px"

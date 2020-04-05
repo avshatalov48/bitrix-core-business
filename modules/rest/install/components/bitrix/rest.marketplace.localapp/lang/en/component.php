@@ -1,3 +1,3 @@
 <?
-$MESS["MARKETPLACE_LOCAL_TITLE"] = "Add application";
+$MESS["MARKETPLACE_LOCAL_TITLE"] = "Add Application";
 ?>

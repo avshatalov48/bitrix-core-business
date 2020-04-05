@@ -228,6 +228,7 @@ if (Main\Loader::includeModule('sale'))
 				'MEASURE',
 				'TYPE'
 			);
+			$catalogSelect = array_merge($catalogSelect, Catalog\Product\SystemField::getFieldList());
 
 			if (is_array($options) && !in_array('CATALOG_DATA', $options))
 			{
@@ -4485,6 +4486,7 @@ if (Main\Loader::includeModule('sale'))
 			]);
 			while ($row = $iterator->fetch())
 			{
+				Catalog\Product\SystemField::convertRow($row);
 				$resultList[$row['ID']] = $row;
 			}
 			unset($row, $iterator);
@@ -4560,7 +4562,6 @@ if (Main\Loader::includeModule('sale'))
 					continue;
 				$priceResultList[$basketCode]['PRODUCT_PRICE_ID'] = $priceData['PRICE']['ID'];
 				$priceResultList[$basketCode]['NOTES'] = $priceData['PRICE']['CATALOG_GROUP_NAME'];
-				$priceResultList[$basketCode]['VAT_RATE'] = $priceData['PRICE']['VAT_RATE'];
 				$priceResultList[$basketCode]['DISCOUNT_NAME'] = null;
 				$priceResultList[$basketCode]['DISCOUNT_COUPON'] = null;
 				$priceResultList[$basketCode]['DISCOUNT_VALUE'] = null;
@@ -4582,6 +4583,8 @@ if (Main\Loader::includeModule('sale'))
 					$priceResultList[$basketCode]['DISCOUNT_VALUE'] = ($priceData['RESULT_PRICE']['PERCENT'] > 0
 						? $priceData['RESULT_PRICE']['PERCENT'] . '%' : null);
 				}
+				$priceResultList[$basketCode]['VAT_RATE'] = $priceData['RESULT_PRICE']['VAT_RATE'];
+				$priceResultList[$basketCode]['VAT_INCLUDED'] = $priceData['RESULT_PRICE']['VAT_INCLUDED'];
 
 				if (!empty($discount))
 				{
@@ -4775,7 +4778,8 @@ if (Main\Loader::includeModule('sale'))
 								)
 							),
 							"TYPE" => ($catalogData["TYPE"] == \CCatalogProduct::TYPE_SET)
-								? \CCatalogProductSet::TYPE_SET : null
+								? \CCatalogProductSet::TYPE_SET : null,
+							"MARKING_CODE_GROUP" => $catalogData["MARKING_CODE_GROUP"]
 						)
 					);
 				}

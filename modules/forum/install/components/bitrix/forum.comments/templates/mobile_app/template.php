@@ -8,7 +8,7 @@
  */
 
 CUtil::InitJSCore(array('content_view'));
-
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $link = $APPLICATION->GetCurPageParam("MID=#ID#", array(
 	"MID",
 	"sessid",
@@ -17,6 +17,7 @@ $link = $APPLICATION->GetCurPageParam("MID=#ID#", array(
 	"ENTITY_TYPE",
 	"ENTITY_ID",
 	"REVIEW_ACTION",
+	"ACTION",
 	"MODE",
 	"FILTER",
 	"result",
@@ -56,16 +57,16 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			),
 			"CREATETASK" => ($arResult["bTasksAvailable"] ? "Y" : "N")
 		),
-		"VISIBLE_RECORDS_COUNT" => 3,
+		"VISIBLE_RECORDS_COUNT" => $arResult["VISIBLE_RECORDS_COUNT"],
 
 		"ERROR_MESSAGE" => $arResult["ERROR_MESSAGE"],
 		"OK_MESSAGE" => $arResult["OK_MESSAGE"],
-		"RESULT" => $arResult["RESULT"],
+		"RESULT" => ($arResult["RESULT"] ?: $request->getQuery("MID")),
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
 		"VIEW_URL" => ($arParams["SHOW_LINK_TO_MESSAGE"] == "Y" ? $link : ""),
-		"EDIT_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "GET"), false, false),
-		"MODERATE_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "#ACTION#"), false, false),
-		"DELETE_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "DEL"), false, false),
+		"EDIT_URL" => ForumAddPageParams($link, array("ACTION" => "GET"), false, false),
+		"MODERATE_URL" => ForumAddPageParams($link, array("ACTION" => "#ACTION#"), false, false),
+		"DELETE_URL" => ForumAddPageParams($link, array("ACTION" => "DEL"), false, false),
 		"AUTHOR_URL" => $arParams["URL_TEMPLATES_PROFILE_VIEW"],
 
 		"AVATAR_SIZE" => $arParams["AVATAR_SIZE_COMMENT"],

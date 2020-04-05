@@ -1,0 +1,247 @@
+.ui-vue-socialvideo {
+	position: relative;
+	cursor: pointer;
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+	overflow: hidden;
+	min-width: 100px;
+	min-height: 100px;
+}
+
+.ui-vue-socialvideo-container {
+}
+
+.ui-vue-socialvideo-overlay-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 3;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.ui-vue-socialvideo-info-container {
+	width: 115px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	padding-left: 15px;
+	vertical-align: bottom;
+	padding-top: 45px;
+	height: 75px;
+}
+
+.ui-vue-socialvideo-time-current {
+	font: 11px/21px "SF UI Text", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #fff;
+	text-shadow: 0 0 1px #000, 0 0 1px #fff;
+	background-repeat: no-repeat;
+    background-position: center left;
+    height: 20px;
+    display: inline-block;
+    vertical-align: top;
+	-webkit-font-smoothing: auto;
+}
+
+.ui-vue-socialvideo-sound {
+    background-repeat: no-repeat;
+    background-position: center left;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: top;
+	margin-left: 5px;
+}
+.ui-vue-socialvideo-sound-off {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2217%22%20height%3D%2213%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.392%206.52l2.269%202.269-.872.872-2.269-2.269-2.305%202.305-.871-.872%202.305-2.305-2.27-2.268.873-.872%202.268%202.269%202.305-2.305.872.871-2.305%202.305zm-10.2-2.503L8.621.944a.245.245%200%200%201%20.315.033.184.184%200%200%201%20.048.122v10.768c0%20.11-.1.198-.224.198a.244.244%200%200%201-.138-.043L4.246%208.888a.563.563%200%200%201-.34.112H1.507c-.288%200-.522-.207-.522-.462V4.403c0-.255.234-.462.522-.462h2.397a.57.57%200%200%201%20.286.076z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
+}
+
+.ui-vue-socialvideo-sound-on {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2216%22%20height%3D%2213%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M4.191%204.017L8.623.944a.245.245%200%200%201%20.314.033.184.184%200%200%201%20.048.122v10.768c0%20.11-.1.198-.224.198a.244.244%200%200%201-.138-.043L4.246%208.888a.563.563%200%200%201-.34.112H1.507c-.288%200-.522-.207-.522-.462V4.403c0-.255.234-.462.522-.462h2.397a.57.57%200%200%201%20.286.076zm9.739-2.36a6.686%206.686%200%200%201%202.014%204.792c0%201.798-.707%203.43-1.86%204.635l-.944-.945a5.352%205.352%200%200%200%201.469-3.69A5.355%205.355%200%200%200%2012.985%202.6l.945-.944zm-2.06%202.06A3.782%203.782%200%200%201%2013.03%206.45a3.78%203.78%200%200%201-1.007%202.574l-.953-.953c.382-.432.614-1%20.614-1.621a2.44%202.44%200%200%200-.768-1.78l.953-.952z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
+}
+.ui-vue-socialvideo-controls-container {
+	width: 75px;
+	height: 75px;
+	padding-left: 7px;
+	padding-top: 7px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.ui-vue-socialvideo-control {
+	height: 38px;
+	width: 38px;
+	display: block;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	-webkit-transition: 250ms linear background-color;
+	-o-transition: 250ms linear background-color;
+	transition: 250ms linear background-color;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-tap-highlight-color: transparent;
+	outline: none;
+}
+
+.ui-vue-socialvideo-control,
+.ui-vue-socialvideo-button-start {
+	background-color: rgba(0, 0, 0, 0.39);
+}
+
+.ui-vue-socialvideo-control-play {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2216%22%20viewBox%3D%220%200%2012%2016%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M26.6485373%2C18.2488193%20L16.2539289%2C11.1423292%20C16.0088457%2C10.9724211%2015.6895249%2C10.9531834%2015.4258159%2C11.092439%20C15.1621069%2C11.2316946%2014.9979288%2C11.5062513%2015.0000434%2C11.8044628%20L15.0000434%2C26.0167597%20C14.9969364%2C26.315402%2015.1609667%2C26.5907459%2015.4250644%2C26.7302067%20C15.689162%2C26.8696675%2016.0090495%2C26.8498639%2016.2539289%2C26.6788933%20L26.6485373%2C19.5724031%20C26.8683107%2C19.4238487%2027%2C19.1758823%2027%2C18.9106112%20C27%2C18.6453401%2026.8683107%2C18.3973738%2026.6485373%2C18.2488193%20L26.6485373%2C18.2488193%20Z%22%20transform%3D%22translate%28-15%20-11%29%22/%3E%0A%3C/svg%3E%0A);
+	background-position: calc(50% + 2px) 50%;
+	cursor: pointer;
+}
+
+.ui-vue-socialvideo-control-pause {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2212%22%20viewBox%3D%220%200%2010%2012%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M21%2C13%20L24%2C13%20L24%2C25%20L21%2C25%20L21%2C13%20Z%20M14%2C13%20L17%2C13%20L17%2C25%20L14%2C25%20L14%2C13%20Z%22%20transform%3D%22translate%28-14%20-13%29%22/%3E%0A%3C/svg%3E%0A);
+	cursor: pointer;
+}
+
+.ui-vue-socialvideo-button-start:hover,
+.ui-vue-socialvideo-control-play:hover,
+.ui-vue-socialvideo-control-pause:hover {
+	background-color: #5DBEEC;
+}
+
+.ui-vue-socialvideo-button-start:active,
+.ui-vue-socialvideo-control-play:active,
+.ui-vue-socialvideo-control-pause:active {
+	background-color: #12b1e3;
+}
+
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-control,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-button-start,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-button-start:hover,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-control-play:hover,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-control-pause:hover,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-button-start:active,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-control-play:active,
+.ui-vue-socialvideo-mobile .ui-vue-socialvideo-control-pause:active {
+	background-color: rgba(0, 0, 0, 0.39);
+}
+
+.ui-vue-socialvideo-control-loader {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2218%22%20height%3D%2218%22%20viewBox%3D%220%200%2018%2018%22%3E%0A%20%20%3Cpath%20fill%3D%22%23FFFFFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M9.25347735%2C0.131844352%20L9.25347735%2C1.65344535%20C9.1693359%2C1.65059411%209.08483578%2C1.64915697%209%2C1.64915697%20C4.9402415%2C1.64915697%201.64915697%2C4.9402415%201.64915697%2C9%20C1.64915697%2C13.0597585%204.9402415%2C16.350843%209%2C16.350843%20C13.0597585%2C16.350843%2016.350843%2C13.0597585%2016.350843%2C9%20C16.350843%2C8.91516422%2016.3494059%2C8.8306641%2016.3465546%2C8.74652265%20L17.8681556%2C8.74652265%20C17.870518%2C8.83072687%2017.8717071%2C8.91522457%2017.8717071%2C9%20C17.8717071%2C13.8997085%2013.8997085%2C17.8717071%209%2C17.8717071%20C4.10029146%2C17.8717071%200.128292901%2C13.8997085%200.128292901%2C9%20C0.128292901%2C4.10029146%204.10029146%2C0.128292901%209%2C0.128292901%20C9.08477543%2C0.128292901%209.16927313%2C0.129481974%209.25347735%2C0.131844352%20Z%22%20opacity%3D%22.6%22/%3E%0A%3C/svg%3E%0A);
+	-webkit-animation: vueAudioPlayerControlLoader 1s infinite linear;
+	        animation: vueAudioPlayerControlLoader 1s infinite linear;
+	cursor: wait;
+}
+
+@-webkit-keyframes vueAudioPlayerControlLoader {
+	from { -webkit-transform: rotate(0); transform: rotate(0) }
+	to { -webkit-transform: rotate(360deg); transform: rotate(360deg) }
+}
+
+@keyframes vueAudioPlayerControlLoader {
+	from { -webkit-transform: rotate(0); transform: rotate(0) }
+	to { -webkit-transform: rotate(360deg); transform: rotate(360deg) }
+}
+
+.ui-vue-socialvideo-source {
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	position: relative;
+}
+
+
+.ui-vue-socialvideo-image-source {
+	display: inline-block;
+	z-index: 1;
+	position: absolute;
+	background: #0e0e0e;
+}
+.ui-vue-socialvideo-background {
+	display: inline-block;
+	z-index: 1;
+	position: absolute;
+	background: #0e0e0e;
+	width: 100%;
+	height: 100%;
+}
+.ui-vue-socialvideo-image-source-text {
+	display: inline-block;
+	width: 100%;
+	max-height: 280px;
+}
+
+.ui-vue-socialvideo-image-source.bx-lazyload-loading,
+.ui-vue-socialvideo-image-source.bx-lazyload-hidden {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20width%3D%2275px%22%20height%3D%2298px%22%20viewBox%3D%220%200%2075%2098%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3C%21--%20Generator%3A%20Sketch%2054.1%20%2876490%29%20-%20https%3A//sketchapp.com%20--%3E%0A%20%20%20%20%3Ctitle%3EGroup%3C/title%3E%0A%20%20%20%20%3Cdesc%3ECreated%20with%20Sketch.%3C/desc%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group%22%20fill-rule%3D%22nonzero%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22basis-link%22%20fill%3D%22%23E5E8EB%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolygon%20id%3D%22basis%22%20points%3D%220%200%2054%200%2075%2022.227%2075%2098%200%2098%22%3E%3C/polygon%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22corner-link%22%20transform%3D%22translate%2854.000000%2C%200.000000%29%22%20fill%3D%22%23535C69%22%20opacity%3D%220.3%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolygon%20id%3D%22corner%22%20points%3D%220%200%2021%2022.227%200%2022.227%22%3E%3C/polygon%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M10.002%2C39.4343918%20L10.002%2C79.6750103%20L65%2C79.6750103%20L65%2C39.4343918%20L10.002%2C39.4343918%20Z%20M63%2C77.7938144%20L12%2C77.7938144%20L12%2C41.4226804%20L63%2C41.4226804%20L63%2C77.7938144%20Z%20M57%2C77.7938144%20L55%2C77.7938144%20L55%2C41.4226804%20L57%2C41.4226804%20L57%2C77.7938144%20Z%20M57%2C41.4226804%20L63%2C41.4226804%20L63%2C44.4536082%20L57%2C44.4536082%20L57%2C41.4226804%20Z%20M57%2C47.4845361%20L63%2C47.4845361%20L63%2C51.5257732%20L57%2C51.5257732%20L57%2C47.4845361%20Z%20M57%2C54.556701%20L63%2C54.556701%20L63%2C58.5979381%20L57%2C58.5979381%20L57%2C54.556701%20Z%20M57%2C61.628866%20L63%2C61.628866%20L63%2C65.6701031%20L57%2C65.6701031%20L57%2C61.628866%20Z%20M57%2C68.7010309%20L63%2C68.7010309%20L63%2C72.742268%20L57%2C72.742268%20L57%2C68.7010309%20Z%20M63%2C75.7731959%20L63%2C77.7938144%20L57%2C77.7938144%20L57%2C75.7731959%20L63%2C75.7731959%20Z%20M18%2C41.4226804%20L20%2C41.4226804%20L20%2C77.7938144%20L18%2C77.7938144%20L18%2C41.4226804%20Z%20M18%2C77.7938144%20L12%2C77.7938144%20L12%2C75.7731959%20L18%2C75.7731959%20L18%2C77.7938144%20Z%20M18%2C72.742268%20L12%2C72.742268%20L12%2C68.7010309%20L18%2C68.7010309%20L18%2C72.742268%20Z%20M18%2C65.6701031%20L12%2C65.6701031%20L12%2C61.628866%20L18%2C61.628866%20L18%2C65.6701031%20Z%20M18%2C58.5979381%20L12%2C58.5979381%20L12%2C54.556701%20L18%2C54.556701%20L18%2C58.5979381%20Z%20M18%2C51.5257732%20L12%2C51.5257732%20L12%2C47.4845361%20L18%2C47.4845361%20L18%2C51.5257732%20Z%20M18%2C44.4536082%20L12%2C44.4536082%20L12%2C41.4226804%20L18%2C41.4226804%20L18%2C44.4536082%20Z%22%20id%3D%22Shape%22%20fill%3D%22%23B9BEC4%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: inherit;
+	min-width: 50px;
+	min-height: 50px;
+}
+.ui-vue-socialvideo-image-source.bx-lazyload-error {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20width%3D%2275px%22%20height%3D%2298px%22%20viewBox%3D%220%200%2075%2098%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3C%21--%20Generator%3A%20Sketch%2054.1%20%2876490%29%20-%20https%3A//sketchapp.com%20--%3E%0A%20%20%20%20%3Ctitle%3EGroup%203%3C/title%3E%0A%20%20%20%20%3Cdesc%3ECreated%20with%20Sketch.%3C/desc%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-3%22%20fill-rule%3D%22nonzero%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22basis-link%22%20transform%3D%22translate%280.000000%2C%200.000000%29%22%20fill%3D%22%23E5E8EB%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolygon%20id%3D%22basis%22%20points%3D%220%200%2054%200%2075%2022.227%2075%2098%200%2098%22%3E%3C/polygon%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22corner-link%22%20transform%3D%22translate%2854.000000%2C%200.000000%29%22%20fill%3D%22%23535C69%22%20opacity%3D%220.3%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolygon%20id%3D%22corner%22%20points%3D%220%200%2021%2022.227%200%2022.227%22%3E%3C/polygon%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-2%22%20transform%3D%22translate%287.933999%2C%2039.021388%29%22%20fill%3D%22%23B9BEC4%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M26.3070386%2C35.4789995%20L26.2939081%2C35.4789367%20L35.2683909%2C26.4164018%20L31.7528602%2C15.3075321%20L39.7301008%2C5.08258032%20L40.836265%2C5.29601002%20L40.780965%2C5.37623416%20L59.3373803%2C10.3484106%20L50.8382369%2C42.0676454%20L26.2939081%2C35.4910123%20L26.3070386%2C35.4789995%20Z%20M29.0627123%2C34.6436161%20L49.6252837%2C40.1533405%20L57.3071607%2C11.4841853%20L39.803591%2C6.79411797%20L33.5847775%2C15.8157975%20L36.8077125%2C27.0680279%20L29.0627123%2C34.6436161%20Z%20M44.7944529%2C38.8589233%20L43.184176%2C38.4274509%20L50.8660529%2C9.7582957%20L52.4763299%2C10.1897681%20L44.7944529%2C38.8589233%20Z%20M52.4763299%2C10.1897681%20L57.3071607%2C11.4841853%20L56.6670043%2C13.8732816%20L51.8361735%2C12.5788644%20L52.4763299%2C10.1897681%20Z%20M51.1960171%2C14.9679607%20L56.0268479%2C16.2623779%20L55.173306%2C19.4478396%20L50.3424752%2C18.1534224%20L51.1960171%2C14.9679607%20Z%20M49.7023188%2C20.5425186%20L54.5331496%2C21.8369358%20L53.6796077%2C25.0223975%20L48.8487769%2C23.7279803%20L49.7023188%2C20.5425186%20Z%20M48.2086204%2C26.1170766%20L53.0394513%2C27.4114938%20L52.1859094%2C30.5969555%20L47.3550786%2C29.3025383%20L48.2086204%2C26.1170766%20Z%20M46.7149222%2C31.6916345%20L51.545753%2C32.9860517%20L50.6922111%2C36.1715134%20L45.8613803%2C34.8770962%20L46.7149222%2C31.6916345%20Z%20M50.0520547%2C38.5606097%20L49.6252837%2C40.1533405%20L44.7944529%2C38.8589233%20L45.2212238%2C37.2661925%20L50.0520547%2C38.5606097%20Z%22%20id%3D%22Combined-Shape%22%20transform%3D%22translate%2842.815644%2C%2023.575113%29%20rotate%28-4.000000%29%20translate%28-42.815644%2C%20-23.575113%29%20%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M27.1240056%2C33.9786115%20L8.61752162%2C38.9374089%20L-1.24344979e-14%2C6.77638041%20L24.6309705%2C0.176531745%20L24.5960163%2C0.383822824%20L25.1324255%2C1.33226763e-13%20L22.8264452%2C12.9936454%20L32.0872649%2C20.9242137%20L27.566001%2C33.9786115%20L27.1240056%2C33.9786115%20Z%20M22.9228726%2C2.33738188%20L2.03260734%2C7.93491157%20L9.82147951%2C37.0033783%20L26.5950967%2C32.5089011%20L30.566001%2C21.4786115%20L21.066001%2C13.4786115%20L22.9228726%2C2.33738188%20Z%20M6.85787964%2C6.64198376%20L8.46630374%2C6.21100782%20L16.2551759%2C35.2794745%20L14.6467518%2C35.7104504%20L6.85787964%2C6.64198376%20Z%20M14.6467518%2C35.7104504%20L9.82147951%2C37.0033783%20L9.38876441%2C35.3884635%20L14.2140367%2C34.0955357%20L14.6467518%2C35.7104504%20Z%20M13.564964%2C31.6731634%20L8.73969171%2C32.9660912%20L7.87426147%2C29.7362616%20L12.6995338%2C28.4433338%20L13.564964%2C31.6731634%20Z%20M12.0504611%2C26.0209616%20L7.2251888%2C27.3138894%20L6.35975856%2C24.0840598%20L11.1850309%2C22.7911319%20L12.0504611%2C26.0209616%20Z%20M10.5359582%2C20.3687597%20L5.71068586%2C21.6616875%20L4.84525562%2C18.4318579%20L9.67052793%2C17.13893%20L10.5359582%2C20.3687597%20Z%20M9.02145525%2C14.7165579%20L4.19618295%2C16.0094857%20L3.33075271%2C12.779656%20L8.15602501%2C11.4867282%20L9.02145525%2C14.7165579%20Z%20M7.50695232%2C9.06435595%20L2.68168002%2C10.3572838%20L2.03260734%2C7.93491157%20L6.85787964%2C6.64198376%20L7.50695232%2C9.06435595%20Z%22%20id%3D%22Combined-Shape%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: inherit;
+	min-width: 50px;
+	min-height: 50px;
+}
+
+.bx-im-element-file-image + .bx-im-message-content-body-without-text .bx-im-message-content-params {
+	margin-top: -21px;
+}
+
+.ui-vue-socialvideo-button-start {
+	width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+    border-radius: 50%;
+	z-index:4;
+	-webkit-transition: 250ms linear background-color;
+	-o-transition: 250ms linear background-color;
+	transition: 250ms linear background-color;
+}
+
+.ui-vue-socialvideo-button-start-icon {
+    border-style: solid;
+    border-width: 10px 0 10px 15px;
+    border-color: transparent transparent transparent #fff;
+    width: 0;
+    height: 0;
+    margin-top: 16px;
+    margin-left: 20px;
+    position: absolute;
+}
+
+.ui-vue-socialvideo-animation-fade-enter-active,
+.ui-vue-socialvideo-animation-fade-leave-active {
+  -webkit-transition: opacity .5s;
+  -o-transition: opacity .5s;
+  transition: opacity .5s;
+}
+.ui-vue-socialvideo-animation-fade-enter,
+.ui-vue-socialvideo-animation-fade-leave-to {
+  opacity: 0;
+}

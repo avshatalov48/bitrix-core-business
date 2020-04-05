@@ -22,7 +22,7 @@
 		{
 			checkActive(scrollNavSelector);
 
-			$.HSCore.components.HSScrollNav.init($('.js-scroll-nav'), {
+			$.HSCore.components.HSScrollNav.init($(scrollNavSelector), {
 				duration: 400,
 				easing: 'easeOutExpo'
 			});
@@ -70,18 +70,24 @@
 		// in viewer - set active by curr URL
 		else
 		{
-			var pageUrl = document.location.pathname;
+			var pageUrl = document.location;
 
 			$(selector).find('a').each(function (i)
 			{
 				var currNode = $(this).get()[0];
 				// if href has hash - it link to block and they was be processed by scroll nav
 				if (
-					currNode.pathname == pageUrl &&
-					currNode.hash == ''
+					currNode.pathname === pageUrl.pathname &&
+					currNode.hostname === pageUrl.hostname &&
+					currNode.hash === ''
 				)
 				{
-					addActive($(this).parent('.nav-item'));
+					var parentLi = $(this).parent('.nav-item');
+					addActive(parentLi);
+
+					// for multilevel
+					var parentUl = $(this).parents('.g-menu-sublevel');
+					addActive(parentUl);
 				}
 			});
 		}

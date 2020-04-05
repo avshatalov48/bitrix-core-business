@@ -14,7 +14,7 @@ abstract class Serial extends Base
 {
 	const MAX_RENDER_REPORT_COUNT = 15;
 
-
+	const ENABLE_SORTING = true;
 	/**
 	 * Serial widget base constructor.
 	 */
@@ -93,26 +93,58 @@ abstract class Serial extends Base
 					}
 					//$result['dataProvider'][$res['groupBy']]['bullet'] = "https://www.amcharts.com/lib/images/faces/A04.png";
 					$result['dataProvider'][$res['groupBy']]['value_' . $reportCount] = $res['value'];
+
+					if ($res['label'])
+					{
+						$result['dataProvider'][$res['groupBy']]['label_' . $reportCount] = $res['label'];
+					}
+					if ($res['targetUrl'])
+					{
+						$result['dataProvider'][$res['groupBy']]['targetUrl_' . $reportCount] = $res['targetUrl'];
+					}
+
+					if ($res['balloon'])
+					{
+						$balloon = $result['dataProvider'][$res['groupBy']]['balloon'] ?: [];
+						$result['dataProvider'][$res['groupBy']]['balloon'] = array_merge($balloon, $res['balloon']);
+					}
+
 					if ($result['valueAxes'][0]['maximum'] < $res['value'])
 					{
 						$result['valueAxes'][0]['maximum'] = $res['value'];
 					}
 				}
-				$result['graphs'][] = array(
-					"balloonText" => $data['config']['reportTitle'] . " [[value]]",
+
+				$graph = array(
 					"bullet" => "round",
 					//"labelText" => "[[value]]",
 					"title" => $data['config']['reportTitle'],
 					"fillColors" => $data['config']['reportColor'],
 					"lineColor" => $data['config']['reportColor'],
 					"valueField" => 'value_' . $reportCount,
+					"descriptionField" => 'label_' . $reportCount,
 					"fillAlphas" => 0,
 				);
+
+				if(isset($data["config"]["balloonFunction"]))
+				{
+					$graph["balloonFunction"] = $data["config"]["balloonFunction"];
+				}
+				else
+				{
+					$graph["balloonText"] = $data["config"]["reportTitle"] . " [[value]]";
+				}
+				$result['graphs'][] = $graph;
 			}
 
 
 		}
-		ksort($result['dataProvider']);
+
+		if (static::ENABLE_SORTING)
+		{
+			ksort($result['dataProvider']);
+		}
+
 		$result['dataProvider'] = array_values($result['dataProvider']);
 		return $result;
 	}

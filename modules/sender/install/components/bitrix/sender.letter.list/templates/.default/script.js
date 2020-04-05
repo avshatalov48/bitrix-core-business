@@ -40,6 +40,7 @@
 		}
 
 		this.ajaxAction = new BX.AjaxAction(this.actionUri);
+		this.userErrorHandler = new BX.Sender.ErrorHandler();
 		//this.selectorNode = Helper.getNode('template-selector', this.context);
 	};
 	LetterList.prototype.remove = function (letterId)
@@ -98,6 +99,17 @@
 					callback.apply(self, [data]);
 				}
 			},
+			onusererror: this.userErrorHandler.getHandlers(
+				(function() {
+					this.sendChangeStateAction(actionName, letterId, callback);
+				}).bind(this),
+				(function() {
+					Page.changeGridLoaderShowing(gridId, false);
+				}).bind(this),
+				{
+					editUrl: this.pathToEdit.replace('#id#', letterId)
+				}
+			),
 			onfailure: function () {
 				Page.changeGridLoaderShowing(gridId, false);
 			},

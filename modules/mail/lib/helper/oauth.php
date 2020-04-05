@@ -27,7 +27,7 @@ abstract class OAuth
 				OAuth\Google::getServiceName(),
 				OAuth\LiveId::getServiceName(),
 				OAuth\Yandex::getServiceName(),
-				//OAuth\Mailru::getServiceName(),
+				OAuth\Mailru::getServiceName(),
 			);
 		}
 
@@ -266,7 +266,21 @@ abstract class OAuth
 	{
 		return isModuleInstalled('bitrix24') && !$final
 			? $this->getControllerUrl() . '/redirect.php'
-			: \CHttp::urn2uri('/bitrix/tools/mail_oauth.php');
+			: $this->getHostUrl() . '/bitrix/tools/mail_oauth.php';
+	}
+
+	public function getHostUrl()
+	{
+		$request = Main\Context::getCurrent()->getRequest();
+
+		$uri = new Main\Web\Uri(sprintf(
+			'%s://%s:%u',
+			$request->isHttps() ? 'https' : 'http',
+			$request->getHttpHost(),
+			Main\Context::getCurrent()->getServer()->getServerPort() // $request->getServerPort()
+		));
+
+		return rtrim($uri->getLocator(), '/');
 	}
 
 	/**

@@ -19,6 +19,10 @@ global $USER;
 
 $frame = $this->createFrame()->begin(false);
 
+if (!empty($arParams['LOAD_JS']))
+{
+	?><script src="<?=htmlspecialcharsbx($this->getFolder()).'/script.js'?>"></script><?
+}
 ?>
 <script>
 	BX.ready(function() {
@@ -75,6 +79,11 @@ $frame = $this->createFrame()->begin(false);
 					openEmailAdd: <?=(!empty($arParams["CALLBACK"]["openEmailAdd"]) ? $arParams["CALLBACK"]["openEmailAdd"] : 'null')?>,
 					closeEmailAdd: <?=(!empty($arParams["CALLBACK"]["closeEmailAdd"]) ? $arParams["CALLBACK"]["closeEmailAdd"] : 'null')?>
 				},
+				callbackBefore : {
+					select: <?=(!empty($arParams["CALLBACK_BEFORE"]) && !empty($arParams["CALLBACK_BEFORE"]["select"]) ? $arParams["CALLBACK_BEFORE"]["select"] : 'null')?>,
+					openDialog: <?=(!empty($arParams["CALLBACK_BEFORE"]) && !empty($arParams["CALLBACK_BEFORE"]["openDialog"]) ? $arParams["CALLBACK_BEFORE"]["openDialog"] : 'null')?>,
+					context: <?=(!empty($arParams["CALLBACK_BEFORE"]) && !empty($arParams["CALLBACK_BEFORE"]["context"]) ? $arParams["CALLBACK_BEFORE"]["context"] : 'null')?>,
+				},
 				items : {
 					selected: <?=\CUtil::phpToJSObject($arParams['ITEMS_SELECTED'])?>,
 					undeletable: <?=\CUtil::phpToJSObject($arParams['ITEMS_UNDELETABLE'])?>,
@@ -87,6 +96,8 @@ $frame = $this->createFrame()->begin(false);
 					department: <?=\CUtil::phpToJSObject($arResult['ENTITIES']['DEPARTMENTS'])?>
 				}
 			});
+
+			BX.removeCustomEvent(window, "<?=$arParams["OPTIONS"]["eventInit"]?>", arguments.callee);
 		};
 
 		<?

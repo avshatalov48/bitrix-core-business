@@ -244,5 +244,14 @@ class CBPWhileActivity
 
 		return false;
 	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		if ($this->Condition instanceof CBPActivityCondition)
+		{
+			$usages = array_merge($usages, $this->Condition->collectUsages($this));
+		}
+		return $usages;
+	}
 }
-?>

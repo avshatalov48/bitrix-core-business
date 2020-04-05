@@ -27,4 +27,13 @@ class Textarea extends \Bitrix\Landing\Field\Text
 		?> ><?= \htmlspecialcharsbx($this->value)?></textarea>
 		<?
 	}
+
+	/**
+	 * Gets true, if current value is empty.
+	 * @return bool
+	 */
+	public function isEmptyValue()
+	{
+		return $this->value === '';
+	}
 }

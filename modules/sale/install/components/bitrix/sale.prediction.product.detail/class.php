@@ -1,6 +1,7 @@
 <?php
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -72,7 +73,12 @@ class CSalePredictionProductDetailComponent extends CBitrixComponent
 			));
 
 			$manager = Bitrix\Sale\Discount\Prediction\Manager::getInstance();
-			$basket = \Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId())->getOrderableItems();
+
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
+			$basket = $basketClass::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId())->getOrderableItems();
 
 			global $USER;
 			if ($USER instanceof \CUser && $USER->getId())

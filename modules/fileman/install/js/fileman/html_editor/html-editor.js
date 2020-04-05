@@ -1566,7 +1566,7 @@
 			this.util.IsBlockElement = function (node)
 			{
 				var styleDisplay = BX.style(node, 'display');
-				return styleDisplay && styleDisplay.toLowerCase() === "block";
+				return styleDisplay && BX.type.isString(styleDisplay) && styleDisplay.toLowerCase() === "block";
 			};
 
 			this.util.IsBlockNode = function (node)
@@ -2694,7 +2694,7 @@
 				form = this.dom.form;
 
 			try{
-				BX.addCustomEvent(this, 'OnSubmit', function(){form.BXAUTOSAVE.Init();});
+//				BX.addCustomEvent(this, 'OnSubmit', function(){form.BXAUTOSAVE.Init();}); // to prevent save ticker after form submit, OnContentChanged is enough
 				BX.addCustomEvent(this, 'OnContentChanged', function(){form.BXAUTOSAVE.Init();});
 
 				BX.addCustomEvent(form, 'onAutoSave', function (ob, data)

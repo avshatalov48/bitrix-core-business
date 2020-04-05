@@ -12,7 +12,9 @@ let DateFormat = Object.freeze({
 	message: 'message',
 	recentTitle: 'recentTitle',
 	recentLinesTitle: 'recentLinesTitle',
+	readedTitle: 'readedTitle',
 	default: 'default',
+	vacationTitle: 'vacationTitle',
 });
 
 export {

@@ -33,8 +33,8 @@ class StoreTable extends DataManager
 	{
 		return [
 			(new IntegerField('ID'))
-				->configurePrimary(true)
-				->configureAutocomplete(true),
+				->configurePrimary()
+				->configureAutocomplete(),
 
 			(new StringField('ADDRESS')),
 

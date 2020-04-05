@@ -10,7 +10,9 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_51_7_COUNTDOWN_13--NAME'),
 		'section' => array('countdowns'),
-		'version' => '18.5.5',
+		'dynamic' => false,
+		'version' => '18.5.5', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
+		'type' => ['page', 'store', 'smn'],
 	),
 	'nodes' => array(
 		'.landing-block-node-title' => array(
@@ -18,19 +20,7 @@ return array(
 			'type' => 'text',
 		),
 		
-		'.landing-block-node-number-text-days' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-hours' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-minutes' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-seconds' => array(
+		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT'),
 			'type' => 'text',
 		),

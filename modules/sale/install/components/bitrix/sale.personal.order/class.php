@@ -1,6 +1,7 @@
 <?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Main\Loader;
 use \Bitrix\Sale;
 
 class PersonalOrder extends CBitrixComponent
@@ -90,7 +91,8 @@ class PersonalOrder extends CBitrixComponent
 		if ($componentPage == "detail")
 		{
 			$id = urldecode(urldecode($variables["ID"]));
-			$registry = Sale\Registry::getInstance(Sale\Order::getRegistryType());
+			Loader::includeModule('sale');
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 			$orderClassName = $registry->getOrderClassName();
 
 			$order = $orderClassName::loadByAccountNumber($id);

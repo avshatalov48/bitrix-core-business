@@ -111,8 +111,13 @@ class ArrayField extends ScalarField
 	 */
 	public function decode($value)
 	{
-		$callback = $this->decodeFunction;
-		return $callback($value);
+		if (strlen($value))
+		{
+			$callback = $this->decodeFunction;
+			return $callback($value);
+		}
+
+		return [];
 	}
 
 	/**
@@ -187,5 +192,21 @@ class ArrayField extends ScalarField
 	public function convertValueToDb($value)
 	{
 		return $this->getConnection()->getSqlHelper()->convertToDbString($value);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGetterTypeHint()
+	{
+		return 'array';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetterTypeHint()
+	{
+		return 'array';
 	}
 }

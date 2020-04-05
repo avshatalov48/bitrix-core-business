@@ -235,7 +235,7 @@
 		 */
 		getBlock: function()
 		{
-			return top.BX.Landing.Block.storage.getByChildNode(this.node);
+			return BX.Landing.PageObject.getBlocks().getByChildNode(this.node);
 		}
 	};
 })();

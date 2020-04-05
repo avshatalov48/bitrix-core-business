@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Helpers\Admin\Blocks;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
 use Bitrix\Sale\Services\Company\Manager;
 
@@ -16,6 +17,10 @@ class OrderAdditional
 		global $APPLICATION, $USER;
 
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
 
 		$userCompanyId = null;
 
@@ -42,7 +47,7 @@ class OrderAdditional
 		$lang = Application::getInstance()->getContext()->getLanguage();
 
 		if(get_class($collection) == 'Bitrix\Sale\Order')
-			$orderLocked = \Bitrix\Sale\Order::isLocked($collection->getId());
+			$orderLocked = $orderClass::isLocked($collection->getId());
 		else
 			$orderLocked = false;
 
@@ -203,8 +208,12 @@ class OrderAdditional
 		$data = self::prepareData($collection);
 		$blockEmpResponsible = '';
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		if(get_class($collection) == 'Bitrix\Sale\Order')
-			$orderLocked = \Bitrix\Sale\Order::isLocked($collection->getId());
+			$orderLocked = $orderClass::isLocked($collection->getId());
 		else
 			$orderLocked = false;
 

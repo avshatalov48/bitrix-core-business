@@ -404,17 +404,15 @@ class DiscountTable extends Main\Entity\DataManager
 		{
 			case self::VALUE_TYPE_FIX:
 			case self::VALUE_TYPE_SALE:
-				$discount['VALUE'] = roundEx(
-					\CCurrencyRates::convertCurrency($discount['VALUE'], $discount['CURRENCY'], $currency),
-					CATALOG_VALUE_PRECISION
+				$discount['VALUE'] = round(
+					\CCurrencyRates::convertCurrency($discount['VALUE'], $discount['CURRENCY'], $currency)
 				);
 				$discount['CURRENCY'] = $currency;
 				break;
 			case self::VALUE_TYPE_PERCENT:
 				if ($discount['MAX_DISCOUNT'] > 0)
-					$discount['MAX_DISCOUNT'] = roundEx(
-						\CCurrencyRates::convertCurrency($discount['MAX_DISCOUNT'], $discount['CURRENCY'], $currency),
-						CATALOG_VALUE_PRECISION
+					$discount['MAX_DISCOUNT'] = round(
+						\CCurrencyRates::convertCurrency($discount['MAX_DISCOUNT'], $discount['CURRENCY'], $currency)
 					);
 				$discount['CURRENCY'] = $currency;
 				break;

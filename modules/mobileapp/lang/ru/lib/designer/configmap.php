@@ -16,7 +16,6 @@ $MESS["BUTTONS_BADGE_SHOW_FRAME"] = "Показать границу";
 $MESS["BUTTONS_BADGE_BORDER_COLOR"] = "Цвет границы";
 $MESS["BUTTONS_BADGE_TEXT_COLOR"] = "Цвет текста";
 $MESS["BUTTONS_BADGE"] = "Настройка счетчиков";
-
 $MESS["CONTROLLER_SETTINGS"] = "Основные настройки";
 $MESS["CONTROLLER_SETTINGS_NAVIGATION_BAR_BACKGROUND_COLOR"] = "Цвет";
 $MESS["CONTROLLER_SETTINGS_LOADING_TEXT_COLOR"] = "Цвет надписи 'Загрузка...' на экране загрузки (iOS)";
@@ -28,9 +27,9 @@ $MESS["CONTROLLER_SETTINGS_LOADING_BACKGROUND_IMAGE_LARGE"] = "Изображе�
 $MESS["CONTROLLER_SETTINGS_NAVIGATION_BAR_BACKGROUND_IMAGE_LARGE"] = "Изображение (для планшетов)";
 $MESS["CONTROLLER_SETTINGS_MAIN_BACKGROUND_IMAGE"] = "Изображение";
 $MESS["CONTROLLER_SETTINGS_MAIN_BACKGROUND_IMAGE_LARGE"] = "Изображение(для планшетов)";
-$MESS["CONTROLLER_SETTINGS_MAIN_BACKGROUND_IMAGE_LANDSCAPE"] = "Изображение (ландшафт)";
+$MESS["CONTROLLER_SETTINGS_MAIN_BACKGROUND_IMAGE_LANDSCAPE"] = "Изображение (альбомная ориентация)";
 $MESS["CONTROLLER_SETTINGS_LOADING_BACKGROUND_IMAGE"] = "Изображение";
-$MESS["CONTROLLER_SETTINGS_LOADING_BACKGROUND_IMAGE_LANDSCAPE"] = "Изображение (ландшафт)";
+$MESS["CONTROLLER_SETTINGS_LOADING_BACKGROUND_IMAGE_LANDSCAPE"] = "Изображение (альбомная ориентация)";
 $MESS["CONTROLLER_SETTINGS_TITLE_COLOR"] = "Цвет заголовка в панели навигации";
 $MESS["CONTROLLER_SETTINGS_LOADING_BACKGROUND_COLOR"] = "Цвет";
 $MESS["CONTROLLER_SETTINGS_MAIN_BACKGROUND_COLOR"] = "Цвет";
@@ -106,7 +105,6 @@ $MESS["OFFLINE_RIGHT"] = "Страница в правой части слайд
 $MESS["OFFLINE"] = "Офлайн";
 $MESS["OFFLINE_CHANGE_MARK"] = "Метка изменения набора файлов";
 $MESS["OFFLINE_LAUNCH_MODE"] = "Режим запуска приложения";
-
 $MESS["MIXED"] = "Смешанный (в зависимости от наличия сети)";
 $MESS["OFFLINE_ONLY"] = "Только с офлайн файлами";
 $MESS["ONLINE_ONLY"] = "Только при наличии сети";

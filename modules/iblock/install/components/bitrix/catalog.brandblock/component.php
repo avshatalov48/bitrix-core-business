@@ -337,5 +337,7 @@ if ($this->startResultCache(false, $additionalCache))
 
 	$arResult["BRAND_BLOCKS"] = $arBrandBlocks;
 
+	CIBlock::registerWithTagCache($arParams['IBLOCK_ID']);
+
 	$this->includeComponentTemplate();
 }

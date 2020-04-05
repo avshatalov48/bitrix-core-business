@@ -23,53 +23,25 @@
 
 		this.config = config;
 		this.container = container || BX.create('div');
-
-		this.itemsNode = BX.create('span');
-		this.inputBoxNode = BX.create('span', {
-			attrs: {
-				className: 'feed-add-destination-input-box'
-			}
-		});
-
-		this.inputNode = BX.create('input', {
-			props: {
-				type: 'text'
-			},
-			attrs: {
-				className: 'feed-add-destination-inp'
-			}
-		});
-
-		this.inputBoxNode.appendChild(this.inputNode);
-
-		this.tagNode = BX.create('a', {
-			attrs: {
-				className: 'feed-add-destination-link'
-			}
-		});
-
-		this.container.appendChild(this.itemsNode);
-		this.container.appendChild(this.inputBoxNode);
-		this.container.appendChild(this.tagNode);
-
+		this.isOnlyDialogMode = config.isOnlyDialogMode || false;
 		this.data = null;
 		this.dialogId = 'bp-user-selector-' + BX.util.getRandomString(7);
-		this.createValueNode(config.valueInputName || '');
 		this.selected = config.selected ? BX.clone(config.selected) : [];
 		this.selectOne = !config.multiple;
 		this.required = config.required || false;
 		this.additionalFields = BX.type.isArray(config.additionalFields) ? config.additionalFields : [];
 
-		BX.bind(this.tagNode, 'focus', function(e) {
-			e.preventDefault();
-			me.openDialog({bByFocusEvent: true});
-		});
+		this.prepareRoles();
+
 		BX.bind(this.container, 'click', function(e) {
 			e.preventDefault();
 			me.openDialog();
 		});
 
-		this.prepareRoles();
+		if (!this.isOnlyDialogMode)
+		{
+			this.prepareNodes();
+		}
 
 		if (config.value)
 		{
@@ -77,12 +49,6 @@
 		}
 
 		this.addItems(this.selected);
-
-		this.tagNode.innerHTML = (
-			this.selected.length <= 0
-				? BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE')
-				: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
-		);
 	};
 
 	UserSelector.canUse = function()
@@ -103,6 +69,50 @@
 	};
 
 	UserSelector.prototype = {
+		prepareNodes: function()
+		{
+			this.itemsNode = BX.create('span');
+			this.inputBoxNode = BX.create('span', {
+				attrs: {
+					className: 'bizproc-type-control-user-input-box'
+				}
+			});
+
+			this.inputNode = BX.create('input', {
+				props: {
+					type: 'text'
+				},
+				attrs: {
+					className: 'bizproc-type-control-user-input',
+				}
+			});
+
+			this.inputBoxNode.appendChild(this.inputNode);
+
+			this.tagNode = BX.create('a', {
+				attrs: {
+					className: 'bizproc-type-control-user-link'
+				}
+			});
+
+			this.container.appendChild(this.itemsNode);
+			this.container.appendChild(this.inputBoxNode);
+			this.container.appendChild(this.tagNode);
+
+			this.createValueNode(this.config.valueInputName || '');
+
+			BX.bind(this.tagNode, 'focus', function(e) {
+				e.preventDefault();
+				me.openDialog({bByFocusEvent: true});
+			});
+
+			this.tagNode.innerHTML = (
+				this.selected.length <= 0
+					? BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE')
+					: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
+			);
+		},
+
 		getData: function(next)
 		{
 			if (UserSelector.ajaxSent)
@@ -162,108 +172,172 @@
 			if (!me.inited)
 			{
 				me.inited = true;
-				var destinationInput = me.inputNode;
-				destinationInput.id = me.dialogId + 'input';
-
-				var destinationInputBox = me.inputBoxNode;
-				destinationInputBox.id = me.dialogId + 'input-box';
-
-				var tagNode = this.tagNode;
-				tagNode.id = this.dialogId + 'tag';
-
-				var itemsNode = me.itemsNode;
-
-				BX.SocNetLogDestination.init({
-					name : me.dialogId,
-					searchInput : destinationInput,
-					extranetUser :  false,
-					bindMainPopup : {node: me.container, offsetTop: '5px', offsetLeft: '15px'},
-					bindSearchPopup : {node: me.container, offsetTop : '5px', offsetLeft: '15px'},
-					departmentSelectDisable: false,
-					sendAjaxSearch: true,
-					callback : {
-						select : function(item, type)
-						{
-							me.addItem(item, type);
-							if (me.selectOne)
-								BX.SocNetLogDestination.closeDialog();
-						},
-						unSelect : function (item, type)
-						{
-							if (me.selectOne)
-							{
-								return;
-							}
-							me.unsetValue(item, type);
-							BX.SocNetLogDestination.BXfpUnSelectCallback.call({
-								formName: me.dialogId,
-								inputContainerName: itemsNode,
-								inputName: destinationInput.id,
-								tagInputName: tagNode.id,
-								tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
-								tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
-							}, item)
-						},
-						openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-							inputBoxName: destinationInputBox.id,
-							inputName: destinationInput.id,
-							tagInputName: tagNode.id
-						}),
-						closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
-							inputBoxName: destinationInputBox.id,
-							inputName: destinationInput.id,
-							tagInputName: tagNode.id
-						}),
-						openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-							inputBoxName: destinationInputBox.id,
-							inputName: destinationInput.id,
-							tagInputName: tagNode.id
-						}),
-						closeSearch : BX.delegate(BX.SocNetLogDestination.BXfpCloseSearchCallback, {
-							inputBoxName: destinationInputBox.id,
-							inputName: destinationInput.id,
-							tagInputName: tagNode.id
-						})
-					},
-					items : items,
-					itemsLast : itemsLast,
-					itemsSelected : itemsSelected,
-					useClientDatabase: false,
-					destSort: data.DEST_SORT || {},
-					allowAddUser: false
-				});
-
-				if (Object.keys(this.roles).length > 0)
+				if (this.isOnlyDialogMode)
 				{
-					BX.onCustomEvent(BX.SocNetLogDestination, "onTabsAdd", [me.dialogId, {
-						id: 'bpuserrole',
-						name: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
-						itemType: 'bpuserroles',
-						dialogGroup: {
-							groupCode: 'bpuserroles',
-							title: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
-						}
-					}]);
+					this.initOnlyDialog(items, itemsLast, itemsSelected, data);
 				}
-
-				BX.bind(destinationInput, 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-					formName: me.dialogId,
-					inputName: destinationInput.id,
-					tagInputName: tagNode.id
-				}));
-				BX.bind(destinationInput, 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-					formName: me.dialogId,
-					inputName: destinationInput.id
-				}));
-
-				BX.SocNetLogDestination.BXfpSetLinkName({
-					formName: me.dialogId,
-					tagInputName: tagNode.id,
-					tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
-					tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
-				});
+				else
+				{
+					this.initDialogWithInputs(items, itemsLast, itemsSelected, data);
+				}
 			}
 			next();
+		},
+
+		initDialogWithInputs: function(items, itemsLast, itemsSelected, data)
+		{
+			var me = this;
+
+			var destinationInput = me.inputNode;
+			destinationInput.id = me.dialogId + 'input';
+
+			var destinationInputBox = me.inputBoxNode;
+			destinationInputBox.id = me.dialogId + 'input-box';
+
+			var tagNode = this.tagNode;
+			tagNode.id = this.dialogId + 'tag';
+
+			var itemsNode = me.itemsNode;
+
+			BX.SocNetLogDestination.init({
+				name : me.dialogId,
+				searchInput : destinationInput,
+				extranetUser :  false,
+				bindMainPopup : {node: me.container, offsetTop: '5px', offsetLeft: '15px'},
+				bindSearchPopup : {node: me.container, offsetTop : '5px', offsetLeft: '15px'},
+				departmentSelectDisable: false,
+				sendAjaxSearch: true,
+				callback : {
+					select : function(item, type)
+					{
+						me.addItem(item, type);
+						if (me.selectOne)
+						{
+							BX.SocNetLogDestination.closeDialog();
+						}
+					},
+					unSelect : function (item, type)
+					{
+						if (me.selectOne)
+						{
+							return;
+						}
+						me.unsetValue(item, type);
+						BX.SocNetLogDestination.BXfpUnSelectCallback.call({
+							formName: me.dialogId,
+							inputContainerName: itemsNode,
+							inputName: destinationInput.id,
+							tagInputName: tagNode.id,
+							tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
+							tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
+						}, item)
+					},
+					openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
+						inputBoxName: destinationInputBox.id,
+						inputName: destinationInput.id,
+						tagInputName: tagNode.id
+					}),
+					closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
+						inputBoxName: destinationInputBox.id,
+						inputName: destinationInput.id,
+						tagInputName: tagNode.id
+					}),
+					openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
+						inputBoxName: destinationInputBox.id,
+						inputName: destinationInput.id,
+						tagInputName: tagNode.id
+					}),
+					closeSearch : BX.delegate(BX.SocNetLogDestination.BXfpCloseSearchCallback, {
+						inputBoxName: destinationInputBox.id,
+						inputName: destinationInput.id,
+						tagInputName: tagNode.id
+					})
+				},
+				items : items,
+				itemsLast : itemsLast,
+				itemsSelected : itemsSelected,
+				useClientDatabase: false,
+				destSort: data.DEST_SORT || {},
+				allowAddUser: false
+			});
+
+			if (Object.keys(this.roles).length > 0)
+			{
+				BX.onCustomEvent(BX.SocNetLogDestination, "onTabsAdd", [me.dialogId, {
+					id: 'bpuserrole',
+					name: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
+					itemType: 'bpuserroles',
+					dialogGroup: {
+						groupCode: 'bpuserroles',
+						title: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
+					}
+				}]);
+			}
+
+			BX.bind(destinationInput, 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
+				formName: me.dialogId,
+				inputName: destinationInput.id,
+				tagInputName: tagNode.id
+			}));
+			BX.bind(destinationInput, 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
+				formName: me.dialogId,
+				inputName: destinationInput.id
+			}));
+
+			BX.SocNetLogDestination.BXfpSetLinkName({
+				formName: me.dialogId,
+				tagInputName: tagNode.id,
+				tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
+				tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
+			});
+		},
+
+		initOnlyDialog: function(items, itemsLast, itemsSelected, data)
+		{
+			var me = this;
+			BX.SocNetLogDestination.init({
+				name : me.dialogId,
+				showSearchInput: true,
+				extranetUser :  false,
+				bindMainPopup : {node: me.container, offsetTop: '5px', offsetLeft: '15px'},
+				bindSearchPopup : {node: me.container, offsetTop : '5px', offsetLeft: '15px'},
+				departmentSelectDisable: false,
+				sendAjaxSearch: true,
+				callback : {
+					select : function(item, type)
+					{
+						me.selectInDialog(item, type);
+						BX.SocNetLogDestination.closeDialog();
+					}
+				},
+				items : items,
+				itemsLast : itemsLast,
+				itemsSelected : itemsSelected,
+				useClientDatabase: false,
+				destSort: data.DEST_SORT || {},
+				allowAddUser: false
+			});
+
+			if (Object.keys(this.roles).length > 0)
+			{
+				BX.onCustomEvent(BX.SocNetLogDestination, "onTabsAdd", [me.dialogId, {
+					id: 'bpuserrole',
+					name: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
+					itemType: 'bpuserroles',
+					dialogGroup: {
+						groupCode: 'bpuserroles',
+						title: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
+					}
+				}]);
+			}
+		},
+		selectInDialog: function(item, type)
+		{
+			var value = this.convertItemToValue(item, type);
+			if (this.config.callbacks && BX.type.isFunction(this.config.callbacks.select))
+			{
+				this.config.callbacks.select(value, this);
+			}
 		},
 		addItem: function(item, type)
 		{
@@ -329,7 +403,6 @@
 					item.entityType = type;
 				}
 			}
-
 			destinationInput.value = '';
 			tagNode.innerHTML = BX.message('BIZPROC_JS_USER_SELECTOR_EDIT');
 		},
@@ -395,19 +468,7 @@
 		setValue: function(item, type)
 		{
 			var id = this.getValueId(item, type);
-			var name = BX.util.htmlspecialcharsback(item['name']);
-			name = name.replace(/,/g, '');
-
-			var value = id;
-
-			if (type === 'users')
-			{
-				value = [name, id].join(' ');
-			}
-			else if (type === 'department')
-			{
-				value = [name, id].join(' ');
-			}
+			var value = this.convertItemToValue(item, type);
 
 			if (this.selectOne)
 			{
@@ -428,6 +489,25 @@
 				this.valueNode.value = newVal.join(',');
 			}
 		},
+		convertItemToValue: function(item, type)
+		{
+			var id = this.getValueId(item, type);
+			var value = id;
+			var name = BX.util.htmlspecialcharsback(item['name']);
+
+			name = name.replace(/[,\.\-\_\>\<\"\']/g, '');
+
+			if (type === 'users')
+			{
+				value = [name, id].join(' ');
+			}
+			else if (type === 'department')
+			{
+				value = [name, id].join(' ');
+			}
+			return value;
+		},
+
 		unsetValue: function(item, type)
 		{
 			var id = this.getValueId(item, type);

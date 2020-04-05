@@ -156,6 +156,20 @@ BX.SidePanel.Instance.bindAnchors({
 				BX.SocialnetworkUICommon.closeGroupCardMenu(link.anchor);
 				event.preventDefault();
 			}
+		},
+		{
+			condition: [
+				BX.message('SONET_SLIDER_GROUP_SEF') + 'group/(\\d+)/copy/'
+			],
+			handler: function(event, link)
+			{
+				BX.SidePanel.Instance.open(link.url, {
+					width: 1000,
+					loader: 'group-copy-loader'
+				});
+				BX.SocialnetworkUICommon.closeGroupCardMenu(link.anchor);
+				event.preventDefault();
+			}
 		}
 	]
 });

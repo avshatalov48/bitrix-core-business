@@ -190,20 +190,12 @@ BXRL.render = {
 
 		if (reactionsNode)
 		{
-			var reactionsContainer = BX.findChild(reactionsNode, { className: 'feed-post-emoji-icon-container'});
-
-			elements = BX.findChildren(
-				reactionsNode,
-				{ className: 'feed-post-emoji-icon-item' },
-				true
-			);
+			var reactionsContainer = reactionsNode.querySelector('.feed-post-emoji-icon-container');
+			elements = reactionsNode.querySelectorAll('.feed-post-emoji-icon-item');
 
 			elementsNew = [];
 
-			if(
-				BX.type.isArray(elements)
-				&& reactionsContainer
-			)
+			if(reactionsContainer)
 			{
 				var found = false,
 					newValue = false;
@@ -569,11 +561,9 @@ BXRL.render = {
 			BXRL.render.reactionsPopupAnimation.animate();
 
 			setTimeout(function() {
-					var reactions = BX.findChildren(
-						BXRL.render.reactionsPopup,
-						{ className: 'feed-post-emoji-icon-item' },
-						true
-					);
+
+					var reactions = BXRL.render.reactionsPopup.querySelectorAll('.feed-post-emoji-icon-item');
+
 					BXRL.render.reactionsPopupAnimation2 = new BX.easing({
 						duration: 140,
 						start: {
@@ -618,12 +608,6 @@ BXRL.render = {
 		}
 		else
 		{
-			var elements = BX.findChildren(
-				BXRL.render.reactionsPopup,
-				{ className: 'feed-post-emoji-icon-item' },
-				true
-			);
-
 			BXRL.render.touchScrollTop = BX.GetWindowSize().scrollTop;
 			BXRL.render.hasMobileTouchMoved = null;
 
@@ -1154,7 +1138,7 @@ BXRL.render = {
 			}));
 		}
 
-		var usersNode = BX.findChild(rating.popupContent, { className: 'bx-ilike-popup-content-container' });
+		var usersNode = rating.popupContent.querySelector('.bx-ilike-popup-content-container');
 		var usersNodeExists = false;
 
 		if (!usersNode)
@@ -1170,14 +1154,14 @@ BXRL.render = {
 			usersNodeExists = true;
 		}
 
-		var contentNodes = BX.findChildren(usersNode, { className: 'bx-ilike-popup-content' });
+		var contentNodes = usersNode.querySelectorAll('.bx-ilike-popup-content');
 
 		for(i = 0; i < contentNodes.length; i++)
 		{
 			contentNodes[i].classList.add('bx-ilike-popup-content-invisible');
 		}
 
-		var reactionUsersNode = BX.findChild(usersNode, { className: 'bx-ilike-popup-content-' + this.popupCurrentReaction });
+		var reactionUsersNode = usersNode.querySelector('.bx-ilike-popup-content-' + this.popupCurrentReaction);
 		if (!reactionUsersNode)
 		{
 			reactionUsersNode = BX.create('span', {
@@ -1230,12 +1214,12 @@ BXRL.render = {
 			}));
 		}
 
-		var waitNode = BX.findChild(rating.popupContent, { className: 'bx-ilike-wait' });
+		var waitNode = rating.popupContent.querySelector('.bx-ilike-wait');
 		if (waitNode)
 		{
 			BX.cleanNode(waitNode, true);
 		}
-		var tabsNodeOld = BX.findChild(rating.popupContent, { className: 'bx-ilike-popup-head' });
+		var tabsNodeOld = rating.popupContent.querySelector('.bx-ilike-popup-head');
 		if (tabsNodeOld)
 		{
 			tabsNodeOld.parentNode.insertBefore(tabsNode, tabsNodeOld);
@@ -1288,29 +1272,29 @@ BXRL.render = {
 			i = false,
 			reactionTabNode = false;
 
-		var contentContainerNode = BX.findChild(rating.popupContent, { className: 'bx-ilike-popup-content-container' });
+		var contentContainerNode = rating.popupContent.querySelector('.bx-ilike-popup-content-container');
 		if (!contentContainerNode)
 		{
 			return false;
 		}
 
-		var reactionUsersNode = BX.findChild(contentContainerNode, { className: 'bx-ilike-popup-content-' + reaction });
+		var reactionUsersNode = contentContainerNode.querySelector('.bx-ilike-popup-content-' + reaction);
 		if (reactionUsersNode)
 		{
 			this.popupCurrentReaction = (BX.type.isNotEmptyString(reaction) ? reaction : 'all');
 
-			var tabNodes = BX.findChildren(rating.popupContent, { className: 'bx-ilike-popup-head-item' }, true);
+			var tabNodes = rating.popupContent.querySelectorAll('.bx-ilike-popup-head-item');
 			for(i = 0; i < tabNodes.length; i++)
 			{
 				tabNodes[i].classList.remove('bx-ilike-popup-head-item-current');
-				reactionTabNode = BX.findChild(tabNodes[i], { className: 'feed-post-emoji-icon-' + reaction });
+				reactionTabNode = tabNodes[i].querySelector('.feed-post-emoji-icon-' + reaction);
 				if (reactionTabNode)
 				{
 					tabNodes[i].classList.add('bx-ilike-popup-head-item-current');
 				}
 			}
 
-			var contentNodes = BX.findChildren(contentContainerNode, { className: 'bx-ilike-popup-content' });
+			var contentNodes = contentContainerNode.querySelectorAll('.bx-ilike-popup-content');
 			for(i = 0; i < contentNodes.length; i++)
 			{
 				contentNodes[i].classList.add('bx-ilike-popup-content-invisible');

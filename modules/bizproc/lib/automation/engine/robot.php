@@ -103,11 +103,23 @@ class Robot
 			? $this->bizprocActivity['Properties'] : array();
 	}
 
-	public function getProperty($name)
+	public function setProperties(array $properties): self
 	{
-		$name = (string)$name;
+		$this->bizprocActivity['Properties'] = $properties;
+		return $this;
+	}
+
+	public function getProperty(string $name)
+	{
 		$properties = $this->getProperties();
 		return array_key_exists($name, $properties) ? $properties[$name] : null;
+	}
+
+	public function setProperty(string $name, $value)
+	{
+		$properties = $this->getProperties();
+		$properties[$name] = $value;
+		return $this->setProperties($properties);
 	}
 
 	public function getTitle()

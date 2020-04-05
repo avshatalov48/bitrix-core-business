@@ -36,7 +36,6 @@ $MESS["CP_BCST_SECTION_FIELDS"] = "Section Fields";
 $MESS["CP_BCST_SECTION_USER_FIELDS"] = "Section Properties";
 $MESS["CP_BCST_CONVERT_CURRENCY"] = "Use only one currency to show prices";
 $MESS["CP_BCST_CURRENCY_ID"] = "Convert all prices to currency";
-$MESS["CP_BCST_HIDE_NOT_AVAILABLE"] = "Hide items not in stock";
 $MESS["IBLOCK_TYPE_TIP"] = "Select one of existing information block types in the list and click <b>OK</b>. This will load information blocks of the selected type.";
 $MESS["IBLOCK_ID_TIP"] = "Select one of information blocks of the chosen type. If you select <b>(other)-&gt;</b>, specify the information block ID in the field beside.";
 $MESS["SECTION_SORT_FIELD_TIP"] = "The field by which sections are to be sorted within an information block.";
@@ -67,4 +66,5 @@ $MESS["HIDE_NOT_AVAILABLE_TIP"] = "If checked: the products whose stock at all t
 $MESS["USE_PRICE_COUNT_TIP"] = "If checked, all existing price ranges will be selected.";
 $MESS["SHOW_PRICE_COUNT_TIP"] = "If the \"Use price ranges\" option is unchecked (meaning only one price is shown for the product) but there are quantity based pricing products, specify the quantity to pick a correct price. This option has no effect for products with fixed price.";
 $MESS["CP_BCST_USE_MAIN_ELEMENT_SECTION"] = "Use main section to show element";
+$MESS["CP_BCST_HIDE_NOT_AVAILABLE_EXT"] = "Hide out-of-stock products";
 ?>

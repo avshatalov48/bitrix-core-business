@@ -8,6 +8,15 @@
 namespace Bitrix\Vote;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\TextField;
+use Bitrix\Main\ORM\Query\Join;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -45,54 +54,33 @@ class AnswerTable extends Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('V_TABLE_FIELD_ID'),
-			),
-			'ACTIVE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'default_value' => 'Y',
-				'title' => Loc::getMessage('V_TABLE_FIELD_ACTIVE')
-			),
-			'TIMESTAMP_X' => array(
-				'data_type' => 'datetime',
-				'title' => Loc::getMessage('V_TABLE_FIELD_TIMESTAMP_X'),
-			),
-			'QUESTION_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('V_TABLE_FIELD_QUESTION_ID'),
-			),
-			'C_SORT' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('V_TABLE_FIELD_C_SORT'),
-			),
-			'COUNTER' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('V_TABLE_FIELD_COUNTER'),
-			),
-			'MESSAGE' => array(
-				'data_type' => 'text',
-				'title' => Loc::getMessage('V_TABLE_FIELD_MESSAGE')
-			),
-			'MESSAGE_TYPE' => array(
-				'data_type' => 'enum',
-				'values' => array("text", "html"),
-				'default_value' => "text",
-				'title' => Loc::getMessage('V_TABLE_FIELD_MESSAGE_TYPE'),
-			),
-			'FIELD_TYPE' =>  array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('V_TABLE_FIELD_FIELD_TYPE'),
-			),
-			'COLOR' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('V_TABLE_FIELD_COLOR'),
-			),
-		);
+		return [
+			(new IntegerField('ID'))
+				->configurePrimary(true)
+				->configureAutocomplete(true),
+			(new BooleanField('ACTIVE'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('Y'),
+			(new DatetimeField('TIMESTAMP_X')),
+			(new IntegerField('QUESTION_ID')),
+			(new IntegerField('C_SORT')),
+			(new IntegerField('IMAGE_ID')),
+			(new Reference('IMAGE',
+				\Bitrix\Main\FileTable::class,
+				Join::on('this.IMAGE_ID', 'ref.ID')
+			)),
+			(new TextField('MESSAGE')),
+			(new EnumField('MESSAGE_TYPE', ['values' => ['text', 'html']]))
+				->configureDefaultValue('text'),
+			(new IntegerField('COUNTER')),
+			(new IntegerField('FIELD_TYPE')),
+			(new IntegerField('FIELD_WIDTH')),
+			(new IntegerField('FIELD_HEIGHT')),
+			(new StringField('FIELD_PARAM'))
+				->configureSize(255),
+			(new StringField('COLOR'))
+				->configureSize(6)
+		];
 	}
 	/**
 	 * @param array $id Answer IDs.
@@ -114,6 +102,7 @@ class AnswerTable extends Entity\DataManager
 		$connection->queryExecute("UPDATE ".self::getTableName()." SET COUNTER=".$sql." WHERE ID IN (".$id.")");
 	}
 }
+
 class Answer
 {
 	public static $storage = array();

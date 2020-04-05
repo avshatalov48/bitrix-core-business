@@ -9,14 +9,13 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals\OrderPropsTable;
 use \Bitrix\Sale\Internals\Input;
 use Bitrix\Sale\OrderUserProperties;
-use Bitrix\Sale\Order;
-use Bitrix\Sale\OrderTable;
+use Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
 
 class OrderBuyer
 {
-	public static function getEdit(Order $order, $showProfiles = false, $profileId = 0)
+	public static function getEdit(Sale\Order $order, $showProfiles = false, $profileId = 0)
 	{
 		$data = self::prepareData($order);
 
@@ -109,7 +108,7 @@ class OrderBuyer
 
 		return $result;
 	}
-	public static  function getPropsEdit(Order $order)
+	public static  function getPropsEdit(Sale\Order $order)
 	{
 		$result = '
 				<div>
@@ -120,7 +119,7 @@ class OrderBuyer
 		return $result;
 	}
 
-	public static function getView(Order $order)
+	public static function getView(Sale\Order $order)
 	{
 		$data = self::prepareData($order);
 		$buyersList = self::getBuyerTypesList($order->getSiteId());
@@ -192,7 +191,7 @@ class OrderBuyer
 		return key($personTypes);
 	}
 
-	public static function 	prepareData(Order $order)
+	public static function 	prepareData(Sale\Order $order)
 	{
 		if (\CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 		{
@@ -280,7 +279,11 @@ class OrderBuyer
 		if(intval($personTypeId) <= 0)
 			throw new ArgumentNullException('personTypeId');
 
-		$res = OrderTable::getList(array(
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$res = $orderClass::getList(array(
 			'filter' => array(
 				'USER_ID' => $userId
 			),
@@ -289,10 +292,12 @@ class OrderBuyer
 		));
 
 		if(!$order = $res->fetch())
+		{
 			return array();
+		}
 
 		/** @var \Bitrix\Sale\Order $order */
-		$order = Order::load($order['ID']);
+		$order = $orderClass::load($order['ID']);
 
 		if(!$order)
 			return array();
@@ -437,7 +442,7 @@ class OrderBuyer
 		return $result;
 	}
 
-	public static function getOrderPropertiesHtml(Order $order, $readonly = false)
+	public static function getOrderPropertiesHtml(Sale\Order $order, $readonly = false)
 	{
 		$propertyCollection = $order->getPropertyCollection();
 		$result = "";
@@ -523,7 +528,7 @@ class OrderBuyer
 		return $result;
 	}
 
-	public static function getRelPropData(Order $order)
+	public static function getRelPropData(Sale\Order $order)
 	{
 		$result = array();
 		$groups = array();
@@ -538,23 +543,12 @@ class OrderBuyer
 				{
 					if (isset($property['RELATION']))
 					{
-						foreach ($property['RELATION'] as $relation)
+						if ($property['TYPE'] === 'ENUM' && is_array($property['OPTIONS']))
 						{
-							if (
-								in_array($relation['ENTITY_ID'], $order->getPaymentSystemId())
-								||
-								in_array($relation['ENTITY_ID'], $order->getDeliverySystemId())
-							)
-							{
-								if ($property['TYPE'] === 'ENUM' && is_array($property['OPTIONS']))
-								{
-									$property['OPTIONS_SORT'] = array_keys($property['OPTIONS']);
-								}
-								$result[$key][] = $property;
-								$groups[$property['PROPS_GROUP_ID']] = true;
-								break;
-							}
+							$property['OPTIONS_SORT'] = array_keys($property['OPTIONS']);
 						}
+						$result[$key][] = $property;
+						$groups[$property['PROPS_GROUP_ID']] = true;
 					}
 				}
 			}
@@ -573,7 +567,7 @@ class OrderBuyer
 		return $result;
 	}
 
-	public static function getNotRelPropData(Order $order)
+	public static function getNotRelPropData(Sale\Order $order)
 	{
 		$result = array();
 		$groups = array();
@@ -608,7 +602,7 @@ class OrderBuyer
 		return $result;
 	}
 
-	public static function getOrderPropertiesByJS(Order $order)
+	public static function getOrderPropertiesByJS(Sale\Order $order)
 	{
 		if ($order->getId() > 0)
 			$result = $order->getPropertyCollection()->getArray();
@@ -684,7 +678,7 @@ class OrderBuyer
 		';
 	}
 
-	public static function getOrderRelPropertiesByJS(Order $order)
+	public static function getOrderRelPropertiesByJS(Sale\Order $order)
 	{
 		$result = self::getRelPropData($order);
 

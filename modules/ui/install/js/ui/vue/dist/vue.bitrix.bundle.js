@@ -131,7 +131,7 @@
 	      return ui_vue_vendor_v2.VueVendorV2.extend(options);
 	    }
 	    /**
-	     *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you�ve changed some data to wait for the DOM update.
+	     *	Defer the callback to be executed after the next DOM update cycle. Use it immediately after you’ve changed some data to wait for the DOM update.
 	     *
 	     * @param {Function} callback
 	     * @param {Object} context
@@ -233,6 +233,20 @@
 	      return ui_vue_vendor_v2.VueVendorV2.mixin(_mixin);
 	    }
 	    /**
+	     * Make an object reactive. Internally, Vue uses this on the object returned by the data function.
+	     *
+	     * @param object
+	     * @returns {*}
+	     *
+	     * @see https://vuejs.org/v2/api/#Vue-observable
+	     */
+
+	  }, {
+	    key: "observable",
+	    value: function observable(object) {
+	      return ui_vue_vendor_v2.VueVendorV2.observable(object);
+	    }
+	    /**
 	     * Compiles a template string into a render function.
 	     *
 	     * @param template
@@ -276,16 +290,38 @@
 	        phrases = BX.message;
 	      }
 
-	      for (var message in phrases) {
-	        if (!phrases.hasOwnProperty(message)) {
-	          continue;
-	        }
+	      if (Array.isArray(phrasePrefix)) {
+	        var _loop = function _loop(message) {
+	          if (!phrases.hasOwnProperty(message)) {
+	            return "continue";
+	          }
 
-	        if (!message.startsWith(phrasePrefix)) {
-	          continue;
-	        }
+	          if (!phrasePrefix.find(function (element) {
+	            return message.toString().startsWith(element);
+	          })) {
+	            return "continue";
+	          }
 
-	        result[message] = phrases[message];
+	          result[message] = phrases[message];
+	        };
+
+	        for (var message in phrases) {
+	          var _ret = _loop(message);
+
+	          if (_ret === "continue") continue;
+	        }
+	      } else {
+	        for (var _message in phrases) {
+	          if (!phrases.hasOwnProperty(_message)) {
+	            continue;
+	          }
+
+	          if (!_message.startsWith(phrasePrefix)) {
+	            continue;
+	          }
+
+	          result[_message] = phrases[_message];
+	        }
 	      }
 
 	      return Object.freeze(result);

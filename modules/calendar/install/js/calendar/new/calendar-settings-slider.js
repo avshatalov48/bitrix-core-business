@@ -18,6 +18,8 @@
 	SettingsSlider.prototype = {
 		show: function ()
 		{
+			this.calendar.util.doBxContextFix();
+
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
@@ -58,13 +60,15 @@
 				BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 				BX.SidePanel.Instance.destroy(this.sliderId);
 				this.calendar.enableKeyHandler();
+
+				this.calendar.util.restoreBxContextFix();
 			}
 		},
 
 		create: function ()
 		{
+			top.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
 			var promise = new BX.Promise();
-
 			BX.ajax.get(this.calendar.util.getActionUrl(), {
 				action: 'get_settings_slider',
 				is_personal: this.inPersonal ? 'Y' : 'N',
@@ -84,36 +88,39 @@
 
 		initControls: function ()
 		{
-			BX.bind(BX(this.uid + '_save'), 'click', BX.proxy(this.save, this));
-			BX.bind(BX(this.uid + '_close'), 'click', BX.proxy(this.close, this));
+			BX.bind(top.BX(this.uid + '_save'), 'click', BX.proxy(this.save, this));
+			BX.bind(top.BX(this.uid + '_close'), 'click', BX.proxy(this.close, this));
 
 			this.DOM = {
-				denyBusyInvitation: BX(this.uid + '_deny_busy_invitation'),
-				showWeekNumbers: BX(this.uid + '_show_week_numbers')
+				denyBusyInvitation: top.BX(this.uid + '_deny_busy_invitation'),
+				showWeekNumbers: top.BX(this.uid + '_show_week_numbers')
 			};
 
 			if (this.inPersonal)
 			{
-				this.DOM.sectionSelect = BX(this.uid + '_meet_section');
-				this.DOM.crmSelect = BX(this.uid + '_crm_section');
-				this.DOM.showDeclined = BX(this.uid + '_show_declined');
-				this.DOM.showTasks = BX(this.uid + '_show_tasks');
-				this.DOM.showCompletedTasks = BX(this.uid + '_show_completed_tasks');
-				this.DOM.timezoneSelect = BX(this.uid + '_set_tz_sel');
+				this.DOM.sectionSelect = top.BX(this.uid + '_meet_section');
+				this.DOM.crmSelect = top.BX(this.uid + '_crm_section');
+				this.DOM.showDeclined = top.BX(this.uid + '_show_declined');
+				this.DOM.showTasks = top.BX(this.uid + '_show_tasks');
+				this.DOM.showCompletedTasks = top.BX(this.uid + '_show_completed_tasks');
+				this.DOM.timezoneSelect = top.BX(this.uid + '_set_tz_sel');
+
+				this.DOM.syncPeriodPast = top.BX(this.uid + '_sync_period_past');
+				this.DOM.syncPeriodFuture = top.BX(this.uid + '_sync_period_future');
 			}
 
 			// General settings
-			this.DOM.workTimeStart = BX(this.uid + 'work_time_start');
-			this.DOM.workTimeEnd = BX(this.uid + 'work_time_end');
-			this.DOM.weekHolidays = BX(this.uid + 'week_holidays');
-			this.DOM.yearHolidays = BX(this.uid + 'year_holidays');
-			this.DOM.yearWorkdays = BX(this.uid + 'year_workdays');
+			this.DOM.workTimeStart = top.BX(this.uid + 'work_time_start');
+			this.DOM.workTimeEnd = top.BX(this.uid + 'work_time_end');
+			this.DOM.weekHolidays = top.BX(this.uid + 'week_holidays');
+			this.DOM.yearHolidays = top.BX(this.uid + 'year_holidays');
+			this.DOM.yearWorkdays = top.BX(this.uid + 'year_workdays');
 
 			// Access
 			this.typeAccess = false;
 			if (this.calendar.util.config.TYPE_ACCESS)
 			{
-				this.accessWrap = BX(this.uid + 'type-access-values-cont');
+				this.accessWrap = top.BX(this.uid + 'type-access-values-cont');
 				if (this.accessWrap)
 				{
 					this.initAccessController();
@@ -129,7 +136,7 @@
 				}
 			}
 
-			this.DOM.manageCalDav = BX(this.uid + '_manage_caldav');
+			this.DOM.manageCalDav = top.BX(this.uid + '_manage_caldav');
 			if (this.DOM.manageCalDav)
 			{
 				BX.bind(this.DOM.manageCalDav, 'click', BX.proxy(this.calendar.syncSlider.showCalDavSyncDialog, this.calendar.syncSlider));
@@ -141,22 +148,20 @@
 				this.DOM.sectionSelect.options.length = 0;
 				var
 					sections = this.calendar.sectionController.getSectionList(),
-					meetSection = this.calendar.util.getUserOption('meetSection'),
-					crmSection = this.calendar.util.getUserOption('crmSection'),
+					meetSection = parseInt(this.calendar.util.getUserOption('meetSection')),
+					crmSection = parseInt(this.calendar.util.getUserOption('crmSection')),
 					i, section, selected;
 
 				for (i = 0; i < sections.length; i++)
 				{
 					section = sections[i];
-					if (section.belongToOwner())
+					if (section.belongsToOwner())
 					{
 						if (!meetSection)
 						{
 							meetSection = section.id;
-
 						}
-						selected = meetSection == section.id;
-
+						selected = meetSection === parseInt(section.id);
 						this.DOM.sectionSelect.options.add(new Option(section.name, section.id, selected, selected));
 
 						if (!crmSection)
@@ -164,8 +169,7 @@
 							crmSection = section.id;
 
 						}
-						selected = crmSection == section.id;
-
+						selected = crmSection === parseInt(section.id);
 						this.DOM.crmSelect.options.add(new Option(section.name, section.id, selected, selected));
 					}
 				}
@@ -173,7 +177,7 @@
 
 			if(this.DOM.showDeclined)
 			{
-				this.DOM.showDeclined.checked = !!this.calendar.util.getUserOption('showDeclined');
+				this.DOM.showDeclined.checked = !!parseInt(this.calendar.util.getUserOption('showDeclined'));
 			}
 			if(this.DOM.showTasks)
 			{
@@ -185,7 +189,7 @@
 			}
 			if (this.DOM.denyBusyInvitation)
 			{
-				this.DOM.denyBusyInvitation.checked = !!this.calendar.util.getUserOption('denyBusyInvitation');
+				this.DOM.denyBusyInvitation.checked = !!parseInt(this.calendar.util.getUserOption('denyBusyInvitation'));
 			}
 
 			if (this.DOM.showWeekNumbers)
@@ -196,6 +200,15 @@
 			if(this.DOM.timezoneSelect)
 			{
 				this.DOM.timezoneSelect.value = this.calendar.util.getUserOption('timezoneName') || '';
+			}
+
+			if(this.DOM.syncPeriodPast)
+			{
+				this.DOM.syncPeriodPast.value = this.calendar.util.getUserOption('syncPeriodPast') || 3;
+			}
+			if(this.DOM.syncPeriodFuture)
+			{
+				this.DOM.syncPeriodFuture.value = this.calendar.util.getUserOption('syncPeriodFuture') || 12;
 			}
 
 			if (this.showGeneralSettings)
@@ -258,6 +271,16 @@
 			if(this.DOM.timezoneSelect)
 			{
 				userSettings.userTimezoneName = this.DOM.timezoneSelect.value;
+			}
+
+
+			if(this.DOM.syncPeriodPast)
+			{
+				userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
+			}
+			if(this.DOM.syncPeriodFuture)
+			{
+				userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
 			}
 
 			// Save settings
@@ -325,7 +348,7 @@
 				}
 			}, this));
 
-			BX.Access.Init();
+			top.BX.Access.Init();
 
 			this.accessWrapInner = this.accessWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-access-inner-wrap'}}));
 			this.accessTable = this.accessWrapInner.appendChild(BX.create("TABLE", {props: {className: "calendar-section-slider-access-table"}}));
@@ -334,7 +357,7 @@
 
 			BX.bind(this.accessButton, 'click', BX.proxy(function()
 			{
-				BX.Access.ShowForm({
+				top.BX.Access.ShowForm({
 					callback: BX.proxy(function(selected)
 					{
 						var provider, code;
@@ -346,7 +369,7 @@
 								{
 									if (selected[provider].hasOwnProperty(code))
 									{
-										this.insertAccessRow(BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name, code);
+										this.insertAccessRow(top.BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name, code);
 									}
 								}
 							}
@@ -355,9 +378,9 @@
 					bind: this.accessButton
 				});
 
-				if (BX.Access.popup && BX.Access.popup.popupContainer)
+				if (top.BX.Access.popup && top.BX.Access.popup.popupContainer)
 				{
-					BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
+					top.BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
 				}
 			}, this));
 
@@ -421,10 +444,11 @@
 					attrs: {'data-bx-calendar-access-selector': code}
 				}),
 				selectNode = valueCell.appendChild(BX.create('SPAN', {
-					props: {className: 'calendar-section-slider-access-value'}
+					props: {className: 'calendar-section-slider-access-container'}
 				})),
 				valueNode = selectNode.appendChild(BX.create('SPAN', {
-					text: this.accessTasks[value] ? this.accessTasks[value].title : ''
+					text: this.accessTasks[value] ? this.accessTasks[value].title : '',
+					props: {className: 'calendar-section-slider-access-value'}
 				})),
 				removeIcon = selectNode.appendChild(BX.create('SPAN', {
 					props: {className: 'calendar-section-slider-access-remove'},
@@ -472,7 +496,7 @@
 				}
 			}
 
-			this.accessPopupMenu = BX.PopupMenu.create(
+			this.accessPopupMenu = top.BX.PopupMenu.create(
 				menuId,
 				params.node,
 				menuItems,
@@ -488,9 +512,9 @@
 
 			this.accessPopupMenu.show();
 
-			BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
+			top.BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
 			{
-				BX.PopupMenu.destroy(menuId);
+				top.BX.PopupMenu.destroy(menuId);
 				_this.accessPopupMenu = null;
 			});
 		}

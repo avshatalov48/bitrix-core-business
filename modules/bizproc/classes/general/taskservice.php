@@ -34,11 +34,18 @@ class CBPAllTaskService
 
 		CUserCounter::Decrement($userId, 'bp_tasks', '**');
 
-		self::onTaskChange($taskId, array(
-			'USERS_STATUSES' => array($userId => $status)
-		), CBPTaskChangedStatus::Update);
+		self::onTaskChange(
+			$taskId,
+			[
+				'USERS_STATUSES' => [$userId => $status],
+				'COUNTERS_DECREMENTED' => [$userId]
+			],
+			CBPTaskChangedStatus::Update
+		);
 		foreach (GetModuleEvents("bizproc", "OnTaskMarkCompleted", true) as $arEvent)
+		{
 			ExecuteModuleEventEx($arEvent, array($taskId, $userId, $status));
+		}
 	}
 
 	public static function getTaskUsers($taskId)
@@ -71,6 +78,17 @@ class CBPAllTaskService
 			$users[$user['TASK_ID']][] = $user;
 		}
 		return $users;
+	}
+
+	public static function getTaskUserIds(int $taskId): array
+	{
+		$ids = [];
+		$taskUsers = static::getTaskUsers($taskId);
+		if (isset($taskUsers[$taskId]))
+		{
+			$ids = array_column($taskUsers[$taskId], 'USER_ID');
+		}
+		return array_map('intval', $ids);
 	}
 
 	/**
@@ -136,10 +154,17 @@ class CBPAllTaskService
 			." WHERE TASK_ID = ".$taskId." AND USER_ID = ".$fromUserId, true);
 		CUserCounter::Decrement($fromUserId, 'bp_tasks', '**');
 		CUserCounter::Increment($toUserId, 'bp_tasks', '**');
-		self::onTaskChange($taskId, array(
-			'USERS' => array($toUserId),
-			'USERS_REMOVED' => array($fromUserId)
-		), CBPTaskChangedStatus::Delegate);
+		self::onTaskChange(
+			$taskId,
+			[
+				'USERS' => [$toUserId],
+				'USERS_ADDED' => [$toUserId],
+				'USERS_REMOVED' => [$fromUserId],
+				'COUNTERS_DECREMENTED' => [$fromUserId],
+				'COUNTERS_INCREMENTED' => [$toUserId],
+			],
+			CBPTaskChangedStatus::Delegate
+		);
 		foreach (GetModuleEvents("bizproc", "OnTaskDelegate", true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, array($taskId, $fromUserId, $toUserId));
@@ -172,18 +197,28 @@ class CBPAllTaskService
 		if ($id <= 0)
 			throw new Exception("id");
 
-		$removedUsers = array();
+		$removedUsers = $decremented = [];
 		$dbRes = $DB->Query("SELECT USER_ID, STATUS FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ");
 		while ($arRes = $dbRes->Fetch())
 		{
 			if ($arRes['STATUS'] == CBPTaskUserStatus::Waiting)
+			{
 				CUserCounter::Decrement($arRes["USER_ID"], 'bp_tasks', '**');
+				$decremented[] = $arRes["USER_ID"];
+			}
 			$removedUsers[] = $arRes["USER_ID"];
 		}
 		$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ", true);
 		$DB->Query("DELETE FROM b_bp_task WHERE ID = ".intval($id)." ", true);
 
-		self::onTaskChange($id, array('USERS_REMOVED' => $removedUsers), CBPTaskChangedStatus::Delete);
+		self::onTaskChange(
+			$id,
+			[
+				'USERS_REMOVED' => $removedUsers,
+				'COUNTERS_DECREMENTED' => $decremented
+			],
+			CBPTaskChangedStatus::Delete
+		);
 		foreach (GetModuleEvents("bizproc", "OnTaskDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($id));
 	}
@@ -204,17 +239,27 @@ class CBPAllTaskService
 		while ($arRes = $dbRes->Fetch())
 		{
 			$taskId = intval($arRes["ID"]);
-			$removedUsers = array();
+			$removedUsers = $decremented = [];
 			$dbResUser = $DB->Query("SELECT USER_ID, STATUS FROM b_bp_task_user WHERE TASK_ID = ".$taskId." ");
 			while ($arResUser = $dbResUser->Fetch())
 			{
 				if ($arResUser['STATUS'] == CBPTaskUserStatus::Waiting)
+				{
 					CUserCounter::Decrement($arResUser["USER_ID"], 'bp_tasks', '**');
+					$decremented[] = $arResUser["USER_ID"];
+				}
 				$removedUsers[] = $arResUser['USER_ID'];
 			}
 			$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".$taskId." ", true);
 
-			self::onTaskChange($taskId, array('USERS_REMOVED' => $removedUsers), CBPTaskChangedStatus::Delete);
+			self::onTaskChange(
+				$taskId,
+				[
+					'USERS_REMOVED' => $removedUsers,
+					'COUNTERS_DECREMENTED' => $decremented
+				],
+				CBPTaskChangedStatus::Delete
+			);
 			foreach (GetModuleEvents("bizproc", "OnTaskDelete", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($taskId));
 		}
@@ -451,11 +496,11 @@ class CBPAllTaskService
 
 		if ($taskId > 0)
 		{
-			$ar = array();
+			$users = [];
 			foreach ($arFields["USERS"] as $userId)
 			{
 				$userId = intval($userId);
-				if (in_array($userId, $ar))
+				if (in_array($userId, $users))
 					continue;
 
 				$DB->Query(
@@ -465,9 +510,10 @@ class CBPAllTaskService
 
 				CUserCounter::Increment($userId, 'bp_tasks', '**');
 
-				$ar[] = $userId;
+				$users[] = $userId;
 			}
 
+			$arFields['COUNTERS_INCREMENTED'] = $users;
 			self::onTaskChange($taskId, $arFields, CBPTaskChangedStatus::Add);
 
 			foreach (GetModuleEvents("bizproc", "OnTaskAdd", true) as $arEvent)
@@ -483,7 +529,9 @@ class CBPAllTaskService
 
 		$id = intval($id);
 		if ($id <= 0)
+		{
 			throw new Exception("id");
+		}
 
 		self::ParseFields($arFields, $id);
 
@@ -499,33 +547,36 @@ class CBPAllTaskService
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 
-		$removedUsers = [];
+		$removedUsers = $addedUsers = $decremented = $incremented = [];
 
-		if (is_set($arFields, "USERS"))
+		if (is_set($arFields, 'USERS'))
 		{
-			$dbResUser = $DB->Query("SELECT USER_ID FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ");
-			while ($arResUser = $dbResUser->Fetch())
-			{
-				CUserCounter::Decrement($arResUser["USER_ID"], 'bp_tasks', '**');
-				$removedUsers[] = $arResUser["USER_ID"];
-			}
-			$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = ".intval($id)." ");
+			$arFields['USERS'] = array_map('intval', array_unique($arFields['USERS']));
+			$previousUserIds = static::getTaskUserIds($id);
 
-			$ar = array();
-			foreach ($arFields["USERS"] as $userId)
+			foreach ($arFields['USERS'] as $userId)
 			{
-				$userId = intval($userId);
-				if (in_array($userId, $ar))
+				if (in_array($userId, $previousUserIds, true))
+				{
 					continue;
+				}
 
 				$DB->Query(
 					"INSERT INTO b_bp_task_user (USER_ID, TASK_ID, ORIGINAL_USER_ID) ".
-					"VALUES (".intval($userId).", ".intval($id).", ".intval($userId).") "
+					"VALUES ({$userId}, {$id}, {$userId})"
 				);
 
+				$incremented[] = $userId;
 				CUserCounter::Increment($userId, 'bp_tasks', '**');
+			}
 
-				$ar[] = $userId;
+			$diff = array_diff($previousUserIds, $arFields['USERS']);
+			foreach ($diff as $removedUserId)
+			{
+				$decremented[] = $removedUserId;
+				CUserCounter::Decrement($removedUserId, 'bp_tasks', '**');
+				$removedUsers[] = $removedUserId;
+				$DB->Query("DELETE FROM b_bp_task_user WHERE TASK_ID = {$id} AND USER_ID = {$removedUserId}");
 			}
 		}
 
@@ -533,14 +584,15 @@ class CBPAllTaskService
 		if (isset($arFields['STATUS']) && $arFields['STATUS'] > CBPTaskStatus::Running)
 		{
 			$dbResUser = $DB->Query("SELECT USER_ID FROM b_bp_task_user WHERE TASK_ID = ".$id." AND STATUS = ".CBPTaskUserStatus::Waiting);
-			while ($arResUser = $dbResUser->Fetch())
+			while ($userIterator = $dbResUser->Fetch())
 			{
-				CUserCounter::Decrement($arResUser["USER_ID"], 'bp_tasks', '**');
+				$decremented[] = $userIterator["USER_ID"];
+				CUserCounter::Decrement($userIterator["USER_ID"], 'bp_tasks', '**');
 
 				if ($arFields['STATUS'] == CBPTaskStatus::Timeout)
-					$userStatuses[$arResUser["USER_ID"]] = CBPTaskUserStatus::No;
+					$userStatuses[$userIterator["USER_ID"]] = CBPTaskUserStatus::No;
 				else
-					$removedUsers[] = $arResUser["USER_ID"];
+					$removedUsers[] = $userIterator["USER_ID"];
 			}
 			if ($arFields['STATUS'] == CBPTaskStatus::Timeout)
 			{
@@ -555,9 +607,20 @@ class CBPAllTaskService
 			ExecuteModuleEventEx($arEvent, array($id, $arFields));
 
 		if ($removedUsers)
+		{
 			$arFields['USERS_REMOVED'] = $removedUsers;
+		}
+		if ($addedUsers)
+		{
+			$arFields['USERS_ADDED'] = $addedUsers;
+		}
 		if ($userStatuses)
+		{
 			$arFields['USERS_STATUSES'] = $userStatuses;
+		}
+
+		$arFields['COUNTERS_INCREMENTED'] = $incremented;
+		$arFields['COUNTERS_DECREMENTED'] = $decremented;
 
 		self::onTaskChange($id, $arFields, CBPTaskChangedStatus::Update);
 		return $id;

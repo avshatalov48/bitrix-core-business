@@ -25,11 +25,6 @@ class RestManager
 //		return ['MODULE_ID' => 'sale'];
 //	}
 
-	protected static function isB24()
-	{
-		return ModuleManager::isModuleInstalled('crm');
-	}
-
 	public static function onRestServiceBuildDescription()
 	{
 		Loader::includeModule('sale');
@@ -62,7 +57,7 @@ class RestManager
 
 					'OnPropertyValueEntitySaved'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderPropertyValueEntitySaved':'OnSalePropertyValueEntitySaved',
+						'OnSalePropertyValueEntitySaved',
 						[
 							RestManager::class,
 							'processEvent'
@@ -73,7 +68,7 @@ class RestManager
 					],
 					'OnPaymentEntitySaved'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderPaymentEntitySaved':'OnSalePaymentEntitySaved',
+						'OnSalePaymentEntitySaved',
 						[
 							RestManager::class,
 							'processEvent'
@@ -84,7 +79,7 @@ class RestManager
 					],
 					'OnShipmentEntitySaved'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderShipmentEntitySaved':'OnSaleShipmentEntitySaved',
+						'OnSaleShipmentEntitySaved',
 						[
 							RestManager::class,
 							'processEvent'
@@ -95,7 +90,7 @@ class RestManager
 					],
 					'OnOrderEntitySaved'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderOrderEntitySaved':'OnSaleOrderEntitySaved',
+						'OnSaleOrderEntitySaved',
 						[
 							RestManager::class,
 							'processEvent'
@@ -106,7 +101,7 @@ class RestManager
 					],
 					'OnPropertyValueDeleted'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderPropertyValueDeleted':'OnSalePropertyValueDeleted',
+						'OnSalePropertyValueDeleted',
 						[
 							RestManager::class,
 							'processEvent'
@@ -117,7 +112,7 @@ class RestManager
 					],
 					'OnPaymentDeleted'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderPaymentDeleted':'OnSalePaymentDeleted',
+						'OnSalePaymentDeleted',
 						[
 							RestManager::class,
 							'processEvent'
@@ -128,7 +123,7 @@ class RestManager
 					],
 					'OnShipmentDeleted'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderShipmentDeleted':'OnSaleShipmentDeleted',
+						'OnSaleShipmentDeleted',
 						[
 							RestManager::class,
 							'processEvent'
@@ -139,7 +134,7 @@ class RestManager
 					],
 					'OnOrderDeleted'=>[
 						'sale',
-						self::isB24()? 'OnCrmOrderOrderEntitySaved':'OnSaleOrderEntitySaved',
+						'OnSaleOrderEntitySaved',
 						[
 							RestManager::class,
 							'processEvent'

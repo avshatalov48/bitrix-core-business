@@ -190,10 +190,10 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-50 g-font-marmelad',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-50 g-font-marmelad container g-max-width-100x g-pl-0 g-pr-0',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block js-animation fadeInUp g-pt-55 g-pb-7',
+					0 => 'landing-block js-animation fadeInUp g-pt-55 g-pb-7 text-center',
 				),
 			),
 		),

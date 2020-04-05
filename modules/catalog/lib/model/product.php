@@ -2,6 +2,7 @@
 namespace Bitrix\Catalog\Model;
 
 use Bitrix\Main,
+	Bitrix\Main\ORM,
 	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Catalog;
@@ -19,32 +20,19 @@ class Product extends Entity
 		return '\Bitrix\Catalog\ProductTable';
 	}
 
-	public static function getCachedFieldList()
-	{
-		return array(
-			'ID',
-			'TYPE',
-			'AVAILABLE',
-			'QUANTITY',
-			'QUANTITY_TRACE' => 'QUANTITY_TRACE_ORIG',
-			'CAN_BUY_ZERO' => 'CAN_BUY_ZERO_ORIG',
-			'SUBSCRIBE' => 'SUBSCRIBE_ORIG'
-		);
-	}
-
 	public static function delete($id)
 	{
 		return parent::deleteNoDemands($id);
 	}
 
-	protected static function prepareForAdd(Main\Entity\AddResult $result, $id, array &$data)
+	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data)
 	{
 		if (isset($data['fields']['ID']))
 			$id = $data['fields']['ID'];
 		$id = (int)$id;
 		if ($id <= 0)
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_WRONG_PRODUCT_ID')
 			));
 			return;
@@ -57,7 +45,7 @@ class Product extends Entity
 			$iblockId = \CIBlockElement::GetIBlockByID($id);
 		if (empty($iblockId))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_ELEMENT_NOT_EXISTS')
 			));
 			return;
@@ -65,7 +53,7 @@ class Product extends Entity
 		$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
 		if (empty($iblockData))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_SIMPLE_IBLOCK')
 			));
 			return;
@@ -131,7 +119,7 @@ class Product extends Entity
 		$fields['TYPE'] = (int)$fields['TYPE'];
 		if (!isset($allowedTypes[$fields['TYPE']]))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_BAD_PRODUCT_TYPE')
 			));
 			return;
@@ -139,7 +127,7 @@ class Product extends Entity
 
 		if (is_string($fields['QUANTITY']) && !is_numeric($fields['QUANTITY']))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
 					array('#FIELD#' => 'QUANTITY')
@@ -150,7 +138,7 @@ class Product extends Entity
 
 		if (is_string($fields['QUANTITY_RESERVED']) && !is_numeric($fields['QUANTITY_RESERVED']))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
 					array('#FIELD#' => 'QUANTITY_RESERVED')
@@ -202,7 +190,7 @@ class Product extends Entity
 
 		if (is_string($fields['WEIGHT']) && !is_numeric($fields['WEIGHT']))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage(
 					'BX_CATALOG_MODEL_PRODUCT_ERR_BAD_NUMERIC_FIELD',
 					array('#FIELD#' => 'WEIGHT')
@@ -222,7 +210,7 @@ class Product extends Entity
 			$purchasingCurrency = static::checkPriceCurrency($fields['PURCHASING_CURRENCY']);
 			if ($purchasingCurrency === null)
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_WRONG_PURCHASING_CURRENCY')
 				));
 				$purchasingPrice = null;
@@ -260,6 +248,8 @@ class Product extends Entity
 				if ($fields['AVAILABLE'] === null)
 					$fields['AVAILABLE'] = Catalog\ProductTable::STATUS_NO;
 			}
+			if ($fields['TYPE'] === Catalog\ProductTable::TYPE_OFFER)
+				$data['actions']['PARENT_TYPE'] = true;
 		}
 
 		if ($result->isSuccess())
@@ -267,12 +257,12 @@ class Product extends Entity
 		unset($fields);
 	}
 
-	protected static function prepareForUpdate(Main\Entity\UpdateResult $result, $id, array &$data)
+	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data)
 	{
 		$id = (int)$id;
 		if ($id <= 0)
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_WRONG_PRODUCT_ID')
 			));
 			return;
@@ -285,7 +275,7 @@ class Product extends Entity
 			$iblockId = \CIBlockElement::GetIBlockByID($id);
 		if (empty($iblockId))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_ELEMENT_NOT_EXISTS')
 			));
 			return;
@@ -293,7 +283,7 @@ class Product extends Entity
 		$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
 		if (empty($iblockData))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_SIMPLE_IBLOCK')
 			));
 			return;
@@ -339,7 +329,7 @@ class Product extends Entity
 			$fields['TYPE'] = (int)$fields['TYPE'];
 			if (!isset($allowedTypes[$fields['TYPE']]))
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_BAD_PRODUCT_TYPE')
 				));
 				return;
@@ -451,7 +441,7 @@ class Product extends Entity
 			$fields['PURCHASING_CURRENCY'] = static::checkPriceCurrency($fields['PURCHASING_CURRENCY']);
 			if ($fields['PURCHASING_CURRENCY'] === null)
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRODUCT_ERR_WRONG_PURCHASING_CURRENCY')
 				));
 			}
@@ -505,25 +495,31 @@ class Product extends Entity
 
 	protected static function runAddExternalActions($id, array $data)
 	{
-		if (isset($data['actions']['SKU_AVAILABLE']))
+		switch ($data['fields']['TYPE'])
 		{
-			switch ($data['fields']['TYPE'])
-			{
-				case Catalog\ProductTable::TYPE_OFFER:
+			case Catalog\ProductTable::TYPE_OFFER:
+				if (
+					isset($data['actions']['SKU_AVAILABLE'])
+					|| isset($data['actions']['PARENT_TYPE'])
+				)
+				{
 					Catalog\Product\Sku::calculateComplete(
 						$id,
 						$data['external_fields']['IBLOCK_ID'],
 						Catalog\ProductTable::TYPE_OFFER
 					);
-					break;
-				case Catalog\ProductTable::TYPE_SKU:
+				}
+				break;
+			case Catalog\ProductTable::TYPE_SKU:
+				if (isset($data['actions']['SKU_AVAILABLE']))
+				{
 					Catalog\Product\Sku::calculateComplete(
 						$id,
 						$data['external_fields']['IBLOCK_ID'],
 						Catalog\ProductTable::TYPE_SKU
 					);
-					break;
-			}
+				}
+				break;
 		}
 	}
 
@@ -566,6 +562,19 @@ class Product extends Entity
 		}
 
 		unset($product);
+	}
+
+	protected static function getDefaultCachedFieldList()
+	{
+		return [
+			'ID',
+			'TYPE',
+			'AVAILABLE',
+			'QUANTITY',
+			'QUANTITY_TRACE' => 'QUANTITY_TRACE_ORIG',
+			'CAN_BUY_ZERO' => 'CAN_BUY_ZERO_ORIG',
+			'SUBSCRIBE' => 'SUBSCRIBE_ORIG'
+		];
 	}
 
 	/**
@@ -744,13 +753,11 @@ class Product extends Entity
 		switch ($catalogType)
 		{
 			case \CCatalogSku::TYPE_CATALOG:
+			case \CCatalogSku::TYPE_FULL:
 				$result = Catalog\ProductTable::TYPE_PRODUCT;
 				break;
 			case \CCatalogSku::TYPE_OFFERS:
 				$result = Catalog\ProductTable::TYPE_OFFER;
-				break;
-			case \CCatalogSku::TYPE_FULL:
-				$result = Catalog\ProductTable::TYPE_PRODUCT;
 				break;
 			case \CCatalogSku::TYPE_PRODUCT:
 				$result = Catalog\ProductTable::TYPE_SKU;

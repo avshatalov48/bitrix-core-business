@@ -36,7 +36,7 @@
 							href: this.credit.link,
 							target: "_blank",
 							rel: "nofollow",
-							title: BX.message("LANDING_UNSPLASH_CREDIT_LABEL") + " " + this.credit.name
+							title: BX.Landing.Loc.getMessage("LANDING_UNSPLASH_CREDIT_LABEL") + " " + this.credit.name
 						},
 						text: this.credit.name
 					})

@@ -20,6 +20,7 @@ class Template
 	public static function getList(array $params = array())
 	{
 		$result = new PublicActionResult();
+		$params = $result->sanitizeKeys($params);
 
 		$data = array();
 		$res = TemplateCore::getList($params);
@@ -53,6 +54,7 @@ class Template
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 		$data = (array) $data;
+		$id = (int)$id;
 
 		if ($type == TemplateRef::ENTITY_TYPE_SITE)
 		{

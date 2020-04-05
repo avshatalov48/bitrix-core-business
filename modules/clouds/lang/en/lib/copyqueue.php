@@ -1,0 +1,14 @@
+<?
+$MESS["COPY_QUEUE_ENTITY_ID_FIELD"] = "File copy task ID";
+$MESS["COPY_QUEUE_ENTITY_TIMESTAMP_X_FIELD"] = "Task created on";
+$MESS["COPY_QUEUE_ENTITY_OP_FIELD"] = "Operation code";
+$MESS["COPY_QUEUE_ENTITY_SOURCE_BUCKET_ID_FIELD"] = "Source storage";
+$MESS["COPY_QUEUE_ENTITY_SOURCE_FILE_PATH_FIELD"] = "Source storage file path";
+$MESS["COPY_QUEUE_ENTITY_TARGET_BUCKET_ID_FIELD"] = "Destination storage";
+$MESS["COPY_QUEUE_ENTITY_TARGET_FILE_PATH_FIELD"] = "Destination storage file path";
+$MESS["COPY_QUEUE_ENTITY_FILE_SIZE_FIELD"] = "File size";
+$MESS["COPY_QUEUE_ENTITY_FILE_POS_FIELD"] = "Current copy position";
+$MESS["COPY_QUEUE_ENTITY_FAIL_COUNTER_FIELD"] = "Error counter";
+$MESS["COPY_QUEUE_ENTITY_STATUS_FIELD"] = "Operation status";
+$MESS["COPY_QUEUE_ENTITY_ERROR_MESSAGE_FIELD"] = "Error message";
+?>

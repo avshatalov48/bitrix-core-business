@@ -141,8 +141,8 @@ else
 
 								<div class="col-md-4 col-sm-6 sale-order-detail-about-order-inner-container-status">
 									<div class="sale-order-detail-about-order-inner-container-status-title">
-										<?= Loc::getMessage('SPOD_LIST_CURRENT_STATUS', array(
-											'#DATE_ORDER_CREATE#' => $arResult["DATE_INSERT_FORMATED"]
+										<?= Loc::getMessage('SPOD_LIST_CURRENT_STATUS_DATE', array(
+											'#DATE_STATUS#' => $arResult["DATE_STATUS_FORMATED"]
 										)) ?>
 									</div>
 									<div class="sale-order-detail-about-order-inner-container-status-detail">
@@ -373,7 +373,7 @@ else
 																$paymentSubTitle = Loc::getMessage('SPOD_TPL_BILL')." ".Loc::getMessage('SPOD_NUM_SIGN').$payment['ACCOUNT_NUMBER'];
 																if(isset($payment['DATE_BILL']))
 																{
-																	$paymentSubTitle .= " ".Loc::getMessage('SPOD_FROM')." ".$payment['DATE_BILL']->format($arParams['ACTIVE_DATE_FORMAT']);
+																	$paymentSubTitle .= " ".Loc::getMessage('SPOD_FROM')." ".$payment['DATE_BILL_FORMATED'];
 																}
 																$paymentSubTitle .=",";
 																echo htmlspecialcharsbx($paymentSubTitle);
@@ -575,7 +575,7 @@ else
 																		$shipmentRow = Loc::getMessage('SPOD_SUB_ORDER_SHIPMENT')." ".Loc::getMessage('SPOD_NUM_SIGN').$shipment["ACCOUNT_NUMBER"];
 																		if ($shipment["DATE_DEDUCTED"])
 																		{
-																			$shipmentRow .= " ".Loc::getMessage('SPOD_FROM')." ".$shipment["DATE_DEDUCTED"]->format($arParams['ACTIVE_DATE_FORMAT']);
+																			$shipmentRow .= " ".Loc::getMessage('SPOD_FROM')." ".$shipment["DATE_DEDUCTED_FORMATED"];
 																		}
 																		$shipmentRow = htmlspecialcharsbx($shipmentRow);
 																		$shipmentRow .= ", ".Loc::getMessage('SPOD_SUB_PRICE_DELIVERY', array(

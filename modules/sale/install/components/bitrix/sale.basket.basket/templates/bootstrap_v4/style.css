@@ -351,6 +351,12 @@
 
 	.basket-checkout-block-total-price-inner { padding-top: 2px; }
 
+	.basket-coupon-block-total-price-old {
+		top: auto;
+		position: relative;
+		display: inline-block;
+	}
+
 }
 
 /*endregion*/

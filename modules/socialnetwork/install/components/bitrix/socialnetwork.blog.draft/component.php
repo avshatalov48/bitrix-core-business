@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Localization\Loc;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
@@ -136,54 +139,82 @@ if($user_id > 0 && $user_id == IntVal($arParams["USER_ID"]))
 					$pub_id = IntVal($_GET["pub_id"]);
 					if($arPost = CBlogPost::GetByID($pub_id))
 					{
-						if($arPost["AUTHOR_ID"] == $user_id && $arPost["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH)
+						if(
+							$arPost["AUTHOR_ID"] == $user_id
+							&& $arPost["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
+						)
 						{
-							if(CBlogPost::Update($pub_id, array(
-									"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
-									"=DATE_PUBLISH" => $DB->GetNowFunction(),
-									"SEARCH_GROUP_ID" => \Bitrix\Main\Config\Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID)
-								)
-							))
+							$resultFields = [
+								'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH
+							];
+							\Bitrix\Socialnetwork\ComponentHelper::checkBlogPostDestinationList(array(
+								'DEST' => \CBlogPost::getSocNetPermsCode($arPost["ID"]),
+								'AUTHOR_ID' => $arPost["AUTHOR_ID"],
+								'POST_ID' => $postId
+							), $resultFields);
+
+							if (
+								$resultFields['PUBLISH_STATUS'] != BLOG_PUBLISH_STATUS_PUBLISH
+								|| !empty($resultFields['ERROR_MESSAGE'])
+							)
 							{
-								$arParamsNotify = Array(
-									"bSoNet" => true,
-									"allowVideo" => $arResult["allowVideo"],
-									"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
-									"PATH_TO_POST" => $arParams["PATH_TO_POST"],
-									"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
-									"user_id" => $arParams["USER_ID"],
-									"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-									"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
-									);
-								CBlogPost::Notify($arPost, false, $arParamsNotify);
-
-								$socnetRights = CBlogPost::GetSocNetPermsCode($arPost["ID"]);
-								$arFieldsIM = Array(
-									"TYPE" => "POST",
-									"TITLE" => $arPost["TITLE"],
-									"URL" => CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("post_id" => $arPost["ID"], "user_id" => $arParams["USER_ID"])),
-									"ID" => $arPost["ID"],
-									"FROM_USER_ID" => $arParams["USER_ID"],
-									"TO_USER_ID" => array(),
-									"TO_SOCNET_RIGHTS" => $socnetRights,
-									"TO_SOCNET_RIGHTS_OLD" => array(
-										"U" => array(),
-										"SG" => array()
-									)
-								);
-
-								CBlogPost::NotifyIm($arFieldsIM);
-								LocalRedirect($APPLICATION->GetCurPageParam("pub_id=".$pub_id."&success=Y", Array("del_id", "pub_id", "sessid", "success")));
+								$arResult["ERROR_MESSAGE"][] = (!empty($resultFields['ERROR_MESSAGE']) ? $resultFields['ERROR_MESSAGE'] : Loc::getMessage("BLOG_BLOG_BLOG_MES_PUB_NO_RIGHTS"));
 							}
 							else
-								$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_PUB_ERROR");
+							{
+								if(CBlogPost::Update($pub_id, array(
+										"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
+										"=DATE_PUBLISH" => $DB->GetNowFunction(),
+										"SEARCH_GROUP_ID" => \Bitrix\Main\Config\Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID)
+									)
+								))
+								{
+									$arParamsNotify = Array(
+										"bSoNet" => true,
+										"allowVideo" => $arResult["allowVideo"],
+										"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
+										"PATH_TO_POST" => $arParams["PATH_TO_POST"],
+										"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
+										"user_id" => $arParams["USER_ID"],
+										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+										"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
+									);
+									CBlogPost::Notify($arPost, false, $arParamsNotify);
+
+									$socnetRights = CBlogPost::GetSocNetPermsCode($arPost["ID"]);
+									$arFieldsIM = Array(
+										"TYPE" => "POST",
+										"TITLE" => $arPost["TITLE"],
+										"URL" => CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("post_id" => $arPost["ID"], "user_id" => $arParams["USER_ID"])),
+										"ID" => $arPost["ID"],
+										"FROM_USER_ID" => $arParams["USER_ID"],
+										"TO_USER_ID" => array(),
+										"TO_SOCNET_RIGHTS" => $socnetRights,
+										"TO_SOCNET_RIGHTS_OLD" => array(
+											"U" => array(),
+											"SG" => array()
+										)
+									);
+
+									CBlogPost::NotifyIm($arFieldsIM);
+									LocalRedirect($APPLICATION->GetCurPageParam("pub_id=".$pub_id."&success=Y", Array("del_id", "pub_id", "sessid", "success")));
+								}
+								else
+								{
+									$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_PUB_ERROR");
+								}
+							}
 						}
 					}
 					else
+					{
 						$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_BLOG_MES_PUB_NO_RIGHTS");
+					}
 				}
 				else
+				{
 					$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_BLOG_SESSID_WRONG");
+				}
 			}
 		}
 

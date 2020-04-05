@@ -75,7 +75,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 
 <div style="margin: 0pt; padding: <?=join('pt ', $margin); ?>pt; width: <?=$width; ?>pt; background: <?=$background; ?>">
 <?if ($params['BILLUA_HEADER']):?>
-	<b><?=$params['BILLUA_HEADER'].Loc::getMessage('SALE_HPS_BILLUA_TITLE', array('#PAYMENT_NUMBER#' => htmlspecialcharsbx($params["ACCOUNT_NUMBER"]), '#PAYMENT_DATE#' => $params["DATE_INSERT"])); ?></b>
+	<b><?=htmlspecialcharsbx($params['BILLUA_HEADER']).Loc::getMessage('SALE_HPS_BILLUA_TITLE', array('#PAYMENT_NUMBER#' => htmlspecialcharsbx($params["ACCOUNT_NUMBER"]), '#PAYMENT_DATE#' => htmlspecialcharsbx($params["DATE_INSERT"]))); ?></b>
 	<br>
 	<br>
 <?endif;?>
@@ -91,11 +91,11 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 		<tr>
 			<td><?=Loc::getMessage('SALE_HPS_BILLUA_SELLER')?>:</td>
 			<td style="padding-left: 4pt; ">
-				<?=$params["SELLER_COMPANY_NAME"]; ?>
+				<?=htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]); ?>
 				<br>
-				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_RS')?> <?=$params["SELLER_COMPANY_BANK_ACCOUNT"]; ?>,
-				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_BANK')?> <?=$params["SELLER_COMPANY_BANK_NAME"]; ?>,
-				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_MFO')?> <?=$params["SELLER_COMPANY_MFO"]; ?>
+				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_RS')?> <?=htmlspecialcharsbx($params["SELLER_COMPANY_BANK_ACCOUNT"]); ?>,
+				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_BANK')?> <?=htmlspecialcharsbx($params["SELLER_COMPANY_BANK_NAME"]); ?>,
+				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_MFO')?> <?=htmlspecialcharsbx($params["SELLER_COMPANY_MFO"]); ?>
 				<br><?
 				$sellerAddr = '';
 				if ($params["SELLER_COMPANY_ADDRESS"])
@@ -107,9 +107,9 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 						$sellerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($sellerAddr));
 				}
 				?>
-				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_ADDRESS')?>: <?= $sellerAddr ?>,
+				<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_ADDRESS')?>: <?=htmlspecialcharsbx($sellerAddr);?>,
 				<?if($params["SELLER_COMPANY_PHONE"]):?>
-					<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE')?>: <?=$params["SELLER_COMPANY_PHONE"]; ?>
+					<?=Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_PHONE')?>: <?=htmlspecialcharsbx($params["SELLER_COMPANY_PHONE"]); ?>
 				<?endif;?>
 				<br>
 				<?
@@ -117,13 +117,13 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 				foreach (array('EDRPOY', 'IPN', 'PDV') as $value)
 				{
 					if ($params["SELLER_COMPANY_".$value])
-						$requisiteList[] = Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_'.$value).' '.$params["SELLER_COMPANY_".$value];
+						$requisiteList[] = Loc::getMessage('SALE_HPS_BILLUA_SELLER_COMPANY_'.$value).' '.htmlspecialcharsbx($params["SELLER_COMPANY_".$value]);
 				}
 				echo join(', ', $requisiteList);
 
 				if ($params["SELLER_COMPANY_SYS"]) { ?>
 				<br>
-				<?=$params["SELLER_COMPANY_SYS"]; ?>
+				<?=htmlspecialcharsbx($params["SELLER_COMPANY_SYS"]); ?>
 				<? } ?>
 			</td>
 		</tr>
@@ -133,11 +133,11 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 		<tr>
 			<td><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER');?>:</td>
 			<td style="padding-left: 4pt; ">
-				<?=$params["BUYER_PERSON_COMPANY_NAME"]; ?>
+				<?=htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_NAME"]); ?>
 				<? if ($buyerPhone || $buyerFax) { ?>
 				<br>
-				<? if ($buyerPhone) { ?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_PHONE')?>: <?=$buyerPhone; ?><? if ($buyerFax) { ?>, <? } ?><? } ?>
-				<? if ($buyerFax) { ?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_FAX')?>: <?=$buyerFax; ?><? } ?>
+				<? if ($buyerPhone) { ?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_PHONE')?>: <?=htmlspecialcharsbx($buyerPhone); ?><? if ($buyerFax) { ?>, <? } ?><? } ?>
+				<? if ($buyerFax) { ?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_FAX')?>: <?=htmlspecialcharsbx($buyerFax); ?><? } ?>
 				<? } ?><?
 				if ($params["BUYER_PERSON_COMPANY_ADDRESS"])
 				{
@@ -147,7 +147,7 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 					else
 						$buyerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($buyerAddr));
 					?><br><?
-					?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_ADDRESS')?>: <?= $buyerAddr ?><?
+					?><?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_ADDRESS')?>: <?=htmlspecialcharsbx($buyerAddr);?><?
 				}
 				?>
 			</td>
@@ -157,7 +157,7 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 <br>
 
 <? if ($params["BUYER_PERSON_COMPANY_DOGOVOR"]) { ?>
-<?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_DOGOVOR')?>: <?=$params["BUYER_PERSON_COMPANY_DOGOVOR"]; ?>
+<?=Loc::getMessage('SALE_HPS_BILLUA_BUYER_DOGOVOR')?>: <?=htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_DOGOVOR"]); ?>
 <br>
 <? } ?>
 <br>
@@ -541,7 +541,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 					<input
 						style="border: none; background: none; width: 100%; "
 						type="text"
-						value="<?=$params["SELLER_COMPANY_ACCOUNTANT_NAME"]; ?>"
+						value="<?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_NAME"]); ?>"
 					>
 				</td>
 				<td style="width: 20pt; ">&nbsp;</td>
@@ -551,7 +551,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 						<input
 							style="border: none; background: none; width: 100%; text-align: center; "
 							type="text"
-							value="<?=$params["SELLER_COMPANY_ACCOUNTANT_POSITION"]; ?>"
+							value="<?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_POSITION"]); ?>"
 						>
 					</td>
 				<?endif;?>
@@ -567,7 +567,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 <div style="text-align: right; "><b><?=sprintf(
 	Loc::getMessage('SALE_HPS_BILLUA_DATE_PAID_BEFORE'),
 	ConvertDateTime($params["DATE_PAY_BEFORE"], FORMAT_DATE)
-		?: $params["DATE_PAY_BEFORE"]
+		?: htmlspecialcharsbx($params["DATE_PAY_BEFORE"])
 ); ?></b></div>
 <? } ?>
 

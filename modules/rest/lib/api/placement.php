@@ -139,6 +139,11 @@ class Placement extends \IRestService
 				$placementBind['COMMENT'] = trim($params['DESCRIPTION']);
 			}
 
+			if(!empty($params['GROUP_NAME']))
+			{
+				$placementBind['GROUP_NAME'] = trim($params['GROUP_NAME']);
+			}
+
 			$result = PlacementTable::add($placementBind);
 			if(!$result->isSuccess())
 			{

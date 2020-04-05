@@ -370,7 +370,7 @@ class Package
 						"name" => $postFiles[$fileRaw["id"]]["name"],
 						"type" => $postFiles[$fileRaw["id"]]["type"],
 						"size" => $postFiles[$fileRaw["id"]]["size"]
-					));
+					) + (is_array($postFiles[$fileRaw["id"]]) ? $postFiles[$fileRaw["id"]] : []));
 					if (isset($fileRaw["restored"]))
 					{
 						if ($file->isExecuted())

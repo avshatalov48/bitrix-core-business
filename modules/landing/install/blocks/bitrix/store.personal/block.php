@@ -75,6 +75,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 				'SUBSCRIBE_DETAIL_URL' => '#system_catalogitem/#ELEMENT_CODE#/',
 				'EDITABLE_EXTERNAL_AUTH_ID' => ['shop'],
 				'USE_PRIVATE_PAGE_TO_AUTH' => 'Y',
+				'DISABLE_SOCSERV_AUTH' => 'Y',
 				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID')
 			),
 			false

@@ -11,7 +11,7 @@ class UrlRewriter
 
 	protected static function loadRules($siteId)
 	{
-		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId)));
+		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId), "cache" => array("ttl" => 3600)));
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
@@ -35,7 +35,7 @@ class UrlRewriter
 
 	protected static function saveRules($siteId, array $arUrlRewrite)
 	{
-		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId)));
+		$site = SiteTable::getRow(array("filter" => array("=LID" => $siteId), "cache" => array("ttl" => 3600)));
 		$docRoot = $site["DOC_ROOT"];
 
 		if (!empty($docRoot))
@@ -44,6 +44,13 @@ class UrlRewriter
 			$docRoot = Application::getDocumentRoot();
 
 		$data = var_export($arUrlRewrite, true);
+
+		$event = new Event("main", "onUrlRewriteSaveRules", [
+			$siteId,
+			$docRoot,
+			$arUrlRewrite
+		]);
+		$event->send();
 
 		IO\File::putFileContents($docRoot."/urlrewrite.php", "<"."?php\n\$arUrlRewrite=".$data.";\n");
 		Application::resetAccelerator();

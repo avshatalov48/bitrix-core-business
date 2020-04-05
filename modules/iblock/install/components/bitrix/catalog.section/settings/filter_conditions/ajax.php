@@ -14,6 +14,8 @@ $request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 $ids = $request->get('ids');
 $action = $request->get('action');
 
+$jsLibrary = \CJSCore::Init(['core_condtree'], true);
+
 if (!empty($ids) && is_array($ids))
 {
 	$condTree = new CCatalogCondTree();
@@ -41,6 +43,7 @@ if ($success)
 			$condition = array();
 		}
 
+		echo $jsLibrary;
 		$condTree->Show($condition);
 	}
 	elseif ($action === 'save')

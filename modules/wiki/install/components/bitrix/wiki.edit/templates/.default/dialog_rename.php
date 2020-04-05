@@ -11,13 +11,13 @@
 				?>
 				<form action="<?=$arResult['PATH_TO_POST_EDIT']?>" name="rename_form" method="POST">
 					<?=bitrix_sessid_post()?>
-					<input type="hidden" name="<?=$arResult['PAGE_VAR']?>" value="<?=$arResult['ELEMENT']['NAME_LOCALIZE']?>"/>
+					<input type="hidden" name="<?=$arResult['PAGE_VAR']?>" value="<?=htmlspecialcharsbx($arResult['ELEMENT']['NAME_LOCALIZE'])?>"/>
 					<input type="hidden" name="<?=$arResult['OPER_VAR']?>" value="rename_it"/>
 					<input type="hidden" name="save" value="Y"/>
 					<table>
 						<tr>
 							<td><?=GetMessage('WIKI_DIALOG_RENAME_PAGE_NAME').": "?></td>
-							<td><input type="text" name="NEW_NAME" value="<? echo ($sCatName ? $sCatName : $arResult['ELEMENT']['NAME_LOCALIZE'])?>"></td>
+							<td><input type="text" name="NEW_NAME" value="<? echo ($sCatName ? $sCatName : htmlspecialcharsbx($arResult['ELEMENT']['NAME_LOCALIZE']))?>"></td>
 						</tr>
 				</form>
 				<script type="text/javascript">

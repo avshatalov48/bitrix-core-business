@@ -7,16 +7,20 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
-	'block' =>
-		array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2'),
-			'section' => array('forms'),
-			'subtype' => 'form',
-		),
+	'block' => array(
+		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2'),
+		'section' => array('forms'),
+		'dynamic' => false,
+		'subtype' => 'form',
+		'type' => ['page', 'store', 'smn'],
+	),
 	'cards' => array(
 		'.landing-block-node-card-contact' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CARD_CONTACT'),
-			'label' => array('.landing-block-node-contact-text', '.landing-block-node-contact-link', '.landing-block-card-linkcontact-link'),
+			'label' => array(
+				'.landing-block-node-contact-text', '.landing-block-node-contact-link',
+				'.landing-block-card-linkcontact-link',
+			),
 			'presets' => include __DIR__ . '/presets.php',
 		),
 	),
@@ -66,7 +70,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-main-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_TITLE'),
-				'type' => array('typo','animation'),
+				'type' => array('typo', 'animation'),
 			),
 			'.landing-block-card-contact-icon-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_CONTACT_ICON'),
@@ -78,7 +82,7 @@ return array(
 			),
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_TEXT'),
-				'type' => array('typo','animation'),
+				'type' => array('typo', 'animation'),
 			),
 			'.landing-block-node-contact-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_TEXT'),
@@ -94,7 +98,7 @@ return array(
 			),
 			'.landing-block-card-linkcontact-link' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'),
-				'type' => 'typo',
+				'type' => 'typo-link',
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.2_NODE_BGIMG'),

@@ -22,27 +22,21 @@ class AccountYandex extends Account
 
 	public function getProfile()
 	{
-		// default_avatar_id
-		// 'https://avatars.yandex.net/get-yapic//islands-50/';
-		$response = $this->getRequest()->getClient()->get(
-			'https://login.yandex.ru/info?format=json&oauth_token=' .
-			$this->getRequest()->getAuthAdapter()->getToken()
-		);
+		$response = $this->getRequest()->send(array(
+			'methodName' => 'retargeting.profile',
+			'parameters' => array()
+		));
 
-		if ($response)
+		if ($response->isSuccess())
 		{
-			$response = Json::decode($response);
-			if (is_array($response))
-			{
-				return array(
-					'ID' => $response['id'],
-					'NAME' => $response['login'],
-					'LINK' => '',
-					'PICTURE' => 'https://avatars.mds.yandex.net/get-yapic/0/0-0/islands-50',
-				);
-			}
+			$data = $response->fetch();
+			return array(
+				'ID' => $data['ID'],
+				'NAME' => $data['REAL_NAME'] ?: $data['LOGIN'],
+				'LINK' => '',
+				'PICTURE' => 'https://avatars.mds.yandex.net/get-yapic/0/0-0/islands-50',
+			);
 		}
-
 
 		return null;
 	}

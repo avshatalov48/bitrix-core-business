@@ -15,6 +15,8 @@
 	SectionSlider.prototype = {
 		show: function ()
 		{
+			this.calendar.util.doBxContextFix();
+
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
@@ -70,11 +72,14 @@
 
 				if (this.sectionActionMenu)
 					this.sectionActionMenu.close();
+
+				this.calendar.util.restoreBxContextFix();
 			}
 		},
 
 		create: function ()
 		{
+			top.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
 			this.outerWrap = BX.create('DIV', {props: {className: 'calendar-list-slider-wrap'}});
 			this.titleWrap = this.outerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-title-container'}, html: '<div class="calendar-list-slider-title">' + BX.message('EC_SECTION_BUTTON') + '</div>'}));
 
@@ -116,11 +121,11 @@
 			var sections, title;
 			this.sliderSections = this.calendar.sectionController.getSectionList();
 
-			if (this.calendar.util.type == 'user')
+			if (this.calendar.util.type === 'user')
 			{
 				title = BX.message('EC_SEC_SLIDER_MY_CALENDARS_LIST');
 			}
-			else if (this.calendar.util.type == 'group')
+			else if (this.calendar.util.type === 'group')
 			{
 				title = BX.message('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
 			}
@@ -276,7 +281,7 @@
 					}
 				];
 
-			this.addBtnMenu = BX.PopupMenu.create(
+			this.addBtnMenu = top.BX.PopupMenu.create(
 				this.addButtonMorePopupId,
 				this.addButtonMore,
 				menuItems,
@@ -295,10 +300,10 @@
 			//BX.addClass(_this.sectionField.select, 'active');
 			this.denySliderClose();
 
-			BX.addCustomEvent(this.addBtnMenu.popupWindow, 'onPopupClose', function()
+			top.BX.addCustomEvent(this.addBtnMenu.popupWindow, 'onPopupClose', function()
 			{
 				_this.allowSliderClose();
-				BX.PopupMenu.destroy(_this.addButtonMorePopupId);
+				top.BX.PopupMenu.destroy(_this.addButtonMorePopupId);
 				_this.addBtnMenu = null;
 			});
 		},
@@ -317,9 +322,15 @@
 				var i, li, checkbox, title, actionCont;
 				for (i = 0; i < params.sectionList.length; i++)
 				{
+					if (!params.sectionList[i].DOM)
+					{
+						params.sectionList[i].DOM = {};
+					}
+
+					var sectionId = params.sectionList[i].id.toString();
 					li = listWrap.appendChild(BX.create('LI', {
 						props: {className: 'calendar-list-slider-item'},
-						attrs: {'data-bx-calendar-section': params.sectionList[i].id.toString()}
+						attrs: {'data-bx-calendar-section': sectionId}
 					}));
 
 					checkbox = li.appendChild(BX.create('DIV', {
@@ -332,22 +343,18 @@
 						text: params.sectionList[i].name
 					}));
 
-					actionCont = li.appendChild(BX.create('DIV', {
-						props: {className: 'calendar-list-slider-item-actions-container'},
-						attrs: {'data-bx-calendar-section-menu': params.sectionList[i].id.toString()},
-						html: '<span class="calendar-list-slider-item-context-menu"></span>'
-					}));
-
-					if (!params.sectionList[i].DOM)
-					{
-						params.sectionList[i].DOM = {};
-					}
-
 					params.sectionList[i].DOM.item = li;
 					params.sectionList[i].DOM.checkbox = checkbox;
 					params.sectionList[i].DOM.title = title;
-					params.sectionList[i].DOM.actionCont = actionCont;
-
+					if (sectionId !== 'tasks')
+					{
+						actionCont = li.appendChild(BX.create('DIV', {
+							props: {className: 'calendar-list-slider-item-actions-container'},
+							attrs: {'data-bx-calendar-section-menu': sectionId},
+							html: '<span class="calendar-list-slider-item-context-menu"></span>'
+						}));
+						params.sectionList[i].DOM.actionCont = actionCont;
+					}
 				}
 			}
 
@@ -383,7 +390,7 @@
 				BX.addClass(section.DOM.checkbox, 'calendar-list-slider-item-checkbox-checked');
 				section.show();
 			}
-			this.calendar.refresh();
+			this.calendar.reload();
 		},
 
 		showSectionMenu : function(section)
@@ -441,7 +448,7 @@
 				});
 			}
 
-			if (!section.isPseudo() && section.data.EXPORT.LINK)
+			if (!section.isPseudo() && section.data.EXPORT && section.data.EXPORT.LINK)
 			{
 				menuItems.push({
 					text: BX.message('EC_ACTION_EXPORT'), onclick: BX.delegate(function ()
@@ -507,7 +514,7 @@
 
 			if (menuItems && menuItems.length > 0)
 			{
-				this.sectionActionMenu = BX.PopupMenu.create(
+				this.sectionActionMenu = top.BX.PopupMenu.create(
 					menuId,
 					section.DOM.actionCont,
 					menuItems,
@@ -524,12 +531,12 @@
 				this.sectionActionMenu.show();
 				this.denySliderClose();
 
-				BX.addCustomEvent(this.sectionActionMenu.popupWindow, 'onPopupClose', function()
+				top.BX.addCustomEvent(this.sectionActionMenu.popupWindow, 'onPopupClose', function()
 				{
 					if (section.DOM.item)
-						BX.removeClass(section.DOM.item, 'active');
+						top.BX.removeClass(section.DOM.item, 'active');
 					_this.allowSliderClose();
-					BX.PopupMenu.destroy(menuId);
+					top.BX.PopupMenu.destroy(menuId);
 					_this.sectionActionMenu = null;
 				});
 			}
@@ -572,7 +579,6 @@
 				return this.closeForms();
 
 			this.closeForms();
-			//setTimeout(BX.delegate(function(){
 				this.editSectionFormTitle = this.editSectionFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
 
 				this.editSectionForm = new SectionForm({
@@ -585,31 +591,31 @@
 					}, this)
 				});
 
-				var showAccessControl = true;
-				if (params.section && (!params.section.belongsToView() || params.section.isPseudo()))
-				{
-					this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_EDIT_SECTION_PERSONAL');
-					showAccessControl = false;
-				}
-				else if (params.section && params.section.id)
-				{
-					this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_EDIT_SECTION');
-				}
-				else
-				{
-					this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_NEW_SECTION');
-				}
+			var showAccessControl = true;
+			if (params.section && (!params.section.belongsToView() || params.section.isPseudo()))
+			{
+				this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_EDIT_SECTION_PERSONAL');
+				showAccessControl = false;
+			}
+			else if (params.section && params.section.id)
+			{
+				this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_EDIT_SECTION');
+				showAccessControl = params.section.canDo('access');
+			}
+			else
+			{
+				this.editSectionFormTitle.innerHTML = BX.message('EC_SEC_SLIDER_NEW_SECTION');
+			}
 
-				this.editSectionForm.show({
-					showAccess: showAccessControl,
-					section: params.section || {
-						color: this.calendar.sectionController.getDefaultSectionColor(),
-						access: this.calendar.sectionController.getDefaultSectionAccess()
-					}
-				});
+			this.editSectionForm.show({
+				showAccess: showAccessControl,
+				section: params.section || {
+					color: this.calendar.sectionController.getDefaultSectionColor(),
+					access: this.calendar.sectionController.getDefaultSectionAccess()
+				}
+			});
 
-				this.denySliderClose();
-			//}, this), 100);
+			this.denySliderClose();
 		},
 
 		showTrackingTypesForm: function()
@@ -691,10 +697,11 @@
 		{
 			this.sliderSections.forEach(function(section, index)
 			{
-				if (section.id == sectionId && section.DOM && section.DOM.item)
+				if (parseInt(section.id) === parseInt(sectionId) && section.DOM && section.DOM.item)
 				{
 					BX.addClass(section.DOM.item, 'calendar-list-slider-item-disappearing');
-					setTimeout(BX.delegate(function(){
+					setTimeout(BX.delegate(function()
+					{
 						BX.cleanNode(section.DOM.item, true);
 						this.sliderSections = BX.util.deleteFromArray(this.sliderSections, index);
 					}, this), 300);
@@ -710,8 +717,10 @@
 
 			for (i = 0; i < superposedSections.length; i++)
 			{
-				if (section.id != parseInt(superposedSections[i].id))
+				if (parseInt(section.id) !== parseInt(superposedSections[i].id))
+				{
 					sections.push(parseInt(superposedSections[i].id));
+				}
 			}
 
 			this.calendar.request({
@@ -730,7 +739,7 @@
 		{
 			this.sliderSections.forEach(function(section)
 			{
-				if (section.id == sectionId && section.DOM && section.DOM.item)
+				if (parseInt(section.id) === parseInt(sectionId) && section.DOM && section.DOM.item)
 				{
 					section.DOM.title.innerHTML = BX.util.htmlspecialchars(params.name);
 					section.DOM.checkbox.style.backgroundColor = params.color;
@@ -757,7 +766,6 @@
 		show: function (params)
 		{
 			this.create();
-
 			this.showAccess = params.showAccess !== false;
 			if (this.showAccess)
 			{
@@ -848,17 +856,19 @@
 
 			// Buttons
 			this.buttonsWrap = this.formFieldsWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-btn-container'}}));
-			this.saveBtn = this.buttonsWrap.appendChild(BX.create('DIV', {
-				props: {className: 'ui-btn ui-btn-success'},
-				text: BX.message('EC_SEC_SLIDER_SAVE'),
-				events: {click: BX.proxy(this.save, this)}
-			}));
 
-			this.cancelBtn = this.buttonsWrap.appendChild(BX.create('SPAN', {
-				props: {className: 'ui-btn ui-btn-link'},
+			this.saveBtn = new BX.UI.Button({
+				text: BX.message('EC_SEC_SLIDER_SAVE'),
+				className: 'ui-btn ui-btn-success',
+				events: {click: BX.proxy(this.save, this)}
+			});
+			this.saveBtn.renderTo(this.buttonsWrap);
+
+			new BX.UI.Button({
 				text: BX.message('EC_SEC_SLIDER_CANCEL'),
+				className: 'ui-btn ui-btn-link',
 				events: {click: BX.proxy(this.checkClose, this)}
-			}));
+			}).renderTo(this.buttonsWrap);
 
 			this.isCreated = true;
 		},
@@ -882,13 +892,18 @@
 
 		save: function()
 		{
+			this.saveBtn.setWaiting(true);
 			this.calendar.sectionController.saveSection(
 				this.sectionTitleInput.value,
 				this.color,
 				this.access,
 				{section: this.section}
-			);
-			this.close();
+			)
+			.then(BX.delegate(function()
+			{
+				this.saveBtn.setWaiting(false);
+				this.close();
+			}, this));
 		},
 
 		initSectionColorSelector: function()
@@ -934,7 +949,7 @@
 			this.lastActiveNode = this.colors[BX.util.array_search(this.color, colors) || 0].node;
 			BX.addClass(this.lastActiveNode, 'active');
 
-			this.simpleColorPopup = BX.PopupWindowManager.create(
+			this.simpleColorPopup = top.BX.PopupWindowManager.create(
 				this.calendar.id + "-simple-color-popup",
 				this.colorIcon,
 				{
@@ -950,7 +965,7 @@
 			this.simpleColorPopup.setAngle({offset: 10});
 			this.simpleColorPopup.show(true);
 
-			BX.addCustomEvent(this.simpleColorPopup, 'onPopupClose', BX.delegate(function()
+			top.BX.addCustomEvent(this.simpleColorPopup, 'onPopupClose', BX.delegate(function()
 			{
 				this.simpleColorPopup.destroy();
 			}, this));
@@ -1046,16 +1061,16 @@
 				this.checkAccessTableHeight();
 			}, this));
 
-			BX.Access.Init();
+			top.BX.Access.Init();
 
 			this.accessWrapInner = this.accessWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-access-inner-wrap'}}));
 			this.accessTable = this.accessWrapInner.appendChild(BX.create("TABLE", {props: {className: "calendar-section-slider-access-table"}}));
 			this.accessButtonWrap = this.accessWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-list-slider-new-calendar-options-container'}}));
 			this.accessButton = this.accessButtonWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-list-slider-new-calendar-option-add'}, html: BX.message('EC_SEC_SLIDER_ACCESS_ADD')}));
 
-			BX.bind(this.accessButton, 'click', BX.proxy(function()
+			top.BX.bind(this.accessButton, 'click', BX.proxy(function()
 			{
-				BX.Access.ShowForm({
+				top.BX.Access.ShowForm({
 					showSelected: false,
 					callback: BX.proxy(function(selected)
 					{
@@ -1068,7 +1083,7 @@
 								{
 									if (selected[provider].hasOwnProperty(code))
 									{
-										this.calendar.util.setAccessName(code, BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name);
+										this.calendar.util.setAccessName(code, top.BX.Access.GetProviderName(provider) + ' ' + selected[provider][code].name);
 										this.insertAccessRow(this.calendar.util.getAccessName(code), code);
 									}
 								}
@@ -1079,14 +1094,14 @@
 					bind: this.calendar.id + '_calendar_section_' + Math.round(Math.random() * 100000)
 				});
 
-				if (BX.Access.popup && BX.Access.popup.popupContainer)
+				if (top.BX.Access.popup && top.BX.Access.popup.popupContainer)
 				{
-					BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
+					top.BX.Access.popup.popupContainer.style.zIndex = this.zIndex + 10;
 				}
 			}, this));
 
 
-			BX.bind(this.accessWrapInner, 'click', BX.proxy(function(e)
+			top.BX.bind(this.accessWrapInner, 'click', BX.proxy(function(e)
 			{
 				var
 					code,
@@ -1147,10 +1162,11 @@
 						attrs: {'data-bx-calendar-access-selector': code}
 					}),
 					selectNode = valueCell.appendChild(BX.create('SPAN', {
-						props: {className: 'calendar-section-slider-access-value'}
+						props: {className: 'calendar-section-slider-access-container'}
 					})),
 					valueNode = selectNode.appendChild(BX.create('SPAN', {
-						text: this.accessTasks[value] ? this.accessTasks[value].title : ''
+						text: this.accessTasks[value] ? this.accessTasks[value].title : '',
+						props: {className: 'calendar-section-slider-access-value'}
 					})),
 					removeIcon = selectNode.appendChild(BX.create('SPAN', {
 						props: {className: 'calendar-section-slider-access-remove'},
@@ -1223,7 +1239,7 @@
 				}
 			}
 
-			this.accessPopupMenu = BX.PopupMenu.create(
+			this.accessPopupMenu = top.BX.PopupMenu.create(
 				menuId,
 				params.node,
 				menuItems,
@@ -1239,9 +1255,9 @@
 
 			this.accessPopupMenu.show();
 
-			BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
+			top.BX.addCustomEvent(this.accessPopupMenu.popupWindow, 'onPopupClose', function()
 			{
-				BX.PopupMenu.destroy(menuId);
+				top.BX.PopupMenu.destroy(menuId);
 				_this.accessPopupMenu = null;
 			});
 		}
@@ -1438,7 +1454,7 @@
 					{
 						var sections = response.sections.filter(function(section)
 						{
-							return section.OWNER_ID == user.ID;
+							return parseInt(section.OWNER_ID) === parseInt(user.ID);
 						});
 
 						this.sectionsWrap.appendChild(BX.create('DIV', {

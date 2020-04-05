@@ -28,6 +28,15 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$params['SET_TITLE'] = !(isset($params['SET_TITLE']) && $params['SET_TITLE'] == 'N');
 		$params['BACK_URL'] = (isset($_REQUEST['back_url']) && $_REQUEST['back_url'][0] === '/' && $_REQUEST['back_url'][1] !== '/') ? (string)$_REQUEST['back_url'] : null;
 
+		if (!isset($params['MODULE_ID']) && !defined('MODULE_ID') && !empty($params['ID']))
+		{
+			$tpl = \Bitrix\Bizproc\WorkflowTemplateTable::getList([
+				'filter' => ['=ID' => $params['ID']],
+				'select' => ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE']
+			])->fetch();
+			list($params['MODULE_ID'], $params['ENTITY'], $params['DOCUMENT_TYPE']) = array_values($tpl);
+		}
+
 		if (!isset($params['MODULE_ID']) && defined('MODULE_ID'))
 		{
 			$params['MODULE_ID'] = MODULE_ID;
@@ -379,6 +388,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->arResult['PARAMETERS'] = $arWorkflowParameters;
 		$this->arResult['VARIABLES'] = $arWorkflowVariables;
 		$this->arResult['CONSTANTS'] = $arWorkflowConstants;
+		$this->arResult['GLOBAL_CONSTANTS'] = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();

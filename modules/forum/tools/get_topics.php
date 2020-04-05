@@ -4,7 +4,7 @@ define("STOP_STATISTICS", true);
 if (($_GET["admin_section"]=="Y") && (!defined("ADMIN_SECTION")))
 	define("ADMIN_SECTION", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/include.php");
+\Bitrix\Main\Loader::includeModule("forum");
 
 $MAIN_RIGHT = $APPLICATION->GetGroupRight("main");
 if($MAIN_RIGHT<"R") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));

@@ -259,6 +259,61 @@ final class BusinessValue
 		return $result;
 	}
 
+	/**
+	 * @param $consumerKey
+	 * @param null $personTypeId
+	 * @throws SystemException
+	 */
+	public static function delete($consumerKey, $personTypeId = null)
+	{
+		$consumerCodePersonMapping = self::getConsumerCodePersonMapping();
+		if (!isset($consumerCodePersonMapping[$consumerKey]))
+		{
+			return;
+		}
+
+		foreach ($consumerCodePersonMapping[$consumerKey] as $code => $personTypes)
+		{
+			if ($personTypeId === null)
+			{
+				foreach ($personTypes as $id => $mapping)
+				{
+					self::deleteInternal($consumerKey, $code, $id, $mapping);
+				}
+			}
+			else
+			{
+				$mapping = $personTypes[$personTypeId];
+				self::deleteInternal($consumerKey, $code, $personTypeId, $mapping);
+			}
+		}
+	}
+
+	/**
+	 * @param $consumerKey
+	 * @param $code
+	 * @param $personTypeId
+	 * @param $mapping
+	 * @throws SystemException
+	 */
+	private static function deleteInternal($consumerKey, $code, $personTypeId, $mapping)
+	{
+		$consumers = static::getConsumers();
+
+		if ($mapping['PROVIDER_KEY'] === 'INPUT'
+			&& $consumers[$consumerKey]['CODES'][$code]['INPUT']['TYPE'] === 'FILE'
+		)
+		{
+			\CFile::Delete($mapping['PROVIDER_VALUE']);
+		}
+
+		BusinessValueTable::delete([
+			'CONSUMER_KEY' => $consumerKey,
+			'CODE_KEY' => $code,
+			'PERSON_TYPE_ID' => $personTypeId,
+		]);
+	}
+
 	/** @internal do not use! */
 	public static function getConsumerCodePersonMapping()
 	{
@@ -538,19 +593,22 @@ final class BusinessValue
 		}
 		elseif (! $allPersonTypes)
 		{
-			// TODO check what to do with ACTIVE
-			$dbRes = Internals\PersonTypeTable::getList(array(
-				'select'  => array('ID', 'NAME', 'LID', 'ACTIVE', 'DOMAIN' => 'BIZVAL.DOMAIN', 'PT_SITE' => 'PERSON_TYPE_SITE.SITE_ID'),
-				'order'   => array('SORT', 'NAME'),
-				'runtime' => array(
+			$dbRes = Internals\PersonTypeTable::getList([
+				'select'  => [
+					'ID', 'NAME', 'LID', 'ACTIVE', 'ENTITY_REGISTRY_TYPE',
+					'DOMAIN' => 'BIZVAL.DOMAIN',
+					'PT_SITE' => 'PERSON_TYPE_SITE.SITE_ID'
+				],
+				'order'   => ['SORT', 'NAME'],
+				'runtime' => [
 					new \Bitrix\Main\Entity\ReferenceField(
 						'BIZVAL',
 						'Bitrix\Sale\Internals\BusinessValuePersonDomainTable',
-						array('=this.ID' => 'ref.PERSON_TYPE_ID'),
-						array('join_type' => 'LEFT')
+						['=this.ID' => 'ref.PERSON_TYPE_ID'],
+						['join_type' => 'LEFT']
 					),
-				),
-			));
+				],
+			]);
 
 			$result = array();
 			while ($row = $dbRes->fetch())

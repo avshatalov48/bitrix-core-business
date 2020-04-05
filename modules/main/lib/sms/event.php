@@ -77,14 +77,21 @@ class Event
 			return $result;
 		}
 
+		$context = Main\Context::getCurrent();
+
 		if($this->siteId === null)
 		{
-			$this->siteId = Main\Context::getCurrent()->getSite();
+			$this->siteId = $context->getSite();
 			if($this->siteId === null)
 			{
 				$result->addError(new Main\Error("Can't filter templates, the siteId is not set.", self::ERR_SITE));
 				return $result;
 			}
+		}
+
+		if($this->languageId === null)
+		{
+			$this->languageId = $context->getLanguage();
 		}
 
 		$templates = $this->fetchTemplates();
@@ -162,14 +169,18 @@ class Event
 				$filter->where(Query::filter()
 					->logic('or')
 					->where('LANGUAGE_ID', $this->languageId)
+					->where('LANGUAGE_ID', '')
 					->whereNull('LANGUAGE_ID')
 				);
 			}
 		}
 
-		return TemplateTable::getList([
+		$res = TemplateTable::getList([
 			'select' => ['*', 'SITES.SITE_NAME', 'SITES.SERVER_NAME', 'SITES.LID'],
 			'filter' => $filter,
-		])->fetchCollection();
+		]);
+
+		return $res->fetchCollection();
+
 	}
 }

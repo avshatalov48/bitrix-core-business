@@ -294,14 +294,17 @@ class CCalendarReminder
 					$startTs = $startTs - CCalendar::GetTimezoneOffset($nextEvent["TZ_FROM"], $startTs); // UTC timestamp
 				}
 
-				foreach($nextEvent['REMIND'] as $reminder)
+				if (is_array($nextEvent['REMIND']))
 				{
-					$agentTime = $startTs + date("Z", $startTs)  - self::getReminderDelta($reminder);
-					$agentParams['index'] = $i++;
-
-					if ($agentTime >= time() + $minReminderOffset)
+					foreach ($nextEvent['REMIND'] as $reminder)
 					{
-						self::AddAgent(CCalendar::Date($agentTime), $agentParams);
+						$agentTime = $startTs + date("Z", $startTs) - self::getReminderDelta($reminder);
+						$agentParams['index'] = $i++;
+
+						if ($agentTime >= time() + $minReminderOffset)
+						{
+							self::AddAgent(CCalendar::Date($agentTime), $agentParams);
+						}
 					}
 				}
 			}

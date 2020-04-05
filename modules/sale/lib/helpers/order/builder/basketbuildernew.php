@@ -3,6 +3,7 @@ namespace Bitrix\Sale\Helpers\Order\Builder;
 
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Fuser;
+use Bitrix\Sale;
 
 class BasketBuilderNew implements IBasketBuilderDelegate
 {
@@ -11,7 +12,13 @@ class BasketBuilderNew implements IBasketBuilderDelegate
 	public function __construct(BasketBuilder $builder)
 	{
 		$this->builder = $builder;
-		$basket = \Bitrix\Sale\Basket::create($this->builder->getOrder()->getSiteId());
+
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$basket = $basketClass::create($this->builder->getOrder()->getSiteId());
 		$res = $this->builder->getOrder()->setBasket($basket);
 
 		if(!$res->isSuccess())

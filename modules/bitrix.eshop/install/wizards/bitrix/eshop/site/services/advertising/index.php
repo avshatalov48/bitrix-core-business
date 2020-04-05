@@ -102,18 +102,18 @@ if ($contractId == false)
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 200,
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "Y",
+			"FIX_CLICK" => "N",
 			"AD_TYPE" => "template",
 			"STAT_EVENT_1" => "banner",
 			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "banner for " . WIZARD_SITE_ID,
 			"TEMPLATE" => serialize(array(
-				"NAME" => "bootstrap",
+				"NAME" => "bootstrap_v4",
 				"MODE" => "N",
 				"PROPS" => array(
 					0 => array(
-                    	"BANNER_NAME" => GetMessage("DEMO_ADV_1_NAME"),
+						"BANNER_NAME" => GetMessage("DEMO_ADV_1_NAME"),
 						"BACKGROUND" => "stream",
 						"IMG_FIXED" => "N",
 						"LINK_URL" => $arSectionLinks["underwear"],
@@ -121,7 +121,7 @@ if ($contractId == false)
 						"LINK_TARGET" => "_self",
 						"PRESET" => "3",
 						"HEADING_SHOW" => "Y",
-                   		"HEADING" => GetMessage("DEMO_ADV_1_NAME"),
+						"HEADING" => GetMessage("DEMO_ADV_1_NAME"),
 						"HEADING_FONT_SIZE" => 35,
 						"HEADING_FONT_COLOR" => "000000",
 						"HEADING_BG_COLOR" => "FFFFFF",
@@ -142,7 +142,7 @@ if ($contractId == false)
 						"ANIMATION" => "N",
 						"OVERLAY" => "N",
 						"STREAM" => "https://youtu.be/h-Sw7RZc4mQ",
-                    	"STREAM_MUTE" => "Y"
+						"STREAM_MUTE" => "Y"
 					),
 					1 => array(
 						"BANNER_NAME" => GetMessage("DEMO_ADV_2_NAME"),
@@ -233,7 +233,7 @@ if ($contractId == false)
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 200,
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "Y",
+			"FIX_CLICK" => "N",
 			"AD_TYPE" => "template",
 			"STAT_EVENT_1" => "banner",
 			"STAT_EVENT_2" => "click",

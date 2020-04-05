@@ -64,19 +64,27 @@ $errorRequiredFields = array();
 if (isset($request["VK"]))
 {
 	if (!isset($request["VK"]["DESCRIPTION"]) || strlen($request["VK"]["DESCRIPTION"]) <= 0)
+	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_NAME");
+	}
 	
 	if (!isset($request["VK"]["VK_SETTINGS"]["APP_ID"]) || strlen($request["VK"]["VK_SETTINGS"]["APP_ID"]) <= 0)
+	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_APP_ID");
+	}
 	
 	if (!isset($request["VK"]["VK_SETTINGS"]["SECRET"]) || strlen($request["VK"]["VK_SETTINGS"]["SECRET"]) <= 0)
+	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_SECRET");
+	}
 
 //	todo: somtehing wrong...
 	if ($exportId && empty($errorRequiredFields) && isset($vkSettings["OAUTH"]["ACCESS_TOKEN"]) && !empty($vkSettings["OAUTH"]["ACCESS_TOKEN"]))
 	{
 		if (!isset($request["VK"]["VK_SETTINGS"]["GROUP_ID"]) || $request["VK"]["VK_SETTINGS"]["GROUP_ID"] <= 0)
+		{
 			$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_GROUP_ID");
+		}
 		
 		if(!isset($request["VK"]["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"]) || $request["VK"]["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"] <= 0)
 		{
@@ -239,10 +247,14 @@ if (isset($request["VK"]) && is_array($request["VK"]) && ($_POST['save'] || $_PO
 
 //		SAVE and init exportId if we create new profile
 		if ($exportId)
+		{
 			$bSaved = $vk->saveSettings(array('SETTINGS' => $vkSettings, 'EXPORT_ID' => $exportId));
+		}
 		else
+		{
 			$exportId = $vk->saveSettings(array('SETTINGS' => $vkSettings));
-		
+		}
+
 //		change of settings may change sections lists. Drop cache to have true data
 		$sectionsList = new Vk\SectionsList($exportId);
 		$sectionsList->clearCaches();
@@ -256,9 +268,13 @@ if (isset($request["VK"]) && is_array($request["VK"]) && ($_POST['save'] || $_PO
 
 //		REDIRECT to listpage, if save (if apply - stay here)
 		if ($_POST['save'])
+		{
 			LocalRedirect('sale_vk_export_list.php?lang=' . LANGUAGE_ID);
+		}
 		else
+		{
 			LocalRedirect("sale_vk_export_edit.php?ID=" . $exportId . "&lang=" . LANGUAGE_ID);
+		}
 	}    //end if required fields
 }
 
@@ -516,7 +532,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 			<?php if ($exportId): ?>
-				<input type="hidden" name="ID" value="<?= $exportId ?>">
+				<input type="hidden" name="ID" value="<?= htmlspecialcharsbx($exportId) ?>">
 			<? endif; ?>
 		</td>
 	</tr>

@@ -45,14 +45,13 @@ elseif(!IsModuleInstalled("intranet"))
 }
 ?>
 <div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_FIELDS_URL"]?>" class="lists-list-back">
+	<a href="<?=$arResult["LIST_FIELDS_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 		<?=GetMessage("CT_BLFE_TOOLBAR_RETURN_LIST_ELEMENT")?>
 	</a>
 	<?if($listAction):?>
-		<span id="lists-title-action" class="webform-small-button webform-small-button-transparent bx-filter-button">
-		<span class="webform-small-button-text"><?=GetMessage("CT_BLFE_TOOLBAR_ACTION")?></span>
-		<span id="lists-title-action-icon" class="webform-small-button-icon"></span>
-	</span>
+		<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
+			<?=GetMessage("CT_BLFE_TOOLBAR_ACTION")?>
+		</span>
 	<?endif;?>
 </div>
 <?

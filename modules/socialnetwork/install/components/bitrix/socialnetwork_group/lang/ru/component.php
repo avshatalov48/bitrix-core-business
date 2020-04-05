@@ -33,4 +33,6 @@ $MESS["SONET_GALLERIES_IS_NOT_ACTIVE"] = "Ваши фотогалереи заб
 $MESS["SONET_GALLERY_IS_NOT_ACTIVE"] = "Ваша фотогалерея заблокирована. Обратитесь к администратору.";
 $MESS["SONET_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
 $MESS["SONET_CONTENT_SEARCH_CHAIN"] = "Поиск";
+$MESS["PHOTO_STEPPER_PROGRESS_TITLE"] = "Копирование фотографий";
+$MESS["PHOTO_STEPPER_PROGRESS_ERROR"] = "Не удалось скопировать фотографии с идентификаторами: ";
 ?>

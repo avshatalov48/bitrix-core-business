@@ -162,6 +162,13 @@ class ShipmentTable extends Main\Entity\DataManager
 				'PRICE_DELIVERY'
 			),
 
+			new Main\Entity\FloatField(
+				'WEIGHT',
+				[
+					'default_value' => 0
+				]
+			),
+
 			new Main\Entity\BooleanField(
 				'CUSTOM_PRICE_DELIVERY',
 				array(

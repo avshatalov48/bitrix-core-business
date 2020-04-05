@@ -14,6 +14,8 @@ BX.Security.UserRecoveryCodes = (function getUserOtp(BX)
 		};
 
 		options = options || {};
+		this.signedParameters = options.signedParameters;
+		this.componentName = options.componentName;
 		this._options = mergeObjects(defaults, options);
 		this._container = BX(this._options.ui.containerId);
 		this.codesTemplate = null;
@@ -45,14 +47,15 @@ BX.Security.UserRecoveryCodes = (function getUserOtp(BX)
 		if (event)
 			event.preventDefault();
 
-		this.sendRequest(
-			'regenerate',
-			null,
-			(function onGetParams(response)
-			{
-				this.drawRecoveryCodes(response.codes);
-			}).bind(this)
-		);
+		BX.ajax.runComponentAction(this.componentName, "regenerateRecoveryCodes", {
+			signedParameters: this.signedParameters,
+			mode: 'ajax',
+			data: {}
+		}).then(function (result) {
+			this.drawRecoveryCodes(result.data);
+		}.bind(this), function (result) {
+			this.showError(result["errors"][0].message);
+		}.bind(this));
 	};
 
 	Otp.prototype.drawRecoveryCodes = function(codes)
@@ -106,60 +109,6 @@ BX.Security.UserRecoveryCodes = (function getUserOtp(BX)
 			},
 			this
 		);
-	};
-
-	Otp.prototype.sendRequest = function(action, data, onSuccess, onFailure)
-	{
-		data = data || {};
-		data.action = action || 'check';
-		data.sessid = BX.bitrix_sessid();
-		data = BX.ajax.prepareData(data);
-
-		return BX.ajax({
-			'method': 'POST',
-			'dataType': 'json',
-			'url': this._options.actionUrl,
-			'data':  data,
-			'onsuccess': BX.proxy(function proxySuccess(response)
-			{
-				return this.onRequestSuccess(onSuccess, response);
-			}, this),
-			'onfailure': BX.proxy(function proxySuccess(response)
-			{
-				return this.onRequestFailed(onFailure, response);
-			}, this)
-		});
-	};
-
-	Otp.prototype.onRequestSuccess = function(callback, response)
-	{
-		if (!response['status'])
-		{
-			this.onRequestFailed(null, response);
-		}
-		else if (response['status'] !== 'ok')
-		{
-			this.onRequestFailed(null, response);
-		}
-		else
-		{
-			callback(response);
-		}
-	};
-
-	Otp.prototype.onRequestFailed = function(callback, response)
-	{
-		if (!callback)
-		{
-			if (response['error'])
-				this.showError(response['error']);
-			else
-				this.showError(BX.message('SECURITY_OTP_UNKNOWN_ERROR'));
-		}
-		else
-		{
-			callback(response);
-		}
 	};
 
 	Otp.prototype.showError = function(errorMessage)

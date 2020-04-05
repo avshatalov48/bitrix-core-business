@@ -29,7 +29,7 @@ final class CIBlockXmlImport
 
 	const SESSION_STORAGE_ID = 'BX_CML2_IMPORT';
 
-	/** @var \CIBlockCMLImport importer */
+	/** @var CIBlockCMLImport importer */
 	private $xmlImport = null;
 
 	private $fileHandler = null;
@@ -292,7 +292,7 @@ final class CIBlockXmlImport
 	 */
 	private function prepareParameters(array &$parameters)
 	{
-		$parameters = array_filter($parameters, '\CIBlockXmlImport::clearNull');
+		$parameters = array_filter($parameters, [__CLASS__, 'clearNull']);
 		$parameters = array_merge($this->getDefaultParameters(), $parameters);
 
 		$parameters['FILE'] = trim($parameters['FILE']);
@@ -384,7 +384,7 @@ final class CIBlockXmlImport
 	 */
 	private function prepareConfig(array &$config)
 	{
-		$config = array_filter($config, '\CIBlockXmlImport::clearNull');
+		$config = array_filter($config, [__CLASS__, 'clearNull']);
 		$config = array_merge($this->getDefaultConfig(), $config);
 	}
 
@@ -396,6 +396,10 @@ final class CIBlockXmlImport
 		return $this->config;
 	}
 
+	/**
+	 * @param string $field
+	 * @return mixed|null
+	 */
 	private function getConfigFieldValue($field)
 	{
 		$field = (string)$field;
@@ -429,7 +433,8 @@ final class CIBlockXmlImport
 			'SKIP_ROOT_SECTION' => false, // ?
 			'DISABLE_CHANGE_PRICE_NAME' => false,
 			'TABLE_NAME' => 'b_xml_tree',
-			'READ_BLOCKSIZE' => 1024
+			'READ_BLOCKSIZE' => 1024,
+			'IBLOCK_CACHE_MODE' => \CIBlockCMLImport::IBLOCK_CACHE_FINAL
 		];
 	}
 
@@ -625,7 +630,10 @@ final class CIBlockXmlImport
 	 */
 	private function importSectionsAction()
 	{
+		$this->xmlImport->freezeIblockCache();
 		$result = $this->xmlImport->ImportSections();
+		$this->xmlImport->unFreezeIblockCache();
+		$this->xmlImport->clearIblockCacheOnHit();
 		if ($result === true)
 		{
 			$this->nextStep();
@@ -645,8 +653,11 @@ final class CIBlockXmlImport
 	 */
 	private function processMissingSectionsAction()
 	{
+		$this->xmlImport->freezeIblockCache();
 		$this->xmlImport->DeactivateSections($this->getParameter('MISSING_SECTION_ACTION'));
 		$this->xmlImport->SectionsResort();
+		$this->xmlImport->unFreezeIblockCache();
+		$this->xmlImport->clearIblockCacheOnHit();
 		$this->nextStep();
 		$this->setMessage(Loc::getMessage('IBLOCK_XML_IMPORT_MESS_PROCESS_MISSING_IBLOCK_SECTIONS_COMPLETE'));
 	}
@@ -656,7 +667,10 @@ final class CIBlockXmlImport
 	 */
 	private function resortSectionsAction()
 	{
+		$this->xmlImport->freezeIblockCache();
 		$this->xmlImport->SectionsResort();
+		$this->xmlImport->unFreezeIblockCache();
+		$this->xmlImport->clearIblockCacheOnHit();
 		$this->nextStep();
 		$this->setMessage(Loc::getMessage('IBLOCK_XML_IMPORT_MESS_IBLOCK_SECTIONS_RESORT_COMPLETE'));
 	}
@@ -666,6 +680,7 @@ final class CIBlockXmlImport
 	 */
 	private function importElementsAction()
 	{
+		$this->xmlImport->freezeIblockCache();
 		$result = $this->xmlImport->GetTotalCountElementsForImport();
 		if (!$result)
 		{
@@ -684,6 +699,8 @@ final class CIBlockXmlImport
 			$this->getParameter('INTERVAL')
 		);
 		$result = $this->xmlImport->updateCounters($result);
+		$this->xmlImport->unFreezeIblockCache();
+		$this->xmlImport->clearIblockCacheOnHit();
 		if ($result == 0)
 		{
 			$this->nextStep();
@@ -710,12 +727,15 @@ final class CIBlockXmlImport
 	 */
 	private function processMissingElementsAction()
 	{
+		$this->xmlImport->freezeIblockCache();
 		$result = $this->xmlImport->DeactivateElement(
 			$this->getParameter('MISSING_ELEMENT_ACTION'),
 			$this->startTime,
 			$this->getParameter('INTERVAL')
 		);
 		$result = $this->xmlImport->updateCounters($result);
+		$this->xmlImport->unFreezeIblockCache();
+		$this->xmlImport->clearIblockCacheOnHit();
 		if ($result == 0)
 		{
 			$this->nextStep();
@@ -752,6 +772,7 @@ final class CIBlockXmlImport
 	 */
 	private function finalAction()
 	{
+		$this->xmlImport->clearIblockCacheAfterFinal();
 		$this->iblockId = $this->stepParameters['IBLOCK_ID'];
 		$this->nextStep();
 		$this->setMessage(Loc::getMessage('IBLOCK_XML_IMPORT_MESS_FINAL_SUCCESS'));
@@ -808,14 +829,12 @@ final class CIBlockXmlImport
 		return round($this->xmlImport->GetFilePosition()*100/$this->fileParameters['SIZE'], 2);
 	}
 
-
-
 	/**
 	 * @return void
 	 */
 	private function createXmlImporter()
 	{
-		$this->xmlImport = new \CIBlockCMLImport();
+		$this->xmlImport = new CIBlockCMLImport();
 	}
 
 	/**

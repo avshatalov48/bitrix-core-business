@@ -1,6 +1,10 @@
-<?if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();?>
+<?if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
-<div id="wiki-post">
+use Bitrix\Main\UI;
+
+UI\Extension::load("ui.tooltip");
+
+?><div id="wiki-post">
 <?if(strlen($arResult['MESSAGE'])>0):
 	?>
 	<div class="wiki-notes">
@@ -54,7 +58,7 @@ else:
 			$arResult['HISTORY'][$sKey]['ANCHOR_ID'] = RandString(8);
 
 			$_arData = array(
-				'LOGIN' => !empty($arHistory['USER_LINK']) ? '<a href="'.$arHistory['USER_LINK'].'" id="anchor_'.$arResult['HISTORY'][$sKey]['ANCHOR_ID'].'">'.$arHistory['USER_LOGIN'].'</a>' : $arHistory['USER_LOGIN'],
+				'LOGIN' => !empty($arHistory['USER_LINK']) ? '<a href="'.$arHistory['USER_LINK'].'" id="anchor_'.$arResult['HISTORY'][$sKey]['ANCHOR_ID'].'" bx-tooltip-user-id="'.$arHistory['USER_ID'].'">'.$arHistory['USER_LOGIN'].'</a>' : $arHistory['USER_LOGIN'],
 				'DATE' => $arHistory['MODIFIED'],
 				'MODIFY_COMMENT' => $arHistory['MODIFY_COMMENT']
 			);
@@ -129,21 +133,6 @@ else:
 			),
 			$component
 		);
-
-		if ($arResult['SOCNET']):
-			?>
-			<script type="text/javascript">
-			<?
-			foreach($arResult["HISTORY"] as $arHistory)
-			{
-				?>
-				BX.tooltip(<?=$arHistory["USER_ID"]?>, "anchor_<?=$arHistory['ANCHOR_ID']?>", "<?=CUtil::JSEscape($arResult['AJAX_PAGE'])?>");
-				<?
-			}
-			?>
-			</script>
-			<?
-		endif;
 		?>
 		<script type="text/javascript">
 

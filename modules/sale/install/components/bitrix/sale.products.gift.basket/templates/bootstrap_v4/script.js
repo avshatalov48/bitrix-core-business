@@ -25,6 +25,7 @@
 		}
 
 		BX.addCustomEvent('OnBasketChange', BX.proxy(this.reloadGifts, this));
+		BX.addCustomEvent('OnCouponApply', BX.proxy(this.reloadGifts, this));
 	};
 
 	window.JCSaleProductsGiftBasketComponent.prototype =

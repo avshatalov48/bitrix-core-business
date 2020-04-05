@@ -198,20 +198,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 					}
 				}
 
-				$url = $arResult['APP']['ID'] > 0
-					? $APPLICATION->GetCurPageParam("success=Y", array('success'))
-					: (
-						$arFields['ONLY_API'] === "Y"
-							? str_replace("#id#", $appId, $arParams['EDIT_URL_TPL'])
-							: $arParams['LIST_URL']
-					);
 
 				if(defined("BX_COMP_MANAGED_CACHE"))
 				{
 					global $CACHE_MANAGER;
 					$CACHE_MANAGER->ClearByTag('sonet_group');
 				}
-
+				if ($arResult['APP']['ID'] > 0)
+					$url = $APPLICATION->GetCurPageParam("success=Y", array('success'));
+				else if (\CRestUtil::isSlider())
+					$url = str_replace("#id#", $appId, $arParams['EDIT_URL_TPL'])."?IFRAME=Y&success=added";
+				else if ($arFields["ONLY_API"] === "Y")
+					$url = str_replace("#id#", $appId, $arParams['EDIT_URL_TPL']);
+				else
+					$url = $arParams['LIST_URL'];
 				LocalRedirect($url);
 			}
 			else

@@ -1,5 +1,4 @@
 .ui-page-slider-wrapper {
-	background: #eef2f4 !important;
 	color: #000 !important;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 	font-size: 14px !important;
@@ -11,6 +10,9 @@
 	padding: 0 !important;
 	min-width: auto !important;
 	min-height: auto !important;
+}
+.ui-page-slider-wrapper-default-theme {
+	background: #eef2f4 !important;
 }
 
 .ui-page-slider-padding {
@@ -182,4 +184,16 @@ div.pagetitle-container.pagetitle-align-right-container {
 	position: relative;
 	float: left;
 	padding: 0;
+}
+
+.ui-page-slider-wrapper.no-all-paddings .ui-page-slider-workarea-content-padding {
+	padding: 0;
+}
+
+.ui-page-slider-wrapper .feed-new-message-informer-place {
+	background-color: #eef2f4;
+}
+
+.ui-page-slider-wrapper .feed-post-block {
+	border-bottom: 15px solid #eef2f4;
 }

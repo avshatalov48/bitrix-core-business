@@ -44,12 +44,16 @@ class MainUserSelectorComponent extends CBitrixComponent
 			str_replace(['[', ']'], ['_', ''], $this->arParams['INPUT_NAME']);
 
 		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : [];
+
+		$this->arParams['LIST'] = array_filter($this->arParams['LIST'], function($value) { return (strlen($value) > 0); });
+
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;
 		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
 		$this->arParams['BUTTON_SELECT_CAPTION_MORE'] = isset($this->arParams['BUTTON_SELECT_CAPTION_MORE']) ? $this->arParams['BUTTON_SELECT_CAPTION_MORE'] : $this->arParams['BUTTON_SELECT_CAPTION'];
 		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
 		$this->arParams['SELECTOR_OPTIONS'] = is_array($this->arParams['SELECTOR_OPTIONS']) ? $this->arParams['SELECTOR_OPTIONS'] : [];
 		$this->arParams['FIRE_CLICK_EVENT'] = isset($this->arParams['FIRE_CLICK_EVENT']) && $this->arParams['FIRE_CLICK_EVENT'] == 'Y' ? 'Y' : 'N';
+		$this->arParams['LOCK'] = isset($this->arParams['LOCK']) ? (bool) $this->arParams['LOCK'] : false;
 
 		if (isset($this->arParams['SHOW_BUTTON_SELECT']))
 		{
@@ -105,7 +109,13 @@ class MainUserSelectorComponent extends CBitrixComponent
 		}
 */
 		$this->arResult['ITEMS_SELECTED'] = $this->arParams['LIST'];
-		if (!$this->arParams['USE_SYMBOLIC_ID'])
+		if (
+			!$this->arParams['USE_SYMBOLIC_ID']
+			&& (
+				!isset($this->arParams['CONVERT_TO_SYMBOLIC_ID'])
+				|| $this->arParams['CONVERT_TO_SYMBOLIC_ID'] != 'N'
+			)
+		)
 		{
 			$res = array();
 			foreach($this->arResult['ITEMS_SELECTED'] as $userId)
@@ -114,7 +124,12 @@ class MainUserSelectorComponent extends CBitrixComponent
 			}
 			$this->arResult['ITEMS_SELECTED'] = $res;
 		}
-
+		$this->arResult['ITEMS_UNDELETABLE'] = (
+			isset($this->arParams['UNDELETABLE'])
+			&& is_array($this->arParams['UNDELETABLE'])
+				? $this->arParams['UNDELETABLE']
+				: []
+		);
 		$this->arResult['IS_INPUT_MULTIPLE'] = substr($this->arParams['INPUT_NAME'], -2) == '[]';
 		$this->arResult['FIRE_CLICK_EVENT'] = (
 			$this->arParams['FIRE_CLICK_EVENT'] == 'Y'

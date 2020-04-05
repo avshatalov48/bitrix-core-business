@@ -16,6 +16,11 @@ body {
   text-rendering: optimizelegibility;
 }
 
+/* Typography */
+body {
+  line-height: 1.8;
+}
+
 /* Main navigation */
 .navbar-nav .nav-item .nav-link:hover,
 .navbar-nav .nav-item.active .nav-link {

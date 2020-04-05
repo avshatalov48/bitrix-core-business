@@ -16,7 +16,7 @@
 .landing-ui-field-dropdown-inline .landing-ui-field-header {
 	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 	color: #535C69;
-	font-size: 12px;
+	font-size: 13px;
 	display: inline-block;
 	width: auto;
 	height: auto;
@@ -41,6 +41,7 @@
 	border-bottom: 1px rgba(128, 134, 142, .5) dashed;
 	cursor: pointer;
 	text-transform: lowercase;
+	background: none;
 }
 
 .landing-ui-field-dropdown-inline.landing-ui-disable,

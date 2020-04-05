@@ -1,6 +1,8 @@
 <?
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
+use \Bitrix\Main\Loader;
+
 /**
  * Class UIPageSliderWrapperComponent
  */
@@ -25,6 +27,8 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 	 */
 	public function executeComponent()
 	{
+		global $USER;
+
 		if (!isset($this->arParams['POPUP_COMPONENT_PARAMS']) || !is_array($this->arParams['POPUP_COMPONENT_PARAMS']))
 		{
 			$this->arParams['POPUP_COMPONENT_PARAMS'] = [];
@@ -38,6 +42,24 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		if (empty($this->arParams['EDITABLE_TITLE_SELECTOR']))
 		{
 			$this->arParams['EDITABLE_TITLE_SELECTOR'] = null;
+		}
+		if (!isset($this->arParams['POPUP_COMPONENT_PARENT']))
+		{
+			$this->arParams['POPUP_COMPONENT_PARENT'] = false;
+		}
+		if (!isset($this->arParams['POPUP_COMPONENT_USE_BITRIX24_THEME']))
+		{
+			$this->arParams['POPUP_COMPONENT_USE_BITRIX24_THEME'] = "N";
+		}
+		else
+		{
+			if (
+				!isset($this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"])
+				|| intval($this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"]) < 0
+			)
+			{
+				$this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"] = $USER->GetID();
+			}
 		}
 
 		$notification = [
@@ -84,6 +106,21 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 			$this->arParams['CLOSE_AFTER_SAVE'] = false;
 			$this->arParams['RELOAD_GRID_AFTER_SAVE'] = false;
 			$this->arParams['RELOAD_PAGE_AFTER_SAVE'] = false;
+		}
+
+		$this->arResult["SKIP_NOTIFICATION"] = $this->request->get("notifyAfterSave") === "N";
+
+		if (
+			Loader::includeModule("intranet")
+			&& $this->arParams["POPUP_COMPONENT_USE_BITRIX24_THEME"] === "Y"
+			&& SITE_TEMPLATE_ID === "bitrix24"
+		)
+		{
+			$this->arResult["SHOW_BITRIX24_THEME"] = "Y";
+		}
+		else
+		{
+			$this->arResult["SHOW_BITRIX24_THEME"] = "N";
 		}
 
 		if ($this->isPageSliderContext() && !self::$isWrapperCalled)

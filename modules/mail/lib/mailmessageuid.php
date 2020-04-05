@@ -114,6 +114,27 @@ class MailMessageUidTable extends Entity\DataManager
 
 		$result = $connection->query(sprintf('DELETE %s', $query));
 
+		if ($messagesIds = array_column($eventData, 'MESSAGE_ID'))
+		{
+			$remains = array_column(
+				static::getList(array(
+					'select' => array('MESSAGE_ID'),
+					'filter' => array(
+						'@MESSAGE_ID' => $messagesIds,
+					),
+				))->fetchAll(),
+				'MESSAGE_ID'
+			);
+
+			$eventData = array_filter(
+				$eventData,
+				function ($item) use (&$remains)
+				{
+					return !in_array($item['MESSAGE_ID'], $remains);
+				}
+			);
+		}
+
 		$eventManager = EventManager::getInstance();
 		$eventKey = $eventManager->addEventHandler(
 			'mail',

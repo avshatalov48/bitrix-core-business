@@ -23,6 +23,8 @@ abstract class Asset
 	protected $type;
 	/** @var string|null $path Path. */
 	protected $path;
+	/** @var string|null $uri Uri. */
+	protected $uri;
 	/** @var string|array|null $content Content. */
 	protected $content;
 
@@ -149,6 +151,11 @@ abstract class Asset
 	 */
 	public function getUri()
 	{
+		if ($this->uri)
+		{
+			return $this->uri;
+		}
+
 		return $this->path ?
 			WebPacker\Builder::getDefaultSiteUri()
 				. $this->path
@@ -156,6 +163,18 @@ abstract class Asset
 				. '.' . filesize(self::getAbsolutePath($this->path))
 			:
 			null;
+	}
+
+	/**
+	 * Set uri.
+	 *
+	 * @param string|null $uri Uri.
+	 * @return $this
+	 */
+	public function setUri($uri)
+	{
+		$this->uri = $uri;
+		return $this;
 	}
 
 	/**

@@ -61,7 +61,7 @@ class sender extends CModule
 
 			if (strtolower($DB->type) == 'mysql')
 			{
-				$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/".$DBType."/install_ft.sql");
+				$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/".$DBType."/install_ft.sql");
 				if ($errors === false)
 				{
 					$entity = \Bitrix\Sender\Internals\Model\LetterTable::getEntity();

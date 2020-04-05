@@ -23,7 +23,7 @@ $thumb = <<<HTML
 			#preview#
 		</span></span>
 	</span>
-	<span class="mobile-grid-field-file-icon icon icon-#ext#"></span>
+	<span class="mobile-grid-field-file-icon icon icon-#extension#"></span>
 	<span class="mobile-grid-field-file-name">#name#</span>
 	<span class="mobile-grid-field-file-size">#size#</span>
 	<span class="mobile-grid-field-file-error-text">$m</span>
@@ -36,20 +36,23 @@ $uploadedFile = <<<HTML
 		<del></del>
 		<span class="mobile-grid-field-file-preview">
 			<span class="files-preview-border"><span class="files-preview-alignment">
-				<img class="files-preview" src="#preview_url#" />
+				<img class="files-preview" id="taskFileId-#id#" data-src="#preview_url#" />
 			</span></span>
 		</span>
-		<span class="mobile-grid-field-file-icon icon icon-#ext#"></span>
+		<span class="mobile-grid-field-file-icon icon icon-#extension#"></span>
 		<span class="mobile-grid-field-file-name">#name#</span>
 		<span class="mobile-grid-field-file-size">#size#</span>
-		<input type="hidden" name="#control_name#" value="#id#" />
+		<input type="hidden" name="#control_name#" value="#id#" />  
 	</div>
 </div>
 HTML;
 $thumb = preg_replace("/[\n\t]+/", "", $thumb);
 $uploadedFile =  preg_replace("/[\n\t]+/", "", $uploadedFile);
 ?><input type="hidden" name="<?=htmlspecialcharsbx($arResult['controlName'])?>" value="" /><?
-?><div id="diskuf-placeholder-<?=$arResult['UID']?>"><?
+?>
+<div id="diskuf-placeholder-<?= $arResult['UID'] ?>">
+<?
+$lazyLoadFileIDs = [];
 foreach ($arResult['FILES'] as $file)
 {
 	if (array_key_exists("IMAGE", $file))
@@ -65,27 +68,41 @@ foreach ($arResult['FILES'] as $file)
 		);
 		$file["width"] = $arDestinationSize["width"];
 		$file["height"] = $arDestinationSize["height"];
+		$lazyLoadFileIDs[] = "taskFileId-".$file["ID"];
 	}
 	$f = $uploadedFile;
 	$pat = array("#uid#", "#control_name#", "#class#");
+
 	$rep = array($arResult['UID'], $arResult['controlName'], (array_key_exists("IMAGE", $file) ? "image" : "file"));
-	foreach ($file as $k => $v)
+	foreach ($file as $fieldName => $fieldValue)
 	{
-		if($k == 'EXTENSION')
-			$k = 'ext';
-		$pat[] = "#".strtolower($k)."#"; $rep[] = $v;
+		$pat[] = "#".strtolower($fieldName)."#";
+		$rep[] = $fieldValue;
+
 	}
-	?><?=str_ireplace($pat, $rep, $f);
+
+	echo str_ireplace($pat, $rep, $f);
 }
 ?>
 	</div>
 	<a class="mobile-grid-button file" href="#" id="diskuf-eventnode-<?=$arResult['UID']?>"><?=GetMessage("MPF_ADD")?></a>
 <script type="text/javascript">
-BX.ready(function(){
-	BX.Disk.UFMobile.add({
-		UID : '<?=$arResult['UID']?>',
-		controlName : '<?= CUtil::JSEscape($arResult['controlName'])?>'
+	BX.ready(function()
+	{
+		var fileIDs = <?=json_encode($lazyLoadFileIDs)?>;
+		BX.LazyLoad.registerImages(fileIDs);
+		window.addEventListener("scroll", BX.throttle(function ()
+		{
+			BX.LazyLoad.showImages(true);
+		}, 80));
+		BX.LazyLoad.showImages(true);
+
+		BX.Disk.UFMobile.add({
+			UID: '<?=$arResult['UID']?>',
+			controlName: '<?= CUtil::JSEscape($arResult['controlName'])?>'
 	});
+
+
 });
 BX.message({
 	MPF_PHOTO_DISK : '<?=GetMessageJS("MPF_PHOTO_DISK")?>',

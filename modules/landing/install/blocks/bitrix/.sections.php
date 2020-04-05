@@ -14,6 +14,10 @@ Loc::loadMessages(
 
 return array(
 	'last' => Loc::getMessage('LD_BLOCK_SECTION_LAST'),
+	'recommended' =>[
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_RECOMMENDED'),
+		'type' => ['knowledge']
+	],
 	'cover' => Loc::getMessage('LD_BLOCK_SECTION_COVER'),
 	
 	'text' => Loc::getMessage('LD_BLOCK_SECTION_TEXT_NEW'),
@@ -25,24 +29,44 @@ return array(
 	'columns' => Loc::getMessage('LD_BLOCK_SECTION_COLUMNS'),
 	
 	'tiles' => Loc::getMessage('LD_BLOCK_SECTION_TILES_NEW2'),
-	'countdowns' => Loc::getMessage('LD_BLOCK_SECTION_COUNTDOWNS'),
+	'countdowns' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_COUNTDOWNS'),
+		'type' => ['page', 'store', 'smn']
+	],
 	
 	'separator' => Loc::getMessage('LD_BLOCK_SECTION_SEPARATOR'),
 	
 	'menu' => Loc::getMessage('LD_BLOCK_SECTION_MENU_NEW'),
+	'sidebar' => Loc::getMessage('LD_BLOCK_SECTION_SIDEBAR'),
 	'footer' => Loc::getMessage('LD_BLOCK_SECTION_FOOTER'),
 	
-	'forms' => Loc::getMessage('LD_BLOCK_SECTION_FORMS'),
+	'forms' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_FORMS'),
+		'type' => ['page', 'store', 'smn']
+	],
+	'news' => Loc::getMessage('LD_BLOCK_SECTION_NEWS'),
 	'schedule' => Loc::getMessage('LD_BLOCK_SECTION_SCHEDULE'),
 	
 	'store' => Loc::getMessage('LD_BLOCK_SECTION_STORE_NEW'),
 	
 	'team' => Loc::getMessage('LD_BLOCK_SECTION_TEAM'),
-	'feedback' => Loc::getMessage('LD_BLOCK_SECTION_FEEDBACK'),
+	'feedback' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_FEEDBACK'),
+		'type' => ['page', 'store', 'smn']
+	],
 	'steps' => Loc::getMessage('LD_BLOCK_SECTION_STEPS'),
-	'tariffs' => Loc::getMessage('LD_BLOCK_SECTION_TARIFFS'),
-	'partners' => Loc::getMessage('LD_BLOCK_SECTION_PARTNERS'),
-	'about' => Loc::getMessage('LD_BLOCK_SECTION_ABOUT'),
+	'tariffs' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_TARIFFS'),
+		'type' => ['page', 'store', 'smn']
+	],
+	'partners' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_PARTNERS'),
+		'type' => ['page', 'store', 'smn']
+	],
+	'about' => [
+		'name' => Loc::getMessage('LD_BLOCK_SECTION_ABOUT'),
+		'type' => ['page', 'store', 'smn']
+	],
 	'contacts' => Loc::getMessage('LD_BLOCK_SECTION_CONTACTS'),
 	'social' => Loc::getMessage('LD_BLOCK_SECTION_SOCIAL'),
 	

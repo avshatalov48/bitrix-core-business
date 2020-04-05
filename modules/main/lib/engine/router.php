@@ -36,10 +36,10 @@ final class Router
 	{
 		$this->request = $request;
 
-		$this->component = $this->request->get('c') ?: null;
-		$this->mode = $this->request->get('mode') ?: null;
+		$this->component = $this->request->getQuery('c') ?: null;
+		$this->mode = $this->request->getQuery('mode') ?: null;
 
-		$this->action = $this->request->get('action');
+		$this->action = $this->request->getQuery('action');
 		if ($this->action && is_string($this->action) && !$this->component)
 		{
 			list($this->vendor, $this->action) = $this->resolveVendor($this->action);
@@ -153,12 +153,13 @@ final class Router
 
 	private function getComponentControllerAndAction()
 	{
+		$componentAsString = var_export($this->component, true);
 		if ($this->mode === self::COMPONENT_MODE_CLASS)
 		{
 			$component = $this->buildComponent($this->component, $this->request->getPost('signedParameters'));
 			if (!$component)
 			{
-				throw new SystemException("Could not build component instance {$this->component}");
+				throw new SystemException("Could not build component instance {$componentAsString}");
 			}
 
 			return array(new ComponentController($component), $this->action);
@@ -178,7 +179,7 @@ final class Router
 		else
 		{
 			$modeAsString = var_export($this->mode, true);
-			throw new SystemException("Unknown ajax mode ({$modeAsString}) to work {$this->component}");
+			throw new SystemException("Unknown ajax mode ({$modeAsString}) to work {$componentAsString}");
 		}
 	}
 
@@ -204,8 +205,12 @@ final class Router
 		}
 
 		$componentPath = getLocalPath("components" . $path2Comp);
-		$ajaxClass = $this->getAjaxClassForPath($componentPath);
+		if ($componentPath === false)
+		{
+			throw new SystemException("Could not find component by name {$name}");
+		}
 
+		$ajaxClass = $this->getAjaxClassForPath($componentPath);
 		if (!$ajaxClass)
 		{
 			throw new SystemException("Could not find ajax class {$componentPath}");

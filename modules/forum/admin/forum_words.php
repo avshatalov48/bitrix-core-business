@@ -3,7 +3,7 @@
 	Profanity dictionary.
 ********************************************************************/
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/include.php");
+	\Bitrix\Main\Loader::includeModule("forum");
 	$forumModulePermissions = $APPLICATION->GetGroupRight("forum");
 	if ($forumModulePermissions == "D")
 		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -152,7 +152,7 @@
 	);
 	$db_res = CFilterDictionary::GetList(array(), array("TYPE"=>"T"));
 	$option = "";
-	$active = COption::GetOptionString("forum", "FILTER_DICT_T", '', SITE);
+	$active = COption::GetOptionString("forum", "FILTER_DICT_T", '', SITE_ID);
 	while ($res = $db_res->GetNext())
 		$option .= "<option value='".$res["ID"].($res["ID"] == $active ? " selected " : "")."'>".$res["TITLE"]."</option>";
 	$lAdmin->AddGroupActionTable(

@@ -4,6 +4,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
+\Bitrix\Main\UI\Extension::load("sender.error_handler");
+
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */

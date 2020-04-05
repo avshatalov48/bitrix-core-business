@@ -17,7 +17,7 @@ $fromValue = \CBPHelper::UsersArrayToString($fromValue, $dialog->getWorkflowTemp
 $runtimeData = $dialog->getRuntimeData();
 $mailboxes = $runtimeData['mailboxes'];
 
-if ($from && $mailboxes):?>
+if ($from):?>
 	<div style="display:none;">
 		<?
 		$APPLICATION->IncludeComponent('bitrix:main.mail.confirm', '');
@@ -140,7 +140,7 @@ else
 $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config));
 ?>
 	<div class="bizproc-automation-popup-settings" data-role="file-selector" data-config="<?=$configAttributeValue?>"></div>
-<?if ($from && $mailboxes):?>
+<?if ($from):?>
 	<script>
 
 		BX.ready(function ()
@@ -186,7 +186,12 @@ $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config
 
 				if (window.BXMainMailConfirm)
 				{
-					menuItems.push({delimiter: true}, {
+					if (menuItems.length > 0)
+					{
+						menuItems.push({delimiter: true});
+					}
+
+					menuItems.push({
 						text: '<?=GetMessageJS('BPMA_RPD_FROM_ADD')?>',
 						onclick: function(e, item)
 						{

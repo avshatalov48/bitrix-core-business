@@ -5,7 +5,22 @@ class Common
 {
 	public static function getPublicDomain()
 	{
-		return (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME'].(in_array($_SERVER['SERVER_PORT'], Array(80, 443))?'':':'.$_SERVER['SERVER_PORT'])));
+		$schema = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps()? "https" : "http";
+
+		if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+		{
+			$domain = SITE_SERVER_NAME;
+		}
+		else
+		{
+			$domain = \Bitrix\Main\Config\Option::get("main", "server_name", '');
+			if (!$domain)
+			{
+				$domain = $_SERVER['SERVER_NAME'].(in_array($_SERVER['SERVER_PORT'], Array(80, 443))?'':':'.$_SERVER['SERVER_PORT']);
+			}
+		}
+
+		return $schema."://".$domain;
 	}
 
 	public static function objectEncode($params)

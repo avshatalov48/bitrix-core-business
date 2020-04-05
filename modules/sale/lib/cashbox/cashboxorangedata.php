@@ -29,6 +29,11 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 	private $pathToSslCertificate = '';
 	private $pathToSslCertificateKey = '';
 
+	const CODE_VAT_0 = 5;
+	const CODE_VAT_10 = 2;
+	const CODE_VAT_20 = 1;
+	const CODE_CALC_VAT_10 = 3;
+	const CODE_CALC_VAT_20 = 4;
 	/**
 	 * @return string
 	 */
@@ -109,14 +114,21 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
 			}
 
-			$result['content']['positions'][] = array(
+			$position = array(
 				'text' => $item['name'],
 				'quantity' => $item['quantity'],
 				'price' => $item['price'],
-				'tax' => $vat,
+				'tax' => $this->mapVatValue($check::getType(), $vat),
 				'paymentMethodType' => $checkType[$check::getType()],
 				'paymentSubjectType' => $paymentObjectMap[$item['payment_object']]
 			);
+
+			if (isset($item['nomenclature_code']))
+			{
+				$position['nomenclatureCode'] = base64_encode($item['nomenclature_code']);
+			}
+
+			$result['content']['positions'][] = $position;
 		}
 
 		$paymentTypeMap = $this->getPaymentTypeMap();
@@ -129,6 +141,35 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param $checkType
+	 * @param $vat
+	 * @return mixed
+	 */
+	private function mapVatValue($checkType, $vat)
+	{
+		$map = [
+			self::CODE_VAT_10 => [
+				PrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
+				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
+				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10,
+				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_10,
+				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_10,
+				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_10,
+			],
+			self::CODE_VAT_20 => [
+				PrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
+				PrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
+				PrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
+				FullPrepaymentCheck::getType() => self::CODE_CALC_VAT_20,
+				FullPrepaymentReturnCheck::getType() => self::CODE_CALC_VAT_20,
+				FullPrepaymentReturnCashCheck::getType() => self::CODE_CALC_VAT_20,
+			],
+		];
+
+		return $map[$vat][$checkType] ?? $vat;
 	}
 
 	/**
@@ -325,9 +366,19 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 		$result = new Result();
 		if ($client !== false)
 		{
+			if (Manager::DEBUG_MODE === true)
+			{
+				Internals\CashboxErrLogTable::add(array('MESSAGE' => $headers.$data, 'DATE_INSERT' => new Main\Type\DateTime()));
+			}
+
 			fputs($client, $headers.$data);
 			$response = stream_get_contents($client);
 			fclose($client);
+
+			if (Manager::DEBUG_MODE === true)
+			{
+				Internals\CashboxErrLogTable::add(array('MESSAGE' => $response, 'DATE_INSERT' => new Main\Type\DateTime()));
+			}
 
 			list($responseHeaders, $content) = explode("\r\n\r\n", $response);
 			$httpCode = $this->extractResponseStatus($responseHeaders);
@@ -435,7 +486,8 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			return $result;
 		}
 
-		return static::applyCheckResult($response);}
+		return static::applyCheckResult($response);
+	}
 
 	/**
 	 * @param $url
@@ -484,7 +536,7 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			Check::PARAM_FISCAL_RECEIPT_NUMBER => $data['documentIndex'],
 			Check::PARAM_FN_NUMBER => $data['fsNumber'],
 			Check::PARAM_SHIFT_NUMBER => $data['shiftNumber'],
-			Check::PARAM_DOC_SUM => $data['total'],
+			Check::PARAM_DOC_SUM => (float)$checkInfo['SUM'],
 			Check::PARAM_DOC_TIME => $dateTime->getTimestamp(),
 			Check::PARAM_CALCULATION_ATTR => $check::getCalculatedSign()
 		);
@@ -543,6 +595,11 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 	private function createTmpFile($data)
 	{
 		$filePath = tempnam(sys_get_temp_dir(), 'orange_data');
+		if ($filePath === false)
+		{
+			return '';
+		}
+
 		if ($data !== null)
 		{
 			file_put_contents($filePath, $data);
@@ -566,21 +623,24 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_SECURITY'),
 				'ITEMS' => array(
 					'PKEY' => array(
-						'TYPE' => 'SECURITY_FILE_CONTROL',
+						'TYPE' => 'DATABASE_FILE',
 						'CLASS' => 'adm-designed-file',
 						'REQUIRED' => 'Y',
+						'NO_DELETE' => 'Y',
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_SECURITY_PKEY'),
 					),
 					'SSL_CERT' => array(
-						'TYPE' => 'SECURITY_FILE_CONTROL',
+						'TYPE' => 'DATABASE_FILE',
 						'CLASS' => 'adm-designed-file',
 						'REQUIRED' => 'Y',
+						'NO_DELETE' => 'Y',
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_SECURITY_SSL_CERT'),
 					),
 					'SSL_KEY' => array(
-						'TYPE' => 'SECURITY_FILE_CONTROL',
+						'TYPE' => 'DATABASE_FILE',
 						'CLASS' => 'adm-designed-file',
 						'REQUIRED' => 'Y',
+						'NO_DELETE' => 'Y',
 						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_SECURITY_SSL_KEY'),
 					),
 					'SSL_KEY_PASS' => array(
@@ -640,12 +700,16 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{
-				$defaultVat = array(0 => 5, 10 => 2, 18 => 1, 20 => 1);
+				$defaultVatList = [
+					0 => self::CODE_VAT_0,
+					10 => self::CODE_VAT_10,
+					20 => self::CODE_VAT_20
+				];
 				foreach ($vatList as $vat)
 				{
 					$value = '';
-					if (isset($defaultVat[(int)$vat['RATE']]))
-						$value = $defaultVat[(int)$vat['RATE']];
+					if (isset($defaultVatList[(int)$vat['RATE']]))
+						$value = $defaultVatList[(int)$vat['RATE']];
 
 					$settings['VAT']['ITEMS'][(int)$vat['ID']] = array(
 						'TYPE' => 'STRING',
@@ -704,13 +768,14 @@ class CashboxOrangeData extends Cashbox implements IPrintImmediately, ICheckable
 		$settings = parent::extractSettingsFromRequest($request);
 		$files = $request->getFile('SETTINGS');
 
-		foreach ($settings['SECURITY'] as $fieldId => $field)
+		foreach (static::getSettings()['SECURITY']['ITEMS'] as $fieldId => $field)
 		{
-			if ($files['error']['SECURITY'][$fieldId.'_FILE'] === 0
-				&& $files['tmp_name']['SECURITY'][$fieldId.'_FILE']
+			if ($field['TYPE'] === 'DATABASE_FILE'
+				&& $files['error']['SECURITY'][$fieldId] === 0
+				&& $files['tmp_name']['SECURITY'][$fieldId]
 			)
 			{
-				$content = $APPLICATION->GetFileContent($files['tmp_name']['SECURITY'][$fieldId.'_FILE']);
+				$content = $APPLICATION->GetFileContent($files['tmp_name']['SECURITY'][$fieldId]);
 				$settings['SECURITY'][$fieldId] = $content ?: '';
 			}
 		}

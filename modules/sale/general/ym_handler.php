@@ -1146,14 +1146,19 @@ class CSaleYMHandler
 		$arResult = array();
 		if($this->checkOrderStatusRequest($arPostData))
 		{
-			$dbOrder = \Bitrix\Sale\Internals\OrderTable::getList(array(
+			$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var \Bitrix\Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			$dbOrder = $orderClass::getList(array(
 				'filter' => array("XML_ID" => self::XML_ID_PREFIX.$arPostData["order"]["id"]),
 				'select' => array('ID', 'LID', 'XML_ID')
 			));
 
 			if($arOrder = $dbOrder->fetch())
 			{
-				$order = \Bitrix\Sale\Order::load($arOrder['ID']);
+				$order = $orderClass::load($arOrder['ID']);
 				$reason = "";
 
 				switch ($arPostData["order"]["status"])
@@ -2536,6 +2541,11 @@ class CSaleYMHandler
 		if (strlen($yandexOrderId) <= 0)
 			return null;
 
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		$filter = array(
 			'filter' => array(
 				'=SOURCE.EXTERNAL_ORDER_ID' => $yandexOrderId,
@@ -2553,7 +2563,7 @@ class CSaleYMHandler
 			)
 		);
 
-		$list = \Bitrix\Sale\Order::loadByFilter($filter);
+		$list = $orderClass::loadByFilter($filter);
 
 		if (!empty($list) && is_array($list))
 			return reset($list);

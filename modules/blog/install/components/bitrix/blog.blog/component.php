@@ -549,25 +549,36 @@ if(strlen($arParams["BLOG_URL"]) > 0)
 
 						$arResult["filter"] = $arFilter;
 						
-						$arGroupBy = array(
-							"ID","TITLE","BLOG_ID","AUTHOR_ID","PREVIEW_TEXT","PREVIEW_TEXT_TYPE","DETAIL_TEXT","DETAIL_TEXT_TYPE",
-							"DATE_CREATE","DATE_PUBLISH","KEYWORDS","PUBLISH_STATUS","CATEGORY_ID","ATRIBUTE","ENABLE_TRACKBACK",
-							"ENABLE_COMMENTS","ATTACH_IMG","NUM_COMMENTS","NUM_TRACKBACKS","VIEWS","FAVORITE_SORT","PATH",
-							"CODE","MICRO","HAS_IMAGES","HAS_PROPS","HAS_TAGS","HAS_COMMENT_IMAGES","HAS_SOCNET_ALL","SEO_TITLE",
-							"SEO_TAGS","SEO_DESCRIPTION","DATE_PUBLISHED","HAS_SEO_TITLE","HAS_SEO_TAGS","HAS_SEO_DESCRIPTION",
-							"NUM_COMMENTS_ALL","DATE_PUBLISHED"
-						);
-						$arGroupBy["MAX"] = "PERMS";
-						$dbPost = CBlogPost::GetList(
+//						prefind post IDs by perms and filter
+						$dbPostIds = CBlogPost::GetList(
 							$SORT,
 							$arFilter,
-							$arGroupBy,
+							array(
+								"DATE_PUBLISH", "ID", "MAX" => "PERMS"
+							),
 							array("bDescPageNumbering"=>true, "nPageSize"=>$arParams["MESSAGE_COUNT"], "bShowAll" => false)
 						);
-
-						$arResult["NAV_STRING"] = $dbPost->GetPageNavString(GetMessage("MESSAGE_COUNT"), $arParams["NAV_TEMPLATE"], false, $component);
-						$arResult["POST"] = Array();
-						$arResult["IDS"] = Array();
+						$postIds = [];
+						while($post = $dbPostIds->GetNext())
+						{
+							$postIds[] = $post['ID'];
+						}
+//						save navchain
+						$arResult["NAV_STRING"] = $dbPostIds->GetPageNavString(
+							GetMessage("MESSAGE_COUNT"),
+							$arParams["NAV_TEMPLATE"],
+							false,
+							$component
+						);
+						
+//						get all posts data by prefinded IDs
+						$dbPost = CBlogPost::GetList(
+							$SORT,
+							['ID' => $postIds],
+							false
+						);
+						$arResult["POST"] = [];
+						$arResult["IDS"] = [];
 						$p = new blogTextParser(false, $arParams["PATH_TO_SMILE"]);
 						$arParserParams = Array(
 							"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],

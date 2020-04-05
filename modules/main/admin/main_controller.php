@@ -7,6 +7,7 @@
 ##############################################
 
 define("NOT_CHECK_PERMISSIONS", true);
+define("SKIP_SITE_CLOSE", true);
 require_once(dirname(__FILE__)."/../include/prolog_before.php");
 require_once(dirname(__FILE__)."/../classes/general/controller_member.php");
 IncludeModuleLangFile(__FILE__);

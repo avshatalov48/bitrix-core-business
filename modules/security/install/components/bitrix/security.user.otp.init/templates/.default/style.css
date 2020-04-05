@@ -1,6 +1,7 @@
 /*GRID*/
-.bx-otp-wrap-container{
-	padding:20px 25px;
+.security-user-otp {
+	padding: 0 5px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 h2.bx-otp-wrap-container-title{
 	font-size:20px;

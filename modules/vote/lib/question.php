@@ -90,6 +90,14 @@ class QuestionTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('V_TABLE_FIELD_IMAGE_ID'),
 			),
+			'IMAGE' =>  array(
+				'data_type' => '\Bitrix\Main\FileTable',
+				'reference' => array(
+					'=this.IMAGE_ID' => 'ref.ID',
+				),
+				'join_type' => 'LEFT',
+				'title' => Loc::getMessage('V_TABLE_FIELD_IMAGE'),
+			),
 			'DIAGRAM' => array(
 				'data_type' => 'boolean',
 				'values' => array('N', 'Y'),
@@ -107,6 +115,12 @@ class QuestionTable extends Entity\DataManager
 				'values' => array('N', 'Y'),
 				'default_value' => 'N',
 				'title' => Loc::getMessage('V_TABLE_FIELD_REQUIRED')
+			),
+			'FIELD_TYPE' => array(
+				'data_type' => 'enum',
+				'values' => \Bitrix\Vote\QuestionTypes::getValues(),
+				'default_value' => '0',
+				'title' => Loc::getMessage('V_TABLE_FIELD_FIELD_TYPE')
 			),
 			'VOTE' => array(
 				'data_type' => '\Bitrix\Vote\VoteTable',

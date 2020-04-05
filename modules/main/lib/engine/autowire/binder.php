@@ -140,6 +140,23 @@ final class Binder
 		}
 	}
 
+	/**
+	 * @param Parameter $parameter
+	 * @return void
+	 */
+	public static function unRegisterGlobalAutoWiredParameter(Parameter $parameter): void
+	{
+		if (static::$globalAutoWiredParameters === null)
+		{
+			return;
+		}
+
+		if (static::$globalAutoWiredParameters->contains($parameter))
+		{
+			static::$globalAutoWiredParameters->detach($parameter);
+		}
+	}
+
 	private function getPriorityByParameter(Parameter $parameter)
 	{
 		return $parameter->getPriority();

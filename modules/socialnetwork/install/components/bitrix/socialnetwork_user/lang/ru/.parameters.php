@@ -344,4 +344,5 @@ $MESS["SONET_LOG_COMMENT_THUMBNAIL_SIZE"] = "Размер аватара в Жи
 $MESS["SONET_LOG_NEW_TEMPLATE"] = "Использовать новый формат шаблона Живой ленты";
 $MESS["SONET_LOG_AUTH"] = "Не требовать авторизацию для просмотра Живой ленты";
 $MESS["BPC_USE_CUT"] = "Использовать [CUT] для сообщений";
+$MESS["SONET_USER_ALLOWALL_USER_PROFILE_FIELDS"] = "Не ограничивать набор полей профиля пользователя";
 ?>

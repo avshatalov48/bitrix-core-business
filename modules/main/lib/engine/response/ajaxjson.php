@@ -6,9 +6,8 @@ namespace Bitrix\Main\Engine\Response;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Errorable;
-use Bitrix\Main\Context;
 
-final class AjaxJson extends Json implements Errorable
+class AjaxJson extends Json implements Errorable
 {
 	const STATUS_SUCCESS = 'success';
 	const STATUS_DENIED  = 'denied';
@@ -30,22 +29,22 @@ final class AjaxJson extends Json implements Errorable
 		parent::__construct($data);
 	}
 
-	public static function createSuccess($data = null)
+	final public static function createSuccess($data = null)
 	{
 		return new static($data, self::STATUS_SUCCESS, null);
 	}
 
-	public static function createError(ErrorCollection $errorCollection = null, $data = null)
+	final public static function createError(ErrorCollection $errorCollection = null, $data = null)
 	{
 		return new static($data, self::STATUS_ERROR, $errorCollection);
 	}
 
-	public static function createDenied(ErrorCollection $errorCollection = null, $data = null)
+	final public static function createDenied(ErrorCollection $errorCollection = null, $data = null)
 	{
 		return new static($data, self::STATUS_DENIED, $errorCollection);
 	}
 
-	public function setData($data)
+	final public function setData($data)
 	{
 		/**
 		 * @see \Bitrix\Main\Type\Contract\Arrayable
@@ -61,7 +60,7 @@ final class AjaxJson extends Json implements Errorable
 		);
 	}
 
-	protected function getErrorsToResponse()
+	final protected function getErrorsToResponse()
 	{
 		$errors = array();
 		foreach ($this->errorCollection as $error)
@@ -77,7 +76,7 @@ final class AjaxJson extends Json implements Errorable
 	 * Getting array of errors.
 	 * @return Error[]
 	 */
-	public function getErrors()
+	final public function getErrors()
 	{
 		return $this->errorCollection->toArray();
 	}
@@ -87,7 +86,7 @@ final class AjaxJson extends Json implements Errorable
 	 * @param string $code Code of error.
 	 * @return Error
 	 */
-	public function getErrorByCode($code)
+	final public function getErrorByCode($code)
 	{
 		return $this->errorCollection->getErrorByCode($code);
 	}

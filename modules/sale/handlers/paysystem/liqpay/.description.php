@@ -1,14 +1,21 @@
-<?
-use \Bitrix\Main\Localization\Loc;
+<?php
+use Bitrix\Main\Loader,
+	Bitrix\Main\Localization\Loc,
+	Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
 
-$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
-if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ua"]))
+$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
+$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : "";
+
+if (
+	(Loader::includeModule('intranet') && $portalZone !== 'ua')
+	|| (Loader::includeModule("bitrix24") && $licensePrefix !== 'ua')
+)
 {
-	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 }
 
 $data = array(
@@ -31,7 +38,7 @@ $data = array(
 			'SORT' => 300,
 			'GROUP' => 'CONNECT_SETTINGS_LIQPAY',
 			"DEFAULT" => array(
-				"PROVIDER_VALUE" => "http://".$_SERVER["HTTP_HOST"]."/personal/orders/",
+				"PROVIDER_VALUE" => (!IsModuleInstalled('crm')) ? "https://".$_SERVER["HTTP_HOST"]."/personal/orders/" : '',
 				"PROVIDER_KEY" => "VALUE"
 			)
 		),
@@ -40,7 +47,7 @@ $data = array(
 			'SORT' => 400,
 			'GROUP' => 'CONNECT_SETTINGS_LIQPAY',
 			"DEFAULT" => array(
-				"PROVIDER_VALUE" => "http://".$_SERVER["HTTP_HOST"]."/personal/ps_result.php",
+				"PROVIDER_VALUE" => "https://".$_SERVER["HTTP_HOST"]."/bitrix/tools/sale_ps_result.php",
 				"PROVIDER_KEY" => "VALUE"
 			)
 		),
@@ -84,7 +91,17 @@ $data = array(
 			"NAME" => Loc::getMessage("SALE_HPS_LIQPAY_PAYMENT_PM"),
 			'SORT' => 900,
 			'GROUP' => 'CONNECT_SETTINGS_LIQPAY'
-		)
+		),
+		"LIQPAY_PAYMENT_DESCRIPTION" => array(
+			"NAME" => Loc::getMessage("SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION"),
+			"DESCRIPTION" => Loc::getMessage("SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION_DESC"),
+			'SORT' => 1000,
+			'GROUP' => 'CONNECT_SETTINGS_LIQPAY',
+			'DEFAULT' => array(
+				'PROVIDER_KEY' => 'VALUE',
+				'PROVIDER_VALUE' => Loc::getMessage("SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION_TEMPLATE"),
+			)
+		),
 	)
 );
 

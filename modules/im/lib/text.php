@@ -91,6 +91,34 @@ class Text
 		return \Bitrix\Main\Text\DateConverter::decode($text, 1000);
 	}
 
+	public static function isOnlyEmoji($text)
+	{
+		$total = 0;
+		$count = 0;
+
+		$pattern = '%(?:
+				\xF0[\x90-\xBF][\x80-\xBF]{2} # planes 1-3
+				| [\xF1-\xF3][\x80-\xBF]{3} # planes 4-15
+				| \xF4[\x80-\x8F][\x80-\xBF]{2} # plane 16
+			)%xs';
+		$text = preg_replace_callback($pattern, function () {return "";}, $text, 4-$total, $count);
+		$total += $count;
+
+		if ($total > 3)
+		{
+			return false;
+		}
+
+		if ($total <= 0)
+		{
+			return false;
+		}
+
+		$text = trim($text);
+
+		return !$text;
+	}
+
 	public static function setReplacement($match)
 	{
 		$code = '####REPLACEMENT_MARK_'.count(self::$replacements).'####';

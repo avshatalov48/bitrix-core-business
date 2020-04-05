@@ -34,6 +34,7 @@ create table b_calendar_section
 	CAL_DAV_MOD varchar(255) null,
 	IS_EXCHANGE char(1) null,
 	SYNC_TOKEN varchar(100) null,
+	EXTERNAL_TYPE varchar(20) null,
 	primary key (ID),
 	INDEX ix_cal_sect_owner (CAL_TYPE, OWNER_ID)
 );
@@ -49,6 +50,7 @@ create table b_calendar_event
   NAME varchar(255) null,
   DATE_FROM datetime null,
   DATE_TO datetime null,
+  ORIGINAL_DATE_FROM datetime null,
   TZ_FROM varchar(50) null,
   TZ_TO varchar(50) null,
   TZ_OFFSET_FROM int null,
@@ -78,6 +80,7 @@ create table b_calendar_event
   RRULE varchar(255) null,
   EXDATE text null,
   DAV_XML_ID varchar(255) null,
+  G_EVENT_ID varchar(255) null,
   DAV_EXCH_LABEL varchar(255) null,
   CAL_DAV_LABEL varchar(255) null,
   VERSION varchar(255) null,
@@ -91,7 +94,8 @@ create table b_calendar_event
   INDEX ix_cal_event_owner_id_date (OWNER_ID, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
   INDEX ix_cal_event_parent_id (PARENT_ID),
   INDEX ix_cal_event_created_by (CREATED_BY),
-  INDEX ix_cal_event_owner_id_accessibility (ACCESSIBILITY, DATE_FROM_TS_UTC, DATE_TO_TS_UTC)
+  INDEX ix_cal_event_owner_id_accessibility (ACCESSIBILITY, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
+  INDEX ix_cal_event_recurrence_id (RECURRENCE_ID)
 );
 
 create table b_calendar_event_sect
@@ -99,7 +103,8 @@ create table b_calendar_event_sect
 	EVENT_ID int not null,
 	SECT_ID int not null,
 	REL  char(10) null,
-	primary key (EVENT_ID, SECT_ID)
+	primary key (EVENT_ID, SECT_ID),
+	INDEX ix_cal_event_sect (SECT_ID, EVENT_ID)
 );
 
 /* b_calendar_attendees - deprecated */

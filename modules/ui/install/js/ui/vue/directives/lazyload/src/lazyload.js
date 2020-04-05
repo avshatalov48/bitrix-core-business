@@ -51,13 +51,17 @@ const HIDDEN = 'bx-lazyload-hidden';
 const BLANK_IMAGE = "data:image/svg+xml,%3Csvg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E";
 
 let lazyloadObserver = null;
-let lazyloadLoadImage = function(currentImage)
+let lazyloadLoadImage = function(currentImage, callback)
 {
-	let SUCCESS_CLASS = currentImage.dataset.lazyloadSuccessClass? currentImage.dataset.lazyloadSuccessClass.split(" "): [SUCCESS];
+	let SUCCESS_CLASS = currentImage.dataset.lazyloadSuccessClass? currentImage.dataset.lazyloadSuccessClass.split(" "): [];
 	delete currentImage.dataset.lazyloadSuccessClass;
 
-	let ERROR_CLASS = currentImage.dataset.lazyloadErrorClass? currentImage.dataset.lazyloadErrorClass.split(" "): [ERROR];
+	SUCCESS_CLASS = [SUCCESS, ...SUCCESS_CLASS];
+
+	let ERROR_CLASS = currentImage.dataset.lazyloadErrorClass? currentImage.dataset.lazyloadErrorClass.split(" "): [];
 	delete currentImage.dataset.lazyloadErrorClass;
+
+	ERROR_CLASS = [ERROR, ...ERROR_CLASS];
 
 	currentImage.classList.add(LOADING);
 
@@ -83,6 +87,12 @@ let lazyloadLoadImage = function(currentImage)
 
 		currentImage.classList.remove(LOADING);
 		currentImage.classList.add(...SUCCESS_CLASS);
+
+		if (typeof currentImage.lazyloadCallback === 'function')
+		{
+			currentImage.lazyloadCallback({element: currentImage, state: 'success'});
+			delete currentImage.lazyloadCallback;
+		}
 	};
 
 	newImage.onerror = function()
@@ -92,17 +102,16 @@ let lazyloadLoadImage = function(currentImage)
 			return false;
 		}
 
-		if (currentImage.dataset.lazyloadErrorSrc)
-		{
-			currentImage.src = currentImage.dataset.lazyloadErrorSrc;
-		}
-		else
-		{
-			currentImage.dataset.lazyloadSrc = currentImage.src;
-		}
-
 		currentImage.classList.remove(LOADING);
 		currentImage.classList.add(...ERROR_CLASS);
+		currentImage.title = '';
+		currentImage.alt = '';
+
+		if (typeof currentImage.lazyloadCallback === 'function')
+		{
+			currentImage.lazyloadCallback({element: currentImage, state: 'error'});
+			delete currentImage.lazyloadCallback;
+		}
 	};
 
 	if (typeof currentImage.dataset.lazyloadDontHide !== 'undefined')
@@ -171,11 +180,16 @@ if (typeof window.IntersectionObserver !== 'undefined')
 
 Vue.directive('bx-lazyload',
 {
-	bind(element)
+	bind(element, bindings)
 	{
+		if (typeof bindings.value === 'object' && typeof bindings.value.callback === 'function')
+		{
+			element.lazyloadCallback = bindings.value.callback;
+		}
+
 		if (!element.src || element.src === location.href.replace(location.hash, ''))
 		{
-			element.src = "data:image/svg+xml,%3Csvg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E";
+			element.src = BLANK_IMAGE;
 		}
 
 		if (lazyloadObserver)
@@ -190,17 +204,25 @@ Vue.directive('bx-lazyload',
 	componentUpdated(element)
 	{
 		if (
-			!element.classList.contains(HIDDEN)
+			!element.classList.contains(SUCCESS)
+			&& !element.classList.contains(ERROR)
+			&& !element.classList.contains(WATCH)
 			&& !element.classList.contains(LOADING)
+		)
+		{
+			element.classList.add(LOADING);
+		}
+		else if (
+			(element.classList.contains(SUCCESS) || element.classList.contains(ERROR))
 			&& element.dataset.lazyloadSrc
-			&& element.dataset.lazyloadSrc != element.src
+			&& element.dataset.lazyloadSrc !== element.src
 		)
 		{
 			if (!element.dataset.lazyloadSrc.startsWith('http'))
 			{
 				const url = document.createElement('a');
 				url.href = element.dataset.lazyloadSrc;
-				if (url.href == element.src)
+				if (url.href === element.src)
 				{
 					return;
 				}

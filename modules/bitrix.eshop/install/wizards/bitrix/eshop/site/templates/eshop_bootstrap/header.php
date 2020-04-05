@@ -18,7 +18,7 @@ $theme = COption::GetOptionString("main", "wizard_eshop_bootstrap_theme_id", "bl
 	?>
 	<title><?$APPLICATION->ShowTitle()?></title>
 </head>
-<body class="bx-background-image bx-theme-<?=$theme?>" <?=$APPLICATION->ShowProperty("backgroundImage")?>>
+<body class="bx-background-image bx-theme-<?=$theme?>" <?$APPLICATION->ShowProperty("backgroundImage");?>>
 <div id="panel"><?$APPLICATION->ShowPanel();?></div>
 <?$APPLICATION->IncludeComponent("bitrix:eshop.banner", "", array());?>
 <div class="bx-wrapper" id="bx_eshop_wrap">
@@ -138,7 +138,7 @@ $theme = COption::GetOptionString("main", "wizard_eshop_bootstrap_theme_id", "bl
 					);?>
 				</div>
 			</div>
-			<h1 class="bx-title dbg_title" id="pagetitle"><?=$APPLICATION->ShowTitle(false);?></h1>
+			<h1 class="bx-title dbg_title" id="pagetitle"><?$APPLICATION->ShowTitle(false);?></h1>
 			<?
 			}
 			else

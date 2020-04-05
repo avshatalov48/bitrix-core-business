@@ -14,11 +14,13 @@ use Bitrix\Main\Entity;
  * <li> FIELD string(255) mandatory
  * <li> FIELD_VALUE string(255) mandatory
  * <li> CONFIRM_CODE string(32) mandatory
+ * <li> ATTEMPTS int
  * </ul>
  **/
 
 class UserFieldConfirmTable extends Entity\DataManager
 {
+	const MAX_ATTEMPTS_COUNT = 3;
 	public static function getTableName()
 	{
 		return 'b_user_field_confirm';
@@ -51,6 +53,10 @@ class UserFieldConfirmTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 				'validation' => array(__CLASS__, 'validateConfirmCode'),
+			),
+			"ATTEMPTS" => array(
+				'data_type' => 'integer',
+				"default_value" => 0,
 			),
 		);
 	}

@@ -59,7 +59,7 @@ class StringType extends Base
 					$format = ($type == FieldType::DATE) ? \FORMAT_DATE : \FORMAT_DATETIME;
 					if (\CheckDateTime($value, $format))
 					{
-						$value = date(Main\Type\Date::convertFormatToPhp($format), \MakeTimeStamp($value, $format));
+						$value = date(Main\Type\Date::convertFormatToPhp($format), \CBPHelper::makeTimestamp($value, $format));
 					}
 					else
 					{

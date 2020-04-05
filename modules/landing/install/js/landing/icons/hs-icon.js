@@ -10,7 +10,7 @@
 		categories: [
 			{
 				"id": "hs_icons_all",
-				"name": BX.message("LANDING_ICONS_SIMPLE_LINE_ICONS_ALL"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SIMPLE_LINE_ICONS_ALL"),
 				"items": [
 					"hs-icon hs-icon-arrow-bottom",
 					"hs-icon hs-icon-arrow-left",

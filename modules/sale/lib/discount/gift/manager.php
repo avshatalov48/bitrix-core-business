@@ -11,6 +11,7 @@ use Bitrix\Sale\Basket;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Discount\Analyzer;
 use Bitrix\Sale\Order;
+use Bitrix\Sale\Registry;
 use CCatalogSKU;
 use CSaleDiscountActionApply;
 use SplObjectStorage;
@@ -434,7 +435,11 @@ final class Manager
 			throw new SystemException('Could not get discounts by basket which has order.');
 		}
 
-		$order = Order::create($basket->getSiteId(), $this->userId);
+		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+		/** @var Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::create($basket->getSiteId(), $this->userId);
 		if(!$order->setBasket($basket)->isSuccess())
 		{
 			return null;

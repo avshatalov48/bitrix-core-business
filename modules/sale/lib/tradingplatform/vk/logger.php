@@ -657,28 +657,28 @@ class Logger
 				"CODE" => "ALBUM_EMPTY_PHOTOS",
 				"ITEMS_TYPE" => 'ALBUM',
 			),
-			"ALBUM_PHOTOS_RESIZE_UP" => array(
+			"ALBUM_PHOTOS_10" => array(
 				"MESSAGE" => Loc::getMessage("SALE_VK_ERRORS__ALBUM_PHOTOS_RESIZE_UP"),
 				"CRITICAL" => false,
-				"CODE" => "ALBUM_PHOTOS_RESIZE_UP",
+				"CODE" => "ALBUM_PHOTOS_10",
 				"ITEMS_TYPE" => 'ALBUM',
 			),
-			"ALBUM_PHOTOS_RESIZE_DOWN" => array(
+			"ALBUM_PHOTOS_30" => array(
 				"MESSAGE" => Loc::getMessage("SALE_VK_ERRORS__ALBUM_PHOTOS_RESIZE_DOWN"),
 				"CRITICAL" => false,
-				"CODE" => "ALBUM_PHOTOS_RESIZE_DOWN",
+				"CODE" => "ALBUM_PHOTOS_30",
 				"ITEMS_TYPE" => 'ALBUM',
 			),
-			"ALBUM_PHOTOS_RESIZE_UP_CROP" => array(
+			"ALBUM_PHOTOS_20" => array(
 				"MESSAGE" => Loc::getMessage("SALE_VK_ERRORS__ALBUM_PHOTOS_RESIZE_CROP"),
 				"CRITICAL" => false,
-				"CODE" => "ALBUM_PHOTOS_RESIZE_UP_CROP",
+				"CODE" => "ALBUM_PHOTOS_20",
 				"ITEMS_TYPE" => 'ALBUM',
 			),
-			"ALBUM_PHOTOS_RESIZE_DOWN_CROP" => array(
+			"ALBUM_PHOTOS_40" => array(
 				"MESSAGE" => Loc::getMessage("SALE_VK_ERRORS__ALBUM_PHOTOS_RESIZE_CROP"),
 				"CRITICAL" => false,
-				"CODE" => "ALBUM_PHOTOS_RESIZE_DOWN_CROP",
+				"CODE" => "ALBUM_PHOTOS_40",
 				"ITEMS_TYPE" => 'ALBUM',
 			),
 			

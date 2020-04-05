@@ -149,7 +149,7 @@ endif;
 									<tr>
 										<td><div class="vote-bar-square" style="background-color:#<?=htmlspecialcharsbx($arAnswer["COLOR"])?>"></div></td>
 										<td><nobr><?=$arAnswer["COUNTER"]?> (<?=$arAnswer["PERCENT"]?>%)</nobr></td>
-										<td><?=htmlspecialcharsbx($arAnswer["~MESSAGE"])?></td>
+										<td><?=$arAnswer["MESSAGE"]?></td>
 									</tr>
 								<?endforeach?>
 							</table>
@@ -163,7 +163,7 @@ endif;
 				<?foreach ($arQuestion["ANSWERS"] as $arAnswer):?>
 					<tr class='vote-answer-row'>
 						<td width="30%">
-							<?=htmlspecialcharsbx($arAnswer["~MESSAGE"])?>
+							<?=$arAnswer["MESSAGE"]?>
 							<? if (isset($arResult['GROUP_ANSWERS'][$arAnswer['ID']])) 
 							{
 								if (trim($arAnswer["MESSAGE"]) != '') 
@@ -188,10 +188,9 @@ endif;
 									<tr>
 										<td width="30%">
 											<? if (trim($arAnswer["MESSAGE"]) != '') { ?>
-												<span class='vote-answer-lolight'>
-													<?=htmlspecialcharsbx($arGroupAnswer["~MESSAGE"])?>:&nbsp;</span>
+												<span class='vote-answer-lolight'><?=$arAnswer["MESSAGE"]?>:&nbsp;</span>
 											<? } ?>
-											<?=htmlspecialcharsbx($arGroupAnswer["~MESSAGE"])?></td>
+											<?=$arGroupAnswer["MESSAGE"]?></td>
 										<td width="70%">
 											<table class="vote-bar-table">
 												<tr>

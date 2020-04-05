@@ -174,13 +174,22 @@ class MailboxTable extends Entity\DataManager
 				'data_type' => 'string',
 			),
 			'PASSWORD' => array(
-				'data_type' => 'string',
+				'data_type' => (static::cryptoEnabled('PASSWORD') ? 'crypto' : 'string'),
+				'save_data_modification' => function()
+				{
+					return array(
+						function ($value)
+						{
+							return static::cryptoEnabled('PASSWORD') ? $value : \CMailUtil::crypt($value);
+						}
+					);
+				},
 				'fetch_data_modification' => function()
 				{
 					return array(
 						function ($value)
 						{
-							return \CMailUtil::decrypt($value);
+							return static::cryptoEnabled('PASSWORD') ? $value : \CMailUtil::decrypt($value);
 						}
 					);
 				}

@@ -59,13 +59,19 @@ class StatusTable extends Main\Entity\DataManager
 			)),
 
 			new Main\Entity\StringField('COLOR', array(
-				'default_value' => 'Y',
 				'title'         => Loc::getMessage('B_SALE_STATUS_COLOR'),
 			)),
 
 			new Main\Entity\StringField('XML_ID', array(
 				'title' => Loc::getMessage('B_SALE_STATUS_XML_ID'),
 			)),
+
+			new Main\ORM\Fields\Relations\Reference(
+				'STATUS_LANG',
+				StatusLangTable::class,
+				Main\ORM\Query\Join::on('this.ID', 'ref.STATUS_ID'),
+				array('join_type' => 'left')
+			)
 		);
 	}
 

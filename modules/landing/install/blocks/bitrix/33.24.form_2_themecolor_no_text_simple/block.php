@@ -75,6 +75,10 @@
 				 data-form-style-main-bg-light="1"
 			>
 			</div>
+			<div class="g-bg-white"
+				 data-form-style-light-bg="1"
+			>
+			</div>
 		</div>
 
 		<div class="mx-auto">

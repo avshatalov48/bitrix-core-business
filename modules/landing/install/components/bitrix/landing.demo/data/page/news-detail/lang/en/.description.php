@@ -1,0 +1,9 @@
+<?
+$MESS["LANDING_DEMO_NEWS_DETAIL-DESC"] = "News details";
+$MESS["LANDING_DEMO_NEWS_DETAIL-NAME"] = "News details";
+$MESS["LANDING_DEMO_NEWS_DETAIL-TEXT1"] = "About";
+$MESS["LANDING_DEMO_NEWS_DETAIL-TEXT2"] = "Contacts";
+$MESS["LANDING_DEMO_NEWS_DETAIL-TEXT3"] = "Payment options";
+$MESS["LANDING_DEMO_NEWS_DETAIL-TEXT4"] = "Feedback form";
+$MESS["LANDING_DEMO_NEWS_DETAIL-TEXT5"] = "We value every customer!";
+?>

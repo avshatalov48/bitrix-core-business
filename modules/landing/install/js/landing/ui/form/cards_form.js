@@ -56,12 +56,14 @@
 		this.presetForm = new FormCollection();
 		this.sync = data.sync;
 		this.forms = data.forms;
+		this.id = this.code.replace(".", "") + "-" + BX.Landing.Utils.random();
 
 		this.onItemClick = throttle(this.onItemClick, 200, this);
 		this.onRemoveItemClick = proxy(this.onRemoveItemClick, this);
 		this.onRemoveItemMouseenter = proxy(this.onRemoveItemMouseenter, this);
 		this.onRemoveItemMouseleave = proxy(this.onRemoveItemMouseleave, this);
 		this.onAddCardClick = proxy(this.onAddCardClick, this);
+		this.onMouseWheel = proxy(this.onMouseWheel, this);
 
 		this.addButton = this.createAddButton();
 		this.wheelEventName = this.getWheelEventName();
@@ -402,9 +404,9 @@
 				if (field instanceof BX.Landing.UI.Field.Link)
 				{
 					labelContainer = item.querySelector(".landing-card-title-link");
-					labelContainer.innerHTML = BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
+					labelContainer.innerHTML = BX.Landing.Loc.getMessage("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
 
-					onCustomEvent(field, "BX.Landing.UI.Field:change", function(value) {
+					onCustomEvent(field, "change", function(value) {
 						labelContainer.innerHTML = value.text;
 					});
 
@@ -415,7 +417,7 @@
 				{
 					labelContainer = item.querySelector(".landing-card-title-icon").firstElementChild;
 					labelContainer.className = "landing-card-title-icon";
-					onCustomEvent(field, "BX.Landing.UI.Field:change", function(value) {
+					onCustomEvent(field, "change", function(value) {
 						labelContainer.className = "landing-card-title-icon " + value.classList.join(" ");
 					});
 
@@ -428,7 +430,7 @@
 					labelContainer.style.backgroundColor = "#fafafa";
 					labelContainer.innerHTML = "";
 
-					onCustomEvent(field, "BX.Landing.UI.Field:change", function(value) {
+					onCustomEvent(field, "change", function(value) {
 						labelContainer.innerHTML = "";
 						labelContainer.appendChild(create('img', {props: {src: value.src}}));
 					});
@@ -442,14 +444,14 @@
 					var labelContainers = item.querySelectorAll(".landing-card-title-text");
 					labelContainer = labelContainers[textItemIndex];
 
-					onCustomEvent(field, "BX.Landing.UI.Field:change", function(value) {
+					onCustomEvent(field, "change", function(value) {
 						labelContainer.innerHTML = create("div", {html: value}).innerText;
 					});
 
 					if (labelContainer === labelContainers[0])
 					{
-						labelContainer.innerHTML = BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
-						field.setValue(BX.message("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT"));
+						labelContainer.innerHTML = BX.Landing.Loc.getMessage("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT");
+						field.setValue(BX.Landing.Loc.getMessage("LANDING_CARDS_FORM_ITEM_PLACEHOLDER_TEXT"));
 					}
 					else
 					{
@@ -515,7 +517,7 @@
 		{
 			return new BaseButton("add-card-" + random(), {
 				className: "landing-ui-card-add-button",
-				text: BX.message("LANDING_CARDS_FORM_ADD_BUTTON"),
+				text: BX.Landing.Loc.getMessage("LANDING_CARDS_FORM_ADD_BUTTON"),
 				onClick: this.onAddCardClick
 			});
 		},
@@ -558,7 +560,10 @@
 		onRemoveItemClick: function(event, preventSync)
 		{
 			event.stopPropagation();
-			if (this.body.children.length > 1)
+
+			var visibleItems = this.getVisibleForms();
+
+			if (visibleItems.length > 1)
 			{
 				var item = findParent(event.currentTarget, {className: "landing-ui-form-cards-item"});
 				remove(item);
@@ -751,7 +756,8 @@
 
 				bind(this.popup.popupWindow.popupContainer, "mouseover", this.onMouseOver.bind(this));
 				bind(this.popup.popupWindow.popupContainer, "mouseleave", this.onMouseLeave.bind(this));
-				bind(top.document, "click", this.onDocumentClick.bind(this));
+				var rootWindow = BX.Landing.PageObject.getRootWindow();
+				bind(rootWindow.document, "click", this.onDocumentClick.bind(this));
 				append(
 					this.popup.popupWindow.popupContainer,
 					findParent(this.addButton.layout, {className: "landing-ui-panel-content-body-content"})
@@ -776,8 +782,8 @@
 		 */
 		onMouseOver: function()
 		{
-			bind(this.popup.popupWindow.popupContainer, this.wheelEventName, this.onMouseWheel.bind(this));
-			bind(this.popup.popupWindow.popupContainer, "touchmove", this.onMouseWheel.bind(this));
+			this.popup.popupWindow.popupContainer.addEventListener(this.wheelEventName, this.onMouseWheel, true);
+			this.popup.popupWindow.popupContainer.addEventListener("touchmove", this.onMouseWheel, true);
 		},
 
 
@@ -786,8 +792,8 @@
 		 */
 		onMouseLeave: function()
 		{
-			unbind(this.popup.popupWindow.popupContainer, this.wheelEventName, this.onMouseWheel.bind(this));
-			unbind(this.popup.popupWindow.popupContainer, "touchmove", this.onMouseWheel.bind(this));
+			this.popup.popupWindow.popupContainer.removeEventListener(this.wheelEventName, this.onMouseWheel, true);
+			this.popup.popupWindow.popupContainer.removeEventListener("touchmove", this.onMouseWheel, true);
 		},
 
 
@@ -866,18 +872,28 @@
 		},
 
 
+		getVisibleForms: function()
+		{
+			return [].slice.call(this.body.children).filter(function(item) {
+				return !item.hidden;
+			});
+		},
+
+
 		/**
 		 * Adjusts last form state
 		 */
 		adjustLastFormState: function()
 		{
-			if (this.body.children.length === 1)
+			var visibleItems = this.getVisibleForms();
+
+			if (visibleItems.length === 1)
 			{
-				addClass(this.body.firstElementChild, "landing-ui-disallow-remove");
+				addClass(visibleItems[0], "landing-ui-disallow-remove");
 				return;
 			}
 
-			slice(this.body.children).forEach(function(item) {
+			slice(visibleItems).forEach(function(item) {
 				removeClass(item, "landing-ui-disallow-remove");
 			});
 		},

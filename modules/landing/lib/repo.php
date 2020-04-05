@@ -101,6 +101,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 		while ($row = $res->fetch())
 		{
 			$items['repo_'. $row['ID']] = array(
+				'id' => null,
 				'name' => $row['NAME'],
 				'namespace' => $row['APP_CODE'],
 				'new' => (time() - $row['DATE_CREATE_TIMESTAMP']) < Block::NEW_BLOCK_LT,
@@ -158,6 +159,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 					$manifestLocal['block']['subtype'] = $blockDesc['subtype'];
 				}
 				$manifest[$id] = $manifestLocal;
+				$manifest[$id]['timestamp'] = $block['DATE_MODIFY']->getTimeStamp();
 			}
 		}
 

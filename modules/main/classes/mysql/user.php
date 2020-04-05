@@ -692,9 +692,9 @@ class CGroup extends CAllGroup
 		$DB->Query($strSql);
 		$ID = $DB->LastID();
 
-		if (count($arFields["USER_ID"]) > 0)
+		if (is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
 		{
-			if (is_array($arFields["USER_ID"][0]) && count($arFields["USER_ID"][0]) > 0)
+			if (is_array($arFields["USER_ID"][0]) && !empty($arFields["USER_ID"][0]))
 			{
 				$arTmp = array();
 				foreach ($arFields["USER_ID"] as $userId)

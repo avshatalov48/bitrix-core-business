@@ -56,4 +56,16 @@ export class VuexBuilderDatabaseIndexedDB
 			});
 		});
 	}
+
+	clear()
+	{
+		return new Promise((resolve, reject) =>
+		{
+			this.db.data.delete(this.code).then(data => {
+				resolve(true);
+			}, error => {
+				reject(error);
+			});
+		});
+	}
 }

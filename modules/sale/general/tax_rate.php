@@ -55,7 +55,7 @@ class CAllSaleTaxRate
 
 		if (is_set($arFields, "PERSON_TYPE_ID") && $arFields["PERSON_TYPE_ID"] !== false)
 		{
-			if (!($arPersonType = CSalePersonType::GetByID($arFields["PERSON_TYPE_ID"])))
+			if (!\Bitrix\Sale\Internals\PersonTypeTable::getRowById($arFields["PERSON_TYPE_ID"]))
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(str_replace("#ID#", $arFields["PERSON_TYPE_ID"], GetMessage("SKGTR_NO_PERS_TYPE")), "ERROR_NO_PERSON_TYPE");
 				return false;

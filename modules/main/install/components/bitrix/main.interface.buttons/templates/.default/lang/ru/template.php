@@ -17,4 +17,5 @@ $MESS["MIB_NO_HIDDEN"] = "Перетащите сюда, чтобы скрыть
 $MESS["MIB_RESET_ALERT"] = "Сбросить меню в первоначальное состояние?";
 $MESS["MIB_RESET_BUTTON"] = "Сбросить";
 $MESS["MIB_CANCEL_BUTTON"] = "Отмена";
+$MESS["MIB_MAIN_BUTTONS_LOADING"] = "Загрузка...";
 ?>

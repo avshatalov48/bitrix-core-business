@@ -9,7 +9,8 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+\Bitrix\Main\Loader::includeModule('sale');
+
 IncludeModuleLangFile(__FILE__);
 
 $errorMessage = "";
@@ -24,10 +25,6 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 	$USER_ID = IntVal($USER_ID);
 	if ($USER_ID <= 0)
 		$errorMessage .= GetMessage("STE_EMPTY_USER").".<br>";
-
-	$TRANSACT_DATE = Trim($TRANSACT_DATE);
-	if (strlen($TRANSACT_DATE) <= 0)
-		$errorMessage .= GetMessage("STE_EMPTY_DATE").".<br>";
 
 	$AMOUNT = str_replace(",", ".", $AMOUNT);
 	$AMOUNT = DoubleVal($AMOUNT);
@@ -128,15 +125,6 @@ $tabControl->BeginNextTab();
 
 			echo FindUserID("USER_ID", $str_USER_ID, $user_name);
 			?></td>
-	</tr>
-	<tr class="adm-detail-required-field">
-		<td><?echo GetMessage("STE_DATE")?>:</td>
-		<td><?
-			if (strlen($str_TRANSACT_DATE) <= 0)
-				$str_TRANSACT_DATE = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL", SITE_ID)));
-			echo CalendarDate("TRANSACT_DATE", $str_TRANSACT_DATE, "form1", "20", "");
-			?>
-		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("STE_SUM")?></td>

@@ -159,7 +159,7 @@ class OrderMarker
 			}
 
 			$result = '
-				<div class="adm-bus-orderproblem" id="sale-adm-shipment-problem-block-'.$id.'">
+				<div class="adm-bus-orderproblem" id="sale-adm-payment-problem-block-'.$id.'">
 					<div class="adm-bus-orderproblem-container">
 						<table>
 							<tr>

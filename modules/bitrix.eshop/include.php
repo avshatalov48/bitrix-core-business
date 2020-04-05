@@ -1,5 +1,8 @@
 <?
 IncludeModuleLangFile(__FILE__);
+use Bitrix\Main\Application;
+use Bitrix\Main\Web\Uri;
+
 class CEShop
 {
 	public static function ShowPanel()
@@ -28,6 +31,43 @@ class CEShop
 				"TEXT" => GetMessage("SCOM_BUTTON_NAME"),
 				"MENU" => $arMenu,
 			));
+
+
+			$request = Application::getInstance()->getContext()->getRequest();
+			$uriString = $request->getRequestUri();
+			$uri = new Uri($uriString);
+
+			$GLOBALS["APPLICATION"]->AddPanelButton(
+				array(
+					"ICON" => "bx-panel-themes-icon",
+					"ALT" => GetMessage("ESHOP_BUTTON_THEME_TEXT"),
+					"TEXT" => GetMessage("ESHOP_BUTTON_THEME"),
+					"MAIN_SORT" => 1700,
+					"MENU" => array(
+						array(
+							"TEXT" => GetMessage("ESHOP_BUTTON_THEME_GREEN"),
+							"ACTION" => "jsUtils.Redirect([], '".$uri->addParams(array("theme" => "green"))."')",
+						),
+						array(
+							"TEXT" => GetMessage("ESHOP_BUTTON_THEME_BLUE"),
+							"ACTION" => "jsUtils.Redirect([], '".$uri->addParams(array("theme" => "blue"))."')",
+						),
+						array(
+							"TEXT" => GetMessage("ESHOP_BUTTON_THEME_YELLOW"),
+							"ACTION" => "jsUtils.Redirect([], '".$uri->addParams(array("theme" => "yellow"))."')",
+						),
+						array(
+							"TEXT" => GetMessage("ESHOP_BUTTON_THEME_RED"),
+							"ACTION" => "jsUtils.Redirect([], '".$uri->addParams(array("theme" => "red"))."')",
+						),
+					),
+					"MODE" => "view",
+					"HINT" => array(
+						"TITLE" => GetMessage("ESHOP_BUTTON_THEME"),
+						"TEXT" => GetMessage("ESHOP_BUTTON_THEME_TEXT"),
+					)
+				)
+			);
 		}
 	}
 }

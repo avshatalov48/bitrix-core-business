@@ -1,14 +1,34 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
+use Bitrix\Main\Loader;
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
 $component = $this->getComponent();
 
 $pageId = "group";
 include("util_group_menu.php");
+
+if (Loader::includeModule("blog"))
+{
+	$APPLICATION->includeComponent(
+		"bitrix:socialnetwork.copy.checker",
+		"",
+		[
+			"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
+			"HELPER" => new Bitrix\Blog\Copy\Integration\Group()
+		],
+		$component,
+		["HIDE_ICONS" => "Y"]
+	);
+}
 
 $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.group",
@@ -18,6 +38,7 @@ $APPLICATION->IncludeComponent(
 		"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
 		"PATH_TO_GROUP_EDIT" => $arResult["PATH_TO_GROUP_EDIT"],
 		"PATH_TO_GROUP_CREATE" => $arResult["PATH_TO_GROUP_CREATE"],
+		"PATH_TO_GROUP_COPY" => $arResult["PATH_TO_GROUP_COPY"],
 		"PATH_TO_GROUP_REQUEST_SEARCH" => $arResult["PATH_TO_GROUP_REQUEST_SEARCH"],
 		"PATH_TO_USER_REQUEST_GROUP" => $arResult["PATH_TO_USER_REQUEST_GROUP"],
 		"PATH_TO_GROUP_REQUESTS" => $arResult["PATH_TO_GROUP_REQUESTS"],

@@ -10,6 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_CVR003._NAME'),
 		'section' => array('cover'),
+		'dynamic' => false,
 	),
 	'cards' => array(),
 	'nodes' => array(
@@ -38,7 +39,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_CVR003._NODES_LANDINGBLOCKNODE_CONTAINER'),
-				'type' => 'animation',
+				'type' => ['text-align', 'animation'],
 			),
 			'.landing-block-node-button-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_CVR003._NODES_LANDINGBLOCKNODE_BUTTON'),
@@ -55,10 +56,6 @@ return array(
 			'.landing-block-node-button' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_CVR003._NODES_LANDINGBLOCKNODE_BUTTON'),
 				'type' => 'button',
-			),
-			'.landing-block-node-img' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_CVR003._NODES_LANDINGBLOCKNODE_IMG'),
-				'type' => 'background-attachment',
 			),
 		),
 	),

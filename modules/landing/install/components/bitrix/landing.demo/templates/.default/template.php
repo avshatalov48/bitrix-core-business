@@ -11,6 +11,9 @@ use \Bitrix\Main\ModuleManager;
 \Bitrix\Main\UI\Extension::load("ui.fonts.opensans");
 Loc::loadMessages(__FILE__);
 
+$context = \Bitrix\Main\Application::getInstance()->getContext();
+$request = $context->getRequest();
+
 // some errors
 if ($arResult['ERRORS'])
 {
@@ -21,7 +24,7 @@ if ($arResult['ERRORS'])
 }
 
 // show message for license renew if need
-if (empty($arResult['DEMO']))
+if (empty($arResult['DEMO']) && !isset($arResult['ERRORS']['ACCESS_DENIED']))
 {
 	if (ModuleManager::isModuleInstalled('bitrix24'))
 	{
@@ -87,24 +90,52 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.sites/templates/.
 
 <?
 foreach ($arResult['DEMO'] as $item):
-	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
-	$uriSelect->addParams(array(
-		'tpl' => (
-					(
-						defined('SMN_SITE_ID') ||
-						!$arParams['SITE_ID']
-					)
-					&&
-				 	isset($item['DATA']['items'][0])
-				)
-				? $item['DATA']['items'][0]
-				: $item['ID']
-	));
+	// skip site group items
+	if (
+		isset($item['DATA']['site_group_item']) &&
+		$item['DATA']['site_group_item'] == 'Y'
+	)
+	{
+		continue;
+	}
+	
+	$tpl = (
+		(
+			defined('SMN_SITE_ID') ||
+			!$arParams['SITE_ID']
+		)
+		&&
+		isset($item['DATA']['items'][0])
+	)
+		? $item['DATA']['items'][0]
+		: $item['ID'];
+
+	if (!isset($item['EXTERNAL_URL']))
+	{
+		$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
+		$uriSelect->addParams([
+			'tpl' => $tpl
+		]);
+		$uriSelect->deleteParams([
+			'select'
+		]);
+		$previewUrl = $uriSelect->getUri();
+	}
+	else if (isset($item['EXTERNAL_URL']['href']))
+	{
+		$previewUrl = $item['EXTERNAL_URL']['href'];
+	}
+	else
+	{
+		$previewUrl = '';
+	}
 	?>
 	<?if ($item['AVAILABLE']):?>
-	<span data-href="<?= $uriSelect->getUri();?>" class="landing-template-pseudo-link landing-item landing-item-hover<?= $arResult['LIMIT_REACHED'] ? ' landing-item-payment' : '';?>">
+	<span data-href="<?= $previewUrl;?>" id="landing-demo-<?= \htmlspecialcharsbx($tpl);?>" <?
+		?>class="landing-template-pseudo-link landing-item landing-item-hover<?= ($arResult['LIMIT_REACHED'] && !$item['SINGLETON']) ? ' landing-item-payment' : '';?>" <?
+		?><?if (isset($item['EXTERNAL_URL']['width'])){?>data-slider-width="<?= (int)$item['EXTERNAL_URL']['width'];?>"<?}?>>
 	<?else:?>
-	<span class="landing-item landing-item-hover landing-item-disabled">
+	<span class="landing-item landing-item-hover landing-item-unactive">
 	<?endif;?>
 		<span class="landing-item-inner">
 			<div class="landing-title">
@@ -180,37 +211,11 @@ foreach ($arResult['DEMO'] as $item):
 <script type="text/javascript">
 	BX.ready(function ()
 	{
-		var items = [].slice.call(document.querySelectorAll('.landing-template-pseudo-link'));
-
-		items.forEach(function(item) {
-			if (!BX.hasClass(item, 'landing-item-payment'))
-			{
-				BX.bind(item, 'click', function(event) {
-
-					if(event.target.classList.contains('landing-item-desc-open'))
-					{
-						return;
-					}
-
-					BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
-						allowChangeHistory: false
-					});
-				});
-			}
-        });
-
-		var wrapper = BX('grid-tile-wrap');
-		var tiles = Array.prototype.slice.call(wrapper.getElementsByClassName('landing-item'));
-		new BX.Landing.Component.Demo({
-			wrapper : wrapper,
-			inner: BX('grid-tile-inner'),
-			tiles : tiles
-		});
 		<?if ($arResult['LIMIT_REACHED']):?>
 		if (typeof BX.Landing.PaymentAlert !== 'undefined')
 		{
 			BX.Landing.PaymentAlert({
-				nodes: wrapper.querySelectorAll('.landing-item-payment'),
+				nodes: BX('grid-tile-wrap').querySelectorAll('.landing-item-payment'),
 				title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LIMIT_REACHED_TITLE'));?>',
 				message: '<?= ($arParams['SITE_ID'] > 0)
 					? \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PAGE_LIMIT_REACHED_TEXT'))
@@ -218,6 +223,13 @@ foreach ($arResult['DEMO'] as $item):
 					?>'
 			});
 		}
+		<?endif;?>
+
+		<?if ($select = $request->get('select')):?>
+		BX.fireEvent(
+			BX('landing-demo-<?= \CUtil::JSEscape($select);?>'),
+			'click'
+		);
 		<?endif;?>
 	})
 </script>

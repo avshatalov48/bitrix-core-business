@@ -65,6 +65,10 @@ class ShipmentItemStoreTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateBarcode'),
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_BARCODE_FIELD'),
 			),
+			'MARKING_CODE' => array(
+				'data_type' => 'string',
+				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_MARKING_CODE_FIELD'),
+			),
 			'STORE_ID' => array(
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_STORE_ID_FIELD'),

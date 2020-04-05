@@ -13,37 +13,37 @@
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#musicAlbums" class="landing-block-node-menu-list-item-link nav-link p-0">Music
 								albums</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#events" class="landing-block-node-menu-list-item-link nav-link p-0">Events</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#tours" class="landing-block-node-menu-list-item-link nav-link p-0">Tours</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#videos" class="landing-block-node-menu-list-item-link nav-link p-0">Videos</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery" class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#twitterFeeds" class="landing-block-node-menu-list-item-link nav-link p-0">Twitter
 								feeds</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#musicList" class="landing-block-node-menu-list-item-link nav-link p-0">Music
 								list</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#blog" class="landing-block-node-menu-list-item-link nav-link p-0">Blog</a>
 						</li>
-						<li class="nav-item landing-block-node-menu-list-item g-mx-15--lg g-mb-7 g-mb-0--lg">
+						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 						</li>
 					</ul>

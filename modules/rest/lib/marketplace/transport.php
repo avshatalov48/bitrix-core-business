@@ -107,6 +107,8 @@ class Transport
 		{
 			$request = Context::getCurrent()->getRequest();
 			$fields['host_name'] = $request->getHttpHost();
+			@include($_SERVER['DOCUMENT_ROOT'] . '/bitrix/license_key.php');
+			$fields['license_key'] = ($LICENSE_KEY == 'DEMO') ? 'DEMO' : md5('BITRIX' . $LICENSE_KEY . 'LICENCE');
 		}
 
 		return Encoding::convertEncoding($fields, LANG_CHARSET, 'utf-8');

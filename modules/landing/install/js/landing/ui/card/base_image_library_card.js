@@ -112,7 +112,7 @@
 			{
 				this.empty = BX.create("div", {
 					props: {className: "landing-ui-card-library-empty"},
-					html: BX.message("LANDING_IMAGES_PANEL_EMPTY_RESULT")
+					html: BX.Landing.Loc.getMessage("LANDING_IMAGES_PANEL_EMPTY_RESULT")
 				});
 
 				BX.insertAfter(this.empty, this.imageList);
@@ -135,7 +135,7 @@
 			{
 				this.error = BX.create("div", {
 					props: {className: "landing-ui-card-library-error"},
-					html: BX.message("LANDING_IMAGES_PANEL_ERROR") || "Error"
+					html: BX.Landing.Loc.getMessage("LANDING_IMAGES_PANEL_ERROR") || "Error"
 				});
 
 				BX.insertAfter(this.error, this.imageList);
@@ -172,7 +172,7 @@
 		createLoadMoreButton: function()
 		{
 			return new BX.Landing.UI.Button.BaseButton("load_more", {
-				text: BX.message("LANDING_IMAGE_LIBRARY_LOAD_MORE"),
+				text: BX.Landing.Loc.getMessage("LANDING_IMAGE_LIBRARY_LOAD_MORE"),
 				className: "landing-ui-card-library-load-more-button",
 				onClick: this.onLoadMore.bind(this)
 			});
@@ -194,7 +194,7 @@
 			var field = new BX.Landing.UI.Field.Unit({
 				onInput: this.onSearchInput.bind(this),
 				className: "landing-ui-card-library-search-field",
-				placeholder: BX.message("SEARCH_FIELD_PLACEHOLDER"),
+				placeholder: BX.Landing.Loc.getMessage("SEARCH_FIELD_PLACEHOLDER"),
 				title: this.searchLabel
 			});
 

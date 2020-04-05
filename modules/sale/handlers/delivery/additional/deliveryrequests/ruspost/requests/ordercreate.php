@@ -139,6 +139,8 @@ class OrderCreate extends Base
 
 		foreach($addresses as $id => $address)
 		{
+			$address = str_replace(["\n", "\t", "\r"], " ", $address);
+
 			$requestData[] = array(
 				'id' => $id,
 				'original-address' => $address
@@ -270,10 +272,7 @@ class OrderCreate extends Base
 				'mail-type' => $mailType
 			);
 
-			$courierTypes = array('ONLINE_COURIER', 'BUSINESS_COURIER', 'BUSINESS_COURIER_ES');
-
-			if(in_array($mailType, $courierTypes))
-				$item['courier'] = true;
+			$item['courier'] = isset($shipmentParams['EXTRA_SERVICES'][26]) && $shipmentParams['EXTRA_SERVICES'][26] == 'Y';
 
 			if(isset($shipmentParams['EXTRA_SERVICES'][1]))
 			{
@@ -484,26 +483,19 @@ class OrderCreate extends Base
 				if(!isset($resultData[$shipmentId]) || $notValidShipmentIds[$shipmentId])
 					continue;
 
-				if(isset($fio["valid"]) && $fio["valid"] === false)
+				if((!isset($fio["valid"]) || $fio["valid"] !== false) && $fio["quality-code"] != 'NOT_SURE' )
 				{
-					$shpResult = new Requests\ShipmentResult($shipmentId);
-					$shpResult->addError(new Error(
-						Loc::getMessage('SALE_DLVRS_ADD_DREQ_ROC_03').'. "'.$fio['original-fio'].'"',
-						$shipmentId
-					));
-					$result->addResult($shpResult);
-					$notValidShipmentIds[$shipmentId] = true;
-					continue;
+					if(!empty($fio['middle-name']))
+						$resultData[$shipmentId]['middle-name'] =  $fio['middle-name'];
+
+					if(!empty($fio['surname']))
+						$resultData[$shipmentId]['surname'] =  $fio['surname'];
+
+					if(!empty($fio['name']))
+						$resultData[$shipmentId]['given-name'] =  $fio['name'];
 				}
 
-				if(!empty($fio['middle-name']))
-					$resultData[$shipmentId]['middle-name'] =  $fio['middle-name'];
-
-				if(!empty($fio['surname']))
-					$resultData[$shipmentId]['surname'] =  $fio['surname'];
-
-				if(!empty($fio['name']))
-					$resultData[$shipmentId]['given-name'] =  $fio['name'];
+				$resultData[$shipmentId]['recipient-name'] =  $fio['original-fio'];
 			}
 		}
 

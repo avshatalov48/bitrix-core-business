@@ -1,8 +1,10 @@
 <?
+use Bitrix\Main\Loader;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
-if(!CModule::IncludeModule('sale'))
+if(!Loader::includeModule('sale'))
 	return;
 
 use	Bitrix\Sale\BusinessValue,
@@ -194,7 +196,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 	$personTypeUr = (isset($personType["ur"]) && $personType["ur"] == "Y" ? "Y" : "N");
 	COption::SetOptionString("eshop", "personTypeUr", $personTypeUr, false, WIZARD_SITE_ID);
 
-	if (in_array(GetMessage("SALE_WIZARD_PERSON_1"), $arPersonTypeNames))
+	if (!defined("ADDITIONAL_INSTALL") && in_array(GetMessage("SALE_WIZARD_PERSON_1"), $arPersonTypeNames))
 	{
 		$arGeneralInfo["personType"]["fiz"] = array_search(GetMessage("SALE_WIZARD_PERSON_1"), $arPersonTypeNames);
 		CSalePersonType::Update(array_search(GetMessage("SALE_WIZARD_PERSON_1"), $arPersonTypeNames), Array(
@@ -212,7 +214,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				);
 	}
 
-	if (in_array(GetMessage("SALE_WIZARD_PERSON_2"), $arPersonTypeNames))
+	if (!defined("ADDITIONAL_INSTALL") && in_array(GetMessage("SALE_WIZARD_PERSON_2"), $arPersonTypeNames))
 	{
 		$arGeneralInfo["personType"]["ur"] = array_search(GetMessage("SALE_WIZARD_PERSON_2"), $arPersonTypeNames);
 		CSalePersonType::Update(array_search(GetMessage("SALE_WIZARD_PERSON_2"), $arPersonTypeNames), Array(
@@ -235,7 +237,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 		$personTypeFizUa = (isset($personType["fiz_ua"]) && $personType["fiz_ua"] == "Y" ? "Y" : "N");
 		COption::SetOptionString("eshop", "personTypeFizUa", $personTypeFizUa, false, WIZARD_SITE_ID);
 
-		if (in_array(GetMessage("SALE_WIZARD_PERSON_3"), $arPersonTypeNames))
+		if (!defined("ADDITIONAL_INSTALL") && in_array(GetMessage("SALE_WIZARD_PERSON_3"), $arPersonTypeNames))
 		{
 			$arGeneralInfo["personType"]["fiz_ua"] = array_search(GetMessage("SALE_WIZARD_PERSON_3"), $arPersonTypeNames);
 			CSalePersonType::Update(array_search(GetMessage("SALE_WIZARD_PERSON_3"), $arPersonTypeNames), Array(
@@ -278,6 +280,8 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			));
 		}
 
+		if (!defined("ADDITIONAL_INSTALL"))
+		{
 			//Set options
 			COption::SetOptionString('sale','default_currency',$defCurrency);
 			COption::SetOptionString('sale','delete_after','30');
@@ -317,6 +321,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			COption::SetOptionString('sale','recalc_product_list_period','4');
 			COption::SetOptionString('sale', 'order_email', $shopEmail);
 			COption::SetOptionString('sale', 'encode_fuser_id', 'Y');
+		}
 
 			if(!$bRus)
 				$shopLocation = GetMessage("WIZ_CITY");
@@ -1549,6 +1554,11 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 		next($businessValueCodes);
 	}
 
+	if (defined("ADDITIONAL_INSTALL"))
+	{
+		return;
+	}
+
 /*
 	$propReplace = "";
 	foreach($arGeneralInfo["properies"] as $key => $val)
@@ -1572,6 +1582,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				"CITY" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz"]]["LOCATION"]["ID"]."_CITY"),
 				"STREET" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz"]]["ADDRESS"]["ID"]),
 				"EMAIL" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz"]]["EMAIL"]["ID"]),
+				"PHONE" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz"]]["PHONE"]["ID"]),
 				"CONTACT_PERSON" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz"]]["CONTACT_PERSON"]["ID"]),
 				"IS_FIZ" => "Y",
 			));
@@ -1649,6 +1660,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			"CITY" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz_ua"]]["LOCATION"]["ID"]."_CITY"),
 			"STREET" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz_ua"]]["ADDRESS"]["ID"]),
 			"EMAIL" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz_ua"]]["EMAIL"]["ID"]),
+			"PHONE" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz_ua"]]["PHONE"]["ID"]),
 			"CONTACT_PERSON" => Array("TYPE" => "PROPERTY", "VALUE" => $arGeneralInfo["properies"][$arGeneralInfo["personType"]["fiz_ua"]]["CONTACT_PERSON"]["ID"]),
 			"IS_FIZ" => "Y",
 		));
@@ -2186,8 +2198,8 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 					$params = array(
 						'filter' => array(
 							"SERVICE_ID" => $id,
-							"SERVICE_TYPE" => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-							"=CLASS_NAME" => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+							"SERVICE_TYPE" => Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
+							"=CLASS_NAME" => '\\'.Sale\Services\PaySystem\Restrictions\PersonType::class
 						)
 					);
 
@@ -2229,8 +2241,8 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			$params = array(
 				'filter' => array(
 					"SERVICE_ID" => $tmpPaySystem['ID'],
-					"SERVICE_TYPE" => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
-					"=CLASS_NAME" => '\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType'
+					"SERVICE_TYPE" => Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_PAYMENT,
+					"=CLASS_NAME" => '\\'.Sale\Services\PaySystem\Restrictions\PersonType::class
 				)
 			);
 
@@ -2269,6 +2281,8 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 
 	if (COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) != "Y" || WIZARD_INSTALL_DEMO_DATA)
 	{
+		Sale\Notify::setNotifyDisable(true);
+
 		if ($saleConverted15)
 		{
 			$orderPaidStatus    = 'P';
@@ -2370,20 +2384,9 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			}
 		}
 
-		if(CModule::IncludeModule("currency"))
-		{
-			$dbCur = CCurrency::GetList($by="currency", $o = "asc");
-			while($arCur = $dbCur->Fetch())
-			{
-				if($lang == "ru")
-					CCurrencyLang::Update($arCur["CURRENCY"], $lang, array("DECIMALS" => 2, "HIDE_ZERO" => "Y"));
-				elseif($arCur["CURRENCY"] == "EUR")
-					CCurrencyLang::Update($arCur["CURRENCY"], $lang, array("DECIMALS" => 2, "FORMAT_STRING" => "&euro;#"));
-			}
-		}
 		WizardServices::IncludeServiceLang("step1.php", $lang);
 
-		if (CModule::IncludeModule("catalog"))
+		if (Loader::includeModule("catalog"))
 		{
 			$dbVat = CCatalogVat::GetListEx(
 				array(),
@@ -2713,6 +2716,8 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 		}
 		CAgent::RemoveAgent("CSaleProduct::RefreshProductList();", "sale");
 		CAgent::AddAgent("CSaleProduct::RefreshProductList();", "sale", "N", 60*60*24*4, "", "Y");
+
+		Sale\Notify::setNotifyDisable(false);
 	}
 
 }

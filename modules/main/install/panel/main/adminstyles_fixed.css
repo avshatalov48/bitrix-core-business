@@ -53,6 +53,11 @@ div.settings-form a.delete-icon {display:block; width:20px; height:20px; backgro
 div.settings-form div.title {background-color:#23468A; background-image:url(images_old/panel/title_bg.gif); background-repeat:repeat-x; background-position:left top;}
 div.settings-form div.title td.title-text {font-size:12px; font-weight:bold; color:#EEF1F7; padding:3px; cursor:move; vertical-align:top;}
 div.settings-form a.close {display:block; width:13px; height:13px; background-image:url(images_old/panel/close.gif); overflow:hidden; margin:3px; background-repeat:no-repeat; background-position:top left;}
+div.settings-form div.settings-error {display:none;}
+div.settings-form div.settings-error p.settings-error-header {color:red; font-weight:bold;}
+div.settings-form div.settings-error p.settings-error-message {margin-bottom: 0; padding-bottom: 0;}
+div.settings-form div.settings-error div.absent-fields {margin:3px 0 0 10px; padding:0;}
+
 
 /*Settings float form*/
 div.settings-float-form {background-color:#F8F9FC; border:1px solid #ABB7D8; width:510px;}

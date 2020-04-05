@@ -112,10 +112,13 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				<div class="mail-msg-view-sender">
 					<? $__from = reset($message['__from']); ?>
 					<a class="mail-msg-view-sender-name js-mailto-link" href="mailto:<?=htmlspecialcharsbx($__from['email']) ?>"
-						title="<?=htmlspecialcharsbx($__from['name'] ?: $__from['email']) ?>"><?=htmlspecialcharsbx($__from['name'] ?: $__from['email']) ?></a>
+						<? if ($__from['name']): ?>title="<?=htmlspecialcharsbx($__from['email']) ?>"<? endif ?>><?
+						echo htmlspecialcharsbx($__from['name'] ?: $__from['email']);
+					?></a>
 					<? if (!empty($__from['name']) && !empty($__from['email']) && $__from['name'] != $__from['email']): ?>
-						<a class="mail-msg-view-sender-email js-mailto-link" href="mailto:<?=htmlspecialcharsbx($__from['email']) ?>"
-							title="<?=htmlspecialcharsbx($__from['email']) ?>"><?=htmlspecialcharsbx($__from['email']) ?></a>
+						<a class="mail-msg-view-sender-email js-mailto-link" href="mailto:<?=htmlspecialcharsbx($__from['email']) ?>"><?
+							echo htmlspecialcharsbx($__from['email']);
+						?></a>
 					<? endif ?>
 				</div>
 				<div class="mail-msg-view-date <? if ($arParams['LOADED_FROM_LOG'] == 'Y'): ?> mail-msg-view-arrow<? endif ?>">
@@ -400,7 +403,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 							$message['FIELD_DATE']->getTimestamp()+\CTimeZone::getOffset(),
 							time()+\CTimeZone::getOffset()
 						),
-						htmlspecialcharsbx($__from['name'] ?: $__from['email']),
+						htmlspecialcharsbx($__from['formated']),
 						$quote
 					),
 					'height' => 100,

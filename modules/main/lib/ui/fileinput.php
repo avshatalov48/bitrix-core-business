@@ -230,6 +230,10 @@ HTML
 			"allowUploadExt" => trim($params["allowUploadExt"]),
 			"allowSort" => ($params["allowSort"] == "N" ? "N" : "Y")
 		);
+		if ($this->uploadSetts["medialib"] === true)
+			$this->uploadSetts["medialib"] = (\Bitrix\Main\Loader::includeModule("fileman") && \CMedialib::CanDoOperation('medialib_view_collection', 0));
+		if($this->uploadSetts["fileDialog"] === true && !$USER->CanDoOperation('fileman_view_file_structure'))
+			$this->uploadSetts["fileDialog"] = false;
 
 		if (empty($this->uploadSetts["allowUploadExt"]) && $this->uploadSetts["allowUpload"] == "F")
 			$this->uploadSetts["allowUpload"] = "A";

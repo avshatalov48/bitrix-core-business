@@ -78,7 +78,7 @@ jsDD = {
 	registerObject: function (obNode)
 	{
 		BX.bind(obNode, 'mousedown', jsDD.startDrag);
-		BX.bind(obNode, 'touchstart', jsDD.startDrag);
+		BX.Event.bind(obNode, 'touchstart', jsDD.startDrag, { passive: true });
 
 		obNode.__bxddid = jsDD.arObjects.length;
 

@@ -2,6 +2,8 @@
 
 $MESS['MAIN_MAIL_FORM_FROM_FIELD'] = 'От кого';
 $MESS['MAIN_MAIL_FORM_FROM_FIELD_HINT'] = 'Отправитель по умолчанию';
+$MESS['MAIN_MAIL_FORM_FROM_FIELD_REQUIRED_HINT'] = 'Выбрать отправителя';
+$MESS['MAIN_MAIL_FORM_FROM_FIELD_COPY'] = 'Отправить мне копию';
 
 $MESS['MAIN_MAIL_FORM_TO_FIELD'] = 'Кому';
 $MESS['MAIN_MAIL_FORM_TO_FIELD_HINT'] = 'Добавить получателя';

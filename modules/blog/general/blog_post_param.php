@@ -27,11 +27,12 @@ class CBlogUserOptions
 					"\n\tLEFT JOIN (\n\t\t".
 						"SELECT MAX(RV2.VOTE_WEIGHT) as VOTE_WEIGHT, RV2.ENTITY_ID \n\t\t".
 						"FROM b_rating_user RV2 \n\t\t".
+						(isset($arFilter["POST_ID"]) && !is_array($arFilter["POST_ID"]) && intval($arFilter["POST_ID"]) > 0 ? " WHERE RV2.ENTITY_ID IN (SELECT BPP.USER_ID as USER_ID FROM b_blog_post_param BPP WHERE BPP.POST_ID = ".intval($arFilter["POST_ID"]).")\n\t\t" : "").
 						"GROUP BY RV2.ENTITY_ID) RV ON (RV.ENTITY_ID = BPP.USER_ID)\n\t".
 					"LEFT JOIN (\n\t\t".
 						"SELECT RV1.OWNER_ID, SUM(case when RV1.ID is not null then 1 else 0 end) as RANK \n\t\t".
 						"FROM b_rating_vote RV1 \n\t\t".
-						"WHERE RV1.USER_ID = ".$arOrder["OWNER_ID"]."\n\t\t".
+						"WHERE RV1.USER_ID = ".$arOrder["OWNER_ID"].(isset($arFilter["POST_ID"]) && !is_array($arFilter["POST_ID"]) && intval($arFilter["POST_ID"]) > 0 ? " AND RV1.OWNER_ID IN (SELECT BPP.USER_ID as USER_ID FROM b_blog_post_param BPP WHERE BPP.POST_ID = ".intval($arFilter["POST_ID"]).")" : "")."\n\t\t".
 						"GROUP BY RV1.OWNER_ID) RV0 ON (RV0.OWNER_ID = BPP.USER_ID)"
 				) : array (
 					"FIELD" => "RV.RANK",

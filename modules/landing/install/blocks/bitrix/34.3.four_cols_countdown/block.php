@@ -1,8 +1,8 @@
 <section class="landing-block g-pt-70 g-pb-70 g-bg-primary">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg">
-					<span class="u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
+					<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
 						<i class="landing-block-node-card-icon icon-badge"></i>
 					</span>
 				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">10</h3>
@@ -17,7 +17,7 @@
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg">
-					<span class="u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
+					<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
 						<i class="landing-block-node-card-icon icon-picture"></i>
 					</span>
 				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">99000</h3>
@@ -32,7 +32,7 @@
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--md">
-					<span class="u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
+					<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
 						<i class="landing-block-node-card-icon icon-camera"></i>
 					</span>
 				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">20</h3>
@@ -47,7 +47,7 @@
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center">
-					<span class="u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
+					<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--lg g-color-white-opacity-0_6 g-mb-15">
 						<i class="landing-block-node-card-icon icon-heart"></i>
 					</span>
 				<h3 class="landing-block-node-card-number g-font-size-35 g-color-white mb-0">238</h3>

@@ -597,7 +597,13 @@ if (CModule::IncludeModule("sale"))
 				$ind = -1;
 
 				$aliasFieldsList = \Bitrix\Sale\Compatible\OrderCompatibility::getAliasFields();
-				$alreadyUsedFields = \Bitrix\Sale\Order::getAllFields();
+
+				$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var \Bitrix\Sale\Order $orderClass */
+				$orderClass = $registry->getOrderClassName();
+
+				$alreadyUsedFields = $orderClass::getAllFields();
 
 				foreach ($aliasFieldsList as $fieldName => $fieldAlias)
 				{

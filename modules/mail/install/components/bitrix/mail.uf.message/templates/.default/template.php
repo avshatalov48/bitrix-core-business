@@ -74,7 +74,7 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 		) ?>
 	</div>
 	<div class="mail-uf-message-separator"></div>
-	<div class="mail-uf-message-body"><?=htmlspecialcharsbx($message['BODY']) ?></div>
+	<div class="mail-uf-message-body"><?=htmlspecialcharsbx(substr($message['BODY'], 0, 255)) ?></div>
 	<div>
 		<a class="mail-uf-message-body-expand" data-slider-ignore-autobinding="true"
 			href="<?=htmlspecialcharsbx($message['__href']) ?>"
@@ -82,12 +82,17 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 			<?=Loc::getMessage('MAIL_UF_MESSAGE_BODY_EXPAND') ?>
 		</a>
 	</div>
-	<? if ($message['ATTACHMENTS'] > 0): ?>
+	<? if ($message['OPTIONS']['attachments'] > 0 || $message['ATTACHMENTS'] > 0): ?>
 		<div>
 			<a class="mail-uf-message-files" data-slider-ignore-autobinding="true"
 				href="<?=htmlspecialcharsbx($message['__href']) ?>"
 				onclick="return BXMailUfMessageHelper.openMessage(this.href); ">
-				<?=Loc::getMessage('MAIL_UF_MESSAGE_ATTACHES', array('#NUM#' => (int) $message['ATTACHMENTS'])) ?>
+				<?=Loc::getMessage(
+					'MAIL_UF_MESSAGE_ATTACHES',
+					array(
+						'#NUM#' => (int) ($message['ATTACHMENTS'] ?: $message['OPTIONS']['attachments'])
+					)
+				) ?>
 			</a>
 		</div>
 	<? endif ?>

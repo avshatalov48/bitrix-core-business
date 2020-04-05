@@ -85,6 +85,27 @@ else
 }
 
 $arResult['SELECTED'] = array();
+$arResult['SELECTED_LIST'] = [];
+
+$selectorEntityTypes = array();
+
+$arResult['USE_SYMBOLIC_ID'] = (count($arParams['ENTITY_TYPE']) > 1);
+
+$arResult['LIST_PREFIXES'] = [
+	'DEAL' => 'D',
+	'CONTACT' => 'C',
+	'COMPANY' => 'CO',
+	'LEAD' => 'L',
+	'ORDER' => 'O'
+];
+$arResult['SELECTOR_ENTITY_TYPES'] = [
+	'DEAL' => 'deals',
+	'CONTACT' => 'contacts',
+	'COMPANY' => 'companies',
+	'LEAD' => 'leads',
+	'ORDER' => 'orders'
+];
+
 foreach ($arResult['VALUE'] as $key => $value)
 {
 	if (empty($value))
@@ -92,9 +113,40 @@ foreach ($arResult['VALUE'] as $key => $value)
 		continue;
 	}
 
+	if ($arResult['USE_SYMBOLIC_ID'])
+	{
+		$code = '';
+		foreach($arResult['LIST_PREFIXES'] as $type => $prefix)
+		{
+			if (preg_match('/^'.$prefix.'_(\d+)$/i', $value, $matches))
+			{
+				$code = $arResult['SELECTOR_ENTITY_TYPES'][$type];
+				break;
+			}
+		}
+	}
+	else
+	{
+		foreach($arParams['ENTITY_TYPE'] as $entityType)
+		{
+			if (!empty($entityType))
+			{
+				$value = $arResult['LIST_PREFIXES'][$entityType].'_'.$value;
+				$code = $arResult['SELECTOR_ENTITY_TYPES'][$entityType];
+				break;
+			}
+		}
+	}
+
+	if (!empty($code))
+	{
+		$arResult['SELECTED_LIST'][$value] = $code;
+	}
+
 	if($arResult['PREFIX'] === 'Y')
 	{
 		$arResult['SELECTED'][$value] = $value;
+
 	}
 	else
 	{
@@ -1053,6 +1105,8 @@ if (!empty($arResult['SELECTED']))
 	}
 }
 
+$arParams['createNewEntity'] = ($arParams['createNewEntity'] && \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isSliderEnabled());
+
 if(!empty($arParams['createNewEntity']))
 {
 	if(!empty($arResult['ENTITY_TYPE']))
@@ -1071,9 +1125,16 @@ if(!empty($arParams['createNewEntity']))
 	$arResult['LIST_ENTITY_CREATE_URL'] = array();
 	foreach($arResult['ENTITY_TYPE'] as $entityType)
 	{
-		$arResult['LIST_ENTITY_CREATE_URL'][$entityType] =
-			CCrmOwnerType::GetEditUrl(CCrmOwnerType::ResolveID($entityType), 0, false);
+
+		$arResult['LIST_ENTITY_CREATE_URL'][$entityType] = \CCrmUrlUtil::addUrlParams(
+			\CCrmOwnerType::getDetailsUrl(
+				CCrmOwnerType::resolveID($entityType),
+				0,
+				false,
+				array('ENABLE_SLIDER' => true)
+			),
+			array('init_mode' => 'edit')
+		);
 	}
-	
 }
 ?>

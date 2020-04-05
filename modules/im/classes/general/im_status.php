@@ -36,13 +36,15 @@ class CIMStatus
 		$res = IM\Model\StatusTable::getById($userId);
 		if ($status = $res->fetch())
 		{
+			$status = CIMStatus::prepareLastDate($status);
+
 			$previousStatus = Array(
 				'USER_ID' => $status['USER_ID'],
 				'STATUS' => (string)$status['STATUS'],
 				'COLOR' => (string)$status['COLOR'],
-				'IDLE' => $status['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $status['IDLE']: false,
-				'MOBILE_LAST_DATE' => $status['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['MOBILE_LAST_DATE']: false,
-				'DESKTOP_LAST_DATE' => $status['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $status['DESKTOP_LAST_DATE']: false,
+				'IDLE' => $status['IDLE'],
+				'MOBILE_LAST_DATE' => $status['MOBILE_LAST_DATE'],
+				'DESKTOP_LAST_DATE' => $status['DESKTOP_LAST_DATE'],
 			);
 
 			foreach ($params as $key => $value)
@@ -70,6 +72,9 @@ class CIMStatus
 			$status = $params;
 		}
 
+		$cache = \Bitrix\Main\Data\Cache::createInstance();
+		$cache->cleanDir(self::CACHE_PATH.$userId.'/');
+
 		if ($needToUpdate && self::Enable())
 		{
 			CPullStack::AddShared(Array(
@@ -92,8 +97,6 @@ class CIMStatus
 			));
 		}
 
-		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		$cache->cleanDir(self::CACHE_PATH.$userId.'/');
 		$cache->CleanDir(self::CACHE_ONLINE_PATH);
 
 		$event = new \Bitrix\Main\Event("im", "onStatusSet", array(
@@ -274,6 +277,7 @@ class CIMStatus
 						'STATUS' =>	'ST.STATUS',
 						'IDLE' => 'ST.IDLE',
 						'MOBILE_LAST_DATE' => 'ST.MOBILE_LAST_DATE',
+						'DESKTOP_LAST_DATE' => 'ST.DESKTOP_LAST_DATE',
 					 ),
 					'runtime' => Array(
 						new \Bitrix\Main\Entity\ReferenceField(
@@ -307,6 +311,7 @@ class CIMStatus
 						'STATUS' =>	'ST.STATUS',
 						'IDLE' => 'ST.IDLE',
 						'MOBILE_LAST_DATE' => 'ST.MOBILE_LAST_DATE',
+						'DESKTOP_LAST_DATE' => 'ST.DESKTOP_LAST_DATE',
 					 ),
 					'runtime' => Array(
 						new \Bitrix\Main\Entity\ReferenceField(
@@ -336,9 +341,8 @@ class CIMStatus
 					$color = \CIMContactList::GetUserColor($user["ID"], $user['PERSONAL_GENDER'] == 'M'? 'M': 'F');
 				}
 
-				$user['IDLE'] = $user['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $user['IDLE']: false;
-				$user['MOBILE_LAST_DATE'] = $user['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $user['MOBILE_LAST_DATE']: false;
 				$user['LAST_ACTIVITY_DATE'] = $user['LAST_ACTIVITY_DATE'] instanceof \Bitrix\Main\Type\DateTime? $user['LAST_ACTIVITY_DATE']: false;
+				$user = CIMStatus::prepareLastDate($user);
 
 				$users[$user["ID"]] = Array(
 					'id' => $user["ID"],
@@ -391,17 +395,25 @@ class CIMStatus
 		$userStatus = null;
 		$userId = intval($userId);
 		if (!$userId)
+		{
 			return $userStatus;
+		}
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
-		if($cache->initCache(self::CACHE_TTL, 'list_v1', self::CACHE_PATH.$userId.'/'))
+		if($cache->initCache(self::CACHE_TTL, 'list_v2', self::CACHE_PATH.$userId.'/'))
 		{
 			$userStatus = $cache->getVars();
 		}
 		else
 		{
 			$res = IM\Model\StatusTable::getList(Array(
-				'select' => Array('STATUS', 'IDLE', 'MOBILE_LAST_DATE', 'EXTERNAL_AUTH_ID' => 'USER.EXTERNAL_AUTH_ID'),
+				'select' => Array(
+					'STATUS',
+					'MOBILE_LAST_DATE',
+					'DESKTOP_LAST_DATE',
+					'IDLE',
+					'EXTERNAL_AUTH_ID' => 'USER.EXTERNAL_AUTH_ID'
+				),
 				'runtime' => Array(
 					new \Bitrix\Main\Entity\ReferenceField(
 						'USER',
@@ -418,6 +430,11 @@ class CIMStatus
 				$cache->startDataCache();
 				$cache->endDataCache($userStatus);
 			}
+		}
+
+		if ($userStatus)
+		{
+			$userStatus = CIMStatus::prepareLastDate($userStatus);
 		}
 
 		return $userStatus;
@@ -446,7 +463,6 @@ class CIMStatus
 
 		/** @var \Bitrix\Main\Type\DateTime $mobileLastDate */
 		$mobileLastDate = $status['MOBILE_LAST_DATE'];
-
 		if ($mobileLastDate)
 		{
 			if (
@@ -455,6 +471,7 @@ class CIMStatus
 			)
 			{
 				$result['STATUS'] = 'mobile';
+				$result['STATUS_TEXT'] = GetMessage('IM_STATUS_MOBILE');
 				$result['LAST_SEEN'] = $mobileLastDate->getTimestamp();
 				$result['LAST_SEEN_TEXT'] = CUser::FormatLastActivityDate($mobileLastDate->getTimestamp(), $now);
 			}
@@ -465,7 +482,10 @@ class CIMStatus
 			return $result;
 		}
 
-		if (in_array($status['STATUS'], Array('dnd', 'away', 'mobile')))
+		if ($result && $result['STATUS'] === 'mobile')
+		{
+		}
+		else if (in_array($status['STATUS'], Array('dnd', 'away')))
 		{
 			$result['STATUS'] = $status['STATUS'];
 			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_'.strtoupper($status['STATUS']));
@@ -482,6 +502,66 @@ class CIMStatus
 		}
 
 		return $result;
+	}
+
+	public static function getDesktopStatus($dates)
+	{
+		$result = [
+			'ONLINE' => false,
+			'IDLE' => false,
+		];
+
+		if (!($dates['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime))
+		{
+			return $result;
+		}
+
+		$maxOnlineTime = 120;
+		if (\Bitrix\Main\Loader::includeModule('pull') && CPullOptions::GetNginxStatus())
+		{
+			$maxOnlineTime = CIMMessenger::GetSessionLifeTime();
+		}
+
+		if ($dates['DESKTOP_LAST_DATE']->getTimestamp()+$maxOnlineTime+60 > time())
+		{
+			$result['ONLINE'] = true;
+		}
+
+		if (!$result['ONLINE'])
+		{
+			return $result;
+		}
+
+		if (
+			$dates['IDLE'] instanceof \Bitrix\Main\Type\DateTime
+			&& $dates['IDLE']->getTimestamp() > 0
+		)
+		{
+			$result['IDLE'] = true;
+		}
+
+		return $result;
+	}
+
+	public static function prepareLastDate($dates)
+	{
+		if (!($dates['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime))
+		{
+			$dates['MOBILE_LAST_DATE'] = false;
+		}
+
+		if (!($dates['DESKTOP_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime))
+		{
+			$dates['DESKTOP_LAST_DATE'] = false;
+		}
+
+		$status = self::getDesktopStatus($dates);
+		if (!$status['IDLE'])
+		{
+			$dates['IDLE'] = false;
+		}
+
+		return $dates;
 	}
 
 	public static function Enable()

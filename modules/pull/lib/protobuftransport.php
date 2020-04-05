@@ -20,7 +20,7 @@ class ProtobufTransport
 	 */
 	public static function sendMessages(array $messages)
 	{
-		if(\CPullOptions::GetQueueServerVersion() < 4)
+		if(!Config::isProtobufUsed())
 		{
 			throw new SystemException("Sending messages in protobuf format is not supported by queue server");
 		}
@@ -29,11 +29,20 @@ class ProtobufTransport
 		$requests = static::createRequests($protobufMessages);
 		$requestBatches = static::createRequestBatches($requests);
 
-		$queueServerUrl = \CHTTP::urlAddParams(\CPullOptions::GetPublishUrl(), ["binaryMode" => "true"]);
+		$queueServerUrl = \CHTTP::urlAddParams(Config::getPublishUrl(), ["binaryMode" => "true"]);
 		foreach ($requestBatches as $requestBatch)
 		{
+			$urlWithSignature = $queueServerUrl;
 			$httpClient = new HttpClient(["waitResponse" => false]);
-			$httpClient->post($queueServerUrl, $requestBatch->toStream());
+			$bodyStream = $requestBatch->toStream();
+			if(\CPullOptions::IsServerShared())
+			{
+				$signature = \CPullChannel::GetSignature($bodyStream->getContents());
+				$urlWithSignature = \CHTTP::urlAddParams($urlWithSignature, ["signature" => $signature]);
+			}
+
+			$httpClient->disableSslVerification();
+			$httpClient->post($urlWithSignature, $bodyStream);
 		}
 
 		return true;
@@ -78,13 +87,23 @@ class ProtobufTransport
 			$requests[] = $request;
 		}
 
-		$queueServerUrl = \CHTTP::urlAddParams(\CPullOptions::GetPublishUrl(), ["binaryMode" => "true"]);
+		$queueServerUrl = \CHTTP::urlAddParams(Config::getPublishUrl(), ["binaryMode" => "true"]);
 
 		$requestBatches = static::createRequestBatches($requests);
 		foreach ($requestBatches as $requestBatch)
 		{
 			$http = new HttpClient();
-			$binaryResponse = $http->post($queueServerUrl, $requestBatch->toStream());
+			$http->disableSslVerification();
+
+			$urlWithSignature = $queueServerUrl;
+			$bodyStream = $requestBatch->toStream();
+			if(\CPullOptions::IsServerShared())
+			{
+				$signature = \CPullChannel::GetSignature($bodyStream->getContents());
+				$urlWithSignature = \CHTTP::urlAddParams($urlWithSignature, ["signature" => $signature]);
+			}
+
+			$binaryResponse = $http->post($urlWithSignature, $bodyStream);
 
 			if($http->getStatus() != 200)
 			{

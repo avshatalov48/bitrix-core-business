@@ -72,6 +72,7 @@ $actions[] = Controller\Action::create('createUsingPreset')->setHandler(
 			$letter = (new Entity\Letter())
 				->set('IS_TRIGGER', 'Y')
 				->set('CREATED_BY', Bitrix\Sender\Security\User::current()->getId())
+				->set('UPDATED_BY', Bitrix\Sender\Security\User::current()->getId())
 				->set('CAMPAIGN_ID', $entity->getId())
 				->set('TITLE', trim(str_replace('#SITE_NAME#:', '',$letterData['SUBJECT'])))
 				->set('TIME_SHIFT', $letterData['TIME_SHIFT'])

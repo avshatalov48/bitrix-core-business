@@ -43,7 +43,7 @@ abstract class CommonHelper
 				$map[] = $dbHelper->forSql($fld);
 		}
 
-		return 'insert into '.$dbHelper->forSql($tableName).' ('.implode(',', $map).') values ';
+		return 'INSERT IGNORE INTO '.$dbHelper->forSql($tableName).' ('.implode(',', $map).') values ';
 	}
 
 	public static function getBatchInsertTail()

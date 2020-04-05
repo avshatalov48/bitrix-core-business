@@ -1,157 +1,121 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
-use Bitrix\Main\UI\Extension;
+/**
+ * Bitrix vars
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ * @global CDatabase $DB
+ * @var array $arParams
+ * @var array $arResult
+ * @var CBitrixComponent $component
+ * @var string $templateName
+ * @var string $templateFile
+ * @var string $templateFolder
+ * @var string $componentPath
+ */
 
-/** @var array $arParams */
-/** @var array $arResult */
+\Bitrix\Main\UI\Extension::load('ui.entity-editor');
 
-Extension::load("ui.forms");
-Extension::load("ui.buttons");
+$guid = $arResult['GUID'];
+$prefix = strtolower($guid);
+$containerID = "{$prefix}_container";
+$buttonContainerID = "{$prefix}_buttons";
+$configMenuButtonID = "{$prefix}_config_menu";
+$configIconID = "{$prefix}_config_icon";
 
-if (!is_array($arParams["SECTIONS"]) || empty($arParams["SECTIONS"]))
-	return;
-?>
-
-<form name="form_<?=$arParams["FORM_ID"]?>" id="form_<?=$arParams["FORM_ID"]?>" action="<?=POST_FORM_ACTION_URI?>" method="POST" enctype="multipart/form-data">
-	<?=bitrix_sessid_post();?>
-	<?
-	foreach ($arParams["SECTIONS"] as $section)
-	{
-	?>
-		<div class="ui-form-section" <?if (isset($section["ID"])):?>id="<?=$section["ID"]?>"<?endif?>>
-			<?if (isset($section["TITLE"])):?>
-				<div class="ui-form-section-title">
-					<?=$section["TITLE"]?>
-				</div>
-			<?endif?>
-
-			<?
-			if (is_array($section["FIELDS"]) && !empty($section["FIELDS"]))
-			{
-				foreach ($section["FIELDS"] as $field)
+?><div class="ui-entity-editor-container" id="<?=htmlspecialcharsbx($containerID)?>"></div>
+<div class="ui-entity-editor-section-add-btn-container" id="<?=htmlspecialcharsbx($buttonContainerID)?>"></div>
+<script type="text/javascript">
+	BX.ready(
+		function()
+		{
+			var config = BX.UI.EntityConfig.create(
+				"<?=CUtil::JSEscape($arResult['CONFIG_ID'])?>",
 				{
-					switch ($field["type"])
-					{
-						case "text":
-						?>
-							<div class="ui-form-block">
-								<label for="<?=$field["id"]?>" class="ui-ctl-label-text"><?=$field["title"]?></label>
-								<div class="ui-ctl ui-ctl-textbox">
-									<input
-										id="<?=$field["id"]?>"
-										name="<?=$field["id"]?>"
-										type="text"
-										class="ui-ctl-element"
-										value="<?=isset($field["value"]) ? htmlspecialcharsbx($field["value"]) : ""?>"
-									/>
-								</div>
-							</div>
-						<?
-						break;
-
-						case "list":
-						?>
-							<div class="ui-form-block">
-								<label for="<?=$field["id"]?>" class="ui-ctl-label-text"><?=$field["title"]?></label>
-								<div id="list-<?=$field["id"]?>" class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown">
-									<div class="ui-ctl-after ui-ctl-icon-angle"></div>
-									<div class="ui-ctl-element js-list-title">
-										<?=!empty($field["value"]) ? htmlspecialcharsbx($field["items"][$field["value"]]) : ""?>
-									</div>
-									<input
-										id="<?=$field["id"]?>"
-										name="<?=$field["id"]?>"
-										type="hidden"
-										value="<?=isset($field["value"]) ? htmlspecialcharsbx($field["value"]) : ""?>"
-									/>
-								</div>
-							</div>
-							<script>
-								BX.ready(function () {
-									var fieldId = "<?=CUtil::JSEscape($field["id"])?>";
-									BX.bind(BX("list-" + fieldId), "click", function () {
-										var listItems = [];
-										var fields = <?=CUtil::PhpToJSObject($field["items"])?>;
-										for (var value in fields)
-										{
-											if (!fields.hasOwnProperty(value))
-												continue;
-
-											listItems.push({
-												text: fields[value],
-												className: "menu-popup-no-icon",
-												onclick: BX.proxy(function () {
-													BX(fieldId).value = this.value;
-													var title = BX.findChild(BX("list-" + fieldId), {className: "js-list-title"}, true, false);
-													if (BX.type.isDomNode(title))
-													{
-														title.innerHTML = this.title;
-													}
-													var currentContext = BX.proxy_context;
-													currentContext.popupWindow.close();
-												}, {title: fields[value], value: value})
-											});
-										}
-										BX.PopupMenu.show("form-popup-" + fieldId, this, listItems,
-										{
-											offsetTop: 0,
-											offsetLeft: 0,
-											width: 320,
-											angle: false
-										});
-									});
-								});
-							</script>
-						<?
-						break;
-
-						case "custom":
-						?>
-							<div class="ui-form-block">
-								<?echo $field["value"];?>
-							</div>
-						<?
-							break;
-					}
+					data: <?=CUtil::PhpToJSObject($arResult['ENTITY_CONFIG'])?>,
+					scope: "<?=CUtil::JSEscape($arResult['ENTITY_CONFIG_SCOPE'])?>",
+					enableScopeToggle: <?=$arResult['ENABLE_CONFIG_SCOPE_TOGGLE'] ? 'true' : 'false'?>,
+					canUpdatePersonalConfiguration: <?=$arResult['CAN_UPDATE_PERSONAL_CONFIGURATION'] ? 'true' : 'false'?>,
+					canUpdateCommonConfiguration: <?=$arResult['CAN_UPDATE_COMMON_CONFIGURATION'] ? 'true' : 'false'?>,
+					options: <?=CUtil::PhpToJSObject($arResult['ENTITY_CONFIG_OPTIONS'])?>
 				}
-			}
-			?>
-		</div>
-		<?
-	}
+			);
 
-	if(isset($arParams["BUTTONS"]))
-	{
-	?>
-		<div>
-			<?
-			if(isset($arParams["BUTTONS"]["standard_buttons"]))
-			{
-			?>
-				<?if(in_array("save", $arParams["BUTTONS"]["standard_buttons"])):?>
-					<input
-						type="submit"
-						name="save"
-						class="ui-btn ui-btn-success"
-						value="<?echo GetMessage("UI_FORM_BUTTON_SAVE")?>"
-						onclick="BX.addClass(this, 'ui-btn-wait')"
-					/>
-				<?endif?>
-				<?if(in_array("cancel", $arParams["BUTTONS"]["standard_buttons"])):?>
-					<input
-						type="button"
-						value="<?echo GetMessage("UI_FORM_BUTTON_CANCEL")?>"
-						name="cancel"
-						onclick="window.location='<?=htmlspecialcharsbx(CUtil::addslashes($arParams["BUTTONS"]["back_url"]))?>'"
-					/>
-				<?endif?>
-			<?
-			}
-			?>
-			<?=$arParams["BUTTONS"]["custom_html"]?>
-		</div>
-	<?
-	}
-	?>
-</form>
+			var userFieldManager = BX.UI.EntityUserFieldManager.create(
+				"<?=CUtil::JSEscape($guid)?>",
+				{
+					entityId: <?=$arResult['ENTITY_ID']?>,
+					enableCreation: <?=$arResult['ENABLE_USER_FIELD_CREATION'] ? 'true' : 'false'?>,
+					enableMandatoryControl: <?=$arResult['ENABLE_USER_FIELD_MANDATORY_CONTROL'] ? 'true' : 'false'?>,
+					fieldEntityId: "<?=CUtil::JSEscape($arResult['USER_FIELD_ENTITY_ID'])?>",
+					fieldPrefix: "<?=CUtil::JSEscape($arResult['USER_FIELD_PREFIX'])?>",
+					creationSignature: "<?=CUtil::JSEscape($arResult['USER_FIELD_CREATE_SIGNATURE'])?>",
+					creationPageUrl: "<?=CUtil::JSEscape($arResult['USER_FIELD_CREATE_PAGE_URL'])?>",
+					languages: <?=CUtil::PhpToJSObject($arResult['LANGUAGES'])?>
+				}
+			);
+
+			var scheme = BX.UI.EntityScheme.create(
+				"<?=CUtil::JSEscape($guid)?>",
+				{
+					current: <?=CUtil::PhpToJSObject($arResult['ENTITY_SCHEME'])?>,
+					available: <?=CUtil::PhpToJSObject($arResult['ENTITY_AVAILABLE_FIELDS'])?>
+				}
+			);
+
+			var model = BX.UI.EntityEditorModelFactory.create(
+				"<?=CUtil::JSEscape($arResult['ENTITY_TYPE_NAME'])?>",
+				"",
+				{
+					isIdentifiable: <?=$arResult['IS_IDENTIFIABLE_ENTITY'] ? 'true' : 'false'?>,
+					data: <?=CUtil::PhpToJSObject($arResult['ENTITY_DATA'])?>
+				}
+			);
+
+			BX.UI.EntityEditor.setDefault(
+				BX.UI.EntityEditor.create(
+					"<?=CUtil::JSEscape($guid)?>",
+					{
+						entityTypeName: "<?=CUtil::JSEscape($arResult['ENTITY_TYPE_NAME'])?>",
+						entityId: <?=$arResult['ENTITY_ID']?>,
+						model: model,
+						config: config,
+						scheme: scheme,
+						validators: <?=CUtil::PhpToJSObject($arResult['ENTITY_VALIDATORS'])?>,
+						controllers: <?=CUtil::PhpToJSObject($arResult['ENTITY_CONTROLLERS'])?>,
+						detailManagerId: "<?=CUtil::JSEscape($arResult['DETAIL_MANAGER_ID'])?>",
+						userFieldManager: userFieldManager,
+						initialMode: "<?=CUtil::JSEscape($arResult['INITIAL_MODE'])?>",
+						enableModeToggle: <?=$arResult['ENABLE_MODE_TOGGLE'] ? 'true' : 'false'?>,
+						enableConfigControl: <?=$arResult['ENABLE_CONFIG_CONTROL'] ? 'true' : 'false'?>,
+						enableVisibilityPolicy: <?=$arResult['ENABLE_VISIBILITY_POLICY'] ? 'true' : 'false'?>,
+						enableToolPanel: <?=$arResult['ENABLE_TOOL_PANEL'] ? 'true' : 'false'?>,
+						enableBottomPanel: <?=$arResult['ENABLE_BOTTOM_PANEL'] ? 'true' : 'false'?>,
+						enableFieldsContextMenu: <?=$arResult['ENABLE_FIELDS_CONTEXT_MENU'] ? 'true' : 'false'?>,
+						enablePageTitleControls: <?=$arResult['ENABLE_PAGE_TITLE_CONTROLS'] ? 'true' : 'false'?>,
+						readOnly: <?=$arResult['READ_ONLY'] ? 'true' : 'false'?>,
+						enableAjaxForm: <?=$arResult['ENABLE_AJAX_FORM'] ? 'true' : 'false'?>,
+						enableRequiredUserFieldCheck: <?=$arResult['ENABLE_REQUIRED_USER_FIELD_CHECK'] ? 'true' : 'false'?>,
+						enableSectionEdit: <?=$arResult['ENABLE_SECTION_EDIT'] ? 'true' : 'false'?>,
+						enableSectionCreation: <?=$arResult['ENABLE_SECTION_CREATION'] ? 'true' : 'false'?>,
+						enableSectionDragDrop: <?=$arResult['ENABLE_SECTION_DRAG_DROP'] ? 'true' : 'false'?>,
+						enableFieldDragDrop: <?=$arResult['ENABLE_FIELD_DRAG_DROP'] ? 'true' : 'false'?>,
+						enableSettingsForAll: <?=$arResult['ENABLE_SETTINGS_FOR_ALL'] ? 'true' : 'false'?>,
+						containerId: "<?=CUtil::JSEscape($containerID)?>",
+						buttonContainerId: "<?=CUtil::JSEscape($buttonContainerID)?>",
+						configMenuButtonId: "<?=CUtil::JSEscape($configMenuButtonID)?>",
+						configIconId: "<?=CUtil::JSEscape($configIconID)?>",
+						serviceUrl: "<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>",
+						externalContextId: "<?=CUtil::JSEscape($arResult['EXTERNAL_CONTEXT_ID'])?>",
+						contextId: "<?=CUtil::JSEscape($arResult['CONTEXT_ID'])?>",
+						context: <?=CUtil::PhpToJSObject($arResult['CONTEXT'])?>,
+						options: <?=CUtil::PhpToJSObject($arResult['EDITOR_OPTIONS'])?>,
+						ajaxData: <?=CUtil::PhpToJSObject($arResult['COMPONENT_AJAX_DATA'])?>,
+						isEmbedded: <?=$arResult['IS_EMBEDDED'] ? 'true' : 'false'?>,
+					}
+				)
+			);
+		}
+	);
+</script>

@@ -345,7 +345,7 @@
 		showNotification: function(notificationText)
 		{
 			BX.UI.Notification.Center.notify({
-				content: notificationText,
+				content: BX.util.htmlspecialchars(notificationText),
 				position: "top-right",
 				autoHideDelay: 5000,
 				closeButton: true

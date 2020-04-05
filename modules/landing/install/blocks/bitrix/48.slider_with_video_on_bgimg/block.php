@@ -1,5 +1,4 @@
-<section
-		class="landing-block js-animation slideInRight landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100"
+<section class="landing-block js-animation slideInRight landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img1.jpg);">
 	<div class="js-carousel container u-bg-overlay__inner g-pb-140"
 		 data-pagi-classes="u-carousel-indicators-v1--white g-absolute-centered--x g-bottom-40 text-center">
@@ -16,7 +15,7 @@
 					</a>
 				</div>
 				<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-20">
-					You in my mind official video
+					You're on my mind official video
 				</h2>
 
 				<div class="landing-block-node-card-text g-mb-30">
@@ -43,7 +42,7 @@
 					</a>
 				</div>
 				<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-20">
-					You in my mind official video
+					You're on my mind official video
 				</h2>
 
 				<div class="landing-block-node-card-text g-mb-30">

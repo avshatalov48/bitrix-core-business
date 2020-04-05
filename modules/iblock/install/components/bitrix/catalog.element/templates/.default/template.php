@@ -116,7 +116,7 @@ $showBuyBtn = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION']);
 $buyButtonClassName = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION_PRIMARY']) ? 'btn-default' : 'btn-link';
 $showAddBtn = in_array('ADD', $arParams['ADD_TO_BASKET_ACTION']);
 $showButtonClassName = in_array('ADD', $arParams['ADD_TO_BASKET_ACTION_PRIMARY']) ? 'btn-default' : 'btn-link';
-$showSubscribe = $arParams['PRODUCT_SUBSCRIPTION'] === 'Y' && ($arResult['CATALOG_SUBSCRIBE'] === 'Y' || $haveOffers);
+$showSubscribe = $arParams['PRODUCT_SUBSCRIPTION'] === 'Y' && ($arResult['PRODUCT']['SUBSCRIBE'] === 'Y' || $haveOffers);
 
 $arParams['MESS_BTN_BUY'] = $arParams['MESS_BTN_BUY'] ?: Loc::getMessage('CT_BCE_CATALOG_BUY');
 $arParams['MESS_BTN_ADD_TO_BASKET'] = $arParams['MESS_BTN_ADD_TO_BASKET'] ?: Loc::getMessage('CT_BCE_CATALOG_ADD');
@@ -595,9 +595,8 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 											{
 												if (
 													$measureRatio
-													&& (float)$actualItem['CATALOG_QUANTITY'] > 0
-													&& $actualItem['CATALOG_QUANTITY_TRACE'] === 'Y'
-													&& $actualItem['CATALOG_CAN_BUY_ZERO'] === 'N'
+													&& (float)$actualItem['PRODUCT']['QUANTITY'] > 0
+													&& $actualItem['CHECK_QUANTITY']
 												)
 												{
 													?>
@@ -608,7 +607,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 																<?
 																if ($arParams['SHOW_MAX_QUANTITY'] === 'M')
 																{
-																	if ((float)$actualItem['CATALOG_QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
+																	if ((float)$actualItem['PRODUCT']['QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
 																	{
 																		echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
 																	}
@@ -619,7 +618,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 																}
 																else
 																{
-																	echo $actualItem['CATALOG_QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
+																	echo $actualItem['PRODUCT']['QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
 																}
 																?>
 															</span>
@@ -1263,7 +1262,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			<table>
 				<tr>
 					<td rowspan="2" class="product-item-detail-short-card-image">
-						<img src="" style="height: 65px;" data-entity="panel-picture">
+						<img src="" data-entity="panel-picture">
 					</td>
 					<td class="product-item-detail-short-title-container" data-entity="panel-title">
 						<span class="product-item-detail-short-title-text"><?=$name?></span>
@@ -1768,7 +1767,7 @@ else
 			'CAN_BUY' => $arResult['CAN_BUY'],
 			'CHECK_QUANTITY' => $arResult['CHECK_QUANTITY'],
 			'QUANTITY_FLOAT' => is_float($arResult['ITEM_MEASURE_RATIOS'][$arResult['ITEM_MEASURE_RATIO_SELECTED']]['RATIO']),
-			'MAX_QUANTITY' => $arResult['CATALOG_QUANTITY'],
+			'MAX_QUANTITY' => $arResult['PRODUCT']['QUANTITY'],
 			'STEP_QUANTITY' => $arResult['ITEM_MEASURE_RATIOS'][$arResult['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'],
 			'CATEGORY' => $arResult['CATEGORY_PATH']
 		),

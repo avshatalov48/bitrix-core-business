@@ -114,6 +114,10 @@ class WorkgroupTable extends Entity\DataManager
 			'SEARCH_INDEX' => array(
 				'data_type' => 'text',
 			),
+			'LANDING' => array(
+				'data_type' => 'boolean',
+				'values' => array('N','Y')
+			),
 		);
 
 		return $fieldsMap;

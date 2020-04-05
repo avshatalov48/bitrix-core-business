@@ -1,4 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Vote\VoteTable;
 /**
  * @global CMain $APPLICATION
  * @global CUser $USER
@@ -57,24 +59,77 @@ else if (!empty($arParams["INPUT_VALUE"]))
 	}
 	if (!empty($arResult["VOTES"]))
 	{
-		$db_res = CVoteQuestion::GetListEx(array("ID" => "ASC"),
-			array("CHANNEL_ID" => $arParams["CHANNEL_ID"], "ACTIVE" => "Y", "@VOTE_ID" => array_keys($arResult["VOTES"])));
-		while($res = $db_res->Fetch())
+		$dbRes = VoteTable::getList(array(
+			"select" => array(
+				"Q_" => "QUESTION.*",
+				"A_" => "QUESTION.ANSWER",
+			),
+			"order" => array(
+				"QUESTION.C_SORT" => "ASC",
+				"QUESTION.ID" => "ASC",
+				"QUESTION.ANSWER.C_SORT" => "ASC",
+				"QUESTION.ANSWER.ID" => "ASC",
+			),
+			"filter" => array(
+				"CHANNEL_ID" => $arParams["CHANNEL_ID"],
+				"ACTIVE" => "Y",
+				"ID" => array_keys($arResult["VOTES"])
+			)
+		));
+		$question = ["ID" => null];
+		while ($res = $dbRes->Fetch())
 		{
-			$arResult["VOTES"][$res["VOTE_ID"]]["QUESTIONS"][$res["ID"]] = ($res + array("ANSWERS" => array()));
-		}
-
-		$db_res = CVoteAnswer::GetListEx(array("ID" => "ASC"),
-			array("CHANNEL_ID" => $arParams["CHANNEL_ID"], "ACTIVE" => "Y", "@VOTE_ID" => array_keys($arResult["VOTES"])));
-		while($res = $db_res->Fetch())
-		{
-			if ($res["FIELD_TYPE"] == 1)
+			if ($res["Q_ID"] !== $question["ID"])
 			{
-				$arResult["VOTES"][$res["VOTE_ID"]]["QUESTIONS"][$res["QUESTION_ID"]]["MULTI"] = "Y";
+				unset($question);
+				foreach ($res as $key => $val)
+				{
+					if (strpos($key, "Q_") === 0)
+						$question[substr($key, 2)] = $val;
+				}
+				$question += [
+					"IMAGE" => null,
+					"FIELD_NAME" => \Bitrix\Vote\Event::getFieldName($question["VOTE_ID"], $question["ID"]),
+					"ANSWERS" => []
+				];
 			}
-			$arResult["VOTES"][$res["VOTE_ID"]]["QUESTIONS"][$res["QUESTION_ID"]]["ANSWERS"][$res["ID"]] = $res;
+			if (!array_key_exists($question["VOTE_ID"], $arResult["VOTES"]))
+			{
+				$arResult["VOTES"][$question["VOTE_ID"]] = ["QUESTIONS" => []];
+			}
+			if (!array_key_exists($question["ID"], $arResult["VOTES"][$question["VOTE_ID"]]["QUESTIONS"]))
+			{
+				$arResult["VOTES"][$question["VOTE_ID"]]["QUESTIONS"][$question["ID"]] = &$question;
+			}
+
+			$answer = [];
+			foreach ($res as $key => $val)
+			{
+				if (strpos($key, "A_") === 0)
+					$answer[substr($key, 2)] = $val;
+			}
+			if (
+				$question["FIELD_TYPE"] == \Bitrix\Vote\QuestionTypes::CHECKBOX ||
+				$question["FIELD_TYPE"] == \Bitrix\Vote\QuestionTypes::MULTISELECT ||
+				($question["FIELD_TYPE"] == \Bitrix\Vote\QuestionTypes::COMPATIBILITY &&
+					($answer["FIELD_TYPE"] == \Bitrix\Vote\AnswerTypes::CHECKBOX || $answer["FIELD_TYPE"] == \Bitrix\Vote\AnswerTypes::MULTISELECT)
+				)
+			)
+			{
+				$question["MULTI"] = "Y";
+			}
+			$question["ANSWERS"][$answer["ID"]] = $answer;
 		}
+		unset($question);
 	}
+}
+else // in case vote creating
+{
+	$arResult["VOTES"][] = [
+		"DATE_END" => GetTime((time() + 30*86400)),
+		"ANONYMITY" => \Bitrix\Vote\Vote\Anonymity::PUBLICLY,
+		"OPTIONS" => \Bitrix\Vote\Vote\Option::ALLOW_REVOTE
+	];
 }
 if (!empty($arResult["VOTES"]))
 {

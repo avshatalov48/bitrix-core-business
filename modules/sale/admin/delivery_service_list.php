@@ -6,7 +6,7 @@ use Bitrix\Main\Localization\Loc;
 \Bitrix\Main\Loader::includeModule('sale');
 Loc::loadMessages(__FILE__);
 
-$publicMode = $adminPage->publicMode;
+$publicMode = $adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel();
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 /** @var  CMain $APPLICATION */
@@ -25,10 +25,8 @@ $adminNotes = array();
 //Base::isHandlerCompatible() - small temporary hack usage to know if we can use locations.
 if((int)\Bitrix\Main\Config\Option::get('sale', 'location', 0) <= 0 && \Bitrix\Sale\Delivery\Services\Base::isHandlerCompatible())
 {
-	$adminNotes[] = Loc::getMessage('SALE_SDL_LOCATION_NOTE', [
-		'#A1#' => '<a href="/bitrix/admin/settings.php?lang='.LANGUAGE_ID.'&mid=sale">',
-		'#A2#' => '</a>'
-	]);
+	$settingsUrl = ($publicMode ? "/crm/configs/sale/?type=common" : "/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=sale");
+	$adminNotes[] = Loc::getMessage('SALE_SDL_LOCATION_NOTE');
 }
 
 global $by, $order;
@@ -257,7 +255,7 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-if (strlen($siteId) > 0 || in_array('SITES', $arVisibleColumns))
+if (in_array('SITES', $arVisibleColumns))
 {
 	$glParams['runtime'] = array(
 		'RESTRICTION_BY_SITE' => array(
@@ -279,6 +277,33 @@ if (strlen($siteId) > 0 || in_array('SITES', $arVisibleColumns))
 
 $backUrl = urlencode($APPLICATION->GetCurPageParam("", array("mode", "internal", "grid_id", "grid_action", "bxajaxid", "sessid"))); //todo replace to $lAdmin->getCurPageParam()
 $dbResultList = \Bitrix\Sale\Delivery\Services\Table::getList($glParams);
+
+while ($service = $dbResultList->fetch())
+{
+	if(strlen($siteId) > 0)
+	{
+		$dbRestriction = \Bitrix\Sale\Internals\ServiceRestrictionTable::getList(array(
+			'filter' => array(
+				'=SERVICE_ID' => $service['ID'],
+				'=SERVICE_TYPE' => \Bitrix\Sale\Services\PaySystem\Restrictions\Manager::SERVICE_TYPE_SHIPMENT,
+				'=CLASS_NAME' => '\Bitrix\Sale\Delivery\Restrictions\BySite'
+			)
+		));
+
+		while ($restriction = $dbRestriction->fetch())
+		{
+			if (!\Bitrix\Sale\Delivery\Restrictions\BySite::check($siteId, $restriction['PARAMS']))
+			{
+				continue(2);
+			}
+		}
+	}
+
+	$result[] = $service;
+}
+
+$dbResultList = new CDBResult();
+$dbResultList->InitFromArray($result);
 $dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 
 $dbResultList->NavStart();
@@ -286,11 +311,6 @@ $lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl.
 
 while ($service = $dbResultList->NavNext(false))
 {
-	if(strlen($siteId) > 0 && isset($service["SITES"]) &&
-		!empty($service["SITES"]['SITE_ID']) && is_array($service["SITES"]['SITE_ID']))
-		if(!in_array($siteId, $service["SITES"]['SITE_ID']))
-			continue;
-
 	if(is_callable($service["CLASS_NAME"].'::canHasChildren') && $service["CLASS_NAME"]::canHasChildren()) //has children
 	{
 		$actUrl = $selfFolderUrl."sale_delivery_service_list.php?lang=".LANGUAGE_ID."&PARENT_ID=".$service["ID"]."&apply_filter=Y";
@@ -321,7 +341,7 @@ while ($service = $dbResultList->NavNext(false))
 
 	$logoHtml = intval($service["LOGOTIP"]) > 0 ? CFile::ShowImage(CFile::GetFileArray($service["LOGOTIP"]), 150, 150, "border=0", "", false) : "";
 	$row->AddField("LOGOTIP", $logoHtml);
-	$row->AddField("DESCRIPTION", $service["DESCRIPTION"], false, false);
+	$row->AddField("DESCRIPTION", $service["DESCRIPTION"], false, true);
 	$row->AddField("SORT", $service["SORT"]);
 	$row->AddField("ACTIVE", (($service["ACTIVE"]=="Y") ? Loc::getMessage("SALE_SDL_YES") : Loc::getMessage("SALE_SDL_NO")));
 	$row->AddField("ALLOW_EDIT_SHIPMENT", (($service["ALLOW_EDIT_SHIPMENT"]=="Y") ? Loc::getMessage("SALE_SDL_YES") : Loc::getMessage("SALE_SDL_NO")));
@@ -518,25 +538,31 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(Loc::getMessage("SALE_SDL_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-
-$lAdmin->DisplayFilter($filterFields);
-
-if(!empty($adminNotes))
+if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 {
-	echo BeginNote();
-	echo implode('<br>', $adminNotes);
-	echo EndNote();
+	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", ".default");
 }
+else
+{
+	$lAdmin->DisplayFilter($filterFields);
 
-$lAdmin->DisplayList();
+	if(!empty($adminNotes))
+	{
+		echo BeginNote();
+		echo implode('<br>', $adminNotes);
+		echo EndNote();
+	}
 
-?>
-<script language="JavaScript">
-	BX.message({
-		SALE_DSE_CHOOSE_GROUP_TITLE: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_TITLE")?>',
-		SALE_DSE_CHOOSE_GROUP_HEAD: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_HEAD")?>',
-		SALE_DSE_CHOOSE_GROUP_SAVE: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_SAVE")?>'
-	});
-</script>
-<?
+	$lAdmin->DisplayList();
+
+	?>
+	<script language="JavaScript">
+		BX.message({
+			SALE_DSE_CHOOSE_GROUP_TITLE: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_TITLE")?>',
+			SALE_DSE_CHOOSE_GROUP_HEAD: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_HEAD")?>',
+			SALE_DSE_CHOOSE_GROUP_SAVE: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_SAVE")?>'
+		});
+	</script>
+	<?
+}
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -1,8 +1,7 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-18);
-include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
+<?php
+
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 Class compression extends CModule
 {
@@ -13,7 +12,7 @@ Class compression extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_CSS;
 
-	function compression()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -32,8 +31,8 @@ Class compression extends CModule
 			$this->MODULE_VERSION_DATE = COMPRESSION_VERSION_DATE;
 		}
 
-		$this->MODULE_NAME = GetMessage("COMPRESSION_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("COMPRESSION_MODULE_DESC");
+		$this->MODULE_NAME = Loc::getMessage("COMPRESSION_MODULE_NAME");
+		$this->MODULE_DESCRIPTION = Loc::getMessage("COMPRESSION_MODULE_DESC");
 	}
 
 	function InstallDB($arParams = array())
@@ -78,14 +77,14 @@ Class compression extends CModule
 	{
 		global $DOCUMENT_ROOT, $APPLICATION;
 		$this->InstallDB();
-		$APPLICATION->IncludeAdminFile(GetMessage("COMPRESS_INSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/compression/install/step.php");
+		$APPLICATION->IncludeAdminFile(Loc::getMessage("COMPRESS_INSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/compression/install/step.php");
 	}
 
 	function DoUninstall()
 	{
 		global $DOCUMENT_ROOT, $APPLICATION;
 		$this->UnInstallDB();
-		$APPLICATION->IncludeAdminFile(GetMessage("COMPRESS_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/compression/install/unstep.php");
+		$APPLICATION->IncludeAdminFile(Loc::getMessage("COMPRESS_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/compression/install/unstep.php");
 	}
 }
 ?>

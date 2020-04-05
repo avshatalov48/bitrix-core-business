@@ -1,6 +1,8 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Bizproc;
+
 class CBPHelper
 {
 	const DISTR_B24 = 'b24';
@@ -1774,12 +1776,14 @@ class CBPHelper
 			$serverName = static::$serverName;
 		}
 
+		$scheme = \CMain::IsHTTPS() ? 'https' : 'http';
+
 		if (substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
-			$url = 'http://'.$url;
+			$url = $scheme.'://'.$url;
 		if (!preg_match("/^(http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+/i".BX_UTF_PCRE_MODIFIER, $url))
 			$url = $serverName.$url;
 		if (!preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
-			$url = 'http://'.$url;
+			$url = $scheme.'://'.$url;
 
 		$url = str_replace(' ', '%20', $url);
 
@@ -2013,9 +2017,7 @@ class CBPHelper
 		}
 
 		$l = strlen("user_");
-
-		$runtime = CBPRuntime::GetRuntime();
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
 
 		foreach ($arUsersDraft as $user)
 		{
@@ -2034,6 +2036,32 @@ class CBPHelper
 						return $user;
 					}
 					$result[] = $user;
+				}
+			}
+			elseif (\CBPActivity::isExpression($user))
+			{
+				$parsed = \CBPActivity::parseExpression($user);
+				if ($parsed && $parsed['object'] === 'Document')
+				{
+					$document = $documentService->GetDocument($documentId);
+					if ($document && $document[$parsed['field']])
+					{
+						foreach ((array) $document[$parsed['field']] as $docUser)
+						{
+							if (substr($docUser, 0, $l) === "user_")
+							{
+								$user = intval(substr($docUser, $l));
+								if (($user > 0) && !in_array($user, $result))
+								{
+									if ($bFirst)
+									{
+										return $user;
+									}
+									$result[] = $user;
+								}
+							}
+						}
+					}
 				}
 			}
 			else
@@ -2382,5 +2410,41 @@ class CBPHelper
 			return $ar;
 		}
 		return $item;
+	}
+
+	public static function makeTimestamp($date)
+	{
+		if (!$date)
+		{
+			return 0;
+		}
+
+		//serialized date string
+		if (is_string($date) && Bizproc\BaseType\Value\DateTime::isSerialized($date))
+		{
+			$date = new Bizproc\BaseType\Value\DateTime($date);
+		}
+
+		if ($date instanceof Bizproc\BaseType\Value\Date)
+		{
+			return $date->getTimestamp();
+		}
+
+		if (intval($date)."!" === $date."!")
+		{
+			return $date;
+		}
+
+		if (($result = MakeTimeStamp($date, FORMAT_DATETIME)) === false)
+		{
+			if (($result = MakeTimeStamp($date, FORMAT_DATE)) === false)
+			{
+				if (($result = MakeTimeStamp($date, "YYYY-MM-DD HH:MI:SS")) === false)
+				{
+					$result = MakeTimeStamp($date, "YYYY-MM-DD");
+				}
+			}
+		}
+		return (int) $result;
 	}
 }

@@ -131,17 +131,26 @@ foreach ($this->basketItems as $row)
 
 			foreach ($skuBlock['VALUES'] as $skuItem)
 			{
+				if ($skuBlock['TYPE'] === 'S' && $skuBlock['USER_TYPE'] === 'directory')
+				{
+					$valueId = $skuItem['XML_ID'];
+				}
+				elseif ($skuBlock['TYPE'] === 'E')
+				{
+					$valueId = $skuItem['ID'];
+				}
+				else
+				{
+					$valueId = $skuItem['NAME'];
+				}
+
 				$skuValue = array(
 					'ID' => $skuItem['ID'],
 					'NAME' => $skuItem['NAME'],
 					'SORT' => $skuItem['SORT'],
 					'PICT' => !empty($skuItem['PICT']) ? $skuItem['PICT']['SRC'] : false,
 					'XML_ID' => !empty($skuItem['XML_ID']) ? $skuItem['XML_ID'] : false,
-					'VALUE_ID' => (
-					$skuBlock['TYPE'] === 'S' && $skuBlock['USER_TYPE'] === 'directory'
-						? $skuItem['XML_ID']
-						: $skuItem['NAME']
-					),
+					'VALUE_ID' => $valueId,
 					'PROP_ID' => $skuBlock['ID'],
 					'PROP_CODE' => $skuBlock['CODE']
 				);
@@ -199,14 +208,23 @@ foreach ($this->basketItems as $row)
 
 	if (!empty($result['GRID']['HEADERS']) && is_array($result['GRID']['HEADERS']))
 	{
+		$skipHeaders = [
+			'NAME' => true,
+			'QUANTITY' => true,
+			'PRICE' => true,
+			'PREVIEW_PICTURE' => true,
+			'SUM' => true,
+			'PROPS' => true,
+			'DELETE' => true,
+			'DELAY' => true,
+		];
+
 		foreach ($result['GRID']['HEADERS'] as &$value)
 		{
 			if (
-				$value['id'] === 'NAME' || $value['id'] === 'QUANTITY' || $value['id'] === 'PRICE'
-				|| $value['id'] === 'PREVIEW_PICTURE' || ($value['id'] === 'DETAIL_PICTURE' & $hideDetailPicture)
-				|| $value['id'] === 'SUM' || $value['id'] === 'PROPS' || $value['id'] === 'DELETE'
-				|| $value['id'] === 'DELAY'
-			)
+				empty($value['id'])
+				|| isset($skipHeaders[$value['id']])
+				|| ($hideDetailPicture && $value['id'] === 'DETAIL_PICTURE'))
 			{
 				continue;
 			}
@@ -351,6 +369,8 @@ foreach ($this->basketItems as $row)
 				);
 			}
 		}
+
+		unset($value);
 	}
 
 	if (!empty($row['LABEL_ARRAY_VALUE']))

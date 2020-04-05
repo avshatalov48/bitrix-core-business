@@ -22,7 +22,8 @@ function forumCommentsCommentWeb(
 			"SECOND_NAME" => $comment["~SECOND_NAME"],
 			"LOGIN" => $comment["~LOGIN"],
 			"AVATAR" => ($comment["AVATAR"] && $comment["AVATAR"]["FILE"] ? $comment["AVATAR"]["FILE"]['src'] : ""),
-			"PERSONAL_GENDER" => !empty($comment["~PERSONAL_GENDER"]) ? $comment["~PERSONAL_GENDER"] : ""
+			"PERSONAL_GENDER" => !empty($comment["~PERSONAL_GENDER"]) ? $comment["~PERSONAL_GENDER"] : "",
+			"EXTERNAL_AUTH_ID" => $comment["~EXTERNAL_AUTH_ID"]
 		),
 		"FILES" => $comment["FILES"],
 		"UF" => $comment["PROPS"],

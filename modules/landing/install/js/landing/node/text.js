@@ -22,6 +22,8 @@
 	{
 		BX.Landing.Block.Node.apply(this, arguments);
 
+		this.type = "text";
+
 		this.onClick = this.onClick.bind(this);
 		this.onPaste = this.onPaste.bind(this);
 		this.onDrop = this.onDrop.bind(this);
@@ -60,7 +62,7 @@
 		onAllowInlineEdit: function()
 		{
 			// Show title "Click to edit" for node
-			this.node.setAttribute("title", escapeText(BX.message("LANDING_TITLE_OF_TEXT_NODE")));
+			this.node.setAttribute("title", escapeText(BX.Landing.Loc.getMessage("LANDING_TITLE_OF_TEXT_NODE")));
 		},
 
 
@@ -159,25 +161,13 @@
 			if (event.clipboardData && event.clipboardData.getData)
 			{
 				text = event.clipboardData.getData("text/plain");
-
-				if (!this.manifest.textOnly)
-				{
-					text = text.replace(new RegExp('\n', 'g'), '<br>');
-				}
-
-				document.execCommand("insertHTML", false, text);
+				document.execCommand("insertHTML", false, BX.Landing.Utils.escapeHtml(text));
 			}
 			else
 			{
 				// ie11
 				text = window.clipboardData.getData("text");
-
-				if (!this.manifest.textOnly)
-				{
-					text = text.replace(new RegExp('\n', 'g'), '<br>');
-				}
-
-				document.execCommand("paste", true, text);
+				document.execCommand("paste", true, BX.Landing.Utils.escapeHtml(text));
 			}
 
 			this.onChange();
@@ -298,7 +288,6 @@
 
 				this.lastValue = this.getValue();
 				this.node.contentEditable = true;
-				this.node.focus();
 
 				this.node.setAttribute("title", "");
 			}
@@ -314,8 +303,8 @@
 			if (!this.designButton)
 			{
 				this.designButton = new BX.Landing.UI.Button.Design("design", {
-					html: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_DESIGN"),
-					attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_DESIGN")},
+					html: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_DESIGN"),
+					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_DESIGN")},
 					onClick: function() {
 						BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 						this.disableEdit();
@@ -345,7 +334,7 @@
 
 				if (this.isAllowInlineEdit())
 				{
-					this.node.setAttribute("title", escapeText(BX.message("LANDING_TITLE_OF_TEXT_NODE")));
+					this.node.setAttribute("title", escapeText(BX.Landing.Loc.getMessage("LANDING_TITLE_OF_TEXT_NODE")));
 				}
 			}
 		},
@@ -394,7 +383,6 @@
 			this.lastValue = this.isSavePrevented() ? this.getValue() : this.lastValue;
 			this.node.innerHTML = value;
 			this.onChange(false, preventHistory);
-			this.preventSave(false);
 		},
 
 
@@ -427,7 +415,7 @@
 			{
 				this.changeTagButton = new BX.Landing.UI.Button.ChangeTag("changeTag", {
 					html: "<span class=\"landing-ui-icon-editor-"+this.node.nodeName.toLowerCase()+"\"></span>",
-					attrs: {title: BX.message("LANDING_TITLE_OF_EDITOR_ACTION_CHANGE_TAG")},
+					attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_EDITOR_ACTION_CHANGE_TAG")},
 					onChange: this.onChangeTag.bind(this)
 				});
 			}

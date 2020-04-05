@@ -1,6 +1,63 @@
 
 var GLOBAL_BX_REPORT_USING_CHARTS = false;
 
+BX.namespace("BX.Report");
+if (typeof(BX.Report.rebuildSelect) === "undefined")
+{
+	BX.Report.rebuildSelect = function (select, items, value)
+	{
+		var opt, el, i, j;
+		var setSelected = false;
+		var bMultiple;
+
+		if (!(value instanceof Array))
+		{
+			value = [value];
+		}
+		if (select)
+		{
+			bMultiple = !!(select.getAttribute('multiple'));
+			while (opt = select.lastChild)
+			{
+				select.removeChild(opt);
+			}
+			for (i = 0; i < items.length; i++)
+			{
+				el = document.createElement("option");
+				el.value = items[i]['id'];
+				el.innerHTML = items[i]['title'];
+				try
+				{
+					// for IE earlier than version 8
+					select.add(el, select.options[null]);
+				}
+				catch (e)
+				{
+					el = document.createElement("option");
+					el.text = items[i]['title'];
+					select.add(el, null);
+				}
+				if (!setSelected || bMultiple)
+				{
+					for (j = 0; j < value.length; j++)
+					{
+						if (items[i]['id'] == value[j])
+						{
+							el.selected = true;
+							if (!setSelected)
+							{
+								setSelected = true;
+								select.selectedIndex = i;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	};
+}
+
 // <editor-fold defaultstate="collapsed" desc="period">
 
 function OnTaskIntervalChange(select)
@@ -11,13 +68,13 @@ function OnTaskIntervalChange(select)
 	BX.removeClass(dateInterval, "filter-date-interval-after filter-date-interval-before");
 	BX.removeClass(dayInterval, "filter-day-interval-selected");
 
-	if (select.value == "interval")
+	if (select.value === "interval")
 		BX.addClass(dateInterval, "filter-date-interval-after filter-date-interval-before");
-	else if(select.value == "before")
+	else if(select.value === "before")
 		BX.addClass(dateInterval, "filter-date-interval-before");
-	else if(select.value == "after")
+	else if(select.value === "after")
 		BX.addClass(dateInterval, "filter-date-interval-after");
-	else if(select.value == "days")
+	else if(select.value === "days")
 		BX.addClass(dayInterval, "filter-day-interval-selected");
 }
 
@@ -370,21 +427,21 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 
 	BX.bind(prcntSel, "change", function(e)
 	{
+		var col = newCol;
 		var parent = this.parentNode;
 		var prcntbySel = BX.findChild(parent, {className:'reports-add-col-select-prcnt-by'});
 
-		if (this.value == 'self_column')
+		if (this.value === 'self_column')
 		{
-			prcntbySel.disabled = true;
 			prcntbySel.style.display = 'none';
 		}
 		else
 		{
-			prcntbySel.disabled = false;
 			prcntbySel.style.display = 'inline-block';
+			prcntbySel.disabled = false;
 		}
 
-		rebuildPercentView();
+		rebuildPercentView(col);
 		rebuildSortSelect();
 	});
 
@@ -397,6 +454,7 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 	// UP button
 	BX.bind(BX.findChild(newCol, {className:"reports-add-col-button-up"}, true), "click", function(e)
 	{
+		var col = newCol;
 		var colContainer = this.parentNode.parentNode.parentNode;
 		var colCollection = BX.findChildren(colContainer, {className:'reports-forming-column'});
 		var butContainer = this.parentNode.parentNode;
@@ -408,7 +466,7 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 			if (!colCollection.hasOwnProperty(i))
 				continue;
 
-			if (colCollection[i] == butContainer)
+			if (colCollection[i] === butContainer)
 			{
 				var movingContainer = colCollection[i];
 
@@ -421,13 +479,14 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 			prevContainer = colCollection[i];
 		}
 
-		rebuildPercentView();
+		rebuildPercentView(col);
 		rebuildSortSelect();
 	});
 
 	// DOWN button
 	BX.bind(BX.findChild(newCol, {className:"reports-add-col-button-down"}, true), "click", function(e)
 	{
+		var col = newCol;
 		var butContainer = this.parentNode.parentNode;
 		var nextContainer = BX.findNextSibling(butContainer, {className: butContainer.getAttribute('class')});
 
@@ -436,7 +495,7 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 			BX.fireEvent(BX.findChild(nextContainer, {className: 'reports-add-col-button-up'}, true), 'click');
 		}
 
-		rebuildPercentView();
+		rebuildPercentView(col);
 		rebuildSortSelect();
 
 		return false;
@@ -445,31 +504,40 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 	// % button
 	BX.bind(BX.findChild(newCol, {className:"reports-add-col-tit-prcnt"}, true), "click", function(e)
 	{
+		var col = newCol;
 		// reports-add-col-select-prcnt, reports-add-col-select-prcnt-by
 		var isOpen = BX.hasClass(this, 'reports-add-col-tit-prcnt-close');
 		var prcntSel = BX.findChild(newCol, {className:'reports-add-col-select-prcnt'}, true);
 		var prcntbySel = BX.findChild(newCol, {className:'reports-add-col-select-prcnt-by'}, true);
+		var modified = false;
 
 		if (isOpen)
 		{
 			disablePrcntView(newCol);
+			modified = true;
 		}
 		else
 		{
-			if (isColumnPercentable(newCol))
+			var pvm = BX.Report.Construct.PercentViewManager.getDefault();
+			if (pvm.isColumnCanBePercent(newCol))
 			{
 				prcntSel.style.display = 'inline-block';
 				prcntSel.disabled = false;
 				BX.addClass(this, 'reports-add-col-tit-prcnt-close');
 				BX.removeClass(this, 'reports-add-col-tit-prcnt');
 
-				if (prcntSel.value != 'self_column')
+				if (prcntSel.value === 'other_field')
 				{
+					prcntSel.options[1].disabled = false;
 					prcntbySel.style.display = 'inline-block';
 					prcntbySel.disabled = false;
 				}
+				else
+				{
+					prcntSel.options[0].disabled = false;
+				}
 
-				rebuildPercentView(true);
+				modified = true;
 			}
 			else
 			{
@@ -478,7 +546,11 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 			}
 		}
 
-		rebuildSortSelect();
+		if (modified)
+		{
+			rebuildPercentView(col);
+			rebuildSortSelect();
+		}
 
 		return false;
 	});
@@ -486,6 +558,7 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 	// remove column buttons
 	BX.bind(BX.findChild(newCol, {className:"reports-add-col-tit-remove"}, true), "click", function(e)
 	{
+		var col = newCol;
 		var butContainer = this.parentNode.parentNode;
 		var groupingCheckbox = BX.findChild(
 			BX.findChild(newCol, {tag: 'span', 'className': 'reports-grouping-checkbox'}),
@@ -523,21 +596,27 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 	// calculating checkbox
 	var calcCheckBoxContainer = BX.findChild(newCol, {tag:'span', 'className':'reports-add-col-checkbox'}, true);
 	BX.bind(BX.findChild(calcCheckBoxContainer, {tag:'input', attr:{type:'checkbox'}}, true), 'click', function(e){
+		var col = newCol;
 		var butContainer = this.parentNode.parentNode;
 		var calcSelect = BX.findChild(butContainer, {className:'reports-add-col-select-calc'}, true);
 
 		calcSelect.style.display = this.checked ? 'inline-block' : 'none';
-		calcSelect.disabled = this.checked ? false : true;
+		calcSelect.disabled = !this.checked;
 
-		rebuildPercentView();
+		rebuildPercentView(col);
 		rebuildSortSelect();
 	});
 
 	// calculating functions select
-	BX.bind(BX.findChild(newCol, {className:'reports-add-col-select-calc'}, true), 'change', function(e){
-		rebuildPercentView();
-		rebuildSortSelect();
-	});
+	BX.bind(
+		BX.findChild(newCol, {className:'reports-add-col-select-calc'}, true), 'change',
+		function(e){
+			var col = newCol;
+
+			rebuildPercentView(col);
+			rebuildSortSelect();
+		}
+	);
 
 	// grouping checkbox
 	if (groupingCheckbox)
@@ -558,13 +637,15 @@ function addSelectColumn(checkBox, calc, alias, num, grouping, grouping_subtotal
 	colContainer.insertBefore(newCol, beforeElem);
 
 	// postAction
-	rebuildPercentView();
+	rebuildPercentView(newCol);
 	rebuildSortSelect();
 	GLOBAL_REPORT_SELECT_COLUMN_COUNT++;
 }
 
 function hideAliasInput(e)
 {
+	var col = this.parentNode.parentNode.parentNode;
+
 	if (BX.util.trim(this.value) == '')
 	{
 		this.value = '';
@@ -702,96 +783,6 @@ function rebuildSortSelect()
 	}
 
 	rebuildReportPreviewTable();
-	//rebuildFilterResultColumns();
-}
-
-function rebuildFilterResultColumns()
-{
-	BX('report-filter-result-columns-cont').innerHTML = '';
-
-	var columnList = BX.findChildren(BX('reports-add-columns-block'), {tag:'input', attr:{type:'hidden'}}, true);
-	var columnInfoList = {}, columnInfo = null, i;
-
-	for (i in columnList)
-	{
-		if (!columnList.hasOwnProperty(i))
-			continue;
-
-		if (columnList[i].value != '')
-		{
-			// build items for popup
-			var columnContainer = columnList[i].parentNode;
-
-
-			columnInfo = parseSelectColumnInfo(columnContainer);
-
-			// rewrite data type
-			if (columnInfo.prcnt)
-			{
-				columnInfo.data_type = 'float';
-			}
-			else if (columnInfo.calc == 'COUNT_DISTINCT')
-			{
-				columnInfo.data_type = 'integer';
-			}
-			else if (columnInfo.calc == 'GROUP_CONCAT')
-			{
-				// no filter for grc
-				continue;
-			}
-
-			columnInfoList[columnInfo.num] = columnInfo;
-
-			var elemHtml = '<div class="reports-add-popup-item">'
-				+ '<span class="reports-add-pop-left-bord"></span>'
-				+ '<span class="reports-add-popup-checkbox-block">'
-					+ '<input class="reports-add-popup-checkbox" type="checkbox" fieldtype="'+columnInfo.data_type+'" '
-					+ 'title="'+columnInfo.title+'" name="__COLUMN__'+columnInfo.num+'">'
-					+ '</span>'
-					+ '<span class="reports-add-popup-it-text">'+columnInfo.title+'</span>'
-				+ '</div>';
-
-
-			BX('report-filter-result-columns-cont').innerHTML += elemHtml;
-		}
-	}
-
-	// bind click event for new result columns in filter
-	var fList = BX.findChildren(BX('report-filter-result-columns-cont'), {className:'reports-add-popup-it-text'}, true);
-
-	for (i in fList)
-	{
-		if (fList.hasOwnProperty(i))
-			BX.bind(fList[i], 'click', fillFilterColumnEvent);
-	}
-
-	// remove filters for non existing or data-type-changed result columns
-	// also update column titles on filters for existing columns
-	var filterItems = BX.findChildren(BX('reports-filter-columns-container'), {attr: {fielddefinition:/__COLUMN__\d+/}}, true);
-	for (i in filterItems)
-	{
-		if (!filterItems.hasOwnProperty(i))
-			continue;
-
-		var filterItem = filterItems[i].parentNode.parentNode;
-		var column_num = filterItems[i].getAttribute('fielddefinition').match(/\d+/)[0];
-		columnInfo = columnInfoList[column_num];
-		var current_data_type = filterItems[i].getAttribute('fieldType');
-
-		if (!columnInfo || current_data_type != columnInfo.data_type)
-		{
-			// this column has been deleted from select
-			// or data_type has been changed through prcnt or calc
-			var minusButt = BX.findChild(filterItem, {className:'reports-filter-del-item'}, true);
-			BX.fireEvent(minusButt, 'click');
-		}
-		else
-		{
-			// column still exists, but it may need to update title
-			filterItems[i].title = columnInfo.title;
-			filterItems[i].innerHTML = columnInfo.title;
-		}
-	}
 }
 
 function rebuildHtmlSelect(obj, newValues)
@@ -865,21 +856,23 @@ function getFullColumnTitle(columnContainer)
 		if (calcCheckbox != null)
 		{
 			var calcSelect = BX.findChild(columnContainer, {className: 'reports-add-col-select-calc'}, true);
-			if (calcSelect.value != '')
+			if (calcSelect.value !== '')
 			{
 				title += ' ('+calcSelect.options[calcSelect.selectedIndex].text+')';
 			}
 		}
 
+		var prcntVisible = !!(BX.findChild(columnContainer, {className:"reports-add-col-tit-prcnt-close"}, true));
+
 		// check if prcnt exists
 		var prcntSel = BX.findChild(columnContainer, {className:'reports-add-col-select-prcnt'}, true);
-		if (prcntSel.disabled == false)
+		if (prcntVisible && !prcntSel.disabled)
 		{
-			if (prcntSel.value == 'self_column')
+			if (prcntSel.value === 'self_column')
 			{
 				title += ' (%)';
 			}
-			else
+			else if (prcntSel.value === 'other_field')
 			{
 				var prcntbySel = BX.findChild(columnContainer, {className:'reports-add-col-select-prcnt-by'}, true);
 				if (prcntbySel.selectedIndex >= 0)
@@ -1043,6 +1036,9 @@ function isColumnPercentable(col)
      3. boolean with aggr
      4. any with COUNT_DISTINCT aggr
      */
+
+	var result;
+
 	var fieldName = BX.findChild(col, {attr:{name:/report_select_columns\[\d+\]\[name\]/}}).value;
 	var iCheckbox = BX.findChild(BX('reports-add_col-popup-cont'), {attr:{type:'checkbox', name: fieldName}}, true);
 	var fieldType = iCheckbox.getAttribute('fieldType');
@@ -1056,179 +1052,817 @@ function isColumnPercentable(col)
 		aggr = calcSelect.value;
 	}
 
-	if (aggr == 'GROUP_CONCAT')
+	if (aggr === 'GROUP_CONCAT')
 	{
-		return false;
+		result = false;
 	}
 	else
 	{
-		return (
-			((fieldType == 'integer' || fieldType == 'float') && (!isUF || !isMultiple))
-				|| (fieldType == 'boolean' && aggr != null) || aggr == 'COUNT_DISTINCT'
+		result = (
+			((fieldType === 'integer' || fieldType === 'float') && (!isUF || !isMultiple))
+				|| (fieldType === 'boolean' && aggr != null) || aggr === 'COUNT_DISTINCT'
 		);
 	}
+
+	return result;
 }
 
-function rebuildPercentView(withAlert)
+BX.namespace("BX.Report.Construct");
+
+if(typeof BX.Report.Construct.PercentViewManager === "undefined")
 {
-	/*
-     prcnt:"self_column"
-     prcnt:"1"
-     */
-
-	var cols = BX.findChildren(BX('reports-add-columns-block'), {className:'reports-forming-column'});
-	var i, col, isPrcntViewOpen;
-	var prcntByList = {length:0};
-	var colIdByColNum = {};
-	var prcntSel;
-
-	// generate array with possible "% of" variants
-	for (i in cols)
+	BX.Report.Construct.PercentViewManager = function()
 	{
-		if (!cols.hasOwnProperty(i))
-			continue;
+		this._id = "";
+		this._settings = {};
+		this.context = null;
+	};
 
-		col = cols[i];
-
-		if (isColumnPercentable(col))
-		{
-			// also deny columns with self_columnt prcnt
-			// it counts only after total select
-			prcntSel = BX.findChild(col, {className:'reports-add-col-select-prcnt'}, true);
-			if (!prcntSel.disabled && prcntSel.value == 'self_column')
-			{
-				continue;
-			}
-
-			var idElem = BX.findChild(col, {attr:{name:/report_select_columns\[\d+\]\[name\]/}});
-			var match = /\[(\d+)\]/.exec(idElem.name);
-			var colId = match[1];
-			var colTitle = getFullColumnTitle(col);
-			prcntByList[colId] = colTitle;
-			prcntByList.length++;
-			colIdByColNum[i] = colId;
-		}
-	}
-
-	// rebuild prcnt views
-	for (i in cols)
+	BX.Report.Construct.PercentViewManager.prototype =
 	{
-		if (!cols.hasOwnProperty(i))
-			continue;
-
-		col = cols[i];
-
-		isPrcntViewOpen = BX.findChild(col, {className:'reports-add-col-tit-prcnt-close'}, true);
-
-		if (!isPrcntViewOpen)
+		initialize: function(id, settings)
 		{
-			// prcnt view is not active, nothing interesting here
-			continue;
-		}
-
-		if (!isColumnPercentable(col))
+			this._id = BX.type.isNotEmptyString(id) ? id : BX.util.getRandomString(4);
+			this._settings = BX.type.isPlainObject(settings) ? settings : {};
+			this.context = null;
+		},
+		getId: function()
 		{
-			// this column is no more percentable. disable prcnt view!
-			// kill! kill! kill!
-			disablePrcntView(col);
-			continue;
-		}
-
-		prcntSel = BX.findChild(col, {className:'reports-add-col-select-prcnt'}, true);
-		var prcntBySel = BX.findChild(col, {className:'reports-add-col-select-prcnt-by'}, true);
-
-		var prcntType = prcntSel.value;
-
-		// enable/disable other_field prcnt
-		if (prcntByList.length < 2)
+			return this._id;
+		},
+		getSetting: function(name, defaultval)
 		{
-			prcntSel.options[1].disabled = true;
-			prcntBySel.style.display = 'none';
-			prcntBySel.disabled = true;
-			rebuildHtmlSelect(prcntBySel, []);
-		}
-		else
+			return this._settings.hasOwnProperty(name) ? this._settings[name] : defaultval;
+		},
+		getColumnContext: function (col)
 		{
-			prcntSel.options[1].disabled = false;
+			var info;
 
-			if (prcntType != 'self_column')
+			info = {
+				el: null,
+				elAlias: null,
+				elButton: null,
+				elCheckbox: null,
+				elCalcCheckbox: null,
+				elCalc: null,
+				elPrcnt: null,
+				elPrcntRel: null,
+				elId: null,
+				id: "",
+				name: "",
+				type: "",
+				uf: false,
+				multiple: false,
+				aggr: false,
+				aggrType: "",
+				prcnt: false,
+				modifyMap: {
+					modified: false,
+					rel: false,
+					prcntByList: false,
+					prcntVisible: false,
+					prcntEnabled: false,
+					prcntSelfEnabled: false,
+					prcntByEnabled: false,
+					prcntType: false,
+					prcntRel: false
+				},
+				prcntVisible: false,
+				prcntEnabled: false,
+				prcntSelfEnabled: false,
+				prcntByEnabled: false,
+				prcntType: "",
+				prcntRel: ""
+			};
+
+			info.el = col;
+			info.elId = BX.findChild(info.el, {attr:{name:/report_select_columns\[\d+\]\[name\]/}});
+			match = /\[(\d+)\]/.exec(info.elId.name);
+			info.id = match[1];
+			info.name = info.elId.value;
+			info.elAlias = BX.findChild(
+				info.el,
+				{attr: {name: "report_select_columns["+info.id+"][alias]"}},
+				true
+			);
+			info.elCheckbox = BX.findChild(
+				BX("reports-add_col-popup-cont"),
+				{attr:{type:"checkbox", name: info.name}},
+				true
+			);
+			info.type = info.elCheckbox.getAttribute("fieldType");
+			info.uf = (parseInt(info.elCheckbox.getAttribute("isUF")) === 1);
+			info.multiple = (parseInt(info.elCheckbox.getAttribute("isMultiple")) === 1);
+			info.elCalcCheckbox = BX.findChild(
+				info.el,
+				{'className': 'reports-checkbox', attr:{type:'checkbox'}},
+				true
+			);
+			info.elCalc = BX.findChild(info.el, {className:"reports-add-col-select-calc"}, true);
+			info.elPrcnt = BX.findChild(info.el, {className:"reports-add-col-select-prcnt"}, true);
+			info.prcntEnabled = !info.elPrcnt.disabled;
+			if (info.prcntEnabled)
 			{
-				prcntBySel.style.display = 'inline-block';
-				prcntBySel.disabled = false;
+				info.prcntSelfEnabled = !info.elPrcnt.options[0].disabled;
+				info.prcntByEnabled = !info.elPrcnt.options[1].disabled;
 			}
-		}
-
-		// enable/disable self_column prcnt
-		var aggrSel = BX.findChild(col, {className:'reports-add-col-select-calc'}, true);
-
-		if (aggrSel.disabled ||
-			(!aggrSel.disabled && (aggrSel.value == 'SUM' || aggrSel.value == 'COUNT_DISTINCT'))
-			)
-		{
-			// ok
-			prcntSel.options[0].disabled = false;
-		}
-		else
-		{
-			prcntSel.options[0].disabled = true;
-		}
-
-		// check
-		if (prcntSel.options[0].disabled && prcntSel.options[1].disabled)
-		{
-			// kill! kill! kill!
-			disablePrcntView(col);
-
-			if (withAlert)
+			info.elButton = BX.findChild(info.el, {className:"reports-add-col-tit-prcnt-close"}, true);
+			info.prcntVisible = !!info.elButton;
+			if (!info.elButton)
 			{
-				alert(BX.message('REPORT_PRCNT_VIEW_IS_NOT_AVAILABLE'));
+				info.elButton = BX.findChild(info.el, {className:"reports-add-col-tit-prcnt"}, true);
+			}
+			info.elPrcntRel = BX.findChild(info.el, {className:"reports-add-col-select-prcnt-by"}, true);
+
+			if (!info.elCalc.disabled)
+			{
+				info.aggr = true;
+				info.aggrType = info.elCalc.value;
 			}
 
-			return;
-		}
-
-		if (prcntType == 'self_column')
-		{
-			if (prcntSel.options[0].disabled)
+			info.prcnt = this.isColumnPercentable(info);
+			if (info.elPrcnt.value === "self_column")
 			{
-				setSelectValue(prcntSel, 'other_field');
-				disablePrcntView(col);
-			}
-		}
-		else
-		{
-			// check
-			if (prcntByList.length < 2)
-			{
-				// disable prct view, there is no more variants except self
-				setSelectValue(prcntSel, 'self_column');
-				// kill! kill! kill!
-				disablePrcntView(col);
+				info.prcntType = "self";
 			}
 			else
 			{
-				// rebuild columns select from prcntByList
-				var prevValue = prcntBySel.value;
+				info.prcntType = "rel";
+			}
+			info.prcntRel = info.elPrcntRel.value;
 
-				// exclude self from list
-				var _prcntByList = BX.clone(prcntByList);
-				delete _prcntByList[colIdByColNum[i]];
-				delete _prcntByList['length'];
+			return info;
+		},
+		getContext: function (refresh)
+		{
+			var elCols, cols = [], colInfo;
+			var relations = {}, indexById = {}, prcntByList = [];
+			var i, match;
 
-				rebuildHtmlSelect(prcntBySel, _prcntByList);
-
-				var currValue = prcntBySel.value;
-
-				//if (prevValue != '' && prcntByList[prevValue] && prevValue != currValue)
-				if (prevValue != '' && prevValue != currValue)
+			if (this.context === null || !!refresh)
+			{
+				elCols = BX.findChildren(BX("reports-add-columns-block"), {className:"reports-forming-column"});
+				// generate array with possible "% of" variants
+				for (i = 0; i < elCols.length; i++)
 				{
-					// if previous value did not reincarnated - kill! kill! kill!
-					setSelectValue(prcntSel, 'self_column');
-					disablePrcntView(col);
+					colInfo = this.getColumnContext(elCols[i]);
+					cols[i] = colInfo;
+					indexById[colInfo.id] = i;
+					if (colInfo.prcntEnabled
+						&& colInfo.prcntVisible
+						&& colInfo.prcntType === "rel"
+						&& BX.type.isNotEmptyString(colInfo.prcntRel))
+					{
+						relations[colInfo.id] = colInfo.prcntRel;
+					}
+					if (colInfo.prcnt && !colInfo.prcntVisible)
+					{
+						prcntByList.push(colInfo.id);
+					}
+				}
+
+				this.context = {
+					cols: cols,
+					rel: relations,
+					index: indexById,
+					firstIndex: -1,
+					prcntByList: prcntByList,
+					level: 0
+				};
+			}
+
+			return this.context;
+		},
+		isColumnPercentable: function (colInfo)
+		{
+			/*
+		     1. any integer
+		     2. any float
+		     3. boolean with aggr
+		     4. any with COUNT_DISTINCT aggr
+		     */
+		
+			var result;
+		
+			if (colInfo.aggr && colInfo.aggrType === "GROUP_CONCAT")
+			{
+				result = false;
+			}
+			else
+			{
+				result = (
+					((colInfo.type === "integer" || colInfo.type === "float") && (!colInfo.uf || !colInfo.multiple))
+						|| (colInfo.aggr && (colInfo.type === "boolean" || colInfo.aggrType === "COUNT_DISTINCT"))
+				);
+			}
+		
+			return result;
+		},
+		isColumnCanBePercent: function (col)
+		{
+			var colInfo = this.getColumnContext(col);
+
+			return (colInfo.prcnt && colInfo.prcntEnabled && (colInfo.prcntSelfEnabled || colInfo.prcntByEnabled));
+		},
+		getFullColumnTitle: function (colInfo)
+		{
+			var title = "";
+			if (BX.type.isNotEmptyString(colInfo.elAlias.value))
+			{
+				title = colInfo.elAlias.value;
+			}
+			else
+			{
+				title = colInfo.elId.title;
+
+				if (colInfo.elCalcCheckbox.checked && BX.type.isNotEmptyString(colInfo.elCalc.value))
+				{
+					title += " ("+colInfo.elCalc.options[colInfo.elCalc.selectedIndex].text+")";
+				}
+
+				if (colInfo.prcntVisible && colInfo.prcntEnabled)
+				{
+					if (colInfo.prcntType === "self")
+					{
+						title += " (%)";
+					}
+					else
+					{
+						if (colInfo.prcntRel >= 0)
+						{
+							var byTitle = colInfo.elPrcnt.options[colInfo.elPrcnt.selectedIndex].innerHTML;
+							title += " (" + BX.message("REPORT_PRCNT_BUTTON_TITLE") +" "+byTitle+")";
+						}
+					}
 				}
 			}
+
+			return title;
+		},
+		addToPrcntByList: function (context, colId)
+		{
+			var result, origSeq, id, colIndex, prevIndex, foundIndex, i;
+
+			result = false;
+
+			if (context.prcntByList.length <= 0 || context.prcntByList.indexOf(colId) < 0)
+			{
+				colIndex = -1;
+				origSeq = [];
+				for (id in context.index)
+				{
+					if (context.index.hasOwnProperty(id))
+					{
+						if (context.firstIndex >= 0)
+						{
+							if (context.index[id] === 0)
+							{
+								i = context.firstIndex;
+								origSeq[i] = id;
+							}
+							else
+							{
+								i = context.index[id];
+								if (context.index[id] <= context.firstIndex)
+								{
+									i--;
+								}
+								origSeq[i] = id;
+							}
+						}
+						else
+						{
+							i = context.index[id];
+							origSeq[i] = id;
+						}
+
+						if (id === colId)
+						{
+							colIndex = i;
+						}
+					}
+				}
+
+				if (colIndex >= 0)
+				{
+					prevIndex = -1;
+					if (colIndex > 0 && context.prcntByList.length > 0)
+					{
+						for (i = colIndex - 1; i >= 0; i--)
+						{
+							foundIndex = context.prcntByList.indexOf(origSeq[i]);
+							if (foundIndex >= 0)
+							{
+								prevIndex = foundIndex;
+								break;
+							}
+						}
+					}
+
+					if (prevIndex < 0)
+					{
+						context.prcntByList.unshift(origSeq[colIndex]);
+					}
+					else
+					{
+						context.prcntByList.splice(prevIndex, 1, context.prcntByList[prevIndex], origSeq[colIndex]);
+					}
+
+					result = true;
+				}
+			}
+
+			return result;
+		},
+		rebuildPercentView: function (actCol, context)
+		{
+			var cols, col, i, colIndex, firstIndex, prcntByCount;
+			var modified, modifiedPrcntByList, modifiedRel, origParams, paramName;
+
+			if (!BX.type.isPlainObject(context))
+			{
+				context = this.getContext(true);
+				context["level"] = 0;
+			}
+
+			context["level"]++;
+
+			cols = context["cols"];
+
+			firstIndex = -1;
+			if (context["level"] === 1 && BX.type.isDomNode(actCol))
+			{
+				for (i = 0; i < cols.length; i++)
+				{
+					if (cols[i].el === actCol)
+					{
+						firstIndex = i;
+						break;
+					}
+				}
+			}
+
+			if (firstIndex >= 0)
+			{
+				cols.unshift(cols.splice(firstIndex, 1)[0]);
+
+				for (i in context.index)
+				{
+					if (context.index.hasOwnProperty(i) && i !== "length")
+					{
+						if (context.index[i] === firstIndex)
+						{
+							context.index[i] = 0;
+						}
+						else if (context.index[i] < firstIndex)
+						{
+							context.index[i]++;
+						}
+					}
+				}
+
+				context.firstIndex = firstIndex;
+			}
+
+			for (i = 0; i < cols.length; i++)
+			{
+				col = cols[i];
+
+				modified = false;
+				modifiedPrcntByList = false;
+				modifiedRel = false;
+
+				origParams = {
+					prcntVisible: col.prcntVisible,
+					prcntEnabled: col.prcntEnabled,
+					prcntType: col.prcntType,
+					prcntSelfEnabled: col.prcntSelfEnabled,
+					prcntByEnabled: col.prcntByEnabled,
+					prcntRel: col.prcntRel
+				};
+
+				if (col.prcnt)
+				{
+					if (!col.aggr || col.aggrType === "SUM" || col.aggrType === "COUNT_DISTINCT")
+					{
+						if (!col.prcntSelfEnabled)
+						{
+							col.prcntSelfEnabled = true;
+						}
+					}
+					else
+					{
+						if (col.prcntSelfEnabled)
+						{
+							col.prcntSelfEnabled = false;
+						}
+					}
+
+					prcntByCount = context.prcntByList.length;
+					if (prcntByCount > 0 && context.prcntByList.indexOf(col.id) >= 0)
+					{
+						prcntByCount--;
+					}
+					if (prcntByCount > 0)
+					{
+						if (!col.prcntByEnabled)
+						{
+							col.prcntByEnabled = true;
+						}
+					}
+					else
+					{
+						if (col.prcntByEnabled)
+						{
+							col.prcntByEnabled = false;
+						}
+					}
+
+					if (col.prcntSelfEnabled || col.prcntByEnabled)
+					{
+						if (!col.prcntEnabled)
+						{
+							col.prcntEnabled = true;
+						}
+					}
+					else
+					{
+						if (col.prcntEnabled)
+						{
+							col.prcntEnabled = false;
+						}
+					}
+
+					if (col.prcntType === "self")
+					{
+						if (!col.prcntSelfEnabled)
+						{
+							col.prcntType = "rel";
+							col.prcntByEnabled = true;
+						}
+					}
+
+					if (col.prcntType === "rel")
+					{
+						if (col.prcntByEnabled && BX.type.isNotEmptyString(col.prcntRel))
+						{
+							if (context.prcntByList.indexOf(col.prcntRel) < 0)
+							{
+								if (context.rel.hasOwnProperty(col.id))
+								{
+									delete context.rel[col.id];
+									modifiedRel = true;
+								}
+
+								if (col.prcntSelfEnabled)
+								{
+									col.prcntType = "self";
+								}
+								else
+								{
+									col.prcntType = "";
+									col.modifyMap.prcntType = true;
+									if (col.prcntRel !== "")
+									{
+										col.prcntRel = "";
+									}
+								}
+
+								if (col.prcntVisible)
+								{
+									col.prcntVisible = false;
+									if (this.addToPrcntByList(context, col.id))
+									{
+										modifiedPrcntByList = true;
+									}
+								}
+							}
+						}
+						else
+						{
+							if (col.prcntSelfEnabled)
+							{
+								col.prcntType = "self";
+							}
+							else
+							{
+								col.prcntType = "";
+								if (col.prcntRel !== "")
+								{
+									col.prcntRel = "";
+								}
+							}
+
+							if (col.prcntVisible)
+							{
+								col.prcntVisible = false;
+								if (this.addToPrcntByList(context, col.id))
+								{
+									modifiedPrcntByList = true;
+								}
+							}
+						}
+					}
+
+					if (col.prcntType !== "self" && col.prcntType !== "rel")
+					{
+						if (col.prcntType !== "")
+						{
+							col.prcntType = "";
+						}
+
+						if (col.prcntVisible)
+						{
+							col.prcntVisible = false;
+							if (this.addToPrcntByList(context, col.id))
+							{
+								modifiedPrcntByList = true;
+							}
+						}
+					}
+				}
+				else
+				{
+					if (col.prcntVisible)
+					{
+						col.prcntVisible = false;
+					}
+
+					if (col.prcntEnabled)
+					{
+						col.prcntEnabled = false;
+					}
+
+					if (col.prcntSelfEnabled)
+					{
+						col.prcntSelfEnabled = false;
+					}
+
+					if (col.prcntByEnabled)
+					{
+						col.prcntByEnabled = false;
+					}
+
+					if (col.prcntType !== "self")
+					{
+						col.prcntType = "self";
+					}
+
+					if (BX.type.isNotEmptyString(col.prcntRel))
+					{
+						if (context.rel.hasOwnProperty(col.prcntRel))
+						{
+							delete context.rel[col.prcntRel];
+							modifiedRel = true;
+						}
+						col.prcntRel = "";
+					}
+
+					colIndex = context.prcntByList.indexOf(col.id);
+					if (colIndex >= 0)
+					{
+						context.prcntByList.splice(colIndex, 1);
+						modifiedPrcntByList = true;
+					}
+				}
+
+				for (paramName in origParams)
+				{
+					if (origParams.hasOwnProperty(paramName))
+					{
+						if (origParams[paramName] !== col[paramName])
+						{
+							col.modifyMap[paramName] = true;
+							col.modifyMap.modified = true;
+							modified = true;
+						}
+					}
+				}
+				if (modifiedRel)
+				{
+					col.modifyMap.rel = true;
+					col.modifyMap.modified = true;
+					modified = true;
+				}
+				if (modifiedPrcntByList)
+				{
+					col.modifyMap.prcntByList = true;
+					col.modifyMap.modified = true;
+					modified = true;
+				}
+
+				if (modified)
+				{
+					this.rebuildPercentView(null, context);
+					break;
+				}
+			}
+
+			if (context["level"] === 1)
+			{
+				this.applyCols(context);
+			}
+
+			context["level"]--;
+		},
+		applyCols: function (context)
+		{
+			var cols, col, i, j, colId, params, paramValue;
+			var prcntByList, prcntByItems, prcntByValue;
+
+			cols = (BX.type.isPlainObject(context) && context.hasOwnProperty("cols")) ? context["cols"] : null;
+
+			if (BX.type.isArray(cols))
+			{
+				params = [
+					"prcntRel",
+					"prcntType",
+					"prcntByEnabled",
+					"prcntSelfEnabled",
+					"prcntEnabled",
+					"prcntVisible"
+				];
+
+				prcntByList = [];
+				for (i = 0; i < context.prcntByList.length; i++)
+				{
+					colId = context.prcntByList[i];
+					prcntByList.push(
+						{
+							id: colId,
+							title: this.getFullColumnTitle(cols[context.index[colId]])
+						}
+					);
+				}
+
+				for (i = 0; i < cols.length; i++)
+				{
+					col = cols[i];
+					prcntByItems = [];
+					prcntByValue = "";
+					if (col.prcntByEnabled)
+					{
+						for (j = 0; j < prcntByList.length; j++)
+						{
+							if (prcntByList[j].id !== col.id)
+							{
+								prcntByItems.push(prcntByList[j]);
+							}
+						}
+
+						if (col.prcntVisible && col.prcntType === "rel")
+						{
+							prcntByValue = col.elPrcntRel.value;
+						}
+					}
+					BX.Report.rebuildSelect(
+						col.elPrcntRel,
+						prcntByItems,
+						prcntByValue
+					);
+					prcntByItems = null;
+					prcntByValue = null;
+
+					if (col.modifyMap.modified)
+					{
+						for (j = 0; j < params.length; j++)
+						{
+							if (col.modifyMap[params[j]])
+							{
+								paramValue = col[params[j]];
+								switch (params[j])
+								{
+									case "prcntRel":
+										if (BX.type.isNotEmptyString(paramValue))
+										{
+											setSelectValue(col.elPrcntRel, paramValue);
+										}
+										break;
+									case "prcntType":
+										setSelectValue(
+											col.elPrcnt,
+											(paramValue === "rel") ? "other_field" : "self_column"
+										);
+										break;
+									case "prcntSelfEnabled":
+										col.elPrcnt.options[0].disabled = !paramValue;
+										break;
+									case "prcntByEnabled":
+										col.elPrcnt.options[1].disabled = !paramValue;
+										col.elPrcntRel.disabled = !paramValue;
+										break;
+									case "prcntEnabled":
+										col.elPrcnt.disabled = !paramValue;
+										break;
+									case "prcntVisible":
+										if (paramValue)
+										{
+											BX.removeClass(col.elButton, "reports-add-col-tit-prcnt");
+											BX.addClass(col.elButton, "reports-add-col-tit-prcnt-close");
+										}
+										else
+										{
+											BX.removeClass(col.elButton, "reports-add-col-tit-prcnt-close");
+											BX.addClass(col.elButton, "reports-add-col-tit-prcnt");
+										}
+										break;
+								}
+							}
+						}
+
+						if (col.prcntVisible && col.prcntEnabled)
+						{
+							col.elPrcnt.style.display = "inline-block";
+
+							if (col.prcntByEnabled && col.prcntType === "rel")
+							{
+								col.elPrcntRel.style.display = "inline-block";
+							}
+							else
+							{
+								col.elPrcntRel.style.display = "none";
+							}
+						}
+						else
+						{
+							col.elPrcnt.style.display = "none";
+							col.elPrcntRel.style.display = "none";
+						}
+					}
+				}
+			}
+		},
+		prepareColsToSave: function ()
+		{
+			var context, cols, col;
+
+			context = this.getContext();
+			cols = (BX.type.isPlainObject(context) && context.hasOwnProperty("cols")) ? context["cols"] : null;
+			for (i = 0; i < cols.length; i++)
+			{
+				col = cols[i];
+
+				if (!col.prcntVisible)
+				{
+					col.elPrcnt.disabled = true;
+					col.elPrcnt.options[0].disabled = true;
+					col.elPrcnt.options[1].disabled = true;
+					col.elPrcntRel.disabled = true;
+				}
+				else if (col.prcntType === "self")
+				{
+					col.elPrcnt.options[1].disabled = true;
+					col.elPrcntRel.disabled = true;
+				}
+			}
+		},
+		destroy: function ()
+		{
+			this._id = "";
+			this._settings = {};
+			this.context = null;
 		}
+	};
+
+	if(typeof(BX.Report.Construct.PercentViewManager.items) === "undefined")
+	{
+		BX.Report.Construct.PercentViewManager.items = {};
 	}
+
+	BX.Report.Construct.PercentViewManager.create = function(id, settings)
+	{
+		var self = new BX.Report.Construct.PercentViewManager();
+		self.initialize(id, settings);
+		BX.Report.Construct.PercentViewManager.items[id] = self;
+		return self;
+	};
+
+	BX.Report.Construct.PercentViewManager.delete = function(id)
+	{
+		if (BX.Report.Construct.PercentViewManager.items.hasOwnProperty(id))
+		{
+			BX.Report.Construct.PercentViewManager.items[id].destroy();
+			delete BX.Report.Construct.PercentViewManager.items[id];
+		}
+	};
+
+	BX.Report.Construct.PercentViewManager.getDefault = function ()
+	{
+		var result;
+
+		if (!BX.Report.Construct.PercentViewManager.items.hasOwnProperty("default"))
+		{
+			BX.Report.Construct.PercentViewManager.create("default");
+		}
+
+		return BX.Report.Construct.PercentViewManager.items["default"];
+	};
+}
+
+function rebuildPercentView(actCol)
+{
+	var pvm = BX.Report.Construct.PercentViewManager.getDefault();
+	pvm.rebuildPercentView(actCol);
 }
 
 function disablePrcntView(col)
@@ -1295,6 +1929,7 @@ function rebuildReportPreviewTable()
 
 function setSelectValue(select, value)
 {
+	var result = false;
 	var i, j;
 	var bFirstSelected = false;
 	var bMultiple = !!(select.getAttribute('multiple'));
@@ -1310,18 +1945,25 @@ function setSelectValue(select, value)
 			{
 				if (!bFirstSelected) {bFirstSelected = true; select.selectedIndex = i;}
 				select.options[i].selected = true;
+				result = true;
 				break;
 			}
 		}
 		if (!bMultiple && bFirstSelected) break;
 	}
+
+	return result;
 }
 
 function setPrcntView(colId, value)
 {
-	var col = BX.findChild(BX('reports-add-columns-block'), {attr:{name:'report_select_columns['+colId+'][name]'}}, true).parentNode;
+	var col = BX.findChild(
+		BX('reports-add-columns-block'),
+		{attr:{name:'report_select_columns['+colId+'][name]'}},
+		true
+	).parentNode;
 
-	if (value != null && value != '')
+	if (BX.type.isNotEmptyString(value))
 	{
 		// press button
 		var button = BX.findChild(col, {className:"reports-add-col-tit-prcnt"}, true);
@@ -1333,19 +1975,36 @@ function setPrcntView(colId, value)
 		prcntSel.style.display = 'inline-block';
 		prcntSel.disabled = false;
 
-		if (value != 'self_column')
+		if (value === 'self_column')
 		{
-			// show second select
-			var prcntbySel = BX.findChild(col, {className:'reports-add-col-select-prcnt-by'}, true);
-			prcntbySel.style.display = 'inline-block';
-			prcntbySel.disabled = false;
+			if (prcntSel.options[0].disabled)
+			{
+				disablePrcntView(col);
+			}
+		}
+		else
+		{
+			if (prcntSel.options[1].disabled)
+			{
+				disablePrcntView(col);
+			}
+			else
+			{
+				// show second select
+				var prcntbySel = BX.findChild(col, {className:'reports-add-col-select-prcnt-by'}, true);
+				prcntbySel.style.display = 'inline-block';
+				prcntbySel.disabled = false;
 
-			// set values
-			setSelectValue(prcntSel, 'other_field');
-			rebuildPercentView();
-			setSelectValue(prcntbySel, value);
+				// set values
+				setSelectValue(prcntSel, 'other_field');
+				if (!setSelectValue(prcntbySel, value))
+				{
+					disablePrcntView(col);
+				}
+			}
 		}
 
+		rebuildPercentView(col);
 		rebuildSortSelect();
 	}
 }
@@ -1608,89 +2267,100 @@ function restoreSubFilter(parent, filter)
 		if (!filter.hasOwnProperty(i))
 			continue;
 
-		if (i == 'LOGIC')
+		if (i === 'LOGIC')
 		{
 			continue;
 		}
 
 		var subFilter = filter[i];
 
-		if (subFilter.type == 'field')
+		if (subFilter.type === 'field')
 		{
 			// add empty column
 			newCol = addFilterColumn(container);
 
-			// fill column name
-			var iCheckbox = BX.findChild(BX('reports-add_filcol-popup-cont'), {attr:{type:'checkbox', name: subFilter.name}}, true);
-			var fControl = BX.findChild(iCheckbox.parentNode.parentNode, {className:'reports-add-popup-it-text'}, true);
-			var fChoose = BX.findChild(newCol, {className:'reports-filter-item-name'}, true);
-			LAST_FILCOL_CALLED = fChoose;
-			fillFilterColumnEvent(null, fControl);
+			var iCheckbox = BX.findChild(
+				BX('reports-add_filcol-popup-cont'),
+				{attr:{type:'checkbox', name: subFilter.name}},
+				true
+			);
 
-			// fill column compare
-			var sel = BX.findChild(newCol, {attr:{name:'compare'}});
-			setSelectValue(sel, subFilter.compare);
-
-			// fill column value. fffuuuu
-			var vControl = BX.findChild(newCol, {attr:{name:'value'}}, true);
-
-			if (vControl)
+			if (iCheckbox)
 			{
-				if (vControl.getAttribute('type') == 'hidden')
-				{
-					vControl = vControl.parentNode;
-				}
+				// fill column name
+				var fControl = BX.findChild(
+					iCheckbox.parentNode.parentNode,
+					{className:'reports-add-popup-it-text'},
+					true
+				);
+				LAST_FILCOL_CALLED = BX.findChild(newCol, {className:'reports-filter-item-name'}, true);
+				fillFilterColumnEvent(null, fControl);
 
-				switch (vControl.nodeName.toLowerCase())
+				// fill column compare
+				var sel = BX.findChild(newCol, {attr:{name:'compare'}});
+				setSelectValue(sel, subFilter.compare);
+
+				// fill column value. fffuuuu
+				var vControl = BX.findChild(newCol, {attr:{name:'value'}}, true);
+
+				if (vControl)
 				{
-					case 'input':
-						vControl.value = subFilter.value;
-						break;
-					case 'select':
-						setSelectValue(vControl, subFilter.value);
-						break;
-					default:
-						if (vControl.getAttribute('callback') != null)
-						{
-							var callBack = vControl.getAttribute('callback');
-							var callerName = callBack + '_LAST_CALLER';
-							var cFunc = callBack + 'Catch';
-							var caller = BX.findChild(vControl, {attr:'caller'}, true);
-							window[callerName] = caller;
-							window[cFunc](subFilter.value);
-						}
-				}
-			}
-			else
-			{
-				var dashed, ufSelector, isUF, ufId, ufName, ufSelectorIndex;
-				if (BX.hasClass(newCol, 'reports-filter-item'))
-				{
-					dashed = BX.findChild(newCol, {className:'reports-dashed'}, true);
-					ufSelector = null;
-					isUF = (dashed && parseInt(dashed.getAttribute('isUF')) === 1);
-					if (isUF)
+					if (vControl.getAttribute('type') === 'hidden')
 					{
-						ufId = dashed.getAttribute('ufId');
-						ufName = dashed.getAttribute('ufName');
-						ufSelectorIndex = parseInt(dashed.getAttribute('ufSelectorIndex'));
+						vControl = vControl.parentNode;
+					}
 
-						if (ufId && ufName)
+					switch (vControl.nodeName.toLowerCase())
+					{
+						case 'input':
+							vControl.value = subFilter.value;
+							break;
+						case 'select':
+							setSelectValue(vControl, subFilter.value);
+							break;
+						default:
+							if (vControl.getAttribute('callback') != null)
+							{
+								var callBack = vControl.getAttribute('callback');
+								var callerName = callBack + '_LAST_CALLER';
+								var cFunc = callBack + 'Catch';
+								var caller = BX.findChild(vControl, {attr:'caller'}, true);
+								window[callerName] = caller;
+								window[cFunc](subFilter.value);
+							}
+					}
+				}
+				else
+				{
+					var dashed, ufSelector, isUF, ufId, ufName, ufSelectorIndex;
+					if (BX.hasClass(newCol, 'reports-filter-item'))
+					{
+						dashed = BX.findChild(newCol, {className:'reports-dashed'}, true);
+						ufSelector = null;
+						isUF = (dashed && parseInt(dashed.getAttribute('isUF')) === 1);
+						if (isUF)
 						{
-							if (BX.Report && BX.Report.FilterFieldSelectorManager)
-								ufSelector = BX.Report.FilterFieldSelectorManager.getSelector(ufId, ufName);
-							if (ufSelector)
-								ufSelector.setFilterValue(ufSelectorIndex, subFilter.value);
+							ufId = dashed.getAttribute('ufId');
+							ufName = dashed.getAttribute('ufName');
+							ufSelectorIndex = parseInt(dashed.getAttribute('ufSelectorIndex'));
+
+							if (ufId && ufName)
+							{
+								if (BX.Report && BX.Report.FilterFieldSelectorManager)
+									ufSelector = BX.Report.FilterFieldSelectorManager.getSelector(ufId, ufName);
+								if (ufSelector)
+									ufSelector.setFilterValue(ufSelectorIndex, subFilter.value);
+							}
 						}
 					}
 				}
+
+				// fill changeable flag
+				BX.findChild(newCol, {attr: {name: 'changeable'}}, true).checked = !!parseInt(subFilter.changeable);
+
+				// yay!
+				lastElem = newCol;
 			}
-
-			// fill changeable flag
-			BX.findChild(newCol, {attr: {name: 'changeable'}}, true).checked = !!parseInt(subFilter.changeable);
-
-			// yay!
-			lastElem = newCol;
 		}
 		else if (subFilter.type == 'filter')
 		{
@@ -1901,6 +2571,9 @@ function initSaveButton()
 
 			BX.PreventDefault(e);
 
+			var pvm = BX.Report.Construct.PercentViewManager.getDefault();
+			pvm.prepareColsToSave();
+
 			var filters = {};
 
 			// build filters scheme
@@ -1933,7 +2606,7 @@ function initSaveButton()
 
 					fElem = fElems[j];
 
-					if (j == 'logic')
+					if (j === 'logic')
 					{
 						form.appendChild(createHiddenInput('filters['+i+']['+j+']', fElem));
 					}

@@ -19,7 +19,7 @@ $popupId = 'log_entry_stub_'.intval($arParams['EVENT']['ID']);
 <div class="feed-post-stub-block">
 	<div class="feed-post-stub-icon feed-post-stub-icon-<?=str_replace('_', '-', $arResult['EVENT_ID'])?>"></div>
 	<div class="feed-post-stub-message"><?=$arResult['MESSAGE'];?></div>
-	<div class="feed-post-stub-more"><a href="https://helpdesk.bitrix24.ru/open/7258193/" onclick="if(top.BX.Helper) { top.BX.Helper.show("redirect=detail&code=7258193"); event.preventDefault(); }"><?=Loc::getMessage('SLEB_TEMPLATE_MORE')?></a></div>
+	<div class="feed-post-stub-more"><a href="javascript:void(0)" onclick="if(top.BX.Helper) { top.BX.Helper.show("redirect=detail&code=7258193"); event.preventDefault(); }"><?=Loc::getMessage('SLEB_TEMPLATE_MORE')?></a></div>
 </div>
 <div class="feed-post-stub-buttons">
 	<a href="javascript:void(0)" onclick="BX.SocialnetworkLogEntryStub.items['<?=$popupId?>'].execute();" class="ui-btn ui-btn-md ui-btn-primary"><?=Loc::getMessage('SLEB_TEMPLATE_BUTTON');?></a>

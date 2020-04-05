@@ -1,7 +1,6 @@
 <?php
 $MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NAME'] = 'Обложка с таймером на затемненной фоновой картинке';
 $MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--DATE'] = 'Дата окончания';
-$MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--EVENT'] = 'Событие';
 $MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'] = 'Фоновая картинка';
 $MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'] = 'Заголовок';
 $MESS['LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TEXT'] = 'Текст';

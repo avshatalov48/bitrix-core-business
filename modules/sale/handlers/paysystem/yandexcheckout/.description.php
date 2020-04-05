@@ -1,5 +1,8 @@
 <?php
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader,
+	Bitrix\Main\Localization\Loc,
+	Bitrix\Main\Config\Option,
+	Bitrix\Sale\PaySystem;
 
 Loc::loadMessages(__FILE__);
 
@@ -18,12 +21,17 @@ if (IsModuleInstalled('bitrix24'))
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $host = $request->isHttps() ? 'https' : 'http';
 
-$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
+$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
-if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ru"]))
+$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
+$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : "";
+
+if (
+	(Loader::includeModule('intranet') && $portalZone !== 'ru')
+	|| (Loader::includeModule("bitrix24") && $licensePrefix !== 'ru')
+)
 {
-	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 }
 
 $data = array(
@@ -31,24 +39,6 @@ $data = array(
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
 	'CODES' => array(
-		"YANDEX_CHECKOUT_SHOP_ID" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ID"),
-			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ID_DESC"),
-			'SORT' => 100,
-			'GROUP' => 'CONNECT_SETTINGS_YANDEX',
-		),
-		"YANDEX_CHECKOUT_SECRET_KEY" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SECRET_KEY"),
-			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SECRET_KEY_DESC"),
-			'SORT' => 200,
-			'GROUP' => 'CONNECT_SETTINGS_YANDEX'
-		),
-		"YANDEX_CHECKOUT_SHOP_ARTICLE_ID" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID"),
-			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID_DESC"),
-			'SORT' => 250,
-			'GROUP' => 'CONNECT_SETTINGS_YANDEX'
-		),
 		"YANDEX_CHECKOUT_DESCRIPTION" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION"),
 			"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_PAYMENT_DESCRIPTION_DESC"),
@@ -76,6 +66,33 @@ $data = array(
 			"INPUT" => array(
 				'TYPE' => 'Y/N'
 			),
+			'DEFAULT' => array(
+				"PROVIDER_KEY" => "INPUT",
+				"PROVIDER_VALUE" => "Y",
+			)
 		),
 	)
 );
+if (Option::get('sale', 'YANDEX_CHECKOUT_OAUTH', false) == false)
+{
+	$data['CODES']["YANDEX_CHECKOUT_SHOP_ID"] = array(
+		"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ID"),
+		"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ID_DESC"),
+		'SORT' => 100,
+		'GROUP' => 'CONNECT_SETTINGS_YANDEX',
+	);
+
+	$data['CODES']["YANDEX_CHECKOUT_SECRET_KEY"] = array(
+		"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SECRET_KEY"),
+		"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SECRET_KEY_DESC"),
+		'SORT' => 200,
+		'GROUP' => 'CONNECT_SETTINGS_YANDEX'
+	);
+
+	$data['CODES']["YANDEX_CHECKOUT_SHOP_ARTICLE_ID"] = array(
+		"NAME" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID"),
+		"DESCRIPTION" => Loc::getMessage("SALE_HPS_YANDEX_CHECKOUT_SHOP_ARTICLE_ID_DESC"),
+		'SORT' => 250,
+		'GROUP' => 'CONNECT_SETTINGS_YANDEX'
+	);
+}

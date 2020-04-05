@@ -452,30 +452,6 @@ if ($statDB->type == "MYSQL")
 			"KPI_RECOMMENDATION" => $rec,
 		);
 
-		// Table cache
-		if ($stat['Open_tables'] > 0)
-		{
-			if ($stat['Opened_tables'] > 0)
-				$calc['table_cache_hit_rate'] = round($stat['Open_tables'] / $stat['Opened_tables'] * 100, 2);
-			else
-				$calc['table_cache_hit_rate'] = 100;
-			if (array_key_exists('table_cache', $vars))
-				$table_cache = 'table_cache';
-			else
-				$table_cache = 'table_open_cache';
-			$data[0]["ITEMS"][] = array(
-				"KPI_NAME" => GetMessage("PERFMON_KPI_NAME_TABLE_CACHE"),
-				"IS_OK" => $calc['table_cache_hit_rate'] >= 20,
-				"KPI_VALUE" => $calc['table_cache_hit_rate']."%",
-				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_REC_TABLE_CACHE", array(
-					"#STAT_NAME#" => "<span class=\"perfmon_code\">Open_tables / Opened_tables</span>",
-					"#GOOD_VALUE#" => "20%",
-					"#PARAM_VALUE#" => $vars[$table_cache],
-					"#PARAM_NAME#" => "<span class=\"perfmon_code\">".$table_cache."</span>",
-				)),
-			);
-		}
-
 		// Open files
 		if ($vars['open_files_limit'] > 0)
 		{

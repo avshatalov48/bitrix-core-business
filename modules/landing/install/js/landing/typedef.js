@@ -8,6 +8,7 @@
  * @property {number} lid
  * @property {?object} requiredUserAction
  * @property {string|number} anchor
+ * @property {?object} dynamicParams
  */
 
 /**

@@ -617,6 +617,10 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	opacity: 0;
 }
 
+.main-ui-filter-field-limits-active .main-ui-filter-search-square + .main-ui-filter-search-filter {
+	opacity: 1;
+}
+
 .main-ui-filter-no-search .main-ui-filter-search-square:nth-last-child(3)::after {
 	display: none;
 }

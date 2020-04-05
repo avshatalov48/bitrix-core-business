@@ -359,8 +359,14 @@ $lAdmin->AddHeaders(array(
 	),
 ));
 
+$arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
+if($_REQUEST["mode"] == "excel")
+	$arNavParams = false;
+else
+	$arNavParams = array("nPageSize"=>CAdminUiResult::GetNavSize($sTableID));
+
 $cData = new CPosting;
-$rsData = $cData->GetList(array($by=>$order), $arFilter);
+$rsData = $cData->GetList(array($by=>$order), $arFilter, $arVisibleColumns, $arNavParams);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("post_nav")));

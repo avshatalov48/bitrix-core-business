@@ -33,9 +33,12 @@ abstract class CPushService
 					 */
 
 					$messageArray = $messages[$mess];
-					if (!$this->allowEmptyMessage && strlen(trim($messageArray["MESSAGE"])) <= 0)
+					if (
+						(!$this->allowEmptyMessage && strlen(trim($messageArray["MESSAGE"])) <= 0)
+						|| !static::shouldBeSent($messageArray)
+					)
 					{
-						$mess++;
+							$mess++;
 						continue;
 					}
 
@@ -85,6 +88,11 @@ abstract class CPushService
 					if ($messageArray["ADVANCED_PARAMS"] && is_array($messageArray["ADVANCED_PARAMS"]))
 					{
 						$messageArray["ADVANCED_PARAMS"] = \Bitrix\Main\Text\Encoding::convertEncoding($messageArray["ADVANCED_PARAMS"], SITE_CHARSET, "UTF-8");
+						if(array_key_exists("senderMessage",$messageArray["ADVANCED_PARAMS"]))
+						{
+							$message->setText("");
+						}
+						
 						foreach ($messageArray["ADVANCED_PARAMS"] as $param => $value)
 						{
 							$message->setCustomProperty($param, $value);
@@ -162,7 +170,6 @@ abstract class CPushService
 	}
 
 	abstract function getMessageInstance($token);
-
+	abstract static function shouldBeSent($messageRowData);
 	abstract function getBatch($messages);
-
 }

@@ -76,3 +76,4 @@ if ($result['SUCCESS'])
 
 $result['SUCCESS'] = (empty($result['ERROR']));
 echo CUtil::PhpToJSObject($result);
+\Bitrix\Main\Application::getInstance()->end();

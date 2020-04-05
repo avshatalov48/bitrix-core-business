@@ -97,7 +97,7 @@ $this->setFrameMode(true);
 						<div class="f3 mb-2 col-sm-6 col-md-4 catalog-filter-block">
 							<div class="mb-1 catalog-filter-block-title"><?=$arItem["NAME"]?></div>
 							<div class="catalog-filter-block-body">
-								<select name="<?=$arItem["INPUT_NAME"]?>">
+								<select name="<?=$arItem["INPUT_NAME"].($arItem["MULTIPLE"] == "Y" ? "[]" : "")?>">
 									<?foreach ($arItem["LIST"] as $key => $value):?>
 										<option
 											value="<?=htmlspecialcharsBx($key)?>"

@@ -58,7 +58,7 @@ class ShortNumberFormatter
 	 */
 	public static function isApplicable(PhoneNumber $phoneNumber)
 	{
-		if($phoneNumber->isValid())
+		if($phoneNumber->isValid() || $phoneNumber->hasPlus())
 			return false;
 
 		$rawNumber = $phoneNumber->getNationalNumber();

@@ -3,24 +3,46 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 /** @var array $arCurrentValues */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+use Bitrix\Main\Loader,
+	Bitrix\Catalog;
+
 global $USER_FIELD_MANAGER;
 
-if (!CModule::IncludeModule("iblock"))
+if (!Loader::includeModule("iblock"))
 	return;
 
-if (!CModule::IncludeModule("search"))
-	return;
-
-$boolCatalog = CModule::IncludeModule("catalog");
+$searchIncluded = Loader::includeModule("search");
+$catalogIncluded = CModule::IncludeModule("catalog");
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
+
+$offersIblock = array();
+if ($catalogIncluded)
+{
+	$iterator = Catalog\CatalogIblockTable::getList(array(
+		'select' => array('IBLOCK_ID'),
+		'filter' => array('!=PRODUCT_IBLOCK_ID' => 0)
+	));
+	while ($row = $iterator->fetch())
+		$offersIblock[$row['IBLOCK_ID']] = true;
+	unset($row, $iterator);
+}
+
 $arIBlock = array();
-$rsIBlock = CIBlock::GetList(array("sort" => "asc"), array(
-	"TYPE" => $arCurrentValues["IBLOCK_TYPE"],
-	"ACTIVE" => "Y",
-));
+$iblockFilter = !empty($arCurrentValues['IBLOCK_TYPE'])
+	? array('TYPE' => $arCurrentValues['IBLOCK_TYPE'], 'ACTIVE' => 'Y')
+	: array('ACTIVE' => 'Y');
+
+$rsIBlock = CIBlock::GetList(array('SORT' => 'ASC'), $iblockFilter);
 while ($arr = $rsIBlock->Fetch())
-	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
+{
+	$id = (int)$arr['ID'];
+	if (isset($offersIblock[$id]))
+		continue;
+	$arIBlock[$id] = '['.$id.'] '.$arr['NAME'];
+}
+unset($id, $arr, $rsIBlock, $iblockFilter);
+unset($offersIblock);
 
 $arProperty = array();
 $arProperty_LNS = array();
@@ -91,12 +113,12 @@ $arSort = CIBlockParameters::GetElementSortFields(
 );
 
 $arPrice = array();
-if ($boolCatalog)
+if ($catalogIncluded)
 {
 	$arSort = array_merge($arSort, CCatalogIBlockParameters::GetCatalogSortFields());
-	$rsPrice = CCatalogGroup::GetList($v1 = "sort", $v2 = "asc");
-	while ($arr = $rsPrice->Fetch())
-		$arPrice[$arr["NAME"]] = "[".$arr["NAME"]."] ".$arr["NAME_LANG"];
+	if (isset($arSort['CATALOG_AVAILABLE']))
+		unset($arSort['CATALOG_AVAILABLE']);
+	$arPrice = CCatalogIBlockParameters::getPriceTypesList();
 }
 else
 {
@@ -107,6 +129,9 @@ $arAscDesc = array(
 	"asc" => GetMessage("CP_BCSE_SORT_ASC"),
 	"desc" => GetMessage("CP_BCSE_SORT_DESC"),
 );
+
+$useSearchOrder = (isset($arCurrentValues["USE_SEARCH_RESULT_ORDER"]) && $arCurrentValues["USE_SEARCH_RESULT_ORDER"] === "Y");
+
 $arComponentParameters = array(
 	"GROUPS" => array(
 		"PRICES" => array(
@@ -140,6 +165,7 @@ $arComponentParameters = array(
 			"VALUES" => $arSort,
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "sort",
+			"HIDDEN" => ($useSearchOrder ? "Y" : "N")
 		),
 		"ELEMENT_SORT_ORDER" => array(
 			"PARENT" => "DATA_SOURCE",
@@ -148,6 +174,7 @@ $arComponentParameters = array(
 			"VALUES" => $arAscDesc,
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
+			"HIDDEN" => ($useSearchOrder ? "Y" : "N")
 		),
 		"ELEMENT_SORT_FIELD2" => array(
 			"PARENT" => "DATA_SOURCE",
@@ -156,6 +183,7 @@ $arComponentParameters = array(
 			"VALUES" => $arSort,
 			"ADDITIONAL_VALUES" => "Y",
 			"DEFAULT" => "id",
+			"HIDDEN" => ($useSearchOrder ? "Y" : "N")
 		),
 		"ELEMENT_SORT_ORDER2" => array(
 			"PARENT" => "DATA_SOURCE",
@@ -164,6 +192,7 @@ $arComponentParameters = array(
 			"VALUES" => $arAscDesc,
 			"DEFAULT" => "desc",
 			"ADDITIONAL_VALUES" => "Y",
+			"HIDDEN" => ($useSearchOrder ? "Y" : "N")
 		),
 		"SECTION_URL" => CIBlockParameters::GetPathTemplateParam("SECTION", "SECTION_URL", GetMessage("IBLOCK_SECTION_URL"), "", "URL_TEMPLATES"),
 		"DETAIL_URL" => CIBlockParameters::GetPathTemplateParam("DETAIL", "DETAIL_URL", GetMessage("IBLOCK_DETAIL_URL"), "", "URL_TEMPLATES"),
@@ -317,35 +346,52 @@ $arComponentParameters = array(
 		"CACHE_TIME" => array(
 			"DEFAULT" => 36000000,
 		),
-		"RESTART" => array(
-			"PARENT" => "SEARCH",
-			"NAME" => GetMessage("SEARCH_RESTART"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N",
-		),
-		"NO_WORD_LOGIC" => array(
-			"PARENT" => "SEARCH",
-			"NAME" => GetMessage("CP_BSP_NO_WORD_LOGIC"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N",
-		),
-		"USE_LANGUAGE_GUESS" => array(
-			"PARENT" => "SEARCH",
-			"NAME" => GetMessage("CP_BSP_USE_LANGUAGE_GUESS"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y",
-		),
-		"CHECK_DATES" => array(
-			"PARENT" => "SEARCH",
-			"NAME" => GetMessage("SEARCH_CHECK_DATES"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N",
-		),
 	),
 );
+
+if ($searchIncluded)
+{
+	$arComponentParameters["PARAMETERS"]["RESTART"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("SEARCH_RESTART"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+	);
+	$arComponentParameters["PARAMETERS"]["NO_WORD_LOGIC"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("CP_BSP_NO_WORD_LOGIC"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+	);
+	$arComponentParameters["PARAMETERS"]["USE_LANGUAGE_GUESS"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("CP_BSP_USE_LANGUAGE_GUESS"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "Y",
+	);
+	$arComponentParameters["PARAMETERS"]["CHECK_DATES"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("SEARCH_CHECK_DATES"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+	);
+	$arComponentParameters["PARAMETERS"]["USE_TITLE_RANK"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("SEARCH_USE_TITLE_RANK"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+	);
+	$arComponentParameters["PARAMETERS"]["USE_SEARCH_RESULT_ORDER"] = array(
+		"PARENT" => "SEARCH",
+		"NAME" => GetMessage("SEARCH_USE_SEARCH_RESULT_ORDER"),
+		"TYPE" => "CHECKBOX",
+		"DEFAULT" => "N",
+		"REFRESH" => "Y"
+	);
+}
 CIBlockParameters::AddPagerSettings($arComponentParameters, GetMessage("T_IBLOCK_DESC_PAGER_CATALOG"), true, true);
 
-if ($boolCatalog)
+if ($catalogIncluded)
 {
 	$arComponentParameters["PARAMETERS"]['HIDE_NOT_AVAILABLE'] = array(
 		'PARENT' => 'DATA_SOURCE',

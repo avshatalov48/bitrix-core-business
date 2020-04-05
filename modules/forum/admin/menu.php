@@ -34,6 +34,11 @@ if($APPLICATION->GetGroupRight("forum") != "D")
 		"section" => "forum",
 		"sort" => 550,
 		"text" => GetMessage("FORUM_CONTROL"),
+		//"url" => "/bitrix/admin/forum_index.php?lang=".LANG,
+		"more_url" => [
+			"/bitrix/admin/forum_index.php?lang=".LANG,
+			"/bitrix/admin/forum_index.php"
+		],
 		"title"=> GetMessage("FORUM_CONTROL"),
 		"icon" => "forum_menu_icon",
 		"page_icon" => "forum_page_icon",

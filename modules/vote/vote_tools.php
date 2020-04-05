@@ -97,39 +97,42 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 			}
 			$event_id = intval($arAddParams["bRestoreVotedData"] == "Y" && !!$_SESSION["VOTE"]["VOTES"][$VOTE_ID] ?
 				$_SESSION["VOTE"]["VOTES"][$VOTE_ID] : 0);
-			$db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID,
-				array("bGetMemoStat" => "N", "bGetEventResults" => $event_id));
-			if ($db_res && ($res = $db_res->Fetch()))
+			if ($event_id > 0)
 			{
-				do
+				$db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID,
+					array("bGetMemoStat" => "N", "bGetEventResults" => $event_id));
+				if ($db_res && ($res = $db_res->Fetch()))
 				{
-					if (isset($arQuestions[$res["QUESTION_ID"]]) && is_array($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]) && is_array($res))
+					do
 					{
-						$arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]] += $res;
-						if ($event_id > 0 && !empty($res["RESTORED_ANSWER_ID"]))
+						if (isset($arQuestions[$res["QUESTION_ID"]]) && is_array($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]) && is_array($res))
 						{
-							switch ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"]):
-								case 0: // radio
-								case 2: // dropdown list
-									$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 0 ?
-										"vote_radio_" : "vote_dropdown_").$res["QUESTION_ID"];
-									$_REQUEST[$fieldName] = $res["RESTORED_ANSWER_ID"];
-									break;
-								case 1: // checkbox
-								case 3: // multiselect list
-									$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 1 ?
-										"vote_checkbox_" : "vote_multiselect_").$res["QUESTION_ID"];
-									$_REQUEST[$fieldName] = (is_array($_REQUEST[$fieldName]) ? $_REQUEST[$fieldName] : array());
-									$_REQUEST[$fieldName][] = $res["ANSWER_ID"];
-									break;
-								case 4: // field
-								case 5: // text
-									// do not restored
-									break;
-							endswitch;
+							$arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]] += $res;
+							if ($event_id > 0 && !empty($res["RESTORED_ANSWER_ID"]))
+							{
+								switch ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"]):
+									case 0: // radio
+									case 2: // dropdown list
+										$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 0 ?
+												"vote_radio_" : "vote_dropdown_").$res["QUESTION_ID"];
+										$_REQUEST[$fieldName] = $res["RESTORED_ANSWER_ID"];
+										break;
+									case 1: // checkbox
+									case 3: // multiselect list
+										$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 1 ?
+												"vote_checkbox_" : "vote_multiselect_").$res["QUESTION_ID"];
+										$_REQUEST[$fieldName] = (is_array($_REQUEST[$fieldName]) ? $_REQUEST[$fieldName] : array());
+										$_REQUEST[$fieldName][] = $res["ANSWER_ID"];
+										break;
+									case 4: // field
+									case 5: // text
+										// do not restored
+										break;
+								endswitch;
+							}
 						}
-					}
-				} while ($res = $db_res->Fetch());
+					} while ($res = $db_res->Fetch());
+				}
 			}
 		}
 

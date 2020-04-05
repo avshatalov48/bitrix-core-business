@@ -1177,20 +1177,6 @@ if (isset($_REQUEST['migrator_process']) && ($_REQUEST['migrator_process'] === '
 else
 {
 	$listNonSupportedFeatures = array();
-	//check discount with DISCOUNT_TYPE = S
-	$discountWithTypeSale = (bool)Catalog\DiscountTable::getList(array(
-		'select' => array('ID'),
-		'filter' => array(
-			'=ACTIVE' => 'Y',
-			'=VALUE_TYPE' => Catalog\DiscountTable::VALUE_TYPE_SALE,
-		),
-		'limit' => 1,
-	))->fetch();
-	
-	if($discountWithTypeSale)
-	{
-		$listNonSupportedFeatures[] = Loc::getMessage('DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_TYPE_SALE');		
-	}
 
 	$discountWithRelativeActivePeriod = (bool)Catalog\DiscountTable::getList(array(
 		'select' => array('ID'),

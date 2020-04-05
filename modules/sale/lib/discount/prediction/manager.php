@@ -13,6 +13,7 @@ use Bitrix\Sale\Basket;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Discount;
 use Bitrix\Sale\Order;
+use Bitrix\Sale\Registry;
 use Bitrix\Sale\PriceMaths;
 use Sale\Handlers\DiscountPreset\ConnectedProduct;
 use Sale\Handlers\DiscountPreset\OrderAmount;
@@ -456,8 +457,13 @@ final class Manager
 			throw new SystemException('Could not get discounts by basket which has order.');
 		}
 
+		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		/** @var Order $order */
-		$order = Order::create($basket->getSiteId(), $this->userId);
+		$order = $orderClass::create($basket->getSiteId(), $this->userId);
 		$discount = $order->getDiscount();
 		$discount->enableCheckingPrediction();
 		if(!$order->setBasket($basket)->isSuccess())

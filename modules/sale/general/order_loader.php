@@ -635,9 +635,13 @@ class CSaleOrderLoader
 				CSaleOrderChange::AddRecord($orderId, "ORDER_1C_IMPORT");
 				if($arOrder["XML_1C_DOCUMENT_ID"] != $orderInfo["ID_1C"])
 					$arOrderFields["ID_1C"] = $arOrder["XML_1C_DOCUMENT_ID"];
-				//$arOrderFields["VERSION_1C"] = $arOrder["VERSION_1C"];
 
-				$order = \Bitrix\Sale\Order::load($orderId);
+				$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var \Bitrix\Sale\Order $orderClass */
+				$orderClass = $registry->getOrderClassName();
+
+				$order = $orderClass::load($orderId);
 
 				if(
 						($orderInfo["PAYED"] != "Y" || is_set($this->getPaymentCompatible1CByOrder($order)))
@@ -2106,6 +2110,11 @@ class CSaleOrderLoader
 					{
 						$this->logMessage("OperationType: ".$arDocument['OPERATION_TYPE']);
 
+						$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+						/** @var \Bitrix\Sale\Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+
 						switch($arDocument['OPERATION_TYPE'])
 						{
 							case 'order_operation':
@@ -2127,7 +2136,7 @@ class CSaleOrderLoader
 										$this->updateOrderWithoutShipmentsPayments($arDocument);
 										if(strlen($this->strErrorDocument)<=0)
 										{
-											$order = \Bitrix\Sale\Order::load($arDocument["ID"]);
+											$order = $orderClass::load($arDocument["ID"]);
 
 											$this->updateEntityCompatible1C($order, $arDocument);
 
@@ -2147,7 +2156,7 @@ class CSaleOrderLoader
 
 										if(intval($arOrder['ID'])>0)
 										{
-											$order = \Bitrix\Sale\Order::load($arOrder["ID"]);
+											$order = $orderClass::load($arOrder["ID"]);
 											if(strlen($this->strErrorDocument)<=0)
 											{
 												$this->createEntityCompatible1C($order, $arDocument);
@@ -2191,7 +2200,7 @@ class CSaleOrderLoader
 
 									if($arDocument['ORDER_ID'] !== false)
 									{
-										if($order = \Bitrix\Sale\Order::load($arDocument['ORDER_ID']))
+										if($order = $orderClass::load($arDocument['ORDER_ID']))
 										{
 											if (!$order->isCanceled())
 											{
@@ -2306,7 +2315,7 @@ class CSaleOrderLoader
 									if($arDocument['ORDER_ID'] !== false)
 									{
 										/** @var Bitrix\Sale\Order $order */
-										if($order = \Bitrix\Sale\Order::load($arDocument['ORDER_ID']))
+										if($order = $orderClass::load($arDocument['ORDER_ID']))
 										{
 											if ($order->getField("STATUS_ID") != "F")
 											{
@@ -2394,7 +2403,7 @@ class CSaleOrderLoader
 											$arOrder = $this->addOrderWithoutShipmentsPayments($arDocument);
 											if($arOrder['ID']>0)
 											{
-												$order = \Bitrix\Sale\Order::load($arOrder['ID']);
+												$order = $orderClass::load($arOrder['ID']);
 												$shipment = $this->addShipmentFromDocumentByOrder($arDocument, $order);
 
 												if(strlen($this->strErrorDocument)<=0)

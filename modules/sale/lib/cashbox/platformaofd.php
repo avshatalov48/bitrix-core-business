@@ -30,7 +30,8 @@ class PlatformaOfd extends Ofd
 	{
 		return array(
 			'fn' => Check::PARAM_FN_NUMBER,
-			'fp' => Check::PARAM_FISCAL_DOC_ATTR
+			'fp' => Check::PARAM_FISCAL_DOC_ATTR,
+			'i' => Check::PARAM_FISCAL_DOC_NUMBER,
 		);
 	}
 

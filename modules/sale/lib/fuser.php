@@ -8,7 +8,7 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
-use Bitrix\Sale\Internals\FuserTable;
+use Bitrix\Sale\Internals;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -88,7 +88,7 @@ class Fuser
 	 */
 	public static function getIdByUserId($userId)
 	{
-		$res = FuserTable::getList(array(
+		$res = Internals\FuserTable::getList(array(
 			'filter' => array(
 				'USER_ID' => $userId
 			),
@@ -128,7 +128,7 @@ class Fuser
 		$fuserId = (int)$fuserId;
 		if ($fuserId <= 0)
 			return $result;
-		$row = FuserTable::getList(array(
+		$row = Internals\FuserTable::getList(array(
 			'select' => array('USER_ID'),
 			'filter' => array('=ID' => $fuserId),
 			'order' => array('ID' => "DESC")
@@ -180,6 +180,6 @@ class Fuser
 		);
 
 		/** @var Result $r */
-		return FuserTable::add($fields);
+		return Internals\FuserTable::add($fields);
 	}
 }

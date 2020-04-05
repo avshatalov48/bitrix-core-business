@@ -87,7 +87,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		</td>
 		<? } ?>
 		<td style="font-size: 3em; ">
-			<b><?=$params["SELLER_COMPANY_NAME"]; ?></b>
+			<b><?=htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]); ?></b>
 		</td>
 	</tr>
 </table>
@@ -95,7 +95,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 
 <span style="text-decoration: underline">
 	<small>
-		<b><?=$params["SELLER_COMPANY_NAME"]; ?><?
+		<b><?=htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]); ?><?
 		if ($params["SELLER_COMPANY_ADDRESS"])
 		{
 			$sellerAddr = $params["SELLER_COMPANY_ADDRESS"];
@@ -103,7 +103,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 				$sellerAddr = implode(', ', $sellerAddr);
 			else
 				$sellerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($sellerAddr));
-			?> - <?=$sellerAddr?><?
+			?> - <?=htmlspecialcharsbx($sellerAddr);?><?
 		}
 ?></b></small></span>
 <br>
@@ -111,11 +111,11 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 <br>
 
 <? if ($params["BUYER_PERSON_COMPANY_NAME"]) { ?>
-	<b><?=$params["BUYER_PERSON_COMPANY_NAME"]; ?></b>
+	<b><?=htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_NAME"]); ?></b>
 	<br><?
     if ($params["BUYER_PERSON_COMPANY_PAYER_NAME"])
 	{
-		?><?=$params["BUYER_PERSON_COMPANY_PAYER_NAME"]?><?
+		?><?=htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_PAYER_NAME"]);?><?
 		?><br><?
 	}
 	if ($params["BUYER_PERSON_COMPANY_ADDRESS"])
@@ -125,6 +125,11 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		{
 			if (!empty($buyerAddress))
 			{
+				foreach ($buyerAddress as $i => $address)
+				{
+					$buyerAddress[$i] = htmlspecialcharsbx($address);
+				}
+
 				$addrValue = implode('<br>', $buyerAddress)
 				?><div style="display: inline-block; vertical-align: top;"><?= $addrValue ?></div><?
 				?><br><?
@@ -133,7 +138,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		}
 		else
 		{
-			?><?= nl2br($buyerAddress) ?><?
+			?><?= nl2br(htmlspecialcharsbx($buyerAddress)) ?><?
 			?><br><?
 		}
 		unset($buyerAddress);
@@ -145,7 +150,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 <br>
 <br>
 
-<span style="font-size: 2em"><b><?=$params['BILLDE_HEADER']?></b></span>
+<span style="font-size: 2em"><b><?=htmlspecialcharsbx($params['BILLDE_HEADER'])?></b></span>
 
 <br>
 <br>
@@ -154,17 +159,17 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	<table width="100%" style="font-weight: bold">
 		<tr>
 			<td><?=sprintf(
-				$params['BILLDE_HEADER'].' Nr. %s',
+				htmlspecialcharsbx($params['BILLDE_HEADER']).' Nr. %s',
 				htmlspecialcharsbx($params["ACCOUNT_NUMBER"])
 			); ?></td>
 			<td><? if ($params["BUYER_PERSON_COMPANY_ID"]) {
 			echo sprintf(
 				'Kunden-Nr.: %s',
-				$params["BUYER_PERSON_COMPANY_ID"]
+				htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_ID"])
 			); } ?></td>
 			<td align="right"><?=sprintf(
 				'Datum: %s',
-				$params["DATE_INSERT"]
+				htmlspecialcharsbx($params["DATE_INSERT"])
 			); ?></td>
 		</tr>
 		<? if ($params["DATE_PAY_BEFORE"]) { ?>
@@ -174,7 +179,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			<td align="right"><?=sprintf(
 				'Bezahlen bis: %s',
 				ConvertDateTime($params["DATE_PAY_BEFORE"], FORMAT_DATE)
-					?: $params["DATE_PAY_BEFORE"]
+					?: htmlspecialcharsbx($params["DATE_PAY_BEFORE"])
 			); ?></td>
 		</tr>
 		<? } ?>
@@ -572,7 +577,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 	<table class="sign">
 		<? if ($params["SELLER_COMPANY_DIRECTOR_POSITION"]) { ?>
 		<tr>
-			<td style="width: 150pt; "><?=$params["SELLER_COMPANY_DIRECTOR_POSITION"]; ?></td>
+			<td style="width: 150pt; "><?=htmlspecialcharsbx($params["SELLER_COMPANY_DIRECTOR_POSITION"]); ?></td>
 			<td style="width: 160pt; border: 1pt solid #000000; border-width: 0pt 0pt 1pt 0pt; text-align: center; ">
 				<? if (!$blank) { ?>
 				<?=CFile::ShowImage($params["SELLER_COMPANY_DIR_SIGN"], 200, 50); ?>
@@ -580,7 +585,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 			</td>
 			<td>
 				<? if ($params["SELLER_COMPANY_DIRECTOR_NAME"]) { ?>
-				(<?=$params["SELLER_COMPANY_DIRECTOR_NAME"]; ?>)
+				(<?=htmlspecialcharsbx($params["SELLER_COMPANY_DIRECTOR_NAME"]); ?>)
 				<? } ?>
 			</td>
 		</tr>
@@ -588,7 +593,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 		<? } ?>
 		<? if ($params["SELLER_COMPANY_ACCOUNTANT_POSITION"]) { ?>
 		<tr>
-			<td style="width: 150pt; "><?=$params["SELLER_COMPANY_ACCOUNTANT_POSITION"]; ?></td>
+			<td style="width: 150pt; "><?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_POSITION"]); ?></td>
 			<td style="width: 160pt; border: 1pt solid #000000; border-width: 0pt 0pt 1pt 0pt; text-align: center; ">
 				<? if (!$blank) { ?>
 				<?=CFile::ShowImage($params["SELLER_COMPANY_ACC_SIGN"], 200, 50); ?>
@@ -596,7 +601,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 			</td>
 			<td>
 				<? if ($params["SELLER_COMPANY_ACCOUNTANT_NAME"]) { ?>
-				(<?=$params["SELLER_COMPANY_ACCOUNTANT_NAME"]; ?>)
+				(<?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_NAME"]); ?>)
 				<? } ?>
 			</td>
 		</tr>
@@ -629,6 +634,10 @@ if ($sellerAddr)
 
 if (!empty($sellerData))
 {
+	foreach ($sellerData as $i => $data)
+	{
+		$sellerData[$i] = htmlspecialcharsbx($data);
+	}
 	?><small><?=join(' - ', $sellerData); ?></small>
 	<br><?
 }
@@ -640,9 +649,9 @@ $sellerEmail = $params["SELLER_COMPANY_EMAIL"];
 $sellerData = array();
 
 if ($sellerPhone)
-	$sellerData[] = sprintf('Telefon: %s', $sellerPhone);
+	$sellerData[] = sprintf('Telefon: %s', htmlspecialcharsbx($sellerPhone));
 if ($sellerEmail)
-	$sellerData[] = sprintf('Mail: %s', $sellerEmail);
+	$sellerData[] = sprintf('Mail: %s', htmlspecialcharsbx($sellerEmail));
 
 if (!empty($sellerData))
 {
@@ -660,15 +669,15 @@ $bank      = $params["SELLER_COMPANY_BANK_NAME"];
 $bankData = array();
 
 if ($bankAccNo)
-	$bankData[] = sprintf('Konto Nr.: %s', $bankAccNo);
+	$bankData[] = sprintf('Konto Nr.: %s', htmlspecialcharsbx($bankAccNo));
 if ($bankBlz)
-	$bankData[] = sprintf('BLZ: %s', $bankBlz);
+	$bankData[] = sprintf('BLZ: %s', htmlspecialcharsbx($bankBlz));
 if ($bankIban)
-	$bankData[] = sprintf('IBAN: %s', $bankIban);
+	$bankData[] = sprintf('IBAN: %s', htmlspecialcharsbx($bankIban));
 if ($bankSwift)
-	$bankData[] = sprintf('BIC/SWIFT: %s', $bankSwift);
+	$bankData[] = sprintf('BIC/SWIFT: %s', htmlspecialcharsbx($bankSwift));
 if ($bank)
-	$bankData[] = $bank;
+	$bankData[] = htmlspecialcharsbx($bank);
 
 if (!empty($bankData))
 {
@@ -685,13 +694,13 @@ $sellerDir   = $params["SELLER_COMPANY_DIRECTOR_NAME"];
 $sellerData = array();
 
 if ($sellerEuInn)
-	$sellerData[] = sprintf('USt-IdNr.: %s', $sellerEuInn);
+	$sellerData[] = sprintf('USt-IdNr.: %s', htmlspecialcharsbx($sellerEuInn));
 if ($sellerInn)
-	$sellerData[] = sprintf('Steuernummer: %s', $sellerInn);
+	$sellerData[] = sprintf('Steuernummer: %s', htmlspecialcharsbx($sellerInn));
 if ($sellerReg)
-	$sellerData[] = $sellerReg;
+	$sellerData[] = htmlspecialcharsbx($sellerReg);
 if ($sellerDir)
-	$sellerData[] = $sellerDir;
+	$sellerData[] = htmlspecialcharsbx($sellerDir);
 
 if (!empty($sellerData))
 {

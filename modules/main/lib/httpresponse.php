@@ -154,7 +154,10 @@ class HttpResponse extends Response
 		return $this->headers;
 	}
 
-	protected function writeHeaders()
+	/**
+	 * Flushes all headers and cookies
+	 */
+	public function writeHeaders()
 	{
 		if($this->lastModified !== null)
 		{

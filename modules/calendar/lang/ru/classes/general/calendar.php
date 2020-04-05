@@ -661,4 +661,12 @@ $MESS["EC_REMIND1_VIEW_HOUR_COUNT"] = "За #COUNT# час(-а) до начал�
 $MESS["EC_REMIND1_VIEW_DAY_COUNT"] = "За #COUNT# дня(дней) до начала";
 $MESS["EC_YEAR_HOLIDAYS_DEFAULT"] = "1.01,2.01,7.01,23.02,8.03,1.05,9.05,12.06,4.11";
 $MESS["EC_YEAR_WORKDAYS_DEFAULT"] = "31.12";
+
+$MESS["EC_SYNC_PERIOD"] = "Период синхронизации событий";
+$MESS["EC_SYNC_PERIOD_PAST_3"] = "3 месяца назад";
+$MESS["EC_SYNC_PERIOD_PAST_6"] = "6 месяцев назад";
+$MESS["EC_SYNC_PERIOD_PAST_12"] = "1 год назад";
+$MESS["EC_SYNC_PERIOD_FUTURE_12"] = "1 год вперед";
+$MESS["EC_SYNC_PERIOD_FUTURE_24"] = "2 года вперед";
+$MESS["EC_SYNC_PERIOD_FUTURE_36"] = "3 года вперед";
 ?>

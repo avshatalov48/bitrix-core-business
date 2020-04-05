@@ -1,27 +1,18 @@
-<?
-	use Bitrix\Main\Localization\Loc;
-	\Bitrix\Main\Page\Asset::getInstance()->addCss("/bitrix/themes/.default/sale.css");
-	Loc::loadMessages(__FILE__);
+<?php
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
-	$sum = roundEx($params['SUM'], 2);
+$sum = round($params['SUM'], 2);
 ?>
 
-<div class="sale-paysystem-wrapper">
-	<span class="tablebodytext">
-		<?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION')." ".SaleFormatCurrency($params['SUM'], $params['CURRENCY']);?>
-	</span>
-	<div class="sale-paysystem-yandex-button-container">
-		<span class="sale-paysystem-yandex-button">
-			<a class="sale-paysystem-yandex-button-item sale-paysystem-yandex-checkout-button-item" href="<?=$params['URL'];?>">
-				<?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_BUTTON_PAID')?>
-			</a>
-		</span>
-		<span class="sale-paysystem-yandex-button-descrition"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_REDIRECT_MESS');?></span>
+<div class="mb-4" >
+	<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION')." ".SaleFormatCurrency($sum, $params['CURRENCY']);?></p>
+	<div class="d-flex align-items-center mb-3">
+		<div class="col-auto pl-0">
+			<a class="btn btn-primary" href="<?=$params['URL'];?>"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_BUTTON_PAID')?></a>
+		</div>
+		<div class="col pr-0"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_REDIRECT_MESS');?></div>
 	</div>
 
-	<p>
-		<span class="tablebodytext sale-paysystem-description">
-			<?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?>
-		</span>
-	</p>
+	<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?></p>
 </div>

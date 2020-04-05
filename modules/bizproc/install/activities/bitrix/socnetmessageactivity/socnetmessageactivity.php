@@ -78,15 +78,12 @@ class CBPSocNetMessageActivity
 			'NAME' => GetMessage('BPSNMA_FORMAT_ROBOT'),
 			'AVATAR' => '/bitrix/images/bizproc/message_robot.png'
 		));
-		$attach->AddDelimiter(Array('COLOR' => '#c6c6c6'));
-		$attach->AddGrid(Array(
-			Array(
-				"NAME" => $documentService->getDocumentTypeName($this->GetDocumentType()) . ':',
-				"VALUE" => $documentService->getDocumentName($documentId),
-				"LINK" => $documentService->GetDocumentAdminPage($documentId),
-				"DISPLAY" => "COLUMN",
-				"WIDTH" => 60,
-			),
+		$attach->AddDelimiter();
+		$attach->AddMessage(sprintf(
+			'[b]%s:[/b] [url=%s]%s[/url]',
+			$documentService->getDocumentTypeName($this->GetDocumentType()),
+			$documentService->GetDocumentAdminPage($documentId),
+			$documentService->getDocumentName($documentId)
 		));
 		$attach->AddDelimiter();
 		$attach->AddHtml('<span style="color: #6E6E6E">'.

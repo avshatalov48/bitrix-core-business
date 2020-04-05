@@ -127,6 +127,13 @@ $arComponentParameters = array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 		),
+		"IBLOCK_CACHE_MODE" => array(
+			"PARENT" => "ADDITIONAL",
+			"NAME" => GetMessage("CP_BCI1_IBLOCK_CACHE_MODE"),
+			"TYPE" => "LIST",
+			"VALUES" => \CIBlockCMLImport::getIblockCacheModeList(true),
+			"DEFAULT" => \CIBlockCMLImport::IBLOCK_CACHE_NORMAL
+		)
 	),
 );
 
@@ -243,4 +250,3 @@ if($arCurrentValues["TRANSLIT_ON_ADD"] === "Y" || $arCurrentValues["TRANSLIT_ON_
 		"DEFAULT" => "Y",
 	);
 }
-?>

@@ -665,6 +665,9 @@ div.feed-com-avatar-Y { background: none; }
 	width: 37px;
 	height: 37px;
 }
+.feed-com-add-box-outer.feed-com-add-box-outer-form-shown .feed-com-footer {
+	display: none;
+}
 
 .feed-com-add-box {
 	position: relative;
@@ -750,23 +753,20 @@ div.feed-com-avatar-Y { background: none; }
 	top: -10px;
 	margin-top: 11px;
 	margin-bottom: 11px;
-	/*padding-right: 20px;*/
 }
 
-.feed-com-footer .feed-com-writers {
-	float: right;
-	position: static;
-	right: auto;
-	top: auto;
+.feed-add-post-buttons .feed-com-writers {
+	line-height: inherit;
 }
 
 .feed-com-writers-wrap .feed-com-avatar {
 	position: static;
 	display: inline-block;
 	margin-right: 4px;
+	margin-top: 7px;
 	width: 20px;
 	height: 20px;
-	vertical-align: top;
+	vertical-align: middle;
 }
 
 .feed-com-writers-wrap .feed-com-avatar img {
@@ -800,8 +800,7 @@ div.feed-com-avatar-Y { background: none; }
 	background: url(images/feed-comm-pen.gif) no-repeat 0 0;
 	display: inline-block;
 	height: 12px;
-	/*margin: 14px 0 0 9px;*/
-	margin: 8px 0 0 2px;
+	margin: 14px 0 0 2px;
 	vertical-align: top;
 	width: 27px;
 }

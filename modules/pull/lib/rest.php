@@ -3,6 +3,7 @@ namespace Bitrix\Pull;
 
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc;
+use Bitrix\Pull\Rest\GuestAuth;
 
 if(!\Bitrix\Main\Loader::includeModule('rest'))
 	return;
@@ -15,13 +16,15 @@ class Rest extends \IRestService
 	{
 		return array(
 			'pull' => array(
-				'pull.application.config.get' =>  array('callback' => array(__CLASS__, 'applicationConfigGet'), 'options' => array('private' => true)),
-				'pull.channel.public.get' =>  array('callback' => array(__CLASS__, 'channelPublicGet'), 'options' => array()),
-				'pull.channel.public.list' =>  array('callback' => array(__CLASS__, 'channelPublicList'), 'options' => array()),
+				'pull.application.config.get' =>  array('callback' => array(__CLASS__, 'applicationConfigGet')),
+				'pull.application.event.add' =>  array('callback' => array(__CLASS__, 'applicationEventAdd')),
+				'pull.application.push.add' =>  array('callback' => array(__CLASS__, 'applicationPushAdd')),
 				'pull.watch.extend' =>  array('callback' => array(__CLASS__, 'watchExtend'), 'options' => array()),
 			),
 			'pull_channel' => array(
 				'pull.config.get' =>  array('callback' => array(__CLASS__, 'configGet'), 'options' => array()),
+				'pull.channel.public.get' =>  array('callback' => array(__CLASS__, 'channelPublicGet'), 'options' => array()),
+				'pull.channel.public.list' =>  array('callback' => array(__CLASS__, 'channelPublicList'), 'options' => array()),
 			),
 			'mobile' => Array(
 				'mobile.counter.types.get' => array('callback' => array(__CLASS__, 'counterTypesGet'), 'options' => array()),
@@ -147,6 +150,202 @@ class Rest extends \IRestService
 		return $config;
 	}
 
+	public static function applicationEventAdd($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		$clientId = $server->getClientId();
+		if (!$clientId)
+		{
+			throw new \Bitrix\Rest\RestException("Get access to application config available only for application authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		global $USER;
+
+		if (self::isAdmin())
+		{
+			$users = Array();
+			if (is_string($params['USER_ID']))
+			{
+				$params['USER_ID'] = \CUtil::JsObjectToPhp($params['USER_ID']);
+			}
+
+			if (is_array($params['USER_ID']))
+			{
+				foreach ($params['USER_ID'] as $userId)
+				{
+					$userId = intval($userId);
+					if ($userId > 0)
+					{
+						$users[$userId] = $userId;
+					}
+				}
+				$users = array_values($users);
+			}
+			else
+			{
+				$users = (int)$params['USER_ID'];
+			}
+		}
+		else
+		{
+			if (isset($params['USER_ID']))
+			{
+				if ($params['USER_ID'] === $USER->GetId())
+				{
+					$users = $USER->GetId();
+				}
+				else
+				{
+					throw new \Bitrix\Rest\RestException("Only admin can send notifications to other channels", "USER_ID_ACCESS_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+				}
+			}
+			else
+			{
+				$users = Event::SHARED_CHANNEL;
+			}
+		}
+
+		if (isset($params['MODULE_ID']))
+		{
+			$moduleId = $params['MODULE_ID'];
+			if (preg_match("/[^a-z0-9._]/", $moduleId))
+			{
+				throw new \Bitrix\Rest\RestException("Module ID format error", "MODULE_ID_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+		else
+		{
+			$moduleId = 'application';
+		}
+
+		$command = $params['COMMAND'];
+		if (!preg_match("/^[\d\w:_|\.\-]+$/", $command))
+		{
+			throw new \Bitrix\Rest\RestException("Command format error", "COMMAND_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (isset($params['PARAMS']))
+		{
+			if (is_string($params['PARAMS']))
+			{
+				$params['PARAMS'] = \CUtil::JsObjectToPhp($params['PARAMS']);
+			}
+
+			$eventParams = $params['PARAMS'];
+			if (!is_array($eventParams))
+			{
+				throw new \Bitrix\Rest\RestException("Params format error", "PARAMS_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+			}
+		}
+		else
+		{
+			$eventParams = [];
+		}
+
+		Event::add($users, array(
+			'module_id' => $moduleId,
+			'command' => $command,
+			'params' => $eventParams,
+		), $clientId);
+
+		return true;
+	}
+
+	public static function applicationPushAdd($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		$clientId = $server->getClientId();
+		if (!$clientId)
+		{
+			throw new \Bitrix\Rest\RestException("Send push notifications available only for application authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (!self::isAdmin())
+		{
+			throw new \Bitrix\Rest\RestException("You do not have access to send push notifications", "ACCESS_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$users = Array();
+		if (is_string($params['USER_ID']))
+		{
+			$params['USER_ID'] = \CUtil::JsObjectToPhp($params['USER_ID']);
+		}
+
+		if (is_array($params['USER_ID']))
+		{
+			foreach ($params['USER_ID'] as $userId)
+			{
+				$userId = intval($userId);
+				if ($userId > 0)
+				{
+					$users[$userId] = $userId;
+				}
+			}
+			$users = array_values($users);
+		}
+		else
+		{
+			$users = (int)$params['USER_ID'];
+		}
+
+		if (!$params['TEXT'] || strlen($params['TEXT']) <= 0)
+		{
+			throw new \Bitrix\Rest\RestException("Text can't be empty", "TEXT_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$result = \Bitrix\Rest\AppTable::getList(
+			array(
+				'filter' => array(
+					'=CLIENT_ID' => $clientId
+				),
+				'select' => array(
+					'CODE',
+					'APP_NAME',
+					'APP_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME',
+				)
+			)
+		)->fetch();
+		if (empty($result['APP_NAME']))
+		{
+			throw new \Bitrix\Rest\RestException("For send push-notification application name can't be empty", "EMPTY_APP_NAME", \CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$appName = $result['APP_NAME'];
+
+		$text = $params['TEXT'];
+
+		$avatar = '';
+		if ($params['AVATAR'])
+		{
+			$parsedUrl = new Main\Web\Uri($params['AVATAR']);
+			$params['AVATAR'] = $parsedUrl->getUri();
+			if ($params['AVATAR'])
+			{
+				$avatar = $params['AVATAR'];
+			}
+		}
+
+		Push::add($users,
+		[
+			'module_id' => 'im',
+			'push' =>
+			[
+				'message' => $text,
+				'advanced_params' =>
+				[
+					"group"=> $clientId,
+					"avatarUrl"=> $avatar,
+					"senderName" => $appName,
+					"senderMessage" => $text,
+				],
+			]
+		]);
+
+		return true;
+	}
+
 	public static function configGet($params, $n, \CRestServer $server)
 	{
 		$params = array_change_key_case($params, CASE_UPPER);
@@ -157,12 +356,22 @@ class Rest extends \IRestService
 		}
 
 		global $USER;
-		if (!$USER->IsAuthorized())
+		$guestMode = defined("PULL_USER_ID") && (int)PULL_USER_ID != 0;
+		if($server->getAuthType() === GuestAuth::AUTH_TYPE && $guestMode)
+		{
+			$userId = (int)PULL_USER_ID;
+		}
+		else if ($USER->IsAuthorized())
+		{
+			$userId = $USER->getId();
+		}
+		else
 		{
 			throw new \Bitrix\Rest\RestException("Method not available for guest session at the moment.", "AUTHORIZE_ERROR", \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$configParams = Array();
+		$configParams['USER_ID'] = $userId;
 		$configParams['CACHE'] = $params['CACHE'] != 'N';
 		$configParams['REOPEN'] = $params['REOPEN'] != 'N';
 		$configParams['JSON'] = true;
@@ -381,5 +590,18 @@ class Rest extends \IRestService
 	public static function notImplemented($params, $n, \CRestServer $server)
 	{
 		throw new \Bitrix\Rest\RestException("Method isn't implemented yet", "NOT_IMPLEMENTED", \CRestServer::STATUS_NOT_FOUND);
+	}
+
+	private static function isAdmin()
+	{
+		global $USER;
+		return (
+			isset($USER)
+			&& is_object($USER)
+			&& (
+				$USER->isAdmin()
+				|| Main\Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($USER->getID())
+			)
+		);
 	}
 }

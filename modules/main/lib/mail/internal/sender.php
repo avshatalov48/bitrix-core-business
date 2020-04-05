@@ -119,6 +119,21 @@ class SenderTable extends Entity\DataManager
 								}
 							}
 
+							if (!empty($value['smtp']) && is_array($value['smtp']))
+							{
+								if (empty($value['smtp']['protocol']))
+								{
+									if (465 == $value['smtp']['port'])
+									{
+										$value['smtp']['protocol'] = 'smtps';
+									}
+									else if (587 == $value['smtp']['port'])
+									{
+										$value['smtp']['protocol'] = 'smtp';
+									}
+								}
+							}
+
 							return $value;
 						}
 					);

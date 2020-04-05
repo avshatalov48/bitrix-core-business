@@ -318,7 +318,6 @@ else
 		}
 	}
 
-				
 	if (!is_array($arResult["User"]))
 	{
 		$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_USER").". ";

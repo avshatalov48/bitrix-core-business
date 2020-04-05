@@ -123,7 +123,7 @@ class CPullChannel
 		}
 		else
 		{
-			if ($nginxStatus && $reOpen && CPullOptions::GetQueueServerVersion() < 3)
+			if ($nginxStatus && $reOpen && CPullOptions::GetQueueServerVersion() < 3  && !CPullOptions::IsServerShared())
 			{
 				self::Send($arResult['CHANNEL_ID'], \Bitrix\Pull\Common::jsonEncode(Array(
 					'module_id' => 'pull',
@@ -150,7 +150,7 @@ class CPullChannel
 
 	public static function SignChannel($channelId)
 	{
-		$signatureKey = \CPullOptions::GetSignatureKey();
+		$signatureKey = \Bitrix\Pull\Config::getSignatureKey();
 		if ($signatureKey === "" || !is_string($channelId))
 		{
 			return $channelId;
@@ -161,7 +161,7 @@ class CPullChannel
 
 	public static function SignPublicChannel($channelId)
 	{
-		$signatureKey = \CPullOptions::GetSignatureKey();
+		$signatureKey = \Bitrix\Pull\Config::getSignatureKey();
 		if ($signatureKey === "" || !is_string($channelId))
 		{
 			return "";
@@ -175,9 +175,12 @@ class CPullChannel
 		return static::GetSignature("public:".$value);
 	}
 
-	public static function GetSignature($value)
+	public static function GetSignature($value, $signatureKey = null)
 	{
-		$signatureKey = \CPullOptions::GetSignatureKey();
+		if(!$signatureKey)
+		{
+			$signatureKey = \Bitrix\Pull\Config::getSignatureKey();
+		}
 		$signatureAlgo = \CPullOptions::GetSignatureAlgorithm();
 		$hmac = new Sign\HmacAlgorithm();
 		$hmac->setHashAlgorithm($signatureAlgo);
@@ -231,7 +234,7 @@ class CPullChannel
 			);
 			self::SaveToCache($cache_id, $arChannel);
 
-			if (CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() < 3)
+			if (CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() < 3 && !CPullOptions::IsServerShared())
 			{
 				self::Send($channelId, \Bitrix\Pull\Common::jsonEncode(Array(
 					'module_id' => 'pull',
@@ -262,7 +265,7 @@ class CPullChannel
 			$channelId = $arChannel['CHANNEL_ID'];
 			self::SaveToCache($cache_id, $arChannel);
 
-			if (CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() < 3)
+			if (CPullOptions::GetQueueServerStatus() && CPullOptions::GetQueueServerVersion() < 3 && !CPullOptions::IsServerShared())
 			{
 				self::Send($channelId, \Bitrix\Pull\Common::jsonEncode(Array(
 					'module_id' => 'pull',
@@ -390,7 +393,7 @@ class CPullChannel
 	public static function Send($channelId, $message, $options = array())
 	{
 		$result_start = '{"infos": ['; $result_end = ']}';
-		if (is_array($channelId) && CPullOptions::GetQueueServerVersion() == 1)
+		if (is_array($channelId) && CPullOptions::GetQueueServerVersion() == 1 && !CPullOptions::IsServerShared())
 		{
 			$results = Array();
 			foreach ($channelId as $channel)
@@ -408,8 +411,14 @@ class CPullChannel
 				$i = 0;
 				foreach($channelId as $channel)
 				{
+					if (!isset($arGroup[$i]))
+					{
+						$arGroup[$i] = [];
+					}
 					if (count($arGroup[$i]) == $commandPerHit)
+					{
 						$i++;
+					}
 
 					$arGroup[$i][] = $channel;
 				}
@@ -485,26 +494,29 @@ class CPullChannel
 
 		$postdata = CHTTP::PrepareData($message);
 
-		$CHTTP = new CHTTP();
-		$CHTTP->http_timeout = intval($options["timeout"]);
-		if (isset($options["expiry"]))
+		$httpClient = new \Bitrix\Main\Web\HttpClient([
+			"socketTimeout" => (int)$options["timeout"],
+			"streamTimeout" => (int)$options["timeout"],
+			"waitResponse" => !$options["dont_wait_answer"]
+		]);
+		if ((int)$options["expiry"])
 		{
-			$CHTTP->SetAdditionalHeaders(array("Message-Expiry" => intval($options["expiry"])));
+			$httpClient->setHeader("Message-Expiry", (int)$options["expiry"]);
+		}
+		$url = \Bitrix\Pull\Config::getPublishUrl($channelId);
+		if(CPullOptions::IsServerShared())
+		{
+			$signature = static::GetSignature($postdata);
+			$url = \CHTTP::urlAddParams($url, ["signature" => $signature]);
 		}
 
-		$arUrl = $CHTTP->ParseURL(CPullOptions::GetPublishUrl($channelId), false);
-		try
-		{
-			$sendResult = $CHTTP->Query($options["method"], $arUrl['host'], $arUrl['port'], $arUrl['path_query'], $postdata, $arUrl['proto'], 'N', $options["dont_wait_answer"]);
-		}
-		catch(Exception $e)
-		{
-			$sendResult = false;
-		}
+		$httpClient->disableSslVerification();//todo: remove
+
+		$sendResult = $httpClient->query($options["method"], $url, $postdata);
 
 		if ($sendResult)
 		{
-			$result = $options["dont_wait_answer"] ? '{}': $CHTTP->result;
+			$result = $options["dont_wait_answer"] ? '{}': $httpClient->getResult();
 		}
 		else
 		{
@@ -595,6 +607,7 @@ class CPullChannel
 					'COLOR' =>	'ST.COLOR',
 					'IDLE' => 'ST.IDLE',
 					'MOBILE_LAST_DATE' => 'ST.MOBILE_LAST_DATE',
+					'DESKTOP_LAST_DATE' => 'ST.DESKTOP_LAST_DATE',
 				 ),
 				'runtime' => Array(
 					new \Bitrix\Main\Entity\ReferenceField(
@@ -621,33 +634,23 @@ class CPullChannel
 		}
 		else
 		{
-			$orm = \Bitrix\Main\UserTable::getList(array(
-				'select' => Array(
-					'USER_ID' => 'ID',
-					'CHANNEL_ID' =>	'CHANNEL.CHANNEL_ID'
-				 ),
-				'runtime' => Array(
-					new \Bitrix\Main\Entity\ReferenceField(
-						'CHANNEL',
-						'\Bitrix\Pull\Model\ChannelTable',
-						array(
-							"=ref.USER_ID" => "this.ID",
-							"=ref.CHANNEL_TYPE" => new \Bitrix\Main\DB\SqlExpression('?s', 'private'),
-						),
-						array("join_type"=>"INNER")
-					)
-				),
-				'filter' => Array(
-					'=IS_ONLINE' => 'Y',
-					'=IS_REAL_USER' => 'Y'
-				)
-			));
+			$orm = \Bitrix\Pull\ChannelTable::getList([
+				'select' => [
+					'USER_ID',
+					'CHANNEL_ID'
+				],
+				'filter' => [
+					'=CHANNEL_TYPE' => 'private',
+					'=USER.IS_ONLINE' => 'Y',
+					'=USER.IS_REAL_USER' => 'Y',
+				]
+			]);
 		}
 
 		while ($res = $orm->fetch())
 		{
 			$channels[$res['CHANNEL_ID']] = $res['USER_ID'];
-			$users[$res['USER_ID']] = $res;
+			$users[$res['USER_ID']] = $isImInstalled? CIMStatus::prepareLastDate($res): $res;
 		}
 
 		if (count($users) == 0)
@@ -664,7 +667,7 @@ class CPullChannel
 			$arOnline[$agentUserId] = $agentUserId;
 		}
 
-		if(\CPullOptions::GetQueueServerVersion() >= 4 && \CPullOptions::IsProtobufSupported() && \CPullOptions::IsProtobufEnabled())
+		if(\Bitrix\Pull\Config::isProtobufUsed())
 		{
 			$channelsStatus = \Bitrix\Pull\ProtobufTransport::getOnlineChannels(array_keys($channels));
 		}
@@ -702,8 +705,9 @@ class CPullChannel
 						'id' => $userId,
 						'status' => $users[$userId]['STATUS'],
 						'color' => $users[$userId]['COLOR']? \Bitrix\Im\Color::getColor($users[$userId]['COLOR']): \Bitrix\Im\Color::getColorByNumber($userId),
-						'idle' => $users[$userId]['IDLE'] instanceof \Bitrix\Main\Type\DateTime? $users[$userId]['IDLE']: false,
-						'mobile_last_date' => $users[$userId]['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $users[$userId]['MOBILE_LAST_DATE']: false,
+						'idle' => $users[$userId]['IDLE'],
+						'mobile_last_date' => $users[$userId]['MOBILE_LAST_DATE'],
+						'desktop_last_date' => $users[$userId]['DESKTOP_LAST_DATE'],
 						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),
 					);
 				}
@@ -718,6 +722,7 @@ class CPullChannel
 						'color' => '#556574',
 						'idle' => false,
 						'mobile_last_date' => false,
+						'desktop_last_date' => false,
 						'last_activity_date' => new \Bitrix\Main\Type\DateTime(),
 					);
 				}
@@ -735,6 +740,12 @@ class CPullChannel
 		return "CPullChannel::CheckOnlineChannel();";
 	}
 
+	/**
+	 * Deprecated method, use \Bitrix\Pull\Config::get() insted.
+	 *
+	 * @deprecated
+	 * @see \Bitrix\Pull\Config::get()
+	 */
 	public static function GetConfig($userId, $cache = true, $reopen = false, $mobile = false)
 	{
 		$pullConfig = Array();
@@ -824,7 +835,8 @@ class CPullChannel
 			"dont_wait_answer" => false
 		);
 
-		$serverResult = self::Send($channels, 'ping', $options);
+		$command = implode('/', array_unique($channels));
+		$serverResult = self::Send($channels, $command, $options);
 
 		$result = [];
 

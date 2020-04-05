@@ -5,20 +5,17 @@ use Bitrix\Main\Error;
 use Bitrix\Sale\BasketItemBase;
 use Bitrix\Sale\Fuser;
 use Bitrix\Sale\Order;
+use Bitrix\Sale;
 use Bitrix\Main\Loader;
 use Bitrix\Sale\Basket;
+use Bitrix\Sale\OrderBase;
 use Bitrix\Sale\Result;
-use Bitrix\Sale\Discount;
 use Bitrix\Sale\Provider;
 use Bitrix\Main\UserTable;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Main\Page\Asset;
-use Bitrix\Iblock\IblockTable;
-use Bitrix\Main\Config\Option;
-use Bitrix\Highloadblock as HL;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\SaleProviderBase;
 use Bitrix\Sale\Services\Company;
 use Bitrix\Main\Entity\EntityError;
 use Bitrix\Sale\UserMessageException;
@@ -41,6 +38,8 @@ Loader::registerAutoLoadClasses('sale',
 		'\Bitrix\Sale\Helpers\Admin\Blocks\OrderBuyer' => 'lib/helpers/admin/blocks/orderbuyer.php',
 		'\Bitrix\Sale\Helpers\Admin\Blocks\OrderInfo' => 'lib/helpers/admin/blocks/orderinfo.php',
 		'\Bitrix\Sale\Helpers\Admin\Blocks\OrderMarker' => 'lib/helpers/admin/blocks/ordermarker.php',
+
+		'\Bitrix\Sale\Helpers\Admin\OrderEditResult' => 'lib/helpers/admin/ordereditresult.php'
 ));
 
 /**
@@ -193,12 +192,12 @@ class OrderEdit
 			<script type="text/javascript">
 				BX.ready(function(){
 					BX.Sale.Admin.OrderEditPage.orderId = "'.$order->getId().'";
-					BX.Sale.Admin.OrderEditPage.siteId = "'.$order->getSiteId().'";
+					BX.Sale.Admin.OrderEditPage.siteId = "'.\CUtil::JSEscape($order->getSiteId()).'";
 					BX.Sale.Admin.OrderEditPage.languageId = "'.LANGUAGE_ID.'";
 					BX.Sale.Admin.OrderEditPage.formId = "'.$formId.'_form";
 					BX.Sale.Admin.OrderEditPage.adminTabControlId = "'.$formId.'";
 					'.(!empty($currencies) ? 'BX.Currency.setCurrencies('.\CUtil::PhpToJSObject($currencies, false, true, true).');' : '').
-					'BX.Sale.Admin.OrderEditPage.currency = "'.$currencyId.'";
+					'BX.Sale.Admin.OrderEditPage.currency = "'.\CUtil::JSEscape($currencyId).'";
 					BX.Sale.Admin.OrderEditPage.currencyLang = "'.\CUtil::JSEscape($currencyLang).'";';
 
 		if($formId == "sale_order_create")
@@ -368,7 +367,10 @@ class OrderEdit
 			$name,
 			$formData["SITE_ID"],
 			$errors,
-			array('PERSONAL_PHONE' => $phone)
+			[
+				'PERSONAL_PHONE' => $phone,
+				'PHONE_NUMBER' => $phone
+			]
 		);
 
 		if (!empty($errors))
@@ -421,8 +423,12 @@ class OrderEdit
 		if(!isset($formData["SITE_ID"]) || strlen($formData["SITE_ID"]) <= 0)
 			throw new ArgumentNullException('formData["SITE_ID"]');
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		global $APPLICATION, $USER;
-		$order = Order::create($formData["SITE_ID"]);
+		$order = $orderClass::create($formData["SITE_ID"]);
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 		$userCompanyId = null;
 
@@ -445,9 +451,7 @@ class OrderEdit
 		if(!$res->isSuccess())
 			$opResult->addErrors($res->getErrors());
 
-		$propCollection = $order->getPropertyCollection();
-		$res = $propCollection->setValuesFromPost($formData, $files);
-
+		$res = self::fillOrderProperties($order, $formData, $files);
 		if(!$res->isSuccess())
 			$opResult->addErrors($res->getErrors());
 
@@ -471,8 +475,10 @@ class OrderEdit
 		if(isset($formData["PRODUCT"]) && is_array($formData["PRODUCT"]) && !empty($formData["PRODUCT"]))
 		{
 			$isStartField = $order->isStartField();
+
+			$basketClass = $registry->getBasketClassName();
 			/** @var Basket $basket */
-			$basket = \Bitrix\Sale\Basket::create($formData["SITE_ID"]);
+			$basket = $basketClass::create($formData["SITE_ID"]);
 
 			$res = $order->setBasket($basket);
 
@@ -601,7 +607,11 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$opResult->addErrors($res->getErrors());
-				//return null;
+
+				if($res->isTerminal())
+				{
+					return null;
+				}
 			}
 
 			if ($isStartField)
@@ -625,6 +635,12 @@ class OrderEdit
 		}
 
 		return $order;
+	}
+
+	public static function fillOrderProperties(OrderBase $order, $formData, $files = [])
+	{
+		$propCollection = $order->getPropertyCollection();
+		return $propCollection->setValuesFromPost($formData, $files);
 	}
 
 	public static function isBasketItemNew($basketCode)
@@ -960,6 +976,13 @@ class OrderEdit
 						$result->addErrors($res->getErrors());
 //						return null;
 					}
+					elseif($res->hasWarnings())
+					{
+						foreach($res->getWarningMessages() as $warning)
+						{
+							$result->addError(new Error($warning));
+						}
+					}
 				}
 
 				/*
@@ -993,7 +1016,11 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$result->addErrors($res->getErrors());
-//				return null;
+
+				if($res->isTerminal())
+				{
+					return null;
+				}
 			}
 
 			if ($isStartField)
@@ -1126,7 +1153,7 @@ class OrderEdit
 	public static function fillBasketItems(Basket &$basket, array $productsFormData, Order $order, array $needDataUpdate = array())
 	{
 		$basketItems = $basket->getBasketItems();
-		$result = new Result();
+		$result = new OrderEditResult();
 		$catalogProductsIds = array();
 		$trustData = array();
 
@@ -1177,7 +1204,19 @@ class OrderEdit
 			if(!$res->isSuccess())
 			{
 				$result->addErrors($res->getErrors());
-				//return $result;
+				$justAdded = isset($productsFormData[$basketCode]['JUST_ADDED']) && $productsFormData[$basketCode]['JUST_ADDED'] == 'Y';
+
+				if($justAdded)
+				{
+					foreach($res->getErrors() as $error)
+					{
+						if($error->getCode() == 'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY')
+						{
+							$result->setIsTerminal(true);
+							return $result;
+						}
+					}
+				}
 			}
 
 			if(isset($productData["MODULE"]) && $productData["MODULE"] == "catalog")
@@ -1661,22 +1700,32 @@ class OrderEdit
 		return DiscountCouponsManager::get(true, array(), true, false);
 	}
 
+	/**
+	 * @param Order $order
+	 * @param bool $needRecalculate
+	 * @return array
+	 * @throws ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 */
 	public static function getDiscountsApplyResult(Order $order, $needRecalculate = false)
 	{
 		static $calcResults = null;
 
-		if ($order instanceof \Bitrix\Sale\Archive\Order)
+		if ($order instanceof Sale\Archive\Order)
 		{
-			/** @var \Bitrix\Sale\Archive\Order $order*/
+			/** @var Sale\Archive\Order $order */
 			return $order->getDiscountData();
 		}
 
-		if($calcResults === null || $needRecalculate)
+		if ($calcResults === null || $needRecalculate)
 		{
-			if($needRecalculate)
+			$discounts = $order->getDiscount();
+
+			if ($needRecalculate)
 			{
-				/** @var \Bitrix\Sale\Result $r */
-				$r = $order->getDiscount()->calculate();
+				/** @var Sale\Result $r */
+				$r = $discounts->calculate();
 
 				if ($r->isSuccess())
 				{
@@ -1685,7 +1734,8 @@ class OrderEdit
 				}
 			}
 
-			$calcResults = $order->getDiscount()->getApplyResult(true);
+			$calcResults = $discounts->getApplyResult(true);
+			unset($discounts);
 		}
 
 		return $calcResults === null ? array() : $calcResults;
@@ -1707,7 +1757,7 @@ class OrderEdit
 		$result = array();
 		$discounts = array();
 
-		if ($order instanceof \Bitrix\Sale\Archive\Order)
+		if ($order instanceof Sale\Archive\Order)
 		{
 			$discounts = $order->getDiscountData();
 			return $discounts['COUPON_LIST'];
@@ -1735,7 +1785,7 @@ class OrderEdit
 				{
 					$oneCoupon['JS_CHECK_CODE'] = (
 					is_array($oneCoupon['CHECK_CODE_TEXT'])
-						? implode('<br>', $oneCoupon['CHECK_CODE_TEXT'])
+						? implode(', ', $oneCoupon['CHECK_CODE_TEXT'])
 						: $oneCoupon['CHECK_CODE_TEXT']
 					);
 				}
@@ -1873,7 +1923,12 @@ class OrderEdit
 	{
 		$intLockUserID = 0;
 		$strLockTime = '';
-		$r = \Bitrix\Sale\Order::getLockedStatus($orderId);
+
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$r = $orderClass::getLockedStatus($orderId);
 
 		if ($r->isSuccess())
 		{

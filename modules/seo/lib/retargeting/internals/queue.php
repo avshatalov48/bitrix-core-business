@@ -47,12 +47,18 @@ class QueueTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 			),
+			'CLIENT_ID' => array(
+				'data_type' => 'string',
+			),
 			'ACCOUNT_ID' => array(
 				'data_type' => 'string',
 			),
 			'AUDIENCE_ID' => array(
 				'data_type' => 'string',
 				'required' => true,
+			),
+			'PARENT_ID' => array(
+				'data_type' => 'string',
 			),
 			'CONTACT_TYPE' => array(
 				'data_type' => 'string',
@@ -169,6 +175,8 @@ class QueueTable extends Entity\DataManager
 
 			$isRemove = $queueItem['ACTION'] == self::ACTION_REMOVE ? 'Y' : 'N';
 			$queryId = $queueItem['TYPE'];
+			$queryId .= '_' . $queueItem['PARENT_ID'];
+			$queryId .= '_' . $queueItem['CLIENT_ID'];
 			$queryId .= '_' . $queueItem['ACCOUNT_ID'];
 			$queryId .= '_' . $queueItem['AUDIENCE_ID'];
 			$queryId .= '_' . $isRemove;
@@ -176,8 +184,10 @@ class QueueTable extends Entity\DataManager
 			if (!isset($queryData[$queryId]))
 			{
 				$queryData[$queryId] = array(
+					'CLIENT_ID' => $queueItem['CLIENT_ID'],
 					'ACCOUNT_ID' => $queueItem['ACCOUNT_ID'],
 					'AUDIENCE_ID' => $queueItem['AUDIENCE_ID'],
+					'PARENT_ID' => $queueItem['PARENT_ID'],
 					'IS_REMOVE' => $isRemove,
 					'CONTACTS' => array(),
 					'DELETE_ID_LIST' => array(),
@@ -202,12 +212,27 @@ class QueueTable extends Entity\DataManager
 			}
 		}
 
+		$lastClientId = null;
+		$service = null;
+		$authAdapter = Service::getAuthAdapter($type);
 		foreach ($queryData as $queryId => $query)
 		{
 			foreach ($query['CONTACTS'] as $contactType => $contacts)
 			{
 				$query['CONTACTS'][$contactType] = array_unique($contacts);
 			}
+
+			if ($lastClientId != $query['CLIENT_ID'] || !$service || !$authAdapter)
+			{
+				$lastClientId = $query['CLIENT_ID'];
+
+				$service = new Service();
+				$service->setClientId($lastClientId);
+				$authAdapter->setService($service);
+			}
+
+			$audience->setService($service);
+			$audience->getRequest()->setAuthAdapter($authAdapter);
 
 			$audience->disableQueueMode();
 			$audience->setAccountId($query['ACCOUNT_ID']);
@@ -339,7 +364,8 @@ class QueueTable extends Entity\DataManager
 			));
 			if (!$agentsDb->Fetch())
 			{
-				$agent->AddAgent($agentName, self::MODULE_ID, "N", 300, null, "Y", "");
+				$interval = ($type == 'yandex' ? 900 : 30); // yandex queues must be processed rarely
+				$agent->AddAgent($agentName, self::MODULE_ID, "N", $interval, null, "Y", "");
 			}
 		}
 

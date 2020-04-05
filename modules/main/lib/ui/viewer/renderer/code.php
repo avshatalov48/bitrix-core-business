@@ -6,9 +6,16 @@ class Code extends Renderer
 {
 	const JS_TYPE_CODE = 'code';
 
+	const SIZE_RESTRICTION = 2097152;
+
 	public static function getJsType()
 	{
 		return self::JS_TYPE_CODE;
+	}
+
+	public static function getSizeRestriction()
+	{
+		return self::SIZE_RESTRICTION;
 	}
 
 	public static function getAllowedContentTypes()

@@ -53,7 +53,12 @@ if (CModule::IncludeModule("sale"))
 {
 	if ($arOrder = CSaleOrder::GetByID($ORDER_ID))
 	{
-		$order = \Bitrix\Sale\Order::load($ORDER_ID);
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::load($ORDER_ID);
 		$allowedStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
 
 

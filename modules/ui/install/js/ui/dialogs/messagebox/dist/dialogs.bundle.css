@@ -1,0 +1,27 @@
+.ui-message-box {
+
+}
+
+.ui-message-box .popup-window-buttons {
+	padding: 15px 20px 15px;
+}
+
+.ui-message-box-medium-buttons .popup-window-buttons {
+	padding: 16px 0 17px;
+	margin: 0 20px;
+	border-top: 1px solid rgba(82, 92, 105, .1);
+}
+
+.ui-message-box .popup-window-content {
+	padding: 20px 20px 30px 20px;
+}
+
+.ui-message-box .popup-window-titlebar {
+	height: auto;
+}
+
+.ui-message-box .popup-window-titlebar-text {
+	color: #535C69;
+	padding: 20px 20px 0;
+	line-height: normal;
+}

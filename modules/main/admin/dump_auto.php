@@ -229,7 +229,6 @@ if($_REQUEST['save'])
 		COption::SetOptionString("main", "skip_mask_array_auto", serialize($skip_mask_array));
 
 		IntOptionSet('dump_max_file_size', intval($_REQUEST['max_file_size']));
-		IntOptionSet('skip_symlinks', $_REQUEST['skip_symlinks'] == 'Y');
 
 		if ($strError)
 			CAdminMessage::ShowMessage(array(
@@ -710,13 +709,6 @@ if ($DB->type == 'MYSQL')
 	<td><input type="text" name="max_file_size" size="10" value="<?=IntOption("dump_max_file_size", 0)?>">
 	<?echo GetMessage("MAIN_DUMP_FILE_MAX_SIZE_kb")?></td>
 </tr>
-<tr>
-	<td><?echo GetMessage("MAIN_DUMP_SKIP_SYMLINKS")?></td>
-	<td><input type="checkbox" name="skip_symlinks" value="Y" <?=IntOption("skip_symlinks", 0) ? "checked" : ''?>></td>
-</tr>
-
-
-
 
 <tr class="heading">
 	<td colspan="2"><?=GetMessage("DUMP_MAIN_ARC_MODE")?></td>

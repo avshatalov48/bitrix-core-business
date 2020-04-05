@@ -13,12 +13,10 @@ if($VOTE_RIGHT=="D")
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/include.php");
 
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
-define("HELP_FILE","vote_list.php");
 CModule::includeModule("vote");
-$old_module_version = CVote::IsOldVersion();
 /* @var $request \Bitrix\Main\HttpRequest */
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
+global $USER;
 /********************************************************************
 				Actions
 ********************************************************************/
@@ -28,7 +26,6 @@ if ($voteId <= 0)
 try
 {
 	$vote = \Bitrix\Vote\Vote::loadFromId($voteId);
-	global $USER;
 	if (!$vote->canRead($USER->GetID()))
 		throw new \Bitrix\Main\ArgumentException(GetMessage("ACCESS_DENIED"), "Access denied.");
 }

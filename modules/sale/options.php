@@ -396,7 +396,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 
 		COption::SetOptionString("sale", "format_quantity", ($FORMAT_QUANTITY == 'AUTO' ? $FORMAT_QUANTITY: intval($FORMAT_QUANTITY)));
 
-		COption::SetOptionString("sale", "value_precision", (intval($VALUE_PRECISION) <= 0 ? 2 : intval($VALUE_PRECISION)));
+		COption::SetOptionString("sale", "value_precision", (intval($VALUE_PRECISION) < 0 ? 2 : intval($VALUE_PRECISION)));
 
 		$oldExpirationProcessingEvents = Option::get('sale', 'expiration_processing_events');
 
@@ -798,7 +798,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 			);
 		}
 
-		COption::SetOptionString("sale", "use_advance_check_by_default", $ADVANCE_CHECK_BY_DEFAULT ?: 'N');
+		COption::SetOptionString("sale", "check_type_on_pay", $CHECK_TYPE_ON_PAY ?: 'sell');
 		COption::SetOptionInt("sale", "basket_refresh_gap", $BASKET_REFRESH_GAP);
 		COption::SetOptionString("sale", "allow_pay_status", $ALLOW_PAY_STATUS);
 		COption::SetOptionString("sale", "allow_guest_order_view", $ALLOW_GUEST_ORDER_VIEW);
@@ -920,6 +920,7 @@ $tabControl->BeginNextTab();
 			$val = Main\Config\Option::get("sale", "value_precision", 2);
 			?>
 			<select name="VALUE_PRECISION">
+				<option value="0"<?if ($val == "0") echo " selected";?>><?= GetMessage("SMO_VALUE_PRECISION_0") ?></option>
 				<option value="1"<?if ($val == "1") echo " selected";?>><?= GetMessage("SMO_VALUE_PRECISION_1") ?></option>
 				<option value="2"<?if ($val == "2") echo " selected";?>><?= GetMessage("SMO_VALUE_PRECISION_2") ?></option>
 				<option value="3"<?if ($val == "3") echo " selected";?>><?= GetMessage("SMO_VALUE_PRECISION_3") ?></option>
@@ -1054,12 +1055,16 @@ $tabControl->BeginNextTab();
 			<td colspan="2"><?=Main\Localization\Loc::getMessage('SALE_BLOCK_CHECK_TITLE')?></td>
 		</tr>
 		<tr>
-			<td><?=Main\Localization\Loc::getMessage("SALE_USE_ADVANCE_CHECK_BY_DEFAULT")?>:</td>
+			<td><?=Main\Localization\Loc::getMessage("SALE_CHECK_TYPE_ON_PAY")?>:</td>
 			<td>
 				<?
-				$val = Main\Config\Option::get("sale", "use_advance_check_by_default", "N");
+					$val = Main\Config\Option::get("sale", "check_type_on_pay", "sell");
 				?>
-				<input type="checkbox" value="Y" name="ADVANCE_CHECK_BY_DEFAULT" <?=($val === 'Y') ? 'checked' : '';?>>
+				<select name="CHECK_TYPE_ON_PAY">
+					<option value="sell" <?=($val === 'sell') ? 'selected': '';?>><?=Loc::getMessage('SALE_CHECK_TYPE_ON_PAY_SELL')?></option>
+					<option value="prepayment" <?=($val === 'prepayment') ? 'selected': '';?>><?=Loc::getMessage('SALE_CHECK_TYPE_ON_PAY_PREPAYMENT')?></option>
+					<option value="advance" <?=($val === 'advance') ? 'selected': '';?>><?=Loc::getMessage('SALE_CHECK_TYPE_ON_PAY_ADVANCE')?></option>
+				</select>
 			</td>
 		</tr>
 	<?endif;?>

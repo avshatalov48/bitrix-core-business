@@ -11,7 +11,6 @@ $MESS["DISCOUNT_CATALOG_MIGRATOR_CONVERT_STOP_BUTTON"] = "Abort";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_UNKNOWN_ERROR"] = "Unknown error migrating discounts";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_ERROR_REPORT"] = "Cannot process <a href\"#URL#\">#TITLE#</a>: #ERRORS#";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_SAVE"] = "Progressive discounts";
-$MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_TYPE_SALE"] = "Discount action 'Set item price'";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_CURRENCY_SALE_SITE"] = "Discount currency and e-store currency selected for this site are different.";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_TEXT"] = "Some discounts cannot be currently converted or merged. Please pay attention to this issue.<br>
 The following unsupported discounts have been found:<br><br>

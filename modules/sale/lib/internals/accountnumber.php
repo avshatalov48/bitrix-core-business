@@ -33,7 +33,10 @@ class AccountNumberGenerator
 		$accountNumber = static::generateCustom($order);
 		if ($accountNumber)
 		{
-			$dbRes = $order::getList(array('filter' => array("ACCOUNT_NUMBER" => $accountNumber)));
+			$dbRes = $order::getList([
+				'select' => ['ID'],
+				'filter' => ['=ACCOUNT_NUMBER' => $accountNumber]
+			]);
 			if ($dbRes->fetch())
 			{
 				$accountNumber = null;
@@ -47,6 +50,15 @@ class AccountNumberGenerator
 		if (!$accountNumber) // if no special template is used or error occured
 		{
 			$accountNumber = static::generateById($order);
+		}
+
+		$dbRes = $order::getList([
+			'select' => ['ID'],
+			'filter' => ['=ACCOUNT_NUMBER' => $accountNumber]
+		]);
+		if ($dbRes->fetch())
+		{
+			$accountNumber = static::generateForOrder($order);
 		}
 
 		return $accountNumber;
@@ -85,7 +97,10 @@ class AccountNumberGenerator
 		$accountNumber = $order->getId();
 		for ($i = 1; $i <= 10; $i++)
 		{
-			$dbRes = $order::getList(array('filter' => array("ACCOUNT_NUMBER" => $accountNumber)));
+			$dbRes = $order::getList([
+				'select' => ['ID'],
+				'filter' => ['=ACCOUNT_NUMBER' => $accountNumber]
+			]);
 			if ($dbRes->fetch())
 			{
 				$accountNumber = $order->getId()."-".$i;

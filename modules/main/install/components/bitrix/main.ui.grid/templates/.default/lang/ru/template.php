@@ -132,4 +132,6 @@ $MESS["interface_grid_settings_for_all_apply"] = "Применить";
 $MESS["interface_grid_settings_for_all_cancel"] = "Отменить";
 $MESS["interface_grid_settings_select_all_columns"] = "Выбрать все";
 $MESS["interface_grid_settings_unselect_all_columns"] = "Отменить все";
+$MESS["interface_grid_image_editor_button_edit"] = "Загрузить";
+$MESS["interface_grid_image_editor_button_remove"] = "Удалить";
 ?>

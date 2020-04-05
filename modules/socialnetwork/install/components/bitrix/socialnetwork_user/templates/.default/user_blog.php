@@ -112,6 +112,7 @@ $arLogParams = Array(
 	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] == "Y" ? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+	"USE_FOLLOW" => "Y"
 );
 if($bType == "all")
 {
@@ -130,12 +131,16 @@ else
 	$arLogParams["DISPLAY"] = $arResult["VARIABLES"]["user_id"];
 }
 ?><div id="log_external_container"></div><?
+
 $APPLICATION->IncludeComponent(
-	"bitrix:socialnetwork.log.ex",
+	"bitrix:ui.sidepanel.wrapper",
 	"",
-	$arLogParams,
-	$this->getComponent(),
-	array("HIDE_ICONS"=>"Y")
+	array(
+		'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.log.ex",
+		"POPUP_COMPONENT_TEMPLATE_NAME" => "",
+		"POPUP_COMPONENT_PARAMS" => $arLogParams,
+		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
+	)
 );
-?>
-</div>
+
+?></div>

@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+\Bitrix\Main\UI\Extension::load("ui.buttons");
+?>
 <div class="bp-setconstants <?if ($arParams['POPUP']):?>bp-setconstants-popup<?endif?>">
 <?
 if (strlen($arResult["FatalErrorMessage"]) > 0)

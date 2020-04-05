@@ -74,10 +74,13 @@ try
 		);
 		$jpegTypes = array('image/pjpeg', 'image/jpeg', 'image/jpg', 'image/jpe');
 
+		$tmpDir = \CTempFile::getDirectoryName(6);
+		checkDirPath($tmpDir);
+
 		foreach ($message['attachments'] as &$item)
 		{
 			$itemId = $item['uniqueId'];
-			$fileId = md5($item['checksum'].$item['length']);
+			$fileId = $item['uniqueId'] = md5($item['checksum'].$item['length']);
 
 			$item['fileName'] = trim(trim(trim($item['fileName']), '.'));
 			if (empty($item['fileName']))
@@ -103,15 +106,23 @@ try
 				}
 			}
 
-			$message['files'][$fileId] = array_merge(
+			$file = array_merge(
 				empty($_FILES[$itemId]) ? $emptyFile : $_FILES[$itemId],
 				array(
 					'name' => $item['fileName'],
-					'type' => $item['contentType']
+					'type' => $item['contentType'],
 				)
 			);
 
-			$item['uniqueId'] = $fileId;
+			if (is_uploaded_file($file['tmp_name']) && $file['size'] > 0)
+			{
+				$uploadFile = $tmpDir . bx_basename($file['name']);
+				move_uploaded_file($file['tmp_name'], $uploadFile);
+
+				$file['tmp_name'] = $uploadFile;
+			}
+
+			$message['files'][$fileId] = $file;
 		}
 		unset($item);
 	}
@@ -148,6 +159,11 @@ catch (Exception $e)
 {
 	addMessage2Log(sprintf('Mail entry: %s', $e->getMessage()), 'mail', 0, false);
 	$response->setStatus('500 Internal Server Error');
+}
+
+if (\Bitrix\Main\Loader::includeModule('compression'))
+{
+	\CCompress::disableCompression();
 }
 
 require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php';

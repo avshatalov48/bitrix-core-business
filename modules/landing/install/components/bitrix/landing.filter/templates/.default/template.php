@@ -23,6 +23,9 @@ $uriAjax->addParams(array(
 	'IS_AJAX' => 'Y',
 	$arResult['NAVIGATION_ID'] => $arResult['CURRENT_PAGE']
 ));
+$uriAjax->deleteParams([
+	LandingBaseComponent::NAVIGATION_ID
+]);
 if (defined('SITE_TEMPLATE_ID'))
 {
 	$isBitrix24Template = SITE_TEMPLATE_ID === 'bitrix24';
@@ -31,9 +34,6 @@ if (defined('SITE_TEMPLATE_ID'))
 // title
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '') . 'pagetitle-toolbar-field-view');
-
-// filter
-$filter = $arResult['FILTER'];
 ?>
 
 <?php
@@ -54,7 +54,8 @@ if ($isBitrix24Template)
 			array(
 				'FILTER_ID' => $arParams['FILTER_ID'],
 				'GRID_ID' => $arParams['FILTER_ID'],
-				'FILTER' => $filter,
+				'FILTER' => $arResult['FILTER'],
+				'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
 				'ENABLE_LABEL' => true,
 				'ENABLE_LIVE_SEARCH' => true,
 				'RESET_TO_DEFAULT_MODE' => true
@@ -74,43 +75,39 @@ if ($isBitrix24Template)
 			<?= Loc::getMessage('LANDING_TPL_RECYCLE_BIN');?>
 		</span>
 
-		<?if ($arParams['SETTING_LINK']):?>
+		<?if ($arParams['SETTING_LINK']):
+			// for compatibility
+			if (!is_array($arParams['SETTING_LINK']))
+			{
+				$arParams['SETTING_LINK'] = [[
+					'TITLE' => '',
+					'LINK' => $arParams['SETTING_LINK']
+				]];
+			}
+			?>
 			<script type="text/javascript">
-				var lastLocation = top.location.toString();
-				BX.SidePanel.Instance.bindAnchors(
-					top.BX.clone({
-						rules: [
-							{
-								condition: [
-									'<?= str_replace('?', '\\\?', \CUtil::jsEscape($arParams['SETTING_LINK']));?>'
-								],
-								options: {
-									events: {
-										onClose: function()
-										{
-											if (window['landingSettingsSaved'] === true)
-											{
-												top.location = lastLocation;
-											}
-
-											if (BX.PopupMenu.getCurrentMenu())
-											{
-												BX.PopupMenu.getCurrentMenu().close();
-											}
-										}
-									},
-									allowChangeHistory: false
-								}
-							}]
-					})
-                );
+				var landingSettingsButtons = [
+					<?
+					$bFirst = true;
+					foreach ($arParams['SETTING_LINK'] as $link):?>
+						<?if (isset($link['LINK']) && isset($link['TITLE'])):?>
+						<?= !$bFirst ? ',' : '';?>{
+							href: '<?= \CUtil::JSEscape($link['LINK']);?>',
+							text: '<?= \CUtil::JSEscape($link['TITLE']);?>'
+						}
+						<?
+						$bFirst = false;
+						endif;?>
+					<?endforeach;?>
+				];
 			</script>
-			<a class="ui-btn ui-btn-light-border ui-btn-themes ui-btn-icon-setting" href="<?= $arParams['SETTING_LINK'];?>"></a>
+			<a class="ui-btn ui-btn-light-border ui-btn-themes ui-btn-icon-setting" id="landing-menu-settings" href="#"></a>
 		<?endif;?>
 
 		<?if ($arParams['FOLDER_SITE_ID']):?>
 		<a class="ui-btn ui-btn-light-border ui-btn-icon-add-folder ui-btn-themes landing-filter-buttons-add-folder" <?
 			?>id="landing-create-folder" <?
+			?>data-type="<?= $arParams['TYPE'];?>" <?
 			?>data-action="<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_CREATE_FOLDER_ACTION'));?>" <?
 			?>data-siteId="<?= $arParams['FOLDER_SITE_ID'];?>" <?
 			?>href="javascript:void(0);" <?
@@ -142,51 +139,25 @@ if ($isBitrix24Template)
 				?>
 				<?if (isset($buuton['LINK']) && isset($buuton['TITLE'])):?>
 				<div class="pagetitle-container pagetitle-align-right-container" id="landing-menu-actions">
-					<a href="<?= \htmlspecialcharsbx($buuton['LINK']);?>" id="landing-create-element" class="ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add landing-filter-action-link ui-btn-dropdown">
+					<a href="<?= \htmlspecialcharsbx($buuton['LINK']);?>" id="landing-create-element" <?
+						?>class="ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add landing-filter-action-link ui-btn-dropdown">
 						<?= \htmlspecialcharsbx($buuton['TITLE']);?>
 					</a>
 				</div>
-				<?endif;?>
 				<script type="text/javascript">
-					var actionsMenuIds = [];
-					var onActionsClick = function(event) {
-						if (BX.hasClass(BX('landing-create-element'), 'ui-btn-disabled'))
-						{
-							BX.PreventDefault(event);
-							return;
-						}
-						actionsMenuIds.push('landing-menu-action');
-						var menu = (
-							BX.PopupMenu.getMenuById('landing-menu-action') ||
-							new BX.Landing.UI.Tool.Menu({
-								id: 'landing-menu-action',
-								bindElement: event.currentTarget,
-								autoHide: true,
-								zIndex: 1200,
-								offsetLeft: 20,
-								angle: true,
-								closeByEsc: true,
-								items: [
-									<?foreach ($arParams['BUTTONS'] as $buuton):?>
-										<?if (isset($buuton['LINK']) && isset($buuton['TITLE'])):?>
-										{
-											href: '<?= \CUtil::JSEscape($buuton['LINK']);?>',
-											text: '<?= \CUtil::JSEscape($buuton['TITLE']);?>'
-										},
-										<?endif;?>
-									<?endforeach;?>
-									null
-								]
-							})
-						);
-						menu.show();
-						BX.PreventDefault(event);
-					};
-					BX('landing-menu-actions').addEventListener(
-						'click',
-						BX.proxy(onActionsClick, BX('landing-menu-actions'))
-					);
+					var landingCreateButtons = [
+						<?foreach ($arParams['BUTTONS'] as $buuton):?>
+							<?if (isset($buuton['LINK']) && isset($buuton['TITLE'])):?>
+							{
+								href: '<?= \CUtil::JSEscape($buuton['LINK']);?>',
+								text: '<?= \CUtil::JSEscape($buuton['TITLE']);?>'
+							},
+							<?endif;?>
+						<?endforeach;?>
+						null
+					];
 				</script>
+				<?endif;?>
 				<?
 			}
 		}

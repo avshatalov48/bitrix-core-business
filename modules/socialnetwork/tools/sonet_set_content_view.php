@@ -12,6 +12,7 @@ $site_id = substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);
 define("SITE_ID", $site_id);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 $xmlIdList = (
 	isset($_REQUEST["viewXMLIdList"])
@@ -19,9 +20,6 @@ $xmlIdList = (
 		? $_REQUEST["viewXMLIdList"]
 		: array()
 );
-
-$lng = (isset($_REQUEST["lang"]) && is_string($_REQUEST["lang"])) ? trim($_REQUEST["lang"]): "";
-$lng = substr(preg_replace("/[^a-z0-9_]/i", "", $lng), 0, 2);
 
 $action = (isset($_REQUEST["action"]) && is_string($_REQUEST["action"])) ? trim($_REQUEST["action"]): "";
 $action = preg_replace("/[^a-z0-9_]/i", "", $action);
@@ -31,7 +29,6 @@ $page = (isset($_REQUEST["page"]) && intval($_REQUEST["page"]) > 0) ? intval($_R
 
 $pathToUserProfile = (isset($_REQUEST["pathToUserProfile"]) && is_string($_REQUEST["pathToUserProfile"])) ? trim($_REQUEST["pathToUserProfile"]) : "";
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Loader;

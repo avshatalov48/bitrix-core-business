@@ -8,6 +8,10 @@ use Bitrix\Mail;
 
 class Imap extends Mail\Helper\Mailbox
 {
+	const MESSAGE_PARTS_TEXT = 1;
+	const MESSAGE_PARTS_ATTACHMENT = 2;
+	const MESSAGE_PARTS_ALL = -1;
+
 	protected $client;
 
 	protected function __construct($mailbox)
@@ -15,7 +19,20 @@ class Imap extends Mail\Helper\Mailbox
 		parent::__construct($mailbox);
 
 		$mailbox = &$this->mailbox;
-		$options = &$mailbox['OPTIONS'];
+
+		$this->client = new Mail\Imap(
+			$mailbox['SERVER'],
+			$mailbox['PORT'],
+			$mailbox['USE_TLS'] == 'Y' || $mailbox['USE_TLS'] == 'S',
+			$mailbox['USE_TLS'] == 'Y',
+			$mailbox['LOGIN'],
+			$mailbox['PASSWORD']
+		);
+	}
+
+	protected function normalizeMailboxOptions()
+	{
+		$options = &$this->mailbox['OPTIONS'];
 
 		if (empty($options['imap']) || !is_array($options['imap']))
 		{
@@ -31,24 +48,13 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			$imapOptions[MessageFolder::OUTCOME] = array();
 		}
-
-		$imapOptions[MessageFolder::OUTCOME] = array_diff($imapOptions[MessageFolder::OUTCOME], $imapOptions[MessageFolder::INCOME]);
-
-		$this->client = new Mail\Imap(
-			$mailbox['SERVER'],
-			$mailbox['PORT'],
-			$mailbox['USE_TLS'] == 'Y' || $mailbox['USE_TLS'] == 'S',
-			$mailbox['USE_TLS'] == 'Y',
-			$mailbox['LOGIN'],
-			$mailbox['PASSWORD']
-		);
 	}
 
 	public function getSyncStatus()
 	{
 		$meta = Mail\MailMessageUidTable::getList(array(
 			'select' => array(
-				new Main\Entity\ExpressionField('TOTAL', 'COUNT(%s)', 'MESSAGE_ID'),
+				new Main\Entity\ExpressionField('TOTAL', 'COUNT(1)'),
 			),
 			'filter' => array(
 				'=MAILBOX_ID' => $this->mailbox['ID'],
@@ -99,7 +105,7 @@ class Imap extends Mail\Helper\Mailbox
 		parent::syncOutgoing();
 	}
 
-	public function uploadMessage(Main\Mail\Mail $message, array $excerpt = null)
+	public function uploadMessage(Main\Mail\Mail $message, array &$excerpt = null)
 	{
 		$dir = reset($this->mailbox['OPTIONS']['imap'][MessageFolder::OUTCOME]) ?: 'INBOX';
 
@@ -151,6 +157,132 @@ class Imap extends Mail\Helper\Mailbox
 		return $result;
 	}
 
+	public function downloadMessage(array &$excerpt)
+	{
+		if (empty($excerpt['MSG_UID']) || empty($excerpt['DIR_MD5']))
+		{
+			return false;
+		}
+
+		$dir = MessageFolder::getFolderNameByHash($excerpt['DIR_MD5'], $this->mailbox['OPTIONS']);
+		if (empty($dir))
+		{
+			return false;
+		}
+
+		$body = $this->client->fetch(true, $dir, $excerpt['MSG_UID'], '(BODY.PEEK[])', $error);
+
+		if (false === $body)
+		{
+			$this->errors = new Main\ErrorCollection($this->client->getErrors()->toArray());
+
+			return false;
+		}
+
+		return empty($body['BODY[]']) ? null : $body['BODY[]'];
+	}
+
+	public function downloadMessageParts(array &$excerpt, Mail\Imap\BodyStructure $bodystructure, $flags = Imap::MESSAGE_PARTS_ALL)
+	{
+		if (empty($excerpt['MSG_UID']) || empty($excerpt['DIR_MD5']))
+		{
+			return false;
+		}
+
+		$dir = MessageFolder::getFolderNameByHash($excerpt['DIR_MD5'], $this->mailbox['OPTIONS']);
+		if (empty($dir))
+		{
+			return false;
+		}
+
+		$rfc822Parts = array();
+
+		$select = array_filter(
+			$bodystructure->traverse(
+				function (Mail\Imap\BodyStructure $item) use ($flags, &$rfc822Parts)
+				{
+					if ($item->isMultipart())
+					{
+						return;
+					}
+
+					$isTextItem = $item->isText() && !$item->isAttachment();
+					if ($flags & ($isTextItem ? Imap::MESSAGE_PARTS_TEXT : Imap::MESSAGE_PARTS_ATTACHMENT))
+					{
+						// due to yandex bug
+						if ('message' === $item->getType() && 'rfc822' === $item->getSubtype())
+						{
+							$rfc822Parts[] = $item;
+
+							return sprintf('BODY.PEEK[%1$s.HEADER] BODY.PEEK[%1$s.TEXT]', $item->getNumber());
+						}
+
+						return sprintf('BODY.PEEK[%1$s.MIME] BODY.PEEK[%1$s]', $item->getNumber());
+					}
+				},
+				true
+			)
+		);
+
+		if (empty($select))
+		{
+			return array();
+		}
+
+		$parts = $this->client->fetch(
+			true,
+			$dir,
+			$excerpt['MSG_UID'],
+			sprintf('(%s)', join(' ', $select)),
+			$error
+		);
+
+		if (false === $parts)
+		{
+			$this->errors = new Main\ErrorCollection($this->client->getErrors()->toArray());
+
+			return false;
+		}
+
+		foreach ($rfc822Parts as $item)
+		{
+			$headerKey = sprintf('BODY[%s.HEADER]', $item->getNumber());
+			$bodyKey = sprintf('BODY[%s.TEXT]', $item->getNumber());
+
+			if (array_key_exists($headerKey, $parts) || array_key_exists($bodyKey, $parts))
+			{
+				$partMime = 'Content-Type: message/rfc822';
+				if (!empty($item->getParams()['name']))
+				{
+					$partMime .= sprintf('; name="%s"', $item->getParams()['name']);
+				}
+
+				if (!empty($item->getDisposition()[0]))
+				{
+					$partMime .= sprintf("\r\nContent-Disposition: ", $item->getDisposition()[0]);
+					if (!empty($item->getDisposition()[1]) && is_array($item->getDisposition()[1]))
+					{
+						foreach ($item->getDisposition()[1] as $name => $value)
+						{
+							$partMime .= sprintf('; %s="%s"', $name, $value);
+						}
+					}
+				}
+
+				$parts[sprintf('BODY[%1$s.MIME]', $item->getNumber())] = $partMime;
+				$parts[sprintf('BODY[%1$s]', $item->getNumber())] = sprintf(
+					"%s\r\n\r\n%s",
+					rtrim($parts[$headerKey], "\r\n"),
+					ltrim($parts[$bodyKey], "\r\n")
+				);
+
+				unset($parts[$headerKey], $parts[$bodyKey]);
+			}
+		}
+
+		return $parts;
+	}
+
 	public function cacheDirs()
 	{
 		$dirs = $this->client->listMailboxes('*', $error, true);
@@ -166,6 +298,7 @@ class Imap extends Mail\Helper\Mailbox
 		$availableDirs = array();
 
 		$outcomeDirs = array();
+		$draftsDirs = array();
 		$trashDirs = array();
 		$spamDirs = array();
 		$inboxDirs = array();
@@ -205,6 +338,11 @@ class Imap extends Mail\Helper\Mailbox
 				$outcomeDirs[] = $item['name'];
 			}
 
+			if (preg_grep('/^ \x5c Drafts $/ix', $item['flags']))
+			{
+				$draftsDirs[] = $item['name'];
+			}
+
 			if (preg_grep('/^ \x5c Trash $/ix', $item['flags']))
 			{
 				$trashDirs[] = $item['name'];
@@ -217,6 +355,8 @@ class Imap extends Mail\Helper\Mailbox
 		}
 
 		// @TODO: filter disabled from income, outcome etc.
+
+		$this->reloadMailboxOptions();
 
 		$options = &$this->mailbox['OPTIONS'];
 
@@ -231,6 +371,12 @@ class Imap extends Mail\Helper\Mailbox
 			(array) $options['imap'][MessageFolder::OUTCOME],
 			$availableDirs
 		) ?: $outcomeDirs;
+
+		$options['imap'][MessageFolder::DRAFTS] = array_intersect(
+			(array) $options['imap'][MessageFolder::DRAFTS],
+			$availableDirs
+		) ?: $draftsDirs;
+		$options['imap'][MessageFolder::DRAFTS] = $draftsDirs; // @TODO: remove if drafts dir settings implemented
 
 		$options['imap'][MessageFolder::TRASH] = array_intersect(
 			(array) $options['imap'][MessageFolder::TRASH],
@@ -260,6 +406,7 @@ class Imap extends Mail\Helper\Mailbox
 		if (!array_key_exists('ignore', $options['imap']))
 		{
 			$options['imap']['ignore'] = array_merge(
+				(array) $options['imap'][MessageFolder::DRAFTS],
 				(array) $options['imap'][MessageFolder::TRASH],
 				(array) $options['imap'][MessageFolder::SPAM]
 			);
@@ -310,6 +457,8 @@ class Imap extends Mail\Helper\Mailbox
 
 			$meta[$item['name']] = $item;
 		}
+
+		$this->reloadMailboxOptions();
 
 		$options = &$this->mailbox['OPTIONS'];
 
@@ -484,13 +633,16 @@ class Imap extends Mail\Helper\Mailbox
 				),
 			));
 
-			foreach ($meta as $dir => $item)
+			if (!empty($this->syncParams['full']))
 			{
-				$this->resyncDir($dir);
-
-				if ($this->isTimeQuotaExceeded())
+				foreach ($meta as $dir => $item)
 				{
-					break;
+					$this->resyncDir($dir);
+
+					if ($this->isTimeQuotaExceeded())
+					{
+						break;
+					}
 				}
 			}
 		}
@@ -517,7 +669,7 @@ class Imap extends Mail\Helper\Mailbox
 				true,
 				$dir,
 				join(':', $range),
-				'(UID FLAGS INTERNALDATE RFC822.SIZE BODY.PEEK[HEADER])',
+				'(UID FLAGS INTERNALDATE RFC822.SIZE BODYSTRUCTURE BODY.PEEK[HEADER])',
 				$error
 			);
 
@@ -537,13 +689,16 @@ class Imap extends Mail\Helper\Mailbox
 
 			$reverse ? krsort($messages) : ksort($messages);
 
+			$this->parseHeaders($messages);
+
 			$this->blacklistMessages($dir, $messages);
 
 			$this->prepareMessages($dir, $uidtoken, $messages);
 
+			$hashesMap = array();
 			foreach ($messages as $id => $item)
 			{
-				if ($this->syncMessage($dir, $uidtoken, $item))
+				if ($this->syncMessage($dir, $uidtoken, $item, $hashesMap))
 				{
 					$count++;
 				}
@@ -596,9 +751,12 @@ class Imap extends Mail\Helper\Mailbox
 		}
 		else
 		{
-			$this->unregisterMessages(array(
-				'=DIR_MD5' => md5($dir),
-			));
+			if ($this->client->ensureEmpty($dir, $error))
+			{
+				$this->unregisterMessages(array(
+					'=DIR_MD5' => md5($dir),
+				));
+			}
 
 			return;
 		}
@@ -626,7 +784,7 @@ class Imap extends Mail\Helper\Mailbox
 			return $messages;
 		};
 
-		$messages = $fetcher($meta['exists'] > 10000 ? '1,*' : '1:*');
+		$messages = $fetcher($meta['exists'] > 10000 ? sprintf('1,%u', $meta['exists']) : '1:*');
 
 		if (empty($messages))
 		{
@@ -677,6 +835,18 @@ class Imap extends Mail\Helper\Mailbox
 			}
 
 			$range1 -= $rangeSize;
+		}
+	}
+
+	protected function parseHeaders(&$messages)
+	{
+		foreach ($messages as $id => $item)
+		{
+			$messages[$id]['__header'] = \CMailMessage::parseHeader($item['BODY[HEADER]'], $this->mailbox['LANG_CHARSET']);
+			$messages[$id]['__from'] = array_unique(array_map('strtolower', array_filter(array_merge(
+				\CMailUtil::extractAllMailAddresses($messages[$id]['__header']->getHeader('FROM')),
+				\CMailUtil::extractAllMailAddresses($messages[$id]['__header']->getHeader('REPLY-TO'))
+			), 'trim')));
 		}
 	}
 
@@ -743,16 +913,9 @@ class Imap extends Mail\Helper\Mailbox
 
 		foreach ($messages as $id => $item)
 		{
-			$parsedHeader = \CMailMessage::parseHeader($item['BODY[HEADER]'], $this->mailbox['LANG_CHARSET']);
-
-			$parsedFrom = array_unique(array_map('strtolower', array_filter(array_merge(
-				\CMailUtil::extractAllMailAddresses($parsedHeader->getHeader('FROM')),
-				\CMailUtil::extractAllMailAddresses($parsedHeader->getHeader('REPLY-TO'))
-			), 'trim')));
-
 			if (!empty($blacklist['email']))
 			{
-				if (array_intersect($parsedFrom, $emailAddresses))
+				if (array_intersect($messages[$id]['__from'], $emailAddresses))
 				{
 					$targetMessages[$id] = $item['UID'];
 
@@ -763,7 +926,7 @@ class Imap extends Mail\Helper\Mailbox
 					foreach ($blacklist['email'] as $blacklistMail)
 					{
 						/** @var Mail\Internals\Entity\BlacklistEmail $blacklistMail */
-						if (array_intersect($parsedFrom, [$blacklistMail->convertDomainToPunycode()]))
+						if (array_intersect($messages[$id]['__from'], [$blacklistMail->convertDomainToPunycode()]))
 						{
 							$targetMessages[$id] = $item['UID'];
 							continue;
@@ -774,7 +937,7 @@ class Imap extends Mail\Helper\Mailbox
 
 			if (!empty($blacklist['domain']))
 			{
-				foreach ($parsedFrom as $email)
+				foreach ($messages[$id]['__from'] as $email)
 				{
 					$domain = substr($email, strrpos($email, '@'));
 					if (in_array($domain, $domains))
@@ -1026,10 +1189,8 @@ class Imap extends Mail\Helper\Mailbox
 		}
 	}
 
-	protected function syncMessage($dir, $uidtoken, $message)
+	protected function syncMessage($dir, $uidtoken, $message, &$hashesMap = array())
 	{
-		static $hashesMap = array();
-
 		$fields = $message['__fields'];
 
 		if ($fields['MESSAGE_ID'] > 0)
@@ -1047,6 +1208,14 @@ class Imap extends Mail\Helper\Mailbox
 		if (!$this->registerMessage($fields, $message['__replaces']))
 		{
 			return false;
+		}
+
+		if (Mail\Helper\LicenseManager::getSyncOldLimit() > 0)
+		{
+			if ($message['__internaldate']->getTimestamp() < strtotime(sprintf('-%u days', Mail\Helper\LicenseManager::getSyncOldLimit())))
+			{
+				return false;
+			}
 		}
 
 		if (!empty($this->mailbox['OPTIONS']['sync_from']))
@@ -1070,27 +1239,48 @@ class Imap extends Mail\Helper\Mailbox
 			return true;
 		}
 
-		$body = $this->client->fetch(
-			true,
-			$dir,
-			$message['UID'],
-			'(BODY.PEEK[])',
-			$error
-		);
-
 		$messageId = 0;
 
-		if (!empty($body['BODY[]']))
+		if (!empty($message['BODYSTRUCTURE']) && !empty($message['BODY[HEADER]']))
+		{
+			$message['__bodystructure'] = new Mail\Imap\BodyStructure($message['BODYSTRUCTURE']);
+
+			$message['__parts'] = $this->downloadMessageParts(
+				$message['__fields'],
+				$message['__bodystructure'],
+				$this->isSupportLazyAttachments() ? self::MESSAGE_PARTS_TEXT : self::MESSAGE_PARTS_ALL
+			);
+
+			// #119474
+			if (!$message['__bodystructure']->isMultipart())
+			{
+				if (is_array($message['__parts']) && !empty($message['__parts']['BODY[1]']))
+				{
+					$message['__parts']['BODY[1.MIME]'] = $message['BODY[HEADER]'];
+				}
+			}
+		}
+		else
+		{
+			// fallback
+			$message['__parts'] = $this->downloadMessage($message['__fields']) ?: false;
+		}
+
+		if (false !== $message['__parts'])
 		{
 			$messageId = $this->cacheMessage(
-				$body['BODY[]'],
+				$message,
 				array(
 					'timestamp' => $message['__internaldate']->getTimestamp(),
-					'outcome' => in_array($dir, $this->mailbox['OPTIONS']['imap'][MessageFolder::OUTCOME]), // @TODO: check sender
+					'size' => $message['RFC822.SIZE'],
+					'outcome' => in_array($this->mailbox['EMAIL'], $message['__from']),
+					'draft' => in_array($dir, $this->mailbox['OPTIONS']['imap'][MessageFolder::DRAFTS]) || preg_grep('/^ \x5c Draft $/ix', $message['FLAGS']),
 					'trash' => in_array($dir, $this->mailbox['OPTIONS']['imap'][MessageFolder::TRASH]),
 					'spam' => in_array($dir, $this->mailbox['OPTIONS']['imap'][MessageFolder::SPAM]),
 					'seen' => $fields['IS_SEEN'] == 'Y',
 					'hash' => $fields['HEADER_MD5'],
+					'lazy_attachments' => $this->isSupportLazyAttachments(),
+					'excerpt' => $fields,
 				)
 			);
 		}
@@ -1101,15 +1291,220 @@ class Imap extends Mail\Helper\Mailbox
 
 			$this->linkMessage($fields['ID'], $messageId);
 		}
-		else
-		{
-			$this->unregisterMessages(
-				['=ID' => $fields['ID']],
-				[['HEADER_MD5' => $fields['HEADER_MD5'], 'MAILBOX_USER_ID' => $this->mailbox['USER_ID']]]
-			);
-		}
 
 		return $messageId > 0;
+	}
+
+	public function downloadAttachments(array &$excerpt)
+	{
+		if (empty($excerpt['MSG_UID']) || empty($excerpt['DIR_MD5']))
+		{
+			return false;
+		}
+
+		$dir = MessageFolder::getFolderNameByHash($excerpt['DIR_MD5'], $this->mailbox['OPTIONS']);
+		if (empty($dir))
+		{
+			return false;
+		}
+
+		$message = $this->client->fetch(true, $dir, $excerpt['MSG_UID'], '(BODYSTRUCTURE)', $error);
+		if (empty($message['BODYSTRUCTURE']))
+		{
+			if (false === $message)
+			{
+				$this->errors = new Main\ErrorCollection($this->client->getErrors()->toArray());
+			}
+
+			return false;
+		}
+
+		if (!is_array($message['BODYSTRUCTURE']))
+		{
+			$this->errors = new Main\ErrorCollection(array(
+				new Main\Error('Helper\Mailbox\Imap: Invalid BODYSTRUCTURE', 0),
+				new Main\Error((string) $message['BODYSTRUCTURE'], -1),
+			));
+			return false;
+		}
+
+		$message['__bodystructure'] = new Mail\Imap\BodyStructure($message['BODYSTRUCTURE']);
+
+		$parts = $this->downloadMessageParts(
+			$excerpt,
+			$message['__bodystructure'],
+			self::MESSAGE_PARTS_ATTACHMENT
+		);
+
+		$attachments = array();
+
+		$message['__bodystructure']->traverse(
+			function (Mail\Imap\BodyStructure $item) use (&$parts, &$attachments)
+			{
+				if ($item->isMultipart() || $item->isText() && !$item->isAttachment())
+				{
+					return;
+				}
+
+				$attachments[] = \CMailMessage::decodeMessageBody(
+					\CMailMessage::parseHeader(
+						$parts[sprintf('BODY[%s.MIME]', $item->getNumber())],
+						$this->mailbox['LANG_CHARSET']
+					),
+					$parts[sprintf('BODY[%s]', $item->getNumber())],
+					$this->mailbox['LANG_CHARSET']
+				);
+			}
+		);
+
+		return $attachments;
+	}
+
+	protected function cacheMessage(&$message, $params = array())
+	{
+		if (!is_array($message))
+		{
+			return parent::cacheMessage($message, $params);
+		}
+
+		if (!is_array($message['__parts']))
+		{
+			return parent::cacheMessage($message['__parts'], $params);
+		}
+
+		if (empty($message['__header']))
+		{
+			return false;
+		}
+
+		if (empty($message['__bodystructure']) || !($message['__bodystructure'] instanceof Mail\Imap\BodyStructure))
+		{
+			return false;
+		}
+
+		list($bodyHtml, $bodyText, $attachments) = $message['__bodystructure']->traverse(
+			function (Mail\Imap\BodyStructure $item, &$subparts) use (&$message)
+			{
+				$parts = &$message['__parts'];
+
+				$html = '';
+				$text = '';
+				$attachments = array();
+
+				if ($item->isMultipart())
+				{
+					if ('alternative' === $item->getSubtype())
+					{
+						foreach ($subparts as $part)
+						{
+							$part = $part[0];
+
+							if ('' !== $part[0])
+							{
+								$html = $part[0];
+							}
+
+							if ('' !== $part[1])
+							{
+								$text = $part[1];
+							}
+
+							if (!empty($part[2]))
+							{
+								$attachments = array_merge($attachments, $part[2]);
+							}
+						}
+
+						if ('' !== $html && '' === $text)
+						{
+							$text = html_entity_decode(
+								htmlToTxt($html),
+								ENT_QUOTES | ENT_HTML401,
+								$this->mailbox['LANG_CHARSET']
+							);
+						}
+						else if ('' === $html && '' !== $text)
+						{
+							$html = txtToHtml($text, false, 120);
+						}
+					}
+					else
+					{
+						foreach ($subparts as $part)
+						{
+							$part = $part[0];
+
+							if ('' !== $part[0] && '' === $part[1])
+							{
+								$part[1] = html_entity_decode(
+									htmlToTxt($part[0]),
+									ENT_QUOTES | ENT_HTML401,
+									$this->mailbox['LANG_CHARSET']
+								);
+							}
+							else if ('' === $part[0] && '' !== $part[1])
+							{
+								$part[0] = txtToHtml($part[1], false, 120);
+							}
+
+							if ('' !== $part[0] || '' !== $part[1])
+							{
+								$html .= $part[0] . "\r\n\r\n";
+								$text .= $part[1] . "\r\n\r\n";
+							}
+
+							$attachments = array_merge($attachments, $part[2]);
+						}
+					}
+
+					$html = trim($html);
+					$text = trim($text);
+				}
+				else
+				{
+					if (array_key_exists(sprintf('BODY[%s]', $item->getNumber()), $parts))
+					{
+						$part = \CMailMessage::decodeMessageBody(
+							\CMailMessage::parseHeader(
+								$parts[sprintf('BODY[%s.MIME]', $item->getNumber())],
+								$this->mailbox['LANG_CHARSET']
+							),
+							$parts[sprintf('BODY[%s]', $item->getNumber())],
+							$this->mailbox['LANG_CHARSET']
+						);
+					}
+
+					if (!$item->isText() || $item->isAttachment())
+					{
+						$attachments[] = empty($part) ? $item->getNumber() : $part;
+					}
+					else if (!empty($part))
+					{
+						if ('html' === $item->getSubtype())
+						{
+							$html = $part['BODY'];
+						}
+						else
+						{
+							$text = $part['BODY'];
+						}
+					}
+				}
+
+				return array($html, $text, $attachments);
+			}
+		)[0];
+
+		$dummyBody;
+		return \CMailMessage::saveMessage(
+			$this->mailbox['ID'],
+			$dummyBody,
+			$message['__header'],
+			$bodyHtml,
+			$bodyText,
+			$attachments,
+			$params
+		);
 	}
 
 	protected function getSyncRange($dir, &$uidtoken)

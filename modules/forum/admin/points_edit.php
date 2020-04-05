@@ -5,7 +5,7 @@ $forumPermissions = $APPLICATION->GetGroupRight("forum");
 if ($forumPermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/include.php");
+\Bitrix\Main\Loader::includeModule("forum");
 ClearVars();
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");

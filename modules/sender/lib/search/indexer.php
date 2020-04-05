@@ -5,6 +5,7 @@ namespace Bitrix\Sender\Search;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Runtime;
 use Bitrix\Sender\Internals\Model;
+use Bitrix\Main\Application;
 
 /**
  * Class Indexer
@@ -49,8 +50,14 @@ class Indexer
 
 		if (!$nextId)
 		{
+			$hasIndex = Application::getConnection()->getIndexName(
+				Model\LetterTable::getTableName(),
+				["SEARCH_CONTENT"],
+				true
+			) !== null;
+
 			$entity = Model\LetterTable::getEntity();
-			$entity->enableFullTextIndex("SEARCH_CONTENT");
+			$entity->enableFullTextIndex("SEARCH_CONTENT", $hasIndex);
 		}
 
 		return $nextId;

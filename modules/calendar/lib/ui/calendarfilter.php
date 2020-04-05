@@ -165,28 +165,32 @@ class CalendarFilter
 			$filters['CREATED_BY'] = array(
 				'id' => 'CREATED_BY',
 				'name' => Loc::getMessage('CALENDAR_FILTER_CREATED_BY'),
-				'params' => array('multiple' => 'Y'),
-				'type' => 'custom_entity',
-				'selector' => array(
-					'TYPE' => 'user',
-					'DATA' => array(
-						'ID' => 'user',
-						'FIELD_ID' => 'CREATED_BY'
-					)
+				'type' => 'dest_selector',
+				'params' => array (
+					'apiVersion' => '3',
+					'context' => 'CALENDAR_FILTER_CREATED_BY',
+					'multiple' => 'Y',
+					'contextCode' => 'U',
+					'enableAll' => 'N',
+					'enableSonetgroups' => 'N',
+					'allowEmailInvitation' => 'N',
+					'departmentSelectDisable' => 'Y',
 				)
 			);
 
 			$filters['ATTENDEES'] = array(
 				'id' => 'ATTENDEES',
 				'name' => Loc::getMessage('CALENDAR_FILTER_ATTENDEES'),
-				'params' => array('multiple' => 'Y'),
-				'type' => 'custom_entity',
-				'selector' => array(
-					'TYPE' => 'user',
-					'DATA' => array(
-						'ID' => 'user',
-						'FIELD_ID' => 'ATTENDEES'
-					)
+				'type' => 'dest_selector',
+				'params' => array (
+					'apiVersion' => '3',
+					'context' => 'CALENDAR_FILTER_ATTENDEES',
+					'multiple' => 'Y',
+					'contextCode' => 'U',
+					'enableAll' => 'N',
+					'enableSonetgroups' => 'N',
+					'allowEmailInvitation' => 'N',
+					'departmentSelectDisable' => 'Y',
 				)
 			);
 

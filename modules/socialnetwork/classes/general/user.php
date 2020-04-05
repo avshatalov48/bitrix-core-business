@@ -37,6 +37,7 @@ class CAllSocNetUser
 			CSocNetFeatures::DeleteNoDemand($ID);
 			CSocNetSubscription::DeleteEx($ID);
 			\Bitrix\Socialnetwork\Item\UserContentView::deleteNoDemand($ID);
+			\Bitrix\Socialnetwork\LogRightTable::deleteByGroupCode('U'.$ID);
 
 			CUserOptions::DeleteOption("socialnetwork", "~menu_".SONET_ENTITY_USER."_".$ID, false, 0);
 		}

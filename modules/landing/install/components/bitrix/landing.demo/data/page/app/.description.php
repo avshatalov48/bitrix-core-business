@@ -155,7 +155,7 @@ return array(
 	</div>
 
 	<div class="container px-0">
-		<div class="row no-gutters">
+		<div class="row no-gutters landing-block-inner">
 			<div class="landing-block-node-card col-sm-6 col-lg-3 g-bg-primary js-animation fadeInUp">
 				<!-- Article -->
 				<article class="u-block-hover">
@@ -271,7 +271,7 @@ return array(
         <div class="container">
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row justify-content-center row no-gutters landing-block-inner">
 
                 <div class="landing-block-node-element landing-block-card col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in  g-bg-gray-light-v5 js-animation fadeInLeft">
                     <!-- Icon Blocks -->
@@ -334,7 +334,7 @@ return array(
         <div class="container">
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row row justify-content-center no-gutters landing-block-inner">
 
                 <div class="landing-block-node-element landing-block-card col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in  g-bg-gray-light-v5 js-animation fadeInLeft">
                     <!-- Icon Blocks -->

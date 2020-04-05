@@ -23,6 +23,14 @@ class ResponseFacebook extends Response
 			{
 				$errorText = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_FACEBOOK_ERROR_URL_REQUIRED');
 			}
+			if ($errorText == 'To create or edit a Custom Audience made from a customer list, your admin needs to add this ad account to a business.')
+			{
+				$errorText = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_FACEBOOK_ERROR_ADD_TO_BUSINESS');
+			}
+
+			$errorText = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_FACEBOOK_ERROR')
+				. ': '
+				. $errorText;
 			$this->addError(new Error($errorText, $parsed['error']['code']));
 		}
 

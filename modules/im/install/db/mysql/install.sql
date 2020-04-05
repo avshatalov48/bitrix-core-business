@@ -13,12 +13,13 @@ CREATE TABLE b_im_chat(
 	CALL_TYPE smallint(1) DEFAULT 0,
 	CALL_NUMBER varchar(20) NULL,
 	ENTITY_TYPE varchar(50) NULL,
-  ENTITY_ID varchar(255) NULL,
+	ENTITY_ID varchar(255) NULL,
 	ENTITY_DATA_1 varchar(255) null,
 	ENTITY_DATA_2 varchar(255) null,
 	ENTITY_DATA_3 varchar(255) null,
 	DISK_FOLDER_ID int(18) null,
 	MESSAGE_COUNT int(18) DEFAULT 0,
+	PREV_MESSAGE_ID int(18) null,
 	LAST_MESSAGE_ID int(18) null,
 	LAST_MESSAGE_STATUS varchar(50) DEFAULT 'received',
 	DATE_CREATE datetime null,
@@ -65,6 +66,12 @@ CREATE TABLE b_im_message(
 	KEY IX_IM_MESS_6 (AUTHOR_ID),
 	KEY IX_IM_MESS_7 (CHAT_ID, ID),
 	KEY IX_IM_MESS_8 (NOTIFY_TYPE, DATE_CREATE)
+);
+
+CREATE TABLE b_im_message_index(
+	MESSAGE_ID int(11) NOT NULL,
+	SEARCH_CONTENT mediumtext null,
+	PRIMARY KEY (MESSAGE_ID)
 );
 
 CREATE TABLE b_im_message_param
@@ -321,4 +328,44 @@ CREATE TABLE b_im_call_user
 	LAST_SEEN datetime,
 
 	PRIMARY KEY PK_B_IM_CALL_USER(CALL_ID, USER_ID)
+);
+
+CREATE TABLE b_im_permission (
+	ID int(18) not null auto_increment,
+	CHAT_ID int(18) DEFAULT 0,
+	USER_ID int(18) DEFAULT 0,
+	DATE_CREATE datetime not null,
+	AUTHOR_ID int(18) DEFAULT 0,
+	PERM_USER_PROMOTE char(1) DEFAULT 'N',
+	PERM_CHAT_INFO char(1) DEFAULT 'N',
+	PERM_USER_ADD char(1) DEFAULT 'N',
+	PERM_USER_REMOVE char(1) DEFAULT 'N',
+	PERM_MESSAGE_SEND char(1) DEFAULT 'N',
+	PERM_MESSAGE_EDIT char(1) DEFAULT 'N',
+	PERM_MESSAGE_DELETE char(1) DEFAULT 'N',
+	PERM_MESSAGE_RICH char(1) DEFAULT 'N',
+	PERM_MESSAGE_PIN char(1) DEFAULT 'N',
+	PERM_MESSAGE_POLL char(1) DEFAULT 'N',
+	PRIMARY KEY PK_B_IM_PERMISSION (ID),
+	KEY IX_IM_PERM_1 (CHAT_ID, USER_ID)
+);
+
+CREATE TABLE b_im_permission_duration (
+	ID int(18) not null auto_increment,
+	PERMISSION_ID int(18) DEFAULT 0,
+	DATE_REMOVE datetime not null,
+	PRIMARY KEY PK_B_IM_PERMISSION_DURATION (ID),
+	KEY IX_IM_PERM_DUR_1 (PERMISSION_ID),
+	KEY IX_IM_PERM_DUR_2 (DATE_REMOVE)
+);
+
+CREATE TABLE b_im_permission_log (
+	ID int(18) not null auto_increment,
+	CHAT_ID int(18) DEFAULT 0,
+	USER_ID int(18) not null,
+	TEXT char(1) DEFAULT 'N',
+	DATE_CREATE datetime not null,
+	PRIMARY KEY PK_B_IM_PERMISSION_LOG (ID),
+	KEY IX_IM_PERM_LOG_1 (CHAT_ID, USER_ID),
+	KEY IX_IM_PERM_LOG_2 (DATE_CREATE)
 );

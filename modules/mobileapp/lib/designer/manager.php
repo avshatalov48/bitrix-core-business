@@ -90,6 +90,8 @@ class Manager
 		$appData = $result->fetchAll();
 		if (count($appData) > 0)
 		{
+			if(!is_array($appData[0]["FILES"]))
+				$appData[0]["FILES"] = [];
 			$appData[0]["FILES"][] = $fileArray["fileID"];
 			AppTable::update($appCode, array("FILES" => $appData[0]["FILES"]));
 			$arImage = \CFile::ResizeImageGet(

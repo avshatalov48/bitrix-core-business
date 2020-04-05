@@ -1044,7 +1044,10 @@ class CMainUIGrid extends CBitrixComponent
 
 			foreach ($this->prepareRows() as $key => $item)
 			{
-				$this->arResult["ALLOW_INLINE_EDIT"] = ($item["editable"] !== false);
+				if ($this->arResult["ALLOW_INLINE_EDIT"] === $this->allowInlineEdit)
+				{
+					$this->arResult["ALLOW_INLINE_EDIT"] = ($item["editable"] !== false);
+				}
 			}
 		}
 

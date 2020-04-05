@@ -126,6 +126,10 @@ class CMailClientMessageListComponent extends CBitrixComponent
 		$accessSubquery->addFilter('=MAILBOX_ID', new Main\DB\SqlExpression('%s'));
 		$accessSubquery->addFilter('=MESSAGE_ID', new Main\DB\SqlExpression('%s'));
 
+		$closureSubquery = new ORM\Query\Query(Mail\Internals\MessageClosureTable::getEntity());
+		$closureSubquery->addFilter('=PARENT_ID', new Main\DB\SqlExpression('%s'));
+		$closureSubquery->addFilter('!=MESSAGE_ID', new Main\DB\SqlExpression('%s'));
+
 		if (!empty($filterData['FILTER_APPLIED']))
 		{
 			if (isset($filterData['BIND']))
@@ -214,14 +218,20 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				),
 				new ORM\Fields\ExpressionField(
 					'MESSAGE_ACCESS',
-					sprintf('EXISTS(%s)',$accessSubquery->getQuery()),
+					sprintf('EXISTS(%s)', $accessSubquery->getQuery()),
 					array('MAILBOX_ID', 'ID')
+				),
+				new ORM\Fields\ExpressionField(
+					'MESSAGE_CLOSURE',
+					sprintf('EXISTS(%s)', $closureSubquery->getQuery()),
+					array('ID', 'ID')
 				),
 			),
 			'select' => array('ID'),
 			'filter' => array_merge(
 				array(
 					'==MESSAGE_UID' => true,
+					//'==MESSAGE_CLOSURE' => false,
 				),
 				$filter,
 				$filter1
@@ -238,7 +248,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 		{
 			$select = array(
 				'MID' => 'ID',
-				'SUBJECT', 'FIELD_FROM', 'FIELD_TO', 'FIELD_DATE', 'ATTACHMENTS',
+				'SUBJECT', 'FIELD_FROM', 'FIELD_TO', 'FIELD_DATE', 'ATTACHMENTS', 'OPTIONS',
 				'RID' => 'MESSAGE_UID.ID',
 				'IS_SEEN' => 'MESSAGE_UID.IS_SEEN',
 				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
@@ -317,6 +327,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 		$this->arResult['ROWS'] = $this->getRows($items, $mailbox, $navigation);
 		$this->arResult['NAV_OBJECT'] = $navigation;
 
+		// @TODO: IX_MAIL_MSG_UID_SEEN_2
 		$unseen = \Bitrix\Mail\MailMessageTable::getList(array(
 			'runtime' => array(
 				new \Bitrix\Main\Entity\ReferenceField(
@@ -336,7 +347,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			),
 			'filter' => array(
 				'=MAILBOX_ID' => $mailbox['ID'],
-				'=MESSAGE_UID.DIR_MD5' => $filter['=MESSAGE_UID.DIR_MD5'],
+				'=MESSAGE_UID.DIR_MD5' => $filter2['=MESSAGE_UID.DIR_MD5'],
 				'!@MESSAGE_UID.IS_SEEN' => array('Y', 'S'),
 			),
 		))->fetch();
@@ -478,7 +489,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 				)),
 				$columns['SUBJECT']
 			);
-			if ($item['ATTACHMENTS'] > 0)
+			if ($item['OPTIONS']['attachments'] > 0 || $item['ATTACHMENTS'] > 0)
 			{
 				$columns['SUBJECT'] .= '<span class="mail-msg-list-attach-icon" title="' . Loc::getMessage('MAIL_MESSAGE_LIST_ATTACH_ICON_HINT') . '"></span>';
 			}
@@ -622,6 +633,7 @@ class CMailClientMessageListComponent extends CBitrixComponent
 					'text' => $this->arResult['gridActionsData']['move']['text'],
 					'submenuOptions' => $this->arResult['gridActionsData']['move']['submenuOptions'],
 					'items' => $this->prepareFoldersHierarchyForGrid($mailbox['OPTIONS']),
+					'gridRowId' => $item['ID'],
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['task']['id'],
@@ -935,17 +947,16 @@ class CMailClientMessageListComponent extends CBitrixComponent
 			{
 				if ($dir === $defaultFolderName)
 				{
-					$preset['fields']['DIR'] = '';
-					$preset['default'] = true;
-					$defaultPreset[$presetKey] = $preset;
+					if (empty($defaultPreset))
+					{
+						$preset['fields']['DIR'] = '';
+						$preset['default'] = true;
+						$defaultPreset[$presetKey] = $preset;
+					}
+
 					continue;
 				}
-				if (empty($defaultPreset))
-				{
-					$preset['default'] = true;
-					$defaultPreset[$presetKey] = $preset;
-					continue;
-				}
+
 				$this->arResult['FILTER_PRESETS'][$presetKey] = $preset;
 			}
 		}

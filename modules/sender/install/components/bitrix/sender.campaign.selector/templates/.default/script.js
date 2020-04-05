@@ -52,6 +52,29 @@
 		BX.addCustomEvent(this.selector, this.selector.events.search, this.onSearch.bind(this));
 		BX.addCustomEvent(this.selector, this.selector.events.tileRemove, this.onTileChange.bind(this));
 		BX.addCustomEvent(this.selector, this.selector.events.tileAdd, this.onTileChange.bind(this));
+
+		this.initTester();
+
+	};
+	Selector.prototype.initTester = function ()
+	{
+		var tester = BX.Sender.Message.Tester;
+		if (!tester)
+		{
+			return;
+		}
+
+		BX.addCustomEvent(tester, tester.eventNameSend, this.onTestSend.bind(this));
+	};
+	Selector.prototype.onTestSend = function (message)
+	{
+		if (this.selector.list && this.selector.list[0])
+		{
+			if (!message.data)
+				message.data = {};
+			message.data.CAMPAIGN_ID = this.selector.list[0].id;
+		}
+
 	};
 	Selector.prototype.onTileChange = function (tile)
 	{

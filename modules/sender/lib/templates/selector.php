@@ -202,6 +202,11 @@ class Selector
 		return $list;
 	}
 
+	/**
+	 * Get templates
+	 * @param int $limit Limit.
+	 * @return array
+	 */
 	private function getTemplates($limit = 0)
 	{
 		$result = array();
@@ -251,7 +256,8 @@ class Selector
 			array('\Bitrix\Sender\Templates\Recent', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\Mail', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\Sms', 'onPresetTemplateList'),
-			array('\Bitrix\Sender\Preset\Templates\Rc', 'onPresetTemplateList')
+			array('\Bitrix\Sender\Preset\Templates\Rc', 'onPresetTemplateList'),
+			array('\Bitrix\Sender\Preset\Templates\AudioCall', 'onPresetTemplateList')
 		);
 		foreach ($providers as $provider)
 		{
@@ -285,6 +291,11 @@ class Selector
 
 	}
 
+	/**
+	 * Check template
+	 * @param array $template Template.
+	 * @return bool
+	 */
 	private function checkTemplate($template)
 	{
 		if (count($template['FIELDS']) === 0)
@@ -328,6 +339,11 @@ class Selector
 		return true;
 	}
 
+	/**
+	 * Prepare template
+	 * @param array $template Template.
+	 * @return array
+	 */
 	private function prepareTemplate($template)
 	{
 		if (!is_array($template))

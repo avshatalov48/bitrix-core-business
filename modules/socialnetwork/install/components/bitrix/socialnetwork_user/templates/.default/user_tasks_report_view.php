@@ -23,36 +23,70 @@ if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arResult["VARIABLES"][
 }
 else
 {
-	$APPLICATION->IncludeComponent(
-				"bitrix:tasks.report.view",
-				"",
-				Array(
-					"USER_ID" => intval($arResult["VARIABLES"]["user_id"]),
-					"REPORT_ID" => $arResult["VARIABLES"]["report_id"],
-					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-					"USER_NAME_FORMAT" => $arParams["NAME_TEMPLATE"],
-					"ROWS_PER_PAGE" => $arParams["ITEM_DETAIL_COUNT"],
-					"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
-					"PATH_TO_USER_TASKS" => $arResult["PATH_TO_USER_TASKS"],
-					"PATH_TO_USER_TASKS_TASK" => $arResult["PATH_TO_USER_TASKS_TASK"],
-					"PATH_TO_USER_TASKS_VIEW" => $arResult["PATH_TO_USER_TASKS_VIEW"],
-					"PATH_TO_TASKS_REPORT" => CComponentEngine::MakePathFromTemplate(
-						$arResult["PATH_TO_USER_TASKS_REPORT"],
-						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
-					),
-					"PATH_TO_TASKS_REPORT_CONSTRUCT" => CComponentEngine::MakePathFromTemplate(
-						$arResult["PATH_TO_USER_TASKS_REPORT_CONSTRUCT"],
-						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
-					),
-					"PATH_TO_TASKS_REPORT_VIEW" => CComponentEngine::MakePathFromTemplate(
-						$arResult["PATH_TO_USER_TASKS_REPORT_VIEW"],
-						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
-					),
-					'PATH_TO_USER_TASKS_PROJECTS_OVERVIEW' => $arResult['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'],
-					"PATH_TO_USER_TASKS_TEMPLATES" => $arResult["PATH_TO_USER_TASKS_TEMPLATES"],
-					),
-				false
-				);
+    $APPLICATION->IncludeComponent(
+        'bitrix:ui.sidepanel.wrapper',
+        '',
+        [
+            'POPUP_COMPONENT_NAME' => 'bitrix:tasks.report.view',
+            'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+            'POPUP_COMPONENT_PARAMS' => [
+                "USER_ID" => intval($arResult["VARIABLES"]["user_id"]),
+                "REPORT_ID" => $arResult["VARIABLES"]["report_id"],
+                "NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+                "USER_NAME_FORMAT" => $arParams["NAME_TEMPLATE"],
+                "ROWS_PER_PAGE" => $arParams["ITEM_DETAIL_COUNT"],
+                "PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
+                "PATH_TO_USER_TASKS" => $arResult["PATH_TO_USER_TASKS"],
+                "PATH_TO_USER_TASKS_TASK" => $arResult["PATH_TO_USER_TASKS_TASK"],
+                "PATH_TO_USER_TASKS_VIEW" => $arResult["PATH_TO_USER_TASKS_VIEW"],
+                "PATH_TO_TASKS_REPORT" => CComponentEngine::MakePathFromTemplate(
+                    $arResult["PATH_TO_USER_TASKS_REPORT"],
+                    array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+                ),
+                "PATH_TO_TASKS_REPORT_CONSTRUCT" => CComponentEngine::MakePathFromTemplate(
+                    $arResult["PATH_TO_USER_TASKS_REPORT_CONSTRUCT"],
+                    array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+                ),
+                "PATH_TO_TASKS_REPORT_VIEW" => CComponentEngine::MakePathFromTemplate(
+                    $arResult["PATH_TO_USER_TASKS_REPORT_VIEW"],
+                    array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+                ),
+                'PATH_TO_USER_TASKS_PROJECTS_OVERVIEW' => $arResult['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'],
+                "PATH_TO_USER_TASKS_TEMPLATES" => $arResult["PATH_TO_USER_TASKS_TEMPLATES"],
+            ]
+        ]
+    );
+
+//	$APPLICATION->IncludeComponent(
+//				"bitrix:tasks.report.view",
+//				"",
+//				Array(
+//					"USER_ID" => intval($arResult["VARIABLES"]["user_id"]),
+//					"REPORT_ID" => $arResult["VARIABLES"]["report_id"],
+//					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+//					"USER_NAME_FORMAT" => $arParams["NAME_TEMPLATE"],
+//					"ROWS_PER_PAGE" => $arParams["ITEM_DETAIL_COUNT"],
+//					"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
+//					"PATH_TO_USER_TASKS" => $arResult["PATH_TO_USER_TASKS"],
+//					"PATH_TO_USER_TASKS_TASK" => $arResult["PATH_TO_USER_TASKS_TASK"],
+//					"PATH_TO_USER_TASKS_VIEW" => $arResult["PATH_TO_USER_TASKS_VIEW"],
+//					"PATH_TO_TASKS_REPORT" => CComponentEngine::MakePathFromTemplate(
+//						$arResult["PATH_TO_USER_TASKS_REPORT"],
+//						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+//					),
+//					"PATH_TO_TASKS_REPORT_CONSTRUCT" => CComponentEngine::MakePathFromTemplate(
+//						$arResult["PATH_TO_USER_TASKS_REPORT_CONSTRUCT"],
+//						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+//					),
+//					"PATH_TO_TASKS_REPORT_VIEW" => CComponentEngine::MakePathFromTemplate(
+//						$arResult["PATH_TO_USER_TASKS_REPORT_VIEW"],
+//						array('user_id' => intval($arResult["VARIABLES"]["user_id"]))
+//					),
+//					'PATH_TO_USER_TASKS_PROJECTS_OVERVIEW' => $arResult['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'],
+//					"PATH_TO_USER_TASKS_TEMPLATES" => $arResult["PATH_TO_USER_TASKS_TEMPLATES"],
+//					),
+//				false
+//				);
 
 }
 ?>

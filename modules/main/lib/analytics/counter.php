@@ -88,7 +88,8 @@ JS;
 		if (SiteSpeed::isOn() &&
 			static::$enabled === true &&
 			$ajax === null &&
-			(!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
+			(!defined("ADMIN_SECTION") || ADMIN_SECTION !== true) &&
+			!SiteSpeed::isIntranetSite(SITE_ID)
 		)
 		{
 			Counter::injectIntoPage();

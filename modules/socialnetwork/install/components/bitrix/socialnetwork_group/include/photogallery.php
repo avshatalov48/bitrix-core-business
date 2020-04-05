@@ -465,6 +465,8 @@ if (empty($user_alias)):
 				"SOCNET_GROUP_ID" => false,
 				"IBLOCK_SECTION_ID" => "0");
 
+			$groupId = $arResult["VARIABLES"]["group_id"];
+
 			if ($object == "user")
 			{
 				$arFields["NAME"] = trim($USER->GetLastName()." ".$USER->GetFirstName());
@@ -473,15 +475,15 @@ if (empty($user_alias)):
 			}
 			else
 			{
-				$res = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
+				$res = CSocNetGroup::GetByID($groupId);
 				if (!$res)
 				{
 					$arParams["ERROR_MESSAGE"] = GetMessage("SONET_GROUP_NOT_EXISTS");
 					return 0;
 				}
-				$arFields["SOCNET_GROUP_ID"] = $arResult["VARIABLES"]["group_id"];
+				$arFields["SOCNET_GROUP_ID"] = $groupId;
 				$arFields["NAME"] = GetMessage("SONET_GROUP_PREFIX").$res["NAME"];
-				$arFields["CODE"] = "group_".$arResult["VARIABLES"]["group_id"];
+				$arFields["CODE"] = "group_".$groupId;
 			}
 
 			if (!empty($arFiles))
@@ -489,7 +491,7 @@ if (empty($user_alias)):
 				$arFields["PICTURE"] = $arFiles["PICTURE"];
 			}
 			$bs = new CIBlockSection();
-			if ($bs->CheckFields($arFields))
+			if (COption::GetOptionString("photogallery", "PhotogalleryGroupChecker_".$groupId, "") != "Y" && $bs->CheckFields($arFields))
 			{
 				if (!empty($arFiles))
 				{

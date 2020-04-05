@@ -93,4 +93,20 @@ class FloatField extends ScalarField
 	{
 		return $this->getConnection()->getSqlHelper()->convertToDbFloat($value);
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getGetterTypeHint()
+	{
+		return '\\float';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetterTypeHint()
+	{
+		return '\\float';
+	}
 }

@@ -69,6 +69,11 @@ class MessageSms implements Message\iBase, Message\iMailable
 				'code' => 'SENDER',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_SMS_MESSAGE_CONFIG_SENDER'),
 				'required' => true,
+				'show_in_list' => true,
+				'readonly_view' => function($value)
+				{
+					return Service::getFormattedOutputNumber($value);
+				},
 			),
 			array(
 				'type' => 'text',

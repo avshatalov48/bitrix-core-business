@@ -10,7 +10,6 @@ use Bitrix\Report\VisualConstructor\ReportDispatcher;
 use Bitrix\Report\VisualConstructor\RuntimeProvider\ViewProvider;
 use Bitrix\Report\VisualConstructor\View;
 
-
 /**
  * Class Widget
  * @package Bitrix\Report\VisualConstructor\Helper
@@ -20,7 +19,7 @@ class Widget
 	const LAZY_LOAD_MODE = true;
 
 	/**
-	 * Build Widget contetn pas to preparing in view controller.
+	 * Build Widget content pas to preparing in view controller.
 	 *
 	 * @param WidgetEntity $widget Widget Entity.
 	 * @param bool $withCalculatedData Marker define calculate or not data in reports.
@@ -28,16 +27,12 @@ class Widget
 	 */
 	public static function prepareWidgetContent(WidgetEntity $widget, $withCalculatedData = false)
 	{
-		$view = ViewProvider::getViewByViewKey($widget->getViewKey());
-
+		$viewKey = $widget->getViewKey();
+		$view = ViewProvider::getViewByViewKey($viewKey);
 		$resultWidget = $view->prepareWidgetContent($widget, $withCalculatedData);
-
 
 		return $resultWidget;
 	}
-
-
-
 
 	/**
 	 * @param View $view View Controller.
@@ -46,54 +41,58 @@ class Widget
 	 */
 	public static function getCalculatedPerformedData($view, $widget)
 	{
-		$result = null;
+		$result = [];
 		$widget->loadAttribute('reports');
+
 		$reports = $widget->getReports();
 		$reportsCount = count($widget->getReports());
-		if ($reportsCount <= $view::MAX_RENDER_REPORT_COUNT)
+		if ($reportsCount > $view::MAX_RENDER_REPORT_COUNT)
 		{
-			$handledReportData = array();
-			foreach ($reports as $reportId => $report)
-			{
-				$reportDispatcher = new ReportDispatcher();
-				$reportDispatcher->setReport($report);
-				$reportDispatcher->setView($view);
-				$data = $reportDispatcher->getReportCompatibleData();
-				if ($data === null)
-				{
-					continue;
-				}
-				if (!$reportDispatcher->getErrors())
-				{
-					if ($view::MAX_RENDER_REPORT_COUNT == 1)
-					{
-						$handledReportData = $data;
-					}
-					elseif ($view::MAX_RENDER_REPORT_COUNT > 1)
-					{
-						$handledReportData[] = $data;
-					}
+			$result['errors'][] = 'View with key:' . $view->getKey() . 'can\'t render this count(' . $reportsCount . ') of reports';
+			return $result;
+		}
 
-				}
-				else
+		$handledReportData = array();
+		foreach ($reports as $reportId => $report)
+		{
+			$reportDispatcher = new ReportDispatcher();
+			$reportDispatcher->setReport($report);
+			$reportDispatcher->setView($view);
+			$data = $reportDispatcher->getReportCompatibleData();
+			if ($data === null)
+			{
+				$errors = $reportDispatcher->getErrors();
+				if(count($errors) > 0)
 				{
-					foreach ($reportDispatcher->getErrors() as $error)
+					foreach ($errors as $error)
 					{
 						$result['errors'][] = $error->getMessage();
 					}
+					return $result;
 				}
-
+				continue;
 			}
-			$result = $handledReportData;
+			if (!$reportDispatcher->getErrors())
+			{
+				if ($view::MAX_RENDER_REPORT_COUNT == 1)
+				{
+					$handledReportData = $data;
+				}
+				elseif ($view::MAX_RENDER_REPORT_COUNT > 1)
+				{
+					$handledReportData[] = $data;
+				}
+			}
+			else
+			{
+				foreach ($reportDispatcher->getErrors() as $error)
+				{
+					$result['errors'][] = $error->getMessage();
+				}
+			}
 		}
-		else
-		{
-			$result['errors'][] = 'View with key:' . $view->getKey() . 'can\'t render this count(' . $reportsCount . ') of reports';
-		}
-
-		return $result;
+		return $handledReportData;
 	}
-
 
 	/**
 	 * Load all dashboard by board key.
@@ -104,13 +103,10 @@ class Widget
 	 */
 	public static function prepareBoardWithEntitiesByBoardId($boardKey)
 	{
-
 		$dashboard = self::getDashboard($boardKey);
-
 		if ($dashboard)
 		{
 			$rows = $dashboard->getRows();
-
 			$resultRows = array();
 			$i = 0;
 			if ($rows)
@@ -132,7 +128,6 @@ class Widget
 				}
 			}
 
-
 			return array(
 				'boardId' => $dashboard->getBoardKey(),
 				'boardKey' => $dashboard->getBoardKey(),
@@ -144,14 +139,11 @@ class Widget
 		{
 			return array();
 		}
-
-
-
 	}
 
 	/**
 	 * Load dashboard for user.
-	 * Try load dashbaord for user. if not exist return default dashboard.
+	 * Try load dashboard for user. if not exist return default dashboard.
 	 * @param string $boardKey Board key.
 	 * @return DashboardEntity|null
 	 */
@@ -170,10 +162,8 @@ class Widget
 			$dashboard = DashboardEntity::getBoardWithRowsAndWidgetsByBoardKeyUserId($boardKey, 0);
 		}
 
-
 		return $dashboard;
 	}
-
 
 	/**
 	 * Construct widget by params.
@@ -209,8 +199,6 @@ class Widget
 		}
 
 		$viewKey = $params['viewType'];
-
-
 		$widgetGId = $params['widgetId'];
 		$boardId = $params['boardId'];
 		$widgetConfigurations = !empty($params['widget'][$widgetGId]['configurations']) ? $params['widget'][$widgetGId]['configurations'] : array();
@@ -218,7 +206,6 @@ class Widget
 
 		$viewController = ViewProvider::getViewByViewKey($viewKey);
 		$widgetHandler = $viewController->buildWidgetHandlerForBoard($boardId);
-
 		$widget = $widgetHandler->getWidget();
 		$widget->setCategoryKey($categoryKey);
 
@@ -273,7 +260,6 @@ class Widget
 				continue;
 			}
 
-
 			if (isset($reportHandler) && $reportHandler instanceof BaseReport)
 			{
 				if (!empty($report['configurations']['old']))
@@ -299,18 +285,11 @@ class Widget
 				$reportHandler->getReport()->setConfigurations($reportHandler->getConfigurations());
 				$reportHandler->getReport()->setWidget($widget);
 			}
-
 		}
-
-
-
 		$widget->setConfigurations($widgetHandler->getConfigurations());
 		$widget->setGId('pseudo_' . randString(4));
-
-
 		return $widget;
 	}
-
 
 	/**
 	 * Construct Pseudo widget by form params, to render preview in previewBlock.
@@ -346,25 +325,17 @@ class Widget
 		}
 
 		$viewKey = $params['viewType'];
-
-
 		$boardId = $params['boardId'];
-
-
 		$viewController = ViewProvider::getViewByViewKey($viewKey);
 		$widgetHandler = $viewController->buildWidgetHandlerForBoard($boardId);
 		$widgetHandler = $viewController->addDefaultReportHandlersToWidgetHandler($widgetHandler);
 		$widget = $widgetHandler->getWidget();
 		$widget->setCategoryKey($categoryKey);
-
-
 		$widget->setConfigurations($widgetHandler->getConfigurations());
 		$widget->setGId('pseudo_' . randString(4));
 
-
 		return $widget;
 	}
-
 
 	/**
 	 * Get copy from core widget. set net gId. and save.
@@ -384,5 +355,4 @@ class Widget
 		$patternWidget->save();
 		return $patternWidget;
 	}
-
 }

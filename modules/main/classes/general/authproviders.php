@@ -77,7 +77,7 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 
 	public static function OnAfterGroupAdd(&$arFields)
 	{
-		if(count($arFields["USER_ID"]) > 0)
+		if(is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
 			self::DeleteByGroup($arFields["ID"]);
 	}
 	

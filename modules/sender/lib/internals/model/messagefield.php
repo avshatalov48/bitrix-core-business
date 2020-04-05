@@ -51,7 +51,9 @@ class MessageFieldTable extends Entity\DataManager
 				'required' => true,
 			),
 			'VALUE' => array(
-				'data_type' => 'text'
+				'data_type' => 'text',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 		);
 	}

@@ -88,6 +88,21 @@ export class VuexBuilderDatabaseLocalStorage
 		});
 	}
 
+	clear()
+	{
+		return new Promise((resolve, reject) =>
+		{
+			if (this.enabled)
+			{
+				window.localStorage.removeItem(this.code);
+			}
+			resolve(true);
+		});
+	}
+
+	/**
+	 * @private
+	 */
 	prepareValueAfterGet(value)
 	{
 		if (value instanceof Array)
@@ -101,7 +116,10 @@ export class VuexBuilderDatabaseLocalStorage
 		{
 			for (let index in value)
 			{
-				value[index] = this.prepareValueAfterGet(value[index]);
+				if (value.hasOwnProperty(index))
+				{
+					value[index] = this.prepareValueAfterGet(value[index]);
+				}
 			}
 		}
 		else if (typeof value === 'string')
@@ -115,6 +133,9 @@ export class VuexBuilderDatabaseLocalStorage
 		return value;
 	}
 
+	/**
+	 * @private
+	 */
 	prepareValueBeforeSet(value)
 	{
 		if (value instanceof Array)

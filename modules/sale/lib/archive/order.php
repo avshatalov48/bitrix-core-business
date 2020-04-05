@@ -8,7 +8,7 @@ class Order extends Sale\Order
 {
 	protected $discountResult = array();
 	protected $dateArchived = null;
-	protected $archiveVersion = Manager::SALE_ARCHIVE_VERSION;
+	protected $archiveVersion = null;
 
 	/**
 	 * Restrict recalculation discounts

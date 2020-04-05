@@ -1319,22 +1319,14 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 		$this->requestData["ID"] = $this->order->getId();
 
-		$orderValues = $this->order->getFieldValues();
-
-		if (empty($orderValues))
-		{
-			throw new Main\SystemException(
-				str_replace("#ID#", $this->requestData["ID"], Localization\Loc::getMessage("SPOD_NO_ORDER")),
-				self::E_ORDER_NOT_FOUND
-			);
-		}
+		$orderFields = $this->order->getFieldValues();
 
 		if (
 			is_array($this->arParams['RESTRICT_CHANGE_PAYSYSTEM'])
-			&& in_array($orderValues['STATUS_ID'], $this->arParams['RESTRICT_CHANGE_PAYSYSTEM'])
+			&& in_array($orderFields['STATUS_ID'], $this->arParams['RESTRICT_CHANGE_PAYSYSTEM'])
 		)
 		{
-			$orderValues['LOCK_CHANGE_PAYSYSTEM'] = 'Y';
+			$orderFields['LOCK_CHANGE_PAYSYSTEM'] = 'Y';
 		}
 
 		$shipmentOrder = array();
@@ -1380,10 +1372,11 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				$currency = $this->order->getCurrency();
 			}
 			$shipmentFields["PRICE_DELIVERY_FORMATTED"] = SaleFormatCurrency($shipmentFields['PRICE_DELIVERY'], $currency);
+			$this->formatDate($shipmentFields);
 			$shipmentOrder[] = $shipmentFields;
 		}
 
-		$orderValues['SHIPMENT'] = $shipmentOrder;
+		$orderFields['SHIPMENT'] = $shipmentOrder;
 
 		$paymentOrder = array();
 
@@ -1403,14 +1396,15 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 			{
 				$paymentFields['DATE_BILL_FORMATTED'] = $paymentFields['DATE_BILL']->format($dateFormat);
 			}
+			$this->formatDate($paymentFields);
 			$paymentOrder[$paymentFields['ID']] = $paymentFields;
 		}
 		
-		$orderValues['PAYMENT'] = $paymentOrder;
+		$orderFields['PAYMENT'] = $paymentOrder;
 
-		$orderValues['IS_ALLOW_PAY'] = $this->order->isAllowPay() ? 'Y' : 'N';
+		$orderFields['IS_ALLOW_PAY'] = $this->order->isAllowPay() ? 'Y' : 'N';
 
-		$this->dbResult = $orderValues;
+		$this->dbResult = $orderFields;
 	}
 
 	/**
@@ -1733,6 +1727,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		{
 			foreach ($this->dbResult['BASKET'] as &$arItem)
 			{
+				$this->dbResult['BASE_PRODUCT_SUM'] += $arItem["BASE_PRICE"] * $arItem['QUANTITY'];
 				$this->dbResult['PRODUCT_SUM'] += $arItem["PRICE"] * $arItem['QUANTITY'];
 				$arItem["QUANTITY"] = doubleval($arItem["QUANTITY"]);
 				$this->dbResult["ORDER_WEIGHT"] += $arItem["WEIGHT"] * $arItem["QUANTITY"];
@@ -1792,6 +1787,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		$arResult["PRICE_FORMATED"] = SaleFormatCurrency($arResult["PRICE"], $arResult["CURRENCY"]);
 
 		$arResult["PRODUCT_SUM_FORMATED"] = SaleFormatCurrency($arResult["PRODUCT_SUM"], $arResult["CURRENCY"]);
+		$arResult["BASE_PRODUCT_SUM_FORMATED"] = SaleFormatCurrency($arResult["BASE_PRODUCT_SUM"], $arResult["CURRENCY"]);
 
 		$arResult["PRICE_DELIVERY_FORMATED"] = SaleFormatCurrency($arResult['PRICE_DELIVERY'], $arResult["CURRENCY"]);
 		foreach ($arResult['PAYMENT'] as &$payment)
@@ -1839,7 +1835,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 		if (!empty($arResult["STATUS"]))
 		{
-			$arResult["STATUS"]["NAME"] = htmlspecialcharsEx($arResult["STATUS"]["NAME"]);
+			$arResult["STATUS"]["NAME"] = htmlspecialcharsbx($arResult["STATUS"]["NAME"]);
 		}
 	}
 
@@ -1865,8 +1861,8 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 		if (!empty($arResult["PERSON_TYPE"]))
 		{
-			$arResult["PERSON_TYPE"]["NAME"] = htmlspecialcharsEx($arResult["PERSON_TYPE"]["NAME"]);
-			$arResult["USER"]["PERSON_TYPE_NAME"] = htmlspecialcharsEx($arResult["PERSON_TYPE"]["NAME"]);
+			$arResult["PERSON_TYPE"]["NAME"] = htmlspecialcharsbx($arResult["PERSON_TYPE"]["NAME"]);
+			$arResult["USER"]["PERSON_TYPE_NAME"] = htmlspecialcharsbx($arResult["PERSON_TYPE"]["NAME"]);
 
 		}
 	}
@@ -1880,7 +1876,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		$arResult =& $this->arResult;
 
 		if (!empty($arResult["PAY_SYSTEM"]))
-			$arResult["PAY_SYSTEM"]["NAME"] = htmlspecialcharsEx($arResult["PAY_SYSTEM"]["NAME"]);
+			$arResult["PAY_SYSTEM"]["NAME"] = htmlspecialcharsbx($arResult["PAY_SYSTEM"]["NAME"]);
 	}
 
 	/**
@@ -1897,7 +1893,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		{
 			if (!empty($shipment["DELIVERY_ID"]))
 			{
-				$shipment["DELIVERY"]["NAME"] = htmlspecialcharsEx($shipment["DELIVERY"]["NAME"]);
+				$shipment["DELIVERY"]["NAME"] = htmlspecialcharsbx($shipment["DELIVERY"]["NAME"]);
 				$shipment["DELIVERY"]["SRC_LOGOTIP"] = CFile::GetPath($shipment["DELIVERY"]['LOGOTIP']);
 				if (!strlen($shipment["DELIVERY"]["SRC_LOGOTIP"]))
 				{
@@ -1948,7 +1944,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				{
 					$arResult["DISCOUNT_VALUE"] += ($arBasket["DISCOUNT_PRICE"] * $arBasket["QUANTITY"]);
 					$arBasket["DISCOUNT_PRICE_PERCENT"] = $discountClassName::calculateDiscountPercent(
-						$arBasket["DISCOUNT_PRICE"] + $arBasket["PRICE"],
+						$arBasket["BASE_PRICE"],
 						$arBasket["DISCOUNT_PRICE"]
 					);
 					$arBasket["DISCOUNT_PRICE_PERCENT_FORMATED"] = $arBasket["DISCOUNT_PRICE_PERCENT"]."%";
@@ -2028,19 +2024,25 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	 */
 	protected function formatResultErrors()
 	{
-		$errors = array();
+		$errors = [];
 		if (!empty($this->errorsFatal))
+		{
 			$errors['FATAL'] = $this->errorsFatal;
+			// backward compatiblity
+			if (is_array($this->errorsFatal))
+			{
+				$error = reset($this->errorsFatal);
+				$this->arResult['ERROR_MESSAGE'] = $error;
+			}
+		}
+
 		if (!empty($this->errorsNonFatal))
 			$errors['NONFATAL'] = $this->errorsNonFatal;
 
 		if (!empty($errors))
+		{
 			$this->arResult['ERRORS'] = $errors;
-
-		// backward compatiblity
-		$error = each($this->errorsFatal);
-		if (!empty($error))
-			$this->arResult['ERROR_MESSAGE'] = $error['value'];
+		}
 	}
 
 	/**
@@ -2066,7 +2068,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		}
 		catch(Exception $e)
 		{
-			$this->errorsFatal[htmlspecialcharsEx($e->getCode())] = htmlspecialcharsEx($e->getMessage());
+			$this->errorsFatal[htmlspecialcharsbx($e->getCode())] = htmlspecialcharsbx($e->getMessage());
 		}
 
 		$this->formatResultErrors();
@@ -2082,7 +2084,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	 */
 	protected function setRegistry()
 	{
-		$this->registry = Sale\Registry::getInstance(Sale\Order::getRegistryType());
+		$this->registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 	}
 
 	/**
@@ -2113,6 +2115,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	}
 
 	/**
+	 * @deprecated
 	 * The callback that changes body encoding when nescessary. Feature doesn`t work here and in the previous version of the component. Left for backward compatibility.
 	 * @param string $content page content
 	 * @return void

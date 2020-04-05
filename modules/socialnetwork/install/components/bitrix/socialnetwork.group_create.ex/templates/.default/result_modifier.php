@@ -12,6 +12,7 @@ Loc::loadMessages(__FILE__);
 
 $arResult['TypesProject'] = array();
 $arResult['TypesNonProject'] = array();
+
 $arResult['ClientConfig'] = array(
 	'refresh' => (empty($_GET["refresh"]) || $_GET["refresh"] != 'N' ? 'Y' : 'N')
 );

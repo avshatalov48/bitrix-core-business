@@ -169,6 +169,7 @@ $MESS["IBLOCK_XML2_SMART_FILTER_DISPLAY_TYPE"] = "ТипОтображения";
 $MESS["IBLOCK_XML2_SMART_FILTER_DISPLAY_EXPANDED"] = "ПоказатьРазвёрнутым";
 $MESS["IBLOCK_XML2_SMART_FILTER_HINT"] = "Подсказка";
 $MESS["IBLOCK_XML2_PRICE_SB_ADD_ERROR"] = "В редакции Малый Бизнес нет возможности иметь более одного типа цены. Настройте выгрузку из 1С или перейдите на другую редакцию БУС.";
+$MESS["IBLOCK_XML2_PRICE_SB_ADD_ERROR_B24"] = "На текущем тарифе Битрикс24 нет возможности иметь более одного типа цены. Настройте выгрузку из 1С или перейдите на другой тариф.";
 $MESS["IBLOCK_XML2_PRICE_DUP_ERROR"] = "В выгрузке настроены цены с одинаковым названием. Продолжение обмена невозможно.";
 $MESS["IBLOCK_XML2_STORE_CONTACT"] = "Контакт";
 $MESS["IBLOCK_XML2_STORE_PHONE"] = "Телефон";
@@ -195,4 +196,8 @@ $MESS["IBLOCK_XML2_MODULE_CATALOG_IS_ABSENT"] = "Отсутствует моду
 $MESS["IBLOCK_XML2_LINK"] = "Ссылка";
 $MESS["IBLOCK_XML2_FULL_DESCRIPTION"] = "ПолноеОписание";
 $MESS["IBLOCK_XML2_TEMPORARY_TABLE_EXIST_ERROR"] = "Временная таблица не существует";
+$MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_NORMAL"] = "сбрасывать после каждой операции";
+$MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_HIT"] = "сбрасывать в конце каждого шага импорта";
+$MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FINAL"] = "сбрасывать после окончания импорта";
+$MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FREEZE"] = "не сбрасывать";
 ?>

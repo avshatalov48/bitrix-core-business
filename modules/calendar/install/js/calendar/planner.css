@@ -745,7 +745,6 @@
 .calendar-planner-main-container-resource .calendar-planner-timeline-space-busy,
 .calendar-planner-main-container-resource .calendar-planner-acc-entry {
 	background: #ff5752;
-	pointer-events: none;
 	border-radius: 4px;
 }
 

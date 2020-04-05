@@ -94,6 +94,9 @@ div.main-stepper {
 	text-align: right;
 	box-sizing: border-box;
 }
+.main-stepper[data-bx-steps-count="0"] .main-stepper-steps {
+	display: none;
+}
 .main-stepper.main-stepper-error {
 
 }

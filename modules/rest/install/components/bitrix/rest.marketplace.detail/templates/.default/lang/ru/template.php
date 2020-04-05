@@ -21,6 +21,7 @@ $MESS["MARKETPLACE_APP_SUPPORT_TAB"] = "Поддержка";
 $MESS["MARKETPLACE_APP_INSTALL_TAB"] = "Установка";
 $MESS["MARKETPLACE_APP_VERSION_MESS"] = "Версия";
 $MESS["MARKETPLACE_APP_FREE"] = "Бесплатно";
+$MESS["MARKETPLACE_APP_BY_SUBSCRIPTION"] = "По подписке";
 $MESS["MARKETPLACE_APP_UPDATE_BUTTON"] = "Обновить";
 $MESS["MARKETPLACE_APP_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить приложение?";
 $MESS["MARKETPLACE_APP_DELETE_ERROR"] = "Ошибка! Приложение не было удалено";
@@ -47,5 +48,5 @@ $MESS["REST_MP_INSTALL_REQUEST_CONFIRM"] = "Недостаточно прав н
 $MESS["REST_MP_APP_INSTALL_REQUEST"] = "Отправить";
 $MESS["MARKETPLACE_MORE_BUTTON"] = "Ещё";
 $MESS["MARKETPLACE_HIDDEN_BUY"] = "Содержит встроенные покупки";
-
+$MESS["MARKETPLACE_CONFIGURATION_INSTALL_SETTING_BTN"] = "Настроить";
 ?>

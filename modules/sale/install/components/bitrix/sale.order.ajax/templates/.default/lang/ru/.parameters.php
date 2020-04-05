@@ -18,6 +18,7 @@ $MESS["BASKET_POSITION_BEFORE"] = "В начале";
 $MESS["BASKET_POSITION_AFTER"] = "В конце";
 $MESS["SHOW_BASKET_HEADERS"] = "Показывать заголовки колонок списка товаров";
 $MESS["DELIVERY_FADE_EXTRA_SERVICES"] = "Дополнительные услуги, которые будут показаны в пройденном (свернутом) блоке";
+$MESS["SHOW_COUPONS"] = "Отображать поля ввода купонов";
 $MESS["SHOW_COUPONS_BASKET"] = "Показывать поле ввода купонов в блоке списка товаров";
 $MESS["SHOW_COUPONS_DELIVERY"] = "Показывать поле ввода купонов в блоке доставки";
 $MESS["SHOW_COUPONS_PAY_SYSTEM"] = "Показывать поле ввода купонов в блоке оплаты";

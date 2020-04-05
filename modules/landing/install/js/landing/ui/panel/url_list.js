@@ -7,18 +7,14 @@
 	var removeClass = BX.Landing.Utils.removeClass;
 	var append = BX.Landing.Utils.append;
 	var onCustomEvent = BX.Landing.Utils.onCustomEvent;
-	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
 	var setTextContent = BX.Landing.Utils.setTextContent;
-	var rect = BX.Landing.Utils.rect;
 	var create = BX.Landing.Utils.create;
 	var style = BX.Landing.Utils.style;
-	var join = BX.Landing.Utils.join;
 	var isNumber = BX.Landing.Utils.isNumber;
 	var isString = BX.Landing.Utils.isString;
 	var isPlainObject = BX.Landing.Utils.isPlainObject;
 	var isArray = BX.Landing.Utils.isArray;
 	var addQueryParams = BX.Landing.Utils.addQueryParams;
-	var Cache = BX.Landing.Cache;
 
 	var TYPE_PAGE = "landing";
 	var TYPE_BLOCK = "block";
@@ -59,7 +55,7 @@
 		this.promiseResolve = (function() {});
 		this.layout.hidden = true;
 		this.isNeedLoad = true;
-		this.cache = new Cache();
+		this.cache = new BX.Cache.MemoryCache();
 	};
 
 
@@ -117,6 +113,7 @@
 		 */
 		show: function(view, options)
 		{
+			this.showOptions = options;
 			BX.Landing.UI.Panel.Content.prototype.show.call(this);
 
 			this.clear();
@@ -125,12 +122,12 @@
 			if (view === TYPE_PAGE)
 			{
 				removeClass(this.layout, "landing-ui-panel-url-list-blocks");
-				setTextContent(this.title, BX.message("LANDING_LINKS_LANDINGS_TITLE"));
+				setTextContent(this.title, options.panelTitle || BX.Landing.Loc.getMessage("LANDING_LINKS_LANDINGS_TITLE"));
 				this.showSites(options);
 			}
 			else
 			{
-				setTextContent(this.title, BX.message("LANDING_LINKS_BLOCKS_TITLE"));
+				setTextContent(this.title, options.panelTitle || BX.Landing.Loc.getMessage("LANDING_LINKS_BLOCKS_TITLE"));
 				this.showBlocks(options);
 			}
 
@@ -138,7 +135,6 @@
 				this.promiseResolve = resolve;
 			}.bind(this));
 		},
-
 
 		/**
 		 * Shows sites list
@@ -152,115 +148,92 @@
 				width: null
 			});
 
-			void this.getSites(options).then(function(sites) {
-				this.appendSidebarButton(
-					new SidebarButton("current_site", {
-						text: BX.message("LANDING_LINKS_PANEL_CURRENT_SITE")
-					})
-				);
+			if (!BX.Type.isPlainObject(options.filter))
+			{
+				options.filter = {};
+			}
 
-				sites.forEach(function(site) {
-					// noinspection EqualityComparisonWithCoercionJS
-					if (parseInt(site.ID) == currentSiteId)
-					{
-						this.appendSidebarButton(
-							new SidebarButton(site.ID, {
-								text: site.TITLE,
-								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
-								child: true,
-								active: true
-							})
-						);
-					}
-				}, this);
+			if (BX.Type.isNil(options.filter.ID))
+			{
+				options.filter.ID =	BX.Landing.Env.getInstance().getSiteId();
+			}
 
-				this.getLandings(currentSiteId).then(function(landings) {
-					if (isPlainObject(landings))
-					{
-						landings = Object.keys(landings).reduce(function(acc, key) {
-							if (isPlainObject(landings[key]) && isArray(landings[key].result))
-							{
-								acc = acc.concat(landings[key].result);
-							}
+			if (options.filter.ID === -1)
+			{
+				delete options.filter.ID;
+			}
 
-							return acc;
-						}, []);
-					}
-
-					landings.forEach(function(landing) {
-						if (!landing.IS_AREA || (landing.IS_AREA && options.enableAreas))
-						{
-							this.appendCard(
-								new BX.Landing.UI.Card.LandingPreviewCard({
-									title: landing.TITLE,
-									description: landing.DESCRIPTION,
-									preview: landing.PREVIEW,
-									onClick: this.onLandingClick.bind(this, landing.ID, landing.TITLE)
-								})
-							)
-						}
-					}, this);
-
-					var systemPages = this.getSystemPages();
-
-					Object.keys(systemPages).forEach(function(key) {
-						var page = systemPages[key];
-						this.appendCard(
-							new BX.Landing.UI.Card.LandingPreviewCard({
-								title: page.name,
-								description: page.description,
-								preview: page.preview,
-								onClick: this.onSystemClick.bind(this, key, page.name)
-							})
-						)
-					}, this);
-
-					this.loader.hide();
-				}.bind(this));
-
-				if (!options.currentSiteOnly)
-				{
+			void BX.Landing.Backend.getInstance()
+				.getSites(options).then(function(sites) {
 					this.appendSidebarButton(
-						new SidebarButton("my_sites", {
-							text: BX.message("LANDING_LINKS_PANEL_MY_SITES")
+						new SidebarButton("current_site", {
+							text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_CURRENT_SITE")
 						})
 					);
 
 					sites.forEach(function(site) {
-						this.appendSidebarButton(
-							new SidebarButton(site.ID, {
+						// noinspection EqualityComparisonWithCoercionJS
+						if (parseInt(site.ID) == currentSiteId)
+						{
+							this.currentSiteButton = new SidebarButton(site.ID, {
 								text: site.TITLE,
 								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
-								child: true
+								child: true,
+								active: true
+							});
+
+							this.appendSidebarButton(this.currentSiteButton);
+						}
+					}, this);
+
+					BX.Landing.Backend.getInstance()
+						.getLandings({siteId: currentSiteId})
+						.then(function(landings) {
+							var fakeEvent = {currentTarget: this.currentSiteButton.layout};
+							var siteClick = this.onSiteClick.bind(this, currentSiteId, options.enableAreas, fakeEvent);
+							this.appendCard(
+								new BX.Landing.UI.Card.AddPageCard({
+									siteId: currentSiteId,
+									onSave: this.addPageSave.bind(this, siteClick, currentSiteId)
+								})
+							);
+							landings.forEach(function(landing) {
+								if (!landing.IS_AREA || (landing.IS_AREA && options.enableAreas))
+								{
+									this.appendCard(
+										new BX.Landing.UI.Card.LandingPreviewCard({
+											title: landing.TITLE,
+											description: landing.DESCRIPTION,
+											preview: landing.PREVIEW,
+											onClick: this.onLandingClick.bind(this, landing.ID, landing.TITLE)
+										})
+									);
+								}
+							}, this);
+
+							this.loader.hide();
+						}.bind(this));
+
+					if (!options.currentSiteOnly)
+					{
+						this.appendSidebarButton(
+							new SidebarButton("my_sites", {
+								text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_MY_SITES")
 							})
 						);
-					}, this);
-				}
-			}.bind(this));
+
+						sites.forEach(function(site) {
+							this.appendSidebarButton(
+								new SidebarButton(site.ID, {
+									text: site.TITLE,
+									onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
+									child: true
+								})
+							);
+						}, this);
+					}
+				}.bind(this));
 		},
-
-
-		getSystemPages: function()
-		{
-			var result;
-
-			try
-			{
-				result = BX.Landing.Main.getInstance().options.syspages;
-
-				if (!isPlainObject(result))
-				{
-					result = {};
-				}
-			}
-			catch(err)
-			{
-				result = {};
-			}
-
-			return result;
-		},
-
 
 		/**
 		 * @private
@@ -269,7 +242,7 @@
 		createCurrentSiteButton: function()
 		{
 			return new SidebarButton("current_site", {
-				text: BX.message("LANDING_LINKS_PANEL_CURRENT_SITE")
+				text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_CURRENT_SITE")
 			});
 		},
 
@@ -287,7 +260,8 @@
 				width: "880px"
 			});
 
-			this.getSites(options)
+			BX.Landing.Backend.getInstance()
+				.getSites(options)
 				.then(function(sites) {
 					this.appendSidebarButton(
 						this.createCurrentSiteButton()
@@ -297,41 +271,54 @@
 						return site.ID;
 					}, this);
 
-					return this.getLandings(sitesIds)
+					return BX.Landing.Backend.getInstance()
+						.getLandings({siteId: sitesIds})
 						.then(function(landings) {
 							return sites.reduce(function(result, site, index) {
-								result[site.ID] = {site: site, landings: landings[site.ID].result};
+								var currentLandings = landings.filter(function(landing) {
+									return site.ID === landing.SITE_ID;
+								});
+
+								result[site.ID] = {site: site, landings: currentLandings};
 								return result;
 							}, {});
-						});
+						})
 				}.bind(this))
 				.then(function(result) {
 					result[currentSiteId].landings.forEach(function(landing) {
 						var active = parseInt(landing.ID) === parseInt(currentLandingId);
-						var button = this.createLandingSidebarButton(landing, active);
-						this.appendSidebarButton(button);
 
-						if (active)
+						if (!options.currentPageOnly || active)
 						{
-							button.layout.click();
+							var button = this.createLandingSidebarButton(landing, active);
+							this.appendSidebarButton(button);
+
+							if (active)
+							{
+								button.layout.click();
+							}
 						}
+
 					}, this);
 
-					Object.keys(result).forEach(function(siteId) {
-						if (parseInt(siteId) !== parseInt(currentSiteId))
-						{
-							var site = result[siteId].site;
-							this.appendSidebarButton(
-								this.createSiteSidebarButton(site)
-							);
-
-							result[siteId].landings.forEach(function(landing) {
+					if (!options.currentPageOnly)
+					{
+						Object.keys(result).forEach(function(siteId) {
+							if (parseInt(siteId) !== parseInt(currentSiteId))
+							{
+								var site = result[siteId].site;
 								this.appendSidebarButton(
-									this.createLandingSidebarButton(landing)
+									this.createSiteSidebarButton(site)
 								);
-							}, this)
-						}
-					}, this);
+
+								result[siteId].landings.forEach(function(landing) {
+									this.appendSidebarButton(
+										this.createLandingSidebarButton(landing)
+									);
+								}, this)
+							}
+						}, this);
+					}
 				}.bind(this));
 		},
 
@@ -499,7 +486,8 @@
 		{
 			if (event.isTrusted)
 			{
-				this.getBlocks(this.currentSelectedLanding.ID)
+				void BX.Landing.Backend.getInstance()
+					.getBlocks({landingId: this.currentSelectedLanding.ID})
 					.then(function(blocks) {
 						var currentBlock = blocks.find(function(block) {
 							return block.id === id;
@@ -550,42 +538,55 @@
 		onSiteClick: function(siteId, enableAreas, event)
 		{
 			this.sidebarButtons.forEach(function(button) {
-				if (button.layout === event.currentTarget)
+				if (
+					button.layout === event.currentTarget
+					|| (
+						!!event.target
+						&& button.layout === event.target.closest('.landing-ui-button')
+					)
+				)
 				{
+					this.currentSiteButton = button;
 					button.activate();
 				}
 				else
 				{
 					button.deactivate();
 				}
-			});
+			}, this);
 
 			this.content.innerHTML = "";
 			this.showLoader();
 
-			this.getLandings(siteId).then(function(landings) {
-				if (isPlainObject(landings))
-				{
-					landings = Object.keys(landings).reduce(function(acc, key) {
-						if (isPlainObject(landings[key]) && isArray(landings[key].result))
+			BX.Landing.Backend.getInstance()
+				.getLandings({siteId: siteId})
+				.then(function(landings) {
+					var siteClick = this.onSiteClick.bind(this, siteId, enableAreas, event);
+					this.appendCard(
+						new BX.Landing.UI.Card.AddPageCard({
+							siteId: siteId,
+							onSave: this.addPageSave.bind(this, siteClick, siteId)
+						})
+					);
+					landings.forEach(function(landing) {
+						if (!landing.IS_AREA || (landing.IS_AREA && enableAreas))
 						{
-							acc = acc.concat(landings[key].result);
+							this.appendCard(this.createLandingPreview(landing));
 						}
-
-						return acc;
-					}, []);
-				}
-
-				landings.forEach(function(landing) {
-					if (!landing.IS_AREA || (landing.IS_AREA && enableAreas))
-					{
-						this.appendCard(this.createLandingPreview(landing));
-					}
-				}, this);
-				this.loader.hide();
-			}.bind(this));
+					}, this);
+					this.loader.hide();
+				}.bind(this));
 		},
 
+		addPageSave: function(reloadFn, siteId)
+		{
+			this.cache = new BX.Cache.MemoryCache();
+			var backend = BX.Landing.Backend.getInstance();
+			backend.cache.delete('landings+['+siteId+']');
+			backend.cache.delete('landings+["'+siteId+'"]');
+			backend.cache.delete('landing+'+siteId);
+			reloadFn();
+		},
 
 		/**
 		 * Creates landing preview
@@ -621,234 +622,42 @@
 			});
 		},
 
-
-		/**
-		 * @param {object} options
-		 * @return {Promise<Object, Object>}
-		 */
-		getSites: function(options)
-		{
-			if (this.cache.has(options))
-			{
-				return Promise.resolve(this.cache.get(options));
-			}
-
-			return BX.Landing.Backend.getInstance()
-				.action("Site::getList", {
-					params: {
-						order: {ID: "DESC"},
-						filter: options.filter
-					}
-				})
-				.then(function(response) {
-					this.cache.add(options, response);
-					return response;
-				}.bind(this));
-		},
-
-
-		/**
-		 * Gets landings list of site
-		 * @param {number|string|Array<string|number>} [siteId]
-		 * @param {object} options
-		 * @returns {Promise.<Object>}
-		 */
-		getLandings: function(siteId, options)
-		{
-			siteId = isNumber(siteId) || isString(siteId) || isArray(siteId) ? siteId : options.siteId;
-			var cacheKey = isArray(siteId) ? siteId.join(',') : siteId;
-
-			if (this.cache.has("getLandings" + cacheKey))
-			{
-				return Promise.resolve(this.cache.get("getLandings" + cacheKey));
-			}
-
-			if (isArray(siteId))
-			{
-				var batchData = siteId.reduce(function(acc, item) {
-					acc[item] = {
-						action: "Landing::getList",
-						data: {
-							params: {
-								filter: {SITE_ID: item},
-								order: {ID: "DESC"},
-								get_preview: true,
-								check_area: 1
-							}
-						}
-					};
-
-					return acc;
-				}, {});
-
-				return BX.Landing.Backend.getInstance()
-					.batch("Landing::getList", batchData)
-					.then(function(response) {
-						this.cache.add("getLandings" + cacheKey, response);
-						return response;
-					}.bind(this));
-			}
-
-			return BX.Landing.Backend.getInstance()
-				.action("Landing::getList", {
-					params: {
-						filter: {SITE_ID: siteId},
-						order: {ID: "DESC"},
-						get_preview: true,
-						check_area: 1
-					}
-				})
-				.then(function(response) {
-					this.cache.add("getLandings" + cacheKey, response);
-					return response;
-				}.bind(this))
-		},
-
-
 		/**
 		 * Gets landing by id
 		 * @param {Number|String} landingId
 		 * @param {object} options
-		 * @return {Promise<Object, Object>}
 		 */
 		getLanding: function(landingId, options)
 		{
-			if (this.cache.has(["getLanding" + landingId, options]))
-			{
-				return Promise.resolve(this.cache.get(["getLanding" + landingId, options]));
-			}
+			var key = JSON.stringify(["getLanding" + landingId, options]);
 
-			return BX.Landing.Backend.getInstance()
-				.action("Landing::getList", {params: {
-					filter: {ID: landingId},
-					get_preview: true
-				}})
-				.then(function(response) {
-					this.cache.add(["getLanding" + landingId, options], response);
-					return response;
-				}.bind(this))
-		},
-
-
-		/**
-		 * Gets landing blocks by landing id
-		 * @param {Number|String} [landingId]
-		 * @param {object} options
-		 * @return {Promise<Object, Object>}
-		 */
-		getBlocks: function(landingId, options)
-		{
-			landingId = isNumber(landingId) || isString(landingId) ? landingId : options.landingId;
-
-			if (this.cache.has(["getBlocks" + landingId, options]))
-			{
-				var cacheResult = this.cache.get(["getBlocks" + landingId, options]);
-
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
-				{
-					return cacheResult;
-				}
-
-				return Promise.resolve(cacheResult);
-			}
-
-			var resultPromise = BX.Landing.Backend.getInstance()
-				.action("Block::getList", {
-					lid: landingId,
-					params: {
-						get_content: true,
-						edit_mode: true
-					}
-				})
-				.then(function(response) {
-					this.cache.set(["getBlocks" + landingId, options], response);
-					return response;
-				}.bind(this));
-
-			this.cache.set(["getBlocks" + landingId, options], resultPromise);
-
-			return resultPromise;
+			return this.cache.remember(key, function() {
+				return BX.Landing.Backend.getInstance()
+					.action("Landing::getList", {params: {
+							filter: {ID: landingId},
+							get_preview: true
+						}})
+					.then(function(response) {
+						return response;
+					}.bind(this))
+			}.bind(this));
 		},
 
 		getBlock: function(id)
 		{
 			var cacheKey = "getBlocks" + id;
 
-			if (this.cache.has(cacheKey))
-			{
-				var cacheResult = this.cache.get(cacheKey);
-
-				if (cacheResult &&
-					typeof cacheResult === "object" &&
-					typeof cacheResult.then === "function")
-				{
-					return cacheResult;
-				}
-
-				return Promise.resolve(cacheResult);
-			}
-
-			var resultPromise = BX.Landing.Backend.getInstance()
-				.action("Block::getById", {
-					block: id,
-					params: {
-						edit_mode: true
-					}
-				})
-				.then(function(response) {
-					this.cache.set(cacheKey, response);
-					return response;
-				}.bind(this));
-
-			this.cache.set(cacheKey, resultPromise);
-
-			return resultPromise;
-		},
-
-
-		/**
-		 * Gets all entries
-		 * @returns {Promise<object[]>}
-		 */
-		getEntries: function()
-		{
-			return new Promise(function(resolve) {
-				if (this.isNeedLoad)
-				{
-					this.getLandings().then(function(landings) {
-						var all = Promise.all(landings.map(function(landing) {
-							return this.getBlocks(landing.ID);
-						}, this));
-
-						all.then(function(result) {
-							var value = landings.map(function(item, index) {
-								var resItem = result[index];
-
-								if (isPlainObject(resItem))
-								{
-									var keys = Object.keys(resItem);
-									resItem = keys.map(function(block) {
-										return result[index][block];
-									});
-								}
-
-								item.blocks = resItem;
-								return item;
-							});
-
-							this.lastEntries = value;
-							this.isNeedLoad = false;
-
-							resolve(value);
-						}.bind(this));
+			return this.cache.remember(cacheKey, function() {
+				return BX.Landing.Backend.getInstance()
+					.action("Block::getById", {
+						block: id,
+						params: {
+							edit_mode: true
+						}
+					})
+					.then(function(response) {
+						return response;
 					}.bind(this));
-				}
-				else
-				{
-					resolve(this.lastEntries);
-				}
 			}.bind(this));
 		},
 

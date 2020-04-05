@@ -38,9 +38,13 @@ class Api
 		$this->response = array();
 		
 		if ($accessToken)
+		{
 			$this->accessToken = $accessToken;
+		}
 		else
+		{
 			throw new ArgumentNullException('accessToken');
+		}
 	}
 	
 	/**
@@ -60,7 +64,9 @@ class Api
 		$responseStr = $http->post($url, $params);
 		
 		if (!is_string($responseStr))
+		{
 			return NULL;
+		}
 		
 		$this->response = Json::decode($responseStr);
 		$this->checkError($method, $params);
@@ -105,7 +111,8 @@ class Api
 				$logger->addLog(
 						'Execute error in method ' . $method,
 						array('ERROR' => $er["error_code"] . ' (' . $er["method"] . ') - ' . $er["error_msg"], "PARAMS" => $params,
-							"RESPONSE" => $this->response));
+							"RESPONSE" => $this->response)
+				);
 				$logger->addError($er["error_code"]);
 			}
 		}

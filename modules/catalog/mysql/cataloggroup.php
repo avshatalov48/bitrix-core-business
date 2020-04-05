@@ -35,7 +35,7 @@ class CCatalogGroup extends CAllCatalogGroup
 
 	function Add($arFields)
 	{
-		global $DB, $CACHE_MANAGER, $stackCacheManager;
+		global $DB, $CACHE_MANAGER;
 
 		foreach(GetModuleEvents("catalog", "OnBeforeGroupAdd", true) as $arEvent)
 		{
@@ -103,7 +103,7 @@ class CCatalogGroup extends CAllCatalogGroup
 			$CACHE_MANAGER->Clean("catalog_group_perms");
 		}
 
-		$stackCacheManager->Clear("catalog_discount");
+		Catalog\GroupTable::getEntity()->cleanCache();
 
 		foreach(GetModuleEvents("catalog", "OnGroupAdd", true) as $arEvent)
 		{
@@ -120,7 +120,7 @@ class CCatalogGroup extends CAllCatalogGroup
 
 	function Update($ID, $arFields)
 	{
-		global $DB, $CACHE_MANAGER, $stackCacheManager;
+		global $DB, $CACHE_MANAGER;
 
 		$ID = (int)$ID;
 		if ($ID <= 0)
@@ -201,7 +201,7 @@ class CCatalogGroup extends CAllCatalogGroup
 			$CACHE_MANAGER->Clean("catalog_group_perms");
 		}
 
-		$stackCacheManager->Clear("catalog_discount");
+		Catalog\GroupTable::getEntity()->cleanCache();
 
 		foreach(GetModuleEvents("catalog", "OnGroupUpdate", true) as $arEvent)
 		{
@@ -213,7 +213,7 @@ class CCatalogGroup extends CAllCatalogGroup
 
 	function Delete($ID)
 	{
-		global $DB, $CACHE_MANAGER, $stackCacheManager, $APPLICATION;
+		global $DB, $CACHE_MANAGER, $APPLICATION;
 
 		$ID = (int)$ID;
 		if ($ID <= 0)
@@ -240,12 +240,11 @@ class CCatalogGroup extends CAllCatalogGroup
 					$CACHE_MANAGER->Clean("catalog_group_perms");
 				}
 
-				$stackCacheManager->Clear("catalog_discount");
-
 				$DB->Query("DELETE FROM b_catalog_price WHERE CATALOG_GROUP_ID = ".$ID);
 				$DB->Query("DELETE FROM b_catalog_group2group WHERE CATALOG_GROUP_ID = ".$ID);
 				$DB->Query("DELETE FROM b_catalog_group_lang WHERE CATALOG_GROUP_ID = ".$ID);
 				Catalog\RoundingTable::deleteByPriceType($ID);
+				Catalog\GroupTable::getEntity()->cleanCache();
 				return $DB->Query("DELETE FROM b_catalog_group WHERE ID = ".$ID, true);
 			}
 			else

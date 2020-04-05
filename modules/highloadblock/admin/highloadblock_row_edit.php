@@ -148,7 +148,7 @@ if ($is_update_form && $action === 'delete' && $canDelete && check_bitrix_sessid
 }
 
 // save action
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=='POST' && $canEdit && check_bitrix_sessid())
+if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD'] =='POST' && $canEdit && check_bitrix_sessid())
 {
 	$data = array();
 
@@ -269,7 +269,7 @@ $tabControl->BeginPrologContent();
 
 echo $USER_FIELD_MANAGER->ShowScript();
 
-echo CAdminCalendar::ShowScript();
+CAdminCalendar::ShowScript();
 
 $tabControl->EndPrologContent();
 $tabControl->BeginEpilogContent();

@@ -158,7 +158,7 @@ $db_res = CBPWorkflowTemplateLoader::GetList(
 	$gridSort["sort"],
 	array(
 		"DOCUMENT_TYPE" => $documentType,
-		'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
+		'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
 	),
 	false,
 	false,

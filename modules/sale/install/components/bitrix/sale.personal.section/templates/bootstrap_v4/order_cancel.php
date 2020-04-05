@@ -12,6 +12,12 @@ elseif ($arParams['ORDER_DISALLOW_CANCEL'] === 'Y')
 	LocalRedirect($arResult['PATH_TO_ORDERS']);
 }
 
+global $USER;
+if ($arParams['USE_PRIVATE_PAGE_TO_AUTH'] === 'Y' && !$USER->IsAuthorized())
+{
+	LocalRedirect($arResult['PATH_TO_AUTH_PAGE']);
+}
+
 if (strlen($arParams["MAIN_CHAIN_NAME"]) > 0)
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
@@ -27,6 +33,7 @@ $APPLICATION->IncludeComponent(
 		"AUTH_FORM_IN_TEMPLATE" => 'Y',
 		"SET_TITLE" =>$arParams["SET_TITLE"],
 		"ID" => $arResult["VARIABLES"]["ID"],
+		"CONTEXT_SITE_ID" => $arParams["CONTEXT_SITE_ID"],
 	),
 	$component
 );

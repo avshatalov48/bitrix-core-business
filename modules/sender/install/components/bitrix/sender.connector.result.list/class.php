@@ -129,23 +129,30 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 
 
 		// get rows
-		$connector->setFieldValues($endpoint['FIELDS'] + $this->getDataFilter());
-		$connector->setDataTypeId($this->getDataTypeId());
-		$result = $connector->getResult();
-		$fetchedCount = 0;
-		while ($item = $result->fetchPlain())
+		if (is_array($endpoint['FIELDS']))
 		{
-			$connector->getResultView()->onDraw($item);
-			$this->arResult['ROWS'][] = $item;
-			$fetchedCount++;
-			if ($fetchedCount >= $nav->getLimit())
-			{
-				break;
-			}
-		}
+			$connector->setFieldValues($endpoint['FIELDS'] + $this->getDataFilter());
+			$connector->setDataTypeId($this->getDataTypeId());
+			$result = $connector->getResult();
 
-		$connector->getResultView()->setNav(null);
-		$this->arResult['TOTAL_ROWS_COUNT'] = $connector->getDataCount();
+			$fetchedCount = 0;
+			while ($item = $result->fetchPlain())
+			{
+				$connector->getResultView()->onDraw($item);
+				$this->arResult['ROWS'][] = $item;
+				$fetchedCount++;
+				if ($fetchedCount >= $nav->getLimit())
+				{
+					break;
+				}
+			}
+			$connector->getResultView()->setNav(null);
+			$this->arResult['TOTAL_ROWS_COUNT'] = $connector->getDataCount();
+		}
+		else
+		{
+			$this->arResult['TOTAL_ROWS_COUNT'] = 0;
+		}
 
 		// set rec count to nav
 		$nav->setRecordCount($this->arResult['TOTAL_ROWS_COUNT']);

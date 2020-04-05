@@ -71,7 +71,7 @@ class SaleProductsGiftBasketComponent extends ElementList
 				{
 					$properties = $this->getProperties($offerIblockId);
 					$this->arParams["PROPERTY_CODE_{$offerIblockId}"] = $properties + ['MORE_PHOTO'];
-					$this->arParams["CART_PROPERTIES_{$productIblockId}"] = $properties;
+					$this->arParams["CART_PROPERTIES_{$offerIblockId}"] = $properties;
 					$this->arParams["OFFER_TREE_PROPS_{$offerIblockId}"] = $properties;
 					$this->arParams["ADDITIONAL_PICT_PROP_{$offerIblockId}"] = 'MORE_PHOTO';
 				}

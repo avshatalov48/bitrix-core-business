@@ -8,7 +8,7 @@ use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Sale\Basket;
+use Bitrix\Sale;
 use Bitrix\Sale\BasketPropertiesCollection;
 use Bitrix\Sale\BasketPropertyItem;
 use Bitrix\Sale\Result;
@@ -18,31 +18,43 @@ class BasketProperties extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\BasketPropertyItem::class,
+			Sale\BasketPropertyItem::class,
 			'basketProperty',
 			function($className, $id) {
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
-				$b = \Bitrix\Sale\Internals\BasketPropertyTable::getList([
+				/** @var BasketPropertyItem $basketPropertyClass */
+				$basketPropertyClass = $registry->getBasketPropertyItemClassName();
+
+				$b = $basketPropertyClass::getList([
 					'select'=>['BASKET_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($bRow = $b->fetch())
 				{
-					$r = \Bitrix\Sale\Basket::getList([
+					/** @var Sale\Basket $basketClass */
+					$basketClass = $registry->getBasketClassName();
+
+					$r = $basketClass::getList([
 						'select'=>['ORDER_ID'],
 						'filter'=>['ID'=>$bRow['BASKET_ID']]
 					]);
 
 					if($row = $r->fetch())
 					{
-						$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+						/** @var Sale\Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+
+						$order = $orderClass::load($row['ORDER_ID']);
 						$basket = $order->getBasket()->getItemByBasketCode($bRow['BASKET_ID']);
-						if($basket instanceof \Bitrix\Sale\BasketItem)
+						if ($basket)
 						{
 							$property = $basket->getPropertyCollection()->getItemById($id);
-							if($property instanceof BasketPropertyItem)
+							if ($property)
+							{
 								return $property;
+							}
 						}
 					}
 				}
@@ -98,14 +110,22 @@ class BasketProperties extends Controller
 
 		unset($fields['BASKET_ID']);
 
-		$r = \Bitrix\Sale\Basket::getList([
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$r = $basketClass::getList([
 			'select'=>['ORDER_ID'],
 			'filter'=>['ID'=>$basketId]
 		]);
 
 		if($row = $r->fetch())
 		{
-			$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			$order = $orderClass::load($row['ORDER_ID']);
 			$basketItem = $order->getBasket()->getItemByBasketCode($basketId);
 			if($basketItem instanceof \Bitrix\Sale\BasketItem)
 			{

@@ -9,6 +9,7 @@
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
+import {Utils} from "im.utils";
 
 class UsersModel extends VuexBuilderModel
 {
@@ -21,18 +22,24 @@ class UsersModel extends VuexBuilderModel
 	{
 		return {
 			host: this.getVariable('host', location.protocol+'//'+location.host),
-			collection: {},
-			index: {},
+			collection: {}
 		}
 	}
 
 	getElementState(params = {})
 	{
+		let {
+			id = 0,
+			name = this.getVariable('default.name', ''),
+			firstName = this.getVariable('default.name', ''),
+			lastName = '',
+		} = params;
+
 		return {
-			id: 0,
-			name: this.getVariable('defaultName', ''),
-			firstName: this.getVariable('defaultName', ''),
-			lastName: "",
+			id,
+			name,
+			firstName,
+			lastName,
 			workPosition: "",
 			color: "#048bd0",
 			avatar: "",
@@ -47,12 +54,13 @@ class UsersModel extends VuexBuilderModel
 			idle: false,
 			lastActivityDate: false,
 			mobileLastDate: false,
-			departments: [],
 			absent: false,
+			departments: [],
 			phones: {
 				workPhone: "",
 				personalMobile: "",
-				personalPhone: ""
+				personalPhone: "",
+				innerPhone: "",
 			},
 			init: false
 		};
@@ -61,18 +69,40 @@ class UsersModel extends VuexBuilderModel
 	getGetters()
 	{
 		return {
-			get: state => userId =>
+			get: state => (userId, getTemporary = false) =>
 			{
-				if (!state.collection[userId])
+				userId = parseInt(userId);
+
+				if (userId <= 0)
+				{
+					if (getTemporary)
+					{
+						userId = 0;
+					}
+					else
+					{
+						return null;
+					}
+				}
+
+				if (
+					!getTemporary
+					&& (!state.collection[userId] || !state.collection[userId].init)
+				)
 				{
 					return null;
+				}
+
+				if (!state.collection[userId])
+				{
+					return this.getElementState({id: userId});
 				}
 
 				return state.collection[userId];
 			},
 			getBlank: state => params =>
 			{
-				return this.getElementState();
+				return this.getElementState(params);
 			}
 		}
 	}
@@ -109,6 +139,8 @@ class UsersModel extends VuexBuilderModel
 			},
 			update: (store, payload) =>
 			{
+				payload.id = parseInt(payload.id);
+
 				if (
 					typeof store.state.collection[payload.id] === 'undefined'
 					|| store.state.collection[payload.id].init === false
@@ -118,7 +150,7 @@ class UsersModel extends VuexBuilderModel
 				}
 
 				store.commit('update', {
-					userId : payload.id,
+					id : payload.id,
 					fields : this.validate(Object.assign({}, payload.fields), {host: store.state.host})
 				});
 
@@ -127,6 +159,11 @@ class UsersModel extends VuexBuilderModel
 			delete: (store, payload) =>
 			{
 				store.commit('delete', payload.id);
+				return true;
+			},
+			saveState: (store, payload) =>
+			{
+				store.commit('saveState', {});
 				return true;
 			},
 		}
@@ -139,31 +176,120 @@ class UsersModel extends VuexBuilderModel
 			{
 				for (let element of payload)
 				{
-					if (typeof state.collection[element.id] === 'undefined')
-					{
-						Vue.set(state.collection, element.id, element);
-					}
+					this.initCollection(state, {id: element.id});
 
 					state.collection[element.id] = element;
+
+					this.saveState(state);
 				}
 			},
 			update: (state, payload) =>
 			{
-				if (typeof state.collection[payload.id] === 'undefined')
-				{
-					Vue.set(state.collection, payload.id, this.getElementState());
-				}
+				this.initCollection(state, payload);
 
 				state.collection[payload.id] = Object.assign(
 					state.collection[payload.id],
 					payload.fields
 				);
+
+				this.saveState(state);
 			},
 			delete: (state, payload) =>
 			{
-				delete state.collection[payload.id]
-			}
+				delete state.collection[payload.id];
+				this.saveState(state);
+			},
+			saveState: (state, payload) =>
+			{
+				this.saveState(state);
+			},
 		}
+	}
+
+	initCollection(state, payload)
+	{
+		if (typeof state.collection[payload.id] !== 'undefined')
+		{
+			return true;
+		}
+
+		Vue.set(state.collection, payload.id, this.getElementState());
+
+		return true;
+	}
+
+	getSaveUserList()
+	{
+		if (!this.db)
+		{
+			return [];
+		}
+
+		if (!this.store.getters['messages/getSaveUserList'])
+		{
+			return [];
+		}
+
+		let list = this.store.getters['messages/getSaveUserList']();
+		if (!list)
+		{
+			return [];
+		}
+
+		return list;
+	}
+
+	getSaveTimeout()
+	{
+		return 250;
+	}
+
+	saveState(state)
+	{
+		if (!this.isSaveAvailable())
+		{
+			return false;
+		}
+
+		super.saveState(() =>
+		{
+			let list = this.getSaveUserList();
+			if (!list)
+			{
+				return false;
+			}
+
+			let storedState = {
+				collection: {},
+			};
+
+			let exceptionList = {
+				absent: true,
+				idle: true,
+				mobileLastDate: true,
+				lastActivityDate: true,
+			};
+
+			for (let chatId in list)
+			{
+				if (!list.hasOwnProperty(chatId))
+				{
+					continue;
+				}
+
+				list[chatId].forEach(userId =>
+				{
+					if (!state.collection[userId])
+					{
+						return false;
+					}
+
+					storedState.collection[userId] = this.cloneState(state.collection[userId], exceptionList);
+				});
+			}
+
+			return storedState;
+		});
 	}
 
 	validate(fields, options = {})
@@ -242,13 +368,24 @@ class UsersModel extends VuexBuilderModel
 
 		if (typeof fields.avatar === 'string')
 		{
-			if (!fields.avatar || fields.avatar.startsWith('http'))
+			let avatar;
+
+			if (!fields.avatar || fields.avatar.endsWith('/js/im/images/blank.gif'))
 			{
-				result.avatar = fields.avatar;
+				avatar = '';
+			}
+			else if (fields.avatar.startsWith('http'))
+			{
+				avatar = fields.avatar;
 			}
 			else
 			{
-				result.avatar = options.host+fields.avatar;
+				avatar = options.host + fields.avatar;
+			}
+
+			if (avatar)
+			{
+				result.avatar = encodeURI(avatar);
 			}
 		}
 
@@ -298,58 +435,28 @@ class UsersModel extends VuexBuilderModel
 
 		if (typeof fields.idle !== "undefined")
 		{
-			if (fields.idle instanceof Date)
-			{
-				result.idle = fields.idle;
-			}
-			else if (typeof fields.idle === "string")
-			{
-				result.idle = new Date(fields.idle);
-			}
-			else
-			{
-				result.idle = false;
-			}
+			result.idle = Utils.date.cast(fields.idle, false);
 		}
-
 		if (typeof fields.last_activity_date !== "undefined")
 		{
 			fields.lastActivityDate = fields.last_activity_date;
 		}
 		if (typeof fields.lastActivityDate !== "undefined")
 		{
-			if (fields.lastActivityDate instanceof Date)
-			{
-				result.lastActivityDate = fields.lastActivityDate;
-			}
-			else if (typeof fields.lastActivityDate === "string")
-			{
-				result.lastActivityDate = new Date(fields.lastActivityDate);
-			}
-			else
-			{
-				result.lastActivityDate = false;
-			}
+			result.lastActivityDate = Utils.date.cast(fields.lastActivityDate, false);
 		}
-
 		if (typeof fields.mobile_last_date !== "undefined")
 		{
 			fields.mobileLastDate = fields.mobile_last_date;
 		}
 		if (typeof fields.mobileLastDate !== "undefined")
 		{
-			if (fields.mobileLastDate instanceof Date)
-			{
-				result.mobileLastDate = fields.mobileLastDate;
-			}
-			else if (typeof fields.mobileLastDate === "string")
-			{
-				result.mobileLastDate = new Date(fields.mobileLastDate);
-			}
-			else
-			{
-				result.mobileLastDate = false;
-			}
+			result.mobileLastDate = Utils.date.cast(fields.mobileLastDate, false);
+		}
+
+		if (typeof fields.absent !== "undefined")
+		{
+			result.absent = Utils.date.cast(fields.absent, false);
 		}
 
 		if (typeof fields.departments !== 'undefined')
@@ -369,24 +476,10 @@ class UsersModel extends VuexBuilderModel
 			}
 		}
 
-		if (typeof fields.absent !== "undefined")
+		if (typeof fields.phones === 'object' && fields.phones)
 		{
-			if (fields.absent instanceof Date)
-			{
-				result.absent = fields.absent;
-			}
-			else if (typeof fields.absent === "string")
-			{
-				result.absent = new Date(fields.absent);
-			}
-			else
-			{
-				result.absent = false;
-			}
-		}
+			result.phones = {};
 
-		if (typeof fields.phones === 'object' && !fields.phones)
-		{
 			if (typeof fields.phones.work_phone !== "undefined")
 			{
 				fields.phones.workPhone = fields.phones.work_phone;
@@ -412,6 +505,15 @@ class UsersModel extends VuexBuilderModel
 			if (typeof fields.phones.personalPhone === 'string' || typeof fields.phones.personalPhone === 'number')
 			{
 				result.phones.personalPhone = fields.phones.personalPhone.toString();
+			}
+
+			if (typeof fields.phones.inner_phone !== "undefined")
+			{
+				fields.phones.innerPhone = fields.phones.inner_phone;
+			}
+			if (typeof fields.phones.innerPhone === 'string' || typeof fields.phones.innerPhone === 'number')
+			{
+				result.phones.innerPhone = fields.phones.innerPhone.toString();
 			}
 		}
 

@@ -70,9 +70,10 @@ class QueryCount
 		$resultDb = Helper::prepareQuery($query, $dataTypeId)->exec();
 		while ($row = $resultDb->fetch())
 		{
+			$ignoredTypes = [];
 			foreach (self::getTypes() as $typeId => $field)
 			{
-				$fieldName = 'COUNT_' . $field['DATA_COLUMN'];
+				$fieldName = $field['COLUMN_ALIAS'] ? $field['COLUMN_ALIAS'] : 'COUNT_' . $field['DATA_COLUMN'];
 				if (!isset($row[$fieldName]))
 				{
 					continue;
@@ -84,6 +85,16 @@ class QueryCount
 					$result[$type] = 0;
 				}
 				$result[$type] += (int) $row[$fieldName];
+
+				if ($field['IGNORE_TYPES'] && $row[$fieldName] > 0)
+				{
+					$ignoredTypes = array_merge($ignoredTypes, $field['IGNORE_TYPES']);
+				}
+			}
+			foreach(array_unique($ignoredTypes) as $ignoreTypeId)
+			{
+				$ignoreType = Recipient\Type::getCode($ignoreTypeId);
+				unset($result[$ignoreType]);
 			}
 		}
 
@@ -109,7 +120,21 @@ class QueryCount
 
 			$entityName = strtoupper($query->getEntity()->getName());
 
-			$fieldName = 'COUNT_' . $field['DATA_COLUMN'];
+			$useEmptyValue = false;
+			if (strpos($field['DATA_COLUMN'], '.') > 0)
+			{
+				$refFieldName = array_shift(explode('.', $field['DATA_COLUMN']));
+				if (!array_key_exists($refFieldName, $query->getRuntimeChains()))
+				{
+					$useEmptyValue = true;
+				}
+			}
+			if (!empty($field['ENTITIES']) && !in_array($entityName, $field['ENTITIES']))
+			{
+				$useEmptyValue = true;
+			}
+
+			$fieldName = $field['COLUMN_ALIAS'] ? $field['COLUMN_ALIAS'] : 'COUNT_' . $field['DATA_COLUMN'];
 			$fields[] = $fieldName;
 
 			if ($field['HAS'])
@@ -118,6 +143,13 @@ class QueryCount
 					$fieldName,
 					"SUM(CASE WHEN %s = 'Y' THEN 1 ELSE 0 END)",
 					$field['HAS']
+				));
+			}
+			elseif ($useEmptyValue)
+			{
+				$query->registerRuntimeField(new Entity\ExpressionField(
+					$fieldName,
+					"0"
 				));
 			}
 			else
@@ -145,8 +177,42 @@ class QueryCount
 			Recipient\Type::EMAIL => ['DATA_COLUMN' => 'EMAIL', 'HAS' => 'HAS_EMAIL'],
 			Recipient\Type::PHONE => ['DATA_COLUMN' => 'PHONE', 'HAS' => 'HAS_PHONE'],
 			Recipient\Type::IM => ['DATA_COLUMN' => 'IMOL', 'HAS' => 'HAS_IMOL'],
-			Recipient\Type::CRM_CONTACT_ID => ['DATA_COLUMN' => 'CONTACT_ID', 'HAS' => null],
-			Recipient\Type::CRM_COMPANY_ID => ['DATA_COLUMN' => 'COMPANY_ID', 'HAS' => null],
+			Recipient\Type::CRM_CONTACT_ID => [
+				'DATA_COLUMN' => 'CONTACT_ID',
+				'HAS' => null
+			],
+			Recipient\Type::CRM_DEAL_PRODUCT_CONTACT_ID => [
+				'DATA_COLUMN' => 'PROD_DEAL.ID',
+				'COLUMN_ALIAS' => 'COUNT_CONTACT_DEAL_PRODUCT',
+				'HAS' => null,
+				'IGNORE_TYPES' => [Recipient\Type::CRM_CONTACT_ID],
+				'ENTITIES' => ['CONTACT']
+			],
+			Recipient\Type::CRM_ORDER_PRODUCT_CONTACT_ID => [
+				'DATA_COLUMN' => 'PROD_CRM_ORDER.ID',
+				'COLUMN_ALIAS' => 'COUNT_CONTACT_ORDER_PRODUCT',
+				'HAS' => null,
+				'IGNORE_TYPES' => [Recipient\Type::CRM_CONTACT_ID],
+				'ENTITIES' => ['CONTACT']
+			],
+			Recipient\Type::CRM_COMPANY_ID => [
+				'DATA_COLUMN' => 'COMPANY_ID',
+				'HAS' => null
+			],
+			Recipient\Type::CRM_DEAL_PRODUCT_COMPANY_ID => [
+				'DATA_COLUMN' => 'PROD_DEAL.ID',
+				'COLUMN_ALIAS' => 'COUNT_COMPANY_DEAL_PRODUCT',
+				'HAS' => null,
+				'IGNORE_TYPES' => [Recipient\Type::CRM_COMPANY_ID],
+				'ENTITIES' => ['COMPANY']
+			],
+			Recipient\Type::CRM_ORDER_PRODUCT_COMPANY_ID => [
+				'DATA_COLUMN' => 'PROD_CRM_ORDER.ID',
+				'COLUMN_ALIAS' => 'COUNT_COMPANY_ORDER_PRODUCT',
+				'HAS' => null,
+				'IGNORE_TYPES' => [Recipient\Type::CRM_COMPANY_ID],
+				'ENTITIES' => ['COMPANY']
+			],
 		);
 	}
 }

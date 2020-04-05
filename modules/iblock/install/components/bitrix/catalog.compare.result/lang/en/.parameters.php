@@ -27,8 +27,6 @@ $MESS["CP_BCCR_OFFERS_FIELD_CODE"] = "SKU Fields";
 $MESS["CP_BCCR_OFFERS_PROPERTY_CODE"] = "SKU Properties";
 $MESS["CP_BCCR_CONVERT_CURRENCY"] = "Use only one currency to show prices";
 $MESS["CP_BCCR_CURRENCY_ID"] = "Convert all prices to currency";
-$MESS["CP_BCCR_HIDE_NOT_AVAILABLE"] = "Hide items not in stock";
-$MESS["HIDE_NOT_AVAILABLE_TIP"] = "If checked: the products whose stock at all the warehouses is zero or less will be hidden; stock control will be enabled; out-of-stock items will be available for purchase.";
 $MESS["IBLOCK_ACTIONS"] = "Action settings";
 $MESS["IBLOCK_BASKET"] = "Adding items to shopping cart";
 $MESS["IBLOCK_TYPE_TIP"] = "Select here one of existing information block types. Clicking <b>ok</b> will load information blocks of the selected type.";
@@ -55,4 +53,5 @@ $MESS["AJAX_OPTION_HISTORY_TIP"] = "Allows \"Back\" and \"Forward\" browser butt
 $MESS["PRICE_VAT_INCLUDE_TIP"] = "Checking this option specifies to include tax in the display prices.";
 $MESS["USE_PRICE_COUNT_TIP"] = "Specifies to show prices of all price types.";
 $MESS["SHOW_PRICE_COUNT_TIP"] = "If the \"Use price ranges\" option is unchecked (meaning only one price is shown for the product) but there are quantity based pricing products, specify the quantity to pick a correct price. This option has no effect for products with fixed price.";
+$MESS["CP_BCCR_HIDE_NOT_AVAILABLE_EXT"] = "Hide out-of-stock products";
 ?>

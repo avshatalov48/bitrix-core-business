@@ -176,12 +176,12 @@ class YandexStatTable extends Entity\DataManager
 
 	public static function loadBannerStat($bannerId, $dateStart, $dateFinish)
 	{
-		$liveEngine = new YandexDirect();
+		$directEngine = new YandexDirect();
 
 		$dbRes = YandexBannerTable::getList(array(
 			'filter' => array(
 				'=ID' => $bannerId,
-				'=ENGINE_ID' => $liveEngine->getId()
+				'=ENGINE_ID' => $directEngine->getId()
 			),
 			'select' => array(
 				'ID', 'CAMPAIGN_ID',
@@ -192,10 +192,10 @@ class YandexStatTable extends Entity\DataManager
 		$banner = $dbRes->fetch();
 		if($banner)
 		{
-			$result = static::loadStat($liveEngine, $banner['CAMPAIGN_XML_ID'], $dateStart, $dateFinish);
+			$result = static::loadStat($directEngine, $banner['CAMPAIGN_XML_ID'], $dateStart, $dateFinish);
 			if($result['Stat'])
 			{
-				static::processStatsResult($banner['CAMPAIGN_ID'], $result, $liveEngine);
+				static::processStatsResult($banner['CAMPAIGN_ID'], $result, $directEngine);
 				return true;
 			}
 		}
@@ -205,12 +205,12 @@ class YandexStatTable extends Entity\DataManager
 
 	public static function loadCampaignStat($campaignId, $dateStart, $dateFinish)
 	{
-		$liveEngine = new YandexDirect();
+		$directEngine = new YandexDirect();
 
 		$dbRes = YandexCampaignTable::getList(array(
 			'filter' => array(
 				'=ID' => $campaignId,
-				'=ENGINE_ID' => $liveEngine->getId()
+				'=ENGINE_ID' => $directEngine->getId()
 			),
 			'select' => array(
 				'ID', 'XML_ID'
@@ -220,10 +220,10 @@ class YandexStatTable extends Entity\DataManager
 		$campaign = $dbRes->fetch();
 		if($campaign)
 		{
-			$result = static::loadStat($liveEngine, $campaign['XML_ID'], $dateStart, $dateFinish);
+			$result = static::loadStat($directEngine, $campaign['XML_ID'], $dateStart, $dateFinish);
 			if($result['Stat'])
 			{
-				static::processStatsResult($campaignId, $result, $liveEngine);
+				static::processStatsResult($campaignId, $result, $directEngine);
 				return true;
 			}
 		}
@@ -231,7 +231,7 @@ class YandexStatTable extends Entity\DataManager
 		return false;
 	}
 
-	protected function loadStat(YandexDirect $liveEngine, $campaignXmlId, $dateStart, $dateFinish, $skipCurrency = false)
+	protected function loadStat(YandexDirect $directEngine, $campaignXmlId, $dateStart, $dateFinish, $skipCurrency = false)
 	{
 		$dateStart = new Date($dateStart);
 		$dateFinish = new Date($dateFinish);
@@ -254,7 +254,7 @@ class YandexStatTable extends Entity\DataManager
 				$baseCurrency = 'RUB';
 			}
 
-			if(in_array($baseCurrency, $liveEngine->allowedCurrency))
+			if(in_array($baseCurrency, $directEngine->allowedCurrency))
 			{
 				$currency = $baseCurrency;
 			}
@@ -267,14 +267,14 @@ class YandexStatTable extends Entity\DataManager
 
 		try
 		{
-			$result = $liveEngine->getBannerStats($queryData);
+			$result = $directEngine->getBannerStats($queryData);
 			$result['Currency'] = $currency;
 		}
 		catch(YandexDirectException $e)
 		{
 			if($currency != '' && $e->getCode() == YandexDirect::ERROR_WRONG_CURRENCY)
 			{
-				$result = static::loadStat($liveEngine, $campaignXmlId, $dateStart, $dateFinish, true);
+				$result = static::loadStat($directEngine, $campaignXmlId, $dateStart, $dateFinish, true);
 			}
 			else
 			{
@@ -285,7 +285,7 @@ class YandexStatTable extends Entity\DataManager
 		return $result;
 	}
 
-	protected function processStatsResult($campaignId, array $result, YandexDirect $liveEngine)
+	protected function processStatsResult($campaignId, array $result, YandexDirect $directEngine)
 	{
 		if($result['Stat'])
 		{
@@ -300,7 +300,7 @@ class YandexStatTable extends Entity\DataManager
 				$dbRes = YandexBannerTable::getList(array(
 					'filter' => array(
 						'=XML_ID' => array_values(array_unique($bannerIds)),
-						'=ENGINE_ID' => $liveEngine->getId()
+						'=ENGINE_ID' => $directEngine->getId()
 					),
 					'select' => array(
 						'ID', 'XML_ID'

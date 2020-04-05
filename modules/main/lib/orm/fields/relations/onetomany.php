@@ -24,6 +24,11 @@ class OneToMany extends Relation
 	/** @var string */
 	protected $referenceName;
 
+	/** @var int */
+	protected $cascadeSavePolicy = CascadePolicy::FOLLOW;
+
+	protected $cascadeDeletePolicy = CascadePolicy::SET_NULL; // follow | no_action | set_null
+
 	public function __construct($name, $referenceEntity, $referenceName)
 	{
 		$this->referenceName = $referenceName;

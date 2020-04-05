@@ -1065,19 +1065,27 @@ input.calendar-resbook-error{
 	padding-bottom: 9px;
 }
 
+.calendar-resbook-webform-block-title-timezone {
+	font-style: italic;
+}
+
 .calendar-resbook-webform-block-input {
 	width: 100%;
 	outline: none;
-	border: 1px solid transparent;
+	border: 1px solid #ccc;
 	background: #f7f7f7;
-	color: #333;
-	border-radius: 3px;
-	font-size: 17px;
+	border-radius: 2px;
 	line-height: 23px;
-	padding: 7px 35px 7px 13px;
 	box-sizing: border-box;
 	position: relative;
-	transition: border-color .2s ease;
+	font-size: 15px;
+	color: #333;
+	padding: 7px 35px 8px 13px;
+	transition: border-color .5s ease-in-out;
+}
+
+.calendar-resbook-webform-block-input:hover {
+	border-color: #5ba0da;
 }
 
 .calendar-resbook-webform-block + .calendar-resbook-webform-block {
@@ -1105,17 +1113,15 @@ input.calendar-resbook-error{
 	overflow: hidden;
 }
 
-.calendar-resbook-webform-block-date-range-static-wrap
-{
+.calendar-resbook-webform-block-date-range-static-wrap {
 	overflow: hidden;
 	position: relative;
 }
 
 .calendar-resbook-webform-block-date-range-inner-wrap {
 	display: inline-flex;
+	margin-left: -5px;
 }
-
-
 
 .calendar-resbook-webform-block-date-item {
 	padding: 0 5px;
@@ -1171,14 +1177,14 @@ input.calendar-resbook-error{
 	border: 1px solid transparent;
 }
 
-.calendar-resbook-webform-block-time-static-wrap
-{
+.calendar-resbook-webform-block-time-static-wrap {
 	overflow: hidden;
 	position: relative;
 }
 
 .calendar-resbook-webform-block-time-inner-wrap {
 	display: inline-flex;
+	margin-left: -4px;
 }
 
 .calendar-resbook-webform-block-col-title {
@@ -1272,7 +1278,7 @@ input.calendar-resbook-error{
 .calendar-resbook-webform-block-result-inner {
 	position: relative;
 	display: flex;
-	padding: 10px 19px 9px 41px;
+	padding: 10px 12px 9px 38px;
 	border: 1px solid #c2eefc;
 	border-radius: 35px;
 	color: #333;
@@ -1304,6 +1310,20 @@ input.calendar-resbook-error{
 	color: #818892;
 	margin-right: 8px;
 	flex-shrink: 0;
+}
+
+.calendar-resbook-webform-block-result-timezone {
+	color: #a8adb4;
+	padding-left: 4px;
+	position: relative;
+}
+
+.calendar-resbook-webform-block-result-timezone:before {
+	content: '(';
+}
+
+.calendar-resbook-webform-block-result-timezone:after {
+	content: ')';
 }
 
 .calendar-resbook-webform-block-arrow {
@@ -1521,20 +1541,19 @@ input.calendar-resbook-error{
 .calendar-resbook-webform-block-input-dropdown {
 	cursor: pointer;
 	padding-right: 35px;
-	background: #f7f7f7 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2224%22%20viewBox%3D%220%200%2023%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%20%20%20%20%3Cpath%20opacity%3D%220.6%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M13.8992%209.76807L13%2010.6672L16.7681%2014.4353L17.6672%2015.3345L18.5664%2014.4353L22.3345%2010.6672L21.4353%209.76807L17.6672%2013.5361L13.8992%209.76807Z%22%20fill%3D%22%23525C69%22/%3E%0A%3C/svg%3E)
-				no-repeat top 7px right 10px;
+	background: #f9f9f9 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2211pt%22%20height%3D%2211pt%22%20viewBox%3D%220%200%2010%2010%22%3E%3Cpath%20d%3D%22M2.32%201.43h3.93c.047%200%20.09.015.125.05a.186.186%200%200%201%20.055.133V6.43H7.5c.148%200%20.258.066.324.207a.326.326%200%200%201-.05.383L5.987%209.164a.335.335%200%200%201-.273.121.33.33%200%200%201-.274-.12L3.656%207.02a.337.337%200%200%201-.05-.383.334.334%200%200%201%20.324-.207H5V2.855H3.215a.205.205%200%200%201-.14-.058l-.891-1.074c-.051-.051-.059-.114-.024-.188a.164.164%200%200%201%20.16-.105zm0%200%22%20fill%3D%22%23ccc%22/%3E%3C/svg%3E) no-repeat top 12px right 11px;
 }
 
 .calendar-resbook-webform-block-input-dropdown:before {
 	content: '';
 	position: absolute;
-	top: 7px;
+	top: 4px;
 	bottom: 0;
-	right: 30px;
+	right: 36px;
 	width: 1px;
-	opacity: .6;
-	height: calc(100% - 14px);
-	background: #d8d8d8;
+	opacity: 1;
+	height: calc(100% - 8px);
+	background: #ccc;
 }
 
 .calendar-resbook-webform-block-error .calendar-resbook-webform-block-input {
@@ -1544,7 +1563,6 @@ input.calendar-resbook-error{
 .calendar-resbook-webform-block-error .calendar-resbook-webform-block-time {
 	border-color: #ff5752;
 	border-radius: 3px;
-
 }
 
 .calendar-resbook-webform-block-error-text {
@@ -1555,7 +1573,8 @@ input.calendar-resbook-error{
 	display: block;
 }
 
-.calendar-resbook-webform-block-result-error .calendar-resbook-webform-block-result-inner {
+.calendar-resbook-webform-block-result-error .calendar-resbook-webform-block-result-inner,
+.calendar-resbook-webform-block-result-error .calendar-resbook-webform-block-result-timezone {
 	border-color: transparent;
 	color: #d2000d;
 	background: #ffe2e2;
@@ -1796,6 +1815,15 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 	color: rgba(255, 255, 255, .95);
 }
 
+.calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-input {
+	border-color: transparent;
+	border-radius: 3px;
+	font-size: 17px;
+	padding: 7px 35px 7px 13px;
+	color: #333;
+	transition-duration: .2s;
+}
+
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-input,
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-date-item-inner,
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-col-item-inner,
@@ -1817,7 +1845,8 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-btn-notice,
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-col-title,
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-title-text,
-.calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-date-month {
+.calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-date-month,
+.calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-result-timezone {
 	color: #fff;
 }
 
@@ -1881,7 +1910,15 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 }
 
 .calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-input-dropdown {
-	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2224%22%20viewBox%3D%220%200%2023%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.5%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M13.8992%209.76807L13%2010.6672L16.7681%2014.4353L17.6672%2015.3345L18.5664%2014.4353L22.3345%2010.6672L21.4353%209.76807L17.6672%2013.5361L13.8992%209.76807Z%22%20fill%3D%22%23ffffff%22/%3E%0A%3Crect%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%23none%22/%3E%0A%3C/svg%3E%0A)
+	background: rgba(255, 255, 255, .15) url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2224%22%20viewBox%3D%220%200%2023%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.5%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M13.8992%209.76807L13%2010.6672L16.7681%2014.4353L17.6672%2015.3345L18.5664%2014.4353L22.3345%2010.6672L21.4353%209.76807L17.6672%2013.5361L13.8992%209.76807Z%22%20fill%3D%22%23ffffff%22/%3E%0A%3Crect%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%23none%22/%3E%0A%3C/svg%3E%0A) no-repeat top 7px right 10px;
+}
+
+.calendar-resbook-webform-wrapper-dark .calendar-resbook-webform-block-input-dropdown:before {
+	background: #d8d8d8;
+	opacity: .6;
+	right: 30px;
+	top: 7px;
+	height: calc(100% - 14px);
 }
 
 .disabled {
@@ -1906,18 +1943,29 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 }
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-input {
-	padding: 10px 12px;
+	padding: 12px 12px 10px;
 	height: 38px;
 	border: 1px solid #caced7;
 	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
 	border-radius: 0;
 	background-color: #fff;
+	color: #333;
+	transition-duration: .2s;
 }
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-input-dropdown {
 	padding-right: 35px;
 	min-height: 38px;
 	height: 100%;
+	background: #f7f7f7 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2224%22%20viewBox%3D%220%200%2023%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%20%20%20%20%3Cpath%20opacity%3D%220.6%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M13.8992%209.76807L13%2010.6672L16.7681%2014.4353L17.6672%2015.3345L18.5664%2014.4353L22.3345%2010.6672L21.4353%209.76807L17.6672%2013.5361L13.8992%209.76807Z%22%20fill%3D%22%23525C69%22/%3E%0A%3C/svg%3E) no-repeat top 7px right 10px;
+}
+
+.calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-input-dropdown:before {
+	background: #d8d8d8;
+	opacity: .6;
+	right: 30px;
+	top: 7px;
+	height: calc(100% - 14px);
 }
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-date-item-inner {
@@ -1936,6 +1984,10 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-date-item-select .calendar-resbook-webform-block-date-item-inner {
 	border-color: transparent;
+}
+
+.calendar-resbook-form-popup .menu-popup-item-text {
+	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .popup-window-with-titlebar.calendar-resbook-webform-settings-popup-window .popup-window-content {
@@ -2040,14 +2092,35 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 }
 
 .page-theme-image .crm-webform-field-resourcebooking .crm-webform-label-content,
-.page-theme-image .crm-webform-resourcebooking-wrap-live {
+.page-theme-image .crm-webform-resourcebooking-wrap-live,
+.page-theme-transparent .crm-webform-field-resourcebooking .crm-webform-label-content,
+.page-theme-transparent .crm-webform-resourcebooking-wrap-live,
+.page-theme-colored .crm-webform-field-resourcebooking .crm-webform-label-content,
+.page-theme-colored .crm-webform-resourcebooking-wrap-live {
 	background: transparent;
 }
 
-.page-theme-image .calendar-resbook-webform-block-title {
+.page-theme-image .calendar-resbook-webform-block-title,
+.page-theme-transparent .calendar-resbook-webform-block-title,
+.page-theme-colored .calendar-resbook-webform-block-title {
 	color: #333;
 }
 
-.page-theme-image .calendar-resbook-webform-block-result-inner {
+.page-theme-image .calendar-resbook-webform-block-result-inner,
+.page-theme-transparent .calendar-resbook-webform-block-result-inner,
+.page-theme-colored .calendar-resbook-webform-block-result-inner {
 	background: #fff;
+}
+
+.calendar-resbook-webform-timezone-title {
+	display: inline-block;
+	margin-left: 10px;
+	font-size: 90%;
+}
+
+.calendar-resbook-empty-input {
+	width: 1px!important;
+	position: absolute!important;
+	border: none!important;
+	opacity: 0!important;
 }

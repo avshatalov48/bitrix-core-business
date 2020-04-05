@@ -2063,9 +2063,16 @@ class CBPVirtualDocument
 
 		$arResult = array();
 
-		$dbUsersList = CUser::GetList(($b = "ID"), ($o = "ASC"), array("GROUPS_ID" => $group, "ACTIVE" => "Y"));
+		$dbUsersList = CUser::GetList(
+			($b = "ID"),
+			($o = "ASC"),
+			['GROUPS_ID' => $group, 'ACTIVE' => 'Y', 'IS_REAL_USER' => true],
+			['FIELDS' => ['ID']]
+		);
 		while ($arUser = $dbUsersList->Fetch())
+		{
 			$arResult[] = $arUser["ID"];
+		}
 		return $arResult;
 	}
 

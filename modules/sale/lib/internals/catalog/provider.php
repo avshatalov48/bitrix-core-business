@@ -135,13 +135,15 @@ final class Provider
 
 		$quantity = $basketItem->getQuantity();
 		$productId = $basketItem->getProductId();
-
-		$deltaQuantity = $basketItem->getDeltaQuantity();
-
 		$poolQuantity = 0;
 
 		if ($order)
 		{
+			$fields = $basketItem->getFields();
+			$originalValues = $fields->getOriginalValues();
+			$values = $fields->getValues();
+			$deltaQuantity = floatval($values['QUANTITY']) - floatval($originalValues['QUANTITY']);
+
 			if ($deltaQuantity <= 0)
 			{
 				$result->setData(
@@ -207,7 +209,6 @@ final class Provider
 
 		if (isset($resultList[$productId]))
 		{
-//			$availableQuantity = $deltaQuantity;
 			$result->setData(
 				array(
 					'AVAILABLE_QUANTITY' => $resultList[$productId] - $poolQuantity
@@ -848,7 +849,7 @@ final class Provider
 			/** @var Sale\BasketItem $basketItem */
 			if (!$basketItem = $shipmentItem->getBasketItem())
 			{
-				throw new Main\ObjectNotFoundException('Entity "BasketItem" not found');
+				continue;
 			}
 
 			$productId = $basketItem->getProductId();
@@ -1317,13 +1318,6 @@ final class Provider
 			/** @var Sale\ShipmentItemStore $shipmentItemStore */
 			foreach ($shipmentItemStoreCollection as $shipmentItemStore)
 			{
-				/** @var Sale\BasketItem $basketItem */
-				if (!$basketItem = $shipmentItemStore->getBasketItem())
-				{
-					throw new Main\ObjectNotFoundException('Entity "BasketItem" not found');
-				}
-
-				//				$basketCode = $basketItem->getBasketCode();
 				$productId = $basketItem->getProductId();
 
 				$storeId = $shipmentItemStore->getStoreId();

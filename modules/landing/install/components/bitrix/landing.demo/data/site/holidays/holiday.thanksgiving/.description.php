@@ -9,7 +9,7 @@ $buttons = array_keys($buttons);
 
 return array(
 	//	'code' => 'holiday.thanksgiving',
-	'name' => 'Thanksgiving day',
+	'name' => 'Thanksgiving Day',
 	'description' => "It's the day to be thankful. It's the time to add more colors to the palette of your page.
 Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your clients will enjoy it!",
 	'preview' => '',
@@ -57,7 +57,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			'YACOUNTER_USE' => 'N',
 			'HEADBLOCK_USE' => 'N',
 		),
-		'TITLE' => 'Thanksgiving day',
+		'TITLE' => 'Thanksgiving Day',
 		'LANDING_ID_INDEX' => 'holiday.thanksgiving',
 		'LANDING_ID_404' => '0',
 	),

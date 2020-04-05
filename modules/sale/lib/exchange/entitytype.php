@@ -12,6 +12,7 @@ class EntityType
     const PAYMENT_CARD_TRANSACTION = 5;
     const PROFILE = 6;
     const USER_PROFILE = 7;
+    const USER_PROFILE_CONTACT_COMPANY = 13;
     const INVOICE = 8;
 	const INVOICE_SHIPMENT = 9;
 	const INVOICE_PAYMENT_CASH = 10;
@@ -19,7 +20,7 @@ class EntityType
 	const INVOICE_PAYMENT_CARD_TRANSACTION = 12;
 
     const FIRST = 1;
-    const LAST = 12;
+    const LAST = 13;
 
     const ORDER_NAME = 'ORDER';
     const SHIPMENT_NAME = 'SHIPMENT';
@@ -28,6 +29,7 @@ class EntityType
     const PAYMENT_CARD_TRANSACTION_NAME = 'PAYMENT_CARD_TRANSACTION';
     const PROFILE_NAME = 'PROFILE';
 	const USER_PROFILE_NAME = 'USER_PROFILE';
+	const USER_PROFILE_CONTACT_COMPANY_NAME = 'USER_PROFILE_CONTACT_COMPANY';
 	const INVOICE_NAME = 'INVOICE';
 	const INVOICE_SHIPMENT_NAME = 'INVOICE_SHIPMENT';
 	const INVOICE_PAYMENT_CASH_NAME = 'INVOICE_PAYMENT_CASH';
@@ -84,6 +86,9 @@ class EntityType
 
 			case self::USER_PROFILE_NAME:
 				return self::USER_PROFILE;
+
+			case self::USER_PROFILE_CONTACT_COMPANY_NAME:
+				return self::USER_PROFILE_CONTACT_COMPANY;
 
 			case self::INVOICE_NAME:
 				return self::INVOICE;
@@ -145,6 +150,9 @@ class EntityType
 			case self::USER_PROFILE:
 				return self::USER_PROFILE_NAME;
 
+			case self::USER_PROFILE_CONTACT_COMPANY:
+				return self::USER_PROFILE_CONTACT_COMPANY_NAME;
+
 			case self::INVOICE:
 				return self::INVOICE_NAME;
 
@@ -182,6 +190,7 @@ class EntityType
                 self::PAYMENT_CARD_TRANSACTION => GetMessage('SALE_TYPE_PAYMENT_CARD_TRANSACTION'),
                 self::PROFILE => GetMessage('SALE_TYPE_PROFILE'),
                 self::USER_PROFILE => GetMessage('SALE_TYPE_USER_PROFILE'),
+                self::USER_PROFILE_CONTACT_COMPANY => GetMessage('SALE_TYPE_USER_PROFILE'),
                 self::INVOICE => GetMessage('SALE_TYPE_INVOICE'),
                 self::INVOICE_SHIPMENT => GetMessage('SALE_TYPE_INVOICE_SHIPMENT'),
                 self::INVOICE_PAYMENT_CASH => GetMessage('SALE_TYPE_INVOICE_PAYMENT_CASH'),

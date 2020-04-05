@@ -7,7 +7,6 @@ use Bitrix\Sale\Delivery;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Requests;
-use Bitrix\Sale\Location\Exception;
 use Sale\Handlers\Delivery\AdditionalHandler;
 
 Loc::loadMessages(__FILE__);
@@ -19,6 +18,7 @@ Loc::loadMessages(__FILE__);
  */
 abstract class Base
 {
+	/** @var HttpClient */
 	protected $httpClient = null;
 	protected $url = "https://otpravka-api.pochta.ru";
 
@@ -32,18 +32,12 @@ abstract class Base
 	 * Base constructor.
 	 * @param Delivery\Services\Base $deliveryService
 	 */
-	public function __construct(Delivery\Services\Base $deliveryService)
+	public function __construct(Delivery\Services\Base $deliveryService, HttpClient $httpClient)
 	{
 		$this->deliveryService = $deliveryService;
 		$deliveryConfig = $deliveryService->getConfigValues();
 
-		$this->httpClient = new HttpClient(array(
-			"version" => "1.1",
-			"socketTimeout" => 30,
-			"streamTimeout" => 30,
-			"redirect" => true,
-			"redirectMax" => 5,
-		));
+		$this->httpClient = $httpClient;
 
 		$this->httpClient->setHeader("Authorization", "AccessToken ".$deliveryConfig['MAIN']['OTPRAVKA_AUTH_TOKEN']);
 		$this->httpClient->setHeader("X-User-Authorization", "Basic ".$deliveryConfig['MAIN']['OTPRAVKA_AUTH_KEY']);
@@ -109,7 +103,9 @@ abstract class Base
 		$httpRes = false;
 
 		if(@$this->httpClient->query($this->type, $this->getUrl(), $jsonData))
+		{
 			$httpRes = $this->httpClient->getResult();
+		}
 
 		$errors = $this->httpClient->getError();
 
@@ -136,7 +132,10 @@ abstract class Base
 			{
 				$response = Json::decode($httpRes);
 			}
-			catch(Exception $e){}
+			catch(\Exception $e)
+			{
+				$result->addError(new Error($e->getMessage()));
+			}
 
 			$status = $this->httpClient->getStatus();
 

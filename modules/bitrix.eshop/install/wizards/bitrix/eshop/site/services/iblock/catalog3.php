@@ -318,25 +318,6 @@ if ($IBLOCK_CATALOG_ID)
 
 	CAdminFilter::SetDefaultRowsOption("tbl_product_admin_".md5($iblockType.".".$IBLOCK_CATALOG_ID)."_filter", array("miss-0","IBEL_A_F_PARENT"));
 
-//delete 1c props
-	$arPropsToDelete = array("CML2_TAXES", "CML2_BASE_UNIT", "CML2_TRAITS", "CML2_ATTRIBUTES", "CML2_ARTICLE", "CML2_BAR_CODE", "CML2_FILES", "CML2_MANUFACTURER", "CML2_PICTURES");
-	foreach ($arPropsToDelete as $code)
-	{
-		$dbProperty = CIBlockProperty::GetList(Array(), Array("IBLOCK_ID"=>$IBLOCK_CATALOG_ID, "XML_ID"=>$code));
-		if($arProperty = $dbProperty->GetNext())
-		{
-			CIBlockProperty::Delete($arProperty["ID"]);
-		}
-		if ($IBLOCK_OFFERS_ID)
-		{
-			$dbProperty = CIBlockProperty::GetList(Array(), Array("IBLOCK_ID"=>$IBLOCK_OFFERS_ID, "XML_ID"=>$code));
-			if($arProperty = $dbProperty->GetNext())
-			{
-				CIBlockProperty::Delete($arProperty["ID"]);
-			}
-		}
-	}
-
 	//filter for index page
 	$dbProperty = CIBlockProperty::GetList(Array(), Array("IBLOCK_ID"=>$IBLOCK_CATALOG_ID, "CODE"=>"TREND"));
 	if($arProperty = $dbProperty->GetNext())

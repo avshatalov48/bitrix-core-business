@@ -12,6 +12,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
+if ($adminPage->publicMode)
+{
+	$adminSidePanelHelper->setSkipResponse(true);
+}
 
 $bFullForm = isset($_REQUEST["IBLOCK_ID"]) && isset($_REQUEST["ID"]);
 $bSectionPopup = isset($_REQUEST["return_url"]) && ($_REQUEST["return_url"] === "section_edit");

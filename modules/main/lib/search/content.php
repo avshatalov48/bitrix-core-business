@@ -2,6 +2,8 @@
 
 namespace Bitrix\Main\Search;
 
+use Bitrix\Main\ORM\Query\Filter;
+
 class Content
 {
 	const TYPE_STRING = 1;
@@ -26,7 +28,7 @@ class Content
 	public static function prepareIntegerToken($token)
 	{
 		$token = intval($token);
-		return str_pad($token, \CSQLWhere::GetMinTokenSize(), '0', STR_PAD_LEFT);
+		return str_pad($token, Filter\Helper::getMinTokenSize(), '0', STR_PAD_LEFT);
 	}
 
 	/**
@@ -47,13 +49,13 @@ class Content
 	 */
 	public static function canUseFulltextSearch($token, $type = self::TYPE_STRING)
 	{
-		if (intval($type) > 1)
+		if ((int)$type > 1)
 		{
-			$result = \Bitrix\Main\Search\Content::isIntegerToken($token) || strlen($token) >= \CSQLWhere::GetMinTokenSize();
+			$result = static::isIntegerToken($token) || strlen($token) >= Filter\Helper::getMinTokenSize();
 		}
 		else
 		{
-			$result = strlen($token) >= \CSQLWhere::GetMinTokenSize();
+			$result = strlen($token) >= Filter\Helper::getMinTokenSize();
 		}
 
 		return $result;

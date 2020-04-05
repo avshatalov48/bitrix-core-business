@@ -1,7 +1,9 @@
 
 .new-from-email-dialog-table {
 	display: table;
-	padding: 0 23px;
+	table-layout: fixed;
+	padding: 0px;
+	width: 100%;
 }
 .new-from-email-dialog-row-group {
 	display: table-row-group;
@@ -18,18 +20,17 @@
 .new-from-email-dialog-full-width-cell {
 	padding-left: 0;
 	padding-right: 0;
-	width: 100%;
+	width: 80%;
 	box-sizing: border-box;
 }
 
 .new-from-email-dialog-text {
-	display: block;
-	margin: 0 10px 0 0;
 	text-align: right;
 	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #80868E;
 }
-.new-from-email-dialog-text span {
+.new-from-email-dialog-text span,
+.new-from-email-dialog-text-spacer {
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -95,7 +96,7 @@
 .new-from-email-dialog-content {
 	position: relative;
 	margin: 0 20px;
-	width: 440px;
+	width: 480px;
 	overflow-y: hidden;
 }
 
@@ -112,6 +113,7 @@
 }
 
 .new-from-email-dialog-hint-icon {
+	display: inline-block;
 	margin-left: 5px;
 	background: #bfc5ca;
 	color: #ffffff;
@@ -121,6 +123,7 @@
 	text-align: center;
 	border-radius: 50%;
 	font-size: 12px;
+	cursor: default;
 }
 
 .new-from-email-dialog-smtp-link {
@@ -131,13 +134,10 @@
 	border-bottom-color: transparent;
 }
 
-.new-from-email-dialog-smtp-server-block {
-	margin-right: 80px;
-}
-
 .new-from-email-dialog-smtp-port-block {
-	float: right;
-	width: 72px;
+	float: left;
+	width: 70px;
+	margin-right: 10px;
 }
 
 .new-from-email-dialog-smtp-warning {
@@ -145,4 +145,20 @@
 	background: rgb(253,225,200);
 	color: rgb(219,90,22);
 	white-space: normal;
+}
+
+.main-mail-confirm-menu-content .popup-window-content {
+	max-height: 360px;
+	overflow-y: auto;
+}
+
+.menu-popup-right-icon {
+	padding-right: 16px;
+}
+.menu-popup-item .main-mail-confirm-menu-delete-icon {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 100%;
+	width: 32px;
 }

@@ -104,7 +104,7 @@ var MainUserConsentSelectorManager = function(params)
 					return {
 						caption: item.NAME,
 						value: item.ID,
-						selected: item.ID == selectedValue
+						selected: (item.ID || '').toString() === selectedValue
 					};
 				});
 				this.fillDropDownControl(selectorNode, items, true);
@@ -134,9 +134,9 @@ var MainUserConsentSelectorManager = function(params)
 		},
 		onClose: function ()
 		{
-			if (this.caller && this.caller.onSliderClose)
+			if (this.caller)
 			{
-				this.caller.onSliderClose.apply(this.caller);
+				this.caller.onSliderClose();
 			}
 		},
 		bindOpen: function (element)
@@ -153,7 +153,7 @@ var MainUserConsentSelectorManager = function(params)
 			top.BX.SidePanel.Instance.open(url, {
 				cacheable: false,
 				events: {
-					onClose: reloadAfterClosing ? this.onClose.bind(this) : null
+					//onClose: reloadAfterClosing ? this.onClose.bind(this) : null
 				}
 			});
 

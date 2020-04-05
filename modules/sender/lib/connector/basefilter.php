@@ -38,13 +38,16 @@ abstract class BaseFilter extends Base
 			$preset[$currentPresetId]['default'] = true;
 		}
 
+		$filterId = $this->getUiFilterId();
+		$this->clearFilterState($filterId);
+
 		ob_start();
 		/** @var \CAllMain $GLOBALS['APPLICATION'] Application. */
 		$GLOBALS['APPLICATION']->includeComponent(
 			"bitrix:main.ui.filter",
 			"",
 			array(
-				"FILTER_ID" => $this->getUiFilterId(),
+				"FILTER_ID" => $filterId,
 				"CURRENT_PRESET" => $currentPresetId,
 				"FILTER" => array_filter(
 					static::getFilterFields(),
@@ -149,6 +152,18 @@ abstract class BaseFilter extends Base
 				{
 					continue;
 				}
+				if ($field['type'] === 'dest_selector')
+				{
+					if (array_key_exists($field['id'].'_label', $fieldValues))
+					{
+						$values[$field['id'].'_label']  = $fieldValues[$field['id'].'_label'];
+					}
+					elseif (array_key_exists('_label', $fieldValues[$field['id']]))
+					{
+						$values[$field['id'].'_label']  = $fieldValues[$field['id']]['_label'];
+						$fieldValues[$field['id']] = $fieldValues[$field['id']]['_value'];
+					}
+				}
 
 				$values[$field['id']] = $fieldValues[$field['id']];
 			}
@@ -205,7 +220,15 @@ abstract class BaseFilter extends Base
 		foreach ($filterFields as $field)
 		{
 			$fieldId = $field['id'];
-			if (isset($filterRequest[$fieldId]))
+			if ($field['type'] === 'dest_selector')
+			{
+				$destSelectorData = Filter\DestSelectorField::create($field)->fetchFieldValue($filterRequest);
+				if ($destSelectorData)
+				{
+					$filterData[$fieldId] = $destSelectorData;
+				}
+			}
+			elseif (isset($filterRequest[$fieldId]))
 			{
 				$filterData[$fieldId] = $filterRequest[$fieldId];
 			}
@@ -269,5 +292,29 @@ abstract class BaseFilter extends Base
 		);
 
 		return $fields;
+	}
+
+	protected function clearFilterState($filterId)
+	{
+		$filterOptions = new FilterOptions($filterId, static::getUiFilterPresets());
+		$settings = $filterOptions->getOptions();
+		$cleared = false;
+		if ($settings && $settings['filter'])
+		{
+			$filterPresetIds = ['tmp_filter', $settings['filter']];
+			foreach ($filterPresetIds as $filterPresetId)
+			{
+				$presetSettings = $filterOptions->getFilterSettings($filterPresetId);
+				if ($presetSettings['fields'])
+				{
+					$filterOptions->setFilterSettings($filterPresetId, ['clear_filter' => 'Y']); // clear saved filter state
+					$cleared = true;
+				}
+			}
+		}
+		if ($cleared)
+		{
+			$filterOptions->save();
+		}
 	}
 }

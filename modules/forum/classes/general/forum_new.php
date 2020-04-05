@@ -463,42 +463,17 @@ class CAllForumNew
 
 	public static function GetAccessPermissions($ID, $TYPE = "ONE")
 	{
-		global $CACHE_MANAGER;
-		$ID = intVal($ID);
-		$TYPE = ($TYPE == "ONE" ? "ONE" : "ALL");
-		$cache_id = "b_forum_perms_".$ID."_all";
-		$arRes = array();
-		if ($ID <= 0):
-			return false;
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
-			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID] = array();
-		endif;
-
-		if (!array_key_exists("PERMISSIONS", $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]))
+		$res = \Bitrix\Forum\Forum::getById($ID)->getPermissions();
+		if ($TYPE == "ONE")
 		{
-			if (CACHED_b_forum_perms !== false && $CACHE_MANAGER->Read(CACHED_b_forum_perms, $cache_id, "b_forum_perms"))
+			$result = [];
+			foreach ($res as $key => $val)
 			{
-				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"] = $CACHE_MANAGER->Get($cache_id);
+				$result[] = [$key, $val];
 			}
-			else
-			{
-				$db_res = CForumNew::GetAccessPermsList(array(), array("FORUM_ID" => $ID));
-				while ($res = $db_res->Fetch()):
-					$arRes[$res["GROUP_ID"]] = $res["PERMISSION"];
-				endwhile;
-				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"] = $arRes;
-				if (CACHED_b_forum_perms !== false)
-					$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"]);
-			}
+			return $result;
 		}
-		$result = $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"];
-		if ($TYPE == "ONE"):
-			$result = array();
-			foreach ($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"] as $key => $val):
-				$result[] = array($key, $val);
-			endforeach;
-		endif;
-		return $result;
+		return $res;
 	}
 
 	public static function GetAccessPermsList($arOrder = array("ID"=>"ASC"), $arFilter = array())
@@ -569,90 +544,22 @@ class CAllForumNew
 
 	public static function SetAccessPermissions($ID, $arGROUP_ID)
 	{
-		global $DB, $CACHE_MANAGER, $aForumPermissions;
-		$ID = intVal($ID);
-		$arGROUP_ID = (is_array($arGROUP_ID) ? $arGROUP_ID : array());
-		$arGroups = array();
-		if ($ID <= 0 || empty($arGROUP_ID)):
-			return false;
-		endif;
-/***************** Cleaning cache **********************************/
 		unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"]);
 		unset($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSIONS"]);
 		if (CACHED_b_forum_perms !== false)
 			$GLOBALS["CACHE_MANAGER"]->CleanDir("b_forum_perms");
-/***************** Cleaning cache/**********************************/
-		$db_res = CGroup::GetList($by = "ID", $order = "ASC");
-		if ($db_res && $res = $db_res->Fetch())
-		{
-			do
-			{
-				$arGroups[] = intVal($res["ID"]);
-			} while ($res = $db_res->Fetch());
-
-			$DB->Query("DELETE FROM b_forum_perms WHERE FORUM_ID=".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-			foreach ($arGROUP_ID as $key => $val)
-			{
-				$key = intVal($key); $val = strToUpper($val);
-				if ($key <= 1 || !in_array($val, $aForumPermissions["reference_id"]) || !in_array($key, $arGroups)):
-					continue;
-				endif;
-				$arFields = array(
-					"FORUM_ID" => $ID,
-					"GROUP_ID" => $key,
-					"PERMISSION" => "'".$val."'");
-				$DB->Insert("b_forum_perms", $arFields, "File: ".__FILE__."<br>Line: ".__LINE__);
-			}
-		}
+		\Bitrix\Forum\Forum::getById($ID)->setPermission($arGROUP_ID);
 		return true;
 	}
 
 	public static function GetUserPermission($ID, $arUserGroups)
 	{
-		global $DB, $CACHE_MANAGER, $aForumPermissions;
-		$ID = intVal($ID);
-		if (is_integer($arUserGroups) || is_null($arUserGroups))
+		if (is_array($arUserGroups))
 		{
-			global $USER;
-			$arUserGroups = (is_object($USER) && $USER->getId() == $arUserGroups ? $USER->GetUserGroupArray() : CUser::GetUserGroup($arUserGroups));
+			return \Bitrix\Forum\Forum::getById($ID)->getPermissionForUserGroups($arUserGroups);
 		}
-		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
-		sort($arUserGroups);
-		$key = $ID."_".implode("_", $arUserGroups);
-		$cache_id = "b_forum_perms".$key;
-		if ($ID <= 0 || empty($arUserGroups)):
-			return $aForumPermissions["reference_id"][0];
-		elseif (CForumUser::IsAdmin(false, $arUserGroups)):
-			return $aForumPermissions["reference_id"][count($aForumPermissions["reference_id"])-1];
-		elseif (!is_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
-			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID] = array("PERMISSION" => array());
-		elseif (!array_key_exists("PERMISSION", $GLOBALS["FORUM_CACHE"]["FORUM"][$ID])):
-			$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"] = array();
-		endif;
-
-		if (!array_key_exists($key, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"]))
-		{
-			if (CACHED_b_forum_perms !== false && $CACHE_MANAGER->Read(CACHED_b_forum_perms, $cache_id, "b_forum_perms"))
-			{
-				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key] = $CACHE_MANAGER->Get($cache_id);
-			}
-			else
-			{
-				$strSql = "SELECT MAX(FP.PERMISSION) as P FROM b_forum_perms FP ".
-					"WHERE FP.FORUM_ID=".$ID." AND FP.GROUP_ID IN (".(implode(",", $arUserGroups) ?: 2).")";
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if ($r = $res->Fetch())
-					$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key] = $r["P"];
-			}
-			if (!in_array($GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key], $aForumPermissions["reference_id"]))
-			{
-				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key] = $aForumPermissions["reference_id"][0];
-			}
-			if (CACHED_b_forum_perms !== false)
-				$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key]);
-		}
-		return $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["PERMISSION"][$key];
+		$user = \Bitrix\Forum\User::getById($arUserGroups);
+		return \Bitrix\Forum\Forum::getById($ID)->getPermissionForUser($user);
 	}
 
 	//---------------> Forum Utils
@@ -1998,7 +1905,7 @@ class CAllForumGroup
 					unset($res[$i]);
 				}
 			}
-			$db_lang = CLanguage::GetList(($b="sort"), ($o="asc"));
+			$db_lang = CLanguage::GetList(($b="sort"), ($o="asc"), ["ACTIVE" => "Y"]);
 			while ($arLang = $db_lang->Fetch())
 			{
 				$bFound = false;

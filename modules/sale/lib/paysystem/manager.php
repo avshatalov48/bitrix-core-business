@@ -3,6 +3,7 @@
 namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -12,6 +13,7 @@ use Bitrix\Main\IO\Path;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use Bitrix\Sale\Basket;
+use Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\Internals\EntityCollection;
 use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Sale\Internals\PaySystemRestHandlersTable;
@@ -19,6 +21,7 @@ use Bitrix\Sale\Internals\ServiceRestrictionTable;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Registry;
+use Bitrix\Sale\Services\Base\Restriction;
 use Bitrix\Sale\Services\PaySystem\Restrictions;
 
 Loc::loadMessages(__FILE__);
@@ -137,12 +140,22 @@ final class Manager
 	/**
 	 * @param Request $request
 	 * @return array|false
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public static function searchByRequest(Request $request)
 	{
 		$documentRoot = Application::getDocumentRoot();
 
-		$items = self::getList(array('select' => array('*')));
+		$items = self::getList([
+			'select' => ['*'],
+			'filter' => [
+				'ACTIVE' => 'Y',
+			],
+		]);
 
 		while ($item = $items->fetch())
 		{
@@ -166,7 +179,9 @@ final class Manager
 				if (class_exists($className) && is_callable(array($className, 'isMyResponse')))
 				{
 					if ($className::isMyResponse($request, $item['ID']))
+					{
 						return $item;
+					}
 				}
 			}
 		}
@@ -633,52 +648,56 @@ final class Manager
 			'CONNECT_SETTINGS_BILLEN' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BILLEN'), 'SORT' => 100),
 			'CONNECT_SETTINGS_BILLUA' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BILLUA'), 'SORT' => 100),
 			'CONNECT_SETTINGS_BILLLA' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BILLLA'), 'SORT' => 100),
+			'CONNECT_SETTINGS_SBERBANK' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SBERBANK'), 'SORT' => 100),
 			'GENERAL_SETTINGS' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_GENERAL_SETTINGS'), 'SORT' => 100),
 			'COLUMN_SETTINGS' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_COLUMN'), 'SORT' => 100),
 			'VISUAL_SETTINGS' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_VISUAL'), 'SORT' => 100),
 			'PAYMENT' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PAYMENT'), 'SORT' => 200),
 			'PAYSYSTEM' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PAYSYSTEM'), 'SORT' => 500),
-			'PS_OTHER' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PS_OTHER'), 'SORT' => 10000)
+			'PS_OTHER' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PS_OTHER'), 'SORT' => 10000),
+			'CONNECT_SETTINGS_UAPAY' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'), 'SORT' => 100),
 		);
 	}
 
 	/**
 	 * @param $primary
 	 * @return \Bitrix\Main\Entity\DeleteResult
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function delete($primary)
 	{
-		$paySystemInfo = array();
-		if ($primary)
+		if (empty($primary))
 		{
-			$dbRes = PaySystemActionTable::getById($primary);
-			$paySystemInfo = $dbRes->fetch();
+			throw new ArgumentException('Parameter $primary can\'t be empty');
 		}
 
-		$result = PaySystemActionTable::delete($primary);
-		if ($result->isSuccess())
+		$paySystemInfo = PaySystemActionTable::getRowById($primary);
+		if ($paySystemInfo['LOGOTIP'])
 		{
-			if ($paySystemInfo['LOGOTIP'])
-				\CFile::Delete($paySystemInfo['LOGOTIP']);
+			\CFile::Delete($paySystemInfo['LOGOTIP']);
+		}
 
-			$restrictionList =  Restrictions\Manager::getRestrictionsList($primary);
-			if ($restrictionList)
+		$restrictionList =  Restrictions\Manager::getRestrictionsList($primary);
+		if ($restrictionList)
+		{
+			Restrictions\Manager::getClassesList();
+
+			foreach ($restrictionList as $restriction)
 			{
-				Restrictions\Manager::getClassesList();
-
-				foreach ($restrictionList as $restriction)
+				/** @var Restriction $className */
+				$className = $restriction["CLASS_NAME"];
+				if (is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction'))
 				{
-					/** @var \Bitrix\Sale\Services\Base\Restriction $className */
-					$className = $restriction["CLASS_NAME"];
-					if (is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction'))
-					{
-						$className::delete($restriction['ID'], $primary);
-					}
+					$className::delete($restriction['ID'], $primary);
 				}
 			}
 		}
 
-		return $result;
+		BusinessValue::delete(Service::PAY_SYSTEM_PREFIX.$primary);
+
+		return PaySystemActionTable::delete($primary);
 	}
 
 	/**
@@ -706,22 +725,40 @@ final class Manager
 
 	/**
 	 * @param array $data
-	 * @return null|EntityCollection|Payment
+	 * @return Payment|null
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotImplementedException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function getPaymentObjectByData(array $data)
 	{
 		$context = Application::getInstance()->getContext();
 
+		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		/** @var Order $order */
-		$order = Order::create($context->getSite());
+		$order = $orderClass::create($context->getSite());
 		$order->setPersonTypeId($data['PERSON_TYPE_ID']);
 
-		$basket = Basket::create($context->getSite());
+		/** @var Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$basket = $basketClass::create($context->getSite());
 		$order->setBasket($basket);
 
 		$collection = $order->getPaymentCollection();
 		if ($collection)
+		{
 			return $collection->createItem();
+		}
 
 		return null;
 	}

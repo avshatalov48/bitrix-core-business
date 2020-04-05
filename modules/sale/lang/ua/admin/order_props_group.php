@@ -1,0 +1,29 @@
+<?
+$MESS["PROPS_TYPE_TITLE"] = "Групи властивостей";
+$MESS["PT_FILTER_NAME"] = "Тип платника";
+$MESS["SALE_ALL"] = "всі";
+$MESS["SALE_F_FILTER"] = "Фільтр";
+$MESS["SALE_F_DEL"] = "Скинути";
+$MESS["LANG_FILTER_BTN"] = "Встановити";
+$MESS["PERS_TYPE_DEL_CONF"] = "Властивості, що належать цій групі, будуть видалені. Ви впевнені, що хочете продовжити?";
+$MESS["PERS_TYPE_NAV"] = "Групи властивостей";
+$MESS["PERS_TYPE_ID"] = "ID";
+$MESS["PERS_TYPE_NAME"] = "Назва";
+$MESS["PERS_TYPE_TYPE"] = "Тип платника";
+$MESS["PERS_TYPE_SORT"] = "Сорт.";
+$MESS["PERS_TYPE_DEL"] = "Видалити";
+$MESS["PERS_TYPE_UPD"] = "Зберегти";
+$MESS["PERS_TYPE_RESET"] = "Скинути";
+$MESS["ERROR_ADD_REC"] = "Помилка додавання запису";
+$MESS["ERROR_NAME_REC"] = "Поле «Назва» не заповнено";
+$MESS["ERROR_PERSON_TYPE_ID_REC"] = "Поле «Тип платника» не заповнено";
+$MESS["ERROR_UPDATE_REC"] = "Помилка оновлення запису";
+$MESS["SALE_PROPS"] = "Властивості";
+$MESS["SOPGAN_DELETE_ERROR"] = "Помилка видалення запису";
+$MESS["SOPGAN_PROPS"] = "Властивості";
+$MESS["SOPGAN_EDIT_PROMT"] = "Змінити групу";
+$MESS["SOPGAN_DELETE_PROMT"] = "Видалити групу";
+$MESS["SOPGAN_DELETE_PROMT_CONF"] = "Ви впевнені, що хочете видалити групу властивостей?";
+$MESS["SOPGAN_ADD_NEW"] = "Нова група";
+$MESS["SOPGAN_ADD_NEW_ALT"] = "Натисніть для додавання нової групи властивостей";
+?>

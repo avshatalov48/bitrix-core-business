@@ -2,6 +2,9 @@
 
 IncludeModuleLangFile(__FILE__);
 
+if(!CModule::IncludeModule('iblock'))
+	return;
+
 class CWikiDocument extends CIBlockDocument
 {
 	function CanUserOperateDocument($operation, $userId, $documentId, $arParameters = array())

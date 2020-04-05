@@ -201,7 +201,7 @@ if (!empty($arCurrentValues['LABEL_PROP']))
 	);
 }
 
-if (\Bitrix\Main\Loader::includeModule('catalog'))
+if (Loader::includeModule('catalog') && !Iblock\Model\PropertyFeature::isEnabledFeatures())
 {
 	$arSKU = false;
 	$boolSKU = false;

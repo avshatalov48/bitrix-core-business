@@ -1,6 +1,6 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/include.php");
+\Bitrix\Main\Loader::includeModule("forum");
 
 $forumModulePermissions = $APPLICATION->GetGroupRight("forum");
 if ($forumModulePermissions == "D"):
@@ -110,7 +110,6 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 		{
 			if (strlen($ID) <= 0)
 				continue;
-	
 			switch ($_REQUEST['action'])
 			{
 				case "delete":
@@ -118,48 +117,46 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 					if (!CForumNew::CanUserDeleteForum($ID, $USER->GetUserGroupArray(), $USER->GetID()))
 					{
 						$lAdmin->AddGroupError(GetMessage("FA_DELETE_NO_PERMS"), $ID);
-						continue;
 					}
-	
-					@set_time_limit(0);
-	
-					$DB->StartTransaction();
-	
-					if (!CForumNew::Delete($ID))
+					else
 					{
-						$DB->Rollback();
-	
-						if ($ex = $APPLICATION->GetException())
-							$lAdmin->AddGroupError($ex->GetString(), $ID);
-						else
-							$lAdmin->AddGroupError(GetMessage("FA_DELETE_ERROR"), $ID);
+						@set_time_limit(0);
+
+						$DB->StartTransaction();
+
+						if (!CForumNew::Delete($ID))
+						{
+							$DB->Rollback();
+
+							if ($ex = $APPLICATION->GetException())
+								$lAdmin->AddGroupError($ex->GetString(), $ID);
+							else
+								$lAdmin->AddGroupError(GetMessage("FA_DELETE_ERROR"), $ID);
+						}
+
+						$DB->Commit();
 					}
-	
-					$DB->Commit();
-	
 					break;
-	
 				case "activate":
 				case "deactivate":
-	
 					if (!CForumNew::CanUserUpdateForum($ID, $USER->GetUserGroupArray(), $USER->GetID()))
 					{
 						$lAdmin->AddUpdateError(GetMessage("FA_NO_PERMS2UPDATE")." ".$ID."", $ID);
-						continue;
 					}
-	
-					$arFields = array(
-						"ACTIVE" => (($_REQUEST['action']=="activate") ? "Y" : "N")
-					);
-	
-					if (!CForumNew::Update($ID, $arFields))
+					else
 					{
-						if ($ex = $APPLICATION->GetException())
-							$lAdmin->AddGroupError($ex->GetString(), $ID);
-						else
-							$lAdmin->AddGroupError(GetMessage("FA_ERROR_UPDATE")." ".$ID."", $ID);
+						$arFields = array(
+							"ACTIVE" => (($_REQUEST['action']=="activate") ? "Y" : "N")
+						);
+
+						if (!CForumNew::Update($ID, $arFields))
+						{
+							if ($ex = $APPLICATION->GetException())
+								$lAdmin->AddGroupError($ex->GetString(), $ID);
+							else
+								$lAdmin->AddGroupError(GetMessage("FA_ERROR_UPDATE")." ".$ID."", $ID);
+						}
 					}
-	
 					break;
 				case "clear_html": 
 					$DB->StartTransaction();
@@ -391,7 +388,7 @@ $oFilter->Buttons(
 $oFilter->End();
 ?>
 </form>
-<?
+<?=\Bitrix\Main\Update\Stepper::getHtml("forum");?><?
 $lAdmin->DisplayList();
 ?>
 <style>

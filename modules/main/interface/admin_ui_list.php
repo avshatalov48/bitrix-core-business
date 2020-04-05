@@ -5,6 +5,7 @@ use Bitrix\Main\Grid\Panel;
 use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Main\Grid\Context;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\Main\Grid;
 
 class CAdminUiList extends CAdminList
 {
@@ -246,22 +247,21 @@ class CAdminUiList extends CAdminList
 			[$key => $this->prepareCustomKey(array_shift($keys), $keys)]);
 	}
 
+	/**
+	 * @return array|false
+	 */
 	public function GroupAction()
 	{
-		if (!check_bitrix_sessid())
+		$this->PrepareAction();
+
+		if ($this->GetAction() === null)
 		{
 			return false;
 		}
 
-		if (is_array($_REQUEST["action"]))
+		if (!check_bitrix_sessid())
 		{
-			foreach ($_REQUEST["action"] as $actionKey => $actionValue)
-				$_REQUEST[$actionKey] = $actionValue;
-		}
-		if (!empty($_REQUEST["action_button_".$this->table_id]))
-		{
-			$_REQUEST["action"] = $_REQUEST["action_button_".$this->table_id];
-			$_REQUEST["action_button"] = $_REQUEST["action_button_".$this->table_id];
+			return false;
 		}
 
 		if (!empty($_REQUEST["bxajaxid"]))
@@ -270,19 +270,49 @@ class CAdminUiList extends CAdminList
 			$adminSidePanelHelper->setSkipResponse(true);
 		}
 
-		if ((empty($_REQUEST["action_all_rows_".$this->table_id]) ||
-				$_REQUEST["action_all_rows_".$this->table_id] === "N") && isset($_REQUEST["ID"]))
+		if (!$this->IsGroupActionToAll())
 		{
-			if(!is_array($_REQUEST["ID"]))
-				$arID = array($_REQUEST["ID"]);
-			else
-				$arID = $_REQUEST["ID"];
-
-			return $arID;
+			$arID = $this->GetGroupIds();
+			if ($arID === null)
+			{
+				$arID = false;
+			}
 		}
 		else
 		{
-			return array("");
+			$arID = array("");
+		}
+
+		return $arID;
+	}
+
+	/**
+	 * Returns true if the user has set the flag "To all" in the list.
+	 *
+	 * @return bool
+	 */
+	public function IsGroupActionToAll()
+	{
+		return (
+			isset($_REQUEST["action_all_rows_".$this->table_id])
+			&& $_REQUEST["action_all_rows_".$this->table_id] === 'Y'
+		);
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function PrepareAction()
+	{
+		if (isset($_REQUEST["action"]) && is_array($_REQUEST["action"]))
+		{
+			foreach ($_REQUEST["action"] as $actionKey => $actionValue)
+				$_REQUEST[$actionKey] = $actionValue;
+		}
+		if (!empty($_REQUEST["action_button_".$this->table_id]))
+		{
+			$_REQUEST["action"] = $_REQUEST["action_button_".$this->table_id];
+			$_REQUEST["action_button"] = $_REQUEST["action_button_".$this->table_id];
 		}
 	}
 
@@ -308,12 +338,6 @@ class CAdminUiList extends CAdminList
 		), $addParams);
 
 		return $this->ActionAjaxPostGrid($postParams);
-	}
-
-	public function AddGroupActionTable($arActions, $arParams = array())
-	{
-		$this->arActions = $arActions;
-		$this->arActionsParams = $arParams;
 	}
 
 	public function ActionAjaxPostGrid($postParams)
@@ -410,9 +434,10 @@ class CAdminUiList extends CAdminList
 		$error = "";
 		foreach ($this->arGroupErrors as $groupError)
 		{
-			$error .= " ".$groupError;
+			$error .= " ".$groupError[0];
 		}
-		return $error;
+
+		return trim($error);
 	}
 
 	public function setContextSettings(array $settings)
@@ -466,7 +491,7 @@ class CAdminUiList extends CAdminList
 	public function &AddRow($id = false, $arRes = Array(), $link = false, $title = false)
 	{
 		$row = new CAdminUiListRow($this->aHeaders, $this->table_id);
-		$row->id = $id;
+		$row->id = ($id ? $id : randString(4));
 		$row->arRes = $arRes;
 		if ($this->isPublicMode)
 		{
@@ -689,6 +714,8 @@ class CAdminUiList extends CAdminList
 		}
 	}
 
+	public function ShowActionTable() {}
+
 	public function DisplayList($arParams = array())
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
@@ -763,7 +790,7 @@ class CAdminUiList extends CAdminList
 			"HANDLE_RESPONSE_ERRORS" => true
 		);
 
-		$actionPanel = $arParams["ACTION_PANEL"] ? $arParams["ACTION_PANEL"] : $this->GetGroupAction();
+		$actionPanel = (isset($arParams["ACTION_PANEL"]) ? $arParams["ACTION_PANEL"] : $this->GetGroupAction());
 		if ($actionPanel)
 		{
 			$gridParameters["ACTION_PANEL"] = $actionPanel;
@@ -873,6 +900,8 @@ class CAdminUiList extends CAdminList
 				$listEditable[$fieldId] = false;
 			}
 
+			$disableEditColumns = array();
+
 			foreach ($gridColumns as $columnId)
 			{
 				$field = $row->aFields[$columnId];
@@ -886,10 +915,18 @@ class CAdminUiList extends CAdminList
 				{
 					switch ($field["edit"]["type"])
 					{
+						case "file":
+							if ($fileArray = CFile::getFileArray($value))
+								$editValue = $fileArray["SRC"];
+							break;
 						case "html":
 							$editValue = $field["edit"]["value"];
 							break;
 					}
+				}
+				else
+				{
+					$disableEditColumns[$columnId] = false;
 				}
 
 				$gridRow["data"][$columnId] = $editValue;
@@ -909,10 +946,12 @@ class CAdminUiList extends CAdminList
 								$value = htmlspecialcharsex($field["edit"]["values"][$value]);
 							break;
 						case "file":
-							$value = $value ? CFileInput::Show("fileInput_".$value, $value, $field["view"]["showInfo"], $field["view"]["inputs"]) : "";
+							$value = $value ? CFileInput::Show("fileInput_".$value, $value,
+								$field["view"]["showInfo"], $field["view"]["inputs"]) : "";
 							break;
 						case "html":
-							$value = (strlen(trim($field["view"]["value"])) > 0 ? $field["view"]["value"] : (is_array($value) ? "" : $value));
+							$value = (strlen(trim($field["view"]["value"])) > 0 ?
+								$field["view"]["value"] : (is_array($value) ? "" : $value));
 							break;
 						default:
 							$value = htmlspecialcharsex($value);
@@ -925,8 +964,11 @@ class CAdminUiList extends CAdminList
 				}
 
 				$gridRow["columns"][$columnId] = $value;
-				$gridRow["editable"] = $listEditable;
 			}
+			$gridRow["editable"] = $listEditable;
+			if (!empty($disableEditColumns))
+				$gridRow["editableColumns"] = $disableEditColumns;
+
 			$gridParameters["ROWS"][] = $gridRow;
 		}
 
@@ -1020,6 +1062,11 @@ class CAdminUiList extends CAdminList
 				$editable = array(
 					"TYPE" => Types::DROPDOWN,
 					"items" => $field["edit"]["values"]
+				);
+				break;
+			case "file":
+				$editable = array(
+					"TYPE" => Types::IMAGE,
 				);
 				break;
 			case "html":
@@ -1161,7 +1208,7 @@ class CAdminUiListActionPanel
 					]
 				]
 			]
-	 	];
+		];
 	 */
 	public function setActionSections(array $actionSections, $listKeyForDelete = [])
 	{
@@ -1217,6 +1264,17 @@ class CAdminUiListActionPanel
 		$this->mapTypesAndHandlers = array_merge($this->mapTypesAndHandlers, $mapTypesAndHandlers);
 	}
 
+	/**
+	 * @return array
+	 */
+	private function getDefaultApplyAction()
+	{
+		return ["JS" => "BX.adminUiList.SendSelected('{$this->tableId}')"];
+	}
+
+	/**
+	 * @return array
+	 */
 	private function getItems()
 	{
 		$items = [];
@@ -1241,6 +1299,9 @@ class CAdminUiListActionPanel
 		return $items;
 	}
 
+	/**
+	 * @return array
+	 */
 	private function getActionSections()
 	{
 		if (isset($this->inputActions["edit"]) && isset($this->actionSections[$this->mapTypesAndSections["edit"]]))
@@ -1270,6 +1331,12 @@ class CAdminUiListActionPanel
 		return $this->actionSections;
 	}
 
+	/**
+	 * @param array &$actionSections
+	 * @param string $actionKey
+	 * @param string|array $action
+	 * @return void
+	 */
 	private function setActionSection(array &$actionSections, $actionKey, $action)
 	{
 		if (is_array($action))
@@ -1314,6 +1381,11 @@ class CAdminUiListActionPanel
 		}
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getButtonActionData($actionKey, $action)
 	{
 		$onChange = $action["action"] ? [
@@ -1327,6 +1399,11 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getSelectActionData($actionKey, $action)
 	{
 		$internalOnchange = [];
@@ -1395,7 +1472,7 @@ class CAdminUiListActionPanel
 								[
 									"ACTION" => Panel\Actions::CALLBACK,
 									"DATA" => [
-										["JS" => "BX.adminUiList.SendSelected('{$this->tableId}')"]
+										$this->getDefaultApplyAction()
 									]
 								]
 							]
@@ -1422,6 +1499,11 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getCustomJsActionData($actionKey, $action)
 	{
 		return [
@@ -1434,6 +1516,11 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getBaseActionData($actionKey, $action)
 	{
 		return [
@@ -1446,6 +1533,11 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getHtmlActionData($actionKey, $action)
 	{
 		return [
@@ -1455,6 +1547,11 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $actionKey
+	 * @param array $action
+	 * @return array
+	 */
 	private function getMultiControlActionData($actionKey, array $action)
 	{
 		return [
@@ -1464,8 +1561,17 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param string $jsCallback
+	 * @return array
+	 */
 	private function getApplyButtonCreationAction($jsCallback = "")
 	{
+		$action = $this->getDefaultApplyAction();
+		if ($jsCallback != '')
+		{
+			$action["JS"] = $jsCallback;
+		}
 		return [
 			"ACTION" => Panel\Actions::CREATE,
 			"DATA" => [
@@ -1475,10 +1581,7 @@ class CAdminUiListActionPanel
 							[
 								"ACTION" => Panel\Actions::CALLBACK,
 								"DATA" => [
-									[
-										"JS" => $jsCallback ? $jsCallback :
-											"BX.adminUiList.SendSelected('{$this->tableId}')"
-									]
+									$action
 								]
 							]
 						]
@@ -1488,6 +1591,10 @@ class CAdminUiListActionPanel
 		];
 	}
 
+	/**
+	 * @param $array
+	 * @return bool
+	 */
 	private function isAssociativeArray($array)
 	{
 		if (!is_array($array) || empty($array))
@@ -1733,7 +1840,7 @@ class CAdminUiContextMenu extends CAdminContextMenu
 		\Bitrix\Main\UI\Extension::load(["ui.buttons", "ui.buttons.icons"]);
 
 		if ($this->isPublicMode): ob_start(); ?>
-		<div class="pagetitle-container pagetitle-align-right-container" style="padding-right: 12px;">
+		<div class="pagetitle-container pagetitle-align-right-container">
 		<? else: ?>
 		<? if (!$this->isShownFilterContext): ?>
 			<div class="adm-toolbar-panel-container">
@@ -1843,5 +1950,29 @@ class CAdminUiContextMenu extends CAdminContextMenu
 				<? endif; ?>
 			<?endif;
 		}
+	}
+}
+
+class CAdminUiSorting extends CAdminSorting
+{
+	/**
+	 * @return array
+	 */
+	protected function getUserSorting()
+	{
+		$result = [
+			'by' => null,
+			'order' => null
+		];
+		$gridOptions = new Grid\Options($this->table_id);
+		$sorting = $gridOptions->getSorting();
+		if (!empty($sorting['sort']))
+		{
+			$order = reset($sorting['sort']);
+			$result['by'] = key($sorting['sort']);
+			$result['order'] = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+		}
+
+		return $result;
 	}
 }

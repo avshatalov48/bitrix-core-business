@@ -12,9 +12,9 @@ use Bitrix\Main;
 
 class TaggedCache
 {
-	protected $compCacheStack = array();
+	protected $compCacheStack = [];
 	protected $salt = false;
-	protected $dbCacheTags = array();
+	protected $cacheTag = [];
 	protected $wasTagged = false;
 	protected $isMySql = false;
 
@@ -36,9 +36,9 @@ class TaggedCache
 
 	protected function initDbCache($path)
 	{
-		if (!isset($this->dbCacheTags[$path]))
+		if (!isset($this->cacheTag[$path]))
 		{
-			$this->dbCacheTags[$path] = array();
+			$this->cacheTag[$path] = [];
 
 			$con = Main\Application::getConnection();
 			$sqlHelper = $con->getSqlHelper();
@@ -52,7 +52,7 @@ class TaggedCache
 			");
 			while ($ar = $rs->fetch())
 			{
-				$this->dbCacheTags[$path][$ar["TAG"]] = true;
+				$this->cacheTag[$path][$ar["TAG"]] = true;
 			}
 		}
 	}
@@ -102,7 +102,7 @@ class TaggedCache
 
 					foreach ($arCompCache[1] as $tag => $t)
 					{
-						if (!isset($this->dbCacheTags[$path][$tag]))
+						if (!isset($this->cacheTag[$path][$tag]))
 						{
 							$strSqlValues .= $sql." '".$sqlHelper->forSql($tag, 100)."')";
 							if (strlen($strSqlValues) > $maxValuesLen)
@@ -110,7 +110,7 @@ class TaggedCache
 								$con->queryExecute($strSqlPrefix.substr($strSqlValues, 2));
 								$strSqlValues = "";
 							}
-							$this->dbCacheTags[$path][$tag] = true;
+							$this->cacheTag[$path][$tag] = true;
 						}
 					}
 				}
@@ -149,22 +149,20 @@ class TaggedCache
 		}
 		else
 		{
-			$sqlWhere = "  WHERE TAG = '".$sqlHelper->forSql($tag)."'";
+			$sqlWhere = " WHERE TAG = '".$sqlHelper->forSql($tag)."'";
 		}
 
-		$arDirs = array();
+		$dirs = array();
 		$rs = $con->query("SELECT * FROM b_cache_tag".$sqlWhere);
 		while ($ar = $rs->fetch())
 		{
-			$arDirs[$ar["RELATIVE_PATH"]] = $ar;
+			$dirs[$ar["RELATIVE_PATH"]] = $ar;
 		}
 
 		$con->queryExecute("DELETE FROM b_cache_tag".$sqlWhere);
 
 		$cache = Cache::createInstance();
-		$managedCache = Main\Application::getInstance()->getManagedCache();
-
-		foreach ($arDirs as $path => $ar)
+		foreach ($dirs as $path => $ar)
 		{
 			$con->queryExecute("
 				DELETE FROM b_cache_tag
@@ -173,16 +171,8 @@ class TaggedCache
 				AND RELATIVE_PATH = '".$sqlHelper->forSql($ar["RELATIVE_PATH"])."'
 			");
 
-			if (preg_match("/^managed:(.+)$/", $path, $match))
-			{
-				$managedCache->cleanDir($match[1]);
-			}
-			else
-			{
-				$cache->cleanDir($path);
-			}
-
-			unset($this->dbCacheTags[$path]);
+			$cache->cleanDir($path);
+			unset($this->cacheTag[$path]);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 <?
+$MESS ['VOTE_DROPDOWN_SET'] = "выберите значение";
 $MESS ['VOTE_SUBMIT_BUTTON'] = "Голосовать";
 $MESS ['VOTE_RESET'] = "Сбросить";
 $MESS ['F_CAPTCHA_TITLE'] = "Защита от автоматических сообщений";

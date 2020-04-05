@@ -3,11 +3,7 @@
 /* Christmas */
 @font-face {
 	font-family: "cristmas";
-	src:url("christmas/webfont/fonts/cristmas.eot");
-	src:url("christmas/webfont/fonts/cristmas.eot?#iefix") format("embedded-opentype"),
-	url("christmas/webfont/fonts/cristmas.woff") format("woff"),
-	url("christmas/webfont/fonts/cristmas.ttf") format("truetype"),
-	url("christmas/webfont/fonts/cristmas.svg#cristmas") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/christmas/webfont/fonts/cristmas.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -343,11 +339,7 @@
 /* Clothes */
 @font-face {
 	font-family: "clothes";
-	src:url("clothes/webfont/fonts/clothes.eot");
-	src:url("clothes/webfont/fonts/clothes.eot?#iefix") format("embedded-opentype"),
-	url("clothes/webfont/fonts/clothes.woff") format("woff"),
- 	url("clothes/webfont/fonts/clothes.ttf") format("truetype"),
-	url("clothes/webfont/fonts/clothes.svg#clothes") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/clothes/webfont/fonts/clothes.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -682,11 +674,7 @@
 /* Comunnication */
 @font-face {
 	font-family: "communication-48-x-48";
-	src:url("communication/webfont/fonts/communication-48-x-48.eot");
-	src:url("communication/webfont/fonts/communication-48-x-48.eot?#iefix") format("embedded-opentype"),
-	url("communication/webfont/fonts/communication-48-x-48.woff") format("woff"),
-	url("communication/webfont/fonts/communication-48-x-48.ttf") format("truetype"),
-	url("communication/webfont/fonts/communication-48-x-48.svg#communication-48-x-48") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/communication/webfont/fonts/communication-48-x-48.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -1261,11 +1249,7 @@
 /* Education */
 @font-face {
 	font-family: "education-48";
-	src:url("education/webfont/fonts/education-48.eot");
-	src:url("education/webfont/fonts/education-48.eot?#iefix") format("embedded-opentype"),
-	url("education/webfont/fonts/education-48.woff") format("woff"),
-	url("education/webfont/fonts/education-48.ttf") format("truetype"),
-	url("education/webfont/fonts/education-48.svg#education-48") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/education/webfont/fonts/education-48.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -1900,11 +1884,7 @@
 /* Electronics */
 @font-face {
 	font-family: "electronics";
-	src:url("electronics/webfont/fonts/electronics.eot");
-	src:url("electronics/webfont/fonts/electronics.eot?#iefix") format("embedded-opentype"),
-	url("electronics/webfont/fonts/electronics.woff") format("woff"),
-	url("electronics/webfont/fonts/electronics.ttf") format("truetype"),
-	url("electronics/webfont/fonts/electronics.svg#electronics") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/electronics/webfont/fonts/electronics.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -2420,11 +2400,7 @@
 /* Finance */
 @font-face {
 	font-family: "finance";
-	src:url("finance/webfont/fonts/finance.eot");
-	src:url("finance/webfont/fonts/finance.eot?#iefix") format("embedded-opentype"),
-	url("finance/webfont/fonts/finance.woff") format("woff"),
-	url("finance/webfont/fonts/finance.ttf") format("truetype"),
-	url("finance/webfont/fonts/finance.svg#finance") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/finance/webfont/fonts/finance.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -3239,11 +3215,7 @@
 /* Food */
 @font-face {
 	font-family: "food-48";
-	src:url("food/webfont/fonts/food-48.eot");
-	src:url("food/webfont/fonts/food-48.eot?#iefix") format("embedded-opentype"),
-	url("food/webfont/fonts/food-48.woff") format("woff"),
-	url("food/webfont/fonts/food-48.ttf") format("truetype"),
-	url("food/webfont/fonts/food-48.svg#food-48") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/food/webfont/fonts/food-48.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -4178,11 +4150,7 @@
 /* Furniture */
 @font-face {
 	font-family: "furniture";
-	src:url("furniture/webfont/fonts/furniture.eot");
-	src:url("furniture/webfont/fonts/furniture.eot?#iefix") format("embedded-opentype"),
-	url("furniture/webfont/fonts/furniture.woff") format("woff"),
-    url("furniture/webfont/fonts/furniture.ttf") format("truetype"),
-	url("furniture/webfont/fonts/furniture.svg#furniture") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/furniture/webfont/fonts/furniture.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -4519,11 +4487,7 @@
 
 @font-face {
 	font-family: "hotel-restaurant";
-	src:url("hotel-restaurant/webfont/fonts/hotel-restaurant.eot");
-	src:url("hotel-restaurant/webfont/fonts/hotel-restaurant.eot?#iefix") format("embedded-opentype"),
-	url("hotel-restaurant/webfont/fonts/hotel-restaurant.woff") format("woff"),
-    url("hotel-restaurant/webfont/fonts/hotel-restaurant.ttf") format("truetype"),
-	url("hotel-restaurant/webfont/fonts/hotel-restaurant.svg#hotel-restaurant") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/hotel-restaurant/webfont/fonts/hotel-restaurant.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -5309,11 +5273,7 @@
 
 @font-face {
 	font-family: "media";
-	src:url("media/webfont/fonts/media.eot");
-	src:url("media/webfont/fonts/media.eot?#iefix") format("embedded-opentype"),
-	url("media/webfont/fonts/media.woff") format("woff"),
-    url("media/webfont/fonts/media.ttf") format("truetype"),
-	url("media/webfont/fonts/media.svg#media") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/media/webfont/fonts/media.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -5738,11 +5698,7 @@
 /* medical-and-health */
 @font-face {
 	font-family: "medical-and-health";
-	src:url("medical/webfont/fonts/medical-and-health.eot");
-	src:url("medical/webfont/fonts/medical-and-health.eot?#iefix") format("embedded-opentype"),
-	url("medical/webfont/fonts/medical-and-health.woff") format("woff"),
-    url("medical/webfont/fonts/medical-and-health.ttf") format("truetype"),
-	url("medical/webfont/fonts/medical-and-health.svg#medical-and-health") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/medical/webfont/fonts/medical-and-health.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -6077,11 +6033,7 @@
 /* Music */
 @font-face {
 	font-family: "music";
-	src:url("music/webfont/fonts/music.eot");
-	src:url("music/webfont/fonts/music.eot?#iefix") format("embedded-opentype"),
-	url("music/webfont/fonts/music.woff") format("woff"),
-    url("music/webfont/fonts/music.ttf") format("truetype"),
-	url("music/webfont/fonts/music.svg#music") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/music/webfont/fonts/music.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -6416,11 +6368,7 @@
 /* Real Estate */
 @font-face {
 	font-family: "real-estate";
-	src:url("real-estate/webfont/fonts/real-estate.eot");
-	src:url("real-estate/webfont/fonts/real-estate.eot?#iefix") format("embedded-opentype"),
-	url("real-estate/webfont/fonts/real-estate.woff") format("woff"),
-    url("real-estate/webfont/fonts/real-estate.ttf") format("truetype"),
-	url("real-estate/webfont/fonts/real-estate.svg#real-estate") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/real-estate/webfont/fonts/real-estate.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -6725,11 +6673,7 @@
 /* Science */
 @font-face {
 	font-family: "science";
-	src:url("science/webfont/fonts/science.eot");
-	src:url("science/webfont/fonts/science.eot?#iefix") format("embedded-opentype"),
-	url("science/webfont/fonts/science.woff") format("woff"),
-    url("science/webfont/fonts/science.ttf") format("truetype"),
-	url("science/webfont/fonts/science.svg#science") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/science/webfont/fonts/science.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -7244,11 +7188,7 @@
 /* Sport */
 @font-face {
 	font-family: "sports-48-x-48";
-	src:url("sports/webfont/fonts/sports-48-x-48.eot");
-	src:url("sports/webfont/fonts/sports-48-x-48.eot?#iefix") format("embedded-opentype"),
-	url("sports/webfont/fonts/sports-48-x-48.woff") format("woff"),
-    url("sports/webfont/fonts/sports-48-x-48.ttf") format("truetype"),
-	url("sports/webfont/fonts/sports-48-x-48.svg#sports-48-x-48") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/sports/webfont/fonts/sports-48-x-48.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -7896,11 +7836,7 @@
 /* Travel */
 @font-face {
 	font-family: "travel";
-	src:url("travel/webfont/fonts/travel.eot");
-	src:url("travel/webfont/fonts/travel.eot?#iefix") format("embedded-opentype"),
-	url("travel/webfont/fonts/travel.woff") format("woff"),
-    url("travel/webfont/fonts/travel.ttf") format("truetype"),
-	url("travel/webfont/fonts/travel.svg#travel") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/travel/webfont/fonts/travel.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -8385,11 +8321,7 @@
 /* Weather */
 @font-face {
 	font-family: "weather";
-	src:url("weather/webfont/fonts/weather.eot");
-	src:url("weather/webfont/fonts/weather.eot?#iefix") format("embedded-opentype"),
-	url("weather/webfont/fonts/weather.woff") format("woff"),
-    url("weather/webfont/fonts/weather.ttf") format("truetype"),
-	url("weather/webfont/fonts/weather.svg#weather") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/weather/webfont/fonts/weather.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -8604,11 +8536,7 @@
 /* Transport */
 @font-face {
 	font-family: "transport";
-	src:url("transport/webfont/fonts/transport.eot");
-	src:url("transport/webfont/fonts/transport.eot?#iefix") format("embedded-opentype"),
-	url("transport/webfont/fonts/transport.woff") format("woff"),
-    url("transport/webfont/fonts/transport.ttf") format("truetype"),
-	url("transport/webfont/fonts/transport.svg#transport") format("svg");
+	src: url("/bitrix/templates/landing24/assets/vendor/icon-line-pro/transport/webfont/fonts/transport.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }

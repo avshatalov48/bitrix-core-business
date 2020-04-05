@@ -2,7 +2,9 @@
 
 namespace Bitrix\Seo\Retargeting;
 
-class Service implements IService
+use Bitrix\Main\Config\Option;
+
+class Service implements IService, IMultiClientService
 {
 	const GROUP = 'retargeting';
 
@@ -11,6 +13,8 @@ class Service implements IService
 	const TYPE_MYCOM = 'mycom';
 	const TYPE_YANDEX = 'yandex';
 	const TYPE_GOOGLE = 'google';
+
+	protected $clientId;
 
 	/**
 	 * Get instance.
@@ -29,7 +33,7 @@ class Service implements IService
 	}
 
 	/**
-	 * @param string $type
+	 * @param string $type Engine type.
 	 * @return string
 	 */
 	public static function getEngineCode($type)
@@ -38,7 +42,7 @@ class Service implements IService
 	}
 
 	/**
-	 * @param string $type
+	 * @param string $type Engine type.
 	 * @return Audience
 	 */
 	public static function getAudience($type)
@@ -47,12 +51,23 @@ class Service implements IService
 	}
 
 	/**
-	 * @param string $type
+	 * @param string $type Engine type.
 	 * @return Account
 	 */
 	public static function getAccount($type)
 	{
 		return Account::create($type)->setService(static::getInstance());
+	}
+
+	/**
+	 * Can use multiple clients
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public static function canUseMultipleClients()
+	{
+		return Option::get('seo', 'use_multiple_clients', true);
 	}
 
 	/**
@@ -77,5 +92,22 @@ class Service implements IService
 	public static function getAuthAdapter($type)
 	{
 		return AuthAdapter::create($type)->setService(static::getInstance());
+	}
+	/**
+	 * Get client id
+	 * @return string
+	 */
+	public function getClientId()
+	{
+		return $this->clientId;
+	}
+	/**
+	 * Set client id.
+	 * @param string $clientId Client id.
+	 * @return void
+	 */
+	public function setClientId($clientId)
+	{
+		$this->clientId = $clientId;
 	}
 }

@@ -319,7 +319,8 @@ if (($arParams["MESSAGE_TYPE"]=="NEW" || $arParams["MESSAGE_TYPE"]=="REPLY") && 
 }
 
 if ($arParams["MESSAGE_TYPE"]=="NEW" || $arParams["MESSAGE_TYPE"]=="EDIT" &&
-	CForumTopic::CanUserUpdateTopic($arParams["TID"], $USER->GetUserGroupArray(), $USER->GetID()))
+	CForumTopic::CanUserUpdateTopic($arParams["TID"], $USER->GetUserGroupArray(), $USER->GetID()) &&
+	$arResult["MESSAGE"]["NEW_TOPIC"] == "Y")
 {
 	$arResult["SHOW_PANEL_NEW_TOPIC"] = "Y";
 	$arResult["ForumPrintIconsList"] = ForumPrintIconsList(7, $arResult["TOPIC"]["ICON"]);
@@ -409,12 +410,19 @@ foreach ($arResult["TOPIC"] as $key => $val):
 	$arResult["str_".$key] = htmlspecialcharsbx($val);
 	$arResult["~str_".$key] = $val;
 endforeach;
-if (!empty($arResult["MESSAGE"]["FILES"])):
-	foreach ($arResult["MESSAGE"]["FILES"] as $key => $val):
-		$arResult["MESSAGE"]["FILES"][$key] = htmlspecialcharsbx($val);
-//		$arResult["MESSAGE"]["FILES"]["~".$key] = $val;
-	endforeach;
-endif;
+if (!empty($arResult["MESSAGE"]["FILES"]))
+{
+	foreach ($arResult["MESSAGE"]["FILES"] as &$file)
+	{
+		foreach ($file as $k => $val)
+		{
+			if (is_string($val))
+			{
+				$file[$k] = htmlspecialcharsbx($val);
+			}
+		}
+	}
+}
 foreach ($arResult["QUESTIONS"] as $key => $arQuestion):
 	foreach ($arQuestion as $keyq => $valq):
 		if (is_string($valq)):

@@ -25,7 +25,8 @@ $containerId = 'sender-ui-user-selector-' . $arParams['ID'];
 		'ID' => $arParams['ID'],
 		'LIST' => $arResult['LIST'],
 		'SHOW_BUTTON_ADD' => false,
-		'BUTTON_SELECT_CAPTION' => Loc::getMessage('SENDER_UI_TILE_SELECTOR_SELECT')
+		'BUTTON_SELECT_CAPTION' => Loc::getMessage('SENDER_UI_TILE_SELECTOR_SELECT'),
+		'MANUAL_INPUT_END' => true
 	));
 	?>
 	<input type="hidden" id="<?=$arParams['INPUT_NAME']?>"
@@ -38,6 +39,7 @@ $containerId = 'sender-ui-user-selector-' . $arParams['ID'];
 		"bitrix:main.ui.selector",
 		".default",
 		array(
+			'API_VERSION' => 2,
 			'ID' => $arParams['ID'],
 			'BIND_ID' => $containerId,
 			'ITEMS_SELECTED' => [],
@@ -46,21 +48,24 @@ $containerId = 'sender-ui-user-selector-' . $arParams['ID'];
 				'unSelect' => 'BX.Sender.UI.UserSelectorController.unSelect',
 				'openDialog' => "BX.Sender.UI.UserSelectorController.openDialog",
 				'closeDialog' => "BX.Sender.UI.UserSelectorController.closeDialog",
-				'openSearch' => "BX.Sender.UI.UserSelectorController.openSearch"
+				'openSearch' => "BX.Sender.UI.UserSelectorController.openSearch",
+				'closeSearch' => "BX.Sender.UI.UserSelectorController.closeSearch"
 			),
 			'OPTIONS' => array(
+				'lazyLoad' => 'N',
+				'multiple' => 'Y',
 				'useNewCallback' => 'Y',
 				'extranetContext' => false,
 				'eventInit' => 'BX.Sender.UI.UserSelectorController::init',
 				'eventOpen' => 'BX.Sender.UI.UserSelectorController::open',
-				'context' => $arResult['destinationContextOwner'],
+				'context' => 'senderUISelector',
 				'contextCode' => 'U',
 				'useSearch' => 'N',
 				'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
 				'useClientDatabase' => 'Y',
 				'allowEmailInvitation' => 'N',
 				'enableAll' => 'N',
-				'enableDepartments' => 'N',
+				'enableDepartments' => 'Y',
 				'enableSonetgroups' => 'N',
 				'departmentSelectDisable' => 'Y',
 				'allowAddUser' => 'N',
@@ -68,8 +73,7 @@ $containerId = 'sender-ui-user-selector-' . $arParams['ID'];
 				'allowAddSocNetGroup' => 'N',
 				'allowSearchEmailUsers' => 'N',
 				'allowSearchCrmEmailUsers' => 'N',
-				'allowSearchNetworkUsers' => 'N',
-				'allowSonetGroupsAjaxSearchFeatures' => 'N'
+				'allowSearchNetworkUsers' => 'N'
 			)
 		),
 		false,

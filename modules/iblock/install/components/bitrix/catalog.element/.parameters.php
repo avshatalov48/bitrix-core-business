@@ -1,7 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
-use Bitrix\Main\Loader,
+use Bitrix\Main\ModuleManager,
+	Bitrix\Main\Loader,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
 	Bitrix\Currency;
@@ -9,6 +10,7 @@ use Bitrix\Main\Loader,
 if (!Loader::includeModule('iblock'))
 	return;
 $catalogIncluded = Loader::includeModule('catalog');
+$bitrix24Mode = ModuleManager::isModuleInstalled('bitrix24');
 
 $usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
 
@@ -296,6 +298,12 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("CP_BCE_CHECK_SECTION_ID_VARIABLE"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N"
+		),
+		'ALLOW_SEO_DATA' => array(
+			'PARENT' => 'ADDITIONAL_SETTINGS',
+			'NAME' => GetMessage('CP_BCE_ALLOW_SEO_DATA'),
+			'TYPE' => 'CHECKBOX',
+			'DEFAULT' => 'N',
 		),
 		"SET_TITLE" => array(),
 		"SET_CANONICAL_URL" => array(
@@ -631,6 +639,21 @@ $arComponentParameters = array(
 		)
 	),
 );
+if ($bitrix24Mode)
+{
+	unset($arComponentParameters['PARAMETERS']['SET_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['SET_BROWSER_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['BROWSER_TITLE']);
+	unset($arComponentParameters['PARAMETERS']['SET_META_KEYWORDS']);
+	unset($arComponentParameters['PARAMETERS']['META_KEYWORDS']);
+	unset($arComponentParameters['PARAMETERS']['SET_META_DESCRIPTION']);
+	unset($arComponentParameters['PARAMETERS']['META_DESCRIPTION']);
+}
+else
+{
+	unset($arComponentParameters['PARAMETERS']['ALLOW_SEO_DATA']);
+}
+
 if ($usePropertyFeatures)
 {
 	unset($arComponentParameters["PARAMETERS"]["PROPERTY_CODE"]);

@@ -77,6 +77,12 @@ if ($USER->CanDoOperation('catalog_read')) :
 			array("1C_USE_IBLOCK_TYPE_ID", Loc::getMessage("CAT_1C_USE_IBLOCK_TYPE_ID"), "N", array("checkbox")),
 			array("1C_SKIP_ROOT_SECTION", Loc::getMessage("CAT_1C_SKIP_ROOT_SECTION_2"), "N", array("checkbox")),
 			array("1C_DISABLE_CHANGE_PRICE_NAME", Loc::getMessage("CAT_1C_DISABLE_CHANGE_PRICE_NAME"), "N", array("checkbox")),
+			array(
+				"1C_IBLOCK_CACHE_MODE",
+				Loc::getMessage("CAT_1C_IBLOCK_CACHE_MODE"),
+				"-",
+				array("list", CIBlockCMLImport::getIblockCacheModeList(true))
+			),
 			array("1C_USE_IBLOCK_PICTURE_SETTINGS", Loc::getMessage("CAT_1C_USE_IBLOCK_PICTURE_SETTINGS"), "N", array("checkbox")),
 			array("1C_GENERATE_PREVIEW", Loc::getMessage("CAT_1C_GENERATE_PREVIEW"), "Y", array("checkbox")),
 			array("1C_PREVIEW_WIDTH", Loc::getMessage("CAT_1C_PREVIEW_WIDTH"), 100, array("text", 20)),

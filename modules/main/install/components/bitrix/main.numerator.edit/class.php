@@ -173,6 +173,8 @@ class MainNumeratorEdit extends CBitrixComponent implements \Bitrix\Main\Engine\
 			$sortedKeys = [
 				'start',
 				'step',
+				'length',
+				'padString',
 				'periodicBy',
 				'timezoneToggle',
 				'timezone',

@@ -177,7 +177,7 @@ foreach($arParams["BUTTONS"] as $val)
 					"LIST" => $arParams["DESTINATION"]["SELECTED"],
 					"LAZYLOAD" => "Y",
 					"INPUT_NAME" => 'DEST_CODES[]',
-					"USE_SYMBOLIC_ID" => "Y",
+					"USE_SYMBOLIC_ID" => true,
 					"BUTTON_SELECT_CAPTION" => (
 							!empty($arParams['MPF_DESTINATION_1'])
 								? $arParams['MPF_DESTINATION_1']
@@ -201,7 +201,6 @@ foreach($arParams["BUTTONS"] as $val)
 						'departmentSelectDisable' => 'N',
 						'showVacations' => 'Y',
 						'useClientDatabase' => ($arParams["DESTINATION_USE_CLIENT_DATABASE"] != "N" ? 'Y' : 'N'),
-//						'allowAddUser' => ($arResult["bExtranetUser"] ? 'N' : 'Y'),
 						'allowSearchEmailUsers' => ($arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
 						'allowSearchCrmEmailUsers' => ($arResult["ALLOW_CRM_EMAILS"] ? 'Y' : 'N'),
 						'allowEmailInvitation' => (!$arResult["bExtranetUser"] && $arResult["ALLOW_EMAIL_INVITATION"] ? 'Y' : 'N'),
@@ -213,7 +212,8 @@ foreach($arParams["BUTTONS"] as $val)
 								? 'Y'
 								: 'N'
 						),
-						'enableAll' => 'Y'
+						'enableAll' => 'Y',
+						'sonetGroupsFeature' => 'blog'
 					)
 				]
 			);
@@ -270,7 +270,7 @@ foreach($arParams["BUTTONS"] as $val)
 		}
 		else
 		{
-			?><input type="text" id="post-tags-popup-input-<?=$arParams["FORM_ID"]?>" tabindex="<?=($arParams["TEXT"]["TABINDEX"]++)?>" name="<?=$arParams["TAGS"]["NAME"]?>" size="30" value=""><?
+			?><input type="text" id="post-tags-popup-input-<?=$arParams["FORM_ID"]?>" tabindex="<?=($arParams["TEXT"]["TABINDEX"]++)?>" name="<?=$arParams["TAGS"]["NAME"]."_".$arParams["FORM_ID"]?>" size="30" value=""><?
 		}?>
 		</div>
 		<script type="text/javascript">
@@ -332,13 +332,11 @@ foreach($arParams["BUTTONS"] as $val)
 						'enableDepartments' => 'Y',
 						'enableSonetgroups' => 'N',
 						'departmentSelectDisable' => 'Y',
-						'allowAddUser' => 'N',
 						'allowAddCrmContact' => 'N',
 						'allowAddSocNetGroup' => 'N',
 						'allowSearchEmailUsers' => 'N',
 						'allowSearchCrmEmailUsers' => 'N',
-						'allowSearchNetworkUsers' => 'N',
-						'allowSonetGroupsAjaxSearchFeatures' => 'N'
+						'allowSearchNetworkUsers' => 'N'
 					]
 			),
 			false,
@@ -351,8 +349,6 @@ foreach($arParams["BUTTONS"] as $val)
 				editorId: '<?= $arParams["LHE"]["id"]?>',
 				id: '<?=$this->randString(6)?>',
 				initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>
-//				isCrmFeed: <?=(empty($arParams["DESTINATION"]['LAST']['CRM']) ? 'false' : 'true')?>,
-//				allowSonetGroupsAjaxSearchFeatures: <?=(!empty($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) ? CUtil::PhpToJSObject($arParams["DESTINATION"]['SONETGROUPS_FEATURES']) : '{}')?>,
 			});
 		});
 	</script>

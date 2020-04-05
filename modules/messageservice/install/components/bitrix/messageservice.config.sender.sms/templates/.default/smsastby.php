@@ -54,7 +54,7 @@ if ($sender->isRegistered() || $sender->isDemo())
 ?>
 <div class="sms-settings">
 	<h2 class="sms-settings-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE")?></h2>
-	<h3 class="sms-settings-title-paragraph"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_2")?></h3>
+	<h3 class="sms-settings-title-paragraph"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_TITLE_3")?></h3>
 	<div class="sms-settings-cover-container">
 		<div class="sms-settings-cover"></div>
 	</div>
@@ -62,7 +62,7 @@ if ($sender->isRegistered() || $sender->isDemo())
 		<div class="sms-settings-futures-rings">
 			<div class="sms-settings-futures-rings-item sms-settings-futures-rings-item-first"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RING_1") ?></div>
 			<div class="sms-settings-futures-rings-item sms-settings-futures-rings-item-second"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RING_2") ?></div>
-			<div class="sms-settings-futures-rings-item sms-settings-futures-rings-item-third"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RING_3") ?></div>
+			<div class="sms-settings-futures-rings-item sms-settings-futures-rings-item-third"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RING_4") ?></div>
 		</div>
 	</div>
 	<div class="sms-settings-border"></div>
@@ -134,7 +134,10 @@ if ($sender->isRegistered() || $sender->isDemo())
 				<?else:?>
 				<ul class="sms-settings-futures-list">
 					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_1")?></li>
-					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_2")?></li>
+					<li class="sms-settings-futures-list-item">
+						<?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_2")?>
+						<a href="https://sms-assistent.by/kontaktnaya-informaciya/minsk/" target="_blank"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_DEMO_RULE_3")?></a>
+					</li>
 				</ul>
 				<form action="" method="post" class="sms-settings-step-form" name="form_demo_registration">
 					<?=bitrix_sessid_post()?>

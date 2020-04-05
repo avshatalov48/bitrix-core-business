@@ -17,6 +17,7 @@ class Domain
 	public static function getList(array $params = array())
 	{
 		$result = new PublicActionResult();
+		$params = $result->sanitizeKeys($params);
 
 		$data = array();
 		$res = DomainCore::getList($params);
@@ -136,8 +137,14 @@ class Domain
 	 */
 	public static function check($domain, array $filter = [])
 	{
-		$puny = new \CBXPunycode;
 		$result = new PublicActionResult();
+
+		if (!is_string($domain))
+		{
+			return $result;
+		}
+
+		$puny = new \CBXPunycode;
 		$domain = trim($domain);
 		$return = [
 			'available' => true,
@@ -170,7 +177,8 @@ class Domain
 				),
 				'filter' => array(
 					'DOMAIN_ID' => $domainRow['ID'],
-					'=DELETED' => 'Y'
+					'=DELETED' => 'Y',
+					'CHECK_PERMISSIONS' => 'N'
 				)
 			));
 			if ($resSite->fetch())
@@ -183,6 +191,7 @@ class Domain
 		// external available check
 		if (
 			$return['available'] &&
+			$return['domain'] &&
 			Manager::isB24()
 		)
 		{
@@ -191,9 +200,10 @@ class Domain
 				$siteController = Manager::getExternalSiteController();
 				if ($siteController)
 				{
-					$return['available'] = !(boolean)$siteController::isDomainExists(
+				 	$checkResult = $siteController::isDomainExists(
 						$return['domain']
 					);
+					$return['available'] = $checkResult < 2;
 				}
 			}
 			catch (SystemException $ex)

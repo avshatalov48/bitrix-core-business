@@ -1,2 +1,2 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/admin/translate_edit.php");
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/admin/edit.php");

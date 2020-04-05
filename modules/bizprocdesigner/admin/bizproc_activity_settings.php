@@ -3,8 +3,13 @@ define("NOT_CHECK_FILE_PERMISSIONS", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/include.php");
+\Bitrix\Main\Loader::includeModule('bizproc');
 IncludeModuleLangFile(__FILE__);
+
+if (empty($_POST['document_type']))
+{
+	die();
+}
 
 $popupWindow = new CJSPopup(GetMessage("BIZPROC_AS_TITLE"));
 

@@ -154,6 +154,10 @@
 	appearance: none;
 }
 
+.bx-filter-wrap .bx-select::-ms-expand {
+	display: none;
+}
+
 .bx-filter-content-table-wrap {padding: 0 18px;}
 
 .bx-filter-content-table {

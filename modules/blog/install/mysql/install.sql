@@ -249,7 +249,8 @@ CREATE TABLE b_blog_socnet_rights (
   ENTITY_ID int(11) NOT NULL,
   ENTITY varchar(45) NOT NULL,
   PRIMARY KEY (ID),
-  index IX_BLOG_SR_1(POST_ID)
+  index IX_BLOG_SR_1(POST_ID),
+  index IX_BLOG_SR_2(ENTITY)
 );
 
 CREATE TABLE b_blog_post_param (

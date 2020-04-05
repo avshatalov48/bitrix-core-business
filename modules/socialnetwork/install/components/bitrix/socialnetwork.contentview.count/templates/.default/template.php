@@ -41,7 +41,8 @@ if ($arResult['AVAILABLE'])
 		ratingCounter.init({
 			contentId : '<?=htmlspecialcharsbx($arResult["CONTENT_ID"])?>',
 			nodeId : 'feed-post-contentview-cnt-<?=htmlspecialcharsbx($arResult["CONTENT_ID"])?>',
-			pathToUserProfile : '<?=htmlspecialcharsbx($arResult["PATH_TO_USER_PROFILE"])?>'
+			pathToUserProfile : '<?=htmlspecialcharsbx($arResult["PATH_TO_USER_PROFILE"])?>',
+			isSet : '<?=($arResult["IS_SET"] == 'Y' ? 'Y' : 'N')?>'
 		});
 	});
 	</script><?

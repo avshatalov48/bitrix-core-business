@@ -124,9 +124,15 @@ abstract class Base implements IErrorable
 					$result[] = $entity;
 			}
 		}
+		$this->sortResults($result);
 		$this->setResults($result);
 
 		return $this;
+	}
+
+	protected function sortResults(&$result)
+	{
+		// do nothing
 	}
 
 	/**

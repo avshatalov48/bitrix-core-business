@@ -5,7 +5,7 @@ use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals\BasketTable;
-use Bitrix\Sale\Internals\ProductTable;
+use Bitrix\Catalog\ProductTable;
 use Bitrix\Seo\Adv\LinkTable;
 use Bitrix\Seo\Adv\OrderTable;
 use Bitrix\Seo\Adv\YandexBannerTable;

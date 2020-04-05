@@ -640,6 +640,11 @@ class CSqlUtil
 								}
 								elseif ($fieldType === "datetime")
 								{
+									if(!in_array($strOperation, array('=', '<', '>', '<=', '>='), true))
+									{
+										$strOperation = '=';
+									}
+
 									if (strlen($val) <= 0)
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 									elseif (strtoupper($val) === "NOW")
@@ -649,6 +654,11 @@ class CSqlUtil
 								}
 								elseif ($fieldType === "date")
 								{
+									if(!in_array($strOperation, array('=', '<', '>', '<=', '>='), true))
+									{
+										$strOperation = '=';
+									}
+
 									if (strlen($val) <= 0)
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 									else

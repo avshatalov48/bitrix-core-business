@@ -1,5 +1,4 @@
 <section class="landing-block g-pt-0 g-pb-0">
-<!--	<div class="container">-->
 		<div class="row no-gutters js-gallery-cards">
 
 			<div class="col-12 col-md-6 g-min-height-540 g-max-height-810">
@@ -30,5 +29,4 @@
 				</div>
 			</div>
 		</div>
-<!--	</div>-->
 </section>

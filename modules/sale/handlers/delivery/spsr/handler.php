@@ -68,17 +68,6 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * Handler can't count concrete
-	 * @param Shipment $shipment
-	 * @throws SystemException
-	 * @return void
-	 */
-	protected function calculateConcrete(Shipment $shipment)
-	{
-		throw new SystemException("Only SPSR Profiles can calculate concrete");
-	}
-
-	/**
 	 * Returns string for http request.
 	 * @param Shipment $shipment
 	 * @return Result

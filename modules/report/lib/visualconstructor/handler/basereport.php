@@ -64,7 +64,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 	 */
 	protected function collectFormElements()
 	{
-
 		$mainContainer = new Div();
 		$mainContainer->setKey('main_container');
 		if ($this->getConfiguration('color'))
@@ -125,9 +124,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 			));
 		}
 
-
-
-
 		$this->addFormElement($reportHandlerSelectContainer->end());
 
 		$selectListContainer = new Div();
@@ -136,7 +132,7 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		$selectListContainer->addClass('report-configuration-row-list');
 
 		$this->addFormElement($selectListContainer->start());
-			$this->addFormElement($whatWillCalculateField);
+		$this->addFormElement($whatWillCalculateField);
 		$this->addFormElement($selectListContainer->end());
 		$this->addFormElement($fieldListContainer->end());
 		$this->addFormElement($mainContainer->end());
@@ -150,7 +146,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		$whatWillCalculate = new DropDown('calculate');
 		$whatWillCalculate->setLabel(Loc::getMessage('BASE_REPORT_HANDLER_WHAT_WILL_CALCULATE'));
 		$whatWillCalculate->addOptions($this->getWhatWillCalculateOptions());
-
 
 		return $whatWillCalculate;
 	}
@@ -173,7 +168,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		));
 
 		return $groupingField;
-
 	}
 
 	/**
@@ -216,7 +210,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 			}
 		}
 
-
 		return $result;
 	}
 
@@ -244,14 +237,11 @@ abstract class BaseReport extends BaseHandler implements IReportData
 				'][reports][' .
 				$pseudoReportId .
 				']';
-
 		}
 
 		$name .= parent::getNameForFormElement($element);
 		return $name;
 	}
-
-
 
 	/**
 	 * @return string
@@ -322,7 +312,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		$this->calculatedData = $calculatedData;
 	}
 
-
 	/**
 	 * Fill report handler properties from Report entity.
 	 *
@@ -357,7 +346,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -477,9 +465,7 @@ abstract class BaseReport extends BaseHandler implements IReportData
 			}
 		}
 		return $result;
-
 	}
-
 
 	/**
 	 * @return BaseWidget|null
@@ -528,7 +514,6 @@ abstract class BaseReport extends BaseHandler implements IReportData
 		}
 	}
 
-
 	/**
 	 *
 	 * @param null $groupingValue Grouping field value.
@@ -547,5 +532,4 @@ abstract class BaseReport extends BaseHandler implements IReportData
 	{
 		return true;
 	}
-
 }

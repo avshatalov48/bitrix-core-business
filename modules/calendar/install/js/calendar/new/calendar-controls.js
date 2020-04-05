@@ -39,7 +39,7 @@
 			{
 				view.switchNode = wrap.appendChild(
 					BX.create('SPAN', {
-						props: {className: 'calendar-view-switcher-list-item' + (this.calendar.currentViewName == view.name ? ' calendar-view-switcher-list-item-active' : '')},
+						props: {className: 'calendar-view-switcher-list-item' + (this.calendar.currentViewName === view.name ? ' calendar-view-switcher-list-item-active' : '')},
 						attrs: {'data-bx-calendar-view': view.name},
 						text: view.title || view.name
 					})
@@ -75,14 +75,14 @@
 			{
 				this.menuItems.push({
 					text: view.title || view.name,
-					className: this.calendar.currentViewName == view.name ? 'menu-popup-item-accept' : ' ',
+					className: this.calendar.currentViewName === view.name ? 'menu-popup-item-accept' : ' ',
 					onclick: BX.delegate(function(){
 						this.calendar.setView(view.name, {animation: true});
 						this.menuPopup.close();
 					}, this)
 				});
 
-				if (this.calendar.currentViewName == view.name)
+				if (this.calendar.currentViewName === view.name)
 				{
 					this.selectorTextInner.innerHTML = view.title || view.name;
 				}
@@ -553,8 +553,10 @@
 		{
 			var val = this.input.value;
 			BX.onCustomEvent(this, 'onSelectInputChanged', [this, val]);
-			if (this.onChangeCallback && typeof this.onChangeCallback == 'function')
+			if (BX.type.isFunction(this.onChangeCallback))
+			{
 				this.onChangeCallback({value: val});
+			}
 		},
 
 		destroy: function()
@@ -686,7 +688,7 @@
 				}
 			}
 
-			if (this.selectedValues.length == this.values.length)
+			if (this.selectedValues.length === this.values.length)
 			{
 				this.addButton.style.display = 'none';
 			}
@@ -762,14 +764,13 @@
 		create: function()
 		{
 			var id = this.id;
-
 			this.socnetDestinationWrap = this.wrapNode.appendChild(BX.create('DIV', {
 				props: {className: 'event-grid-dest-wrap'},
 				events: {
 					click : function(e)
 					{
-						BX.SocNetLogDestination.openDialog(id);
-						BX.PreventDefault(e);
+						top.BX.SocNetLogDestination.openDialog(id);
+						top.BX.PreventDefault(e);
 					}
 				}
 			}));
@@ -780,9 +781,9 @@
 					click : function(e)
 					{
 						var targ = e.target || e.srcElement;
-						if (targ.className == 'feed-event-del-but') // Delete button
+						if (targ.className === 'feed-event-del-but') // Delete button
 						{
-							BX.SocNetLogDestination.deleteItem(targ.getAttribute('data-item-id'), targ.getAttribute('data-item-type'), id);
+							top.BX.SocNetLogDestination.deleteItem(targ.getAttribute('data-item-id'), targ.getAttribute('data-item-type'), id);
 							e.preventDefault();
 							e.stopPropagation();
 						}
@@ -790,13 +791,13 @@
 					mouseover: function(e)
 					{
 						var targ = e.target || e.srcElement;
-						if (targ.className == 'feed-event-del-but') // Delete button
+						if (targ.className === 'feed-event-del-but') // Delete button
 							BX.addClass(targ.parentNode, 'event-grid-dest-hover');
 					},
 					mouseout: function(e)
 					{
 						var targ = e.target || e.srcElement;
-						if (targ.className == 'feed-event-del-but') // Delete button
+						if (targ.className === 'feed-event-del-but') // Delete button
 							BX.removeClass(targ.parentNode, 'event-grid-dest-hover');
 					}
 				}
@@ -809,13 +810,13 @@
 					attrs: {value: '', type: 'text'},
 					events: {
 						keydown : function(e){
-							return BX.SocNetLogDestination.searchBeforeHandler(e, {
+							return top.BX.SocNetLogDestination.searchBeforeHandler(e, {
 								formName: id,
 								inputId: id + '-inp'
 							});
 						},
 						keyup : function(e){
-							return BX.SocNetLogDestination.searchHandler(e, {
+							return top.BX.SocNetLogDestination.searchHandler(e, {
 								formName: id,
 								inputId: id + '-inp',
 								linkId: 'event-grid-dest-add-link',
@@ -830,13 +831,13 @@
 				props: {id: id + '-link', className: 'feed-add-destination-link'},
 				events: {
 					keydown : function(e){
-						return BX.SocNetLogDestination.searchBeforeHandler(e, {
+						return top.BX.SocNetLogDestination.searchBeforeHandler(e, {
 							formName: id,
 							inputId: id + '-inp'
 						});
 					},
 					keyup : function(e){
-						return BX.SocNetLogDestination.searchHandler(e, {
+						return top.BX.SocNetLogDestination.searchHandler(e, {
 							formName: id,
 							inputId: id + '-inp',
 							linkId: 'event-grid-dest-add-link',
@@ -883,7 +884,7 @@
 				this.params.items.department = {};
 			}
 
-			BX.SocNetLogDestination.init({
+			top.BX.SocNetLogDestination.init({
 				name : this.id,
 				searchInput : this.socnetDestinationInput,
 				extranetUser :  false,
@@ -920,7 +921,7 @@
 			{
 				if (selected.hasOwnProperty(code))
 				{
-					if (selected[code] == 'users' && !items.users[code])
+					if (selected[code] === 'users' && !items.users[code])
 					{
 						codes.push(code);
 					}
@@ -946,8 +947,10 @@
 						this.params.items = this.calendar.util.getSocnetDestinationConfig('items');
 						this.params.itemsLast = this.calendar.util.getSocnetDestinationConfig('itemsLast');
 
-						if (callback && typeof callback == 'function')
+						if (BX.type.isFunction(callback))
+						{
 							callback();
+						}
 					}, this)
 				});
 				return false;
@@ -958,11 +961,11 @@
 
 		closeAll: function ()
 		{
-			if (BX.SocNetLogDestination.isOpenDialog())
+			if (top.BX.SocNetLogDestination.isOpenDialog())
 			{
-				BX.SocNetLogDestination.closeDialog();
+				top.BX.SocNetLogDestination.closeDialog();
 			}
-			BX.SocNetLogDestination.closeSearch();
+			top.BX.SocNetLogDestination.closeSearch();
 		},
 
 		selectCallback: function(item, type)
@@ -971,20 +974,20 @@
 				type1 = type,
 				prefix = 'S';
 
-			if (type == 'sonetgroups')
+			if (type === 'sonetgroups')
 			{
 				prefix = 'SG';
 			}
-			else if (type == 'groups')
+			else if (type === 'groups')
 			{
 				prefix = 'UA';
 				type1 = 'all-users';
 			}
-			else if (type == 'users')
+			else if (type === 'users')
 			{
 				prefix = 'U';
 			}
-			else if (type == 'department')
+			else if (type === 'department')
 			{
 				prefix = 'DR';
 			}
@@ -999,7 +1002,7 @@
 
 			BX.onCustomEvent('OnDestinationAddNewItem', [item]);
 			this.socnetDestinationInput.value = '';
-			this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
+			this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (top.BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
 		},
 
 		unSelectCallback: function(item, type, search)
@@ -1015,23 +1018,23 @@
 
 			BX.onCustomEvent('OnDestinationUnselect');
 			this.socnetDestinationInput.value = '';
-			this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
+			this.socnetDestinationLink.innerHTML = this.params.addLinkMessage || (top.BX.SocNetLogDestination.getSelectedCount(this.id) > 0 ? BX.message('EC_DESTINATION_ADD_MORE') : BX.message('EC_DESTINATION_ADD_USERS'));
 		},
 
 		openDialogCallback: function ()
 		{
-			if (BX.SocNetLogDestination.popupWindow)
+			if (top.BX.SocNetLogDestination.popupWindow)
 			{
 				// Fix zIndex for slider issues
-				BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
-				BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
+				top.BX.SocNetLogDestination.popupWindow.params.zIndex = this.zIndex;
+				top.BX.SocNetLogDestination.popupWindow.popupContainer.style.zIndex = this.zIndex;
 			}
 
-			if (BX.SocNetLogDestination.popupSearchWindow)
+			if (top.BX.SocNetLogDestination.popupSearchWindow)
 			{
 				// Fix zIndex for slider issues
-				BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
-				BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
+				top.BX.SocNetLogDestination.popupSearchWindow.params.zIndex = this.zIndex;
+				top.BX.SocNetLogDestination.popupSearchWindow.popupContainer.style.zIndex = this.zIndex;
 			}
 
 			BX.style(this.socnetDestinationInputWrap, 'display', 'inline-block');
@@ -1041,7 +1044,7 @@
 
 		closeDialogCallback: function(cleanInputValue)
 		{
-			if (!BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0)
+			if (!top.BX.SocNetLogDestination.isOpenSearch() && this.socnetDestinationInput.value.length <= 0)
 			{
 				BX.style(this.socnetDestinationInputWrap, 'display', 'none');
 				BX.style(this.socnetDestinationLink, 'display', 'inline-block');
@@ -1049,12 +1052,12 @@
 					this.socnetDestinationInput.value = '';
 
 				// Disable backspace
-				if (BX.SocNetLogDestination.backspaceDisable || BX.SocNetLogDestination.backspaceDisable != null)
-					BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
+				if (top.BX.SocNetLogDestination.backspaceDisable || top.BX.SocNetLogDestination.backspaceDisable != null)
+					BX.unbind(window, 'keydown', top.BX.SocNetLogDestination.backspaceDisable);
 
-				BX.bind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable = function(e)
+				BX.bind(window, 'keydown', top.BX.SocNetLogDestination.backspaceDisable = function(e)
 				{
-					if (e.keyCode == 8)
+					if (e.keyCode === 8)
 					{
 						e.preventDefault();
 						return false;
@@ -1063,8 +1066,8 @@
 
 				setTimeout(function()
 				{
-					BX.unbind(window, 'keydown', BX.SocNetLogDestination.backspaceDisable);
-					BX.SocNetLogDestination.backspaceDisable = null;
+					BX.unbind(window, 'keydown', top.BX.SocNetLogDestination.backspaceDisable);
+					top.BX.SocNetLogDestination.backspaceDisable = null;
 				}, 5000);
 			}
 		},
@@ -1104,19 +1107,19 @@
 			if (BX.type.isArray(values))
 			{
 				values.forEach(function(code){
-					if (code.substr(0, 2) == 'DR')
+					if (code.substr(0, 2) === 'DR')
 					{
 						attendeesCodes[code] = "department";
 					}
-					else if (code.substr(0, 2) == 'UA')
+					else if (code.substr(0, 2) === 'UA')
 					{
 						attendeesCodes[code] = "groups";
 					}
-					else if (code.substr(0, 2) == 'SG')
+					else if (code.substr(0, 2) === 'SG')
 					{
 						attendeesCodes[code] = "sonetgroups";
 					}
-					else if (code.substr(0, 1) == 'U')
+					else if (code.substr(0, 1) === 'U')
 					{
 						attendeesCodes[code] = "users";
 					}
@@ -1223,19 +1226,21 @@
 				{
 					menuItemList.push({
 						ID: parseInt(meetingRooms[i].ID),
+						labelRaw: meetingRooms[i].NAME,
 						label: BX.util.htmlspecialchars(meetingRooms[i].NAME),
 						value: meetingRooms[i].ID,
 						type: 'mr'
 					});
 
 
-					if (this.value.type == 'mr' && this.value.value == meetingRooms[i].ID)
+					if (this.value.type === 'mr' && parseInt(this.value.value) === parseInt(meetingRooms[i].ID))
 					{
 						selectedIndex = menuItemList.length - 1;
 					}
 				}
 				menuItemList.push({delimiter: true});
 			}
+
 
 			if (!locationList || !locationList.length)
 			{
@@ -1256,7 +1261,7 @@
 						value: parseInt(locationList[i].ID),
 						type: 'calendar'
 					});
-					if (this.value.type == 'calendar' && this.value.value == locationList[i].ID)
+					if (this.value.type === 'calendar' && this.value.value == locationList[i].ID)
 					{
 						selectedIndex = menuItemList.length - 1;
 					}
@@ -1272,7 +1277,7 @@
 			if (this.value)
 			{
 				this.DOM.input.value = this.value.str || '';
-				if (this.value.type && this.value.str == this.calendar.util.getTextLocation(this.value))
+				if (this.value.type && this.value.str === this.calendar.util.getTextLocation(this.value))
 				{
 					this.DOM.input.value = BX.message('EC_LOCATION_404');
 				}
@@ -1295,7 +1300,7 @@
 					this.value = {text: value};
 					for (i = 0; i < menuItemList.length; i++)
 					{
-						if (menuItemList[i].label === value)
+						if (menuItemList[i].labelRaw === value)
 						{
 							this.value.type = menuItemList[i].type;
 							this.value.value = menuItemList[i].value;
@@ -1303,7 +1308,7 @@
 						}
 					}
 
-					if (this.params.onChangeCallback && typeof this.params.onChangeCallback == 'function')
+					if (BX.type.isFunction(this.params.onChangeCallback))
 					{
 						this.params.onChangeCallback();
 					}
@@ -1567,11 +1572,11 @@
 			}
 
 			var res = value.str || value.text || '';
-			if (value && value.type == 'mr')
+			if (value && value.type === 'mr')
 			{
 				res = 'ECMR_' + value.value;
 			}
-			else if (value && value.type == 'calendar')
+			else if (value && value.type === 'calendar')
 			{
 				res = 'calendar_' + value.value;
 			}
@@ -1712,7 +1717,7 @@
 
 			dayNode.onbxdestdragfinish = BX.delegate(function(currentNode)
 			{
-				if (currentNode.getAttribute('data-bx-entry-resizer') == 'Y' && this.resizedState)
+				if (currentNode.getAttribute('data-bx-entry-resizer') === 'Y' && this.resizedState)
 				{
 					this.calendar.entryController.moveEventToNewDate(this.resizedState.entry, this.resizedState.entry.from, this.resizedState.entry.to);
 					return true;
@@ -1794,7 +1799,16 @@
 
 		registerEntry: function(node, params)
 		{
-			var dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit');
+			var dragAllowed = false;
+			if (this.calendar.isExternalMode())
+			{
+				dragAllowed = params.entry && params.entry.data && params.entry.data.ALLOW_DRAGDROP;
+			}
+			else
+			{
+				dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit');
+			}
+
 			jsDD.registerObject(node);
 
 			node.onbxdragstart = BX.delegate(function()
@@ -1816,7 +1830,7 @@
 				BX.removeClass(this.draggedNode, 'calendar-event-line-start-yesterday');
 				BX.removeClass(this.draggedNode, 'calendar-event-line-finish-tomorrow');
 
-				if (this.calendar.currentViewName == 'week' || this.calendar.currentViewName == 'day')
+				if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
 				{
 					this.draggedNode.style.left = (BX.pos(node).left + 2) + 'px';
 					this.draggedNode.style.width = (this.calendar.getView().getDayWidth() - 5) + 'px';
@@ -1881,7 +1895,7 @@
 			{
 				if (this.draggedNode)
 				{
-					if (this.calendar.currentViewName == 'week' || this.calendar.currentViewName == 'day')
+					if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
 					{
 						var
 							timeFrom,timeNode,

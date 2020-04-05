@@ -208,38 +208,28 @@ function __blogPostSetFollow(log_id)
 		followNode.setAttribute("data-follow", strFollowNew);
 	}
 
-	var actionUrl = BX.message('sonetBPSetPath');
-	actionUrl = BX.util.add_url_param(actionUrl, {
-		b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
-	});
-
-	BX.ajax({
-		url: actionUrl,
-		method: 'POST',
-		dataType: 'json',
+	BX.ajax.runAction('socialnetwork.api.livefeed.changeFollow', {
 		data: {
-			log_id: log_id,
-			action: "change_follow",
-			follow: strFollowNew,
-			sessid: BX.bitrix_sessid(),
-			site: BX.message('sonetBPSiteId')
+			logId: log_id,
+			value: strFollowNew
 		},
-		onsuccess: function(data) {
-			if (
-				data["SUCCESS"] != "Y"
-				&& followNode
-			)
-			{
-				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-				followNode.setAttribute("data-follow", strFollowOld);
-			}
-		},
-		onfailure: function(data) {
-			if (followNode)
-			{
-				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
-				followNode.setAttribute("data-follow", strFollowOld);
-			}
+		analyticsLabel: {
+			b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
+		}
+	}).then(function(response) {
+		if (
+			!response.data.success
+			&& followNode
+		)
+		{
+			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
+			followNode.setAttribute("data-follow", strFollowOld);
+		}
+	}, function(response) {
+		if (followNode)
+		{
+			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetBPFollow' + strFollowOld);
+			followNode.setAttribute("data-follow", strFollowOld);
 		}
 	});
 
@@ -305,285 +295,295 @@ function __blogPostSetFollow(log_id)
 			}
 		}, 300);
 
-		BX.ajax({
-			url: '/bitrix/components/bitrix/socialnetwork.blog.post/ajax.php',
-			method: 'POST',
-			dataType: 'json',
+		BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.getData', {
 			data: {
-				sessid : BX.bitrix_sessid(),
-				siteId : BX.message('SITE_ID'),
-				action : 'get_data',
-				postId : parseInt(params.postId),
-				public : (isPublicPage ? 'Y' : 'N'),
-				mobile : 'N',
-				group_readonly : (typeof params.group_readonly != 'undefined' && !!params.group_readonly ? 'Y' : 'N'),
-				pathToPost : pathToPost,
-				voteId: voteId
+				params: {
+					postId : parseInt(params.postId),
+					public : (isPublicPage ? 'Y' : 'N'),
+					mobile : 'N',
+					groupReadOnly : (typeof params.group_readonly != 'undefined' && !!params.group_readonly ? 'Y' : 'N'),
+					pathToPost : pathToPost,
+					voteId: voteId,
+					checkModeration : 'Y',
+				}
 			},
-			onsuccess: function(postData) {
-				if (
-					typeof postData == 'undefined'
-					|| typeof postData.perms == 'undefined'
-					|| (
-						postData.perms <= 'D' // \Bitrix\Blog\Item\Permissions::DENY
-						&& (
-							typeof params.items == 'undefined'
-							|| params.items.length <= 0
-						)
-					)
+		}).then(function (response) {
+
+			var postData = response.data;
+
+			if (
+				postData.perms <= 'D' // \Bitrix\Blog\Item\Permissions::DENY
+				&& (
+					typeof params.items == 'undefined'
+					|| params.items.length <= 0
 				)
-				{
-					menuWaiterPopup.destroy();
-					return false;
-				}
-
-				var menuItems = [];
-
-				if(!BX.util.in_array(postType, ["DRAFT", "MODERATION"]))
-				{
-					if (
-						postData.isGroupReadOnly != 'Y'
-						&& parseInt(BX.message('USER_ID')) > 0
-						&& (parseInt(postData.logId) > 0)
-					)
-					{
-						var isFavorites = (parseInt(postData.logFavoritesUserId) > 0);
-						menuItems.push({
-							text: BX.message(isFavorites ? "sonetLMenuFavoritesTitleY" : "sonetLMenuFavoritesTitleN"),
-							onclick: function(e) {
-								__logChangeFavorites(
-									parseInt(postData.logId),
-									'log_entry_favorites_' + parseInt(postData.logId),
-									(isFavorites ? 'N' : 'Y'),
-									true
-								);
-								return false;
-							}
-						});
-					}
-
-					var serverName = params.serverName;
-
-					menuItems.push({
-						text: BX.message('BLOG_HREF'),
-						href: postData.urlToPost,
-						class: 'feed-entry-popup-menu-link'
-					});
-
-					menuItems.push({
-						text: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
-							'<span id="post-menu-' + postData.logId + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
-								'<span class="post-menu-link-icon" id="post-menu-' + postData.logId + '-link-icon-done" style="display: none;">' +
-
-								'</span>' +
-							'</span>',
-						onclick: function(e) {
-							showMenuLinkInput(
-								parseInt(postData.logId),
-								serverName + postData.urlToPost
-							);
-							return false;
-						},
-						class: 'feed-entry-popup-menu-link'
-					});
-
-					if (
-						parseInt(BX.message('USER_ID')) > 0
-						&& postData.isGroupReadOnly != 'Y'
-						&& postData.isShareForbidden != 'Y'
-					)
-					{
-						menuItems.push({
-							text: BX.message('BLOG_SHARE'),
-							onclick: function() {
-								showSharing(
-									parseInt(params.postId),
-									parseInt(postData.authorId)
-								);
-								this.popupWindow.close();
-							}
-						});
-					}
-
-					if (
-						postData.perms >= 'W' // \Bitrix\Blog\Item\Permissions::FULL
-						|| (
-							postData.perms >= 'P' // \Bitrix\Blog\Item\Permissions::WRITE
-							&& postData.authorId == BX.message('USER_ID')
-						)
-					)
-					{
-						menuItems.push({
-							text: BX.message('BLOG_BLOG_BLOG_EDIT'),
-							href: urlToEdit
-						});
-					}
-
-					if(postData.perms >= 'T') // \Bitrix\Blog\Item\Permissions::MODERATE
-					{
-						menuItems.push({
-							text: BX.message('BLOG_MES_HIDE'),
-							onclick: function() {
-								if(confirm(BX.message('BLOG_MES_HIDE_POST_CONFIRM')))
-								{
-									window.location = urlToHide;
-									this.popupWindow.close();
-								}
-							}
-						});
-					}
-
-					if (postData.perms >= 'W') //  // \Bitrix\Blog\Item\Permissions::FULL
-					{
-						menuItems.push({
-							text: BX.message('BLOG_BLOG_BLOG_DELETE'),
-							onclick: function() {
-								if (confirm(BX.message('BLOG_MES_DELETE_POST_CONFIRM')))
-								{
-									if (urlToDelete.length > 0)
-									{
-										window.location = urlToDelete.replace('#del_post_id#', parseInt(params.postId));
-									}
-									else
-									{
-										window.deleteBlogPost(parseInt(params.postId));
-									}
-									this.popupWindow.close();
-								}
-							}
-						});
-					}
-
-					if (
-						isTasksAvailable
-						&& postData.perms > 'D'
-					)
-					{
-						menuItems.push({
-							text: BX.message('BLOG_POST_CREATE_TASK'),
-							onclick: function(e) {
-								var target = e.target || e.srcElement;
-
-								oLF.createTask({
-									entityType: 'BLOG_POST',
-									entityId: parseInt(params.postId)
-								});
-								this.popupWindow.close();
-								return e.preventDefault();
-							}
-						});
-					}
-
-					if (postData.urlToVoteExport.length > 0)
-					{
-						menuItems.push({
-							text: BX.message('BLOG_POST_VOTE_EXPORT'),
-							href: postData.urlToVoteExport
-						});
-					}
-				}
-
-				var
-					onclickHandler = null,
-					menuItem = null,
-					item = null;
-
-				if (typeof params.items != 'undefined')
-				{
-					for (var key in params.items)
-					{
-						if (params.items.hasOwnProperty(key))
-						{
-							item = params.items[key];
-
-							menuItem = {};
-							if (typeof item.text_php != 'undefined')
-							{
-								menuItem.text = item.text_php;
-							}
-
-							if (typeof item.onclick != 'undefined')
-							{
-								eval("onclickHandler = " + item.onclick);
-								menuItem.onclick = onclickHandler;
-							}
-							else if (typeof item.href != 'undefined')
-							{
-								menuItem.href = item.href;
-							}
-
-							menuItems.push(menuItem);
-						}
-					}
-				}
-
-				var popupEvents = (
-					typeof params.logId != 'undefined' && parseInt(params.logId) > 0
-						? {
-							onPopupShow : function(ob)
-							{
-								if (BX('log_entry_favorites_' + parseInt(params.logId)))
-								{
-									var menuItems = BX.findChildren(ob.contentContainer, {'className' : 'menu-popup-item-text'}, true);
-									if (menuItems != null)
-									{
-										for (var i = 0; i < menuItems.length; i++)
-										{
-											if (
-												menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleY')
-												|| menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleN')
-											)
-											{
-												var favoritesMenuItem = menuItems[i];
-												break;
-											}
-										}
-									}
-
-									if (typeof favoritesMenuItem != 'undefined')
-									{
-										BX(favoritesMenuItem).innerHTML = (
-											BX.hasClass(BX('log_entry_favorites_' + parseInt(params.logId)), 'feed-post-important-switch-active')
-												? BX.message('sonetLMenuFavoritesTitleY')
-												: BX.message('sonetLMenuFavoritesTitleN')
-										);
-									}
-								}
-
-								if (BX('post-menu-' + parseInt(params.logId) + '-link'))
-								{
-									var linkMenuItem = BX.findChild(ob.popupContainer, {className: 'feed-entry-popup-menu-link'}, true, false);
-									if (linkMenuItem)
-									{
-										var height = parseInt(!!linkMenuItem.getAttribute('bx-height') ? linkMenuItem.getAttribute('bx-height') : 0);
-										if (height > 0)
-										{
-											BX('post-menu-' + parseInt(params.logId) + '-link').style.display = 'none';
-											linkMenuItem.setAttribute('bx-status', 'hidden');
-											linkMenuItem.style.height = height + 'px';
-										}
-									}
-								}
-							}
-						}
-						: {}
-				);
-
-				menuWaiterPopup.destroy();
-				BX.PopupMenu.show('blog-post-' + params.postId, params.bindNode, menuItems,
-					{
-						offsetLeft: -14,
-						offsetTop: 4,
-						lightShadow: false,
-						angle: {position: 'top', offset: 50},
-						events: popupEvents
-					});
-				return false;
-			},
-			onfailure: function(data) {
+			)
+			{
 				menuWaiterPopup.destroy();
 				return false;
 			}
+
+			var menuItems = [];
+
+			if(!BX.util.in_array(postType, [ 'DRAFT', 'MODERATION' ]))
+			{
+				if (
+					postData.isGroupReadOnly != 'Y'
+					&& parseInt(BX.message('USER_ID')) > 0
+					&& (parseInt(postData.logId) > 0)
+				)
+				{
+					var isFavorites = (parseInt(postData.logFavoritesUserId) > 0);
+					menuItems.push({
+						text: BX.message(isFavorites ? "sonetLMenuFavoritesTitleY" : "sonetLMenuFavoritesTitleN"),
+						onclick: function(e) {
+							__logChangeFavorites(
+								parseInt(postData.logId),
+								'log_entry_favorites_' + parseInt(postData.logId),
+								(isFavorites ? 'N' : 'Y'),
+								true
+							);
+							return false;
+						}
+					});
+				}
+
+				var serverName = params.serverName;
+
+				menuItems.push({
+					text: BX.message('BLOG_HREF'),
+					href: postData.urlToPost,
+					class: 'feed-entry-popup-menu-link',
+					target: '_top'
+				});
+
+				menuItems.push({
+					text: '<span id="post-menu-' + postData.logId + '-link-text">' + BX.message('BLOG_LINK') + '</span>' +
+						'<span id="post-menu-' + postData.logId + '-link-icon-animate" class="post-menu-link-icon-wrap">' +
+						'<span class="post-menu-link-icon" id="post-menu-' + postData.logId + '-link-icon-done" style="display: none;">' +
+
+						'</span>' +
+						'</span>',
+					onclick: function(e) {
+						showMenuLinkInput(
+							parseInt(postData.logId),
+							serverName + postData.urlToPost
+						);
+						return false;
+					},
+					class: 'feed-entry-popup-menu-link'
+				});
+
+				if (
+					parseInt(BX.message('USER_ID')) > 0
+					&& postData.isGroupReadOnly != 'Y'
+					&& postData.isShareForbidden != 'Y'
+				)
+				{
+					menuItems.push({
+						text: BX.message('BLOG_SHARE'),
+						onclick: function() {
+							showSharing(
+								parseInt(params.postId),
+								parseInt(postData.authorId)
+							);
+							this.popupWindow.close();
+						}
+					});
+				}
+
+				if (
+					postData.perms >= 'W' // \Bitrix\Blog\Item\Permissions::FULL
+					|| (
+						postData.perms >= 'P' // \Bitrix\Blog\Item\Permissions::WRITE
+						&& postData.authorId == BX.message('USER_ID')
+					)
+				)
+				{
+					menuItems.push({
+						text: BX.message('BLOG_BLOG_BLOG_EDIT'),
+						href: urlToEdit,
+						target: '_top'
+					});
+				}
+
+				if(postData.perms >= 'T') // \Bitrix\Blog\Item\Permissions::MODERATE
+				{
+					menuItems.push({
+						text: BX.message('BLOG_MES_HIDE'),
+						onclick: function() {
+							if(confirm(BX.message('BLOG_MES_HIDE_POST_CONFIRM')))
+							{
+								window.location = urlToHide;
+								this.popupWindow.close();
+							}
+						}
+					});
+				}
+
+				if (postData.perms >= 'W') //  // \Bitrix\Blog\Item\Permissions::FULL
+				{
+					menuItems.push({
+						text: BX.message('BLOG_BLOG_BLOG_DELETE'),
+						onclick: function() {
+							if (confirm(BX.message('BLOG_MES_DELETE_POST_CONFIRM')))
+							{
+								if (urlToDelete.length > 0)
+								{
+									window.location = urlToDelete.replace('#del_post_id#', parseInt(params.postId));
+								}
+								else
+								{
+									window.deleteBlogPost(parseInt(params.postId));
+								}
+								this.popupWindow.close();
+							}
+						}
+					});
+				}
+
+				if (
+					isTasksAvailable
+					&& postData.perms > 'D'
+				)
+				{
+					menuItems.push({
+						text: BX.message('BLOG_POST_CREATE_TASK'),
+						onclick: function(e) {
+							var target = e.target || e.srcElement;
+
+							oLF.createTask({
+								entityType: 'BLOG_POST',
+								entityId: parseInt(params.postId)
+							});
+							this.popupWindow.close();
+							return e.preventDefault();
+						}
+					});
+				}
+
+				if (postData.urlToVoteExport.length > 0)
+				{
+					menuItems.push({
+						text: BX.message('BLOG_POST_VOTE_EXPORT'),
+						href: postData.urlToVoteExport,
+						target: '_top'
+					});
+				}
+			}
+
+			if(
+				postType == 'DRAFT'
+				&& postData.allowModerate == 'Y'
+				&& BX.type.isNotEmptyString(params.urlToPub)
+			)
+			{
+				menuItems.push({
+					text: BX.message('BLOG_POST_MOD_PUB'),
+					href: params.urlToPub,
+					target: '_top'
+				});
+			}
+
+			var
+				onclickHandler = null,
+				menuItem = null,
+				item = null;
+
+			if (typeof params.items != 'undefined')
+			{
+				for (var key in params.items)
+				{
+					if (params.items.hasOwnProperty(key))
+					{
+						item = params.items[key];
+
+						menuItem = {};
+						if (typeof item.text_php != 'undefined')
+						{
+							menuItem.text = item.text_php;
+						}
+
+						if (typeof item.onclick != 'undefined')
+						{
+							eval("onclickHandler = " + item.onclick);
+							menuItem.onclick = onclickHandler;
+						}
+						else if (typeof item.href != 'undefined')
+						{
+							menuItem.href = item.href;
+						}
+
+						menuItems.push(menuItem);
+					}
+				}
+			}
+
+			var popupEvents = (
+				typeof params.logId != 'undefined' && parseInt(params.logId) > 0
+					? {
+						onPopupShow : function(ob)
+						{
+							if (BX('log_entry_favorites_' + parseInt(params.logId)))
+							{
+								var menuItems = BX.findChildren(ob.contentContainer, {'className' : 'menu-popup-item-text'}, true);
+								if (menuItems != null)
+								{
+									for (var i = 0; i < menuItems.length; i++)
+									{
+										if (
+											menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleY')
+											|| menuItems[i].innerHTML == BX.message('sonetLMenuFavoritesTitleN')
+										)
+										{
+											var favoritesMenuItem = menuItems[i];
+											break;
+										}
+									}
+								}
+
+								if (typeof favoritesMenuItem != 'undefined')
+								{
+									BX(favoritesMenuItem).innerHTML = (
+										BX.hasClass(BX('log_entry_favorites_' + parseInt(params.logId)), 'feed-post-important-switch-active')
+											? BX.message('sonetLMenuFavoritesTitleY')
+											: BX.message('sonetLMenuFavoritesTitleN')
+									);
+								}
+							}
+
+							if (BX('post-menu-' + parseInt(params.logId) + '-link'))
+							{
+								var linkMenuItem = BX.findChild(ob.popupContainer, {className: 'feed-entry-popup-menu-link'}, true, false);
+								if (linkMenuItem)
+								{
+									var height = parseInt(!!linkMenuItem.getAttribute('bx-height') ? linkMenuItem.getAttribute('bx-height') : 0);
+									if (height > 0)
+									{
+										BX('post-menu-' + parseInt(params.logId) + '-link').style.display = 'none';
+										linkMenuItem.setAttribute('bx-status', 'hidden');
+										linkMenuItem.style.height = height + 'px';
+									}
+								}
+							}
+						}
+					}
+					: {}
+			);
+
+			menuWaiterPopup.destroy();
+			BX.PopupMenu.show('blog-post-' + params.postId, params.bindNode, menuItems,
+				{
+					offsetLeft: -14,
+					offsetTop: 4,
+					lightShadow: false,
+					angle: {position: 'top', offset: 50},
+					events: popupEvents
+				});
+			return false;
+		}, function (response) {
+			menuWaiterPopup.destroy();
+			return false;
 		});
 	};
 
@@ -831,45 +831,46 @@ function __blogPostSetFollow(log_id)
 		if (this.node.getAttribute("inumpage") != "done")
 		{
 			this.node.setAttribute("status", "busy");
-			BX.ajax({
-				url: "/bitrix/components/bitrix/socialnetwork.blog.blog/users.php",
-				method: 'POST',
-				dataType: 'json',
-				data: {
-					'ID' : this.postId,
-					'post_id' : this.postId,
-					'name' : "BLOG_POST_IMPRTNT",
-					'value' : "Y",
-					'iNumPage' : this.node.getAttribute("inumpage"),
-					'PATH_TO_USER' : this.pathToUser,
-					'NAME_TEMPLATE' : this.nameTemplate,
-					'sessid': BX.bitrix_sessid(),
-					'lang': BX.message('LANGUAGE_ID'),
-					'site': BX.message('SITE_ID')
-				},
-				onsuccess: BX.proxy(function(data){
-					if (!!data && !!data.items)
-					{
-						var res = false;
-						for (var ii in data.items) {
-							this.data.push(data.items[ii]);
-						}
-						if (data.StatusPage == "done")
-						{
-							this.node.setAttribute("inumpage", "done");
-						}
 
-						this.make((this.node.getAttribute("inumpage") != "done"));
+			BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.important.getUsers', {
+				data: {
+					params: {
+						POST_ID: this.postId,
+						NAME: 'BLOG_POST_IMPRTNT',
+						VALUE: 'Y',
+						PAGE_NUMBER: this.node.getAttribute("inumpage"),
+						PATH_TO_USER: this.pathToUser,
+						NAME_TEMPLATE: this.nameTemplate
 					}
-					else
+				}
+			}).then(function(response) {
+				var resultData = response.data;
+
+				if (BX.type.isNotEmptyObject(resultData.items))
+				{
+					for (var ii in resultData.items)
 					{
-						this.node.setAttribute("inumpage", "done");
+						if (resultData.items.hasOwnProperty(ii))
+						{
+							this.data.push(resultData.items[ii]);
+						}
 					}
-					this.node.firstChild.innerHTML = data["RecordCount"];
-					this.node.setAttribute("status", "ready");
-				}, this),
-				onfailure: BX.proxy(function(data){ this.node.setAttribute("status", "ready"); }, this)
-			});
+					if (resultData.StatusPage == 'done')
+					{
+						this.node.setAttribute('inumpage', 'done');
+					}
+
+					this.make((this.node.getAttribute('inumpage') != 'done'));
+				}
+				else
+				{
+					this.node.setAttribute('inumpage', 'done');
+				}
+				this.node.firstChild.innerHTML = resultData['RecordCount'];
+				this.node.setAttribute('status', 'ready');
+			}.bind(this), function(response) {
+				this.node.setAttribute('status', 'ready');
+			}.bind(this));
 		}
 	};
 	top.SBPImpPostCounter.prototype.show = function()
@@ -1024,8 +1025,8 @@ function __blogPostSetFollow(log_id)
 		var res = BX.proxy_context;
 		if (res.scrollTop > (res.scrollHeight - res.offsetHeight) / 1.5)
 		{
-			BX.unbind(res, 'scroll' , BX.proxy(this.popupScrollCheck, this));
 			this.get();
+			BX.unbindAll(res);
 		}
 	}
 })(window);

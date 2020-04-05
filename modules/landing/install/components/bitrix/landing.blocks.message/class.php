@@ -12,12 +12,27 @@ class LandingBlocksMessageComponent extends \CBitrixComponent
 	 */
 	public function executeComponent()
 	{
-		if (
-			isset($this->arParams['MESSAGE']) &&
-			trim($this->arParams['MESSAGE'])
-		)
+		if (!\Bitrix\Main\Loader::includeModule('landing'))
 		{
-			$this->IncludeComponentTemplate();
+			return;
 		}
+
+		$codes = [
+			'HEADER', 'MESSAGE', 'BUTTON', 'LINK'
+		];
+
+		foreach ($codes as $code)
+		{
+			if (!isset($this->arParams[$code]))
+			{
+				$this->arParams[$code] = '';
+			}
+			if (!isset($this->arParams['~' . $code]))
+			{
+				$this->arParams['~' . $code] = '';
+			}
+		}
+
+		$this->includeComponentTemplate();
 	}
 }

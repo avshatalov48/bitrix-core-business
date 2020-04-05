@@ -7,6 +7,7 @@ use Bitrix\Sale\Internals\BusinessValueTable;
 use Bitrix\Sale\Internals\Input;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Registry;
 
 Loc::loadMessages(__FILE__);
 
@@ -194,7 +195,7 @@ final class BusinessValueControl
 			{
 				$code = $codes[$codeKey] ?: array();
 				$fileInput = $code['INPUT'];
-				if (! (is_array($fileInput) && $fileInput['TYPE'] == 'FILE'))
+				if (!(is_array($fileInput) && ($fileInput['TYPE'] == 'FILE' || $fileInput['TYPE'] == 'DATABASE_FILE')))
 					$fileInput = null;
 
 				foreach ($personMapping as $personTypeId => $mapping)
@@ -205,30 +206,62 @@ final class BusinessValueControl
 					}
 					else
 					{
+						$consumerCodePersonMapping = \Bitrix\Sale\BusinessValue::getConsumerCodePersonMapping();
 						if ($fileInput && ($file =& $mapping['PROVIDER_VALUE']))
 						{
 							if (Input\File::isDeletedSingle($file))
 							{
-								if (is_numeric($file['ID']))
-									\CFile::Delete($file['ID']); // TODO isSuccess
+								if ($fileInput['TYPE'] == 'FILE')
+								{
+									if (is_numeric($file['ID']) && isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]))
+									{
+										\CFile::Delete($file['ID']); // TODO isSuccess
+									}
+								}
 
 								$file = null;
 							}
 							elseif (Input\File::isUploadedSingle($file))
 							{
-								if (($file = \CFile::SaveFile(array('MODULE_ID' => 'sale') + $file, 'sale/bizval')) && is_numeric($file))
+								if ($fileInput['TYPE'] == 'FILE')
 								{
-									if (($oldFile = BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, array('MATCH' => BusinessValue::MATCH_EXACT))) && is_numeric($oldFile['PROVIDER_VALUE']))
-										\CFile::Delete($oldFile['PROVIDER_VALUE']); // TODO isSuccess
+									if (($file = \CFile::SaveFile(array('MODULE_ID' => 'sale') + $file, 'sale/bizval')) && is_numeric($file))
+									{
+										if (($oldFile = BusinessValue::getMapping($codeKey, $consumerKey, $personTypeId, array('MATCH' => BusinessValue::MATCH_EXACT))) && is_numeric($oldFile['PROVIDER_VALUE']))
+											\CFile::Delete($oldFile['PROVIDER_VALUE']); // TODO isSuccess
+									}
+									else
+									{
+										$this->errors[$consumerKey][$codeKey][$personTypeId]['DATABASE'] = 'unable to save file';
+										continue;
+									}
+
+									$file = Input\Manager::getValue($fileInput, $file);
 								}
-								else
+								elseif($fileInput['TYPE'] == 'DATABASE_FILE')
 								{
-									$this->errors[$consumerKey][$codeKey][$personTypeId]['DATABASE'] = 'unable to save file';
-									continue;
+									/** @noinspection PhpVariableNamingConventionInspection */
+									global $APPLICATION;
+									$content = $APPLICATION->GetFileContent($file['tmp_name']);
+									if (!$content)
+									{
+										continue;
+									}
+
+									$file = $content;
 								}
 							}
-
-							$file = Input\Manager::getValue($fileInput, $file);
+							else
+							{
+								$file = $file['ID'];
+							}
+						}
+						elseif ($fileInput['TYPE'] == 'FILE')
+						{
+							if (isset($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]))
+							{
+								\CFile::Delete($consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]['PROVIDER_VALUE']);
+							}
 						}
 
 						$common = IsModuleInstalled('bitrix24') ? false : true;
@@ -257,6 +290,12 @@ final class BusinessValueControl
 		foreach ($personGroupCodes as $personTypeId => $groupCodes)
 		{
 			$personType = self::$personTypes[$personTypeId];
+			if (isset($personType['ENTITY_REGISTRY_TYPE'])
+				&& $personType['ENTITY_REGISTRY_TYPE'] !== Registry::REGISTRY_TYPE_ORDER
+			)
+			{
+				continue;
+			}
 
 			$tabs []= array(
 				'DIV'          => 'map'.$personTypeId,
@@ -350,6 +389,14 @@ final class BusinessValueControl
 
 		foreach ($personGroupCodes as $personTypeId => $groupCodes)
 		{
+			$personType = self::$personTypes[$personTypeId];
+			if (isset($personType['ENTITY_REGISTRY_TYPE'])
+				&& $personType['ENTITY_REGISTRY_TYPE'] !== Registry::REGISTRY_TYPE_ORDER
+			)
+			{
+				continue;
+			}
+
 			$tabControl->BeginNextTab();
 
 			?>
@@ -496,7 +543,14 @@ final class BusinessValueControl
 										}
 									}
 
-									$hideCode = self::renderMapping($mappings, $inputNamePrefix, $providerInput, $providerValueInput, $commonProviderInput, $commonProviderValueInput);
+									try
+									{
+										$hideCode = self::renderMapping($mappings, $inputNamePrefix, $providerInput, $providerValueInput, $commonProviderInput, $commonProviderValueInput);
+									}
+									catch (SystemException $exception)
+									{
+										$hideCode = '';
+									}
 
 									?>
 								</td>
@@ -613,6 +667,11 @@ final class BusinessValueControl
 					$valueInput['CLASS'] = 'adm-designed-file';
 
 					break;
+
+				case 'DATABASE_FILE':
+					$valueInput['CLASS'] = 'adm-designed-file';
+
+					break;
 			}
 		}
 		else
@@ -648,7 +707,7 @@ final class BusinessValueControl
 
 			Input\Manager::getEditHtml($inputNamePrefix.'[PROVIDER_VALUE]', $valueInput, $providerValue)
 
-		?> </span><label<?=$mappings['COMMON'] ? '' : ' style="display:none"'?>>
+		?> </span><label <?=$mappings['COMMON'] ? '' : ' style="display:none"'?>>
 			<?=Loc::getMessage('BIZVAL_PAGE_DELETE_MAPPING')?>
 			<input
 				type="checkbox"

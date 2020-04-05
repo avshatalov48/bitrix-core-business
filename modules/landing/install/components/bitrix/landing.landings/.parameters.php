@@ -31,6 +31,23 @@ $arComponentParameters = Array(
 		'PAGE_URL_LANDING_VIEW' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW'),
 			'TYPE' => 'STRING'
+		),
+		'SEF' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_SEF'),
+			'TYPE' => 'STRING'
+		),
+		'TILE_MODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_TILE_MODE'),
+			'TYPE' => 'LIST',
+			'DEFAULT' => 'edit',
+			'VALUES' => [
+				'edit' => getMessage('LANDING_CMP_PAR_TILE_MODE_EDIT'),
+				'view' => getMessage('LANDING_CMP_PAR_TILE_MODE_VIEW')
+			]
+		),
+		'DRAFT_MODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_DRAFT_MODE'),
+			'TYPE' => 'CHECKBOX'
 		)
 	)
 );

@@ -12,6 +12,8 @@ BX.Sale.Admin.OrderShipment = function(params)
 	this.changeStatusAvailable = !!params.canChangeStatus;
 	this.discounts = params.discounts || {};
 	this.discountsMode = params.discountsMode || "edit";
+	this.weightKoeff = params.weightKoeff || 1;
+	this.weightUnit = params.weightUnit || '';
 
 	if (this.allowAvailable)
 		this.initFieldChangeAllowDelivery();
@@ -26,6 +28,8 @@ BX.Sale.Admin.OrderShipment = function(params)
 		this.initUpdateTrackingNumber();
 
 	this.initFieldUpdateSum();
+	this.initFieldUpdateWeight();
+
 	this.initChangeProfile();
 	this.initCustomEvent();
 	this.initToggle();
@@ -42,10 +46,18 @@ BX.Sale.Admin.OrderShipment = function(params)
 			callback: this.setDeliveryPrice,
 			context: this
 		};
+
+		updater["DELIVERY_WEIGHT"] = {
+			callback: this.setDeliveryWeight,
+			context: this
+		};
 	}
 
 	if (!!params.calculated_price)
 		this.setCalculatedPriceDelivery(params.calculated_price);
+
+	if (!!params.calculated_weight)
+		this.setCalculatedWeightDelivery(params.calculated_weight);
 
 	updater["DEDUCTED_"+this.id] = {
 		callback: this.updateDeductedStatus,
@@ -79,6 +91,11 @@ BX.Sale.Admin.OrderShipment = function(params)
 			context: this
 		};
 
+		updater["CALCULATED_WEIGHT"] = {
+			callback: this.setCalculatedWeightDelivery,
+			context: this
+		};
+
 		updater["DELIVERY_ERROR"] = {
 			callback: BX.Sale.Admin.OrderEditPage.showDialog,
 			context: this
@@ -103,6 +120,7 @@ BX.Sale.Admin.OrderShipment = function(params)
 			callback: this.updateDeliveryList,
 			context: this
 		};
+
 
 		updater["SHIPMENT_COMPANY_ID"] = {
 			callback: this.updateCompany,
@@ -199,11 +217,21 @@ BX.Sale.Admin.OrderShipment.prototype.initUpdateTrackingNumber = function ()
 BX.Sale.Admin.OrderShipment.prototype.updateDeliveryList = function(services)
 {
 	var serviceControl = BX('DELIVERY_'+this.index);
-	if (!serviceControl)
-		return;
 
-	var selectedItem = serviceControl.options[serviceControl.selectedIndex].value;
+	if (!serviceControl)
+	{
+		return;
+	}
+
+	var selectedItem = 0;
+
+	if(serviceControl.options[serviceControl.selectedIndex])
+	{
+		selectedItem = serviceControl.options[serviceControl.selectedIndex].value;
+	}
+
 	serviceControl.innerHTML = services;
+
 	for (var i in serviceControl.options)
 	{
 		if (serviceControl.options[i].value == selectedItem)
@@ -677,6 +705,25 @@ BX.Sale.Admin.OrderShipment.prototype.setDeliveryBasePrice = function(basePrice)
 		BX('BASE_PRICE_DELIVERY_T_'+this.index).innerHTML = basePrice;
 };
 
+BX.Sale.Admin.OrderShipment.prototype.setDeliveryWeight = function(weight)
+{
+	var weightCell = BX('WEIGHT_DELIVERY_'+this.index);
+
+	if(!weightCell)
+	{
+		return;
+	}
+
+	if(weightCell.tagName === 'INPUT')
+	{
+		weightCell.value = weight;
+	}
+	else if(weightCell.tagName === 'TD')
+	{
+		weightCell.innerHTML = weight + ' ' + this.weightUnit;
+	}
+};
+
 BX.Sale.Admin.OrderShipment.prototype.setDeliveryPrice = function(price)
 {
 	var priceCell = BX('PRICE_DELIVERY_'+this.index);
@@ -728,7 +775,7 @@ BX.Sale.Admin.OrderShipment.prototype.setCalculatedPriceDelivery = function(deli
 				children : [
 					BX.create('span',
 					{
-						text : BX.Sale.Admin.OrderEditPage.currencyFormat(deliveryPrice)
+						html : BX.Sale.Admin.OrderEditPage.currencyFormat(deliveryPrice)
 					}),
 					BX.create('span', {
 						text : BX.message('SALE_ORDER_SHIPMENT_APPLY'),
@@ -762,6 +809,78 @@ BX.Sale.Admin.OrderShipment.prototype.setCalculatedPriceDelivery = function(deli
 			className : 'row_set_new_delivery_price'
 		}
 	});
+	parent.appendChild(tr);
+};
+
+BX.Sale.Admin.OrderShipment.prototype.setCalculatedWeightDelivery = function(deliveryWeight)
+{
+	var customWeight = BX('CUSTOM_WEIGHT_DELIVERY_'+this.index);
+
+	if (customWeight.value !== 'Y' && BX.Sale.Admin.OrderEditPage.formId !== 'order_shipment_edit_info_form')
+		return;
+
+	var obCurrentWeight = BX('WEIGHT_DELIVERY_'+this.index);
+	if (obCurrentWeight)
+	{
+		var parent = BX.findParent(obCurrentWeight, {tag: 'tbody'}, true);
+		var child = BX.findChildByClassName(parent, 'row_set_new_delivery_weight');
+
+		if (child)
+		{
+			BX.remove(child);
+		}
+	}
+
+	BX('CALCULATED_WEIGHT_'+this.index).value = deliveryWeight;
+
+	var tr = BX.create('tr',
+		{
+			children : [
+				BX.create('td',
+					{
+						html : BX.message('SALE_ORDER_SHIPMENT_NEW_WEIGHT_DELIVERY')+': ',
+						props : {
+							className: 'adm-detail-content-cell-l'
+						}
+					}),
+				BX.create('td',
+					{
+						children : [
+							BX.create('span',
+								{
+									text : deliveryWeight + ' ' + this.weightUnit
+								}),
+							BX.create('span', {
+								text : BX.message('SALE_ORDER_SHIPMENT_APPLY'),
+								props : {
+									onclick: BX.proxy(function ()
+									{
+										if (confirm(BX.message('SALE_ORDER_SHIPMENT_CONFIRM_SET_NEW_WEIGHT')))
+										{
+											BX('WEIGHT_DELIVERY_'+this.index).value = deliveryWeight;
+
+											var child = BX.findChildByClassName(parent, 'row_set_new_delivery_weight');
+											BX.remove(child);
+
+											customWeight.value = 'N';
+
+											if (BX.Sale.Admin.OrderEditPage.formId != 'order_shipment_edit_info_form')
+												BX.Sale.Admin.OrderAjaxer.sendRequest(BX.Sale.Admin.OrderEditPage.ajaxRequests.refreshOrderData());
+										}
+									}, this),
+									className : 'new_delivery_price_button'
+								}
+							})
+						],
+						props : {
+							className: 'adm-detail-content-cell-r'
+						}
+					})
+			],
+			props : {
+				className : 'row_set_new_delivery_weight'
+			}
+		});
 	parent.appendChild(tr);
 };
 
@@ -947,6 +1066,27 @@ BX.Sale.Admin.OrderShipment.prototype.initFieldUpdateSum = function()
 
 			BX('CUSTOM_PRICE_DELIVERY_' + this.index).value = 'Y';
 			BX('BASE_PRICE_DELIVERY_' + this.index).value = obSum.value;
+		}
+	}, this));
+};
+
+BX.Sale.Admin.OrderShipment.prototype.initFieldUpdateWeight = function()
+{
+	var obWeight = BX('WEIGHT_DELIVERY_'+this.index);
+	var customWeight = BX('CUSTOM_WEIGHT_DELIVERY_'+this.index);
+	BX.bind(obWeight, 'change', BX.proxy(function()
+	{
+		customWeight.value = 'Y';
+
+		if (BX.Sale.Admin.OrderEditPage.formId !== 'order_shipment_edit_info_form')
+		{
+			BX.Sale.Admin.OrderAjaxer.sendRequest(
+				BX.Sale.Admin.OrderEditPage.ajaxRequests.refreshOrderData()
+			);
+		}
+		else
+		{
+			BX('CUSTOM_WEIGHT_DELIVERY_' + this.index).value = 'Y';
 		}
 	}, this));
 };
@@ -1153,16 +1293,15 @@ BX.Sale.Admin.OrderShipment.prototype.sendQueryCheckStatus = function(checkId)
 			{
 				BX.Sale.Admin.OrderEditPage.showDialog(result.ERROR);
 			}
-			else
+			
+			var shipmentId = result.SHIPMENT_ID;
+			BX('SHIPMENT_CHECK_LIST_ID_' + shipmentId).innerHTML = result.CHECK_LIST_HTML;
+			if (BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== undefined && BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== null)
 			{
-				CloseWaitWindow();
-				var shipmentId = result.SHIPMENT_ID;
-				BX('SHIPMENT_CHECK_LIST_ID_' + shipmentId).innerHTML = result.CHECK_LIST_HTML;
-				if (BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== undefined && BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== null)
-				{
-					BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId).innerHTML = result.CHECK_LIST_HTML;
-				}
+				BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId).innerHTML = result.CHECK_LIST_HTML;
 			}
+
+			CloseWaitWindow();
 		}, this)
 	};
 

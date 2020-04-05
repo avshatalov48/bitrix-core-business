@@ -11,6 +11,11 @@
 	margin-bottom: 250px;
 }
 
+.automation-base-script-mode{
+	width: auto;
+	min-width: auto;
+}
+
 .automation-base:before {
 	content: '';
 	display: none;
@@ -132,6 +137,7 @@
 
 .bizproc-automation-status-bg {
 	position: absolute;
+	width: calc(100% - 13px);
 	z-index: 9;
 	height: 32px;
 	top: 0;
@@ -165,6 +171,15 @@
 	z-index: 9;
 }
 
+.bitrix24-light-theme:not(.side-panel) .bizproc-automation-status-name-bg {
+	background: transparent !important;
+	color: #fff;
+}
+
+.bitrix24-dark-theme:not(.side-panel) .bizproc-automation-status-name-bg {
+	background: transparent !important;
+}
+
 .bizproc-automation-status-help {
 	display: inline-block;
 	vertical-align: middle;
@@ -189,7 +204,7 @@
 	width: 13px;
 	height: 32px;
 	position: absolute;
-	right: 0;
+	right: -10px;
 	top: 0;
 	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2232%22%20viewBox%3D%220%200%2013%2032%22%3E%3Cpath%20fill%3D%22%23AEF2F9%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h3c2.8%200%204%203%204%203l6%2013-6%2013s-1.06%203-4%203H0V0z%22/%3E%3C/svg%3E)
 }
@@ -838,6 +853,7 @@
 	width: 13px;
 	height: 13px;
 	opacity: .4;
+	white-space: nowrap;
 	cursor: pointer;
 	-webkit-transition: .1s;
 	-moz-transition: .1s;
@@ -908,6 +924,14 @@
 	color: #b1b7c5 !important;
 	text-decoration: none !important;
 	margin: 7px 10px;
+}
+
+.bitrix24-light-theme :not(.side-panel) .bizproc-automation-robot-btn-set {
+	color: #fff !important;
+}
+
+.bitrix24-dark-theme :not(.side-panel) .bizproc-automation-robot-btn-set {
+	color: #000 !important;
 }
 
 .bizproc-automation-robot-btn-set:hover {
@@ -1801,7 +1825,10 @@
 	color: #89929e;
 }
 
-.bizproc-automation-popup-sms-symbol-counter-number-overhead { color: #d0011b; }
+.bizproc-automation-popup-sms-symbol-counter-number-overhead {
+	color: #d0011b;
+}
+
 .bizproc-automation-condition-wrapper:last-of-type .bizproc-automation-condition-joiner {
 	display: none;
 }

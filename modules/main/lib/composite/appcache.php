@@ -140,7 +140,10 @@ class AppCache
 				$fileCountImages = 0;
 				foreach ($arFields["FILE_DATA"]["CSS_FILE_IMAGES"] as $file=>$images)
 				{
-					$fileCountImages += count($images);
+					if (is_array($images))
+					{
+						$fileCountImages += count($images);
+					}
 				}
 
 
@@ -336,6 +339,9 @@ JS;
 					$fileContent = false;
 					$fileUrl = parse_url($cssFilePath);
 					$file = new  \Bitrix\Main\IO\File(Application::getDocumentRoot() . $fileUrl['path']);
+
+					if($file->getExtension() !== "css")
+						continue;
 
 					if ($file->isExists() && $file->isReadable())
 					{

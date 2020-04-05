@@ -345,7 +345,7 @@ class Chain
 			{
 				throw new SystemException(sprintf(
 					'Unknown field definition `%s` (%s) for %s Entity.',
-					$def_element, $definition, $prev_entity->getName()
+					$def_element, $definition, $prev_entity->getFullName()
 				), 100);
 			}
 		}

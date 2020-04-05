@@ -21,6 +21,37 @@ class PropertyValue extends PropertyValueBase
 	}
 
 	/**
+	 * @param OrderBase $order
+	 * @return array
+	 * @throws Main\ObjectNotFoundException
+	 */
+	protected static function extractPaySystemIdList(OrderBase $order)
+	{
+		if (!$order instanceof Order)
+		{
+			return [];
+		}
+
+		return $order->getPaySystemIdList();
+	}
+
+	/**
+	 * @param OrderBase $order
+	 * @return array
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 */
+	protected static function extractDeliveryIdList(OrderBase $order)
+	{
+		if (!$order instanceof Order)
+		{
+			return [];
+		}
+
+		return $order->getDeliveryIdList();
+	}
+
+	/**
 	 * @return Result
 	 * @throws Main\ObjectNotFoundException
 	 */

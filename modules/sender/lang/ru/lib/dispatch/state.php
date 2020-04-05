@@ -10,4 +10,5 @@ $MESS["SENDER_DISPATCH_STATE_X"] = "Отменена";
 $MESS["SENDER_DISPATCH_STATE_T"] = "Запланирована";
 $MESS["SENDER_DISPATCH_STATE_H"] = "Приостановлена";
 $MESS["SENDER_DISPATCH_STATE_ERROR_CHANGE"] = "Невозможно перевести рассылку из статуса \"%old%\" в \"%new%\".";
+$MESS["SENDER_DISPATCH_STATE_ERROR_CAMPAIGN_INACTIVE"] = "Кампания рассылки неактивна.";
 ?>

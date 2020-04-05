@@ -205,7 +205,7 @@ class CAllSocNetFeatures
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetFeaturesUpdate");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields))===false)
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields))===false)
 				return false;
 
 		$strUpdate = $DB->PrepareUpdate("b_sonet_features", $arFields);

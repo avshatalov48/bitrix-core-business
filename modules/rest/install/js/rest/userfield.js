@@ -30,6 +30,12 @@
 		}
 
 		var appLayout = BX.rest.AppLayout.get(this.id);
+
+		if (!appLayout)
+		{
+			return;
+		}
+
 		appLayout.allowInterface(['resizeWindow']);
 
 		var placementInterface = appLayout.messageInterface;

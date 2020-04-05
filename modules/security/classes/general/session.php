@@ -14,6 +14,10 @@ class CSecuritySession
 		{
 			static::registerHandler('CSecuritySessionMC');
 		}
+		elseif(CSecuritySessionRedis::isStorageEnabled())
+		{
+			static::registerHandler('CSecuritySessionRedis');
+		}
 		else
 		{
 			static::registerHandler('CSecuritySessionDB');

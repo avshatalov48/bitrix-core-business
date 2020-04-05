@@ -50,6 +50,11 @@ class CCatalogAdmin
 
 	public static function get_sections_menu($IBLOCK_TYPE_ID, $IBLOCK_ID, $DEPTH_LEVEL, $SECTION_ID, $arSectionsChain = false)
 	{
+		if (isset($_REQUEST["public_menu"]))
+		{
+			return [];
+		}
+
 		global $adminMenu;
 		if ($arSectionsChain === false)
 		{
@@ -75,7 +80,7 @@ class CCatalogAdmin
 				while ($arSection = $rsSections->Fetch())
 					$arSectionsChain[$arSection["ID"]] = $arSection["ID"];
 			}
-			if (isset($_REQUEST["public_menu"]) || (defined("PUBLIC_MODE") && PUBLIC_MODE == 1))
+			if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
 			{
 				$arSectionsChain = array();
 				$rsSections = CIBlockSection::GetList(array(), array("IBLOCK_ID" => $IBLOCK_ID), false, array("ID"));
@@ -296,6 +301,13 @@ class CCatalogAdmin
 					"module_id" => "catalog",
 					"items" => CCatalogAdmin::get_sections_menu($arIBlock["IBLOCK_TYPE_ID"], $arIBlock["ID"], 1, 0),
 					"sort" => 203+$sortCount,
+					"ajax_options" => (isset($_REQUEST["public_menu"]) ? [
+						"module_id" => "catalog",
+						"params" => [
+							"iblock_id" => $arIBlock["ID"],
+							"section_id" => 0
+						]
+					] : [])
 				),
 			);
 			if(CIBlockRights::UserHasRightTo($arIBlock["ID"], $arIBlock["ID"], "iblock_edit"))
@@ -472,7 +484,7 @@ class CCatalogAdmin
 			$obRow->aActions[] = array(
 				"ICON" => "list",
 				"TEXT" => CIBlock::GetArrayByID($obRow->arRes["IBLOCK_ID"], "ELEMENTS_NAME"),
-				"ONCLICK" => $obList->ActionRedirect($tmpVar),
+				"ACTION" => $obList->ActionRedirect($tmpVar),
 			);
 		}
 	}

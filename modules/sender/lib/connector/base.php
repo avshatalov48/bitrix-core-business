@@ -350,4 +350,13 @@ abstract class Base
 	 * @return string
 	 */
 	public abstract function getForm();
+
+	/**
+	 * Get fields for statistic
+	 * @return array
+	 */
+	public function getStatFields()
+	{
+		return [];
+	}
 }

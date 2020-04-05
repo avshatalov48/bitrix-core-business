@@ -8,15 +8,22 @@
 use \Bitrix\Main\Text;
 use \Bitrix\Main\Grid;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-CJSCore::Init(array('popup', 'ui', 'resize_observer', 'loader', 'ui.actionpanel', 'ui.fonts.opensans'));
-
-\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/dd.js');
+Extension::load([
+	'popup',
+	'ui',
+	'resize_observer',
+	'loader',
+	'ui.actionpanel',
+	'ui.fonts.opensans',
+	'dnd',
+]);
 
 global $APPLICATION;
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
@@ -43,6 +50,16 @@ if ($arParams["SHOW_GRID_SETTINGS_MENU"] || $arParams["SHOW_ROW_ACTIONS_MENU"])
 if ($arParams["ALLOW_ROWS_SORT"])
 {
 	$additionalColumnsCount += 1;
+}
+
+$stickedColumnsCount = 0;
+
+foreach ($arResult["COLUMNS"] as $header)
+{
+	if ($header["sticked"] === true)
+	{
+		$stickedColumnsCount += 1;
+	}
 }
 
 $displayedCount = count(
@@ -100,7 +117,7 @@ $displayedCount = count(
 					?><div class="main-grid-ear main-grid-ear-right"></div><?
 				endif; ?><?
 				?><div class="main-grid-loader-container"></div><?
-				?><div class="main-grid-container"><?
+				?><div class="main-grid-container<?=$arParams["ALLOW_STICKED_COLUMNS"] && $arResult["HAS_STICKED_COLUMNS"] ? " main-grid-with-sticked" : ""?>"><?
 					?><table class="main-grid-table" id="<?=$arParams["GRID_ID"]?>_table"><?
 						if (!$arResult['BX_isGridAjax']): ?><?
 							?><thead class="main-grid-header" data-relative="<?=$arParams["GRID_ID"]?>"><?
@@ -133,7 +150,7 @@ $displayedCount = count(
 									$isHidden = !array_key_exists($id, $arResult['COLUMNS']); ?><?
 										?><th class="main-grid-cell-head <?=$header["class"]?> <?=$arParams["ALLOW_COLUMNS_SORT"] ? " main-grid-draggable" : ""?> <?=$arParams["ALLOW_STICKED_COLUMNS"] && $header["sticked"] ? "main-grid-sticked-column" : ""?>" data-edit="(<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($header["editable"]))?>)" data-name="<?=Text\HtmlFilter::encode($id)?>" data-sort-url="<?=$header["sort_url"]?>" data-sort-by="<?=$header["sort"]?>" data-sort-order="<?=$header["next_sort_order"]?>" <?=(isset($header['title']) && $header['title'] != '' ? 'title="'.Text\HtmlFilter::encode($header['title']).'"' : '');?> <? if($header["width"] <> ''): ?> style="width: <?=$header["width"]?>px"<? endif ?>><?
 											?><span class="main-grid-cell-head-container" <? if($header["width"] <> ''): ?>style="width: <?=$header["width"]?>px"<? endif ?>><?
-												?><span class="main-grid-head-title"><?=Text\HtmlFilter::encode($header["showname"] ? $header["name"] : ""); ?></span><?
+												?><span class="main-grid-head-title<?=$arParams['DISABLE_HEADERS_TRANSFORM'] ? " main-grid-head-title-without-transform" : ""?>"><?=Text\HtmlFilter::encode($header["showname"] ? $header["name"] : ""); ?></span><?
 												if ($arParams["ALLOW_COLUMNS_RESIZE"] && $header["resizeable"] !== false) : ?><?
 													?><span class="main-grid-resize-button" onclick="event.stopPropagation(); " title=""></span><?
 												endif; ?><?
@@ -150,7 +167,7 @@ $displayedCount = count(
 							?><tbody><?
 							if (empty($arParams['ROWS'])): ?><?
 								?><tr class="main-grid-row main-grid-row-empty main-grid-row-body"><?
-									?><td class="main-grid-cell main-grid-cell-center" colspan="<?=count($arParams['COLUMNS']) + $additionalColumnsCount ?>"><?
+									?><td class="main-grid-cell main-grid-cell-center" colspan="<?=count($arParams['COLUMNS']) + $additionalColumnsCount + $stickedColumnsCount?>"><?
 										if (!isset($_REQUEST["apply_filter"])) :
 											?><div class="main-grid-empty-block"><?
 												?><div class="main-grid-empty-inner"><?
@@ -436,7 +453,7 @@ $displayedCount = count(
 						<? endforeach ?><?
 						if (!empty($arResult['AGGREGATE'])): ?><?
 						?><tr class="main-grid-row-foot main-grid-aggr-row" id="datarow_<?=$arParams["GRID_ID"]?>_bxaggr"><?
-							if ($arResult['ALLOW_GROUP_ACTIONS']): ?><td class="main-grid-cell-foot"></td><? endif ?><?
+							if ($arParams['ALLOW_GROUP_ACTIONS']): ?><td class="main-grid-cell-foot"></td><? endif ?><?
 								if ($arParams['ALLOW_ROW_ACTIONS']): ?><td class="main-grid-cell-foot"></td><? endif ?><?
 									foreach ($arResult['COLUMNS'] as $id => $header): ?><?
 										$isHidden = !array_key_exists($id, $arResult['COLUMNS']);
@@ -604,7 +621,7 @@ $displayedCount = count(
 										?><span class="main-grid-panel-content-text"><?
 											?><span class="main-grid-counter-selected">0</span><?
 											?>&nbsp;/&nbsp;<?
-											?><span class="main-grid-counter-displayed"><?=count($arResult["ROWS"])?></span><?
+											?><span class="main-grid-counter-displayed"><?=$displayedCount?></span><?
 										?></span><?
 									?></div><?
 									?><div class="main-grid-panel-content main-grid-panel-counter-for-all"><?
@@ -630,7 +647,7 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 		var action = '<?=\CUtil::JSEscape($request->get("grid_action"))?>';
 		var editableData = eval(<?=CUtil::phpToJSObject($arResult["DATA_FOR_EDIT"])?>);
 		var defaultColumns = eval(<?=CUtil::phpToJSObject($arResult["DEFAULT_COLUMNS"])?>);
-		var Grid = BX.Main.gridManager.getById('<?=$arParams["GRID_ID"]?>');
+		var Grid = BX.Main.gridManager.getById('<?=\CUtil::JSEscape($arParams["GRID_ID"])?>');
 		var messages = eval(<?=CUtil::phpToJSObject($arResult["MESSAGES"])?>);
 
 		Grid = Grid ? Grid.instance : null;
@@ -666,11 +683,12 @@ endif; ?>
 			<? if(isset($arParams['TOP_ACTION_PANEL_RENDER_TO'])): ?>
 				var actionPanel = new BX.UI.ActionPanel({
 					params: {
-						gridId: '<?=\CUtil::jSEscape($arParams["GRID_ID"])?>'
+						gridId: '<?=\CUtil::jsEscape($arParams['GRID_ID']) ?>'
 					},
-					pinnedMode: <?= CUtil::PhpToJSObject($arParams["TOP_ACTION_PANEL_PINNED_MODE"]) ?>,
-					renderTo: document.querySelector("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
-					groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
+					pinnedMode: <?=\CUtil::phpToJsObject($arParams['TOP_ACTION_PANEL_PINNED_MODE']) ?>,
+					renderTo: document.querySelector('<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>'),
+					className: '<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_CLASS']) ?>',
+					groupActions: <?=\Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
 				});
 				actionPanel.draw();
 			<? endif; ?>
@@ -707,6 +725,8 @@ endif; ?>
 							"SETTINGS_FOR_ALL_CONFIRM_MESSAGE" => Loc::getMessage("interface_grid_settings_for_all_confirm_message"),
 							"SETTINGS_FOR_ALL_CONFIRM_APPLY" => Loc::getMessage("interface_grid_settings_for_all_apply"),
 							"SETTINGS_FOR_ALL_CONFIRM_CANCEL" => Loc::getMessage("interface_grid_settings_for_all_cancel"),
+							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_EDIT" => Loc::getMessage("interface_grid_image_editor_button_edit"),
+							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_REMOVE" => Loc::getMessage("interface_grid_image_editor_button_remove"),
 							"CLOSE" => Loc::getMessage("interface_grid_settings_close"),
 							"IS_ADMIN" => $USER->CanDoOperation("edit_other_settings"),
 							"MESSAGES" => $arResult["MESSAGES"],

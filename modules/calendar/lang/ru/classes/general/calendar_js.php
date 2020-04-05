@@ -279,4 +279,5 @@ $MESS["EC_DESCRIPTION"] = "Описание";
 $MESS["EC_REQUEST_APP_FAILURE"] = "Ошибка при загрузке или выполнении приложения <strong>\"#APPNAME#\"</strong>";
 $MESS["EC_REQUEST_APP_NONAME_TAB"] = "- без названия -";
 $MESS["EC_ADD_APPLICATION"] = "Добавить приложение";
+$MESS["EC_COLLAPSED_MESSAGE"] = "Событий";
 ?>

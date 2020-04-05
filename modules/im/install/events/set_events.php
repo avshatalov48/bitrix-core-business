@@ -48,14 +48,14 @@ while ($lang = $langs->Fetch())
 	{
 		if ($isIntranet)
 		{
-			$message1 = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGE#}\",\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_NOTIFY\"));?>";
+			$notifyMessage = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGE#}\",\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_NOTIFY\"));?>";
 		}
 		else
 		{
-			$message1 = GetMessage("IM_NEW_NOTIFY_MESSAGE");
+			$notifyMessage = GetMessage("IM_NEW_NOTIFY_MESSAGE");
 			if (defined('BX24_HOST_NAME') || \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps())
 			{
-				$message1 = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $message1);
+				$notifyMessage = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $notifyMessage);
 			}
 		}
 
@@ -67,14 +67,14 @@ while ($lang = $langs->Fetch())
 			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
 			"EMAIL_TO" => "#EMAIL_TO#",
 			"SUBJECT" => GetMessage("IM_NEW_NOTIFY_SUBJECT"),
-			"MESSAGE" => $message1,
+			"MESSAGE" => $notifyMessage,
 			"BODY_TYPE" => $isIntranet ? "html" : "text",
 		));
 
-		$message2 = GetMessage("IM_NEW_NOTIFY_GROUP_MESSAGE");
+		$notifyGroupMessage = GetMessage("IM_NEW_NOTIFY_GROUP_MESSAGE");
 		if (defined('BX24_HOST_NAME') || \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps())
 		{
-			$message2 = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $message2);
+			$notifyGroupMessage = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $notifyGroupMessage);
 		}
 
 		$emess = new CEventMessage;
@@ -85,20 +85,20 @@ while ($lang = $langs->Fetch())
 			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
 			"EMAIL_TO" => "#EMAIL_TO#",
 			"SUBJECT" => GetMessage("IM_NEW_NOTIFY_GROUP_SUBJECT"),
-			"MESSAGE" => $message2,
+			"MESSAGE" => $notifyGroupMessage,
 			"BODY_TYPE" => "text",
 		));
 
 		if ($isIntranet)
 		{
-			$message3 = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGES#}\",\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_MESSAGE\"));?>";
+			$newMessage = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGES#}\",\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_MESSAGE\"));?>";
 		}
 		else
 		{
-			$message3 = GetMessage("IM_NEW_MESSAGE_MESSAGE");
+			$newMessage = GetMessage("IM_NEW_MESSAGE_MESSAGE");
 			if (defined('BX24_HOST_NAME') || \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps())
 			{
-				$message3 = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $message3);
+				$newMessage = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $newMessage);
 			}
 		}
 		
@@ -110,14 +110,21 @@ while ($lang = $langs->Fetch())
 			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
 			"EMAIL_TO" => "#EMAIL_TO#",
 			"SUBJECT" => GetMessage("IM_NEW_MESSAGE_SUBJECT"),
-			"MESSAGE" => $message3,
+			"MESSAGE" => $newMessage,
 			"BODY_TYPE" => $isIntranet ? "html" : "text",
 		));
 
-		$message4 = GetMessage("IM_NEW_MESSAGE_GROUP_MESSAGE");
-		if (defined('BX24_HOST_NAME') || \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps())
+		if ($isIntranet)
 		{
-			$message4 = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $message4);
+			$newGroupMessage = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGES#}\",\"MESSAGES_FROM_USERS\" => \"{#MESSAGES_FROM_USERS#}\",\"FROM_USER\" => \"{#FROM_USERS#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_MESSAGE_GROUP\"));?>";
+		}
+		else
+		{
+			$newGroupMessage = GetMessage("IM_NEW_MESSAGE_GROUP_MESSAGE");
+			if (defined('BX24_HOST_NAME') || \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps())
+			{
+				$newGroupMessage = str_replace('http://#SERVER_NAME#/', 'https://#SERVER_NAME#/', $newGroupMessage);
+			}
 		}
 		
 		$emess = new CEventMessage;
@@ -128,8 +135,8 @@ while ($lang = $langs->Fetch())
 			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
 			"EMAIL_TO" => "#EMAIL_TO#",
 			"SUBJECT" => GetMessage("IM_NEW_MESSAGE_GROUP_SUBJECT"),
-			"MESSAGE" => $message4,
-			"BODY_TYPE" => "text",
+			"MESSAGE" => $newGroupMessage,
+			"BODY_TYPE" => $isIntranet ? "html" : "text",
 		));
 	}
 }

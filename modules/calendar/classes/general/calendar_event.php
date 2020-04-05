@@ -29,7 +29,7 @@ class CCalendarEvent
 		global $DB, $CACHE_MANAGER;
 		$entryFields = $params['arFields'];
 
-		$arAffectedSections = array();
+		$arAffectedSections = [];
 		$significantChanges = isset($params['significantChanges']) ? $params['significantChanges'] : false;
 		$sendInvitations = $params['sendInvitations'] !== false;
 		$sendEditNotification = $params['sendEditNotification'] !== false;
@@ -38,14 +38,37 @@ class CCalendarEvent
 		$attendeesCodes = array();
 		// Get current user id
 		$userId = (isset($params['userId']) && intVal($params['userId']) > 0) ? intVal($params['userId']) : CCalendar::GetCurUserId();
-		if(!$userId && isset($entryFields['CREATED_BY']))
+		if (!$userId && isset($entryFields['CREATED_BY']))
 		{
 			$userId = intVal($entryFields['CREATED_BY']);
 		}
 		$path = !empty($params['path']) ? $params['path'] : CCalendar::GetPath($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
 
+		if (((!isset($entryFields['ID']) || $entryFields['ID'] <= 0)
+			&& !empty($entryFields['G_EVENT_ID'])
+			&& $entryFields['DAV_XML_ID'] == $entryFields['G_EVENT_ID'].'@google')
+			|| ($params['sync'] === true))
+		{
+			$event = CCalendarEvent::GetList(
+				array(
+					'arFilter' => array(
+						"G_EVENT_ID" => $entryFields['G_EVENT_ID'],
+					),
+					'parseRecursion' => false,
+					'fetchAttendees' => true,
+					'checkPermissions' => true,
+					'setDefaultLimit' => false
+				));
+
+			if (isset($event[0]['ID']))
+			{
+				$entryFields['ID'] = $event[0]['ID'];
+			}
+		}
+
 		$isNewEvent = !isset($entryFields['ID']) || $entryFields['ID'] <= 0;
 		$entryFields['TIMESTAMP_X'] = CCalendar::Date(mktime(), true, false);
+
 		if ($isNewEvent)
 		{
 			if (!isset($entryFields['CREATED_BY']))
@@ -147,6 +170,62 @@ class CCalendarEvent
 				$entryFields['LOCATION'] = CCalendar::GetTextLocation($entryFields['LOCATION']['NEW']);
 			}
 
+			// Section
+			if (isset($entryFields['SECTION_ID']))
+			{
+				$sectionId = intVal($entryFields['SECTION_ID']);
+			}
+			else
+			{
+				$sectionId = (is_array($entryFields['SECTIONS']) && $entryFields['SECTIONS'][0]) ? intVal($entryFields['SECTIONS'][0]) : false;
+			}
+
+			if (!$sectionId)
+			{
+				// It's new event we have to find section where to put it automatically
+				if ($isNewEvent)
+				{
+					if ($entryFields['IS_MEETING'] && $entryFields['PARENT_ID'] && $entryFields['CAL_TYPE'] == 'user')
+					{
+						$sectionId = CCalendar::GetMeetingSection($entryFields['OWNER_ID']);
+					}
+					else
+					{
+						$sectionId = CCalendarSect::GetLastUsedSection($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], $userId);
+					}
+
+					if ($sectionId)
+					{
+						$res = CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => $entryFields['CAL_TYPE'],'OWNER_ID' => $entryFields['OWNER_ID'], 'ID'=> $sectionId)));
+						if (!$res || !$res[0])
+						{
+							$sectionId = false;
+						}
+					}
+					else
+					{
+						$sectionId = false;
+					}
+
+					if (!$sectionId)
+					{
+						$sectRes = CCalendarSect::GetSectionForOwner($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
+						$sectionId = $sectRes['sectionId'];
+					}
+				}
+				else
+				{
+					$sectionId = $currentEvent['SECTION_ID'] ? $currentEvent['SECTION_ID'] : $currentEvent['SECT_ID'];
+				}
+			}
+			$entryFields['SECTION_ID'] = $sectionId;
+			$arAffectedSections[] = $sectionId;
+
+			if (!$isNewEvent)
+			{
+				$arAffectedSections[] = $currentEvent['SECTION_ID'] ? $currentEvent['SECTION_ID'] : $currentEvent['SECT_ID'];
+			}
+
 			if (!isset($entryFields['IS_MEETING']) &&
 				isset($entryFields['ATTENDEES']) && is_array($entryFields['ATTENDEES']) && empty($entryFields['ATTENDEES']))
 			{
@@ -162,7 +241,7 @@ class CCalendarEvent
 
 			if ($entryFields['IS_MEETING'])
 			{
-				if (!$isNewEvent && $entryFields['PARENT_ID'] != $eventId)
+				if (!$isNewEvent && $entryFields['PARENT_ID'] != $entryFields['ID'])
 				{
 					$entryChanges = self::CheckEntryChanges($entryFields, $currentEvent);
 					$significantChanges = count($entryChanges) > 0;
@@ -220,6 +299,7 @@ class CCalendarEvent
 					$dbFields[$field] = $entryFields[$field];
 				}
 			}
+
 			CTimeZone::Disable();
 
 			if ($isNewEvent) // Add
@@ -253,61 +333,17 @@ class CCalendarEvent
 				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			}
 
-			// *** Check and update section links ***
-			$sectionId = (is_array($entryFields['SECTIONS']) && $entryFields['SECTIONS'][0]) ? intVal($entryFields['SECTIONS'][0]) : false;
-
-			if ($sectionId)
+			// Deprecated. Now connection saved in the table
+			if (!\Bitrix\Calendar\Util::isSectionStructureConverted() &&
+				($isNewEvent || $sectionId !== $currentEvent['SECTION_ID']))
 			{
-				if (!$isNewEvent)
-				{
-					$arAffectedSections[] = $currentEvent['SECT_ID'];
-				}
 				self::ConnectEventToSection($eventId, $sectionId);
 			}
-			else
-			{
-				// It's new event we have to find section where to put it automatically
-				if ($isNewEvent)
-				{
-					if ($entryFields['IS_MEETING'] && $entryFields['PARENT_ID'] && $entryFields['CAL_TYPE'] == 'user')
-					{
-						$sectionId = CCalendar::GetMeetingSection($entryFields['OWNER_ID']);
-					}
-					else
-					{
-						$sectionId = CCalendarSect::GetLastUsedSection($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], $userId);
-					}
-
-					if ($sectionId)
-					{
-						$res = CCalendarSect::GetList(array('arFilter' => array('CAL_TYPE' => $entryFields['CAL_TYPE'],'OWNER_ID' => $entryFields['OWNER_ID'], 'ID'=> $sectionId)));
-						if (!$res || !$res[0])
-						{
-							$sectionId = false;
-						}
-					}
-					else
-					{
-						$sectionId = false;
-					}
-
-					if (!$sectionId)
-					{
-						$sectRes = CCalendarSect::GetSectionForOwner($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
-						$sectionId = $sectRes['sectionId'];
-					}
-					self::ConnectEventToSection($eventId, $sectionId);
-				}
-				else
-				{
-					// It's existing event, we take it's section to update modification lables (no db changes in b_calendar_event_sect)
-					$sectionId = $currentEvent['SECT_ID'];
-				}
-			}
-			$arAffectedSections[] = $sectionId;
 
 			if (count($arAffectedSections) > 0)
+			{
 				CCalendarSect::UpdateModificationLabel($arAffectedSections);
+			}
 
 			if ($entryFields['IS_MEETING'] || (!$isNewEvent && $currentEvent['IS_MEETING']))
 			{
@@ -561,9 +597,13 @@ class CCalendarEvent
 			$arFields = self::GetFields();
 
 			if ($arFilter["DELETED"] === false)
+			{
 				unset($arFilter["DELETED"]);
+			}
 			elseif (!isset($arFilter["DELETED"]))
+			{
 				$arFilter["DELETED"] = "N";
+			}
 
 			$join = '';
 
@@ -634,6 +674,10 @@ class CCalendarEvent
 					{
 						$arSqlSearch[] = "CE.NAME='".CDatabase::ForSql($val)."'";
 					}
+					elseif($n == 'CAL_TYPE')
+					{
+						$arSqlSearch[] = "CE.CAL_TYPE='".CDatabase::ForSql($val)."'";
+					}
 					elseif($n == 'CREATED_BY')
 					{
 						if(is_array($val))
@@ -656,11 +700,25 @@ class CCalendarEvent
 						{
 							$sval = '';
 							foreach($val as $sectid)
-								if (intVal($sectid) > 0)
+							{
+								if(intVal($sectid) > 0)
+								{
 									$sval .= intVal($sectid).',';
+								}
+							}
 							$sval = trim($sval, ' ,');
+
 							if ($sval != '')
-								$q = 'CES.SECT_ID in ('.$sval.')';
+							{
+								if (\Bitrix\Calendar\Util::isSectionStructureConverted())
+								{
+									$q = count($val) === 1 ? 'CE.SECTION_ID='.$sval : 'CE.SECTION_ID in ('.$sval.')';
+								}
+								else
+								{
+									$q = 'CES.SECT_ID in ('.$sval.')';
+								}
+							}
 						}
 
 						if ($q != "")
@@ -669,7 +727,14 @@ class CCalendarEvent
 					elseif($n == 'ACTIVE_SECTION' && $val == "Y")
 					{
 						$arSqlSearch[] = "CS.ACTIVE='Y'";
-						$join .= 'LEFT JOIN b_calendar_section CS ON (CES.SECT_ID=CS.ID)';
+						if (\Bitrix\Calendar\Util::isSectionStructureConverted())
+						{
+							$join .= 'LEFT JOIN b_calendar_section CS ON (CE.SECTION_ID=CS.ID)';
+						}
+						else
+						{
+							$join .= 'LEFT JOIN b_calendar_section CS ON (CES.SECT_ID=CS.ID)';
+						}
 					}
 					elseif($n == 'DAV_XML_ID' && is_array($val))
 					{
@@ -694,6 +759,14 @@ class CCalendarEvent
 					{
 						$arSqlSearch[] = $DB->DateToCharFunction("CE.".$n)."='".CDatabase::ForSql($val)."'";
 					}
+					elseif($n == 'RECURRENCE_ID' && intVal($val))
+					{
+						$arSqlSearch[] = "CE.RECURRENCE_ID=".intVal($val);
+					}
+					elseif($n == 'DELETED')
+					{
+						$arSqlSearch[] = "CE.DELETED='".CDatabase::ForSql($val)."'";
+					}
 					elseif(isset($arFields[$n]))
 					{
 						$arSqlSearch[] = GetFilterQuery($arFields[$n]["FIELD_NAME"], $val, 'N');
@@ -711,9 +784,10 @@ class CCalendarEvent
 			}
 
 			$selectList = "";
-			foreach($arFields as $field)
+			foreach($arFields as $fieldKey => $field)
 			{
-				if ($field['FIELD_NAME'] !== 'SEARCHABLE_CONTENT')
+				if ((!is_array($params['arSelect']) || in_array($fieldKey, $params['arSelect']))
+					&& $fieldKey !== 'SEARCHABLE_CONTENT')
 				{
 					$selectList .= $field['FIELD_NAME'].", ";
 				}
@@ -745,20 +819,38 @@ class CCalendarEvent
 				$strLimit = 'LIMIT '.intVal($params['limit']);
 			}
 
-			$strSql = "
-				SELECT ".
-					$selectList.
-					"CES.SECT_ID, CES.REL
-					".($getUF ? $obUserFieldsSql->GetSelect() : '')."
-				FROM
-					b_calendar_event CE
-				LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
-				".$join."
-				".($getUF ? $obUserFieldsSql->GetJoin("CE.ID") : '')."
-				WHERE
-					$strSqlSearch
-				$strOrderBy
-				$strLimit";
+			if (\Bitrix\Calendar\Util::isSectionStructureConverted())
+			{
+				$strSql = "
+					SELECT ".
+						trim($selectList, ', ').
+						($getUF ? $obUserFieldsSql->GetSelect() : '')."
+					FROM
+						b_calendar_event CE
+					".$join."
+					".($getUF ? $obUserFieldsSql->GetJoin("CE.ID") : '')."
+					WHERE
+						$strSqlSearch
+					$strOrderBy
+					$strLimit";
+			}
+			else
+			{
+				$strSql = "
+					SELECT ".
+						$selectList.
+						"CES.SECT_ID, CES.REL
+						".($getUF ? $obUserFieldsSql->GetSelect() : '')."
+					FROM
+						b_calendar_event CE
+					LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
+					".$join."
+					".($getUF ? $obUserFieldsSql->GetJoin("CE.ID") : '')."
+					WHERE
+						$strSqlSearch
+					$strOrderBy
+					$strLimit";
+			}
 
 			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($getUF)
@@ -773,6 +865,11 @@ class CCalendarEvent
 			$defaultMeetingSection = false;
 			while($event = $res->Fetch())
 			{
+				if (!$event['SECT_ID'] && $event['SECTION_ID'])
+				{
+					$event['SECT_ID'] = $event['SECTION_ID'];
+				}
+
 				$event['IS_MEETING'] = intVal($event['IS_MEETING']) > 0;
 
 				if ($event['IS_MEETING'] && $event['CAL_TYPE'] == 'user' && $event['OWNER_ID'] == $userId && !$event['SECT_ID'])
@@ -786,8 +883,13 @@ class CCalendarEvent
 							$defaultMeetingSection = $sectRes['sectionId'];
 						}
 					}
-					self::ConnectEventToSection($event['ID'], $defaultMeetingSection);
+
+					if (!\Bitrix\Calendar\Util::isSectionStructureConverted())
+					{
+						self::ConnectEventToSection($event['ID'], $defaultMeetingSection);
+					}
 					$event['SECT_ID'] = $defaultMeetingSection;
+					$event['SECTION_ID'] = $defaultMeetingSection;
 				}
 
 				$arEvents[] = $event;
@@ -925,7 +1027,6 @@ class CCalendarEvent
 			self::$fields = array(
 				"ID" => Array("FIELD_NAME" => "CE.ID", "FIELD_TYPE" => "int"),
 				"PARENT_ID" => Array("FIELD_NAME" => "CE.PARENT_ID", "FIELD_TYPE" => "int"),
-				//"ACTIVE" => Array("FIELD_NAME" => "CE.ACTIVE", "FIELD_TYPE" => "string"),
 				"DELETED" => Array("FIELD_NAME" => "CE.DELETED", "FIELD_TYPE" => "string"),
 				"CAL_TYPE" => Array("FIELD_NAME" => "CE.CAL_TYPE", "FIELD_TYPE" => "string"),
 				"OWNER_ID" => Array("FIELD_NAME" => "CE.OWNER_ID", "FIELD_TYPE" => "int"),
@@ -936,6 +1037,7 @@ class CCalendarEvent
 				"DATE_TO" => Array("FIELD_NAME" => $DB->DateToCharFunction("CE.DATE_TO").' as DATE_TO', "FIELD_TYPE" => "date"),
 				"TZ_FROM" => Array("FIELD_NAME" => "CE.TZ_FROM", "FIELD_TYPE" => "string"),
 				"TZ_TO" => Array("FIELD_NAME" => "CE.TZ_TO", "FIELD_TYPE" => "string"),
+				"ORIGINAL_DATE_FROM" => Array("FIELD_NAME" => $DB->DateToCharFunction("CE.ORIGINAL_DATE_FROM").' as ORIGINAL_DATE_FROM', "FIELD_TYPE" => "date"),
 				"TZ_OFFSET_FROM" => Array("FIELD_NAME" => "CE.TZ_OFFSET_FROM", "FIELD_TYPE" => "int"),
 				"TZ_OFFSET_TO" => Array("FIELD_NAME" => "CE.TZ_OFFSET_TO", "FIELD_TYPE" => "int"),
 				"DATE_FROM_TS_UTC" => Array("FIELD_NAME" => "CE.DATE_FROM_TS_UTC", "FIELD_TYPE" => "int"),
@@ -956,17 +1058,18 @@ class CCalendarEvent
 				"LOCATION" => Array("FIELD_NAME" => "CE.LOCATION", "FIELD_TYPE" => "string"),
 				"REMIND" => Array("FIELD_NAME" => "CE.REMIND", "FIELD_TYPE" => "string"),
 				"COLOR" => Array("FIELD_NAME" => "CE.COLOR", "FIELD_TYPE" => "string"),
-				//"TEXT_COLOR" => Array("FIELD_NAME" => "CE.TEXT_COLOR", "FIELD_TYPE" => "string"),
 				"RRULE" => Array("FIELD_NAME" => "CE.RRULE", "FIELD_TYPE" => "string"),
 				"EXDATE" => Array("FIELD_NAME" => "CE.EXDATE", "FIELD_TYPE" => "string"),
 				"ATTENDEES_CODES" => Array("FIELD_NAME" => "CE.ATTENDEES_CODES", "FIELD_TYPE" => "string"),
 				"DAV_XML_ID" => Array("FIELD_NAME" => "CE.DAV_XML_ID", "FIELD_TYPE" => "string"), //
 				"DAV_EXCH_LABEL" => Array("FIELD_NAME" => "CE.DAV_EXCH_LABEL", "FIELD_TYPE" => "string"), // Exchange sync label
+				"G_EVENT_ID" => Array("FIELD_NAME" => "CE.G_EVENT_ID", "FIELD_TYPE" => "string"), // Google event id
 				"CAL_DAV_LABEL" => Array("FIELD_NAME" => "CE.CAL_DAV_LABEL", "FIELD_TYPE" => "string"), // CalDAV sync label
 				"VERSION" => Array("FIELD_NAME" => "CE.VERSION", "FIELD_TYPE" => "string"), // Version used for outlook sync
 				"RECURRENCE_ID" => Array("FIELD_NAME" => "CE.RECURRENCE_ID", "FIELD_TYPE" => "int"),
 				"RELATIONS" => Array("FIELD_NAME" => "CE.RELATIONS", "FIELD_TYPE" => "int"),
-				"SEARCHABLE_CONTENT" => Array("FIELD_NAME" => "CE.SEARCHABLE_CONTENT", "FIELD_TYPE" => "string")
+				"SEARCHABLE_CONTENT" => Array("FIELD_NAME" => "CE.SEARCHABLE_CONTENT", "FIELD_TYPE" => "string"),
+				"SECTION_ID" => Array("FIELD_NAME" => "CE.SECTION_ID", "FIELD_TYPE" => "int")
 			);
 			CTimeZone::Enable();
 		}
@@ -1196,7 +1299,8 @@ class CCalendarEvent
 			}
 
 			// Clear information about
-			unset($event['DESCRIPTION'], $event['IS_MEETING'],$event['MEETING_HOST'],$event['MEETING'],$event['LOCATION'],$event['REMIND'],$event['USER_MEETING'],$event['ATTENDEE_LIST'],$event['ATTENDEES_CODES']);
+			unset($event['DESCRIPTION'], $event['LOCATION'],
+				$event['REMIND'],$event['USER_MEETING'],$event['ATTENDEE_LIST'],$event['ATTENDEES_CODES']);
 
 			foreach($event as $k => $value)
 			{
@@ -2325,6 +2429,7 @@ class CCalendarEvent
 						unset($childParams['currentEvent']);
 						unset($childParams['arFields']['ID']);
 						unset($childParams['arFields']['DAV_XML_ID']);
+						unset($childParams['arFields']['G_EVENT_ID']);
 
 						$bExchange = CCalendar::IsExchangeEnabled($attendeeId);
 
@@ -2342,7 +2447,8 @@ class CCalendarEvent
 								CCalendarSync::DoSaveToDav(array(
 									'bCalDav' => $bCalDav,
 									'bExchange' => $bExchange,
-									'sectionId' => $childSectId
+									'sectionId' => $childSectId,
+									'modeSync' => true
 								), $childParams['arFields']);
 							}
 						}
@@ -2366,7 +2472,8 @@ class CCalendarEvent
 								CCalendarSync::DoSaveToDav(array(
 									'bCalDav' => $bCalDav,
 									'bExchange' => $bExchange,
-									'sectionId' => $childParams['currentEvent']['SECT_ID']
+									'sectionId' => $childParams['currentEvent']['SECT_ID'],
+									'modeSync' => true
 								), $childParams['arFields'], $childParams['currentEvent']);
 							}
 						}
@@ -2504,19 +2611,6 @@ class CCalendarEvent
 			$arFields['RRULE'] = self::ParseRRULE($arFields['RRULE']);
 
 		return $arFields;
-	}
-
-	public static function GetCurrentSectionIds($eventId)
-	{
-		global $DB;
-		$strSql = "SELECT SECT_ID FROM b_calendar_event_sect WHERE EVENT_ID=".intVal($eventId);
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-		$result = array();
-		while($e = $res->Fetch())
-			$result[] = intVal($e['SECT_ID']);
-
-		return $result;
 	}
 
 	public static function UpdateUserFields($eventId, $arFields = array())
@@ -2694,23 +2788,22 @@ class CCalendarEvent
 						// Set flag
 						if ($params['bMarkDeleted'])
 						{
-							$strSql =
-								"UPDATE b_calendar_event SET ".
+							$DB->Query("UPDATE b_calendar_event SET ".
 								$DB->PrepareUpdate("b_calendar_event", array("DELETED" => "Y")).
-								" WHERE PARENT_ID=".$id;
-							$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+								" WHERE PARENT_ID=".$id, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 						}
 						else // Actual deleting
 						{
 							$strSql = "DELETE from b_calendar_event WHERE PARENT_ID=".$id;
 							$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-							$strChEvent = join(',', $chEventIds);
-							if (count($chEventIds) > 0)
+							if (!\Bitrix\Calendar\Util::isSectionStructureConverted())
 							{
-								// Del link from table
-								$strSql = "DELETE FROM b_calendar_event_sect WHERE EVENT_ID in (".$strChEvent.")";
-								$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+								$strChEvent = join(',', $chEventIds);
+								if (count($chEventIds) > 0)
+								{
+									$DB->Query("DELETE FROM b_calendar_event_sect WHERE EVENT_ID in (".$strChEvent.")", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+								}
 							}
 						}
 
@@ -2722,21 +2815,20 @@ class CCalendarEvent
 
 					if ($params['bMarkDeleted'])
 					{
-						$strSql =
-							"UPDATE b_calendar_event SET ".
+						$DB->Query("UPDATE b_calendar_event SET ".
 							$DB->PrepareUpdate("b_calendar_event", array("DELETED" => "Y")).
-							" WHERE ID=".$id;
-						$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							" WHERE ID=".$id, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 					}
 					else
 					{
 						// Real deleting
-						$strSql = "DELETE from b_calendar_event WHERE ID=".$id;
-						$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->Query("DELETE from b_calendar_event WHERE ID=".$id, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 						// Del link from table
-						$strSql = "DELETE FROM b_calendar_event_sect WHERE EVENT_ID=".$id;
-						$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+						if (!\Bitrix\Calendar\Util::isSectionStructureConverted())
+						{
+							$DB->Query("DELETE FROM b_calendar_event_sect WHERE EVENT_ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+						}
 					}
 
 					if (count($arAffectedSections) > 0)
@@ -2925,11 +3017,6 @@ class CCalendarEvent
 					$dbFields['PARENT_ID'] = $event['PARENT_ID'];
 					$dbFields['MEETING'] = serialize($event['MEETING']);
 					$dbFields['REMIND'] = serialize($event['REMIND']);
-					$eventId = $DB->Add("b_calendar_event", $dbFields, array('DESCRIPTION', 'MEETING', 'EXDATE'));
-
-					$DB->Query("UPDATE b_calendar_event SET ".
-						$DB->PrepareUpdate("b_calendar_event", array('DAV_XML_ID' => $eventId)).
-						" WHERE ID=".IntVal($eventId), false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 					$sectionId = CCalendarSect::GetLastUsedSection('user', $userId, $userId);
 					if (!$sectionId || !CCalendarSect::GetById($sectionId, false))
@@ -2937,7 +3024,14 @@ class CCalendarEvent
 						$sectRes = CCalendarSect::GetSectionForOwner('user', $userId);
 						$sectionId = $sectRes['sectionId'];
 					}
-					if ($eventId && $sectionId)
+
+					$dbFields['SECTION_ID'] = $sectionId;
+					$eventId = $DB->Add("b_calendar_event", $dbFields, array('DESCRIPTION', 'MEETING', 'EXDATE'));
+					$DB->Query("UPDATE b_calendar_event SET ".
+						$DB->PrepareUpdate("b_calendar_event", array('DAV_XML_ID' => $eventId)).
+						" WHERE ID=".IntVal($eventId), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+					if (!\Bitrix\Calendar\Util::isSectionStructureConverted() && $eventId && $sectionId)
 					{
 						self::ConnectEventToSection($eventId, $sectionId);
 					}
@@ -3373,13 +3467,22 @@ class CCalendarEvent
 	public static function DeleteEmpty()
 	{
 		global $DB;
-		$strSql = 'SELECT CE.ID, CE.LOCATION
-			FROM b_calendar_event CE
-			LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
-			WHERE CES.SECT_ID is null';
+		if (\Bitrix\Calendar\Util::isSectionStructureConverted())
+		{
+			$strSql = 'SELECT CE.ID, CE.LOCATION 
+				FROM b_calendar_event CE
+				LEFT JOIN b_calendar_section CS ON (CS.ID=CE.SECTION_ID)
+				WHERE CS.ID is null';
+		}
+		else
+		{
+			$strSql = 'SELECT CE.ID, CE.LOCATION
+				FROM b_calendar_event CE
+				LEFT JOIN b_calendar_event_sect CES ON (CE.ID=CES.EVENT_ID)
+				WHERE CES.SECT_ID is null';
+		}
+		$itemIds = [];
 		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		$strItems = "0";
 		while($arRes = $res->Fetch())
 		{
 			$loc = $arRes['LOCATION'];
@@ -3387,15 +3490,19 @@ class CCalendarEvent
 			{
 				$loc = CCalendar::ParseLocation($loc);
 				if ($loc['mrid'] !== false && $loc['mrevid'] !== false) // Release MR
+				{
 					CCalendar::ReleaseLocation($loc);
+				}
 			}
-			$strItems .= ",".IntVal($arRes['ID']);
+			$itemIds[] = intVal($arRes['ID']);
 		}
 
 		// Clean from 'b_calendar_event'
-		if ($strItems != "0")
-			$DB->Query("DELETE FROM b_calendar_event WHERE ID in (".$strItems.")", false,
+		if (count($itemIds) > 0)
+		{
+			$DB->Query("DELETE FROM b_calendar_event WHERE ID in (".implode(',', $itemIds).")", false,
 				"FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		}
 
 		CCalendar::ClearCache(array('section_list', 'event_list'));
 	}
@@ -3512,13 +3619,17 @@ class CCalendarEvent
 		if ($untilTimestamp && !empty($exDate) && is_array($exDate))
 		{
 			$exDateRes = array();
+
 			foreach($exDate as $date)
 			{
 				if (CCalendar::Timestamp($date) <= $untilTimestamp)
 					$exDateRes[] = $date;
 			}
+
 			$exDate = $exDateRes;
 		}
+
+		$exDate = array_unique($exDate);
 
 		return implode(';', $exDate);
 	}
@@ -3689,7 +3800,8 @@ class CCalendarEvent
 					'EXDATE' => CCalendarEvent::SetExDate($excludeDates)
 				),
 				'silentErrorMode' => false,
-				'recursionEditMode' => 'skip'
+				'recursionEditMode' => 'skip',
+				'editParentEvents' => true,
 			));
 
 			if (is_array($event['ATTENDEE_LIST']))

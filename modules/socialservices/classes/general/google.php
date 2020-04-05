@@ -35,7 +35,15 @@ class CSocServGoogleOAuth extends CSocServAuth
 		return array(
 			array("google_appid", GetMessage("socserv_google_client_id"), "", Array("text", 40)),
 			array("google_appsecret", GetMessage("socserv_google_client_secret"), "", Array("text", 40)),
-			array("note"=>GetMessage("socserv_google_note", array('#URL#'=>$this->getEntityOAuth()->getRedirectUri()))),
+			array(
+				'note' => getMessage(
+					'socserv_google_note_2',
+					array(
+						'#URL#' => $this->getEntityOAuth()->getRedirectUri(),
+						'#MAIL_URL#' => \CHttp::urn2uri('/bitrix/tools/mail_oauth.php'),
+					)
+				),
+			),
 		);
 	}
 
@@ -103,8 +111,11 @@ class CSocServGoogleOAuth extends CSocServAuth
 		$userId = intval($this->userId);
 		if($userId > 0)
 		{
-			$dbSocservUser = CSocServAuthDB::GetList(array(), array('USER_ID' => $userId, "EXTERNAL_AUTH_ID" => static::ID), false, false, array("OATOKEN", "REFRESH_TOKEN", "OATOKEN_EXPIRES"));
-			if($arOauth = $dbSocservUser->Fetch())
+			$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+				'filter' => ['=USER_ID' => $userId, "=EXTERNAL_AUTH_ID" => static::ID],
+				'select' => ["OATOKEN", "REFRESH_TOKEN", "OATOKEN_EXPIRES"]
+			]);
+			if($arOauth = $dbSocservUser->fetch())
 			{
 				$accessToken = $arOauth["OATOKEN"];
 

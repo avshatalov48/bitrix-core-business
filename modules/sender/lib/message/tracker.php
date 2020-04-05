@@ -9,6 +9,7 @@
 namespace Bitrix\Sender\Message;
 
 use Bitrix\Main\Mail\Tracking;
+use Bitrix\Main\SiteTable;
 use Bitrix\Sender\Integration;
 
 class Tracker
@@ -32,6 +33,13 @@ class Tracker
 	/** @var  string $handlerUri Handler uri. */
 	protected $handlerUri;
 
+	/** @var  string $linkDomain Link domain. */
+	protected $linkDomain;
+
+	/** @var  string $siteId Site id. */
+	protected $siteId;
+
+	private $siteData;
 	/**
 	 * Constructor.
 	 *
@@ -57,6 +65,24 @@ class Tracker
 	public function setModuleId($moduleId)
 	{
 		$this->moduleId = $moduleId;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSiteId()
+	{
+		return $this->moduleId;
+	}
+
+	/**
+	 * @param string $siteId
+	 * @return $this
+	 */
+	public function setSiteId($siteId)
+	{
+		$this->siteId = $siteId;
 		return $this;
 	}
 
@@ -125,7 +151,10 @@ class Tracker
 	{
 		if (!$this->handlerUri && Integration\Bitrix24\Service::isPortal())
 		{
-			return Integration\Bitrix24\Service::getTrackingUri($this->type);
+			return Integration\Bitrix24\Service::getTrackingUri(
+				$this->type,
+				(Integration\Bitrix24\Service::isCloud() ? null : $this->siteId) // $this->siteId is not used for cloud
+			);
 		}
 
 		return $this->handlerUri;
@@ -140,6 +169,47 @@ class Tracker
 	public function setHandlerUri($handlerUri)
 	{
 		$this->handlerUri = $handlerUri;
+		return $this;
+	}
+
+	/**
+	 * Get link domain name.
+	 *
+	 * @return string
+	 */
+	public function getLinkDomain()
+	{
+		if ($this->linkDomain === null)
+		{
+			if (Integration\Bitrix24\Service::isCloud())
+			{
+				return '';
+			}
+			if ($this->siteId)
+			{
+				if ($this->siteData === null)
+				{
+					$this->siteData = SiteTable::getById($this->siteId)->fetch();
+				}
+				if ($this->siteData && $this->siteData['SERVER_NAME'])
+				{
+					return $this->siteData['SERVER_NAME'];
+				}
+			}
+		}
+
+		return $this->linkDomain;
+	}
+
+	/**
+	 * Set link domain name.
+	 *
+	 * @param string $linkDomain
+	 * @return $this
+	 */
+	public function setLinkDomain($linkDomain)
+	{
+		$this->linkDomain = $linkDomain;
 		return $this;
 	}
 
@@ -189,7 +259,7 @@ class Tracker
 			'MODULE_ID' => $this->getModuleId(),
 			'FIELDS' => $this->getFields(),
 			'URL_PAGE' => $this->getHandlerUri(),
-			'URL_PARAMS' => $this->getUriParameters()
+			'URL_PARAMS' => $this->getUriParameters(),
 		);
 	}
 

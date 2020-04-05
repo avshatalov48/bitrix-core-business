@@ -22,25 +22,21 @@ class AccountGoogle extends Account
 
 	public function getProfile()
 	{
-		$response = $this->getRequest()->getClient()->get(
-			'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' .
-			urlencode($this->getRequest()->getAuthAdapter()->getToken())
-		);
+		$response = $this->request->send(array(
+			'methodName' => 'retargeting.profile',
+			'parameters' => array()
+		));
 
-		if ($response)
+		if ($response->isSuccess())
 		{
-			$response = Json::decode($response);
-			if (is_array($response))
-			{
-				return array(
-					'ID' => $response['id'],
-					'NAME' => $response['name'],
-					'LINK' => '',
-					'PICTURE' => $response['picture'],
-				);
-			}
+			$data = $response->fetch();
+			return array(
+				'ID' => $data['ID'],
+				'NAME' => $data['NAME'],
+				'LINK' => '',
+				'PICTURE' => $data['PICTURE'],
+			);
 		}
-
 
 		return null;
 	}

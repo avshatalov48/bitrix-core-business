@@ -178,6 +178,7 @@
 	height: 18px;
 	border: 2px solid #fff;
 	border-radius: 100%;
+	background-position: center;
 	background-repeat: no-repeat;
 	transition: transform .3s;
 	text-decoration: none;
@@ -198,6 +199,7 @@
 }
 
 .feed-post-emoji-popup-container .feed-post-emoji-icon-item {
+	padding: 10px 0;
 	width: 34px;
 	height: 34px;
 	cursor: pointer;
@@ -409,12 +411,13 @@
 	justify-content: center;
 	align-items: center;
 	margin: 0 auto;
-	padding: 10px;
-	height: 30px;
+	padding: 0 10px;
+	height: 50px;
 }
 
 .feed-post-emoji-popup-container.feed-post-emoji-popup-container-mobile .feed-post-emoji-icon-inner {
 	height: 48px;
+	padding: 10px;
 }
 
 .feed-post-emoji-popup-active .feed-post-emoji-icon-inner {
@@ -436,6 +439,7 @@
 	animation: feed-post-emoji-popup-show .2s .15s ease-in-out forwards;
 	opacity: 0;
 }
+
 .feed-post-emoji-popup-active.feed-post-emoji-popup-active-final {
 	opacity: 1;
 	pointer-events: auto;
@@ -447,7 +451,13 @@
 
 .feed-post-emoji-icon-inner .feed-post-emoji-icon-item {
 	flex: 0 0 34px;
+	margin-right: 4px;
+	border: none;
 	opacity: 0;
+}
+
+.feed-post-emoji-icon-inner .feed-post-emoji-icon-item:last-child {
+	margin-right: 0;
 }
 
 .feed-post-emoji-popup-container.feed-post-emoji-popup-container-mobile .feed-post-emoji-icon-inner .feed-post-emoji-icon-item {

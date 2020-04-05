@@ -1,0 +1,7 @@
+<?
+$MESS["SALE_JS_ADMIN_ORDER_CONF_BARCODE"] = "Штрихкод";
+$MESS["SALE_JS_ADMIN_ORDER_CONF_BARCODES"] = "Штрихкоди";
+$MESS["SALE_JS_ADMIN_ORDER_CONF_CLOSE"] = "Закрити";
+$MESS["SALE_JS_ADMIN_ORDER_CONF_INPUT_BARCODES"] = "Введіть штрихкоди";
+$MESS["SALE_JS_ADMIN_ORDER_CONF_MARKING_CODE"] = "Маркувальний код";
+?>

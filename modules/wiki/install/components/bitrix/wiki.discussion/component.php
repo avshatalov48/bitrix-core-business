@@ -212,10 +212,21 @@ if (CWikiSocnet::isEnabledSocnet() && !empty($arParams['SOCNET_GROUP_ID']))
 				$parserLog = new logTextParser();
 				$arAllow = array("HTML" => "N", "ANCHOR" => "N", "BIU" => "N", "IMG" => "N", "QUOTE" => "N", "CODE" => "N", "FONT" => "N", "LIST" => "N", "SMILES" => "N", "NL2BR" => "N", "VIDEO" => "N", "TABLE" => "N");
 
-				$text4message = $CWikiParser->Parse($arElement['DETAIL_TEXT'], $arElement['DETAIL_TEXT_TYPE'], $arWikiElement['IMAGES']);
-				$text4message = preg_replace("#<br[\s]*\/>#is", "#BR#", $text4message);
-				$text4message = htmlspecialcharsback($parserLog->convert($text4message, array(), $arAllow));
-				$text4message = preg_replace("#\#BR\##is", "\n", $text4message);
+
+				$arCurImages = array();
+				$rsProperties = CIBlockElement::GetProperty($arElement['IBLOCK_ID'], $arElement['ID'], 'value_id', 'asc', array('ACTIVE' => 'Y', 'CODE' => 'IMAGES'));
+				while($arProperty = $rsProperties->Fetch())
+				{
+					if($arProperty['CODE'] == 'IMAGES')
+					{
+						$arCurImages[] = $arProperty['VALUE'];
+					}
+				}
+
+				$arCat = array();
+				$text4message = $CWikiParser->parseBeforeSave($arElement['DETAIL_TEXT'], $arCat);
+				$text4message =  $CWikiParser->Parse($text4message, $arElement['DETAIL_TEXT_TYPE'], $arCurImages);
+				$text4message = CWikiSocnet::PrepareTextForFeed($text4message);
 				$text4message = $CWikiParser->Clear($text4message);
 
 				$url = str_replace(

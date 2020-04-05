@@ -1342,18 +1342,19 @@ abstract class ProviderBase
 
 			$fields = $data;
 
-			if ($productData['IS_BUNDLE_CHILD'])
-			{
-				$fields['CHECK_DISCOUNT'] = 'N';
-			}
-
 			if ($productData['IS_ORDERABLE'])
 			{
-				$fields['CHECK_COUPONS'] = 'N';
+				$fields['CHECK_COUPONS'] = 'Y';
 			}
 			else
 			{
-				$fields['CHECK_COUPONS'] = 'Y';
+				$fields['CHECK_COUPONS'] = 'N';
+			}
+
+			if ($productData['IS_BUNDLE_CHILD'])
+			{
+				$fields['CHECK_DISCOUNT'] = 'N';
+				$fields['CHECK_COUPONS'] = 'N';
 			}
 
 			$fields['PRODUCT_ID'] = $productId;
@@ -1492,11 +1493,19 @@ abstract class ProviderBase
 				foreach ($basketCodeList as $basketCode)
 				{
 					$result[$itemCode]['PRICE_LIST'][$basketCode] = array(
-						'QUANTITY' => $providerData['DATA']['QUANTITY'],
-						'AVAILABLE_QUANTITY' => $providerData['DATA']['AVAILABLE_QUANTITY'],
 						"ITEM_CODE" => $itemCode,
 						"BASKET_CODE" => $basketCode,
 					);
+
+					if (isset($providerData['DATA']['QUANTITY']) && $providerData['DATA']['QUANTITY'] > 0)
+					{
+						$result[$itemCode]['PRICE_LIST'][$basketCode]['QUANTITY'] = $providerData['DATA']['QUANTITY'];
+					}
+
+					if (isset($providerData['DATA']['AVAILABLE_QUANTITY']))
+					{
+						$result[$itemCode]['PRICE_LIST'][$basketCode]['AVAILABLE_QUANTITY'] = $providerData['DATA']['AVAILABLE_QUANTITY'];
+					}
 				}
 
 				foreach ($priceFields as $fieldName)
@@ -4825,7 +4834,12 @@ abstract class ProviderBase
 
 		$result = new Result();
 
-		$needDeliver = $shipment->needDeliver();
+		$needDeliver = null;
+		if ($shipment->getFields()->isChanged('ALLOW_DELIVERY'))
+		{
+			$needDeliver = $shipment->getField('ALLOW_DELIVERY') === "Y";
+		}
+
 		if ($needDeliver === null || ($needDeliver === false && $shipment->getId() <= 0))
 			return $result;
 

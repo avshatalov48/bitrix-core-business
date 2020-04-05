@@ -10,7 +10,7 @@
 		categories: [
 			{
 				"id": "web-application",
-				"name": BX.message("LANDING_ICONS_SECTION_WEB_APP"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_WEB_APP"),
 				"items": [
 					"fa fa-address-book",
 					"fa fa-address-book-o",
@@ -467,7 +467,7 @@
 			},
 			{
 				"id": "accessibility",
-				"name": BX.message("LANDING_ICONS_SECTION_ACCESSIBILITY"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_ACCESSIBILITY"),
 				"items": [
 					"fa fa-american-sign-language-interpreting",
 					"fa fa-asl-interpreting",
@@ -492,7 +492,7 @@
 			},
 			{
 				"id": "hand",
-				"name": BX.message("LANDING_ICONS_SECTION_HANDS"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_HANDS"),
 				"items": [
 					"fa fa-hand-grab-o",
 					"fa fa-hand-lizard-o",
@@ -515,7 +515,7 @@
 			},
 			{
 				"id": "transportation",
-				"name": BX.message("LANDING_ICONS_SECTION_TRANSPORTATION"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_TRANSPORTATION"),
 				"items": [
 					"fa fa-ambulance",
 					"fa fa-automobile",
@@ -539,7 +539,7 @@
 			},
 			{
 				"id": "gender",
-				"name": BX.message("LANDING_ICONS_SECTION_GENDER"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_GENDER"),
 				"items": [
 					"fa fa-genderless",
 					"fa fa-intersex",
@@ -559,7 +559,7 @@
 			},
 			{
 				"id": "file-type",
-				"name": BX.message("LANDING_ICONS_SECTION_FILES"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_FILES"),
 				"items": [
 					"fa fa-file",
 					"fa fa-file-archive-o",
@@ -583,7 +583,7 @@
 			},
 			{
 				"id": "spinner",
-				"name": BX.message("LANDING_ICONS_SECTION_SPINNERS"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_SPINNERS"),
 				"items": [
 					"fa fa-circle-o-notch",
 					"fa fa-cog",
@@ -594,7 +594,7 @@
 			},
 			{
 				"id": "form-control",
-				"name": BX.message("LANDING_ICONS_SECTION_FORM"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_FORM"),
 				"items": [
 					"fa fa-check-square",
 					"fa fa-check-square-o",
@@ -611,7 +611,7 @@
 			},
 			{
 				"id": "payment",
-				"name": BX.message("LANDING_ICONS_SECTION_PAYMENT"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_PAYMENT"),
 				"items": [
 					"fa fa-cc-amex",
 					"fa fa-cc-diners-club",
@@ -629,7 +629,7 @@
 			},
 			{
 				"id": "chart",
-				"name": BX.message("LANDING_ICONS_SECTION_CHART"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_CHART"),
 				"items": [
 					"fa fa-area-chart",
 					"fa fa-bar-chart",
@@ -640,7 +640,7 @@
 			},
 			{
 				"id": "currency",
-				"name": BX.message("LANDING_ICONS_SECTION_CURRENCY"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_CURRENCY"),
 				"items": [
 					"fa fa-bitcoin",
 					"fa fa-btc",
@@ -672,7 +672,7 @@
 			},
 			{
 				"id": "text-editor",
-				"name": BX.message("LANDING_ICONS_SECTION_TEXT_EDITOR"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_TEXT_EDITOR"),
 				"items": [
 					"fa fa-align-center",
 					"fa fa-align-justify",
@@ -727,7 +727,7 @@
 			},
 			{
 				"id": "directional",
-				"name": BX.message("LANDING_ICONS_SECTION_DIRECTIONAL"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_DIRECTIONAL"),
 				"items": [
 					"fa fa-angle-double-down",
 					"fa fa-angle-double-left",
@@ -786,7 +786,7 @@
 			},
 			{
 				"id": "video-player",
-				"name": BX.message("LANDING_ICONS_SECTION_PLAYER"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_PLAYER"),
 				"items": [
 					"fa fa-arrows-alt",
 					"fa fa-backward",
@@ -813,7 +813,7 @@
 			},
 			{
 				"id": "brand",
-				"name": BX.message("LANDING_ICONS_SECTION_BRAND"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_BRAND"),
 				"items": [
 					"fa fa-500px",
 					"fa fa-adn",
@@ -1009,7 +1009,7 @@
 			},
 			{
 				"id": "medical",
-				"name": BX.message("LANDING_ICONS_SECTION_MEDICINE"),
+				"name": BX.Landing.Loc.getMessage("LANDING_ICONS_SECTION_MEDICINE"),
 				"items": [
 					"fa fa-ambulance",
 					"fa fa-h-square",

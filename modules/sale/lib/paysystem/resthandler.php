@@ -59,6 +59,7 @@ class RestHandler extends PaySystem\ServiceHandler
 		{
 			$template .= '<input type="hidden" name="'.htmlspecialcharsbx($key).'" value="'.htmlspecialcharsbx($params[$value]).'">';
 		}
+		$template .= '<input type="hidden" name="BX_PAYSYSTEM_ID" value="'.$this->service->getField('ID').'">';
 		$template .= '<input name="button" value="'.Loc::getMessage('SALE_HANDLERS_REST_HANDLER_BUTTON_PAID').'" type="submit">';
 		$template .= '</form>';
 
@@ -83,7 +84,7 @@ class RestHandler extends PaySystem\ServiceHandler
 
 		return array(
 			'NAME' => $settings['NAME'],
-			'CODES' => $settings['CODES']
+			'CODES' => $settings['CODES'] ?: []
 		);
 	}
 

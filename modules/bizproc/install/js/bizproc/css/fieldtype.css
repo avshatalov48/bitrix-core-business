@@ -68,6 +68,7 @@
 	margin-left: -27px;
 	vertical-align: middle;
 	opacity: 0;
+	margin-right: 15px;
 }
 
 .bizproc-type-control-int,
@@ -77,11 +78,12 @@
 
 .bizproc-type-control-bool,
 .bizproc-type-control-select,
-.bizproc-type-control-internalselect {
+.bizproc-type-control-internalselect,
+.bizproc-type-control-date-lc {
 	display: inline-block;
 	min-width: 155px;
 	padding: 10px 30px 10px 10px;
-	height: 38px;
+	height: 36px;
 	outline: none;
 	margin: 0 10px 0 0;
 	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
@@ -104,7 +106,14 @@
 	-moz-appearance: none;
 	-ms-appearance: none;
 	appearance: none !important;
-	vertical-align: middle;
+	vertical-align: top;
+}
+.bizproc-type-control-date-lc {
+	max-width: 180px !important;
+}
+.bizproc-type-control-date-lc-multiple {
+	margin-top: 1px;
+	margin-bottom: 1px;
 }
 
 .bizproc-type-control-bool.bizproc-type-control-multiple,
@@ -147,7 +156,7 @@
 
 /* Destination classes */
 
-.bizproc-type-control-user .feed-add-destination-inp {
+.bizproc-type-control-user .bizproc-type-control-user-input {
 	border: none;
 	margin: 0 7px 3px 5px
 }
@@ -224,6 +233,57 @@
 .bizproc-type-control-user-delete:hover::after,
 .bizproc-type-control-user-delete:hover::before {
 	background: #0b66c3;
+}
+
+.bizproc-type-control-user-input-box {
+	display: none;
+}
+
+.bizproc-type-control-user-input {
+	background: #fff;
+	border: none;
+	color: #555;
+	display: inline-block;
+	font-size: 12px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	margin: 0 7px 7px 0;
+	height: 30px;
+	min-width: 108px;
+	outline: none;
+	padding: 0;
+	vertical-align: middle;
+}
+
+.bizproc-type-control-user-link {
+	border-bottom: 1px solid transparent;
+	color: #2067b0;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: bold;
+	font-size: 13px;
+	margin: 7px 7px 7px 18px;
+	line-height: 17px;
+	text-decoration: none;
+	vertical-align: top;
+	position: relative;
+
+	-webkit-transition: border-bottom-color 0.2s linear;
+	transition: border-bottom-color 0.2s linear;
+}
+
+.bizproc-type-control-user-link:before {
+	background: url("images/sprite_mpf_5.png") no-repeat -148px -481px;
+	content: '';
+	height: 8px;
+	left: -14px;
+	position: absolute;
+	top: 5px;
+	width: 8px;
+}
+
+.bizproc-type-control-user-link:hover {
+	border-bottom: 1px solid;
+	color: #2067b0;
 }
 
 /* File control classes */

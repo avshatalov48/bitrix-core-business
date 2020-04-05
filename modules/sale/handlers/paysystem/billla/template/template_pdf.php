@@ -574,7 +574,7 @@ do
 	$newLine = false;
 	foreach ($arCols as $columnId => $column)
 	{
-		list($string, $arCols[$columnId]['NAME']) = $pdf->splitString($column['NAME'], $arRowsContentWidth[$columnId]);
+		list($string, $arCols[$columnId]['NAME']) = $pdf->splitString($column['NAME'], $arRowsWidth[$columnId]);
 		if ($vat > 0 || $columnId !== 'VAT_RATE')
 			$pdf->Cell($arRowsWidth[$columnId], 20, $string, 0, 0, $k ? 'L' : 'C');
 

@@ -9,7 +9,7 @@
 		</div>
 
 		<div class="row text-center text-md-left">
-			<div class="landing-block-node-subtitle-container js-animation slideInLeft col-md-5 offset-md-1">
+			<div class="landing-block-node-subtitle-container js-animation slideInLeft col-md-5 col-lg-5 offset-md-1">
 				<h3 class="landing-block-node-subtitle text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-5">
 					New album presetnation</h3>
 				<div class="landing-block-node-text g-font-size-13 g-color-white g-mb-60 g-mb-0--md">
@@ -19,7 +19,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-date-container js-animation slideInRight col-md-6">
+			<div class="landing-block-node-date-container js-animation slideInRight col-md-6 col-lg-6">
 				<!-- Countdown -->
 				<div class="u-countdown-v1 g-color-white">
 					<div class="d-inline-block text-center g-bg-white-opacity-0_05 g-brd-around g-brd-white-opacity-0_3 g-pa-15-20-10 g-mx-15 g-mb-30">

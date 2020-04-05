@@ -149,6 +149,7 @@
 	{
 		Helper.changeDisplay(this.blockNode, isShowBlock);
 		Helper.changeDisplay(this.plainNode, !isShowBlock);
+		BX.BlockEditorManager.get(this.id).resultNode = isShowBlock ? this.inputNode : null;
 	};
 	Editor.prototype.setContent = function(content)
 	{

@@ -218,7 +218,7 @@ else
 				&& intval($arEvent["EVENT"]["ENTITY_ID"]) > 0
 			)
 			{
-				?> sonet-log-item-where-<?=$arEvent["EVENT"]["ENTITY_TYPE"]?>-<?=intval($arEvent["EVENT"]["ENTITY_ID"])?>-all <?
+				?> sonet-log-item-where-<?=$arEvent["EVENT"]["ENTITY_TYPE"]?>-<?=intval($arEvent["EVENT"]["ENTITY_ID"])?>-all<?
 				if (
 					array_key_exists("EVENT_ID", $arEvent["EVENT"])
 					&& strlen($arEvent["EVENT"]["EVENT_ID"]) > 0
@@ -229,6 +229,7 @@ else
 					if (
 						array_key_exists("EVENT_ID_FULLSET", $arEvent["EVENT"])
 						&& strlen($arEvent["EVENT"]["EVENT_ID_FULLSET"]) > 0
+						&& $arEvent["EVENT"]["EVENT_ID_FULLSET"] != $arEvent["EVENT"]["EVENT_ID"]
 					)
 					{
 						?> sonet-log-item-where-<?=$arEvent["EVENT"]["ENTITY_TYPE"]?>-<?=intval($arEvent["EVENT"]["ENTITY_ID"])?>-<?=str_replace("_", '-', $arEvent["EVENT"]["EVENT_ID_FULLSET"])?> <?
@@ -612,7 +613,7 @@ else
 							{
 								if ($url !== "")
 								{
-									?><a href="<?=$url?>" class="feed-post-title"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></a><?
+									?><a href="<?=$url?>" class="feed-post-title" target="_top"><?=$arEvent["EVENT_FORMATTED"]["TITLE_24_2"]?></a><?
 								}
 								else
 								{
@@ -1117,7 +1118,7 @@ else
 						?><a
 							href="#"
 							data-log-entry-url="<?=$strLogEntryURL?>"
-							data-log-entry-createtask="<?=($arResult["canGetPostContent"]) && !$stub ? 'Y' : 'N'?>"
+							data-log-entry-createtask="<?=($arResult["canGetPostContent"]) && $arResult["bTasksAvailable"] && !$stub ? 'Y' : 'N'?>"
 							data-log-entry-entity-type="<?=(!empty($arResult["POST_CONTENT_TYPE_ID"]) ? htmlspecialcharsbx($arResult["POST_CONTENT_TYPE_ID"]) : "")?>"
 							data-log-entry-entity-id="<?=(!empty($arResult["POST_CONTENT_ID"]) ? intval($arResult["POST_CONTENT_ID"]) : "")?>"
 							data-log-entry-log-id="<?=intval($arEvent["EVENT"]["ID"])?>"

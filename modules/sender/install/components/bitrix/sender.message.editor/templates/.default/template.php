@@ -90,6 +90,7 @@ $fieldPrefix = 'CONFIGURATION_';
 			'containerId' => $containerId,
 			'actionUri' => $arResult['ACTION_URI'],
 			'messageCode' => $arResult['MESSAGE_CODE'],
+			'messageId' => $arResult['MESSAGE_ID'],
 			'fieldPrefix' => $fieldPrefix,
 			'templateType' => $arParams['TEMPLATE_TYPE'],
 			'templateId' => $arParams['TEMPLATE_ID'],
@@ -268,6 +269,24 @@ $fieldPrefix = 'CONFIGURATION_';
 						"",
 						array(
 							"INPUT_NAME" => $inputName,
+							"VALUE" => $option['value'],
+						),
+						null
+					);
+					$inputHtml = ob_get_clean();
+					$isEditor = true;
+					break;
+
+				case ConOpt::TYPE_AUDIO:
+					ob_start();
+					$APPLICATION->IncludeComponent(
+						"bitrix:sender.message.audio",
+						"",
+						array(
+							"MESSAGE_CODE" => $arParams['MESSAGE_CODE'],
+							"INPUT_NAME" => $inputName,
+							"INPUT_ID" => $inputId,
+							"CONTROL_ID" => $inputCode,
 							"VALUE" => $option['value'],
 						),
 						null

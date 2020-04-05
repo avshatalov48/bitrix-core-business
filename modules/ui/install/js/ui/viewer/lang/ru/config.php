@@ -13,4 +13,5 @@ $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_IN_PROGRESS"] = "Идет конверт
 $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_TIMEOUT"] = "Неудачная конвертация. Вы можете скачать файл";
 $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR_1"] = "Не удалось открыть файл. Вы можете его <a href=\"#DOWNLOAD_LINK#\" target=\"_blank\">скачать</a>.";
 $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_HINT"] = "<a href=\"#\" onclick='top.BX.Helper.show(\"redirect=detail&code=8775937\");event.preventDefault();'>Подробнее</a> о возможных причинах.";
+$MESS["JS_UI_VIEWER_ITEM_PREPARING_TO_PRINT"] = "Подготовка документа к печати: #PROGRESS#%";
 ?>

@@ -2,6 +2,7 @@
 namespace Bitrix\Lists;
 
 use Bitrix\Main;
+use Bitrix\Main\ModuleManager;
 
 Main\Loader::includeModule("iblock");
 Main\Loader::includeModule("bizproc");
@@ -577,10 +578,11 @@ class Importer
 	 * @param string $lang This variable is the value language.
 	 * @return string
 	 * @throws Main\ArgumentNullException
+	 * @throws Main\IO\FileNotFoundException
 	 */
 	public static function onAgent($lang)
 	{
-		if(Main\Loader::includeModule("iblock") && Main\Loader::includeModule("bizproc"))
+		if (ModuleManager::isModuleInstalled("bizproc"))
 		{
 			self::installProcesses($lang);
 			return "";

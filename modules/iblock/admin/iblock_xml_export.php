@@ -89,6 +89,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 			);
 			if($fp = fopen($ABS_FILE_NAME, "wb"))
 			{
+				@chmod($ABS_FILE_NAME, BX_FILE_PERMISSIONS);
 				if(strtolower(substr($ABS_FILE_NAME, -4)) == ".xml")
 				{
 					$DIR_NAME = substr($ABS_FILE_NAME, 0, -4)."_files";

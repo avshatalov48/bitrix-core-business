@@ -12,7 +12,7 @@ final class Loc
 	private static $currentLang = null;
 	private static $messages = array();
 	private static $customMessages = array();
-	private static $userMessages = null;
+	private static $userMessages = array();
 	private static $includedFiles = array();
 	private static $lazyLoadFiles = array();
 	private static $triedFiles = array();
@@ -31,12 +31,14 @@ final class Loc
 		if($language === null)
 		{
 			//function call optimization
-			if(static::$currentLang === null)
+			if(self::$currentLang === null)
 			{
-				self::getCurrentLang();
+				$language = self::getCurrentLang();
 			}
-
-			$language = static::$currentLang;
+			else
+			{
+				$language = self::$currentLang;
+			}
 		}
 
 		if(!isset(self::$messages[$language][$code]))
@@ -83,19 +85,19 @@ final class Loc
 			$context = Context::getCurrent();
 			if($context !== null)
 			{
-				self::$currentLang = $context->getLanguage();
-			}
-			else
-			{
-				self::$currentLang = 'en';
+				$language = $context->getLanguage();
+				if($language !== null)
+				{
+					self::$currentLang = $language;
+				}
 			}
 		}
-		return self::$currentLang;
+		return (self::$currentLang !== null? self::$currentLang : 'en');
 	}
 
 	public static function setCurrentLang($language)
 	{
-		static::$currentLang = $language;
+		self::$currentLang = $language;
 	}
 
 	/**
@@ -196,9 +198,9 @@ final class Loc
 		}
 
 		//first time call only for lang
-		if(self::$userMessages === null)
+		if(!isset(self::$userMessages[$language]))
 		{
-			self::$userMessages = self::loadUserMessages($language);
+			self::$userMessages[$language] = self::loadUserMessages($language);
 		}
 
 		//let's find language folder and include lang files
@@ -206,30 +208,7 @@ final class Loc
 
 		if (!empty($mess))
 		{
-			static $encodingCache = array();
-			if (isset($encodingCache[$language]))
-			{
-				list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
-			}
-			else
-			{
-				$convertEncoding = Translation::needConvertEncoding($language);
-				$targetEncoding = $sourceEncoding = '';
-				if ($convertEncoding)
-				{
-					$targetEncoding = Translation::getCurrentEncoding();
-					$sourceEncoding = Translation::getSourceEncoding($language);
-				}
-
-				$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
-			}
-
-
-			if ($convertEncoding)
-			{
-				$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($langFile);
-			}
-
+			list($convertEncoding, $targetEncoding, $sourceEncoding) = Translation::getEncodings($language, $langFile);
 
 			foreach ($mess as $key => $val)
 			{
@@ -254,86 +233,10 @@ final class Loc
 	}
 
 	/**
-	 * @deprecated Do not use, will be removed soon. loadLanguageFile() is enough
-	 */
-	public static function loadFile($langFile, $language = null)
-	{
-		if (empty($language))
-		{
-			// extract language from path
-			$arr = explode('/', $langFile);
-			$langKey = array_search('lang', $arr);
-			if ($langKey !== false && isset($arr[$langKey + 1]))
-			{
-				$language = $arr[$langKey + 1];
-			}
-		}
-
-		if (empty($language))
-		{
-			$language = self::getCurrentLang();
-		}
-
-		$langFile = Translation::convertLangPath($langFile, $language);
-
-		$mess = array();
-		if (file_exists($langFile))
-		{
-			$mess = self::includeFile($langFile);
-
-			if (!empty($mess))
-			{
-				static $encodingCache = array();
-				if (isset($encodingCache[$language]))
-				{
-					list($convertEncoding, $targetEncoding, $sourceEncoding) = $encodingCache[$language];
-				}
-				else
-				{
-					$convertEncoding = Translation::needConvertEncoding($language);
-					$targetEncoding = $sourceEncoding = '';
-					if ($convertEncoding)
-					{
-						$targetEncoding = Translation::getCurrentEncoding();
-						$sourceEncoding = Translation::getSourceEncoding($language);
-					}
-
-					$encodingCache[$language] = array($convertEncoding, $targetEncoding, $sourceEncoding);
-				}
-
-				if ($convertEncoding)
-				{
-					$convertEncoding = \Bitrix\Main\Localization\Translation::checkPathRestrictionConvertEncoding($langFile);
-				}
-
-				foreach ($mess as $key => $val)
-				{
-					if (isset(self::$customMessages[$language][$key]))
-					{
-						self::$messages[$language][$key] = $mess[$key] = self::$customMessages[$language][$key];
-					}
-					else
-					{
-						if ($convertEncoding)
-						{
-							$val = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
-							$mess[$key] = $val;
-						}
-
-						self::$messages[$language][$key] = $val;
-					}
-				}
-			}
-		}
-
-		return $mess;
-	}
-
-	/**
 	 * Loads custom messages from the file to overwrite messages by their IDs.
 	 *
-	 * @param $file
-	 * @param null $language
+	 * @param string $file
+	 * @param string|null $language
 	 */
 	public static function loadCustomMessages($file, $language = null)
 	{
@@ -350,9 +253,19 @@ final class Loc
 		//let's find language folder and include lang files
 		$mess = self::includeLangFiles(Path::normalize($file), $language, $langFile);
 
-		foreach($mess as $key => $val)
+		if (!empty($mess))
 		{
-			self::$customMessages[$language][$key] = $val;
+			list($convertEncoding, $targetEncoding, $sourceEncoding) = Translation::getEncodings($language, $langFile);
+
+			foreach ($mess as $key => $val)
+			{
+				if ($convertEncoding)
+				{
+					$val = $mess[$key] = Encoding::convertEncoding($val, $sourceEncoding, $targetEncoding);
+				}
+
+				self::$customMessages[$language][$key] = $val;
+			}
 		}
 	}
 
@@ -473,9 +386,18 @@ final class Loc
 		if(!empty(self::$userMessages))
 		{
 			$path = str_replace("\\", "/", realpath($path));
-			if(is_array(self::$userMessages[$path]))
-				foreach(self::$userMessages[$path] as $key => $val)
-					$MESS[$key] = $val;
+
+			//cycle through languages
+			foreach(self::$userMessages as $messages)
+			{
+				if(is_array($messages[$path]))
+				{
+					foreach($messages[$path] as $key => $val)
+					{
+						$MESS[$key] = $val;
+					}
+				}
+			}
 		}
 
 		return $MESS;

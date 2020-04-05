@@ -81,12 +81,6 @@ if (isset($arParams['DESIGN']))
 	$arResult["DESIGN"] = $arParams['DESIGN'];
 }
 
-if ($arResult['SETTINGS']['bxdNotify'] && CIMMessenger::CheckInstallDesktop())
-{
-	CIMSettings::SetSetting(CIMSettings::SETTINGS, Array('bxdNotify' => false));
-	$arResult['SETTINGS']['bxdNotify'] = false;
-}
-
 $arParams["INIT"] = 'Y';
 $arParams["DESKTOP_LINK_OPEN"] = 'N';
 

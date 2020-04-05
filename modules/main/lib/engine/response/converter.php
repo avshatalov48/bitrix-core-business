@@ -2,17 +2,20 @@
 
 namespace Bitrix\Main\Engine\Response;
 
+use Bitrix\Main\Text\StringHelper;
+
 final class Converter
 {
-	const TO_SNAKE  = 0x00001;
-	const TO_CAMEL  = 0x00002;
-	const TO_UPPER  = 0x00010;
-	const TO_LOWER  = 0x00020;
-	const LC_FIRST  = 0x00100;
-	const UC_FIRST  = 0x00200;
-	const KEYS      = 0x01000;
-	const VALUES    = 0x02000;
-	const RECURSIVE = 0x04000;
+	const TO_SNAKE  		= 0x00001;
+	const TO_CAMEL  		= 0x00002;
+	const TO_SNAKE_DIGIT  	= 0x00004;
+	const TO_UPPER  		= 0x00010;
+	const TO_LOWER  		= 0x00020;
+	const LC_FIRST  		= 0x00100;
+	const UC_FIRST  		= 0x00200;
+	const KEYS      		= 0x01000;
+	const VALUES    		= 0x02000;
+	const RECURSIVE 		= 0x04000;
 
 	const OUTPUT_JSON_FORMAT = self::KEYS | self::RECURSIVE | self::TO_CAMEL | self::LC_FIRST;
 
@@ -91,13 +94,20 @@ final class Converter
 	{
 		if ($this->format & self::TO_SNAKE)
 		{
-			$string = strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $string));
+			$string = StringHelper::camel2snake($string);
+		}
+
+		if ($this->format & self::TO_SNAKE_DIGIT)
+		{
+			$string = preg_replace('/(\d+)([A-Za-z])/', '$1_$2', $string);
+			$string = preg_replace('/([A-Za-z])(\d)/', '$1_$2', $string);
+			$string = preg_replace('/([^_])([A-Z])/', '$1_$2', $string);
+			$string = strtolower($string);
 		}
 
 		if ($this->format & self::TO_CAMEL)
 		{
-			$string = strtolower(str_replace('_', ' ', $string));
-			$string = str_replace(' ', '', ucwords($string));
+			$string = StringHelper::snake2camel($string);
 		}
 
 		if ($this->format & self::TO_LOWER)

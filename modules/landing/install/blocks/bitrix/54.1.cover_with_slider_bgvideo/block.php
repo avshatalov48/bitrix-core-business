@@ -1,8 +1,6 @@
-<section
-		class="landing-block u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80 bg-video__wrapper">
+<section class="landing-block u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80 bg-video__wrapper">
 	<div class="landing-block-node-video-container bg-video__inner">
-		<iframe
-				class="landing-block-node-video bg-video__video"
+		<iframe class="landing-block-node-video bg-video__video"
 				width="100%"
 				src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&controls=0&loop=1&mute=1&rel=0"
 				data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
@@ -19,7 +17,7 @@
 			 data-speed="5000"
 			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-minus-70">
 
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
 				<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20 g-font-montserrat">
 					Solutions</h2>
 
@@ -34,7 +32,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
 				<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20 g-font-montserrat">
 					High quality solutions</h2>
 
@@ -49,7 +47,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide align-self-center js-animation fadeIn g-px-15">
 				<h2 class="landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-20 g-font-montserrat">
 					The best solutions</h2>
 

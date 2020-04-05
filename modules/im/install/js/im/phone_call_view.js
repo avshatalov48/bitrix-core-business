@@ -42,6 +42,7 @@
 		reloadCrmCard: 'phoneCallViewReloadCrmCard',
 		setCallId: 'phoneCallViewSetCallId',
 		setLineNumber: 'phoneCallViewSetLineNumber',
+		setPhoneNumber: 'phoneCallViewSetPhoneNumber',
 		setCompanyPhoneNumber: 'phoneCallViewSetCompanyPhoneNumber',
 		setTransfer: 'phoneCallViewSetTransfer',
 		closeWindow: 'phoneCallViewCloseWindow',
@@ -99,6 +100,7 @@
 		this.crmActivityId = params.crmActivityId || 0;
 		this.crmActivityEditUrl = params.crmActivityEditUrl || '';
 		this.crmData = BX.type.isPlainObject(params.crmData) ? params.crmData : {};
+		this.crmBindings = [];
 		this.externalRequests = {};
 
 		//portal call
@@ -991,7 +993,7 @@
 			if(this.phoneNumber == 'unknown')
 			{
 				result.resolve(BX.message('IM_PHONE_CALL_VIEW_NUMBER_UNKNOWN'));
-				return result;
+				return;
 			}
 			if (this.phoneNumber == 'hidden')
 			{
@@ -1094,6 +1096,12 @@
 			randomString += charSet.substring(randomPoz,randomPoz+1);
 		}
 		return randomString;
+	};
+
+	BX.PhoneCallView.prototype.setPhoneNumber = function(phoneNumber)
+	{
+		this.phoneNumber = phoneNumber;
+		this.setOnSlave(desktopEvents.setPhoneNumber, [phoneNumber]);
 	};
 
 	BX.PhoneCallView.prototype.setTitle = function(title)
@@ -1413,6 +1421,7 @@
 		this.crmEntityId = params.id;
 		this.crmActivityId = params.activityId || '';
 		this.crmActivityEditUrl = params.activityEditUrl || '';
+		this.crmBindings = BX.type.isArray(params.bindings) ? params.bindings : [];
 
 		if(this.isDesktop() && !this.slave)
 		{
@@ -1429,103 +1438,50 @@
 		this.crmData = crmData;
 	};
 
-	BX.PhoneCallView.prototype.loadCrmCard = function(entityType, entityId, tryNumber, skipChangeEvent)
+	BX.PhoneCallView.prototype.loadCrmCard = function(entityType, entityId)
 	{
-		var maxTryCount = 3;
-		tryNumber = parseInt(tryNumber) || 0;
-		skipChangeEvent = skipChangeEvent === true;
+		BX.onCustomEvent(window, 'CallCard::EntityChanged', [{
+			'CRM_ENTITY_TYPE': entityType,
+			'CRM_ENTITY_ID': entityId,
+			'PHONE_NUMBER': this.phoneNumber
+		}]);
 
-		if(!skipChangeEvent)
+		BX.ajax.runAction("voximplant.callview.getCrmCard", {
+			data: {
+				entityType: entityType,
+				entityId: entityId
+			}
+		}).then(function(response)
 		{
-			BX.onCustomEvent(window, 'CallCard::EntityChanged', [{
-				'CRM_ENTITY_TYPE': entityType,
-				'CRM_ENTITY_ID': entityId,
-				'PHONE_NUMBER': this.phoneNumber
-			}]);
-		}
-
-		var self = this;
-		var params = {
-			'sessid': BX.bitrix_sessid(),
-			'COMMAND': 'getCrmCard',
-			'IM_PHONE': 'Y',
-			'IM_AJAX_CALL': 'Y',
-			'PARAMS': {
-				'ENTITY_TYPE': entityType,
-				'ENTITY_ID': entityId
-			}
-		};
-
-		BX.ajax({
-			url: this.BXIM.pathToCallAjax+'?CALL_CRM_CARD&V='+this.BXIM.revision,
-			method: 'POST',
-			datatype: 'html',
-			data: params,
-			onsuccess: function(HTML)
+			if(this.currentLayout == layouts.simple)
 			{
-				var possibleError;
-				try
-				{
-					if(HTML[0] === '{')
-					{
-						possibleError = JSON.parse(HTML);
-					}
-					else
-					{
-						possibleError = {};
-					}
-				}
-				catch (e)
-				{
-					possibleError = {};
-				}
+				this.currentLayout = layouts.crm;
+				this.crm = true;
+				var newMainElement = this.createLayoutCrm();
 
-				if(possibleError.ERROR === 'SESSION_ERROR' && possibleError.BITRIX_SESSID && tryNumber <= maxTryCount)
-				{
-					BX.message({'bitrix_sessid': possibleError.BITRIX_SESSID});
-					setTimeout(function()
-					{
-						this.loadCrmCard(entityType, entityId, tryNumber + 1, true);
-					}.bind(this), 50);
-					return;
-				}
-				else if (possibleError.ERROR == 'AUTHORIZE_ERROR' && this.isDesktop() && tryNumber <= maxTryCount)
-				{
-					setTimeout(function()
-					{
-						this.loadCrmCard(entityType, entityId, tryNumber + 1, true);
-					}.bind(this), 5000);
-
-					BX.onCustomEvent(window, 'onImError', [possibleError.ERROR]);
-					return;
-				}
-
-				if(self.currentLayout == layouts.simple)
-				{
-					self.currentLayout = layouts.crm;
-					self.crm = true;
-					var newMainElement = self.createLayoutCrm();
-
-					self.elements.main.parentNode.replaceChild(newMainElement, self.elements.main);
-					self.elements.main = newMainElement;
-					self.setUiState(self._uiState);
-					self.setStatusText(self.statusText);
-				}
-				if(self.elements.crmCard)
-				{
-					self.elements.crmCard.innerHTML = HTML;
-					setTimeout(function(){
-						if(self.isDesktop())
-						{
-							self.resizeWindow(self.getInitialWidth(), self.getInitialHeight());
-						}
-						self.adjust();
-						self.bindCrmCardEvents();
-					}, 100);
-				}
-
-				self.renderCrmButtons();
+				this.elements.main.parentNode.replaceChild(newMainElement, this.elements.main);
+				this.elements.main = newMainElement;
+				this.setUiState(this._uiState);
+				this.setStatusText(this.statusText);
 			}
+
+			if(this.elements.crmCard)
+			{
+				BX.html(this.elements.crmCard, response.data.html);
+				setTimeout(function(){
+					if(this.isDesktop())
+					{
+						this.resizeWindow(this.getInitialWidth(), this.getInitialHeight());
+					}
+					this.adjust();
+					this.bindCrmCardEvents();
+				}.bind(this), 100);
+			}
+
+			this.renderCrmButtons();
+		}.bind(this)).catch(function(response)
+		{
+			console.error("Could not load crm card: ", response.errors[0])
 		});
 	};
 
@@ -1698,9 +1654,13 @@
 				result.buttons.push('hangup');
 				break;
 			case BX.PhoneCallView.UiState.error:
+				if (this.hasSipPhone)
+				{
+					result.buttons.push('sipPhone');
+				}
 				if(this.callListId > 0)
 				{
-					result.buttons = ['redial', 'next', 'topClose'];
+					result.buttons.push('redial', 'next', 'topClose');
 				}
 				else
 				{
@@ -2232,6 +2192,10 @@
 			data: data,
 			onsuccess: function(HTML)
 			{
+				if(!self.popup && !self.isDesktop())
+				{
+					return;
+				}
 				node.innerHTML = HTML;
 				self.restAppLayoutLoaded = true;
 				self.restAppLayoutLoading = false;
@@ -2289,6 +2253,7 @@
 			'CRM_ENTITY_TYPE': this.crmEntityType,
 			'CRM_ENTITY_ID': this.crmEntityId,
 			'CRM_ACTIVITY_ID': this.crmActivityId === 0 ? undefined : this.crmActivityId,
+			'CRM_BINDINGS': this.crmBindings,
 			'CALL_DIRECTION': this.direction,
 			'CALL_STATE': this.callState,
 			'CALL_LIST_MODE': this.callListId > 0
@@ -2764,6 +2729,22 @@
 		this.currentEntity = entity;
 		this.crmEntityType = entity.type;
 		this.crmEntityId = entity.id;
+
+		if(BX.type.isArray(entity.bindings))
+		{
+			this.crmBindings = entity.bindings.map(function(value)
+			{
+				return {
+					'ENTITY_TYPE': value.type,
+					'ENTITY_ID': value.id
+				};
+			});
+		}
+		else
+		{
+			this.crmBindings = [];
+		}
+
 		if(entity.phones.length > 0)
 			this.phoneNumber = entity.phones[0].VALUE;
 		else
@@ -3109,6 +3090,7 @@
 		BX.desktop.addCustomEvent(desktopEvents.setCallId, this.setCallId.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setLineNumber, this.setLineNumber.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setCompanyPhoneNumber, this.setCompanyPhoneNumber.bind(this));
+		BX.desktop.addCustomEvent(desktopEvents.setPhoneNumber, this.setPhoneNumber.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setTransfer, this.setTransfer.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.setCallState, this.setCallState.bind(this));
 		BX.desktop.addCustomEvent(desktopEvents.closeWindow, function(){window.close()});
@@ -3835,6 +3817,12 @@
 			this.callbacks.onSelectedItem({
 				type: newEntity.ASSOCIATED_ENTITY.TYPE,
 				id: newEntity.ASSOCIATED_ENTITY.ID,
+				bindings: [
+					{
+						type: this.entityType,
+						id: newEntity.ELEMENT_ID
+					}
+				],
 				phones: newEntity.ASSOCIATED_ENTITY.PHONES,
 				statusId: statusId,
 				index: newIndex

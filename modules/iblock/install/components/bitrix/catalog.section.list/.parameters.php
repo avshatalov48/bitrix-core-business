@@ -2,10 +2,14 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+use Bitrix\Main\Loader;
+
 global $USER_FIELD_MANAGER;
 
-if(!\Bitrix\Main\Loader::includeModule("iblock"))
+if(!Loader::includeModule("iblock"))
 	return;
+
+$catalogIncluded = Loader::includeModule("catalog");
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
@@ -20,6 +24,26 @@ foreach($arUserFields as $FIELD_NAME=>$arUserField)
 {
 	$arUserField['LIST_COLUMN_LABEL'] = (string)$arUserField['LIST_COLUMN_LABEL'];
 	$arProperty_UF[$FIELD_NAME] = $arUserField['LIST_COLUMN_LABEL'] ? '['.$FIELD_NAME.']'.$arUserField['LIST_COLUMN_LABEL'] : $FIELD_NAME;
+}
+
+$isProducts = false;
+if ($catalogIncluded && (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0))
+{
+	$catalog = CCatalogSku::GetInfoByIBlock($arCurrentValues['IBLOCK_ID']);
+	$isProducts = (!empty($catalog));
+	unset($catalog);
+}
+
+$countFilterList = array(
+	"CNT_ALL" => GetMessage("CP_BCSL_COUNT_ELEMENTS_ALL")
+);
+$countFilterList["CNT_ACTIVE"] = ($isProducts
+	? GetMessage("CP_BCSL_COUNT_PRODUCTS_ACTIVE")
+	: GetMessage("CP_BCSL_COUNT_ELEMENTS_ACTIVE")
+);
+if ($isProducts)
+{
+	$countFilterList["CNT_AVAILABLE"] = GetMessage("CP_BCSL_COUNT_PRODUCTS_AVAILABLE");
 }
 
 $arComponentParameters = array(
@@ -65,6 +89,14 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("CP_BCSL_COUNT_ELEMENTS"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => 'Y',
+			"REFRESH" => "Y"
+		),
+		"COUNT_ELEMENTS_FILTER" => array(
+			"PARENT" => "DATA_SOURCE",
+			"NAME" => GetMessage("CP_BCSL_COUNT_ELEMENTS_FILTER"),
+			"TYPE" => "LIST",
+			"VALUES" => $countFilterList,
+			"DEFAULT" => "CNT_ACTIVE"
 		),
 		"TOP_DEPTH" => array(
 			"PARENT" => "DATA_SOURCE",

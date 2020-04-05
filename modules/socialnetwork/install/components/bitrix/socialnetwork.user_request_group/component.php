@@ -268,9 +268,15 @@ else
 					}
 					elseif ($arResult["Group"]["OPENED"] == "Y")
 					{
-						if (check_bitrix_sessid())
+						if (
+							$_SERVER["REQUEST_METHOD"] == "GET"
+							|| check_bitrix_sessid()
+						)
 						{
-							if ($_POST["ajax_request"] == "Y")
+							if (
+								isset($_POST["ajax_request"])
+								&& $_POST["ajax_request"] == "Y"
+							)
 							{
 								CUtil::JSPostUnescape();
 							}

@@ -342,7 +342,7 @@ class BizprocDocument extends CIBlockDocument
 					if ($fileArray)
 					{
 						$result['PROPERTY_'.$propertyId][] = intval($v);
-						$result['PROPERTY_'.$propertyId.'_printable'][] =
+						$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] =
 							"[url=/bitrix/tools/bizproc_show_file.php?f=".
 							urlencode($fileArray["FILE_NAME"])."&i=".$v."&h=".md5($fileArray["SUBDIR"])."]".
 							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"])."[/url]";
@@ -652,6 +652,12 @@ class BizprocDocument extends CIBlockDocument
 						"Type" => "string",
 					);
 				}
+				elseif ($property["USER_TYPE"] == "Sequence")
+				{
+					$result[$key]["Type"] = "N:Sequence";
+					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
+					$result[$key]["Options"] = $property["USER_TYPE_SETTINGS"];
+				}
 				elseif ($property["USER_TYPE"] == "DiskFile")
 				{
 					$result[$key]["Type"] = "S:DiskFile";
@@ -696,7 +702,7 @@ class BizprocDocument extends CIBlockDocument
 			elseif ($property["PROPERTY_TYPE"] == "F")
 			{
 				$result[$key]["Type"] = "file";
-				$result[$key."_printable"] = array(
+				$result[$key."_PRINTABLE"] = array(
 					"Name" => $property["NAME"].GetMessage("IBD_FIELD_USERNAME_PROPERTY"),
 					"Filterable" => false,
 					"Editable" => false,

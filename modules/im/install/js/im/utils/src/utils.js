@@ -7,8 +7,8 @@
  * @copyright 2001-2019 Bitrix
  */
 
-// TODO change BX.Main.Date and BX.message to IMPORT variables
 import {DateFormat} from 'im.const';
+import 'main.date';
 
 let Utils =
 {
@@ -48,6 +48,39 @@ let Utils =
 		{
 			return navigator.userAgent.match(/(Trident\/|MSIE\/)/) !== null;
 		},
+
+		findParent(item, findTag)
+		{
+			let isHtmlElement = findTag instanceof HTMLElement;
+
+			if (
+				!findTag
+				|| typeof findTag !== 'string' && !isHtmlElement
+			)
+			{
+				return null;
+			}
+
+			for (; item && item !== document; item = item.parentNode)
+			{
+				if (typeof findTag === 'string')
+				{
+					if (item.classList.contains(findTag))
+					{
+						return item;
+					}
+				}
+				else if (isHtmlElement)
+				{
+					if (item === findTag)
+					{
+						return item;
+					}
+				}
+			}
+
+			return null;
+		}
 	},
 
 	platform:
@@ -66,18 +99,16 @@ let Utils =
 		},
 		isBitrixMobile()
 		{
-			return navigator.userAgent && navigator.userAgent.toLowerCase().includes('bitrixmobile');
+			return navigator.userAgent.toLowerCase().includes('bitrixmobile');
 		},
 		isBitrixDesktop()
 		{
 			return navigator.userAgent.toLowerCase().includes('bitrixdesktop');
 		},
-
 		isMobile()
 		{
 			return this.isAndroid() || this.isIos() || this.isBitrixMobile();
 		},
-
 		isIos()
 		{
 			return navigator.userAgent.toLowerCase().includes('iphone') || navigator.userAgent.toLowerCase().includes('ipad');
@@ -89,18 +120,46 @@ let Utils =
 				return null;
 			}
 
-			let matches = navigator.userAgent.toLowerCase().match(/(iphone|ipad)(.+)(OS\s([0-9]+))/i);
+			let matches = navigator.userAgent.toLowerCase().match(/(iphone|ipad)(.+)(OS\s([0-9]+)([_.]([0-9]+))?)/i);
 			if (!matches || !matches[4])
 			{
 				return null;
 			}
 
-			return matches[4];
+			return parseFloat(matches[4]+'.'+(matches[6]? matches[6]: 0));
 		},
 		isAndroid()
 		{
 			return navigator.userAgent.toLowerCase().includes('android');
 		},
+		openNewPage(url)
+		{
+			if (!url)
+			{
+				return false;
+			}
+
+			if (this.isBitrixMobile())
+			{
+				if (typeof BX.MobileTools !== 'undefined')
+				{
+					let openWidget = BX.MobileTools.resolveOpenFunction(url);
+					if (openWidget)
+					{
+						openWidget();
+						return true;
+					}
+				}
+
+				app.openNewPage(url);
+			}
+			else
+			{
+				window.open(url, '_blank');
+			}
+
+			return true;
+		}
 	},
 
 	device:
@@ -141,7 +200,7 @@ let Utils =
 			}
 
 			return Math.abs(window.orientation) === 0? this.orientationPortrait: this.orientationHorizontal;
-		}
+		},
 	},
 
 	types:
@@ -201,7 +260,583 @@ let Utils =
 			}
 
 			return typeof(key) === "undefined" || hasProp.call(item, key);
+		},
+	},
+
+	dialog:
+	{
+		isChatId(dialogId)
+		{
+			return dialogId.toString().startsWith('chat')
+		},
+
+		isEmptyDialogId(dialogId)
+		{
+			if (!dialogId)
+			{
+				return true;
+			}
+
+			if (typeof dialogId === "string" && dialogId === 'chat0')
+			{
+				return true;
+			}
+
+			return false;
+		},
+	},
+
+	text:
+	{
+		quote(text, params, files = {}, localize = null)
+		{
+			if (typeof text !== 'string')
+			{
+				return text.toString();
+			}
+
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			text = text.replace(/\[USER=([0-9]{1,})](.*?)\[\/USER]/ig, (whole, userId, text) => text);
+			text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})](.*?)[\/CHAT]/ig, (whole, imol, chatId, text) => text);
+			text = text.replace(/\[SEND(?:=(.+?))?](.+?)?\[\/SEND]/ig, (whole, command, text) => text? text: command);
+			text = text.replace(/\[PUT(?:=(.+?))?](.+?)?\[\/PUT]/ig, (whole, command, text) => text? text: command);
+			text = text.replace(/\[CALL(?:=(.+?))?](.+?)?\[\/CALL]/ig, (whole, command, text) => text? text: command);
+			text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, (whole, command, text) => command === 10000? '': '['+localize['IM_UTILS_TEXT_ATTACH']+'] ');
+			text = text.replace(/\[RATING=([1-5]{1})]/ig, (whole, rating) => '['+localize.IM_F_RATING+'] ');
+			text = text.replace(/&nbsp;/ig, " ");
+
+			text = text.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmis, "["+localize["IM_UTILS_TEXT_QUOTE"]+"]");
+			text = text.replace(/^(>>(.*)\n)/gi, "["+localize["IM_UTILS_TEXT_QUOTE"]+"]\n");
+
+			if (params && params.FILE_ID && params.FILE_ID.length > 0)
+			{
+				let filesText = [];
+				params.FILE_ID.forEach(fileId =>
+				{
+					if (files[fileId].type === 'image')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
+					}
+					else if (files[fileId].type === 'audio')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
+					}
+					else if (files[fileId].type === 'video')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
+					}
+					else
+					{
+						filesText.push(files[fileId].name);
+					}
+				});
+
+				if (filesText.length <= 0)
+				{
+					filesText.push(localize['IM_UTILS_TEXT_FILE']);
+				}
+
+				text = filesText.join('\n')+text;
+			}
+			else if (params && params.ATTACH && params.ATTACH.length > 0)
+			{
+				text = '['+localize['IM_UTILS_TEXT_ATTACH']+']\n'+text;
+			}
+			if (text.length <= 0)
+			{
+				text = localize['IM_UTILS_TEXT_DELETED'];
+			}
+
+			return text.trim();
+		},
+
+		purify(text, params, files = {}, localize = null)
+		{
+			if (typeof text !== 'string')
+			{
+				return text.toString();
+			}
+
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			text = text.trim();
+
+			if (text.startsWith('/me'))
+			{
+				text = text.substr(4);
+			}
+			else if (text.startsWith('/loud'))
+			{
+				text = text.substr(6);
+			}
+
+			text = text.replace(/<br><br \/>/ig, '<br />');
+			text = text.replace(/<br \/><br>/ig, '<br />');
+			text = text.replace(/\[[buis]](.*?)\[\/[buis]]/ig, '$1');
+			text = text.replace(/\[CODE]\n?([\0-\uFFFF]*?)\[\/CODE]/ig, '$1');
+			text = text.replace(/\[url](.*?)\[\/url]/ig, '$1');
+			text = text.replace(/\[RATING=([1-5]{1})]/ig, () => '['+localize['IM_UTILS_TEXT_RATING']+'] ');
+			text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, () => '['+localize['IM_UTILS_TEXT_ATTACH']+'] ');
+			text = text.replace(/\[USER=([0-9]{1,})](.*?)\[\/USER]/ig, '$2');
+			text = text.replace(/\[CHAT=([0-9]{1,})](.*?)\[\/CHAT]/ig, '$2');
+			text = text.replace(/\[SEND=([0-9]{1,})](.*?)\[\/SEND]/ig, '$2');
+			text = text.replace(/\[PUT=([0-9]{1,})](.*?)\[\/PUT]/ig, '$2');
+			text = text.replace(/\[CALL=([0-9]{1,})](.*?)\[\/CALL]/ig, '$2');
+			text = text.replace(/\[PCH=([0-9]{1,})](.*?)\[\/PCH]/ig, '$2');
+			text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
+			text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/ig, '($1)');
+			text = text.replace(/<img.*?title="([^"]*)".*?>/ig, '($1)');
+			text = text.replace(/\[ATTACH=([0-9]{1,})]/ig, (whole, command, text) => command === 10000? '': '['+localize['IM_UTILS_TEXT_ATTACH']+'] ');
+			text = text.replace(/<s>([^"]*)<\/s>/ig, ' ');
+			text = text.replace(/\[s]([^"]*)\[\/s]/ig, ' ');
+			text = text.replace(/\[icon=([^\]]*)]/ig, (whole) =>
+			{
+				let title = whole.match(/title=(.*[^\s\]])/i);
+				if (title && title[1])
+				{
+					title = title[1];
+					if (title.indexOf('width=') > -1)
+					{
+						title = title.substr(0, title.indexOf('width='))
+					}
+					if (title.indexOf('height=') > -1)
+					{
+						title = title.substr(0, title.indexOf('height='))
+					}
+					if (title.indexOf('size=') > -1)
+					{
+						title = title.substr(0, title.indexOf('size='))
+					}
+					if (title)
+					{
+						title = '('+title.trim()+')';
+					}
+				}
+				else
+				{
+					title = '('+localize['IM_UTILS_TEXT_ICON']+')';
+				}
+				return title;
+			});
+
+			text = text.replace(/------------------------------------------------------(.*?)------------------------------------------------------/gmis, "["+localize["IM_UTILS_TEXT_QUOTE"]+"] ");
+			text = text.replace(/^(>>(.*)\n)/gi, "["+localize["IM_UTILS_TEXT_QUOTE"]+"] ");
+
+			text = text.replace(/<\/?[^>]+>/gi, '');
+
+			if (params && params.FILE_ID && params.FILE_ID.length > 0)
+			{
+				let filesText = [];
+				params.FILE_ID.forEach(fileId =>
+				{
+					if (files[fileId].type === 'image')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
+					}
+					else if (files[fileId].type === 'audio')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_AUDIO']);
+					}
+					else if (files[fileId].type === 'video')
+					{
+						filesText.push(localize['IM_UTILS_TEXT_VIDEO']);
+					}
+					else
+					{
+						filesText.push(files[fileId].name);
+					}
+				});
+
+				if (filesText.length <= 0)
+				{
+					filesText.push(localize['IM_UTILS_TEXT_FILE']);
+				}
+
+				text = filesText.join(' ')+text;
+			}
+			else if (params && params.ATTACH && params.ATTACH.length > 0)
+			{
+				text = '['+localize['IM_UTILS_TEXT_ATTACH']+'] '+text;
+			}
+			if (text.length <= 0)
+			{
+				text = localize['IM_UTILS_TEXT_DELETED'];
+			}
+
+			return text.replace('\n', ' ').trim();
+		},
+
+		htmlspecialchars(text)
+		{
+			if (typeof text !== 'string')
+			{
+				return text;
+			}
+
+			return text.replace(/&/g, '&amp;')
+				.replace(/"/g, '&quot;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;');
+		},
+
+		htmlspecialcharsback(text)
+		{
+			if (typeof text !== 'string')
+			{
+				return text;
+			}
+
+			return text.replace(/\&quot;/g, '"')
+				.replace(/&#39;/g, "'")
+				.replace(/\&lt;/g, '<')
+				.replace(/\&gt;/g, '>')
+				.replace(/\&amp;/g, '&')
+				.replace(/\&nbsp;/g, ' ');
+		},
+
+		getLocalizeForNumber(phrase, number, language = 'en', localize = null)
+		{
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			let pluralFormType = 1;
+
+			number = parseInt(number);
+
+			if (number < 0)
+			{
+				number = number * -1;
+			}
+
+			if (language)
+			{
+				switch (language)
+				{
+					case 'de':
+					case 'en':
+						pluralFormType = ((number !== 1) ? 1 : 0);
+					break;
+
+					case 'ru':
+					case 'ua':
+						pluralFormType = (((number%10 === 1) && (number%100 !== 11)) ? 0 : (((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20))) ? 1 : 2));
+					break;
+				}
+			}
+
+			return localize[phrase + '_PLURAL_' + pluralFormType];
 		}
+	},
+
+	date:
+	{
+		getFormatType(type = DateFormat.default, localize = null)
+		{
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			let format = [];
+			if (type === DateFormat.groupTitle)
+			{
+				format = [
+					["tommorow", "tommorow"],
+					["today", "today"],
+					["yesterday", "yesterday"],
+					["", localize["IM_UTILS_FORMAT_DATE"]]
+				];
+			}
+			else if (type === DateFormat.message)
+			{
+				format = [
+					["", localize["IM_UTILS_FORMAT_TIME"]]
+				];
+			}
+			else if (type === DateFormat.recentTitle)
+			{
+				format = [
+					["tommorow", "today"],
+					["today", "today"],
+					["yesterday", "yesterday"],
+					["", localize["IM_UTILS_FORMAT_DATE_RECENT"]]
+				]
+			}
+			else if (type === DateFormat.recentLinesTitle)
+			{
+				format = [
+					["tommorow", "tommorow"],
+					["today", "today"],
+					["yesterday", "yesterday"],
+					["", localize["IM_UTILS_FORMAT_DATE_RECENT"]]
+				]
+			}
+			else if (type === DateFormat.readedTitle)
+			{
+				format = [
+					["tommorow", "tommorow, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["today", "today, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["yesterday", "yesterday, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["", localize["IM_UTILS_FORMAT_READED"]]
+				];
+			}
+			else if (type === DateFormat.vacationTitle)
+			{
+				format = [
+					["", localize["IM_UTILS_FORMAT_DATE_SHORT"]]
+				];
+			}
+			else
+			{
+				format = [
+					["tommorow", "tommorow, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["today", "today, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["yesterday", "yesterday, "+localize["IM_UTILS_FORMAT_TIME"]],
+					["", localize["IM_UTILS_FORMAT_DATE_TIME"]]
+				];
+			}
+
+			return format;
+		},
+
+		getDateFunction(localize = null)
+		{
+			if (this.dateFormatFunction)
+			{
+				return this.dateFormatFunction;
+			}
+
+			this.dateFormatFunction = Object.create(BX.Main.Date);
+			if (localize)
+			{
+				this.dateFormatFunction._getMessage = (phrase) => localize[phrase];
+			}
+
+			return this.dateFormatFunction;
+		},
+
+		format(timestamp, format = null, localize = null)
+		{
+			if (!format)
+			{
+				format = this.getFormatType(DateFormat.default, localize);
+			}
+
+			return this.getDateFunction(localize).format(format, timestamp);
+		},
+
+		cast(date, def = new Date())
+		{
+			let result = def;
+
+			if (date instanceof Date)
+			{
+				result = date;
+			}
+			else if (typeof date === "string")
+			{
+				result = new Date(date);
+			}
+			else if (typeof date === "number")
+			{
+				result = new Date(date*1000);
+			}
+
+			if (
+				result instanceof Date
+				&& Number.isNaN(result.getTime())
+			)
+			{
+				result = def;
+			}
+
+			return result;
+		},
+	},
+
+	object:
+	{
+		countKeys(obj)
+		{
+			let result = 0;
+
+			for (let i in obj)
+			{
+				if (obj.hasOwnProperty(i))
+				{
+					result++;
+				}
+			}
+
+			return result;
+		},
+	},
+
+	user:
+	{
+		getLastDateText(params, localize = null)
+		{
+			if (!params)
+			{
+				return '';
+			}
+
+			let dateFunction = Utils.date.getDateFunction(localize);
+
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			let text = '';
+			let online = {};
+			if (params.bot || params.network)
+			{
+				text = '';
+			}
+			else if (params.absent && !this.isMobileActive(params, localize))
+			{
+				online = this.getOnlineStatus(params);
+				text = localize['IM_STATUS_VACATION_TITLE'].replace('#DATE#',
+					dateFunction.format(Utils.date.getFormatType(DateFormat.vacationTitle, localize), params.absent.getTime()/1000)
+				);
+
+				if (online.isOnline && params.idle)
+				{
+					 text = localize['IM_STATUS_AWAY_TITLE'].replace('#TIME#', this.getIdleText(params, localize))+'. '+text;
+				}
+				else if (online.isOnline && !online.lastSeenText)
+				{
+					text = online.statusText+'. '+text;
+				}
+				else if (online.lastSeenText)
+				{
+					if (!Utils.platform.isMobile())
+					{
+						text = text+'. '+localize['IM_LAST_SEEN_'+(params.gender === 'F'? 'F': 'M')].replace('#POSITION#', text).replace('#LAST_SEEN#', online.lastSeenText);
+					}
+				}
+			}
+			else if (params.lastActivityDate)
+			{
+				online = this.getOnlineStatus(params);
+				if (online.isOnline && params.idle && !this.isMobileActive(params, localize))
+				{
+					 text = localize['IM_STATUS_AWAY_TITLE'].replace('#TIME#', this.getIdleText(params, localize));
+				}
+				else if (online.isOnline && !online.lastSeenText)
+				{
+					if (Utils.platform.isMobile() && this.isMobileActive(params, localize))
+					{
+						text = localize['IM_STATUS_MOBILE'];
+					}
+					else
+					{
+						text = online.statusText;
+					}
+				}
+				else if (online.lastSeenText)
+				{
+					if (Utils.platform.isMobile())
+					{
+						text = localize['IM_LAST_SEEN_SHORT_'+(params.gender === 'F'? 'F': 'M')].replace('#LAST_SEEN#', online.lastSeenText);
+					}
+					else
+					{
+						text = localize['IM_LAST_SEEN_'+(params.gender === 'F'? 'F': 'M')].replace('#POSITION#', text).replace('#LAST_SEEN#', online.lastSeenText);
+					}
+				}
+			}
+
+			return text;
+		},
+
+		getIdleText(params, localize = null)
+		{
+			if (!params)
+			{
+				return '';
+			}
+
+			if (!params.idle)
+			{
+				return '';
+			}
+
+			return Utils.date.getDateFunction(localize).format([
+			   ["s60", "sdiff"],
+			   ["i60", "idiff"],
+			   ["H24", "Hdiff"],
+			   ["", "ddiff"]
+			], params.idle);
+		},
+
+		getOnlineStatus(params, localize = null)
+		{
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			let result = {
+				'isOnline': false,
+				'status': 'offline',
+				'statusText': localize.IM_STATUS_OFFLINE,
+				'lastSeen': params.lastActivityDate,
+				'lastSeenText': '',
+			};
+
+			if (!params.lastActivityDate || params.lastActivityDate.getTime() === 0)
+			{
+				return result;
+			}
+
+			let date = new Date();
+
+			result.isOnline = date.getTime() - params.lastActivityDate.getTime() <= this.getOnlineLimit(localize)*1000;
+			result.status = result.isOnline? params.status: 'offline';
+			result.statusText = localize['IM_STATUS_'+result.status.toUpperCase()] || result.status;
+
+			if (params.lastActivityDate.getTime() > 0 && date.getTime() - params.lastActivityDate.getTime() > 300*1000)
+			{
+				result.lastSeenText = Utils.date.getDateFunction(localize).formatLastActivityDate(params.lastActivityDate);
+			}
+
+			return result;
+		},
+
+		isMobileActive(params, localize)
+		{
+			if (!params)
+			{
+				return false;
+			}
+
+			return (
+				params.mobileLastDate
+				&& new Date() - params.mobileLastDate < this.getOnlineLimit(localize)*1000
+				&& params.lastActivityDate-params.mobileLastDate < 300*1000
+			);
+		},
+
+		getOnlineLimit(localize = null)
+		{
+			if (!localize)
+			{
+				localize = BX.message;
+			}
+
+			return localize.LIMIT_ONLINE? parseInt(localize.LIMIT_ONLINE): 15*60;
+		},
 	},
 
 	isDarkColor(hex)
@@ -248,60 +883,6 @@ let Utils =
 		let brightness = (red * 299 + green * 587 + blue * 114) / 1000;
 
 		return brightness < 128;
-	},
-
-	getDateFormatType(type = DateFormat.default, localize = null)
-	{
-		if (!localize)
-		{
-			localize = BX.message;
-		}
-
-		let format = [];
-		if (type === DateFormat.groupTitle)
-		{
-			format = [
-				["tommorow", "tommorow"],
-				["today", "today"],
-				["yesterday", "yesterday"],
-				["", BX.Main.Date.convertBitrixFormat(localize["IM_UTILS_FORMAT_DATE"])]
-			];
-		}
-		else if (type === DateFormat.message)
-		{
-			format = [
-				["", localize["IM_UTILS_FORMAT_TIME"]]
-			];
-		}
-		else if (type === DateFormat.recentTitle)
-		{
-			format = [
-				["tommorow", "today"],
-				["today", "today"],
-				["yesterday", "yesterday"],
-				["", BX.Main.Date.convertBitrixFormat(localize["IM_UTILS_FORMAT_DATE_RECENT"])]
-			]
-		}
-		else if (type === DateFormat.recentLinesTitle)
-		{
-			format = [
-				["tommorow", "tommorow"],
-				["today", "today"],
-				["yesterday", "yesterday"],
-				["", BX.Main.Date.convertBitrixFormat(localize["IM_UTILS_FORMAT_DATE_RECENT"])]
-			]
-		}
-		else
-		{
-			format = [
-				["tommorow", "tommorow, "+localize["IM_UTILS_FORMAT_TIME"]],
-				["today", "today, "+localize["IM_UTILS_FORMAT_TIME"]],
-				["yesterday", "yesterday, "+localize["IM_UTILS_FORMAT_TIME"]],
-				["", BX.Main.Date.convertBitrixFormat(localize["FORMAT_DATETIME"])]
-			];
-		}
-
-		return format;
 	},
 
 	hashCode(string = '')
@@ -435,34 +1016,6 @@ let Utils =
 			clearTimeout(timeout);
 			timeout = setTimeout(nextCallback, wait);
 		}
-	},
-
-	htmlspecialchars(string)
-	{
-		if (typeof string !== 'string')
-		{
-			return string;
-		}
-
-		return string.replace(/&/g, '&amp;')
-			.replace(/"/g, '&quot;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
-	},
-
-	htmlspecialcharsback(string)
-	{
-		if (typeof string !== 'string')
-		{
-			return string;
-		}
-
-		return string.replace(/\&quot;/g, '"')
-			.replace(/&#39;/g, "'")
-			.replace(/\&lt;/g, '<')
-			.replace(/\&gt;/g, '>')
-			.replace(/\&amp;/g, '&')
-			.replace(/\&nbsp;/g, ' ');
 	},
 
 	getLogTrackingParams(params = {})

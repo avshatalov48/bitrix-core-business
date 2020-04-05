@@ -2,13 +2,14 @@
 
 namespace Bitrix\Seo\Retargeting\Services;
 
-use \Bitrix\Seo\Retargeting\Request;
+use Bitrix\Seo\Retargeting\ProxyRequest;
 
-class RequestVkontakte extends Request
+class RequestVkontakte extends ProxyRequest
 {
 	const TYPE_CODE = 'vkontakte';
+	const REST_METHOD_PREFIX = 'seo.client.ads.vkontakte';
 
-	public function query(array $params = array())
+	protected function directQuery(array $params = array())
 	{
 		$url = 'https://api.vk.com/method/';
 		$url .= $params['endpoint'];

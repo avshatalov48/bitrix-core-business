@@ -187,6 +187,7 @@ else
 if(strtolower(SITE_CHARSET) != 'utf-8')
 	$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
 
+$APPLICATION->RestartBuffer();
 header('Content-Type: application/json');
 echo json_encode($result);
 \CMain::FinalActions();

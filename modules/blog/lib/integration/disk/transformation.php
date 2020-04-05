@@ -29,7 +29,8 @@ class Transformation
 		foreach($attachedIdList as $attachedId)
 		{
 			$attach = AttachedObject::getById($attachedId);
-			if ($attach->getFile()->getView()->isNeededLimitRightsOnTransformTime())
+			$attachFile = $attach->getFile();
+			if ($attachFile && $attachFile->getView()->isNeededLimitRightsOnTransformTime())
 			{
 				return true;
 			}

@@ -1,0 +1,208 @@
+.ui-tour-overlay {
+	position: fixed;
+	opacity: .5;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none;
+}
+
+.popup-window-ui-tour, .popup-window-ui-tour-final {
+	padding: 14px 22px 19px 22px;
+}
+
+.popup-window-ui-tour .popup-window-close-icon {
+	width: 45px;
+	height: 45px;
+}
+
+.ui-tour-popup-title {
+	font: 22px/28px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	margin-bottom: 18px;
+}
+
+.ui-tour-popup-text {
+	font-size: 15px;
+	line-height: 19px;
+	color: #535C69;
+	margin-bottom: 16px;
+}
+
+.ui-tour-popup-link {
+	color: #80868e;
+	font-size: 13px;
+	line-height: 19px;
+	text-decoration: none;
+	transition: border .2s linear;
+	border-bottom: 1px solid rgba(130, 139, 149, .4);
+	margin-bottom: 20px;
+	display: inline-block;
+}
+
+.ui-tour-popup-link-hide {
+	display: none;
+}
+
+.ui-tour-popup-link:hover {
+	color: #80868e;
+	border-color: rgba(130, 139, 149, .8);
+}
+
+.ui-tour-popup-content {
+	border-bottom: 1px solid #edeef0;
+	margin-bottom: 16px;
+}
+
+.ui-tour-popup-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ui-tour-popup-btn-block {
+	display: flex;
+	align-items: center;
+}
+
+.ui-tour-popup-btn-next {
+	border: none;
+	outline: none;
+	border-radius: 20px;
+	background: #3bc8f5 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23FFF' fill-rule='evenodd' d='M7.615 4.72H0V2.824h7.616V0l3.775 3.775-3.775 3.774V4.721z' opacity='.5'/%3E%3C/svg%3E") no-repeat center right 14px;
+	color: #fff;
+	transition: background-color .16s linear;
+	text-transform: uppercase;
+	cursor: pointer;
+	padding: 7px 36px 6px 15px;
+	font: 12px/18px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.ui-tour-popup-btn-next:hover {
+	background-color: #3eddff;
+}
+
+.ui-tour-popup-btn-back {
+	border: 1px solid transparent;
+	outline: none;
+	border-radius: 20px;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%228%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M3.775%204.72h7.616V2.824H3.775V0L0%203.775l3.775%203.774V4.721z%22%20opacity%3D%22.612%22/%3E%3C/svg%3E) no-repeat center;
+	transition: border-color .18s linear, opacity .18s linear;
+	cursor: pointer;
+	height: 31px;
+	width: 38px;
+	margin-right: 6px;
+	opacity: .7;
+}
+
+.ui-tour-popup-btn-back:hover {
+	border-color: #c6cdd3;
+	opacity: 1;
+}
+
+.ui-tour-popup-btn-disabled {
+	opacity: .4;
+	pointer-events: none;
+}
+
+.ui-tour-popup-counter {
+	color: #c3c8c9;
+	font-size: 12px;
+	line-height: 18px;
+}
+
+.ui-tour-popup-index {
+	display: flex;
+	align-items: center;
+}
+
+.ui-tour-popup-index-item {
+	background-color: #d8d8d8;
+	width: 8px;
+	height: 8px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	margin: 3px;
+}
+
+.ui-tour-popup-index-item + .ui-tour-popup-index-item {
+	margin-left: 5px;
+}
+
+.ui-tour-popup-index-items {
+	display: flex;
+	margin-right: 12px;
+	max-width: 190px;
+	overflow: hidden;
+}
+
+.ui-tour-popup-index-item-passed {
+	background-color: #2fc6f6;
+}
+
+.ui-tour-popup-index-item-current {
+	background-color: #9dcf00;
+	box-shadow: 0 0 0 2px #fff, 0 0 0 3px #c7cbcf;
+}
+
+.ui-tour-popup-counter-text {
+	margin: 0 5px;
+}
+
+.ui-tour-overlay-element-opacity, .popup-window-ui-tour-opacity {
+	opacity: 0;
+}
+
+.ui-tour-overlay-element {
+	transition: opacity 200ms ease-out;
+}
+
+.popup-window-ui-tour {
+	transition: opacity 200ms ease-in;
+}
+
+.ui-tour-popup {
+	padding: 3px;
+}
+
+.ui-tour-popup-footer-btn {
+	display: flex;
+	justify-content: center;
+}
+
+.ui-tour-body-overflow {
+	overflow: hidden;
+}
+
+.ui-tour-body-overflow tbody > * {
+	pointer-events: none;
+}
+
+.ui-tour-selector, .ui-tour-selector > * {
+	pointer-events: auto !important;
+}
+
+.popup-window-ui-tour-final {
+	opacity: 0;
+	transition: opacity .3s linear;
+}
+
+.popup-window-ui-tour-final-show {
+	opacity: 1;
+}
+
+.ui-tour-body-overflow .main-kanban-ear-left,
+.ui-tour-body-overflow .main-kanban-ear-right {
+	pointer-events: none !important;
+}
+
+.ui-tour-popup-simple .ui-tour-popup-index, .ui-tour-popup-simple .ui-tour-popup-btn-back {
+	display: none !important;
+}
+
+.ui-tour-popup-simple .ui-tour-popup-btn-next {
+	background-image: none;
+	padding-right: 18px;
+}

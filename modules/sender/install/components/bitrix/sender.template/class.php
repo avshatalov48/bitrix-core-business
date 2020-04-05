@@ -28,7 +28,7 @@ class SenderTemplateComponent extends CBitrixComponent
 			return false;
 		}
 
-		return Integration\Bitrix24\Service::isAvailable();
+		return true;
 	}
 
 	protected function initParams()
@@ -132,7 +132,6 @@ class SenderTemplateComponent extends CBitrixComponent
 
 	protected function prepareResult()
 	{
-		Security\Agreement::requestFromCurrentUser();
 		return true;
 	}
 

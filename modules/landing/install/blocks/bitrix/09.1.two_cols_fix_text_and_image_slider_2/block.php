@@ -3,7 +3,7 @@
             <div class="row">
 
                 <div class="landing-block-node-carousel-container js-animation fadeInLeft col-lg-8 order-2 order-md-1">
-                    <div class="landing-block-node-carousel js-carousel g-line-height-0"
+                    <div class="landing-block-node-carousel js-carousel g-line-height-0 row"
                          data-infinite="true"
                          data-speed="5000"
                          data-rows="2"
@@ -21,8 +21,15 @@
 							 "settings": {
 							   "slidesToShow": 1
 							 }
+						   }]'
+						 data-init-classes-exclude='[{
+							 "selector": ".landing-block-node-carousel-element",
+							 "class": "col-12 col-sm-6 col-lg-6"
+						   }, {
+							 "selector": ".js-carousel",
+							 "class": "row"
 						   }]'>
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img9.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -33,8 +40,8 @@
                                 </div>
                             </div>
                         </div>
-						
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img10.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -46,7 +53,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img11.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -58,7 +65,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img12.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -70,7 +77,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img5.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -82,7 +89,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img6.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -94,7 +101,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img7.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
@@ -106,7 +113,7 @@
                             </div>
                         </div>
 
-                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
+                        <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5 col-12 col-sm-6 col-lg-6">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
                                 <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img8.jpg" alt="">
                                 <div class="landing-block-node-carousel-element-img-hover g-pointer-events-none--public-mode g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">

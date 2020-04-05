@@ -19,6 +19,11 @@ class File
 	 * Entity type block.
 	 */
 	const ENTITY_TYPE_BLOCK = 'B';
+	
+	/**
+	 * Entity type asset.
+	 */
+	const ENTITY_TYPE_ASSET = 'A';
 
 	/**
 	 * Add new record.
@@ -48,6 +53,31 @@ class File
 			));
 			$res->isSuccess();
 		}
+	}
+
+	/**
+	 * Get all files id from entity.
+	 * @param int $entityId Entity id.
+	 * @param int $entityType Entity type.
+	 * @return array
+	 */
+	protected static function getFiles($entityId, $entityType)
+	{
+		$files = [];
+		$res = FileTable::getList(array(
+			'select' => array(
+				'FILE_ID'
+			),
+			'filter' => array(
+				'ENTITY_ID' => $entityId,
+				'=ENTITY_TYPE' => $entityType
+			)
+		));
+		while ($row = $res->fetch())
+		{
+			$files[] = $row['FILE_ID'];
+		}
+		return $files;
 	}
 
 	/**
@@ -133,15 +163,11 @@ class File
 				if ($fileData)
 				{
 					//@tmp log
-					\CEventLog::add(array(
-						'SEVERITY' => 'NOTICE',
-						'AUDIT_TYPE_ID' => 'LANDING_FILE_DELETE',
-						'MODULE_ID' => 'landing',
-						'ITEM_ID' => $fileData['SRC'],
-						'DESCRIPTION' => print_r(array(
-							'fileId' => $fid
-						), true)
-					));
+					Debug::log(
+						$fileData['SRC'],
+						'fileId: ' . $fid,
+						'LANDING_FILE_DELETE'
+					);
 					\CFile::delete($fid);
 				}
 			}
@@ -160,6 +186,19 @@ class File
 		{
 			self::add($fileId, $id, self::ENTITY_TYPE_SITE);
 		}
+	}
+
+	/**
+	 * Gets files id from site.
+	 * @param int $siteId Site id.
+	 * @return array
+	 */
+	public static function getFilesFromSite($siteId)
+	{
+		return self::getFiles(
+			$siteId,
+			self::ENTITY_TYPE_SITE
+		);
 	}
 
 	/**
@@ -185,6 +224,19 @@ class File
 		{
 			self::add($fileId, $lid, self::ENTITY_TYPE_LANDING);
 		}
+	}
+
+	/**
+	 * Gets files id from landing.
+	 * @param int $landingId Landing id.
+	 * @return array
+	 */
+	public static function getFilesFromLanding($landingId)
+	{
+		return self::getFiles(
+			$landingId,
+			self::ENTITY_TYPE_LANDING
+		);
 	}
 
 	/**
@@ -307,6 +359,111 @@ class File
 	}
 
 	/**
+	 * Gets files id from block.
+	 * @param int $blockId Block id.
+	 * @return array
+	 */
+	public static function getFilesFromBlock($blockId)
+	{
+		return self::getFiles(
+			$blockId,
+			self::ENTITY_TYPE_BLOCK
+		);
+	}
+	
+	/**
+	 * Add new record for Asset.
+	 * @param int $assetId - id of landing to which attached asset.
+	 * @param int $fileId File id.
+	 * @return void
+	 */
+	public static function addToAsset($assetId, $fileId)
+	{
+		if ($fileId > 0 && $assetId > 0)
+		{
+			self::add($fileId, $assetId, self::ENTITY_TYPE_ASSET);
+			self::markAssetRebuilded($assetId);
+			// todo: res from add and check error
+		}
+	}
+	
+	/**
+	 * Gets asset files for current landing.
+	 * @param int $assetId - id of landing to which attached asset.
+	 * @return array
+	 */
+	public static function getFilesFromAsset($assetId)
+	{
+		return self::getFiles(
+			$assetId,
+			self::ENTITY_TYPE_ASSET
+		);
+	}
+	
+	/**
+	 * Delete asset files for current landing.
+	 * Not remove from disk immediately, just marked for agent
+	 * @param int $assetId - id of landing to which attached asset.
+	 * @param int|int[] $fileId File id (by default delete all files from Asset).
+	 * @return void
+	 */
+	public static function deleteFromAsset($assetId, $fileId = [])
+	{
+		self::delete($fileId, $assetId, self::ENTITY_TYPE_ASSET);
+	}
+	
+	/**
+	 * Mark file as "need rebuild", but not delete them. File will be exist until not created new file.
+	 * @param int|int[] $assetId - id of landing to which attached asset. If not set - will marked all
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function markAssetToRebuild($assetId = [])
+	{
+		$filter = [
+			'=ENTITY_TYPE' => self::ENTITY_TYPE_ASSET
+		];
+		if ($assetId)
+		{
+			$filter['ENTITY_ID'] = $assetId;
+		}
+		$res = FileTable::getList([
+			'select' => ['ID', 'ENTITY_ID'],
+			'filter' => $filter
+		]);
+		while ($row = $res->fetch())
+		{
+			$resUpdate = FileTable::update(
+				$row['ID'],
+				[
+					'ENTITY_ID' => -1 * abs($row['ENTITY_ID'])
+				]
+			);
+			$resUpdate->isSuccess();
+		}
+	}
+	
+	/**
+	 * When file rebuilded - delete old files (marked as "need rebuild") for current asset ID (current landing)
+	 * @param int|int[] $assetId Id of landing to which attached asset.
+	 * @return void
+	 */
+	public static function markAssetRebuilded($assetId)
+	{
+		if(!is_array($assetId))
+		{
+			$assetId = [$assetId];
+		}
+		
+		foreach ($assetId as $key => $id)
+		{
+			self::deleteFromAsset(-1 * abs($id));
+		}
+	}
+
+	/**
 	 * Copy files from one entity to another.
 	 * @param int $from Entity id.
 	 * @param int $to Entity id.
@@ -332,6 +489,28 @@ class File
 				'ENTITY_TYPE' => $entityType
 			));
 		}
+	}
+
+	/**
+	 * Copy files from one site to another.
+	 * @param int $from Site id.
+	 * @param int $to Site id.
+	 * @return void
+	 */
+	public static function copySiteFiles($from, $to)
+	{
+		self::copyEntityFiles($from, $to, self::ENTITY_TYPE_SITE);
+	}
+
+	/**
+	 * Copy files from one landing to another.
+	 * @param int $from Landing id.
+	 * @param int $to Landing id.
+	 * @return void
+	 */
+	public static function copyLandingFiles($from, $to)
+	{
+		self::copyEntityFiles($from, $to, self::ENTITY_TYPE_LANDING);
 	}
 
 	/**

@@ -38,7 +38,8 @@
 	 */
 	BX.UI.ProgressBar.Status = {
 		COUNTER: "COUNTER",
-		PERCENT: "PERCENT"
+		PERCENT: "PERCENT",
+		NONE: "NONE"
 	};
 
 	/**
@@ -73,7 +74,7 @@
 		{
 			if (BX.type.isNumber(value))
 			{
-				this.value = value;
+				this.value = (value > this.maxValue) ? this.maxValue : value;
 			}
 		},
 
@@ -191,12 +192,16 @@
 						text: this.getStatusCounter()
 					});
 				}
-				else
+				else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT)
 				{
 					this.status = BX.create("div", {
 						props: { className: "ui-progressbar-status-percent" },
 						text: this.getStatusPercent()
 					});
+				}
+				else
+				{
+					this.status = BX.create("span", {});
 				}
 			}
 
@@ -233,7 +238,7 @@
 					text: this.getStatusCounter()
 				});
 			}
-			else
+			else if (this.getStatusType() === BX.UI.ProgressBar.Status.PERCENT)
 			{
 				BX.adjust(this.status, {
 					text: this.getStatusPercent()

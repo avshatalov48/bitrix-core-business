@@ -12,27 +12,21 @@ $return = array(
 		'section' => array('store'),
 		'type' => 'null',
 		'html' => false,
-		'namespace' => 'bitrix'
+		'namespace' => 'bitrix',
 	),
-	'nodes' =>
-		array(
-			'bitrix:catalog.compare.result' =>
-				array(
-					'type' => 'component',
-					'extra' => array(
-						'editable' => array(
-							'PRICE_CODE' => array(
-							),
-							'USE_PRICE_COUNT' => array(
-							),
-							'SHOW_PRICE_COUNT' => array(
-							),
-							'PRICE_VAT_INCLUDE' => array(
-							)
-						)
-					)
+	'nodes' => array(
+		'bitrix:catalog.compare.result' => array(
+			'type' => 'component',
+			'extra' => array(
+				'editable' => array(
+					'PRICE_CODE' => array(),
+					'USE_PRICE_COUNT' => array(),
+					'SHOW_PRICE_COUNT' => array(),
+					'PRICE_VAT_INCLUDE' => array(),
 				),
+			),
 		),
+	),
 );
 
 $params =& $return['nodes']['bitrix:catalog.compare.result']['extra']['editable'];

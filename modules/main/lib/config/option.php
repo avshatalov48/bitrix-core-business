@@ -11,8 +11,9 @@ use Bitrix\Main;
 
 class Option
 {
+	const CACHE_DIR = "b_option";
+
 	protected static $options = array();
-	protected static $cacheTtl = null;
 
 	/**
 	 * Returns a value of an option.
@@ -27,43 +28,40 @@ class Option
 	 */
 	public static function get($moduleId, $name, $default = "", $siteId = false)
 	{
-		if (empty($moduleId))
+		if ($moduleId == '')
 			throw new Main\ArgumentNullException("moduleId");
-		if (empty($name))
+		if ($name == '')
 			throw new Main\ArgumentNullException("name");
 
-		static $defaultSite = null;
+		if (!isset(self::$options[$moduleId]))
+		{
+			static::load($moduleId);
+		}
+
 		if ($siteId === false)
 		{
-			if ($defaultSite === null)
-			{
-				$context = Main\Application::getInstance()->getContext();
-				if ($context != null)
-					$defaultSite = $context->getSite();
-			}
-			$siteId = $defaultSite;
+			$siteId = static::getDefaultSite();
 		}
 
-		$siteKey = ($siteId == "") ? "-" : $siteId;
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-		if ((static::$cacheTtl === false) && !isset(self::$options[$siteKey][$moduleId])
-			|| (static::$cacheTtl !== false) && empty(self::$options))
+		$siteKey = ($siteId == ""? "-" : $siteId);
+
+		if (isset(self::$options[$moduleId][$siteKey][$name]))
 		{
-			self::load($moduleId, $siteId);
+			return self::$options[$moduleId][$siteKey][$name];
 		}
 
-		if (isset(self::$options[$siteKey][$moduleId][$name]))
-			return self::$options[$siteKey][$moduleId][$name];
-
-		if (isset(self::$options["-"][$moduleId][$name]))
-			return self::$options["-"][$moduleId][$name];
+		if (isset(self::$options[$moduleId]["-"][$name]))
+		{
+			return self::$options[$moduleId]["-"][$name];
+		}
 
 		if ($default == "")
 		{
-			$moduleDefaults = self::getDefaults($moduleId);
+			$moduleDefaults = static::getDefaults($moduleId);
 			if (isset($moduleDefaults[$name]))
+			{
 				return $moduleDefaults[$name];
+			}
 		}
 
 		return $default;
@@ -80,29 +78,27 @@ class Option
 	 */
 	public static function getRealValue($moduleId, $name, $siteId = false)
 	{
-		if (empty($moduleId))
+		if ($moduleId == '')
 			throw new Main\ArgumentNullException("moduleId");
-		if (empty($name))
+		if ($name == '')
 			throw new Main\ArgumentNullException("name");
+
+		if (!isset(self::$options[$moduleId]))
+		{
+			static::load($moduleId);
+		}
 
 		if ($siteId === false)
 		{
-			$context = Main\Application::getInstance()->getContext();
-			if ($context != null)
-				$siteId = $context->getSite();
+			$siteId = static::getDefaultSite();
 		}
 
-		$siteKey = ($siteId == "") ? "-" : $siteId;
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-		if ((static::$cacheTtl === false) && !isset(self::$options[$siteKey][$moduleId])
-			|| (static::$cacheTtl !== false) && empty(self::$options))
+		$siteKey = ($siteId == ""? "-" : $siteId);
+
+		if (isset(self::$options[$moduleId][$siteKey][$name]))
 		{
-			self::load($moduleId, $siteId);
+			return self::$options[$moduleId][$siteKey][$name];
 		}
-
-		if (isset(self::$options[$siteKey][$moduleId][$name]))
-			return self::$options[$siteKey][$moduleId][$name];
 
 		return null;
 	}
@@ -145,98 +141,89 @@ class Option
 	 */
 	public static function getForModule($moduleId, $siteId = false)
 	{
-		if (empty($moduleId))
+		if ($moduleId == '')
 			throw new Main\ArgumentNullException("moduleId");
 
-		$return = array();
-		static $defaultSite = null;
+		if (!isset(self::$options[$moduleId]))
+		{
+			static::load($moduleId);
+		}
+
 		if ($siteId === false)
 		{
-			if ($defaultSite === null)
-			{
-				$context = Main\Application::getInstance()->getContext();
-				if ($context != null)
-					$defaultSite = $context->getSite();
-			}
-			$siteId = $defaultSite;
+			$siteId = static::getDefaultSite();
 		}
 
-		$siteKey = ($siteId == "") ? "-" : $siteId;
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-		if ((static::$cacheTtl === false) && !isset(self::$options[$siteKey][$moduleId])
-			|| (static::$cacheTtl !== false) && empty(self::$options))
+		$result = self::$options[$moduleId]["-"];
+
+		if($siteId <> "" && !empty(self::$options[$moduleId][$siteId]))
 		{
-			self::load($moduleId, $siteId);
+			//options for the site override general ones
+			$result = array_replace($result, self::$options[$moduleId][$siteId]);
 		}
 
-		if (isset(self::$options[$siteKey][$moduleId]))
-			$return = self::$options[$siteKey][$moduleId];
-		else if (isset(self::$options["-"][$moduleId]))
-			$return = self::$options["-"][$moduleId];
-
-		return is_array($return) ? $return : array();
+		return $result;
 	}
 
-	private static function load($moduleId, $siteId)
+	protected static function load($moduleId)
 	{
-		$siteKey = ($siteId == "") ? "-" : $siteId;
+		$cache = Main\Application::getInstance()->getManagedCache();
+		$cacheTtl = static::getCacheTtl();
+		$loadFromDb = true;
 
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-
-		if (static::$cacheTtl === false)
+		if ($cacheTtl !== false)
 		{
-			if (!isset(self::$options[$siteKey][$moduleId]))
+			if($cache->read($cacheTtl, "b_option:{$moduleId}", self::CACHE_DIR))
 			{
-				self::$options[$siteKey][$moduleId] = array();
+				self::$options[$moduleId] = $cache->get("b_option:{$moduleId}");
+				$loadFromDb = false;
+			}
+		}
 
-				$con = Main\Application::getConnection();
-				$sqlHelper = $con->getSqlHelper();
+		if($loadFromDb)
+		{
+			$con = Main\Application::getConnection();
+			$sqlHelper = $con->getSqlHelper();
 
-				$res = $con->query(
-					"SELECT SITE_ID, NAME, VALUE ".
-					"FROM b_option ".
-					"WHERE (SITE_ID = '".$sqlHelper->forSql($siteId, 2)."' OR SITE_ID IS NULL) ".
-					"	AND MODULE_ID = '". $sqlHelper->forSql($moduleId)."' "
-				);
+			self::$options[$moduleId] = ["-" => []];
+
+			$query = "
+				SELECT NAME, VALUE 
+				FROM b_option 
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+			";
+
+			$res = $con->query($query);
+			while ($ar = $res->fetch())
+			{
+				self::$options[$moduleId]["-"][$ar["NAME"]] = $ar["VALUE"];
+			}
+
+			try
+			{
+				//b_option_site possibly doesn't exist
+
+				$query = "
+					SELECT SITE_ID, NAME, VALUE 
+					FROM b_option_site 
+					WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+				";
+
+				$res = $con->query($query);
 				while ($ar = $res->fetch())
 				{
-					$s = ($ar["SITE_ID"] == ""? "-" : $ar["SITE_ID"]);
-					self::$options[$s][$moduleId][$ar["NAME"]] = $ar["VALUE"];
-
-					
+					self::$options[$moduleId][$ar["SITE_ID"]][$ar["NAME"]] = $ar["VALUE"];
 				}
 			}
-		}
-		else
-		{
-			if (empty(self::$options))
+			catch(Main\DB\SqlQueryException $e){}
+
+			if($cacheTtl !== false)
 			{
-				$cache = Main\Application::getInstance()->getManagedCache();
-				if ($cache->read(static::$cacheTtl, "b_option"))
-				{
-					self::$options = $cache->get("b_option");
-				}
-				else
-				{
-					$con = Main\Application::getConnection();
-					$res = $con->query(
-						"SELECT o.SITE_ID, o.MODULE_ID, o.NAME, o.VALUE ".
-						"FROM b_option o "
-					);
-					while ($ar = $res->fetch())
-					{
-						$s = ($ar["SITE_ID"] == "") ? "-" : $ar["SITE_ID"];
-						self::$options[$s][$ar["MODULE_ID"]][$ar["NAME"]] = $ar["VALUE"];
-					}
-
-					
-
-					$cache->set("b_option", self::$options);
-				}
+				$cache->set("b_option:{$moduleId}", self::$options[$moduleId]);
 			}
 		}
+
+		
 	}
 
 	/**
@@ -250,63 +237,54 @@ class Option
 	 */
 	public static function set($moduleId, $name, $value = "", $siteId = "")
 	{
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-		if (static::$cacheTtl !== false)
-		{
-			$cache = Main\Application::getInstance()->getManagedCache();
-			$cache->clean("b_option");
-		}
+		if ($moduleId == '')
+			throw new Main\ArgumentNullException("moduleId");
+		if ($name == '')
+			throw new Main\ArgumentNullException("name");
 
 		if ($siteId === false)
 		{
-			$context = Main\Application::getInstance()->getContext();
-			if ($context != null)
-				$siteId = $context->getSite();
+			$siteId = static::getDefaultSite();
 		}
 
 		$con = Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
 
-		$strSqlWhere = sprintf(
-			"SITE_ID %s AND MODULE_ID = '%s' AND NAME = '%s'",
-			($siteId == "") ? "IS NULL" : "= '".$sqlHelper->forSql($siteId, 2)."'",
-			$sqlHelper->forSql($moduleId, 50),
-			$sqlHelper->forSql($name, 50)
-		);
+		$updateFields = [
+			"VALUE" => $value,
+		];
 
-		$res = $con->queryScalar(
-			"SELECT 'x' ".
-			"FROM b_option ".
-			"WHERE ".$strSqlWhere
-		);
-
-		if ($res != null)
+		if($siteId == "")
 		{
-			$con->queryExecute(
-				"UPDATE b_option SET ".
-				"	VALUE = '".$sqlHelper->forSql($value)."' ".
-				"WHERE ".$strSqlWhere
-			);
+			$insertFields = [
+				"MODULE_ID" => $moduleId,
+				"NAME" => $name,
+				"VALUE" => $value,
+			];
+
+			$keyFields = ["MODULE_ID", "NAME"];
+
+			$sql = $sqlHelper->prepareMerge("b_option", $keyFields, $insertFields, $updateFields);
 		}
 		else
 		{
-			$con->queryExecute(
-				sprintf(
-					"INSERT INTO b_option(SITE_ID, MODULE_ID, NAME, VALUE) ".
-					"VALUES(%s, '%s', '%s', '%s') ",
-					($siteId == "") ? "NULL" : "'".$sqlHelper->forSql($siteId, 2)."'",
-					$sqlHelper->forSql($moduleId, 50),
-					$sqlHelper->forSql($name, 50),
-					$sqlHelper->forSql($value)
-				)
-			);
+			$insertFields = [
+				"MODULE_ID" => $moduleId,
+				"NAME" => $name,
+				"SITE_ID" => $siteId,
+				"VALUE" => $value,
+			];
+
+			$keyFields = ["MODULE_ID", "NAME", "SITE_ID"];
+
+			$sql = $sqlHelper->prepareMerge("b_option_site", $keyFields, $insertFields, $updateFields);
 		}
 
-		$s = ($siteId == ""? '-' : $siteId);
-		self::$options[$s][$moduleId][$name] = $value;
+		$con->queryExecute(current($sql));
 
-		self::loadTriggers($moduleId);
+		static::clearCache($moduleId);
+
+		static::loadTriggers($moduleId);
 
 		$event = new Main\Event(
 			"main",
@@ -328,7 +306,7 @@ class Option
 		$event->send();
 	}
 
-	private static function loadTriggers($moduleId)
+	protected static function loadTriggers($moduleId)
 	{
 		static $triggersCache = array();
 		if (isset($triggersCache[$moduleId]))
@@ -346,12 +324,23 @@ class Option
 		include($path);
 	}
 
-	private static function getCacheTtl()
+	protected static function getCacheTtl()
 	{
-		$cacheFlags = Configuration::getValue("cache_flags");
-		if (!isset($cacheFlags["config_options"]))
-			return 0;
-		return $cacheFlags["config_options"];
+		static $cacheTtl = null;
+
+		if($cacheTtl === null)
+		{
+			$cacheFlags = Configuration::getValue("cache_flags");
+			if (isset($cacheFlags["config_options"]))
+			{
+				$cacheTtl = $cacheFlags["config_options"];
+			}
+			else
+			{
+				$cacheTtl = 0;
+			}
+		}
+		return $cacheTtl;
 	}
 
 	/**
@@ -363,68 +352,93 @@ class Option
 	 * 		site_id - the site ID (can be empty).
 	 * @throws Main\ArgumentNullException
 	 */
-	public static function delete($moduleId, $filter = array())
+	public static function delete($moduleId, array $filter = array())
 	{
-		if (static::$cacheTtl === null)
-			static::$cacheTtl = self::getCacheTtl();
-
-		if (static::$cacheTtl !== false)
-		{
-			$cache = Main\Application::getInstance()->getManagedCache();
-			$cache->clean("b_option");
-		}
+		if ($moduleId == '')
+			throw new Main\ArgumentNullException("moduleId");
 
 		$con = Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
 
-		$strSqlWhere = "";
+		$deleteForSites = true;
+		$sqlWhere = $sqlWhereSite = "";
+
 		if (isset($filter["name"]))
 		{
-			if (empty($filter["name"]))
-				throw new Main\ArgumentNullException("filter[name]");
-			$strSqlWhere .= " AND NAME = '".$sqlHelper->forSql($filter["name"])."' ";
-		}
-		if (isset($filter["site_id"]))
-			$strSqlWhere .= " AND SITE_ID ".(($filter["site_id"] == "") ? "IS NULL" : "= '".$sqlHelper->forSql($filter["site_id"], 2)."'");
-
-		if ($moduleId == "main")
-		{
-			$con->queryExecute(
-				"DELETE FROM b_option ".
-				"WHERE MODULE_ID = 'main' ".
-				"   AND NAME NOT LIKE '~%' ".
-				"	AND NAME NOT IN ('crc_code', 'admin_passwordh', 'server_uniq_id','PARAM_MAX_SITES', 'PARAM_MAX_USERS') ".
-				$strSqlWhere
-			);
-		}
-		else
-		{
-			$con->queryExecute(
-				"DELETE FROM b_option ".
-				"WHERE MODULE_ID = '".$sqlHelper->forSql($moduleId)."' ".
-				"   AND NAME <> '~bsm_stop_date' ".
-				$strSqlWhere
-			);
-		}
-
-		if (isset($filter["site_id"]))
-		{
-			$siteKey = $filter["site_id"] == "" ? "-" : $filter["site_id"];
-			if (!isset($filter["name"]))
-				unset(self::$options[$siteKey][$moduleId]);
-			else
-				unset(self::$options[$siteKey][$moduleId][$filter["name"]]);
-		}
-		else
-		{
-			$arSites = array_keys(self::$options);
-			foreach ($arSites as $s)
+			if ($filter["name"] == '')
 			{
-				if (!isset($filter["name"]))
-					unset(self::$options[$s][$moduleId]);
-				else
-					unset(self::$options[$s][$moduleId][$filter["name"]]);
+				throw new Main\ArgumentNullException("filter[name]");
+			}
+			$sqlWhere .= " AND NAME = '{$sqlHelper->forSql($filter["name"])}'";
+		}
+		if (isset($filter["site_id"]))
+		{
+			if($filter["site_id"] <> "")
+			{
+				$sqlWhereSite = " AND SITE_ID = '{$sqlHelper->forSql($filter["site_id"], 2)}'";
+			}
+			else
+			{
+				$deleteForSites = false;
 			}
 		}
+		if($moduleId == 'main')
+		{
+			$sqlWhere .= "
+				AND NAME NOT LIKE '~%' 
+				AND NAME NOT IN ('crc_code', 'admin_passwordh', 'server_uniq_id','PARAM_MAX_SITES', 'PARAM_MAX_USERS') 
+			";
+		}
+		else
+		{
+			$sqlWhere .= " AND NAME <> '~bsm_stop_date'";
+		}
+
+		if($sqlWhereSite == '')
+		{
+			$con->queryExecute("
+				DELETE FROM b_option 
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+					{$sqlWhere}
+			");
+		}
+
+		if($deleteForSites)
+		{
+			$con->queryExecute("
+				DELETE FROM b_option_site 
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+					{$sqlWhere}
+					{$sqlWhereSite}
+			");
+		}
+
+		static::clearCache($moduleId);
+	}
+
+	protected static function clearCache($moduleId)
+	{
+		unset(self::$options[$moduleId]);
+
+		if (static::getCacheTtl() !== false)
+		{
+			$cache = Main\Application::getInstance()->getManagedCache();
+			$cache->clean("b_option:{$moduleId}", self::CACHE_DIR);
+		}
+	}
+
+	protected static function getDefaultSite()
+	{
+		static $defaultSite;
+
+		if ($defaultSite === null)
+		{
+			$context = Main\Application::getInstance()->getContext();
+			if ($context != null)
+			{
+				$defaultSite = $context->getSite();
+			}
+		}
+		return $defaultSite;
 	}
 }

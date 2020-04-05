@@ -34,9 +34,9 @@ switch ($arResult["ACTION"])
 	<div class="order_component" id="order_detail_<?=$arResult['ORDER']['ID']?>">
 		<div class="order_title">
 			<?=GetMessage("SMOB_ORDER_N").$arResult["ORDER"]['ACCOUNT_NUMBER']?>
-			<span>
+		<div class="order-title-date">
 				<?=GetMessage("SMOB_FROM").' '.CSaleMobileOrderUtils::getDateTime($arResult["ORDER"]['DATE_INSERT'])?>
-			</span>
+			</div>
 		</div>
 
 		<?

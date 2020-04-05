@@ -267,7 +267,7 @@ else
 							?><span class="sonet-groups-group-text"><?
 								?><span class="sonet-groups-group-title<?=($group["IS_EXTRANET"] == "Y" ? " sonet-groups-group-title-extranet" : "")?>"><?
 									?><span class="sonet-groups-group-title-text"><?
-										?><a href="<?=$group["GROUP_URL"]?>" class="sonet-groups-group-link"><?=$group["GROUP_NAME"]?></a><?
+										?><a href="<?=$group["GROUP_URL"]?>" class="sonet-groups-group-link" target="_top"><?=$group["GROUP_NAME"]?></a><?
 										?><?=($group["IS_EXTRANET"] == "Y" && SITE_TEMPLATE_ID != "bitrix24" ? '<span class="sonet-groups-group-signature">'.GetMessage("SONET_C33_T_IS_EXTRANET").'</span>' : '')?><?
 									?></span><?
 
@@ -423,6 +423,10 @@ else
 	if (
 		SITE_TEMPLATE_ID === "bitrix24"
 		&& !empty($arResult["SIDEBAR_GROUPS"])
+		&& (
+			empty($_REQUEST['IFRAME'])
+			|| $_REQUEST['IFRAME'] != 'Y'
+		)
 	)
 	{
 		$this->SetViewTarget("sidebar");

@@ -61,7 +61,7 @@
 	TileSelector.getById = function (id)
 	{
 		var filtered = selectorList.filter(function (item) {
-			return item.id === id;
+			return (item.id === id && document.body.contains(item.context));
 		});
 		return filtered.length > 0 ? filtered[0] : null;
 	};
@@ -81,6 +81,7 @@
 		this.manualInputEnd = params.manualInputEnd;
 		this.caption = params.caption;
 		this.captionMore = params.captionMore;
+		this.tilesLimit = (!!params.tilesLimit ? parseInt(params.tilesLimit) : 10);
 
 		this.attributeId = 'data-bx-id';
 		this.attributeData = 'data-bx-data';
@@ -89,6 +90,7 @@
 		this.input = Helper.getNode('tile-input', this.context);
 		this.buttonAdd = Helper.getNode('tile-add', this.context);
 		this.buttonSelect = Helper.getNode('tile-select', this.context);
+		this.buttonMore = Helper.getNode('tile-more', this.context);
 
 		if (!this.context || !this.input)
 		{
@@ -122,11 +124,25 @@
 			BX.bind(this.tileContainer, 'click', this.onButtonSelect.bind(this));
 		}
 		BX.bind(this.input, 'input', this.onInput.bind(this));
+		if (this.buttonMore)
+		{
+			BX.bind(this.buttonMore, 'click', this.onButtonMore.bind(this));
+		}
+
 		if (!this.manualInputEnd)
 		{
 			BX.bind(this.input, 'blur', this.onInputEnd.bind(this));
 			Helper.handleKeyEnter(this.input, this.onInputEnd.bind(this));
 		}
+
+		BX.bind(this.input, 'keydown', function (e) {
+			if (e.key === 'Enter')
+			{
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			}
+		});
 	};
 	TileSelector.prototype.getSearchInput = function ()
 	{
@@ -242,7 +258,7 @@
 				)
 				{
 					selectorInstance.callback.unSelect({
-						item: selectorInstance.entities[tile.data.entityType].items[(tile.id.match(/^\d+$/) ? ('U' + tile.id) : tile.id)],
+						item: selectorInstance.entities[tile.data.entityType.toUpperCase()].items[(tile.id.match(/^\d+$/) ? ('U' + tile.id) : tile.id)],
 						entityType: tile.data.entityType,
 						selectorId: selectorInstance.id
 					});
@@ -271,6 +287,24 @@
 		BX.remove(tile.node);
 		this.fire(this.events.tileRemove, [tile]);
 		this.recalcButtonSelectText();
+
+		if (this.buttonMore.style.display != 'none')
+		{
+			this.recalcMore();
+		}
+	};
+	TileSelector.prototype.recalcMore = function ()
+	{
+		if (this.checkTilesLimit({
+			action: 'remove'
+		}))
+		{
+			this.buttonMore.style.display = 'none';
+		}
+
+		Helper.getNodes('tile-item', this.context).forEach(function(item, index) {
+			item.style.display = (index >= this.tilesLimit ? 'none' : '');
+		}.bind(this));
 	};
 	TileSelector.prototype.getTile = function (id)
 	{
@@ -344,6 +378,15 @@
 		{
 			style += 'background-color: ' + BX.util.htmlspecialchars(background) + '; ';
 		}
+		if (
+			BX.type.isNotEmptyString(data.state)
+			&& data.state == 'init'
+		)
+		{
+			style += (this.checkTilesLimit({
+				action: 'init'
+			}) ? '' : 'display: none;');
+		}
 
 		var type = (BX.type.isNotEmptyString(data.entityType) ? data.entityType.toLowerCase() : 'none');
 		if (!!data.extranet)
@@ -357,13 +400,12 @@
 
 		template = Helper.replace(template, {
 			'id': BX.util.htmlspecialchars(id + ''),
-			'name': name,
+			'name': BX.util.htmlspecialchars(name),
 			'data': BX.util.htmlspecialchars(JSON.stringify(data)),
 			'style': style,
 			'type': type,
 			'readonly': (!!data.readonly ? 'yes' : 'no')
 		}, true);
-
 
 		var node = document.createElement('div');
 		node.innerHTML = template;
@@ -375,7 +417,7 @@
 			return null;
 		}
 
-		this.input.parentNode.insertBefore(node, this.input);
+		this.buttonMore.parentNode.insertBefore(node, this.buttonMore);
 		this.fire(this.events.tileAdd, [tile]);
 		this.recalcButtonSelectText();
 
@@ -416,6 +458,23 @@
 		this.fire(this.events.tileEdit, [tile]);
 
 		return tile;
+	};
+
+	TileSelector.prototype.checkTilesLimit = function (params)
+	{
+		var
+			result = true,
+			itemsCount = Helper.getNodes('tile-item', this.context).length,
+			tileAction = (BX.type.isNotEmptyObject(params) && BX.type.isNotEmptyString(params.action) ? params.action : null);
+
+		if (itemsCount >= this.tilesLimit)
+		{
+			result = false;
+			this.buttonMore.style.display = '';
+			this.buttonMore.title = BX.message('UI_TILE_SELECTOR_MORE').replace('#NUM#', (itemsCount - this.tilesLimit + (tileAction == 'init' ? 1 : 0)));
+		}
+
+		return result;
 	};
 
 	TileSelector.prototype.fire = function (eventName, data)
@@ -467,6 +526,17 @@
 			this.fire(this.events.buttonSelectFirst, []);
 			this.isButtonSelectFired = true;
 		}
+	};
+	TileSelector.prototype.onButtonMore = function (e)
+	{
+		e.preventDefault();
+		e.stopPropagation();
+
+		Helper.getNodes('tile-item', this.context).forEach(function(item) {
+			item.style.display = ''
+		});
+
+		e.currentTarget.style.display = 'none';
 	};
 
 	TileSelector.prototype.recalcButtonSelectText = function()

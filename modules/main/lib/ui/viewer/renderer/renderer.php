@@ -80,6 +80,11 @@ abstract class Renderer
 		return self::JS_TYPE_UNKNOWN;
 	}
 
+	public static function getSizeRestriction()
+	{
+		return null;
+	}
+
 	abstract public function render();
 
 	public function getData()

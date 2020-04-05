@@ -181,7 +181,8 @@ $dbOperations = COperation::GetList();
 			
 $arOperations = Array();
 $arBindings = Array();
-?><script>
+?>
+<script>
 var arOperations = [];
 var arBingings = {};
 <?
@@ -204,17 +205,19 @@ while ($arOperation = $dbOperations->Fetch())
 		?>arBingings['<?=$mid?>'].<?=$b?> = "<?=$bindingTitle?>";<?
 	}
 
-	$arOperations[COperation::GetLangTitle($arOperation["NAME"], $arOperation["MODULE_ID"])] = array(
+	$arOperations[] = array(
 		'ID' => $arOperation["ID"],
 		'NAME' => $arOperation["NAME"],
+		'TITLE' => COperation::GetLangTitle($arOperation["NAME"], $arOperation["MODULE_ID"]),
 		'BINDING' => $arOperation["BINDING"],
 		'MODULE_ID' => $arOperation["MODULE_ID"],
 		'DESCRIPTION' => COperation::GetLangDescription($arOperation["NAME"],$arOperation["DESCRIPTION"], $arOperation["MODULE_ID"])
 	);
 }
-?></script><?
-ksort($arOperations);
+\Bitrix\Main\Type\Collection::sortByColumn($arOperations, 'TITLE');
 ?>
+</script>
+
 	<tr class="adm-detail-required-field">
 		<td width="40%"><?=GetMessage('NAME')?></td>
 		<td width="60%"><input type="text" name="NAME" size="40" maxlength="100" value="<? echo CTask::GetLangTitle($str_NAME, $str_MODULE_ID);?>"></td>
@@ -294,7 +297,7 @@ ksort($arOperations);
 				$arTaskOperations = CTask::GetOperations($ID);
 			
 			$ind = -1;
-			foreach($arOperations as $name => $arOperation)
+			foreach($arOperations as $arOperation)
 			{
 				$ind++;
 				?>
@@ -304,7 +307,7 @@ ksort($arOperations);
 						<input type="checkbox" name="OPERATION_ID[]" id="OPERATION_ID_<?=$ind ?>" value="<?=$arOperation["ID"]?>" <? echo (in_array($arOperation["ID"], $arTaskOperations)) ? " checked" : ''?>>
 						<script>
 						arOperations['<?=$ind?>'] = {
-							name : '<?=CUtil::JSEscape($name)?>',
+							name : '<?=CUtil::JSEscape($arOperation["TITLE"])?>',
 							module_id : '<?=$arOperation["MODULE_ID"]?>',
 							binding : '<?=$arOperation["BINDING"]?>'
 						}
@@ -313,8 +316,8 @@ ksort($arOperations);
 					<td align="left">
 					<label for="OPERATION_ID_<?= $ind ?>" 
 						title="<?=htmlspecialcharsbx($arOperation["DESCRIPTION"]);?>">
-						<?=htmlspecialcharsbx($name)?>
-						<?if($name!=$arOperation['NAME']):?>
+						<?=htmlspecialcharsbx($arOperation["TITLE"])?>
+						<?if($arOperation["TITLE"] != $arOperation['NAME']):?>
 						(<?=htmlspecialcharsbx($arOperation['NAME'])?>)
 						<?endif;?>
 					</label></td>

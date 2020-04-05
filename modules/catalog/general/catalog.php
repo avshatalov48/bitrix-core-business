@@ -1411,18 +1411,69 @@ class CAllCatalog
 		return true;
 	}
 
+	/**
+	 * @param array &$fields
+	 * @return bool
+	 */
+	public static function OnBeforeIBlockPropertyUpdate(array &$fields)
+	{
+		global $APPLICATION;
+
+		$result = true;
+		if (
+			isset($fields['ID'])
+			&& isset($fields['ACTIVE'])
+			&& $fields['ACTIVE'] != 'Y'
+		)
+		{
+			$id = (int)$fields['ID'];
+			if ($id > 0)
+			{
+				$iterator = Catalog\CatalogIblockTable::getList(array(
+					'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'),
+					'filter' => array('=SKU_PROPERTY_ID' => $id)
+				));
+				$row = $iterator->fetch();
+				unset($iterator);
+				if (!empty($row))
+				{
+					$APPLICATION->ThrowException(Loc::getMessage(
+						'BT_MOD_CATALOG_ERR_CANNOT_DEACTIVE_SKU_PROPERTY',
+						array(
+							'#SKU_PROPERTY_ID#' => $row['SKU_PROPERTY_ID'],
+							'#PRODUCT_IBLOCK_ID#' => $row['PRODUCT_IBLOCK_ID'],
+							'#IBLOCK_ID#' => $row['IBLOCK_ID'],
+						)
+					));
+					$result = false;
+				}
+				unset($row);
+			}
+			unset($id);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param int $intPropertyID
+	 * @return bool
+	 */
 	public static function OnBeforeIBlockPropertyDelete($intPropertyID)
 	{
 		global $APPLICATION;
 
+		$result = true;
 		$intPropertyID = (int)$intPropertyID;
 		if ($intPropertyID <= 0)
-			return true;
+			return $result;
 		$propertyIterator = Catalog\CatalogIblockTable::getList(array(
 			'select' => array('IBLOCK_ID', 'PRODUCT_IBLOCK_ID', 'SKU_PROPERTY_ID'),
 			'filter' => array('=SKU_PROPERTY_ID' => $intPropertyID)
 		));
-		if ($property = $propertyIterator->fetch())
+		$property = $propertyIterator->fetch();
+		unset($propertyIterator);
+		if (!empty($property))
 		{
 			$APPLICATION->ThrowException(Loc::getMessage(
 				'BT_MOD_CATALOG_ERR_CANNOT_DELETE_SKU_PROPERTY',
@@ -1432,11 +1483,10 @@ class CAllCatalog
 					'#IBLOCK_ID#' => $property['IBLOCK_ID'],
 				)
 			));
-			unset($property, $propertyIterator);
-			return false;
+			$result = false;
 		}
-		unset($property, $propertyIterator);
-		return true;
+		unset($property);
+		return $result;
 	}
 
 	public static function OnIBlockModuleUnInstall()

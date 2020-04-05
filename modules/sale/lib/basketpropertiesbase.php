@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Sale;
 
+use Bitrix\Main;
 use Bitrix\Main\Entity\DeleteResult;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ObjectNotFoundException;
@@ -44,6 +45,8 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @return BasketPropertiesCollection
+	 * @throws Main\ArgumentException
+	 * @throws NotImplementedException
 	 */
 	private static function createBasketPropertiesCollectionObject()
 	{
@@ -56,12 +59,11 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	/**
 	 * @param BasketItemBase $basketItem
 	 * @return BasketPropertiesCollectionBase|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentTypeException
 	 * @throws NotImplementedException
 	 * @throws ObjectNotFoundException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public static function load(BasketItemBase $basketItem)
 	{
@@ -71,16 +73,17 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 		if ($basketItem->getId() > 0)
 		{
-			$res = static::getList(
-				[
-					'filter' => ["=BASKET_ID" => $basketItem->getId()],
-					'order' => ["SORT" => "ASC", "ID" => "ASC"],
-				]
-			);
-			while ($property = $res->fetch())
+			$registry = Registry::getInstance(static::getRegistryType());
+
+			/** @var BasketPropertyItemBase $basketPropertyItemClass */
+			$basketPropertyItemClass = $registry->getBasketPropertyItemClassName();
+
+			$propertyList = $basketPropertyItemClass::loadForBasketItem($basketItem->getId());
+			/** @var BasketPropertyItemBase $property */
+			foreach ($propertyList as $property)
 			{
-				$basketPropertyItem = $basketPropertyCollection->createItem();
-				$basketPropertyItem->initFields($property);
+				$property->setCollection($basketPropertyCollection);
+				$basketPropertyCollection->addItem($property);
 			}
 		}
 
@@ -89,9 +92,8 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @param BasketItemCollection $basket
-	 *
 	 * @return array
-	 * @throws ObjectNotFoundException
+	 * @throws Main\ArgumentNullException
 	 */
 	protected static function getBasketIdList(BasketItemCollection $basket)
 	{
@@ -111,31 +113,26 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @param BasketItemCollection $collection
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
 	 * @throws NotImplementedException
-	 * @throws ObjectNotFoundException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public static function loadByCollection(BasketItemCollection $collection)
 	{
-		$propertyList = array();
+		$propertyList = [];
 
 		$basketIdList = static::getBasketIdList($collection);
 
 		if (!empty($basketIdList))
 		{
-			$res = static::getList(
-				array(
-					'filter' => array("=BASKET_ID" => $basketIdList),
-					'order' => array("SORT" => "ASC", "ID" => "ASC"),
-				)
-			);
+			$registry = Registry::getInstance(static::getRegistryType());
 
-			while ($property = $res->fetch())
-			{
-				$propertyList[$property['BASKET_ID']][] = $property;
-			}
+			/** @var BasketPropertyItemBase $basketPropertyItemClass */
+			$basketPropertyItemClass = $registry->getBasketPropertyItemClassName();
+
+			$propertyList = $basketPropertyItemClass::loadForBasket($basketIdList);
 		}
 
 		/** @var BasketItemBase $basketItem */
@@ -151,10 +148,11 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 			if (isset($propertyList[$basketItem->getId()]))
 			{
-				foreach ($propertyList[$basketItem->getId()] as $propertyData)
+				/** @var BasketPropertyItemBase $property */
+				foreach ($propertyList[$basketItem->getId()] as $property)
 				{
-					$basketPropertyItem = $basketPropertyCollection->createItem();
-					$basketPropertyItem->initFields($propertyData);
+					$property->setCollection($basketPropertyCollection);
+					$basketPropertyCollection->addItem($property);
 				}
 			}
 
@@ -163,31 +161,18 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	}
 
 	/**
+	 * @return BasketPropertyItem
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
 	 * @throws NotImplementedException
-	 */
-	public static function getRegistryType()
-	{
-		throw new NotImplementedException();
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getBasketPropertiesCollectionElementClassName()
-	{
-		$registry  = Registry::getInstance(static::getRegistryType());
-
-		return $registry->getBasketPropertyItemClassName();
-	}
-
-	/**
-	 * @return BasketPropertyItemBase
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public function createItem()
 	{
+		$registry  = Registry::getInstance(static::getRegistryType());
+
 		/** @var BasketPropertyItemBase $basketPropertyItemClassName */
-		$basketPropertyItemClassName = $this->getBasketPropertiesCollectionElementClassName();
+		$basketPropertyItemClassName = $registry->getBasketPropertyItemClassName();
 
 		$basketPropertyItem = $basketPropertyItemClassName::create($this);
 		$this->addItem($basketPropertyItem);
@@ -206,11 +191,13 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @param array $properties
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\NotSupportedException
+	 * @throws NotImplementedException
 	 * @throws ObjectNotFoundException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @throws \Bitrix\Main\NotSupportedException
 	 */
 	public function redefine(array $properties)
 	{
@@ -252,11 +239,12 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 				}
 			}
 
-			unset($value['ID']);
+			$availableFields = $propertyItem::getAvailableFields();
+
 			$fields = array();
 			foreach ($value as $k => $v)
 			{
-				if (strpos($k, '~') === false)
+				if (isset($availableFields[$k]))
 				{
 					$fields[$k] = $v;
 				}
@@ -309,28 +297,31 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @return Result
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws NotImplementedException
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public function save()
 	{
 		$result = new Sale\Result();
 
-		$itemsFromDb = array();
+		$itemsFromDb = [];
 
 		$isItemDeleted = $this->isAnyItemDeleted();
 		if ($isItemDeleted)
 		{
 			$basketItem = $this->getBasketItem();
 			$itemsFromDbList = static::getList(
-				array(
-					"select" => array("ID"),
-					"filter" => array("BASKET_ID" => ($basketItem) ? $basketItem->getId() : 0)
-				)
+				[
+					"select" => ["ID"],
+					"filter" => ["BASKET_ID" => ($basketItem) ? $basketItem->getId() : 0]
+				]
 			);
 
 			while ($itemsFromDbItem = $itemsFromDbList->fetch())
+			{
 				$itemsFromDb[$itemsFromDbItem["ID"]] = true;
+			}
 		}
 
 		/** @var BasketPropertyItemBase $basketProperty */
@@ -338,16 +329,22 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 		{
 			$r = $basketProperty->save();
 			if (!$r->isSuccess())
+			{
 				$result->addErrors($r->getErrors());
+			}
 
 			unset($itemsFromDb[$basketProperty->getId()]);
 		}
 
 		foreach ($itemsFromDb as $basketPropertyId => $value)
+		{
 			static::delete($basketPropertyId);
+		}
 
 		if ($isItemDeleted)
+		{
 			$this->setAnyItemDeleted(false);
+		}
 
 		return $result;
 	}
@@ -367,7 +364,9 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 		foreach ($values as $value)
 		{
 			if (!($propertyValue = static::bringingPropertyValue($value)))
+			{
 				continue;
+			}
 
 			$requestValues[$propertyValue['CODE']] = $propertyValue["VALUE"];
 		}
@@ -381,7 +380,9 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 			foreach($requestValues as $key => $val)
 			{
 				if (!array_key_exists($key, $propertyValues) || (array_key_exists($key, $propertyValues) && $propertyValues[$key]['VALUE'] != $val))
+				{
 					return false;
+				}
 			}
 		}
 
@@ -395,7 +396,9 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	public function getPropertyItemByValue(array $value)
 	{
 		if (!($propertyValue = static::bringingPropertyValue($value)))
+		{
 			return false;
+		}
 
 		/** @var BasketPropertyItemBase $propertyItem */
 		foreach ($this->collection as $propertyItem)
@@ -403,11 +406,15 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 			$propertyItemValues = $propertyItem->getFieldValues();
 
 			if (!($propertyItemValue = static::bringingPropertyValue($propertyItemValues)))
+			{
 				continue;
+			}
 
 
 			if ($propertyItemValue['CODE'] == $propertyValue['CODE'])
+			{
 				return $propertyItem;
+			}
 		}
 
 		return false;
@@ -426,7 +433,9 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 			$value = $property->getFieldValues();
 			$propertyValue = static::bringingPropertyValue($value);
 			if (!$propertyValue)
+			{
 				continue;
+			}
 
 			$result[$propertyValue['CODE']] = $propertyValue;
 		}
@@ -471,9 +480,16 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @internal
-	 * @param \SplObjectStorage $cloneEntity
 	 *
-	 * @return BasketPropertiesCollectionBase
+	 * @param \SplObjectStorage $cloneEntity
+	 * @return BasketPropertiesCollectionBase|Internals\EntityCollection
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\ObjectException
+	 * @throws NotImplementedException
+	 * @throws ObjectNotFoundException
 	 */
 	public function createClone(\SplObjectStorage $cloneEntity)
 	{
@@ -497,10 +513,9 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 		return $basketPropertiesCollectionClone;
 	}
 
-
 	/**
 	 * @return Result
-	 * @throws ObjectNotFoundException
+	 * @throws NotImplementedException
 	 */
 	public function verify()
 	{
@@ -521,9 +536,8 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	/**
 	 * Load basket item properties.
 	 *
-	 * @param array $parameters	orm getList parameters.
+	 * @param array $parameters
 	 * @throws NotImplementedException
-	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function getList(array $parameters = array())
 	{
@@ -535,7 +549,6 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	 *
 	 * @param $primary
 	 * @throws NotImplementedException
-	 * @return DeleteResult
 	 */
 	protected static function delete($primary)
 	{
@@ -546,11 +559,13 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	 * @deprecated Use \Bitrix\Sale\BasketPropertiesCollectionBase::redefine instead
 	 *
 	 * @param array $values
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\NotSupportedException
+	 * @throws NotImplementedException
 	 * @throws ObjectNotFoundException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @throws \Bitrix\Main\NotSupportedException
 	 */
 	public function setProperty(array $values)
 	{

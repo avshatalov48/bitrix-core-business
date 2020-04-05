@@ -57,6 +57,7 @@
 		this.addEventHandlers();
 		this.fillTemplate();
 		this.updateTemplateHiddenInput();
+		BX.UI.Hint.init(this.selectByRoles('numerator-container'));
 	};
 	BX.Numerator.prototype = {
 		addEventHandlers: function ()

@@ -324,15 +324,15 @@ $currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
 				</td>
 				<td bgcolor="#ffffff" style="border: 1pt solid #000000; border-right:none; border-top:none;">
 					Доставка <?
-					$res = \Bitrix\Sale\Delivery\Services\Table::getList(array(
-						'filter' => array(
-							'=CODE' => $arOrder["DELIVERY_ID"]
-						)
-					));
+					$deliveryId = \CSaleDelivery::getIdByCode($arOrder['DELIVERY_ID']);
 
-					if ($deliveryService = $res->fetch())
-						if(strlen($deliveryService["NAME"]) > 0)
-							echo "(".htmlspecialcharsEx($deliveryService["NAME"]).")";
+					if($deliveryId > 0)
+					{
+						if($delivery = \Bitrix\Sale\Delivery\Services\Manager::getObjectById($deliveryId))
+						{
+							echo "[".htmlspecialcharsbx($delivery->getNameWithParent())."]";
+						}
+					}
 
 					$total_nds += $arOrder["DELIVERY_VAT_SUM"];
 					$total_sum += $arOrder["PRICE_DELIVERY"];

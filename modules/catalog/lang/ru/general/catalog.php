@@ -23,4 +23,5 @@ $MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_PRODUCT_IBLOCK"] = "Нельзя уда�
 $MESS["BT_MOD_CATALOG_ERR_CANNOT_DELETE_SKU_PROPERTY"] = "Свойство ##SKU_PROPERTY_ID# нельзя удалить, т.к. оно является связкой инфоблока товаров ##PRODUCT_IBLOCK_ID# и торговых предложений ##IBLOCK_ID#";
 $MESS["BT_MOD_CATALOG_ERR_IBLOCK_REQUIRED"] = "Модуль Торгового каталога не может работать без модуля Информационных блоков.";
 $MESS["BT_MOD_CATALOG_ERR_BEFORE_DEL_TITLE"] = "Ошибка при удалении в";
+$MESS["BT_MOD_CATALOG_ERR_CANNOT_DEACTIVE_SKU_PROPERTY"] = "Свойство ##SKU_PROPERTY_ID# нельзя деактивировать, т.к. оно является связкой инфоблока товаров ##PRODUCT_IBLOCK_ID# и торговых предложений ##IBLOCK_ID#";
 ?>

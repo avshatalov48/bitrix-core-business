@@ -1,6 +1,6 @@
 <?
 $MESS["WIZ_TEMPLATE_ADAPT_VERTICAL"] = "Адаптивный шаблон с вертикальным меню";
-$MESS["WIZ_TEMPLATE_ADAPT_HORIZONTAL"] = "Адаптивный шаблон с горизонтальным меню";
+$MESS["WIZ_TEMPLATE_ADAPT_HORIZONTAL"] = "Адаптивный шаблон интернет-магазина Bootstrap 4";
 $MESS["WIZ_TEMPLATE_VERTICAL"] = "Шаблон с вертикальным меню";
 $MESS["WIZ_TEMPLATE_HORIZONTAL"] = "Шаблон с горизонтальным меню";
 $MESS["WIZ_TEMPLATE_VERTICAL_POPUP"] = "Шаблон с вертикальным всплывающем меню";
@@ -17,7 +17,7 @@ $MESS["WIZ_COMPANY_NAME_DEF"] = "Современная Одежда+";
 $MESS["WIZ_COMPANY_TELEPHONE"] = "Телефон для обратной связи";
 $MESS["WIZ_COMPANY_TELEPHONE_DEF"] = "8 (495) 212 85 06";
 $MESS["WIZ_COMPANY_SCHEDULE"] = "Время работы";
-$MESS["WIZ_COMPANY_SCHEDULE_DEF"] = "Время работы: Пн-Вс 10-19";
+$MESS["WIZ_COMPANY_SCHEDULE_DEF"] = "Пн-Вс 10-19";
 $MESS["WIZ_COMPANY_COPY"] = "Подпись сайта";
 $MESS["WIZ_SHOP_FACEBOOK"] = "Страница магазина в facebook.com";
 $MESS["WIZ_SHOP_FACEBOOK_DEF"] = "http://www.facebook.com/1CBitrix";
@@ -27,7 +27,7 @@ $MESS["WIZ_SHOP_VK"] = "Страница магазина в vk.com";
 $MESS["WIZ_SHOP_VK_DEF"] = "http://vk.com/bitrix_1c";
 $MESS["WIZ_SHOP_GOOGLE_PLUS"] = "Страница магазина в plus.google.com";
 $MESS["WIZ_SHOP_GOOGLE_PLUS_DEF"] = "https://plus.google.com/111119180387208976312/";
-$MESS["WIZ_COMPANY_COPY_DEF"] = "&copy; Интернет-магазин одежды, 2018";
+$MESS["WIZ_COMPANY_COPY_DEF"] = "&copy; Интернет-магазин одежды, 2020";
 $MESS["WIZ_REWRITE_INDEX_DESC"] = "Изменение главной страницы";
 $MESS["wiz_site_name"] = "Интернет-магазин";
 $MESS["WIZ_SHOP_LOCALIZATION"] = "Выбор локализации магазина";

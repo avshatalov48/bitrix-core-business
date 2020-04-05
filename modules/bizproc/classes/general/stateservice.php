@@ -1,7 +1,7 @@
 <?
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
 
-use Bitrix\Bizproc\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Main;
 
 class CBPAllStateService
@@ -369,9 +369,20 @@ class CBPAllStateService
 			$strSql =
 				"INSERT INTO b_bp_workflow_state_identify (WORKFLOW_ID) ".
 				"VALUES ('".$DB->ForSql($workflowId)."')";
-			$DB->Query($strSql);
+			$res = $DB->Query($strSql, true);
+			//crutch for #0071996
+			if ($res)
+			{
+				$result = array('ID' => $DB->LastID());
+			}
+			else
+			{
+				$dbResult = $DB->Query(
+					"SELECT ID FROM b_bp_workflow_state_identify WHERE WORKFLOW_ID = '".$DB->ForSql($workflowId)."' "
+				);
 
-			$result = array('ID' => $DB->LastID());
+				$result = $dbResult->fetch();
+			}
 		}
 		return (int)$result['ID'];
 	}

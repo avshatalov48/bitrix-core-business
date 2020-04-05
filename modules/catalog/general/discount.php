@@ -36,6 +36,7 @@ class CAllCatalogDiscount
 	static protected $useSaleDiscount = null;
 	static protected $getPriceTypesOnly = false;
 	static protected $getPercentFromBasePrice = null;
+	static private $needDiscountCache = null;
 
 	private static function calculatePriceByDiscount($basePrice, $currentPrice, $oneDiscount, &$needErase)
 	{
@@ -1051,6 +1052,8 @@ class CAllCatalogDiscount
 		if (empty($priceRow))
 			return array();
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
 		$freezeCoupons = (empty($coupons) && is_array($coupons));
 
 		if ($freezeCoupons)
@@ -1069,9 +1072,21 @@ class CAllCatalogDiscount
 				$basketItem = null;
 			}
 		}
+		if ($basket !== null)
+		{
+			$orderedBasket = $basket->getOrder() !== null;
+			if ($orderedBasket !== $isRenewal)
+			{
+				$basket = null;
+				$basketItem = null;
+			}
+		}
 		if ($basket === null)
 		{
-			$basket = Sale\Basket::create($siteId);
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
+			$basket = $basketClass::create($siteId);
 			$basketItem = $basket->createItem($product['MODULE'], $product['ID']);
 		}
 
@@ -1104,8 +1119,11 @@ class CAllCatalogDiscount
 
 		if($isRenewal)
 		{
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
 			/** @var \Bitrix\Sale\Order $order */
-			$order = Sale\Order::create($siteId);
+			$order = $orderClass::create($siteId);
 			$order->setField('RECURRING_ID', 1);
 			$order->setBasket($basket);
 
@@ -1124,6 +1142,7 @@ class CAllCatalogDiscount
 
 		if ($freezeCoupons)
 			Sale\DiscountCouponsManager::unFreezeCouponStorage();
+		$discount->setExecuteModuleFilter(array('all', 'sale', 'catalog'));
 
 		return static::getReformattedDiscounts($finalDiscountList, $calcResults, $siteId, $isRenewal);
 	}
@@ -1226,12 +1245,35 @@ class CAllCatalogDiscount
 
 		if (self::$useSaleDiscount && Loader::includeModule('sale'))
 		{
+			if (self::$needDiscountCache === null)
+			{
+				self::$needDiscountCache = false;
+
+				$cache = Sale\Discount\RuntimeCache\DiscountCache::getInstance();
+				$ids = $cache->getDiscountIds($arUserGroups);
+				if (!empty($ids))
+				{
+					$discountList = $cache->getDiscounts(
+						$ids,
+						['all', 'catalog'],
+						$siteID,
+						[]
+					);
+					if (!empty($discountList))
+					{
+						self::$needDiscountCache = true;
+					}
+					unset($discountList);
+				}
+				unset($ids, $cache);
+			}
+
 			$product = array(
 				'ID' => $intProductID,
 				'MODULE' => 'catalog',
 			);
 
-			if ($arCatalogGroups !== array(-1))
+			if (self::$needDiscountCache && $arCatalogGroups !== array(-1))
 			{
 				Catalog\Product\Price\Calculation::pushConfig();
 				Catalog\Product\Price\Calculation::setConfig([
@@ -1408,7 +1450,8 @@ class CAllCatalogDiscount
 								'LOGIC' => 'OR',
 								'ACTIVE_TO' => '',
 								'>=ACTIVE_TO' => $currentDatetime
-							)
+							),
+							'=RENEWAL' => $strRenewal
 						);
 						if (empty($couponsDiscount))
 						{
@@ -2264,8 +2307,12 @@ class CAllCatalogDiscount
 					),
 					'select' => array('ID', 'PRODUCT_PRICE_ID',),
 				);
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
-				$res = \Bitrix\Sale\Basket::getList($basketFilter);
+				/** @var Sale\Basket $basketClass */
+				$basketClass = $registry->getBasketClassName();
+
+				$res = $basketClass::getList($basketFilter);
 				while($basketItem = $res->fetch())
 				{
 					$productPriceIds[] = $basketItem['PRODUCT_PRICE_ID'];

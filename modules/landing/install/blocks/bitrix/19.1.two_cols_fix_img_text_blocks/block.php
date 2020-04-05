@@ -3,9 +3,10 @@
 		<div class="row">
 
 			<div class="col-md-5 order-2 order-md-1 g-mb-15 g-mb-0--md">
-				<img class="landing-block-node-img img-fluid g-mb-30"
-					 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x562/img1.jpg" alt="">
-
+				<div class="landing-block-node-img-container text-left g-mb-30">
+					<img class="landing-block-node-img img-fluid"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x562/img1.jpg" alt="">
+				</div>
 				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20">
 					Building since 1943</h3>
 				<div class="landing-block-node-text">
@@ -17,7 +18,7 @@
 
 			<div class="col-md-7 order-1 order-md-2 g-mb-15 g-mb-0--md">
 				<div aria-multiselectable="true">
-					<div class="landing-block-card-accordeon-element js-animation fadeInUp card g-brd-none">
+					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
 							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
@@ -28,8 +29,8 @@
 						</div>
 
 						<div class="landing-block-card-accordeon-element-body">
-							<div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v5">
-								<div class="landing-block-node-accordeon-element-text g-font-size-default">
+							<div class="card-block u-accordion__body g-py-20 px-0">
+								<div class="landing-block-node-accordeon-element-text">
 									<p class="mb-0">Anim pariatur cliche reprehenderit, 3 wolf moon officia aute, non
 										cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.
 										<br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -41,7 +42,7 @@
 						</div>
 					</div>
 
-					<div class="landing-block-card-accordeon-element js-animation fadeInUp card g-brd-none">
+					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
 							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
@@ -52,8 +53,8 @@
 						</div>
 
 						<div class="landing-block-card-accordeon-element-body">
-							<div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v5">
-								<div class="landing-block-node-accordeon-element-text g-font-size-default">
+							<div class="card-block u-accordion__body g-py-20 px-0">
+								<div class="landing-block-node-accordeon-element-text">
 									<p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus
 										terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod. Duis aute
 										irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
@@ -63,7 +64,7 @@
 						</div>
 					</div>
 
-					<div class="landing-block-card-accordeon-element js-animation fadeInUp card g-brd-none">
+					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
 							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
@@ -75,8 +76,8 @@
 						</div>
 
 						<div class="landing-block-card-accordeon-element-body">
-							<div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v5">
-								<div class="landing-block-node-accordeon-element-text g-font-size-default">
+							<div class="card-block u-accordion__body g-py-20 px-0">
+								<div class="landing-block-node-accordeon-element-text">
 									<p class="mb-0">3 wolf moon officia aute, non cupidatat skateboard dolor brunch.
 										Food truck quinoa nesciunt laborum eiusmod. At vero eos et accusamus et iusto
 										odio
@@ -88,7 +89,7 @@
 						</div>
 					</div>
 
-					<div class="landing-block-card-accordeon-element js-animation fadeInUp card g-brd-none">
+					<div class="landing-block-card-accordeon-element js-animation fadeInUp g-brd-none">
 						<div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
 							<div class="landing-block-card-accordeon-element-title-link d-block text-uppercase g-pos-rel g-font-weight-700 g-brd-bottom g-brd-primary g-brd-2 g-py-15">
 								<span class="landing-block-node-accordeon-element-img-container g-valign-middle g-font-size-23 g-mr-10 g-color-primary">
@@ -99,8 +100,8 @@
 						</div>
 
 						<div class="landing-block-card-accordeon-element-body">
-							<div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v5">
-								<div class="landing-block-node-accordeon-element-text g-font-size-default">
+							<div class="card-block u-accordion__body g-py-20 px-0">
+								<div class="landing-block-node-accordeon-element-text">
 									<p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus
 										terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard
 										dolor brunch. Food truck quinoa nesciunt laborum eiusmod. nesciunt laborum

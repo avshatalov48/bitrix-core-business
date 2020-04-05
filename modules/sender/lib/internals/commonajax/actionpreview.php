@@ -8,8 +8,7 @@
 namespace Bitrix\Sender\Internals\CommonAjax;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Loader;
-use Bitrix\Main\HttpRequest;
+use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 
 use Bitrix\Sender\Internals\QueryController as Controller;
@@ -30,14 +29,14 @@ class ActionPreview extends CommonAction
 	/**
 	 * On request event handler.
 	 *
-	 * @param HttpRequest $request Request.
+	 * @param Main\HttpRequest $request Request.
 	 * @param Controller\Response $response Response.
 	 */
-	public static function onRequest(HttpRequest $request, Controller\Response $response)
+	public static function onRequest(Main\HttpRequest $request, Controller\Response $response)
 	{
 		$content = $response->initContentHtml();
 
-		Loader::includeModule('fileman');
+		Main\Loader::includeModule('fileman');
 
 		$canEditPhp = Security\User::current()->canEditPhp();
 		$canUseLpa = Security\User::current()->canUseLpa();
@@ -53,11 +52,20 @@ class ActionPreview extends CommonAction
 			))
 			->setHandlerUri(Option::get('sender', 'unsub_link'));
 
+		$html = $request->getPostList()->getRaw('content');
+
 		$previewParams = array(
 			'CAN_EDIT_PHP' => $canEditPhp,
 			'CAN_USE_LPA' => $canUseLpa,
 			'SITE' => $request->get('site_id') ?: SITE_ID,
-			'HTML' => $request->getPostList()->getRaw('content'),
+			'HTML' => ($html && Main\Text\Encoding::detectUtf8($html))
+				? Main\Text\Encoding::convertEncoding(
+					$html,
+					'UTF-8',
+					SITE_CHARSET
+					)
+				: $html
+			,
 			'FIELDS' => array(
 				'SENDER_CHAIN_CODE' => 'sender_chain_item_0',
 				'UNSUBSCRIBE_LINK' => $tracker->getLink()

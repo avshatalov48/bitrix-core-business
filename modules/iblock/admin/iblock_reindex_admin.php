@@ -103,7 +103,7 @@ if ($arID = $lAdmin->GroupAction())
 						'filter' => array('=ID' => $ID)
 					))->fetch();
 					if (empty($iblockInfo) || $iblockInfo['PROPERTY_INDEX'] != 'Y')
-						continue;
+						break;
 					$conn->startTransaction();
 					$result = Iblock\IblockTable::update($ID, array('PROPERTY_INDEX' => 'I'));
 					if (!$result->isSuccess())

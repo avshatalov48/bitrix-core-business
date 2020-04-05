@@ -1,3 +1,5 @@
+BX.namespace('BX.IBlock');
+
 /*
  * arParams
  *		PREFIX - prefix for vars
@@ -486,7 +488,12 @@ JCIBlockAccess.DeleteRow = function(ob, id, variable_name)
 	BX.Access.DeleteSelected(id, variable_name);
 };
 
-function addNewRow(tableID, row_to_clone)
+BX.IBlock.Tools = function()
+{
+
+};
+
+BX.IBlock.Tools.addNewRow = function(tableID, row_to_clone)
 {
 	var tbl = document.getElementById(tableID);
 	var cnt = tbl.rows.length;
@@ -565,7 +572,7 @@ function addNewRow(tableID, row_to_clone)
 	{
 		for(var i = 0; i < code.length; i++)
 		{
-			if(code[i] != '')
+			if(code[i] !== '')
 			{
 				s = code[i].substring(8, code[i].length-9);
 				jsUtils.EvalGlobal(s);

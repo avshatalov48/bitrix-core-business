@@ -428,21 +428,7 @@ CJSCore::Init(array("ajax", "popup"));
 <form name="find_form" id="find_form" method="get" action="<? echo $APPLICATION->GetCurPage(); ?>">
 	<input type="hidden" value="<? echo htmlspecialcharsbx($table_name) ?>" name="table_name">
 	<? $oFilter->Begin(); ?>
-	<tr onmouseover="BX.hint(BX('find_form'),
-			'<ul>' +
-			'<li>= Identical' + '</li>' +
-			'<li>&amp;gt; Greater' + '</li>' +
-			'<li>&amp;gt;= Greater' + ' or ' + 'Equal' + '</li>' +
-			'<li>&amp;lt; Less' + '</li>' +
-			'<li>&amp;lt;= Less' + ' or ' + 'Equal' + '</li>' +
-			'<li>% Substring' + '</li>' +
-			'<li>? Logic' + '</li>' +
-			'<li>&amp;gt;&amp;lt;MIN,MAX Between' + '</li>' +
-			'<li>&amp;#64;N1,N2,...,NN IN' + '</li>' +
-			'<li>NULL Empty' + '</li>' +
-			'<li>! Negate any of above' + '</li>' +
-			'</ul>' +
-			'')">
+	<tr>
 		<td><b><?=GetMessage("PERFMON_TABLE_FIND")?>:</b></td>
 		<td>
 			<input type="text" size="25" name="find" value="<? echo htmlspecialcharsbx($find) ?>"
@@ -475,6 +461,23 @@ CJSCore::Init(array("ajax", "popup"));
 	?>
 </form>
 
-<? $lAdmin->DisplayList(); ?>
-
-<? require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>
+<?
+$lAdmin->DisplayList();
+echo BeginNote();
+echo '
+	<ul>
+	<li>= Identical</li>
+	<li>&amp;gt; Greater</li>
+	<li>&amp;gt;= Greater or Equal</li>
+	<li>&amp;lt; Less</li>
+	<li>&amp;lt;= Less or Equal</li>
+	<li>% Substring</li>
+	<li>? Logic</li>
+	<li>&amp;gt;&amp;lt;MIN,MAX Between</li>
+	<li>&amp;#64;N1,N2,...,NN IN</li>
+	<li>NULL Empty</li>
+	<li>! Negate any of above</li>
+	</ul>
+';
+echo EndNote();
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

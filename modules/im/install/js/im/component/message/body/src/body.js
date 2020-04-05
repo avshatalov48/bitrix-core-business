@@ -8,21 +8,25 @@
  */
 
 import './body.css';
+import 'im.component.element.media';
+import 'im.component.element.attach';
+import 'im.component.element.keyboard';
+import 'im.component.element.chatteaser';
+import 'ui.vue.components.reaction';
+
 import {Vue} from "ui.vue";
-import {MessagesModel, UsersModel} from 'im.model';
-import 'im.component.element.file';
+import {Vuex} from "ui.vue.vuex";
+import {DialoguesModel, FilesModel, MessagesModel, UsersModel} from 'im.model';
+import {DialogType, MessageType} from "im.const";
+import {Utils} from "im.utils";
 
 const BX = window.BX;
 
-const MessageType = Object.freeze({
-	self: 'self',
-	opponent: 'opponent',
-	system: 'system',
-});
-
 const ContentType = Object.freeze({
 	default: 'default',
+	progress: 'progress',
 	image: 'image',
+	audio: 'audio',
 	video: 'video',
 	richLink: 'richLink',
 });
@@ -31,29 +35,39 @@ Vue.component('bx-messenger-message-body',
 {
 	/**
 	 * @emits 'clickByUserName' {user: object, event: MouseEvent}
+	 * @emits 'clickByUploadCancel' {file: object, event: MouseEvent}
+	 * @emits 'clickByChatTeaser' {params: object, event: MouseEvent}
+	 * @emits 'clickByKeyboardButton' {message: object, action: string, params: Object}
+	 * @emits 'setReaction' {message: object, reaction: object}
+	 * @emits 'openReactionList' {message: object, values: object}
 	 */
 	props:
 	{
 		userId: { default: 0 },
-		dialogId: { default: 0 },
+		dialogId: { default: '0' },
 		chatId: { default: 0 },
 		messageType: { default: MessageType.self },
 		message: {
 			type: Object,
-			default: MessagesModel.create().getElementStore
+			default: MessagesModel.create().getElementState
 		},
 		user: {
 			type: Object,
-			default: UsersModel.create().getElementStore
+			default: UsersModel.create().getElementState
+		},
+		dialog: {
+			type: Object,
+			default: DialoguesModel.create().getElementState
 		},
 		files: {
 			type: Object,
 			default: {}
 		},
-		enableEmotions: { default: true },
+		enableReactions: { default: true },
 		showName: { default: true },
 		showAvatar: { default: true },
 		referenceContentBodyClassName: { default: ''},
+		referenceContentNameClassName: { default: ''},
 	},
 	created()
 	{
@@ -62,9 +76,29 @@ Vue.component('bx-messenger-message-body',
 	},
 	methods:
 	{
-		clickByUserName(user, event)
+		clickByUserName(event)
 		{
-			this.$emit('clickByUserName', {user, event})
+			this.$emit('clickByUserName', event)
+		},
+		clickByUploadCancel(event)
+		{
+			this.$emit('clickByUploadCancel', event)
+		},
+		clickByChatTeaser(event)
+		{
+			this.$emit('clickByChatTeaser', {message: event.message, event});
+		},
+		clickByKeyboardButton(event)
+		{
+			this.$emit('clickByKeyboardButton', {message: event.message, ...event.event});
+		},
+		setReaction(event)
+		{
+			this.$emit('setReaction', event)
+		},
+		openReactionList(event)
+		{
+			this.$emit('openReactionList', event)
 		},
 		formatDate(date)
 		{
@@ -75,7 +109,7 @@ Vue.component('bx-messenger-message-body',
 				return this.cacheFormatDate[id];
 			}
 
-			let dateFormat = BX.Messenger.Utils.getDateFormatType(
+			let dateFormat = Utils.date.getFormatType(
 				BX.Messenger.Const.DateFormat.message,
 				this.$root.$bitrixMessages
 			);
@@ -111,22 +145,41 @@ Vue.component('bx-messenger-message-body',
 			{
 				let onlyImage = false;
 				let onlyVideo = false;
+				let onlyAudio = false;
+				let inProgress = false;
 
 				for (let file of this.filesData)
 				{
-					if (file.type == 'image')
+					if (file.progress < 0)
 					{
-						if (onlyVideo)
+						inProgress = true;
+						break;
+					}
+					else if (file.type === 'audio')
+					{
+						if (onlyVideo || onlyImage)
 						{
+							onlyImage = false;
+							onlyVideo = false;
+							break;
+						}
+						onlyAudio = true;
+					}
+					else if (file.type === 'image' && file.image)
+					{
+						if (onlyVideo || onlyAudio)
+						{
+							onlyAudio = false;
 							onlyVideo = false;
 							break;
 						}
 						onlyImage = true;
 					}
-					else if (false && file.type == 'video')
+					else if (file.type === 'video')
 					{
-						if (onlyImage)
+						if (onlyImage || onlyAudio)
 						{
+							onlyAudio = false;
 							onlyImage = false;
 							break;
 						}
@@ -134,15 +187,24 @@ Vue.component('bx-messenger-message-body',
 					}
 					else
 					{
+						onlyAudio = false;
 						onlyImage = false;
 						onlyVideo = false;
 						break;
 					}
 				}
 
-				if (onlyImage)
+				if (inProgress)
+				{
+					return ContentType.progress;
+				}
+				else if (onlyImage)
 				{
 					return ContentType.image;
+				}
+				else if (onlyAudio)
+				{
+					return ContentType.audio;
 				}
 				else if (onlyVideo)
 				{
@@ -173,14 +235,29 @@ Vue.component('bx-messenger-message-body',
 			return this.message.textConverted;
 		},
 
+		messageAttach()
+		{
+			return this.message.params.ATTACH;
+		},
+
+		messageReactions()
+		{
+			return this.message.params.REACTION || {};
+		},
+
 		isEdited()
 		{
-			return this.message.params.IS_EDITED == 'Y';
+			return this.message.params.IS_EDITED === 'Y';
 		},
 
 		isDeleted()
 		{
-			return this.message.params.IS_DELETED == 'Y';
+			return this.message.params.IS_DELETED === 'Y';
+		},
+
+		chatColor()
+		{
+			return this.dialog.type !== DialogType.private? this.dialog.color: this.user.color;
 		},
 
 		filesData()
@@ -193,26 +270,75 @@ Vue.component('bx-messenger-message-body',
 			}
 
 			this.message.params.FILE_ID.forEach(fileId => {
-				if (this.files[fileId])
+				if (!fileId)
 				{
-					files.push(this.files[fileId]);
+					return false;
+				}
+
+				let file = this.$store.getters['files/get'](this.chatId, fileId, true);
+				if (!file)
+				{
+					this.$store.commit('files/set', {data: [
+						this.$store.getters['files/getBlank']({id: fileId, chatId: this.chatId})
+					]});
+					file = this.$store.getters['files/get'](this.chatId, fileId, true);
+				}
+				if (file)
+				{
+					files.push(file);
 				}
 			});
 
 			return files;
-		}
+		},
+
+		keyboardButtons()
+		{
+			let result = false;
+
+			if (!this.message.params.KEYBOARD || this.message.params.KEYBOARD === 'N')
+			{
+				return result;
+			}
+
+			return this.message.params.KEYBOARD;
+		},
+		chatTeaser()
+		{
+			if (
+				typeof this.message.params.CHAT_ID === 'undefined'
+				|| typeof this.message.params.CHAT_LAST_DATE === 'undefined'
+				|| typeof this.message.params.CHAT_MESSAGE === 'undefined'
+			)
+			{
+				return false;
+			}
+
+			return {
+				messageCounter: this.message.params.CHAT_MESSAGE,
+				messageLastDate: this.message.params.CHAT_LAST_DATE,
+				languageId: this.application.common.languageId
+			};
+		},
+
+		...Vuex.mapState({
+			application: state => state.application,
+		})
 	},
 	template: `
 		<div class="bx-im-message-content-wrap">
-			<template v-if="contentType == ContentType.default">
+			<template v-if="contentType == ContentType.default || contentType == ContentType.audio || contentType == ContentType.progress">
 				<div class="bx-im-message-content">
 					<span class="bx-im-message-content-box">
 						<template v-if="showName && messageType == MessageType.opponent">
-							<div class="bx-im-message-content-name" :style="{color: user.color}" @click="clickByUserName(user, $event)">{{!showAvatar? user.name: (user.firstName? user.firstName: user.name)}}</div>
+							<div :class="['bx-im-message-content-name', referenceContentNameClassName]" :style="{color: user.color}" @click="clickByUserName({user: user, event: $event})">{{!showAvatar? user.name: (user.firstName? user.firstName: user.name)}}</div>
 						</template>
 						<div :class="['bx-im-message-content-body', referenceContentBodyClassName]">
-							<template v-for="file in filesData">
-								<bx-messenger-element-file :file="file"/>
+							<template v-if="contentType == ContentType.audio">
+								<bx-messenger-element-file-audio v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
+							</template>
+							<template v-else>
+								<bx-messenger-element-file v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
 							</template>
 							<div :class="['bx-im-message-content-body-wrap', {
 								'bx-im-message-content-body-with-text': messageText.length > 0,
@@ -221,14 +347,19 @@ Vue.component('bx-messenger-message-body',
 								<template v-if="messageText">
 									<span class="bx-im-message-content-text" v-html="messageText"></span>
 								</template>
+								<template v-for="(config, id) in messageAttach">
+									<bx-messenger-element-attach :baseColor="chatColor" :config="config" :key="id"/>
+								</template>
 								<span class="bx-im-message-content-params">
 									<span class="bx-im-message-content-date">{{formattedDate}}</span>
 								</span>
 							</div>
 						</div>
 					</span>
+					<div v-if="!message.push && enableReactions && message.authorId" class="bx-im-message-content-reaction">
+						<bx-reaction :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
+					</div>
 				</div>
-				<!-- keyboard -->
 			</template>
 			<template v-else-if="contentType == ContentType.richLink">
 				<!-- richLink type markup -->
@@ -237,18 +368,14 @@ Vue.component('bx-messenger-message-body',
 				<div class="bx-im-message-content bx-im-message-content-fit">
 					<span class="bx-im-message-content-box">
 						<template v-if="showName && messageType == MessageType.opponent">
-							<div class="bx-im-message-content-name" :style="{color: user.color}" @click="clickByUserName(user, $event)">{{!showAvatar? user.name: (user.firstName? user.firstName: user.name)}}</div>
+							<div :class="['bx-im-message-content-name', referenceContentNameClassName]" :style="{color: user.color}" @click="clickByUserName({user: user, event: $event})">{{!showAvatar? user.name: (user.firstName? user.firstName: user.name)}}</div>
 						</template>
 						<div :class="['bx-im-message-content-body', referenceContentBodyClassName]">
 							<template v-if="contentType == ContentType.image">
-								<template v-for="file in filesData">
-									<bx-messenger-element-file-image :file="file"/>
-								</template>
+								<bx-messenger-element-file-image v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
 							</template>
 							<template v-else-if="contentType == ContentType.video">
-								<template v-for="file in filesData">
-									<bx-messenger-element-file-video :file="file"/>
-								</template>
+								<bx-messenger-element-file-video v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
 							</template>
 							<div :class="['bx-im-message-content-body-wrap', {
 								'bx-im-message-content-body-with-text': messageText.length > 0,
@@ -263,17 +390,17 @@ Vue.component('bx-messenger-message-body',
 							</div>
 						</div>
 					</span>
+					<div v-if="!message.push && enableReactions && message.authorId" class="bx-im-message-content-reaction">
+						<bx-reaction :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
+					</div>
 				</div>
-				<!-- keyboard -->
+			</template>
+			<template v-if="keyboardButtons">
+				<bx-messenger-element-keyboard :buttons="keyboardButtons" :messageId="message.id" :userId="userId" :dialogId="dialogId" @click="clickByKeyboardButton({message: message, event: $event})"/>
+			</template>
+			<template v-if="chatTeaser">
+				<bx-messenger-element-chat-teaser :messageCounter="chatTeaser.messageCounter" :messageLastDate="chatTeaser.messageLastDate" :languageId="chatTeaser.languageId" @click="clickByChatTeaser({message: message, event: $event})"/>
 			</template>
 		</div>
 	`
 });
-
-/*
-	<span class="bx-messenger-content-item-like bx-messenger-content-like-digit-off">
-		<span>&nbsp;</span>
-		<span class="bx-messenger-content-like-digit"></span>
-		<span data-messageid="28571160" class="bx-messenger-content-like-button">{{localize.IM_MESSENGER_MESSAGE_LIKE}}</span>
-	</span>
- */

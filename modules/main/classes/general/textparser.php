@@ -6,6 +6,10 @@
  * @copyright 2001-2014 Bitrix
  */
 
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
+
 class CTextParser
 {
 	public $type = "html";
@@ -333,6 +337,15 @@ class CTextParser
 			{
 				$text = preg_replace("#<(/?)quote(.*?)>#is", "[\\1quote]", $text);
 			}
+
+			if (preg_match("/\<cut/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
+			{
+				$text = preg_replace(
+					"/\<cut([^>]*)\>(.+?)\<\/cut>/is".BX_UTF_PCRE_MODIFIER,
+					"[cut=\\1]\\2[/cut]",
+					$text);
+			}
+
 			if (strlen($text)>0)
 			{
 				if ($this->preg["counter"] > 0)
@@ -378,7 +391,6 @@ class CTextParser
 
 			$text = preg_replace_callback($patt, array($this, "preconvertAnchor"), $text);
 
-
 			$patt = array();
 			if (strpos($text, "&lt;") !== false)
 				$patt[] = "/(?<=\\&lt\\;)((((".$this->getAnchorSchemes()."):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=\\&gt\\;)/is".BX_UTF_PCRE_MODIFIER;
@@ -402,6 +414,31 @@ class CTextParser
 		}
 
 		$text = preg_replace("/<\\/?nomodify>/i".BX_UTF_PCRE_MODIFIER, "", $text);
+
+		$matches = array();
+		if (preg_match("/\\[(cut|spoiler)/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
+		{
+			$text = preg_replace(
+				array(
+					"/\\[(cut|spoiler)(([^\\]])*)\\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\\[\\/(cut|spoiler)\\]/is".BX_UTF_PCRE_MODIFIER
+				),
+				array(
+					"\001\\2\002",
+					"\003"),
+				$text);
+			$arMatches = array();
+			while (preg_match("/(\001([^\002]*)\002([^\001\002\003]+)\003)/is".BX_UTF_PCRE_MODIFIER, $text, $arMatches))
+				$text = preg_replace_callback("/\001([^\002]*)\002([^\001\002\003]+)\003/is".BX_UTF_PCRE_MODIFIER, array($this, "convert_spoiler_tag"), $text);
+			$text = preg_replace(
+				array("/\001([^\002]+)\002/",
+					"/\001\002/",
+					"/\003/"),
+				array("[spoiler\\1]",
+					"[spoiler]",
+					"[/spoiler]"),
+				$text);
+		}
 
 		foreach(GetModuleEvents("main", "TextParserBeforeTags", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$text, &$this));
@@ -438,7 +475,6 @@ class CTextParser
 		}
 
 		$text = $this->post_convert_anchor_tag($text);
-
 
 		if ($this->allow["EMOJI"] != "N")
 		{
@@ -682,6 +718,26 @@ class CTextParser
 			}
 		}
 
+		if (preg_match("/\[cut/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
+		{
+			$text = preg_replace(
+				array("/\[cut(([^\]])*)\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\[\/cut\]/is".BX_UTF_PCRE_MODIFIER),
+				array("\001\\1\002",
+					"\003"),
+				$text);
+			while (preg_match("/(\001([^\002]*)\002([^\001\002\003]+)\003)/ies".BX_UTF_PCRE_MODIFIER, $text, $arMatches))
+				$text = preg_replace("/(\001([^\002]*)\002([^\001\002\003]+)\003)/ies".BX_UTF_PCRE_MODIFIER, "\$this->convert_cut_tag('\\3', '\\2')", $text);
+			$text = preg_replace(
+				array("/\001([^\002]+)\002/",
+					"/\001\002/",
+					"/\003/"),
+				array("[cut\\1]",
+					"[cut]",
+					"[/cut]"),
+				$text);
+		}
+
 		if (strpos($text, "<nomodify>") !== false)
 		{
 			$text = preg_replace_callback(
@@ -749,17 +805,17 @@ class CTextParser
 		{
 			$text = str_replace(array("\r\n", "\n"), "<br />", $text);
 			$text = preg_replace(array(
-				"/\\<br \\/\\>(\\<\\/table[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<thead[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<\\/thead[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<tfoot[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<\\/tfoot[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<tbody[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<\\/tbody[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<tr[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<\\/tr[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<td[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
-				"/\\<br \\/\\>(\\<\\/td[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/table[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<thead[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/thead[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<tfoot[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/tfoot[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<tbody[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/tbody[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<tr[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/tr[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<td[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
+				"/\\<br \\/\\>[\\t\\s]*(\\<\\/td[^>]*\\>)/is".BX_UTF_PCRE_MODIFIER,
 			),
 			"\\1", $text);
 		}
@@ -903,6 +959,28 @@ class CTextParser
 		$text = preg_replace($arPattern, $arReplace, $text);
 
 		$text = str_replace("&shy;", "", $text);
+		if (preg_match("/\[cut(([^\]])*)\]/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
+		{
+			$text = preg_replace(
+				array("/\[cut(([^\]])*)\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\[\/cut\]/is".BX_UTF_PCRE_MODIFIER),
+				array("\001\\1\002",
+					"\003"),
+				$text);
+			while (preg_match("/(\001([^\002]*)\002([^\001\002\003]+)\003)/is".BX_UTF_PCRE_MODIFIER, $text, $arMatches))
+				$text = preg_replace(
+					"/(\001([^\002]*)\002([^\001\002\003]+)\003)/is".BX_UTF_PCRE_MODIFIER,
+					"\n>================== CUT ===================\n\\3\n>==========================================\n",
+					$text);
+			$text = preg_replace(
+				array("/\001([^\002]+)\002/",
+					"/\001\002/",
+					"/\003/"),
+				array("[cut\\1]",
+					"[cut]",
+					"[/cut]"),
+				$text);
+		}
 		$text = str_replace("&nbsp;", " ", $text);
 		$text = str_replace("&quot;", "\"", $text);
 		$text = str_replace("&#092;", "\\", $text);
@@ -1125,6 +1203,66 @@ class CTextParser
 		$text = str_replace("\\\"", "\"", $text);
 
 		return $this->convert_open_tag('quote').$text.$this->convert_close_tag('quote');
+	}
+
+	function convert_spoiler_tag($text, $title="")
+	{
+		if (is_array($text))
+		{
+			$title = $text[1];
+			$text = $text[2];
+		}
+
+		if (empty($text))
+		{
+			return "";
+		}
+
+		$title = htmlspecialcharsbx(trim(htmlspecialcharsback($title), " =\"\\'"));
+		if ($this->type == "mail")
+		{
+			return "<dl><dt>".($title ?: Loc::getMessage("MAIN_TEXTPARSER_SPOILER"))."</dt><dd>".htmlspecialcharsbx($text)."</dd></dl>";
+		}
+
+		return self::renderSpoiler($text, $title);
+	}
+
+	function convert_cut_tag($text, $title="")
+	{
+		if (empty($text))
+		{
+			return "";
+		}
+
+		$title = trim($title);
+		$title = ltrim($title, "=");
+		$title = trim($title);
+
+		return self::renderSpoiler($text, $title);
+	}
+
+	function renderSpoiler($text, $title="")
+	{
+		$title = (empty($title) ? Loc::getMessage("MAIN_TEXTPARSER_HIDDEN_TEXT") : $title);
+
+		ob_start();
+
+		?><table class="forum-spoiler"><?
+			?><thead onclick="if(this.nextSibling.style.display=='none') { this.nextSibling.style.display=''; BX.addClass(this, 'forum-spoiler-head-open'); } else { this.nextSibling.style.display='none'; BX.removeClass(this, 'forum-spoiler-head-open'); } BX.onCustomEvent('BX.Forum.Spoiler:toggle', [{node: this}]);"><?
+				?><tr><?
+					?><th><?
+						?><div><?=htmlspecialcharsbx($title)?></div><?
+					?></th><?
+				?></tr><?
+			?></thead><?
+			?><tbody class="forum-spoiler" style="display:none;"><?
+				?><tr><?
+					?><td><?=$text?></td><?
+				?></tr><?
+			?></tbody><?
+		?></table><?
+
+		return ob_get_clean();
 	}
 
 	function convert_open_tag($marker = "quote")
@@ -1404,13 +1542,7 @@ class CTextParser
 		$userId = (!empty($fields['USER_ID']) ? $fields['USER_ID'] : '');
 		$userName = (!empty($fields['USER_NAME']) ? $fields['USER_NAME'] : '');
 
-		$res = (
-			!$this->bPublic
-				? '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.(!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="'.htmlspecialcharsbx($fields['TOOLTIP_PARAMS']).'"' : '').'>'.$userName.'</a>'
-				: $userName
-		);
-
-		return $res;
+		return '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.(!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="'.htmlspecialcharsbx($fields['TOOLTIP_PARAMS']).'"' : '').'>'.$userName.'</a>';
 	}
 
 	public function getTagPattern()

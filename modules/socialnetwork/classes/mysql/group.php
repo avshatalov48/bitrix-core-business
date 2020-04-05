@@ -501,6 +501,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			"PROJECT" => Array("FIELD" => "G.PROJECT", "TYPE" => "string"),
 			"PROJECT_DATE_START" => Array("FIELD" => "G.PROJECT_DATE_START", "TYPE" => "datetime"),
 			"PROJECT_DATE_FINISH" => Array("FIELD" => "G.PROJECT_DATE_FINISH", "TYPE" => "datetime"),
+			"LANDING" => Array("FIELD" => "G.LANDING", "TYPE" => "string"),
 		);
 
 		if (array_key_exists("SITE_ID", $arFilter))

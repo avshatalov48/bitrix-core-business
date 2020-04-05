@@ -5,6 +5,9 @@ return [
 			'namespaces' => [
 				'\\Bitrix\\SocialNetwork\\Controller' => 'api',
 			],
+			'restIntegration' => [
+				'enabled' => true
+			],
 		],
 		'readonly' => true,
 	],

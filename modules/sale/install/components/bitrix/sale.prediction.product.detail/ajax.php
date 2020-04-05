@@ -21,8 +21,15 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 
 $signer = new \Bitrix\Main\Security\Sign\Signer;
 
-$parameters = $signer->unsign($_POST['parameters'], 'bx.sale.prediction.product.detail');
-$template = $signer->unsign($_POST['template'], 'bx.sale.prediction.product.detail');
+try
+{
+	$parameters = $signer->unsign($_POST['parameters'], 'bx.sale.prediction.product.detail');
+	$template = $signer->unsign($_POST['template'], 'bx.sale.prediction.product.detail');
+}
+catch (\Bitrix\Main\Security\Sign\BadSignatureException $e)
+{
+	die;
+}
 
 $APPLICATION->IncludeComponent(
 	"bitrix:sale.prediction.product.detail",

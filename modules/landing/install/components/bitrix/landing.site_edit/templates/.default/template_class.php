@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Components\LandingEdit;
 
+use \Bitrix\Main\Localization\Loc;
+
 class Template
 {
 	/**
@@ -39,8 +41,9 @@ class Template
 				// use-checkbox
 				if (isset($pageFields[$code . '_USE']))
 				{
+					$type = $pageFields[$code . '_USE']->getType();
 					$pageFields[$code . '_USE']->viewForm(array(
-						'class' => 'ui-checkbox',
+					  	'class' => self::getCssByType($type),
 						'id' => 'checkbox-' . strtolower($code) . '-use',
 						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 					));
@@ -56,6 +59,25 @@ class Template
 							<?= $pageFields[$code . '_USE']->getLabel();?>
 						</label>
 					<?
+					if ($hooks[$code]->isLocked())
+					{
+						?>
+						<span class="landing-icon-lock"></span>
+						<script type="text/javascript">
+							BX.ready(function()
+							{
+								if (typeof BX.Landing.PaymentAlert !== 'undefined')
+								{
+									BX.Landing.PaymentAlert({
+										nodes: [BX('<?= 'checkbox-' . strtolower($code) . '-use';?>')],
+										title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
+										message: '<?= \CUtil::jsEscape($hooks[$code]->getLockedMessage());?>'
+									});
+								}
+							});
+						</script>
+						<?
+					}
 					unset($pageFields[$code . '_USE']);
 				}
 
@@ -63,21 +85,21 @@ class Template
 				foreach ($pageFields as $key => $field)
 				{
 					$type = $field->getType();
-					echo '<div class="ui-checkbox-hidden-input-metrika">';
+					echo '<div class="ui-checkbox-hidden-input-hook">';
 					echo $field->viewForm(array(
 						'id' => 'field-' . strtolower($key) . '-use',
-						'class' => ($type == 'checkbox') ? 'ui-checkbox' : 'ui-input',
+						'class' => self::getCssByType($type),
 						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 					));
-					if ($help  = $field->getHelpValue())
-					{
-						echo $help;
-					}
 					if ($type == 'checkbox')
 					{
 						echo '<label for="field-' . strtolower($key) . '-use">' .
 								$field->getLabel() .
 							'</label>';
+					}
+					if ($help  = $field->getHelpValue())
+					{
+						echo '<div class="ui-checkbox-hidden-input-hook-help">' . $help . '</div>';
 					}
 					echo '</div>';
 				}
@@ -151,7 +173,9 @@ class Template
 							imageField.layout.addEventListener('input', function()
 							{
 								var img = imageField.getValue();
-								imageFieldInput.value = parseInt(img.id) > 0 ? img.id : '';
+								imageFieldInput.value = parseInt(img.id) > 0
+													? img.id
+													: img.src;
 							});
 						}
 						<?if (isset($params['imgEditId'])):?>

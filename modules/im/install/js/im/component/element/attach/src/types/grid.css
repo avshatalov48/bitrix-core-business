@@ -1,0 +1,58 @@
+.bx-im-element-attach-type-display-block {
+	max-width: 100%;
+}
+
+.bx-im-element-attach-type-display-block .bx-im-element-attach-type-grid-element-name {
+	font-weight: bold;
+}
+
+.bx-im-element-attach-type-display-block + .bx-im-element-attach-type-display-block {
+	margin-top: 5px;
+}
+
+.bx-im-element-attach-type-grid-element-value-link {
+	cursor: pointer;
+	color: #1d54a2;
+}
+.bx-im-element-attach-type-grid-element-value-link:hover {
+	text-decoration: underline;
+}
+
+.bx-im-element-attach-type-display-column-table {
+	border-collapse: unset;
+	border-spacing: unset;
+}
+
+.bx-im-element-attach-type-display-column-table .bx-im-element-attach-type-grid-element-name {
+	font-weight: bold;
+	line-height: 20px;
+	vertical-align: top;
+	padding-right: 10px;
+	text-align: left;
+	min-width: 50px;
+}
+.bx-im-element-attach-type-display-column-table .bx-im-element-attach-type-grid-element-value {
+	vertical-align: top;
+	line-height: 21px;
+}
+
+.bx-im-element-attach-type-display-table {
+	overflow: auto;
+	max-width: 100%;
+	max-height: 250px;
+}
+
+.bx-im-element-attach-type-display-card {
+	display: inline-block;
+	padding-right: 10px;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.bx-im-element-attach-type-display-card .bx-im-element-attach-type-grid-element-name {
+	font-weight: bold;
+}
+
+.bx-im-element-attach-type-display-card + .bx-im-element-attach-type-display-card {
+
+}

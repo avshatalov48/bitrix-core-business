@@ -33,11 +33,12 @@ $arParams["SOCNET_GROUP_ID"] = IntVal($arParams["SOCNET_GROUP_ID"]);
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 $arResult["bTasksAvailable"] = (
 	(!isset($arParams["bPublicPage"]) || !$arParams["bPublicPage"])
-	&& IsModuleInstalled("tasks")
+	&& ModuleManager::isModuleInstalled("tasks")
 	&& (
-		!CModule::IncludeModule('bitrix24')
+		!Loader::includeModule('bitrix24')
 		|| CBitrix24BusinessTools::isToolAvailable($USER->GetID(), "tasks")
 	)
+	&& CSocNetFeaturesPerms::CurrentUserCanPerformOperation(SONET_ENTITY_USER, $USER->getId(), "tasks", "create_tasks")
 );
 
 $arParams["ID"] = trim($arParams["ID"]);

@@ -124,7 +124,8 @@ BX.adminSubList.prototype.ExecuteFormAction = function(id)
 		bAttr,
 		cutname,
 		j,
-		multiCheck;
+		multiCheck,
+		actions;
 
 	if (!!id && !!this[id] && typeof this[id] === 'object')
 	{
@@ -153,6 +154,20 @@ BX.adminSubList.prototype.ExecuteFormAction = function(id)
 						reqdata.SUB_ID[reqdata.SUB_ID.length] = obj[i].value;
 					}
 				}
+
+				if (BX.type.isElementNode(this.FOOTER))
+				{
+					actions = BX.findChild(this.FOOTER, { attr: {'data-action-item' : 'Y'} }, true, true);
+					if (BX.type.isArray(actions))
+					{
+						for (i = 0; i < actions.length; i++)
+						{
+							reqdata[actions[i].name] = actions[i].value;
+						}
+					}
+					actions = null;
+				}
+
 				reqdata.action_button = this.ACTION_VALUE_BUTTON.value;
 				reqdata.sessid = BX('sessid').value;
 				boolSend = true;
@@ -277,6 +292,8 @@ BX.adminSubList.prototype.Init = function()
 
 	BX.bind(this.ACTION_SELECTOR, 'change', BX.proxy(this.UpdateCheckboxCounter, this));
 	BX.bind(this.ACTION_TARGET, 'click', BX.proxy(this.UpdateCheckboxCounter, this));
+
+	BX.bindDelegate(this.FOOTER, 'change', { tagName: 'select', attr: {'data-use-actions' : 'Y'} }, BX.proxy(this.CheckGroupActions, this));
 
 	if (!!this.TABLE && this.TABLE.tBodies[0] && this.TABLE.tBodies[0].rows.length > 0)
 	{
@@ -471,5 +488,33 @@ BX.adminSubList.prototype.DeleteSettings = function(bCommon)
 BX.adminSubList.ShowMenu = function(el, menu, el_row)
 {
 	BX.adminList.ShowMenu.apply(this,[ el, menu, el_row]);
+};
+
+BX.adminSubList.prototype.CheckGroupActions = function()
+{
+	var target = BX.proxy_context,
+		data,
+		list,
+		i,
+		block;
+
+	if (!target.hasAttribute('data-actions'))
+		return;
+	data = target.getAttribute('data-actions');
+	if (!BX.type.isNotEmptyString(data))
+		return;
+	list = JSON.parse(data);
+	for (i = 0; i < list.length; i++)
+	{
+		block = BX(list[i].BLOCK);
+		if (BX.type.isElementNode(block))
+		{
+			block.style.display = (target.value === list[i].VALUE ? 'inline-block' : 'none');
+		}
+		block = null;
+	}
+	list = null;
+	data = null;
+	target = null;
 };
 })(window);

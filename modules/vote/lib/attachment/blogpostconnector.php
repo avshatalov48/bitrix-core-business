@@ -18,7 +18,7 @@ final class BlogPostConnector extends Connector
 		if (array_key_exists($entityId, self::$posts))
 			return self::$posts[$entityId];
 		$cacheTtl = 2592000;
-		$cacheId = 'blog_post_socnet_general_' . $entityId . '_' . LANGUAGE_ID;
+		$cacheId = 'blog_post_socnet_general_' . $entityId . '_' . LANGUAGE_ID . '_voteconnector';
 		$timezoneOffset = \CTimeZone::getOffset();
 		if($timezoneOffset != 0)
 		{

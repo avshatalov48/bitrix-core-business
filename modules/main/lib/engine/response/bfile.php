@@ -30,7 +30,7 @@ class BFile extends File
 		$file = \CFile::getFileArray($fileId);
 		if (!$file)
 		{
-			throw new Main\ObjectNotFoundException("Could not find file");
+			throw new Main\ObjectNotFoundException("Could not find file ({$fileId})");
 		}
 
 		return new self($file, $name);
@@ -50,5 +50,15 @@ class BFile extends File
 	protected function prepareFile()
 	{
 		return $this->getFile();
+	}
+
+	protected function prepareOptions()
+	{
+		return [
+			'force_download' => !$this->isShowInline(),
+			'cache_time' => $this->getCacheTime(),
+			'attachment_name' => $this->getName(),
+			'content_type' => $this->getContentType(),
+		];
 	}
 }

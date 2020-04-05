@@ -2999,6 +2999,10 @@
 
 		GetValue: function()
 		{
+		},
+
+		OnPopupClose: function()
+		{
 		}
 	};
 

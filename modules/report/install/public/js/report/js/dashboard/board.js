@@ -382,8 +382,6 @@
 			this.setDesignerMode(this.isDesignerMode());
 			var rowFragment = document.createDocumentFragment();
 
-
-
 			var rows = this.getRows();
 			BX.Report.Dashboard.Utils.forEach(rows, function (key)
 			{

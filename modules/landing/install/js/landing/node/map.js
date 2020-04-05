@@ -18,6 +18,7 @@
 	BX.Landing.Block.Node.Map = function(options)
 	{
 		BX.Landing.Block.Node.apply(this, arguments);
+		this.type = "map";
 		this.attribute = "data-map";
 		this.hidden = true;
 		this.map = new BX.Landing.Provider.Map.GoogleMap({

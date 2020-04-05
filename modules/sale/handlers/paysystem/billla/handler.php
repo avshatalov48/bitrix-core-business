@@ -32,8 +32,20 @@ class BillLaHandler extends BillHandler
 	public function getDemoParams()
 	{
 		$data = parent::getDemoParams();
+
+		$data['CURRENCY'] = 'EUR';
+		$data['BUYER_PERSON_COMPANY_PHONE'] = '+34 5799278';
+		$data['SELLER_COMPANY_PHONE'] = '+34 5799218';
 		$data['BILLLA_COMMENT1'] = Loc::getMessage('SALE_HPS_BILL_LA_COMMENT');
 		$data['BILLLA_COMMENT2'] = Loc::getMessage('SALE_HPS_BILL_LA_COMMENT_ADD');
+		$data['SELLER_COMPANY_BANK_CITY'] = Loc::getMessage('SALE_HPS_BILL_LA_BANK_CITY');
+		$data['SELLER_COMPANY_ADDRESS'] = Loc::getMessage('SALE_HPS_BILL_LA_BANK_ADDRESS');
+		$data['BUYER_PERSON_COMPANY_ADDRESS'] = Loc::getMessage('SALE_HPS_BILL_LA_BUYER_COMPANY_ADDRESS');
+
+		foreach ($data['BASKET_ITEMS'] as $i => $item)
+		{
+			$data['BASKET_ITEMS'][$i]['CURRENCY'] = 'EUR';
+		}
 
 		return $data;
 	}

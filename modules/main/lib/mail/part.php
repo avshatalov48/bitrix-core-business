@@ -170,21 +170,26 @@ class Part
 		return $this->toString();
 	}
 
-	protected function splitBody($body)
+	protected function splitBody(&$body)
 	{
-		if($this->getHeader('Content-Transfer-Encoding') === 'base64')
+		if ($this->getHeader('Content-Transfer-Encoding') === 'base64')
 		{
-			// Line length is 70 chars. As a recommended in mail() php documentation.
-			return rtrim(chunk_split(base64_encode($body), 70));
+			return rtrim(chunk_split(base64_encode($body), 76, $this->eol));
+		}
+		elseif ($this->getHeader('Content-Transfer-Encoding') === 'quoted-printable')
+		{
+			return str_replace(
+				$this->eol !== "\r\n" ? "=\r\n" : '',
+				'=' . $this->eol,
+				quoted_printable_encode($body)
+			);
 		}
 		else
 		{
-			//Some MTA has 4K limit for fgets function. So we have to split the message body.
-			return implode(
-				"\n",
-				array_filter(
-					preg_split("/(.{512}[^ ]*[ ])/", $body . " ", -1, PREG_SPLIT_DELIM_CAPTURE)
-				)
+			return preg_replace(
+				'/(.{1,990})(?:\s|$)|(.{990})/S',
+				'$1$2' . $this->eol,
+				$body
 			);
 		}
 	}

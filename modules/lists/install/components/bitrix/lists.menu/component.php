@@ -27,7 +27,7 @@ if($this->StartResultCache(false, $arUserGroups))
 	{
 		//Find out if there is some groups to edit lists (so it's lists)
 		$arListsPerm = CLists::GetPermission($arParams["~IBLOCK_TYPE_ID"]);
-		if(count($arListsPerm) > 0)
+		if (is_array($arListsPerm) && count($arListsPerm) > 0)
 		{
 			$CACHE_MANAGER->StartTagCache($this->GetCachePath());
 			$CACHE_MANAGER->RegisterTag("lists_list_any");

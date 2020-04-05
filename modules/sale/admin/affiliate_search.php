@@ -12,7 +12,7 @@ $CATALOG_RIGHT = $APPLICATION->GetGroupRight("sale");
 if ($CATALOG_RIGHT == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+\Bitrix\Main\Loader::includeModule('sale');
 
 if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 {

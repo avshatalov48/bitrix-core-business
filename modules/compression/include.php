@@ -12,7 +12,7 @@ class CCompress
 	{
 		global $USER;
 
-		$canEditPHP = $USER->CanDoOperation('edit_php');
+		$canEditPHP = (is_object($USER) && $USER->CanDoOperation('edit_php'));
 		$bShowTime = isset($_SESSION["SESS_SHOW_TIME_EXEC"]) && ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
 		$bShowStat = ($GLOBALS["DB"]->ShowSqlStat && ($canEditPHP || $_SESSION["SHOW_SQL_STAT"]=="Y"));
 		$bShowCacheStat = (\Bitrix\Main\Data\Cache::getShowCacheStat() && ($canEditPHP || $_SESSION["SHOW_CACHE_STAT"]=="Y"));

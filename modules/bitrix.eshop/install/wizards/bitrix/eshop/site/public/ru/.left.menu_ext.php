@@ -21,7 +21,7 @@ if(CModule::IncludeModule('iblock'))
 
 		if($arIBlock["ACTIVE"] == "Y")
 		{
-			$aMenuLinksExt = $APPLICATION->IncludeComponent("bitrix:menu.sections", "", array(
+			$aMenuLinksExt = $APPLICATION->IncludeComponent("bitrix:menu.sections", "bootstrap_v4", array(
 				"IS_SEF" => "Y",
 				"SEF_BASE_URL" => "",
 				"SECTION_PAGE_URL" => $arIBlock['SECTION_PAGE_URL'],

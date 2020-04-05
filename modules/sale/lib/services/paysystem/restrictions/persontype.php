@@ -82,7 +82,7 @@ class PersonType extends Base\Restriction
 	{
 		$personTypeList = array();
 
-		$dbRes = PersonTypeTable::getList();
+		$dbRes = \Bitrix\Sale\PersonType::getList();
 
 		while ($personType = $dbRes->fetch())
 			$personTypeList[$personType["ID"]] = $personType["NAME"]." (".$personType["ID"].")";

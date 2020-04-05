@@ -70,22 +70,21 @@ else
 {
 	$cashboxData = Internals\CashboxTable::getList(
 		array(
-			'limit' => 1,
 			'filter' => array('USE_OFFLINE' => 'N', '%HANDLER' => '\\Bitrix\\Sale\\Cashbox\\CashboxBitrix')
 		)
 	);
 }
 
-$cashboxList = $cashboxData->fetch();
+$cashboxList = $cashboxData->fetchAll();
 
 if (empty($filter["CASHBOX_ID"]))
 {
-	$filter["CASHBOX_ID"] = (int)$cashboxList['ID'];
+	$filter["CASHBOX_ID"] = array_column($cashboxList, 'ID');
 }
 
 if (!empty($cashboxList))
 {
-	$cashboxId = $cashboxList['ID'];
+	$cashboxIds = array_column($cashboxList, 'ID');
 
 	$today = new Date();
 
@@ -95,7 +94,7 @@ if (!empty($cashboxList))
 			'filter' => array(
 				'PAYMENT.PAY_SYSTEM.IS_CASH' => 'N',
 				'>DATE_CREATE' => $today,
-				'CASHBOX_ID' => $cashboxId
+				'CASHBOX_ID' => $cashboxIds
 			),
 			'group' => array('TYPE'),
 			'runtime' => array(
@@ -130,7 +129,7 @@ if (!empty($cashboxList))
 			'filter' => array(
 				'PAYMENT.PAY_SYSTEM.IS_CASH' => 'Y',
 				'>DATE_CREATE' => $today,
-				'CASHBOX_ID' => $cashboxId
+				'CASHBOX_ID' => $cashboxIds
 			),
 			'group' => array('TYPE'),
 			'runtime' => array(
@@ -160,19 +159,18 @@ if (!empty($cashboxList))
 		}
 	}
 
+	$blockData['CUMULATIVE_SUM'] = 0;
 	$zreportData = Internals\CashboxZReportTable::getList(
 		array(
-			'limit' => 1,
+			'limit' => count($cashboxIds),
 			'select' => array('CUMULATIVE_SUM', 'CURRENCY'),
-			'filter' => array('CASHBOX_ID' => $cashboxId),
+			'filter' => array('CASHBOX_ID' => $cashboxIds),
 			'order'=> array('DATE_CREATE' => 'DESC')
 		)
 	);
-	$data = $zreportData->fetch();
-
-	if ($data)
+	while ($data = $zreportData->fetch())
 	{
-		$blockData['CUMULATIVE_SUM'] = $data['CUMULATIVE_SUM'];
+		$blockData['CUMULATIVE_SUM'] += $data['CUMULATIVE_SUM'];
 		if (empty($blockData['CURRENCY']))
 		{
 			$blockData['CURRENCY'] = $data['CURRENCY'];

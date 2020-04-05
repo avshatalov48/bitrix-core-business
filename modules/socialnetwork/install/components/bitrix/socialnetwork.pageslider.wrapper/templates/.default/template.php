@@ -18,6 +18,7 @@ global $APPLICATION;
 		}
 	</script>
 	<?$APPLICATION->ShowHead();?>
+	<title><?$APPLICATION->ShowTitle()?></title>
 </head>
 <body class="sonet-slider-frame-popup template-<?= SITE_TEMPLATE_ID ?> <? $APPLICATION->ShowProperty('BodyClass'); ?>">
 	<div class="pagetitle-wrap">

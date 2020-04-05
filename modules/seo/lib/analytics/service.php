@@ -4,10 +4,9 @@ namespace Bitrix\Seo\Analytics;
 
 use Bitrix\Main\Loader;
 
-use Bitrix\Seo\Retargeting\IService;
-use Bitrix\Seo\Retargeting\AuthAdapter;
+use Bitrix\Seo\Retargeting;
 
-class Service implements IService
+class Service implements Retargeting\IService, Retargeting\IMultiClientService
 {
 	const GROUP = 'analytics';
 
@@ -19,6 +18,8 @@ class Service implements IService
 
 	/** @var array $errors Errors. */
 	protected static $errors = [];
+
+	protected $clientId;
 
 	/**
 	 * Get instance.
@@ -47,6 +48,16 @@ class Service implements IService
 	}
 
 	/**
+	 * Can use multiple clients.
+	 *
+	 * @return bool
+	 */
+	public static function canUseMultipleClients()
+	{
+		return true;
+	}
+
+	/**
 	 * @param string $type
 	 * @return string
 	 */
@@ -56,12 +67,14 @@ class Service implements IService
 	}
 
 	/**
-	 * @param string $type
+	 * Get account.
+	 *
+	 * @param string $type Type.
 	 * @return Account
 	 */
 	public static function getAccount($type)
 	{
-		return Account::create($type)->setService(static::getInstance());
+		return Account::create($type, null, static::getInstance());
 	}
 
 	/**
@@ -82,11 +95,11 @@ class Service implements IService
 	 * Get auth adapter.
 	 *
 	 * @param string $type Type.
-	 * @return AuthAdapter
+	 * @return Retargeting\AuthAdapter
 	 */
 	public static function getAuthAdapter($type)
 	{
-		return AuthAdapter::create($type)->setService(static::getInstance());
+		return Retargeting\AuthAdapter::create($type, static::getInstance());
 	}
 
 	/**
@@ -123,6 +136,7 @@ class Service implements IService
 				'AUTH_URL' => $authAdapter->getAuthUrl(),
 				'HAS_ACCOUNTS' => $account->hasAccounts(),
 				'PROFILE' => $account->getProfileCached(),
+				'CLIENTS' => static::getClientsProfiles($authAdapter)
 			);
 
 			// check if no profile, then may be auth was removed in service
@@ -151,7 +165,7 @@ class Service implements IService
 
 		$result = array();
 
-		$account = static::getInstance()->getAccount($type);
+		$account = static::getAccount($type);
 		$accountsResult = $account->getList();
 		if ($accountsResult->isSuccess())
 		{
@@ -214,5 +228,55 @@ class Service implements IService
 	public static function hasErrors()
 	{
 		return count(self::$errors) > 0;
+	}
+
+	/**
+	 * Get client id
+	 * @return string
+	 */
+	public function getClientId()
+	{
+		return $this->clientId;
+	}
+	/**
+	 * Set client id.
+	 * @param string $clientId Client id.
+	 * @return $this
+	 */
+	public function setClientId($clientId)
+	{
+		$this->clientId = $clientId;
+		return $this;
+	}
+
+	/**
+	 * Get client profiles.
+	 * @param Retargeting\AuthAdapter $authAdapter Auth adapter.
+	 * @return array
+	 */
+	public static function getClientsProfiles(Retargeting\AuthAdapter $authAdapter)
+	{
+		$type = $authAdapter->getType();
+		return array_values(array_filter(array_map(function ($item) use ($type) {
+			$service = new static();
+			$service->setClientId($item['proxy_client_id']);
+
+			$authAdapter = Retargeting\AuthAdapter::create($type)->setService($service);
+
+			$account = Account::create($type)->setService($service);
+			$account->getRequest()->setAuthAdapter($authAdapter);
+
+			$profile = $account->getProfileCached();
+			if ($profile)
+			{
+				return $profile;
+			}
+			else
+			{
+				// if no profile, then may be auth was removed in service
+				$authAdapter->removeAuth();
+				return null;
+			}
+		}, $authAdapter->getAuthorizedClientsList())));
 	}
 }

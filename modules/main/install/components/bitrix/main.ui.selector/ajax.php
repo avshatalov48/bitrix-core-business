@@ -67,10 +67,10 @@ class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Control
 			&& !empty($itemId)
 		)
 		{
-			\Bitrix\Main\FinderDestTable::merge(array(
-				"CONTEXT" => $context,
-				"CODE" => $itemId
-			));
+			\Bitrix\Main\UI\Selector\Entities::save([
+				'context' => $context,
+				'code' => $itemId
+			]);
 		}
 	}
 

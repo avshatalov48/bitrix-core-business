@@ -14,9 +14,9 @@ use \Bitrix\Main\Localization\Loc;
 $id = 'landing-agreement-popup';
 ?>
 
-<div class="landing-agreement-shadow">
+<div class="landing-popup-shadow" style="display: none;">
 	<div id="<?= $id;?>" style="display: none;">
-		<div class="landing-agreement-popup-content">
+		<div class="<?= $id;?>-content">
 			<form method="POST" action="<?= POST_FORM_ACTION_URI;?>" id="<?= $id;?>-form">
 				<input type="hidden" name="action" value="accept_agreement" />
 				<?= bitrix_sessid_post();?>
@@ -27,8 +27,11 @@ $id = 'landing-agreement-popup';
 </div>
 
 <script type="text/javascript">
-	BX.ready(function()
+	var landingAgreementPopup = function(params)
 	{
+		BX('<?= $id;?>').parentNode.style.display = 'block';
+		params = params || {};
+
 		var accept = false;
 		var oPopup = BX.PopupWindowManager.create('<?= $id;?>', null, {
 			content: BX('<?= $id;?>'),
@@ -38,7 +41,7 @@ $id = 'landing-agreement-popup';
 			draggable: true,
 			lightShadow: true,
 			overlay: true,
-			className: 'landing-agreement-popup-wrapper',
+			className: '<?= $id;?>-wrapper',
 			buttons: [
 				new BX.PopupWindowButton({
 					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACCEPT'));?>',
@@ -48,6 +51,10 @@ $id = 'landing-agreement-popup';
 						{
 							accept = true;
 							BX.PopupWindowManager.getCurrentPopup().close();
+							if (typeof params.success !== 'undefined')
+							{
+								params.success();
+							}
 							BX('<?= $id;?>-form').submit();
 						}
 					}
@@ -58,12 +65,12 @@ $id = 'landing-agreement-popup';
 				{
 					if (!accept)
 					{
-						top.window.location.href = '<?= \CUtil::jsEscape(SITE_DIR);?>';
+						top.window.location.href = '<?= \CUtil::jsEscape($arParams['SEF_FOLDER']);?>';
 					}
 				}
 			}
 		});
 		oPopup.setTitleBar('<?= \CUtil::jsEscape($arResult['AGREEMENT']['NAME']);?>');
 		oPopup.show();
-	});
+	};
 </script>

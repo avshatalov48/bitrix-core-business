@@ -69,7 +69,13 @@ class Basket
 		$context = array(
 			'SITE_ID' => $siteId,
 		);
-		$basket = Sale\Basket::loadItemsForFUser(Sale\Fuser::getId(), $siteId);
+
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$basket = $basketClass::loadItemsForFUser(Sale\Fuser::getId(), $siteId);
 
 		$options['CHECK_PERMISSIONS'] = 'Y';
 		$options['USE_MERGE'] = (isset($options['USE_MERGE']) && $options['USE_MERGE'] == 'N' ? 'N' : 'Y');
@@ -545,7 +551,7 @@ class Basket
 
 		if ($basketItem)
 		{
-			$fields['QUANTITY'] = $basketItem->getQuantity() + $quantity;
+			$fields['QUANTITY'] = $basketItem->isDelay() ? $quantity : $basketItem->getQuantity() + $quantity;
 		}
 		else
 		{

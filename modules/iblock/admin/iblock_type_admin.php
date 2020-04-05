@@ -65,7 +65,7 @@ if($USER->IsAdmin() && $lAdmin->EditAction()) // Save button was pressed
 }
 if($USER->IsAdmin() && ($arID = $lAdmin->GroupAction()))
 {
-	if($_REQUEST['action_target']=='selected')
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$rsData = CIBlockType::GetList($arOrder, $arFilter);
 		while($arRes = $rsData->Fetch())

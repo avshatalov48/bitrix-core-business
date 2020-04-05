@@ -96,9 +96,11 @@ class CBlogGroup extends CAllBlogGroup
 	function GetList($arOrder = Array("ID" => "DESC"), $arFilter = Array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
-
-		if (count($arSelectFields) <= 0)
+		
+		if (!is_array($arSelectFields) || count($arSelectFields) <= 0)
+		{
 			$arSelectFields = array("ID", "NAME", "SITE_ID");
+		}
 
 		// FIELDS -->
 		$arFields = array(

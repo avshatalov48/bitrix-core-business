@@ -1,0 +1,6 @@
+<?
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_OWNER_NOT_SET_EXCEPTION"] = "Не заданий елемент для прив'язки";
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_ADD_NAMES_EXCEPTION"] = "Помилка додавання імені сутності";
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_UPDATE_NAMES_EXCEPTION"] = "Помилка зміни імені сутності";
+$MESS["SALE_LOCATION_NAME_NAME_ENTITY_CANNOT_DELETE_NAMES_EXCEPTION"] = "Помилка видалення імені сутності";
+?>

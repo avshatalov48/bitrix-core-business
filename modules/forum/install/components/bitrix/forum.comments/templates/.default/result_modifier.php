@@ -30,7 +30,6 @@ $arResult["PUSH&PULL"] = false;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $post = array_merge($request->getQueryList()->toArray(), $request->getPostList()->toArray());
-$action = strtolower($post["comment_review"] == "Y" ? (strtolower($post['REVIEW_ACTION']) == "edit" ? "edit" : "add") : $post['REVIEW_ACTION']);
 
 if (!empty($arResult["MESSAGES"]))
 {
@@ -52,7 +51,7 @@ if (!empty($arResult["MESSAGES"]))
 	foreach ($arResult["MESSAGES"] as $key => $res)
 	{
 		$arResult["MESSAGES"][$key] = forumCommentsCommentWeb($res, $arParams, $arResult, $this->__component);
-		if (intval($arResult["RESULT"]) == intval($res["ID"]))
+		if (in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
 		{
 			if ($this->__component->prepareMobileData)
 			{
@@ -63,13 +62,13 @@ if (!empty($arResult["MESSAGES"]))
 					$this->__component
 				);
 			}
-			if (in_array($action, array('hide', 'show')))
+			if (in_array($arResult["ACTION"], array('hide', 'show')))
 			{
 				$action = "MODERATE";
 			}
 			else
 			{
-				$action = ($action == "edit" ? "EDIT" : "REPLY");
+				$action = ($arResult["ACTION"] == "edit" ? "EDIT" : "REPLY");
 			}
 
 			$arResult["PUSH&PULL"] = array(
@@ -79,7 +78,7 @@ if (!empty($arResult["MESSAGES"]))
 		}
 	}
 }
-if ($action == "del" && $arResult["RESULT"] > 0)
+if ($arResult["ACTION"] == "del" && $arResult["RESULT"] > 0)
 {
 	$arResult["PUSH&PULL"] = array(
 		"ID" => $arResult["RESULT"],

@@ -5,6 +5,14 @@
 	BX.Report.VC.Core = {
 		entryUrl: '/bitrix/services/main/ajax.php',
 		moduleName: 'report',
+		currentRunningAjaxRequests: [],
+		abortAllRunningRequests: function()
+		{
+			for (var i = 0; i < this.currentRunningAjaxRequests.length; i++)
+			{
+				this.currentRunningAjaxRequests[i].abort();
+			}
+		},
 		ajaxGet: function (action, config, module)
 		{
 			if (module === undefined)
@@ -13,19 +21,45 @@
 			}
 			BX.ajax.runAction(module + '.api.' + action, {
 				data: config.urlParams || {},
-				onrequeststart: config.onrequeststart || null
+				onrequeststart: function(xhr) {
+					this.currentRunningAjaxRequests.push(xhr);
+					if (BX.type.isFunction(config.onrequeststart))
+					{
+						config.onrequeststart(xhr);
+					}
+				}.bind(this)
 			}).then(function (result) {
 				this._successHandler(result, config)
-			}.bind(this));
+			}.bind(this)).catch(function(response) {
+				if(response.errors)
+				{
+					console.error(response.errors.map(function(er){return er.message}).join("\n"));
+				}
+				else
+				{
+					console.error(response);
+				}
+			});
 		},
 		ajaxPost: function (action, config)
 		{
 			BX.ajax.runAction('report.api.' + action, {
 				data: config.data || {},
-				onrequeststart: config.onrequeststart || null
+				analyticsLabel: config.analyticsLabel || undefined,
+				onrequeststart: function(xhr) {
+					this.currentRunningAjaxRequests.push(xhr);
+					if (BX.type.isFunction(config.onrequeststart))
+					{
+						config.onrequeststart(xhr);
+					}
+				}.bind(this)
 			}).then(function (result) {
 				this._successHandler(result, config)
-			}.bind(this));
+			}.bind(this)).catch(function(response) {
+				var errors = response.errors;
+
+				console.error(errors.map(function(er){return er.message}).join("\n"));
+			});
 
 		},
 		ajaxSubmit: function (form, config)
@@ -36,111 +70,58 @@
 				data: config.data || {}
 			}).then(function (result) {
 				config.onsuccess(result);
+			}).catch(function(response) {
+				var errors = response.errors;
+
+				console.error(errors.map(function(er){return er.message}).join("\n"));
 			});
 
 		},
 		_successHandler: function(result, config)
 		{
-			if (result.assets)
-			{
-				if (result.assets['css'].length)
-				{
-					BX.load(result.assets['css'], function ()
-					{
-						if (result.assets['js'].length)
-						{
-							BX.load(result.assets['js'], function ()
-							{
-								if (result.assets['string'].length)
-								{
-									for (var i = 0; i < result.assets['string'].length; i++)
-									{
-										BX.html(null, result.assets['string'][i]);
-									}
-									config.onFullSuccess(result);
-								}
-								else
-								{
-									config.onFullSuccess(result);
-								}
-							});
-						}
-						else
-						{
-							if (result.assets['string'].length)
-							{
-								if (result.assets['string'].length)
-								{
-									for (var i = 0; i < result.assets['string'].length; i++)
-									{
-										BX.html(null, result.assets['string'][i]);
-									}
-									config.onFullSuccess(result);
-								}
-								else
-								{
-									config.onFullSuccess(result);
-								}
-							}
-							else
-							{
-								config.onFullSuccess(result);
-							}
-						}
-					});
-				}
-				else if (result.assets['js'].length)
-				{
-					BX.load(result.assets['js'], function ()
-					{
-						if (result.assets['string'].length)
-						{
-							if (result.assets['string'].length)
-							{
-								for (var i = 0; i < result.assets['string'].length; i++)
-								{
-									BX.html(null, result.assets['string'][i]);
-								}
-								config.onFullSuccess(result);
-							}
-							else
-							{
-								config.onFullSuccess(result);
-							}
-						}
-						else
-						{
-							config.onFullSuccess(result);
-						}
-					});
-				}
-				else
-				{
-					if (result.assets['string'].length)
-					{
-						if (result.assets['string'].length)
-						{
-							for (var i = 0; i < result.assets['string'].length; i++)
-							{
-								BX.html(null, result.assets['string'][i]);
-							}
-							config.onFullSuccess(result);
-						}
-						else
-						{
-							config.onFullSuccess(result);
-						}
-					}
-					else
-					{
-						config.onFullSuccess(result);
-					}
-				}
-			}
-			else
+			if (!result.assets)
 			{
 				config.onFullSuccess(result);
+				return;
 			}
+
+			this.loadAssets(result.assets).then(function ()
+			{
+				if (!BX.type.isArray(result.assets['string']))
+				{
+					config.onFullSuccess(result);
+					return;
+				}
+
+				for (var i = 0; i < result.assets['string'].length; i++)
+				{
+					BX.html(null, result.assets['string'][i]);
+				}
+				config.onFullSuccess(result);
+			});
+		},
+		loadAssets: function(assets)
+		{
+			if(!assets)
+			{
+				assets = {};
+			}
+			if(!assets['js'])
+			{
+				assets['js'] = [];
+			}
+			if(!assets['css'])
+			{
+				assets['css'] = [];
+			}
+			return new Promise(function(resolve)
+			{
+				BX.load(assets['css'], function() {
+					BX.load(assets['js'], function () {
+						resolve();
+					})
+				})
+			});
 		},
 		loadJsStings: function(strings, callback)
 		{
@@ -190,6 +171,27 @@
 			}
 
 			return classFn;
+		},
+		getFunction: function (functionName)
+		{
+			if (!BX.type.isNotEmptyString(functionName))
+			{
+				return null;
+			}
+
+			var currentObject = window;
+			var nameParts = functionName.split(".");
+			for (var i = 0; i < nameParts.length - 1; i++)
+			{
+				if (!currentObject[nameParts[i]])
+				{
+					return null;
+				}
+
+				currentObject = currentObject[nameParts[i]];
+			}
+
+			return currentObject[nameParts[nameParts.length - 1]] ? currentObject[nameParts[nameParts.length - 1]].bind(currentObject) : functionName;
 		}
 	};
 

@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Sender;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Sale;
 
 if (!Loader::includeModule('sender'))
 {
@@ -85,7 +86,11 @@ class TriggerOrderCancel extends \Bitrix\Sender\TriggerConnector
 		if ((int)$eventData[0] <= 0)
 			return $result;
 
-		$order = \Bitrix\Sale\Order::load($eventData[0]);
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::load($eventData[0]);
 		if ($order)
 		{
 			$result = [

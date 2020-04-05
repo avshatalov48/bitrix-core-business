@@ -2,20 +2,29 @@
 
 namespace Sale\Handlers\PaySystem;
 
+use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Request;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PriceMaths;
 
+/**
+ * Class LiqPayHandler
+ * @package Sale\Handlers\PaySystem
+ */
 class LiqPayHandler extends PaySystem\ServiceHandler
 {
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
 	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 */
 	public function initiatePay(Payment $payment, Request $request = null)
 	{
@@ -29,7 +38,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 			<order_id>PAYMENT_".$busValues['PAYMENT_ID']."</order_id>
 			<amount>".$busValues["PAYMENT_SHOULD_PAY"]."</amount>
 			<currency>".$busValues['PAYMENT_CURRENCY']."</currency>
-			<description>".Loc::getMessage('SALE_HPS_LIQPAY_PARAM_DESCR', array('#PAYMENT_ID#' => $busValues['PAYMENT_ID']))."</description>
+			<description>".$this->getPaymentDescription($payment)."</description>
 			<default_phone>".$busValues['BUYER_PERSON_PHONE']."</default_phone>
 			<pay_way>".$busValues['LIQPAY_PAY_METHOD']."</pay_way>
 			</request>";
@@ -234,5 +243,38 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 			$operationXml = base64_decode($request->get('operation_xml'));
 
 		return $operationXml;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return string
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
+	 */
+	private function getPaymentDescription(Payment $payment)
+	{
+		/** @var PaymentCollection $collection */
+		$collection = $payment->getCollection();
+		$order = $collection->getOrder();
+		$userEmail = $order->getPropertyCollection()->getUserEmail();
+
+		return str_replace(
+			[
+				'#PAYMENT_NUMBER#',
+				'#ORDER_NUMBER#',
+				'#PAYMENT_ID#',
+				'#ORDER_ID#',
+				'#USER_EMAIL#'
+			],
+			[
+				$payment->getField('ACCOUNT_NUMBER'),
+				$order->getField('ACCOUNT_NUMBER'),
+				$payment->getId(),
+				$order->getId(),
+				($userEmail) ? $userEmail->getValue() : ''
+			],
+			$this->getBusinessValue($payment, 'LIQPAY_PAYMENT_DESCRIPTION')
+		);
 	}
 }

@@ -57,9 +57,23 @@ $arParams["SAVE_IN_SESSION"] = $arParams["SAVE_IN_SESSION"]=="Y";
 if(strlen($arParams["FILTER_NAME"])<=0|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 	$arParams["FILTER_NAME"] = "arrFilter";
 $FILTER_NAME = $arParams["FILTER_NAME"];
+$arParams["PREFILTER_NAME"] = (isset($arParams["PREFILTER_NAME"]) ? (string)$arParams["PREFILTER_NAME"] : '');
+if(
+	$arParams["PREFILTER_NAME"] == ''
+	|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PREFILTER_NAME"])
+)
+{
+	$arParams["PREFILTER_NAME"] = "preFilter";
+}
+$PREFILTER_NAME = $arParams["PREFILTER_NAME"];
 
 global ${$FILTER_NAME};
 ${$FILTER_NAME} = array();
+
+global ${$PREFILTER_NAME};
+$preFilter = ${$PREFILTER_NAME};
+if (!is_array($preFilter))
+	$preFilter = array();
 
 $arParams["NUMBER_WIDTH"] = intval($arParams["NUMBER_WIDTH"]);
 if($arParams["NUMBER_WIDTH"]<=0)
@@ -332,7 +346,7 @@ if ($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USE
 			{
 				$arTemp['LIST_TYPE'] = $arProp['LIST_TYPE'];
 				$arrEnum = array();
-				$rsEnum = CIBlockProperty::GetPropertyEnum($arProp["ID"]);
+				$rsEnum = CIBlockProperty::GetPropertyEnum($arProp["ID"], ['SORT' => 'ASC', 'VALUE' => 'ASC', 'ID' => 'ASC']);
 				while($arEnum = $rsEnum->Fetch())
 				{
 					$arrEnum[$arEnum["ID"]] = $arEnum["VALUE"];
@@ -364,7 +378,7 @@ if ($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USE
 					{
 						$arTemp['LIST_TYPE'] = $arProp['LIST_TYPE'];
 						$arrEnum = array();
-						$rsEnum = CIBlockProperty::GetPropertyEnum($arProp["ID"]);
+						$rsEnum = CIBlockProperty::GetPropertyEnum($arProp["ID"], ['SORT' => 'ASC', 'VALUE' => 'ASC', 'ID' => 'ASC']);
 						while($arEnum = $rsEnum->Fetch())
 						{
 							$arrEnum[$arEnum["ID"]] = $arEnum["VALUE"];
@@ -665,6 +679,7 @@ foreach($arResult["arrProp"] as $prop_id => $arProp)
 			"INPUT_VALUES" => is_array($values)? array_map("htmlspecialcharsbx", $values): htmlspecialcharsbx($values),
 			"~INPUT_VALUES" => $values,
 			"LIST" => $list,
+			"MULTIPLE" => $arProp["MULTIPLE"]
 		);
 	}
 }
@@ -964,6 +979,9 @@ foreach($arResult["arrPrice"] as $price_code => $arPrice)
 
 }
 
+if (!empty($preFilter))
+	${$FILTER_NAME} = array_merge($preFilter, ${$FILTER_NAME});
+
 if (
 	!empty($arParams["PAGER_PARAMS_NAME"])
 	&& preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["PAGER_PARAMS_NAME"])
@@ -1044,4 +1062,3 @@ foreach(array_merge($_GET, $_POST) as $key=>$value)
 }
 
 $this->IncludeComponentTemplate();
-?>

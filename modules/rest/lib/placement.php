@@ -66,6 +66,9 @@ class PlacementTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 			),
+			'GROUP_NAME' => array(
+				'data_type' => 'string',
+			),
 			'TITLE' => array(
 				'data_type' => 'string',
 			),
@@ -100,7 +103,7 @@ class PlacementTable extends Main\Entity\DataManager
 				'=REST_APP.ACTIVE' => AppTable::ACTIVE,
 			),
 			'select' => array(
-				'ID', 'TITLE', 'COMMENT', 'APP_ID', 'ADDITIONAL',
+				'ID', 'TITLE', 'GROUP_NAME', 'COMMENT', 'APP_ID', 'ADDITIONAL',
 				'INSTALLED' => 'REST_APP.INSTALLED',
 				'APP_NAME' => 'REST_APP.APP_NAME',
 				'APP_ACCESS' => 'REST_APP.ACCESS',

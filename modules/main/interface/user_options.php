@@ -9,6 +9,7 @@
 define("NO_KEEP_STATISTIC", true);
 define("NO_AGENT_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
+define("BX_SECURITY_SESSION_READONLY", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 if($USER->IsAuthorized() && check_bitrix_sessid())

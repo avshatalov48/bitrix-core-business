@@ -339,7 +339,10 @@
 
 		if(nodeList.length <= 0)
 		{
-			console.error('Unable to find field ' + field + ' in the registered node');
+			if (!BX.util.in_array(fieldStack[field].FIELD.USER_TYPE_ID, [ 'crm', 'employee' ]))
+			{
+				console.error('Unable to find field ' + field + ' in the registered node');
+			}
 		}
 		else
 		{

@@ -6,6 +6,7 @@
 BX.Sale.Admin.ShipmentBasket = function (params)
 {
 	this.products = params.products;
+	this.useStoreControl = params.useStoreControl || false;
 	BX.Sale.Admin.OrderBasketEdit.apply(this, arguments);
 
 	if (Object.keys(this.products).length == 0)
@@ -320,94 +321,14 @@ BX.Sale.Admin.ShipmentBasket.prototype.createProductCell = function(basketCode, 
 			break;
 
 		case "BARCODE":
-			if (!!product.BARCODE_INFO && Object.keys(product.BARCODE_INFO).length > 0)
+			if (!!product.BARCODE_INFO && Object.keys(product.BARCODE_INFO).length > 0
+			&& (this.useStoreControl || this.isProductSupportedMarkingCode(product)))
 			{
-				for (i in product.BARCODE_INFO)
+				var count = Object.keys(product.BARCODE_INFO).length;
+
+				for(var c = 1; c <= count; c++)
 				{
-					if (!product.BARCODE_INFO.hasOwnProperty(i))
-						continue;
-					if (product.BARCODE_MULTI == 'Y')
-					{
-						span = BX.create('span', {
-								text : BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE'),
-								style : {
-									'cursor': 'pointer',
-									'border-bottom' : '1px dashed'
-								}
-							});
-
-						var barcodeWrapper = BX.create('div');
-
-						var clearMsg = true;
-						for (var j in product.BARCODE_INFO[i])
-						{
-							if (!product.BARCODE_INFO[i].hasOwnProperty(j))
-								continue;
-
-							if (product.BARCODE_INFO[i][j].BARCODE == '')
-								continue;
-
-							clearMsg = false;
-							var div = BX.create('div',
-								{
-									props: {
-										className: 'barcode_record'
-									}
-								});
-
-							div.style.marginTop = '5px';
-							div.style.marginLeft = '16px';
-
-							div.appendChild(
-								BX.create('span', {
-									props: {
-										class: 'barcode'
-									},
-									text: BX.util.htmlspecialchars(product.BARCODE_INFO[i][j].BARCODE)
-								})
-							);
-							barcodeWrapper.appendChild(div);
-						}
-
-						if (clearMsg)
-							barcodeWrapper = BX.create('div', {text : BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE_EMPTY')});
-
-						var showBarcodeDialog = function (barcodeWrapper, span)
-						{
-							BX.bind(span, 'click', BX.proxy(function ()
-							{
-								var barcodeDialog = new BX.CDialog({
-									'content': barcodeWrapper,
-									'title': BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE'),
-									'width': 180,
-									'height': 220,
-									'resizable': false,
-									'buttons': [
-										new BX.CWindowButton({
-											'title': BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE_CLOSE'),
-											'action': function ()
-											{
-												BX.WindowManager.Get().Close();
-											},
-											className: 'btnCloseBarcodeDialog'
-										})
-									]
-								});
-
-								barcodeDialog.Show();
-							}, this));
-						};
-						showBarcodeDialog(barcodeWrapper, span);
-						cellNodes.push(BX.create('br'));
-						cellNodes.push(span);
-					}
-					else
-					{
-						cellNodes.push(BX.create('span',
-						{
-							html : BX.util.htmlspecialchars(product.BARCODE_INFO[i][0].BARCODE) + "<br>"
-						}));
-					}
+					cellNodes.push(this.createBlockBarcode(basketCode, product, c));
 				}
 			}
 			else
@@ -479,6 +400,35 @@ BX.Sale.Admin.ShipmentBasket.prototype.createProductCell = function(basketCode, 
 	return result;
 };
 
+BX.Sale.Admin.ShipmentBasket.prototype.isProductSupportedMarkingCode = function(product)
+{
+	return 	product && product.IS_SUPPORTED_MARKING_CODE && product.IS_SUPPORTED_MARKING_CODE === 'Y';
+};
+
+BX.Sale.Admin.ShipmentBasket.prototype.createBlockBarcode = function(basketCode, product, index)
+{
+	if (!!product.IS_SET_PARENT && product.IS_SET_PARENT !== 'Y' && !!product.MODULE)
+	{
+		var type = parseInt(product.QUANTITY) === 1 ? BX.Sale.Admin.Order.ShipmentBasketBarcodeView.TYPE_INPUT : BX.Sale.Admin.Order.ShipmentBasketBarcodeView.TYPE_LINK;
+
+		var barcode = new BX.Sale.Admin.Order.ShipmentBasketBarcodeView({
+			basketId: basketCode,
+			product: product,
+			index: index,
+			readonly: true,
+			type: type,
+			orderId: this.orderId,
+			useStoreControl: this.useStoreControl
+		});
+
+		return barcode.render();
+	}
+	else
+	{
+		return BX.create('span');
+	}
+};
+
 BX.Sale.Admin.ShipmentBasket.prototype.createFieldImage = function(basketCode, product, fieldId)
 {
 	var pictureNode, resultNode;
@@ -516,6 +466,7 @@ BX.Sale.Admin.ShipmentBasketEdit = function(params)
 	this.products = params.products;
 	this.isShipped = !!params.isShipped;
 	this.useStoreControl = params.useStoreControl || false;
+	this.orderId = params.orderId || 0;
 	BX.Sale.Admin.OrderBasketEdit.apply(this, arguments);
 	this.index = 0;
 	this.basket = null;
@@ -662,7 +613,7 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createProductCell = function(basketCo
 					}
 				}
 
-				if (product.STORES)
+				if (product.STORES && parseInt(product.QUANTITY) > 1)
 				{
 					var spanAddStore = BX.create('span', {
 						props: {
@@ -766,16 +717,18 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createProductCell = function(basketCo
 			}
 			break;
 		case "BARCODE":
-			if (product.IS_SET_PARENT != 'Y' && showStoreInfo)
+			if (product.IS_SET_PARENT != 'Y' && (showStoreInfo || this.isProductSupportedMarkingCode(product)))
 			{
-				stack = [this.createBlockBarcode(basketCode, product, index)];
-				if (!!product.BARCODE_INFO && Object.keys(product.BARCODE_INFO).length > 0)
-					stack = this.recoveryBarcode(product, stack[0]);
+				var count = 1;
 
-				for (i in stack)
+				if (!!product.BARCODE_INFO && Object.keys(product.BARCODE_INFO).length > 1)
 				{
-					if (stack.hasOwnProperty(i))
-						cellNodes.unshift(stack[i]);
+					count = Object.keys(product.BARCODE_INFO).length;
+				}
+
+				for(var c = count; c > 0; c--)
+				{
+					cellNodes.push(this.createBlockBarcode(basketCode, product, c));
 				}
 			}
 			else
@@ -837,6 +790,11 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createProductCell = function(basketCo
 	}
 
 	return result;
+};
+
+BX.Sale.Admin.ShipmentBasketEdit.prototype.isProductSupportedMarkingCode = function(product)
+{
+	return 	product && product.IS_SUPPORTED_MARKING_CODE && product.IS_SUPPORTED_MARKING_CODE === 'Y';
 };
 
 BX.Sale.Admin.ShipmentBasketEdit.prototype.createFieldAmount = function(container, product)
@@ -965,14 +923,17 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.recoveryDeliveryCurAmount = function(
 			var obAmount = BX.findChildByClassName(stackElement, basketCode + '_cur_amount', true);
 
 
-				if (product.BARCODE_MULTI == 'N')
+				if (product.BARCODE_MULTI === 'N' && product.IS_SUPPORTED_MARKING_CODE === 'N')
 				{
 					obAmount.value = barcodeInfo[i].QUANTITY;
 				}
 				else
 				{
 					if (i == 0)
+					{
 						obAmount.value = 0;
+					}
+
 					obAmount.value = parseFloat(obAmount.value) + parseFloat(barcodeInfo[i].QUANTITY);
 				}
 
@@ -1014,87 +975,6 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.recoveryRemainingQuantity = function(
 		if (Object.keys(product.BARCODE_INFO).length > index)
 			stack.push(this.createBlockRemainingQuantity(this.getProductBasketCode(product), product, ++index));
 	}
-	return stack;
-};
-
-BX.Sale.Admin.ShipmentBasketEdit.prototype.recoveryBarcode = function(product, element)
-{
-	var stack = [element];
-	var index = 1;
-	var basketCode = this.getProductBasketCode(product);
-
-	for (var storeId in product['BARCODE_INFO'])
-	{
-		if (!product['BARCODE_INFO'].hasOwnProperty(storeId))
-			continue;
-
-		console.log('recoveryBarcode');
-		var stackElement = stack[stack.length - 1];
-		var barcodeInfo = product['BARCODE_INFO'][storeId];
-
-		var hidBlock = BX.findChildByClassName(stackElement, 'hidden_barcode_block_'+index);
-		if (hidBlock)
-			BX.remove(hidBlock);
-
-		if (product.BARCODE_MULTI == 'Y')
-		{
-			hidBlock = BX.create('div', {
-					props: {
-						className: 'hidden_barcode_block_' + index
-					},
-					style: {
-						'display': 'none'
-					}
-				}
-			);
-		}
-
-		for (var i in barcodeInfo)
-		{
-			if (!barcodeInfo.hasOwnProperty(i))
-				continue;
-
-			if (product.BARCODE_MULTI == 'N')
-			{
-				var obBarcodeValue = BX.findChildByClassName(stackElement, basketCode + '_barcode_value');
-				obBarcodeValue.value = (!!barcodeInfo[i].BARCODE) ? barcodeInfo[i].BARCODE : '';
-
-				var obBarcodeId = BX.findChildByClassName(stackElement, basketCode + '_barcode_id');
-				obBarcodeId.value =  (!!barcodeInfo[i].ID) ? barcodeInfo[i].ID : 0;
-			}
-			else
-			{
-				var barcodeFieldValue = BX.create('input',
-					{
-						props: {
-							type: "hidden",
-							name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][' + i + '][VALUE]',
-							className: basketCode + '_barcode_value',
-							value: (!!barcodeInfo[i].BARCODE) ? barcodeInfo[i].BARCODE : ''
-						}
-					}
-				);
-				var barcodeFieldId = BX.create('input',
-					{
-						props: {
-							type: "hidden",
-							name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][' + i + '][ID]',
-							className: basketCode + '_barcode_id',
-							value: (!!barcodeInfo[i].ID) ? barcodeInfo[i].ID : 0
-						}
-					}
-				);
-				hidBlock.appendChild(barcodeFieldId);
-				hidBlock.appendChild(barcodeFieldValue);
-			}
-		}
-		if (product.BARCODE_MULTI == 'Y')
-			stackElement.appendChild(hidBlock);
-
-		if (Object.keys(product.BARCODE_INFO).length > index)
-			stack.push(this.createBlockBarcode(this.getProductBasketCode(product), product, ++index));
-	}
-
 	return stack;
 };
 
@@ -1238,7 +1118,8 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createDivWrapper = function(product, 
 				'className' : className
 			},
 			style : {
-				'height': '29px'
+				'height': '29px',
+				'white-space': 'nowrap'
 			}
 		});
 	divWrapper.setAttribute('data-index', index);
@@ -1487,319 +1368,83 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createBlockCurAmount = function(baske
 	return divWrapper;
 };
 
+BX.Sale.Admin.ShipmentBasketEdit.prototype.getActualStoreQuantity = function(basketCode, index)
+{
+	var input = BX(basketCode + '_cur_amount_' + index);
+	return input ? parseFloat(input.value) : 0;
+};
+
+BX.Sale.Admin.ShipmentBasketEdit.prototype.getActualAmount = function(basketCode)
+{
+	var input = BX(basketCode + '_amount');
+	return input ? parseFloat(input.value) : 0;
+};
+
+BX.Sale.Admin.ShipmentBasketEdit.prototype.getActualBarcodeQuantity = function(basketCode, index)
+{
+	var result = 0;
+
+	if(this.useStoreControl)
+	{
+		result = this.getActualStoreQuantity(basketCode, index);
+	}
+	else
+	{
+		result = this.getActualAmount(basketCode);
+	}
+
+	return result;
+};
+
+BX.Sale.Admin.ShipmentBasketEdit.prototype.getActualStoreIdByIndex = function(basketCode, index)
+{
+	var name = this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][STORE_ID]',
+		elements = document.getElementsByName(name);
+
+	var result = 0;
+
+	if(elements && elements[0])
+	{
+		result = parseInt(elements[0].value);
+	}
+
+	return result;
+};
+
 BX.Sale.Admin.ShipmentBasketEdit.prototype.createBlockBarcode = function(basketCode, product, index)
 {
-	if (!!product.IS_SET_PARENT && product.IS_SET_PARENT != 'Y' && !!product.MODULE)
+	if (!!product.IS_SET_PARENT && product.IS_SET_PARENT !== 'Y' && !!product.MODULE)
 	{
-		var divWrapper = this.createDivWrapper(product, 'barcode', index);
+		var type = parseInt(product.QUANTITY) === 1 ? BX.Sale.Admin.Order.ShipmentBasketBarcodeView.TYPE_INPUT : BX.Sale.Admin.Order.ShipmentBasketBarcodeView.TYPE_BUTTON;
 
-		if (product.BARCODE_MULTI == 'N')
+		var divWrapper = this.createDivWrapper(product, 'barcode', index),
+			barcodeParams = {
+				basketId: basketCode,
+				product: product,
+				index: index,
+				type: type,
+				orderId: this.orderId,
+				useStoreControl: this.useStoreControl,
+				dataFieldTemplate: '<input'+
+					' type="hidden"'+
+					' name="' + this.getFieldName(basketCode, 'BARCODE_INFO') + '[' + index +'][BARCODE][#ITERATOR#][#DATA_TYPE#]"'+
+					' class="1_barcode_#DATA_TYPE_LOWER#">'
+			},
+			barcode = null;
+
+		if(this.isShipped)
 		{
-			var barcodeFieldValue = BX.create('input',
-				{
-					props: {
-						type: "text",
-						name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][1][VALUE]',
-						className: basketCode + '_barcode_value',
-						value: ''
-					},
-					attrs : {
-						readOnly : this.isShipped
-					}
-				});
-
-			BX.bind(barcodeFieldValue, 'keydown', function(e){
-				if(!e) e = window.event;
-				if(!e) return;
-				if(e.keyCode == 13) barcodeFieldValue.blur();
-			});
-
-			var barcodeFieldId = BX.create('input',
-				{
-					props: {
-						type: "hidden",
-						name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][1][ID]',
-						className: basketCode + '_barcode_id',
-						value: 0
-					},
-					attrs : {
-						readOnly : this.isShipped
-					}
-				});
-			BX.bind(barcodeFieldValue, 'change', BX.proxy(function()
-			{
-				var barcode = barcodeFieldValue.value;
-				if (barcode.length == 0)
-				{
-					barcodeFieldValue.style.borderColor = '';
-					return;
-				}
-
-				var tr = BX.findParent(barcodeFieldValue, {'tag' : 'tr'}, true);
-				var wrapperStore = BX.findChildByClassName(tr, this.getDivWrapperClassName(product, 'store', index), true);
-				var store = wrapperStore.firstChild;
-				var storeId = (product.BARCODE_MULTI == 'Y') ? store.value : 0;
-
-				var request = {
-					'action': 'checkProductBarcode',
-					'basketId': product.BASKET_ID,
-					'storeId': storeId,
-					'orderId': BX('order_id').value,
-					'barcode': barcodeFieldValue.value,
-					'callback': function (result)
-					{
-						barcodeFieldValue.style.borderColor = (result.ERROR && result.ERROR.length > 0) ? '#f00' : '#0f0';
-					}
-				};
-
-				BX.Sale.Admin.OrderAjaxer.sendRequest(request, true, false);
-			}, this));
-			divWrapper.appendChild(barcodeFieldValue);
-			divWrapper.appendChild(barcodeFieldId);
+			barcode = new BX.Sale.Admin.Order.ShipmentBasketBarcodeView(barcodeParams);
 		}
 		else
 		{
-			var barcodeButton = BX.create('input',
-				{
-					props: {
-						type: 'button',
-						value: BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE')
-					}
-				}
-			);
+			barcodeParams.getActualBarcodeQuantityMethod = this.getActualBarcodeQuantity.bind(this);
+			barcodeParams.getActualStoreIdByIndexMethod = this.getActualStoreIdByIndex.bind(this);
 
-			divWrapper.appendChild(barcodeButton);
-
-			var barcodeDialogWrapper = BX.create('div', {
-				props: {
-					'id': 'block_barcode_' + basketCode + '_' + index
-				}
-			});
-
-			BX.bind(barcodeButton, 'click', BX.proxy(function ()
-			{
-				var childrenBarcodeWrapper = BX.findChildren(barcodeDialogWrapper, {tag: 'div'});
-				for (var i in childrenBarcodeWrapper)
-					BX.remove(childrenBarcodeWrapper[i]);
-
-				var obCountBarcodeFields = BX(basketCode + '_cur_amount_' + index);
-				var countBarcodeFields = obCountBarcodeFields.value;
-
-				var countInputs = 0;
-				var tr = BX.findParent(barcodeButton, {'tag' : 'tr'}, true);
-				var hidBarcodeBlock = BX.findChildByClassName(tr, 'hidden_barcode_block_'+index, true);
-				if (hidBarcodeBlock)
-				{
-					var inputId = BX.findChildrenByClassName(hidBarcodeBlock, basketCode+'_barcode_id');
-					countInputs = inputId.length;
-				}
-
-				if (countBarcodeFields > countInputs)
-					countInputs = countBarcodeFields;
-
-				var parent = BX.findParent(barcodeButton, {tag: 'td'});
-				parent = BX.findChildByClassName(parent, 'hidden_barcode_block_' + index);
-
-				var childrenId = BX.findChildrenByClassName(parent, basketCode + '_barcode_id');
-				var childrenValue = BX.findChildrenByClassName(parent, basketCode + '_barcode_value');
-
-				var iterator = 1;
-				if (countInputs == 0)
-					countInputs = 1;
-				while (iterator <= countInputs)
-				{
-					var div = BX.create('div', {
-						props: {
-							className: 'barcode_record'
-						}
-					});
-					div.style.marginTop = '5px';
-					div.style.marginLeft = '36px';
-
-
-					var barcodeFieldValue = BX.create('input',
-						{
-							props: {
-								type: "text",
-								name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][' + iterator + '][VALUE]',
-								className: basketCode + '_barcode_value',
-								value: (childrenValue && childrenValue[iterator - 1]) ? childrenValue[iterator - 1].value : ''
-							},
-							attrs : {
-								readOnly : this.isShipped
-							}
-						}
-					);
-
-					BX.bind(barcodeFieldValue, 'keydown', function(e){
-						if(!e) e = window.event;
-						if(!e) return;
-						if(e.keyCode == 13)
-						{
-							var sibling = this.parentElement.nextElementSibling;
-							if(sibling)
-							{
-								var el = BX.findChildByClassName(sibling, basketCode + '_barcode_value');
-								el.focus();
-							}
-						}
-					});
-
-					if (childrenValue && childrenValue[iterator - 1])
-						barcodeFieldValue.style.borderColor = childrenValue[iterator - 1].style.borderColor;
-
-					var checkBarcodeValue = function (barcodeFieldValue, _this)
-					{
-						BX.bind(barcodeFieldValue, 'change', function ()
-						{
-							var barcode = barcodeFieldValue.value;
-							if (barcode.length == 0)
-							{
-								barcodeFieldValue.style.borderColor = '';
-								return;
-							}
-
-							var barcodeValues = BX.findChildrenByClassName(barcodeDialogWrapper, basketCode+'_barcode_value', true);
-							var k = 0;
-							for (var i in barcodeValues)
-							{
-								if (barcodeValues.hasOwnProperty(i) && barcodeValues[i].value == barcode)
-									k++;
-							}
-							if (k >= 2)
-							{
-								barcodeFieldValue.style.borderColor = '#f00';
-								BX.Sale.Admin.OrderEditPage.showDialog(BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE_ALREADY_USED'));
-								return;
-							}
-							var tr = BX.findParent(barcodeButton, {'tag': 'tr'}, true);
-							var wrapperStore = BX.findChildByClassName(tr, _this.getDivWrapperClassName(product, 'store', index), true);
-							var store = wrapperStore.firstChild;
-
-							var request = {
-								'action': 'checkProductBarcode',
-								'basketId': product.BASKET_ID,
-								'storeId': BX(store).value,
-								'orderId': BX('order_id').value,
-								'barcode': barcodeFieldValue.value,
-								'callback': function (result)
-								{
-									if (result.ERROR && result.ERROR.length > 0)
-										barcodeFieldValue.style.borderColor = '#f00';
-									else
-										barcodeFieldValue.style.borderColor = '#0f0';
-								}
-							};
-
-							BX.Sale.Admin.OrderAjaxer.sendRequest(request, true, false);
-						});
-
-						BX.bind(barcodeFieldValue, 'keydown', function(e){
-							if(!e) e = window.event;
-							if(!e) return;
-							if(e.keyCode == 13) barcodeFieldValue.blur();
-						});
-					};
-					checkBarcodeValue(barcodeFieldValue, this);
-
-					var barcodeFieldId = BX.create('input',
-						{
-							props: {
-								type: "hidden",
-								name: this.getFieldName(basketCode, "BARCODE_INFO")+'[' + index + '][BARCODE][' + iterator + '][ID]',
-								className: basketCode + '_barcode_id',
-								value: (childrenId && childrenId[iterator - 1]) ? childrenId[iterator - 1].value : 0
-							},
-							style : {
-								'width' : '135px'
-							}
-
-						}
-					);
-
-					var span = BX.create('span', {
-						props: {
-							class: 'barcode'
-						}
-					});
-
-					var btDel = BX.create('div', {
-						props: {
-							className: 'btdel'
-						}
-					});
-					var delBarcode = function (btDel, div)
-					{
-						BX.bind(btDel, 'click', function ()
-						{
-							var countBarcodeId = BX.findChildrenByClassName(barcodeDialogWrapper, basketCode+'_barcode_id', true);
-							if (parseInt(countBarcodeFields) < countBarcodeId.length)
-							{
-								BX.remove(div);
-							}
-							else
-							{
-								var input = BX.findChildren(div, {'tag': input}, true);
-								input[0].value = ''; // 0 - VALUE
-								input[1].value = ''; // 1 - ID (hidden)
-							}
-						});
-					};
-					delBarcode(btDel, div);
-
-					div.appendChild(span);
-					div.appendChild(barcodeFieldValue);
-					div.appendChild(barcodeFieldId);
-					div.appendChild(btDel);
-
-					barcodeDialogWrapper.appendChild(div);
-					iterator++;
-				}
-				var btnClose =
-					this.barcodeDialog = new BX.CDialog({
-						'content': barcodeDialogWrapper,
-						'title': BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE_ENTER'),
-						'width': 280,
-						'height': 250,
-						'resizable': false,
-						'buttons': [
-							new BX.CWindowButton({
-								'title': BX.message('SALE_ORDER_SHIPMENT_BASKET_BARCODE_CLOSE'),
-								'action': BX.proxy(function ()
-								{
-									var blockBarcode = BX('block_barcode_' + basketCode + '_' + index);
-									var inputs = BX.findChildren(blockBarcode, {tag: 'input'}, true);
-									var hiddenContainer = BX.create('div', {
-										props: {
-											className: 'hidden_barcode_block_' + index
-										}
-									});
-									hiddenContainer.style.display = 'none';
-									for (var i in inputs)
-									{
-										if (inputs.hasOwnProperty(i))
-										{
-											var clone = inputs[i].cloneNode(false);
-											hiddenContainer.appendChild(clone);
-										}
-									}
-
-									var parentDiv = BX.findParent(barcodeButton, {tag : 'div'});
-									var hiddenBarcodeList = BX.findChildByClassName(parentDiv, 'hidden_barcode_block_' + index);
-									if (hiddenBarcodeList)
-										hiddenBarcodeList.remove();
-									parentDiv.appendChild(hiddenContainer);
-
-									BX.WindowManager.Get().Close();
-								}, this),
-								className: 'btnCloseBarcodeDialog'
-							})
-						]
-					});
-
-				this.barcodeDialog.Show();
-			}, this));
+			barcode = new BX.Sale.Admin.Order.ShipmentBasketBarcodeEdit(barcodeParams);
 		}
+
+		divWrapper.appendChild(barcode.render());
 		return divWrapper;
 	}
 	else
@@ -2197,7 +1842,7 @@ BX.Sale.Admin.SystemShipmentBasketEdit.prototype.addProductSearch = function()
 		return;
 	}
 
-	var thead = '<thead><tr><td><span class="adm-s-order-table-title-icon"></span></td><td></td>';
+	var thead = '<thead><tr><td class="adm-s-order-table-context-menu-column"><span class="adm-s-order-table-title-icon"></span></td><td></td>';
 	var i = null;
 
 	for (i in this.visibleColumns)

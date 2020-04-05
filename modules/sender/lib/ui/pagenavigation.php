@@ -19,6 +19,19 @@ class PageNavigation extends UI\PageNavigation
 {
 	protected $sessionKeyName = 'sender_page_navigation';
 
+	/**
+	 * Reset session variable.
+	 *
+	 * @return void
+	 */
+	public function resetSessionVar()
+	{
+		if(isset($_SESSION[$this->sessionKeyName]))
+		{
+			unset($_SESSION[$this->sessionKeyName]);
+		}
+	}
+
 	protected function setSessionVar($page)
 	{
 		if(!isset($_SESSION[$this->sessionKeyName]))

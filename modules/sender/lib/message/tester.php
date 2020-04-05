@@ -58,6 +58,7 @@ class Tester
 				Adapter::CODE_MAIL,
 				Adapter::CODE_SMS,
 				Adapter::CODE_CALL,
+				Adapter::CODE_AUDIO_CALL,
 				//Message::CODE_WEB_HOOK,
 			)
 		);
@@ -122,11 +123,19 @@ class Tester
 	}
 
 
+	/**
+	 * @return string
+	 */
 	protected function getUserOptionLastCodesName()
 	{
 		return self::$userOptionLastCodesName . '_' . Recipient\Type::getCode($this->getRecipientType());
 	}
 
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
 	protected function getEmailToMeList()
 	{
 		$addressToList = [];
@@ -268,10 +277,11 @@ class Tester
 		// agreement accept check
 		if(!Security\User::current()->isAgreementAccepted())
 		{
-			$result->addError(new Error(Security\Agreement::getErrorText()));
+			$result->addError(new Error(Security\Agreement::getErrorText(), 'NEED_ACCEPT_AGREEMENT'));
+			return $result;
 		}
 
-		$campaignId = isset($parameters['CAMPAIGN_ID']) ? $parameters['CAMPAIGN_ID'] : Entity\Campaign::getDefaultId();
+		$campaignId = isset($parameters['CAMPAIGN_ID']) ? $parameters['CAMPAIGN_ID'] : Entity\Campaign::getDefaultId(SITE_ID);
 		$name = isset($parameters['NAME']) ? $parameters['NAME'] : null;
 		$name = $name ?: $GLOBALS['USER']->getFirstName();
 		$userId = isset($parameters['USER_ID']) ? $parameters['USER_ID'] : null;

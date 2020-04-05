@@ -164,6 +164,7 @@ final class WorkgroupDeptSync extends Stepper
 					$nonEmptyWorkgroupList[] = array(
 						'groupId' => $workgroupId,
 						'initiatorId' => $workgroupData['initiatorId'],
+						'exclude' => (isset($workgroupData['exclude']) ? $workgroupData['exclude'] : false),
 					);
 					$result += $groupCounter;
 				}
@@ -259,10 +260,21 @@ final class WorkgroupDeptSync extends Stepper
 								$breakFlag = true;
 								break;
 							}
-							UserToGroup::changeRelationAutoMembership(array(
-								'RELATION_ID' => $oldRelationList[$userId],
-								'VALUE' => 'N'
-							));
+
+							if (
+								isset($workgroupData['exclude'])
+								&& $workgroupData['exclude']
+							)
+							{
+								\CSocNetUserToGroup::delete($oldRelationList[$userId]);
+							}
+							else
+							{
+								UserToGroup::changeRelationAutoMembership(array(
+									'RELATION_ID' => $oldRelationList[$userId],
+									'VALUE' => 'N'
+								));
+							}
 
 							$counter++;
 						}

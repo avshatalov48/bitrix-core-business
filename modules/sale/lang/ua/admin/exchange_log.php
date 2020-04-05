@@ -1,0 +1,29 @@
+<?
+$MESS["LOG_ID"] = "ID";
+$MESS["LOG_ENTITY_ID"] = "ID документа";
+$MESS["LOG_ENTITY_TYPE_ID"] = "Тип документа";
+$MESS["LOG_PARENT_ID"] = "ID контейнера";
+$MESS["LOG_OWNER_ENTITY_ID"] = "ID батьківського документа";
+$MESS["LOG_ENTITY_DATE_UPDATE"] = "Дата оновлення документа";
+$MESS["LOG_XML_ID"] = "Зовнішній код";
+$MESS["LOG_MARKED"] = "Маркування";
+$MESS["LOG_MARKED_Y"] = "Так";
+$MESS["LOG_MESSAGE"] = "Повний текст запиту/відповіді";
+$MESS["LOG_DATE_INSERT"] = "Дата додавання";
+$MESS["group_admin_nav"] = "Документів";
+$MESS["LOG_TITLE"] = "Журнал документів, що беруть участь в обміні";
+$MESS["LOG_NOTES1"] = "У журналі представлені документи які формуються за підсумком вивантаження або той набір документів, який імпортується в систему";
+$MESS["LOG_REPORT_TYPES"] = "Тип документа";
+$MESS["LOG_REPORT_DATE_INSERT"] = "Дата додавання";
+$MESS["LOG_REPORT_ENTITY_ID"] = "ID документа";
+$MESS["LOG_REPORT_PARENT_ENTITY_ID"] = "ID контейнера";
+$MESS["LOG_REPORT_DIRECTION_ID"] = "Напрямок";
+$MESS["LOG_REPORT_DIRECTION_EXPORT"] = "Експорт";
+$MESS["LOG_REPORT_DIRECTION_IMPORT"] = "Імпорт";
+$MESS["LOG_REPORT_XML_ID"] = "Зовнішній код";
+$MESS["LOG_REPORT_FROM"] = "від";
+$MESS["LOG_REPORT_TO"] = "до";
+$MESS["REPORT_ALL"] = "все";
+$MESS["REPORT_SHOW_SET"] = "Розгорнути";
+$MESS["REPORT_HIDE_SET"] = "Приховати";
+?>

@@ -524,7 +524,10 @@ if($USER->CanDoOperation('view_other_settings') || $USER->CanDoOperation('view_e
 	$toolsItems[] = array(
 		"text" => GetMessage("MAIN_MENU_EVENT_LOG"),
 		"url" => "event_log.php?lang=".LANGUAGE_ID,
-		"more_url" => array(),
+		"more_url" => array(
+			"log_notifications.php",
+			"log_notification_edit.php",
+		),
 		"title" => GetMessage("MAIN_MENU_EVENT_LOG_ALT"),
 	);
 

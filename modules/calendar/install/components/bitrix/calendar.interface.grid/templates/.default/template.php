@@ -39,74 +39,6 @@ $arParams['ID'] = preg_replace("/[^a-zA-Z0-9_-]/i", "", $arParams['ID']);
 		$component,
 		array("HIDE_ICONS" => true)
 	);
-
-
-	foreach($arParams["FILTER"] as $filterField)
-	{
-		if (
-			$filterField['type'] == 'custom_entity'
-			&& $filterField['selector']['TYPE'] == 'user'
-		)
-		{
-			$userSelector = $filterField['selector']['DATA'];
-			$selectorID = $userSelector['ID'];
-			$fieldID = $userSelector['FIELD_ID'];
-
-			$APPLICATION->IncludeComponent(
-				"bitrix:main.ui.selector",
-				".default",
-				array(
-					'ID' => $selectorID,
-					'ITEMS_SELECTED' => array(),
-					'CALLBACK' => array(
-						'select' => 'CalendarFilterUserSelectorManager.onSelect',
-						'unSelect' => '',
-						'openDialog' => '',
-						'closeDialog' => '',
-						'openSearch' => ''
-					),
-					'OPTIONS' => array(
-						'eventInit' => 'BX.SonetGroupList.Filter:openInit',
-						'eventOpen' => 'BX.SonetGroupList.Filter:open',
-						'context' => 'SONET_GROUP_LIST_FILTER_MEMBER',
-						'contextCode' => 'U',
-						'useSearch' => 'N',
-						'userNameTemplate' => CUtil::JSEscape(CSite::GetNameFormat()),
-						'useClientDatabase' => 'Y',
-						'allowEmailInvitation' => 'N',
-						'enableDepartments' => 'Y',
-						'enableSonetgroups' => 'N',
-						'departmentSelectDisable' => 'Y',
-						'allowAddUser' => 'N',
-						'allowAddCrmContact' => 'N',
-						'allowAddSocNetGroup' => 'N',
-						'allowSearchEmailUsers' => 'N',
-						'allowSearchCrmEmailUsers' => 'N',
-						'allowSearchNetworkUsers' => 'N',
-						'allowSonetGroupsAjaxSearchFeatures' => 'N'
-					)
-				),
-				false,
-				array("HIDE_ICONS" => "Y")
-			);
-			?>
-			<script>
-				BX.ready(
-					function()
-					{
-						CalendarFilterUserSelector.create(
-							"<?=CUtil::JSEscape($selectorID)?>",
-							{
-								filterId: "<?=CUtil::JSEscape($filterID)?>",
-								fieldId: "<?=CUtil::JSEscape($fieldID)?>"
-							}
-						);
-					}
-				);
-			</script>
-			<?
-		}
-	}
 	?>
 </div>
 <? endif;?>
@@ -134,8 +66,15 @@ if($isBitrix24Template)
 ?>
 
 <?
-$stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(array("calendar" => array('Bitrix\Calendar\Update\IndexCalendar')),\Bitrix\Main\Localization\Loc::getMessage("EC_CALENDAR_INDEX"));
+$stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(["calendar" => ['Bitrix\Calendar\Update\IndexCalendar']],
+\Bitrix\Main\Localization\Loc::getMessage("EC_CALENDAR_INDEX"));
 if ($stepperHtml)
+{
+	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
+}
+
+if ($stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(["calendar" => ['Bitrix\Calendar\Update\SectionStructureUpdate']],
+	\Bitrix\Main\Localization\Loc::getMessage("CALENDAR_UPDATE_STRUCTURE_TITLE")))
 {
 	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
 }
@@ -146,6 +85,9 @@ $currentUserId = CCalendar::GetCurUserId();
 $config = array(
 	'id' => $arParams['ID'],
 	'externalDataHandleMode' => $arParams["EXTERNAL_DATA_HANDLE_MODE"],
+	'entityType' => isset($arParams["ENTITY_TYPE"]) ? $arParams["ENTITY_TYPE"] : '',
+	'newEntryName' => isset($arParams["NEW_ENTRY_NAME"]) ? $arParams["NEW_ENTRY_NAME"] : '',
+	'collapsedLabelMessage' => isset($arParams["COLLAPSED_ENTRIES_NAME"]) ? $arParams["COLLAPSED_ENTRIES_NAME"] : '',
 	'showSectionSelector' => $arParams["SHOW_SECTION_SELECTOR"],
 	'showSettingsButton' => $arParams["SHOW_SETTINGS_BUTTON"],
 	'userSettings' => CCalendarUserSettings::Get(),

@@ -82,7 +82,6 @@ if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOp
 {
 	$USER->Logout();
 	$USER->Authorize(intval($_REQUEST["ID"]));
-	$USER->CheckAuthActions();
 	LocalRedirect("user_edit.php?lang=".LANGUAGE_ID."&ID=".intval($_REQUEST["ID"]));
 }
 
@@ -228,6 +227,7 @@ if(
 			"WORK_NOTES" => $_POST["WORK_NOTES"],
 			"AUTO_TIME_ZONE" => ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N"? $_POST["AUTO_TIME_ZONE"] : ""),
 			"XML_ID" => $_POST["XML_ID"],
+			"PHONE_NUMBER" => $_POST["PHONE_NUMBER"],
 		);
 
 		if(isset($_POST["TIME_ZONE"]))
@@ -424,6 +424,7 @@ if(
 }
 
 $str_GROUP_ID = array();
+$str_PHONE_NUMBER = "";
 
 $user = CUser::GetByID($ID);
 if(!$user->ExtractFields("str_"))
@@ -434,6 +435,11 @@ if(!$user->ExtractFields("str_"))
 }
 else
 {
+	if($phone = \Bitrix\Main\UserPhoneAuthTable::getRowById($ID))
+	{
+		$str_PHONE_NUMBER = htmlspecialcharsbx($phone["PHONE_NUMBER"]);
+	}
+
 	$dbUserGroup = CUser::GetUserGroupList($ID);
 	while ($arUserGroup = $dbUserGroup->Fetch())
 	{
@@ -457,6 +463,8 @@ if($strError <> '' || !$res)
 
 	$str_PERSONAL_PHOTO = $save_PERSONAL_PHOTO;
 	$str_WORK_LOGO = $save_WORK_LOGO;
+
+	$str_PHONE_NUMBER = htmlspecialcharsbx($_POST["PHONE_NUMBER"]);
 
 	$GROUP_ID_NUMBER = intval($_REQUEST["GROUP_ID_NUMBER"]);
 	$str_GROUP_ID = array();
@@ -605,6 +613,7 @@ else:
 endif;
 
 $emailRequired = (COption::GetOptionString("main", "new_user_email_required", "Y") <> "N");
+$phoneRequired = (COption::GetOptionString("main", "new_user_phone_required", "N") == "Y");
 
 $tabControl->AddEditField("TITLE", GetMessage("USER_EDIT_TITLE"), false, array("size"=>30), $str_TITLE);
 $tabControl->AddEditField("NAME", GetMessage('NAME'), false, array("size"=>30), $str_NAME);
@@ -612,6 +621,7 @@ $tabControl->AddEditField("LAST_NAME", GetMessage('LAST_NAME'), false, array("si
 $tabControl->AddEditField("SECOND_NAME", GetMessage('SECOND_NAME'), false, array("size"=>30), $str_SECOND_NAME);
 $tabControl->AddEditField("EMAIL", GetMessage('EMAIL'), $emailRequired, array("size"=>30), $str_EMAIL);
 $tabControl->AddEditField("LOGIN", GetMessage('LOGIN'), true, array("size"=>30), $str_LOGIN);
+$tabControl->AddEditField("PHONE_NUMBER", GetMessage("main_user_edit_phone_number"), $phoneRequired, array("size"=>30), $str_PHONE_NUMBER);
 
 $tabControl->BeginCustomField("PASSWORD", GetMessage('NEW_PASSWORD_REQ'), true);
 
@@ -629,7 +639,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 ?>
 	<tr id="bx_pass_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
 		<td><?echo GetMessage('NEW_PASSWORD_REQ')?>:<sup><span class="required">1</span></sup></td>
-		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="50" value="<? echo htmlspecialcharsbx($NEW_PASSWORD) ?>" autocomplete="off" style="vertical-align:middle;">
+		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD) ?>" autocomplete="new-password" style="vertical-align:middle;">
 <?if($bSecure):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -647,7 +657,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	</tr>
 	<tr id="bx_pass_confirm_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
 		<td><?echo GetMessage('NEW_PASSWORD_CONFIRM')?></td>
-		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="50" value="<? echo htmlspecialcharsbx($NEW_PASSWORD_CONFIRM) ?>" autocomplete="off"></td>
+		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD_CONFIRM) ?>" autocomplete="new-password"></td>
 	</tr>
 <?
 $tabControl->EndCustomField("PASSWORD");

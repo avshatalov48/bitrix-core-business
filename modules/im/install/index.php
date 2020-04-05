@@ -105,10 +105,10 @@ class im extends CModule
 
 		CModule::IncludeModule("im");
 
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/mysql/install_ft.sql");
+		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/db/mysql/install_ft.sql");
 		if ($errors === false)
 		{
-			\Bitrix\Im\Model\MessageTable::getEntity()->enableFullTextIndex("MESSAGE");
+			\Bitrix\Im\Model\MessageIndexTable::getEntity()->enableFullTextIndex("SEARCH_CONTENT");
 			\Bitrix\Im\Model\ChatIndexTable::getEntity()->enableFullTextIndex("SEARCH_CONTENT");
 		}
 
@@ -127,7 +127,7 @@ class im extends CModule
 		$this->InstallEvents();
 		$this->InstallUserFields();
 
-		CIMChat::InstallGeneralChat();
+		CAgent::AddAgent("CIMChat::InstallGeneralChat(true);", "im", "N", 900, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+900, "FULL"));
 
 		return true;
 	}
@@ -142,6 +142,7 @@ class im extends CModule
 			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/im/install/admin', $_SERVER['DOCUMENT_ROOT'].'/bitrix/admin', true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/templates", $_SERVER["DOCUMENT_ROOT"]."/bitrix/templates", True, True);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/public", $_SERVER["DOCUMENT_ROOT"]."/", True, True);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/pub", $_SERVER["DOCUMENT_ROOT"]."/pub", true, true);
 
 			$siteId = \CSite::GetDefSite();
 			if ($siteId)

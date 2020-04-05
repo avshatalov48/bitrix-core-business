@@ -464,6 +464,19 @@ if ($_CHECK)
 							unset($facetIndex[$pp][$row["VALUE"]]["DISABLED"]);
 							$facetIndex[$pp][$row["VALUE"]]["ELEMENT_COUNT"] = $row["ELEMENT_COUNT"];
 						}
+						elseif (isset($arResult["ITEMS"][$pp]["VALUES"]))
+						{
+							if (isset($arResult["ITEMS"][$pp]["VALUES"]["MIN"]))
+							{
+								unset($arResult["ITEMS"][$pp]["VALUES"]["MIN"]["DISABLED"]);
+								$arResult["ITEMS"][$pp]["VALUES"]["MIN"]["ELEMENT_COUNT"] = $row["ELEMENT_COUNT"];
+							}
+							if (isset($arResult["ITEMS"][$pp]["VALUES"]["MAX"]))
+							{
+								unset($arResult["ITEMS"][$pp]["VALUES"]["MAX"]["DISABLED"]);
+								$arResult["ITEMS"][$pp]["VALUES"]["MAX"]["ELEMENT_COUNT"] = $row["ELEMENT_COUNT"];
+							}
+						}
 					}
 				}
 				else
@@ -736,6 +749,11 @@ if ($arResult["FACET_FILTER"] && $this->arResult["CURRENCIES"])
 		"FROM" => array_keys($arResult["CURRENCIES"]),
 		"TO" => $this->convertCurrencyId,
 	);
+}
+
+if (!empty($preFilter))
+{
+	${$FILTER_NAME} = array_merge($preFilter, ${$FILTER_NAME});
 }
 
 /*Save to session if needed*/

@@ -158,9 +158,6 @@ class ManagedCache
 
 		$obCache = Cache::createInstance();
 		$obCache->cleanDir(false, "managed_cache");
-
-		$taggedCache = Main\Application::getInstance()->getTaggedCache();
-		$taggedCache->clearByTag(true);
 	}
 
 	// Use it to flush cache to the files.

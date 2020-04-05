@@ -30,7 +30,10 @@ $APPLICATION->SetUniqueJS('live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_cr
 $APPLICATION->SetUniqueCSS('live_feed_v2'.($arParams["IS_CRM"] != "Y" ? "" : "_crm"));
 \Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/main/rating_like.js");
 
-if (SITE_TEMPLATE_ID == "bitrix24")
+if (
+	defined('SITE_TEMPLATE_ID')
+	&& SITE_TEMPLATE_ID == "bitrix24"
+)
 {
 	$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."workarea-transparent");
@@ -42,7 +45,8 @@ if ($arParams["IS_CRM"] !== "Y")
 	$bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
 	$APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 	if (
-		SITE_TEMPLATE_ID == "bitrix24"
+		defined('SITE_TEMPLATE_ID')
+		&& SITE_TEMPLATE_ID == "bitrix24"
 		&& (
 			(
 				ModuleManager::isModuleInstalled('bitrix24')
@@ -102,7 +106,8 @@ if (!$arResult["AJAX_CALL"])
 				'ENABLE_CALENDAR_EVENT_ADD' => true,
 				'ENABLE_EMAIL_ADD' => true,
 				'ENABLE_TOOLBAR' => false,
-				'EDITOR_ITEMS' => array()
+				'EDITOR_ITEMS' => array(),
+				'SKIP_VISUAL_COMPONENTS' => 'Y'
 			),
 			null,
 			array('HIDE_ICONS' => 'Y')
@@ -126,7 +131,7 @@ if (!$arResult["AJAX_CALL"])
 		array("HIDE_ICONS" => "Y")
 	);
 
-	if (IsModuleInstalled('tasks'))
+	if ($arParams['USE_TASKS'] == 'Y')
 	{
 		?><?
 		$APPLICATION->IncludeComponent(
@@ -179,14 +184,20 @@ if (!$arResult["AJAX_CALL"])
 		}
 
 		if (isset($arParams["DISPLAY"]))
+		{
 			$arBlogComponentParams["DISPLAY"] = $arParams["DISPLAY"];
+		}
+		if (isset($arParams["PAGE_ID"]))
+		{
+			$arBlogComponentParams["PAGE_ID"] = $arParams["PAGE_ID"];
+		}
 
 		if (defined("BITRIX24_INDEX_COMPOSITE"))
 		{
 			$arBlogComponentParams["POST_FORM_ACTION_URI"] = "/stream/";
 		}
 
-		if (IsModuleInstalled('tasks'))
+		if ($arParams['USE_TASKS'] == 'Y')
 		{
 			$arBlogComponentParams["PATH_TO_USER_TASKS"] = $arParams['PATH_TO_USER_TASKS'];
 			$arBlogComponentParams["PATH_TO_USER_TASKS_TASK"] = $arParams['PATH_TO_USER_TASKS_TASK'];
@@ -284,7 +295,7 @@ if (!$arResult["AJAX_CALL"])
 		$dynamicArea->setStub($stub);
 	}
 
-	if ($arParams["PUBLIC_MODE"] != "Y")
+	if (!in_array($arParams["MODE"], ['PUB', 'LANDING']))
 	{
 		if ($arResult["INFORMER_TARGET_ID"])
 		{
@@ -351,6 +362,8 @@ elseif (
 }
 else // AJAX_CALL
 {
+	while (ob_get_level() > 0)
+		ob_end_clean();
 	$APPLICATION->RestartBuffer();
 }
 
@@ -372,7 +385,7 @@ if (!$arResult["AJAX_CALL"])
 			sonetLSessid: '<?=bitrix_sessid_get()?>',
 			sonetLLangId: '<?=CUtil::JSEscape(LANGUAGE_ID)?>',
 			sonetLSiteId: '<?=CUtil::JSEscape(SITE_ID)?>',
-			sonetLSiteTemplateId: '<?=CUtil::JSEscape(SITE_TEMPLATE_ID)?>',
+			sonetLSiteTemplateId: '<?=(defined('SITE_TEMPLATE_ID') ? CUtil::JSEscape(SITE_TEMPLATE_ID) : '')?>',
 			sonetLNoSubscriptions: '<?=GetMessageJS("SONET_C30_NO_SUBSCRIPTIONS")?>',
 			sonetLInherited: '<?=GetMessageJS("SONET_C30_INHERITED")?>',
 			sonetLDialogClose: '<?=GetMessageJS("SONET_C30_DIALOG_CLOSE_BUTTON")?>',
@@ -389,7 +402,7 @@ if (!$arResult["AJAX_CALL"])
 			sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
 			sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
 			sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
-			sonetLIsB24: '<?=(SITE_TEMPLATE_ID == "bitrix24" ? "Y" : "N")?>',
+			sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID == "bitrix24" ? "Y" : "N")?>',
 			sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
 			sonetLErrorSessid : '<?=GetMessageJS("SONET_ERROR_SESSION")?>',
 			sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
@@ -500,7 +513,10 @@ if (!$arResult["AJAX_CALL"])
 		?>
 		BX.ready(function(){
 			<?
-			if ($arParams["SET_LOG_COUNTER"] != "N")
+			if (
+				$arParams["SET_LOG_COUNTER"] != "N"
+				&& !(isset($arResult["EXPERT_MODE_SET"]) && $arResult["EXPERT_MODE_SET"])
+			)
 			{
 				?>
 				BX.onCustomEvent(window, 'onSonetLogCounterClear', [BX.message('sonetLCounterType')]);
@@ -672,7 +688,7 @@ if (
 		$event_date_log_ts = (isset($arEvent["LOG_DATE_TS"]) ? $arEvent["LOG_DATE_TS"] : (MakeTimeStamp($arEvent["LOG_DATE"]) - intval($arResult["TZ_OFFSET"])));
 
 		$is_unread = (
-			$arParams["SHOW_UNREAD"] == "Y"
+			$arResult["SHOW_UNREAD"] == "Y"
 			&& ($arResult["COUNTER_TYPE"] == "**" || $arResult["COUNTER_TYPE"] == "CRM_**" || $arResult["COUNTER_TYPE"] == "blog_post")
 			&& $arEvent["USER_ID"] != $arResult["currentUserId"]
 			&& intval($arResult["LAST_LOG_TS"]) > 0
@@ -690,7 +706,8 @@ if (
 
 			$arAditMenu = array();
 
-			$arComponentParams = Array(
+			$arComponentParams = [
+				"MODE" => $arParams["MODE"],
 				"PATH_TO_BLOG" => $arParams["PATH_TO_USER_BLOG"],
 				"PATH_TO_POST" => $arParams["PATH_TO_USER_MICROBLOG_POST"],
 				"PATH_TO_POST_IMPORTANT" => $arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"],
@@ -748,7 +765,7 @@ if (
 				"MARK_NEW_COMMENTS" => (
 					$USER->isAuthorized()
 					&& $arResult["COUNTER_TYPE"] == "**"
-					&& $arParams["SHOW_UNREAD"] == "Y"
+					&& $arResult["SHOW_UNREAD"] == "Y"
 				)
 					? "Y"
 					: "N",
@@ -769,7 +786,7 @@ if (
 				"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
 				'TOP_RATING_DATA' => (!empty($arResult['TOP_RATING_DATA'][$arEvent["ID"]]) ? $arResult['TOP_RATING_DATA'][$arEvent["ID"]] : false),
 				"SELECTOR_VERSION" => 2,
-			);
+			];
 
 			if ($arResult["SHOW_FOLLOW_CONTROL"] == "Y")
 			{
@@ -822,7 +839,12 @@ if (
 		{
 			$arComponentParams = array_merge($arParams, array(
 				"LOG_ID" => $arEvent["ID"],
-				"LAST_LOG_TS" => ($arParams["SET_LOG_COUNTER"] == "Y" ? $arResult["LAST_LOG_TS"] : 0),
+				"LAST_LOG_TS" => (
+					$arParams["SET_LOG_COUNTER"] == "Y"
+					&& !(isset($arResult["EXPERT_MODE_SET"]) && $arResult["EXPERT_MODE_SET"])
+						? $arResult["LAST_LOG_TS"] :
+						0
+				),
 				"COUNTER_TYPE" => $arResult["COUNTER_TYPE"],
 				"AJAX_CALL" => $arResult["AJAX_CALL"],
 				"bReload" => $arResult["bReload"],
@@ -981,11 +1003,14 @@ if ($arParams["SHOW_NAV_STRING"] != "N" && is_array($arResult["Events"]))
 
 	if (!$arResult["AJAX_CALL"] || $arResult["bReload"])
 	{
-		?><div class="feed-new-message-inf-wrap-first feed-new-message-active" id="feed-new-message-inf-wrap-first" style="display: none;"><?
+		?><div class="feed-new-message-inf-wrap-first" id="feed-new-message-inf-wrap-first"><?
 			?><a href="javascript:void(0);" id="sonet_log_more_container_first" class="feed-new-message-inf-bottom"><?
-				?><span class="feed-new-message-inf-text"><?
+				?><span class="feed-new-message-inf-text" id="feed-new-message-inf-text-first" style="display: none;"><?
 					?><?=GetMessage("SONET_C30_MORE")?><?
 					?><span class="feed-new-message-icon"></span><?
+				?></span><?
+				?><span class="feed-new-message-inf-loader-first-cont" id="feed-new-message-inf-loader-first"><?
+					?><svg class="feed-new-message-inf-loader-first-loader" viewBox="25 25 50 50"><circle class="feed-new-message-inf-loader-first-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle><circle class="feed-new-message-inf-loader-first-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle></svg><?
 				?></span><?
 			?></a><?
 		?></div><?
@@ -1051,7 +1076,7 @@ else
 	}
 
 	$additional_data = '<script type="text/javascript" bxrunfirst="true">'."\n";
-	$additional_data .= 'top.__logGetNextPageLinkEntities('.
+	$additional_data .= 'window.__logGetNextPageLinkEntities('.
 		CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"]).', '.
 		CUtil::PhpToJSObject($component->arResult["ENTITIES_CORRESPONDENCE"]).');';
 	$additional_data .= '</script>';
@@ -1065,7 +1090,7 @@ else
 			"JS" => $arAdditionalData["SCRIPTS"],
 			"CSS" => $arAdditionalData["CSS"]
 		),
-		"LAST_TS" => ($arResult["dateLastPageTS"] ? intval($arResult["dateLastPageTS"]) : 0),
+		"LAST_TS" => ($arResult["LAST_ENTRY_DATE_TS"] ? intval($arResult["LAST_ENTRY_DATE_TS"]) : 0),
 		"LAST_ID" => ($arResult["dateLastPageId"] ? intval($arResult["dateLastPageId"]) : 0)
 	));
 	CMain::FinalActions($strText);

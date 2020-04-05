@@ -2,9 +2,10 @@
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
-use Bitrix\Sale\OrderHistory;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\ResultError;
+
+Main\Localization\Loc::loadMessages(__FILE__);
 
 abstract class Entity
 {
@@ -19,6 +20,24 @@ abstract class Entity
 	}
 
 	/**
+	 * @throws Main\NotImplementedException
+	 * @return string
+	 */
+	public static function getRegistryType()
+	{
+		throw new Main\NotImplementedException('The method '.__METHOD__.' is not overridden in '.static::class);
+	}
+
+	/**
+	 * @throws Main\NotImplementedException
+	 * @return string
+	 */
+	public static function getRegistryEntity()
+	{
+		throw new Main\NotImplementedException('The method '.__METHOD__.' is not overridden in '.static::class);
+	}
+
+	/**
 	 * @return array
 	 *
 	 * @throws Main\NotImplementedException
@@ -28,6 +47,18 @@ abstract class Entity
 		throw new Main\NotImplementedException();
 	}
 
+	/**
+	 * @return array
+	 */
+	public static function getCustomizableFields() : array
+	{
+		return [];
+	}
+
+	/**
+	 * @return array|null
+	 * @throws Main\NotImplementedException
+	 */
 	public static function getAvailableFieldsMap()
 	{
 		static $fieldsMap = null;
@@ -130,6 +161,8 @@ abstract class Entity
 	 */
 	public function setField($name, $value)
 	{
+		$result = new Result();
+
 		if ($this->eventName === null)
 		{
 			$this->eventName = static::getEntityEventName();
@@ -150,7 +183,6 @@ abstract class Entity
 
 				if ($event->getResults())
 				{
-					$result = new Result();
 					/** @var Main\EventResult $eventResult */
 					foreach($event->getResults() as $eventResult)
 					{
@@ -200,6 +232,13 @@ abstract class Entity
 		$oldValue = $this->fields->get($name);
 		if ($oldValue != $value || ($oldValue === null && $value !== null))
 		{
+			$r = $this->checkValueBeforeSet($name, $value);
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
+				return $result;
+			}
+
 			if ($this->eventName)
 			{
 				if ($eventsList = $eventManager->findEventHandlers('sale', 'On'.$this->eventName.'SetField'))
@@ -275,10 +314,18 @@ abstract class Entity
 					}
 				}
 			}
-
-			return $result;
 		}
 
+		return $result;
+	}
+
+	/**
+	 * @param $name
+	 * @param $value
+	 * @return Result
+	 */
+	protected function checkValueBeforeSet($name, $value)
+	{
 		return new Result();
 	}
 
@@ -314,6 +361,7 @@ abstract class Entity
 	 * @return bool
 	 */
 	abstract public function isMathActionOnly();
+
 	/**
 	 * @internal
 	 *
@@ -337,7 +385,6 @@ abstract class Entity
 			static::addChangesToHistory($name, $oldValue, $value);
 		}
 	}
-
 
 	/**
 	 *
@@ -415,6 +462,8 @@ abstract class Entity
 			return $result;
 		}
 
+		$values = $this->onBeforeSetFields($values);
+
 		$isStartField = $this->isStartField();
 
 		foreach ($values as $key => $value)
@@ -428,6 +477,10 @@ abstract class Entity
 					$resultData = array_merge($resultData, $data);
 				}
 				$result->addErrors($r->getErrors());
+			}
+			elseif ($r->hasWarnings())
+			{
+				$result->addWarnings($r->getWarnings());
 			}
 		}
 
@@ -455,6 +508,15 @@ abstract class Entity
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $values
+	 * @return array
+	 */
+	protected function onBeforeSetFields(array $values)
+	{
+		return $values;
 	}
 
 	/**
@@ -498,7 +560,9 @@ abstract class Entity
 	public function initFields(array $values)
 	{
 		foreach ($values as $key => $value)
+		{
 			$this->initField($key, $value);
+		}
 	}
 
 	/**
@@ -529,6 +593,9 @@ abstract class Entity
 		return new Result();
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getId()
 	{
 		return $this->getField("ID");
@@ -541,48 +608,23 @@ abstract class Entity
 	 */
 	protected function addChangesToHistory($name, $oldValue = null, $value = null)
 	{
-
-	}
-
-	protected function getEntityParent()
-	{
-		$parent = null;
-		if ($this instanceof CollectableEntity)
-		{
-			$parent = $this->getCollection();
-		}
-		return $parent;
+		return;
 	}
 
 	/**
 	 * @internal
 	 *
-	 * @return null|string
+	 * @throws Main\NotImplementedException
+	 * @return mixed
 	 */
 	public static function getEntityEventName()
 	{
-		$eventName = null;
-		$className = static::getClassName();
-		$parts = explode("\\", $className);
-
-		$first = true;
-		foreach ($parts as $part)
-		{
-			if (strval(trim($part)) == '')
-				continue;
-
-			if ($first === true && $part == "Bitrix")
-			{
-				$first = false;
-				continue;
-			}
-
-			$eventName .= $part;
-		}
-
-		return $eventName;
+		throw new Main\NotImplementedException(static::class . ':' . __FUNCTION__ . ' is not implemented');
 	}
 
+	/**
+	 * @return string
+	 */
 	public static function getClassName()
 	{
 		return get_called_class();
@@ -594,6 +636,55 @@ abstract class Entity
 	public function isChanged()
 	{
 		return (bool)$this->fields->getChangedValues();
+	}
+
+	/**
+	 * @param string $name
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function markFieldCustom(string $name)
+	{
+		$fields = static::getCustomizableFields();
+		if (!isset($fields[$name]))
+		{
+			throw new Main\ArgumentOutOfRangeException(
+				Main\Localization\Loc::getMessage(
+					'SALE_INTERNALS_ENTITY_FIELD_IS_NOT_CUSTOMIZABLE',
+					['#FIELD#' => $name]
+				)
+			);
+		}
+
+		$this->fields->markCustom($name);
+	}
+
+	/**
+	 * @param string $name
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function unmarkFieldCustom(string $name)
+	{
+		$fields = static::getCustomizableFields();
+		if (!isset($fields[$name]))
+		{
+			throw new Main\ArgumentOutOfRangeException(
+				Main\Localization\Loc::getMessage(
+					'SALE_INTERNALS_ENTITY_FIELD_IS_NOT_CUSTOMIZABLE',
+					['#FIELD#' => $name]
+				)
+			);
+		}
+
+		$this->fields->unmarkCustom($name);
+	}
+
+	/**
+	 * @param string $name
+	 * @return bool
+	 */
+	public function isMarkedFieldCustom(string $name) : bool
+	{
+		return $this->fields->isMarkedCustom($name);
 	}
 
 	/**

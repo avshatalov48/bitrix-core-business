@@ -19,27 +19,28 @@
 			}
 		});
 
-		BX.addCustomEvent(this.widget, 'Dashboard.Board.Widget:onAfterRender', BX.delegate(function ()
+		BX.addCustomEvent(this.widget, 'Dashboard.Board.Widget:onAfterRender', function ()
 		{
 			if (this.data.isFilled)
 			{
 				if (!AmCharts.isReady)
 				{
-					AmCharts.ready(BX.delegate(this.makeChart, this));
+					AmCharts.ready(this.makeChart.bind(this));
 				}
 				else
 				{
 					this.makeChart();
 				}
 			}
-		}, this));
-
+		}.bind(this));
 	};
 
 
 	BX.Report.VisualConstructor.Widget.Content.AmChart.prototype = {
 		__proto__: BX.Report.Dashboard.Content.prototype,
 		constructor: BX.Report.VisualConstructor.Widget.Content.AmChart,
+
+		clickHandler: null,
 		render: function ()
 		{
 			jsDD.unregisterObject(this.getWidget().getWidgetContainer());
@@ -48,7 +49,6 @@
 		},
 		makeChart: function ()
 		{
-
 			var monthNames = [];
 			var shortMonthNames = [];
 			for(var m = 1; m <= 12; m++)
@@ -66,6 +66,10 @@
 				if (this.data.dataProvider.length)
 				{
 					this.chart = AmCharts.makeChart(this.chartWrapper, this.data);
+					if(this.clickHandler)
+					{
+						this.chart.addListener("clickGraphItem", this.clickHandler);
+					}
 				}
 			}
 
@@ -76,7 +80,74 @@
 		},
 		prepareDataForAmChart: function()
 		{
+			var func;
 
+			if (this.data["graphs"] && BX.type.isArray(this.data["graphs"]))
+			{
+				this.data["graphs"].forEach(function(graph)
+				{
+					if(graph["balloonFunction"])
+					{
+						func = BX.Report.VC.Core.getFunction(graph["balloonFunction"]);
+						if(BX.Type.isFunction(func))
+						{
+							graph["balloonFunction"] = func;
+						}
+						else
+						{
+							throw new Error("balloonFunction " + graph["balloonFunction"] + " is not a function");
+						}
+					}
+				});
+			}
+			if(this.data["clickGraphItem"])
+			{
+				func = BX.Report.VC.Core.getFunction(this.data["clickGraphItem"]);
+				if(BX.Type.isFunction(func))
+				{
+					this.clickHandler = func;
+					delete this.data["clickGraphItem"];
+				}
+				else
+				{
+					throw new Error("clickGraphItem event handler " + this.data["clickGraphItem"] + " is not a function");
+				}
+			}
+			else
+			{
+				this.clickHandler = this.handleItemClick.bind(this)
+			}
+		},
+		handleItemClick: function(event)
+		{
+			var valueField = event.item.graph.valueField.toString();
+			var urlField = 'targetUrl';
+			var dashPosition = valueField.search('_');
+
+			if (dashPosition != -1)
+			{
+				var graphNum = valueField.substr(dashPosition + 1);
+				urlField = urlField + "_" + graphNum;
+			}
+
+			if (!event.item.dataContext.hasOwnProperty(urlField))
+			{
+				return;
+			}
+			var url = event.item.dataContext[urlField];
+			if(BX.type.isNotEmptyString(url))
+			{
+				if(BX.SidePanel)
+				{
+					BX.SidePanel.Instance.open(url, {
+						cacheable: false
+					});
+				}
+				else
+				{
+					window.open(url);
+				}
+			}
 		}
 	};
 

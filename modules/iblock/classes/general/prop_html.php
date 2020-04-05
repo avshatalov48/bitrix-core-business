@@ -333,6 +333,9 @@ class CIBlockPropertyHTML
 	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
 	{
 		$fields["type"] = "string";
+		$fields["operators"] = array(
+			"default" => "%"
+		);
 		$fields["filterable"] = "?";
 	}
 

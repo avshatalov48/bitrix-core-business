@@ -14,9 +14,14 @@
 		}
 
 		this.externalMode = config.externalDataHandleMode;
+		this.entityType = config.entityType || '';
+		this.newEntryName = config.newEntryName || null;
+		this.collapsedLabelMessage = config.collapsedLabelMessage || BX.message('EC_COLLAPSED_MESSAGE');
+		this.viewOption = 'view' + (this.entityType ? '_' + this.entityType : '');
 		this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		this.entryController = new window.BXEventCalendar.EntryController(this, data);
-		this.currentViewName = this.util.getUserOption('view') || this.DEFAULT_VIEW;
+		this.currentViewName = this.util.getUserOption(this.viewOption) || this.DEFAULT_VIEW;
+
 		this.requests = {};
 		this.currentUser = config.user;
 		this.ownerUser = config.ownerUser || false;
@@ -103,6 +108,20 @@
 				this.topBlock.appendChild(BX.create('DIV', {style: {clear: 'both'}}));
 
 				this.util.applyHacksHandlersForPopupzIndex();
+
+				top.BX.addCustomEvent(top, 'onCalendarBeforeCustomSliderCreate', BX.proxy(this.loadCssList, this));
+
+				if (top !== window)
+				{
+					if (!top.BX.getClass('top.BX.SocNetLogDestination'))
+					{
+						top.BX.loadExt('socnetlogdest');
+					}
+					if (!top.BX.getClass('top.BX.Access'))
+					{
+						top.BX.loadExt('access');
+					}
+				}
 			}
 		},
 
@@ -199,7 +218,7 @@
 				this.viewsCont.appendChild(viewCont);
 			}
 
-			if (this.currentViewName == view.getName())
+			if (this.currentViewName === view.getName())
 			{
 				this.setView(view.getName(), {first: true});
 			}
@@ -237,10 +256,17 @@
 					viewRange = currentView.getViewRange(),
 					newView = this.getView(view);
 
-				if (newView && (view != this.currentViewName || !currentView.getIsBuilt()))
+				if (newView && (view !== this.currentViewName || !currentView.getIsBuilt()))
 				{
 					params.currentViewDate = this.getViewRangeDate();
-					params.newViewDate = newView.getAdjustedDate(params.date || false, viewRange, true);
+					if (newView === 'day' && BX.type.isDate(params.date))
+					{
+						params.newViewDate = params.date;
+					}
+					else
+					{
+						params.newViewDate = newView.getAdjustedDate(params.date || false, viewRange, true);
+					}
 
 					params.currentView = currentView;
 					params.newView = newView;
@@ -248,7 +274,7 @@
 
 					this.triggerEvent('beforeSetView', {currentViewName: this.currentViewName, newViewName: view});
 
-					if (currentView.type == 'custom' || newView.type == 'custom')
+					if (currentView.type === 'custom' || newView.type === 'custom')
 					{
 						params.animation = false;
 					}
@@ -259,14 +285,15 @@
 					}
 					else
 					{
-						if (view != this.currentViewName)
+						if (view !== this.currentViewName)
 						{
 							currentView.hide();
 						}
+
 						if(params.first === true)
 						{
 							this.initialViewShow = true;
-							newView.adjustViewRangeToDate(params.newViewDate, false);
+							newView.adjustViewRangeToDate(params.newViewDate);
 						}
 						else
 						{
@@ -277,7 +304,7 @@
 
 					if(params.first !== true)
 					{
-						this.util.setUserOption('view', view);
+						this.util.setUserOption(this.viewOption, view);
 					}
 					this.triggerEvent('afterSetView', {viewName: view});
 				}
@@ -320,7 +347,7 @@
 						if (_this.requests[reqId].status !== 'canceled')
 						{
 							var erInd = result.toLowerCase().indexOf('bx_event_calendar_action_error');
-							if (!result || result.length <= 0 || erInd != -1)
+							if (!result || result.length <= 0 || erInd !== -1)
 							{
 								var errorText = '';
 								if (erInd >= 0)
@@ -328,8 +355,10 @@
 									var ind1 = erInd + 'BX_EVENT_CALENDAR_ACTION_ERROR:'.length, ind2 = result.indexOf('-->', ind1);
 									errorText = result.substr(ind1, ind2 - ind1);
 								}
-								if (params.onerror && typeof params.onerror == 'function')
+								if (BX.type.isFunction(params.onerror))
+								{
 									params.onerror();
+								}
 
 								return _this.displayError(errorText || params.errorText || '');
 							}
@@ -358,7 +387,7 @@
 
 			this.requests[params.reqId] = {
 				status: 'sent',
-				xhr: params.type == 'post' ? BX.ajax.post(params.url, params.data, handler) : BX.ajax.get(params.url, params.data, handler)
+				xhr: params.type === 'post' ? BX.ajax.post(params.url, params.data, handler) : BX.ajax.get(params.url, params.data, handler)
 			};
 
 			return params;
@@ -366,14 +395,18 @@
 
 		cancelRequest: function(reqId)
 		{
-			if (this.requests[reqId] && this.requests[reqId].status == 'sent')
+			if (this.requests[reqId] && this.requests[reqId].status === 'sent')
+			{
 				this.requests[reqId].status = 'canceled';
+			}
 		},
 
 		getRequestResult: function(key)
 		{
 			if (top.BXCRES && typeof top.BXCRES[key] != 'undefined')
+			{
 				return top.BXCRES[key];
+			}
 
 			return {};
 		},
@@ -401,7 +434,7 @@
 			viewName = viewName || this.currentViewName;
 			for (var i = 0; i < this.views.length; i++)
 			{
-				if (this.views[i].getName() == viewName)
+				if (this.views[i].getName() === viewName)
 				{
 					return this.views[i];
 				}
@@ -503,7 +536,7 @@
 				var i, popups = document.body.querySelectorAll(".popup-window");
 				for (i = 0; i < popups.length; i++)
 				{
-					if (popups[i] && popups[i].style.display != 'none')
+					if (popups[i] && popups[i].style.display !== 'none')
 					{
 						res = false;
 						break;
@@ -522,11 +555,11 @@
 					KEY_CODES = this.util.getKeyCodes(),
 					keyCode = e.keyCode;
 
-				if (keyCode == KEY_CODES['escape'])
+				if (keyCode === KEY_CODES['escape'])
 				{
 					this.getView().deselectEntry();
 				}
-				else if (keyCode == KEY_CODES['delete'])
+				else if (keyCode === KEY_CODES['delete'])
 				{
 					var selectedEntry = this.getView().getSelectedEntry();
 					if (selectedEntry)
@@ -535,11 +568,11 @@
 					}
 				}
 
-				if (keyCode == KEY_CODES['left'])
+				if (keyCode === KEY_CODES['left'])
 				{
 					this.showPrevious();
 				}
-				else if (keyCode == KEY_CODES['right'])
+				else if (keyCode === KEY_CODES['right'])
 				{
 					this.showNext();
 				}
@@ -635,8 +668,8 @@
 
 		showStartUpEntry: function(startupEntry)
 		{
-			var entryObj = new window.BXEventCalendar.Entry(this, startupEntry);
-			this.getView().showViewSlider({entry: entryObj});
+			this.entryController.handleEntriesList(startupEntry, startupEntry['~userIndex']);
+			this.getView().showViewSlider({entry: new window.BXEventCalendar.Entry(this, startupEntry)});
 		},
 
 		isExternalMode: function()
@@ -661,6 +694,7 @@
 
 		hideLoader: function()
 		{
+
 			if (this.entryLoaderNode)
 			{
 				BX.addClass(this.entryLoaderNode, 'hide');
@@ -671,6 +705,15 @@
 		getCurrentViewName: function()
 		{
 			return this.currentViewName;
+		},
+
+		loadCssList: function()
+		{
+			top.BX.loadCSS([
+				'/bitrix/components/bitrix/calendar.grid/templates/.default/style.css',
+				'/bitrix/js/calendar/new/calendar.css',
+				'/bitrix/js/calendar/cal-style.css'
+			]);
 		}
 	};
 

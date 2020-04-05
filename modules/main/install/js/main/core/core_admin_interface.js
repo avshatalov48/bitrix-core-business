@@ -62,7 +62,10 @@ BX.adminPanel.prototype.setButtonMenu = function(button)
 
 BX.adminPanel.prototype.isFixed = function()
 {
-	return BX.hasClass(document.documentElement, 'adm-header-fixed');
+	return (
+		BX.type.isDomNode(this.panel)
+		&& BX.hasClass(document.documentElement, 'adm-header-fixed')
+	);
 };
 
 BX.adminPanel.prototype.Fix = function(el)
@@ -408,7 +411,7 @@ BX.adminFormTools = {
 	{
 		if ((!BX.browser.IsIE() || BX.browser.IsIE9()) && BX.type.isElementNode(el) && el.tagName.toUpperCase() == 'INPUT' && el.type.toUpperCase() == 'CHECKBOX')
 		{
-			if (!BX.hasClass(el, 'adm-designed-checkbox'))
+			if (!BX.hasClass(el, 'adm-designed-checkbox') && !BX.hasClass(el, 'ui-ctl-element'))
 			{
 				if (!el.id)
 					el.id = 'designed_checkbox_' + Math.random();
@@ -727,6 +730,11 @@ BX.adminMenu.prototype.Init = function()
 	{
 		for (var key in this.dest)
 		{
+			if (!BX('fav_dest_' + key) || !BX('fav_cont_' + key))
+			{
+				continue;
+			}
+
 			this.dest[key] = BX('fav_dest_' + key);
 			this.dest_cont[key] = BX('fav_cont_' + key);
 
@@ -807,7 +815,12 @@ BX.adminMenu.prototype.showFavorites = function(el)
 
 BX.adminMenu.prototype.itemsStretchScroll = function()
 {
-	BX.onCustomEvent(BX.adminMenu, 'onAdminMenuItemsStretchScroll');
+	this.items.forEach(function(item) {
+		if (item && item.MSOVERMIRROR)
+		{
+			item.MSOVERMIRROR.style.display = 'none';
+		}
+	});
 };
 
 BX.adminMenu.prototype.setMinimizedState = function(state)
@@ -1101,7 +1114,6 @@ BX.adminMenu.prototype._registerItem = function(i)
 		case 'submenu-item':
 			BX.bind(this.items[i].NODE, 'mouseover', BX.proxy(this._item_onmouseover, this.items[i]));
 			BX.bind(this.items[i].NODE, 'mouseout', BX.proxy(this._item_onmouseout, this.items[i]));
-			BX.addCustomEvent(this, 'onAdminMenuItemsStretchScroll', BX.proxy(this._item_onmouseout, this.items[i]));
 		break;
 	}
 };
@@ -2816,6 +2828,11 @@ BX.adminSidePanel.prototype.onMessage = function(SidePanelEvent)
 
 BX.adminSidePanel.onOpenPage = BX.adminSidePanel.prototype.onOpenPage = function(url)
 {
+	if (top.BX.admin.dynamic_mode_show_borders)
+	{
+		return;
+	}
+
 	if (top.BX.SidePanel.Instance)
 	{
 		var adminSidePanel = top.window["adminSidePanel"], optionsOpen = {};
@@ -3273,10 +3290,14 @@ BX.adminTabControl.prototype.setPublicMode = function(v)
 	this.bPublicMode = !!v;
 	if (this.bPublicMode)
 	{
-		var name = this.name;
-		BX.addCustomEvent(BX.WindowManager.Get(), 'onWindowClose', function(){
-			window[name] = null;
-		});
+		var currentWindow = BX.WindowManager.Get();
+		if (currentWindow)
+		{
+			var name = this.name;
+			BX.addCustomEvent(currentWindow, 'onWindowClose', function(){
+				window[name] = null;
+			});
+		}
 	}
 };
 

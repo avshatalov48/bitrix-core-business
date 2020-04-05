@@ -17,11 +17,10 @@ if ($arParams["ALLOW_CREATE_GROUP"] == "Y")
 		array("HIDE_ICONS" => "Y")
 	);
 
-	$strOnClick = "if (BX.SGCP) { BX.SGCP.ShowForm('create', '".$popupName."', event); } else { return false; }";
 	?><div class="sonet-add-group-button">
-		<a onclick="<?=$strOnClick?>" class="sonet-add-group-button-left" href="<?=$arParams["~HREF"]?>" title="<?= GetMessage("SONET_C36_T_CREATE") ?>"></a>
-		<div class="sonet-add-group-button-fill"><a onclick="<?=$strOnClick?>" href="<?=$arParams["~HREF"]?>" class="sonet-add-group-button-fill-text"><?= GetMessage("SONET_C36_T_CREATE") ?></a></div>
-		<a onclick="<?=$strOnClick?>" class="sonet-add-group-button-right" href="<?=$arParams["~HREF"]?>" title="<?= GetMessage("SONET_C36_T_CREATE") ?>"></a>
+		<a class="sonet-add-group-button-left" href="<?=$arParams["~HREF"]?>" title="<?= GetMessage("SONET_C36_T_CREATE") ?>"></a>
+		<div class="sonet-add-group-button-fill"><a href="<?=$arParams["~HREF"]?>" class="sonet-add-group-button-fill-text"><?= GetMessage("SONET_C36_T_CREATE") ?></a></div>
+		<a class="sonet-add-group-button-right" href="<?=$arParams["~HREF"]?>" title="<?= GetMessage("SONET_C36_T_CREATE") ?>"></a>
 		<div class="sonet-add-group-button-clear"></div>
 	</div><?
 }

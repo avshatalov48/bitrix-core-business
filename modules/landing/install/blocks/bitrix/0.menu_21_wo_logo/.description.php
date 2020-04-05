@@ -10,6 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_0.MENU_21_NAME'),
 		'section' => array('menu'),
+		'dynamic' => false,
 		'subtype' => 'menu',
 		'subtype_params' => array(
 			'source' => 'catalog',
@@ -31,7 +32,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'block-default-wo-paddings'
+			'type' => 'block-default-wo-paddings'
 		),
 		'nodes' => array(
 			'.landing-block-node-menu-list-item-link' => array(
@@ -43,5 +44,8 @@ return array(
 				'type' => ['navbar'],
 			),
 		),
+	),
+	'assets' => array(
+		'ext' => array('landing_menu'),
 	),
 );

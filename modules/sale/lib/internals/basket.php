@@ -224,6 +224,10 @@ class BasketTable extends Main\Entity\DataManager
 				'values' => array('N','Y')
 			),
 
+			'MARKING_CODE_GROUP' => array(
+				'data_type' => 'string',
+			),
+
 			'MODULE' => array(
 				'data_type' => 'string'
 			),

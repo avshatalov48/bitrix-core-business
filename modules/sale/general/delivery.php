@@ -1448,7 +1448,6 @@ class CAllSaleDelivery
 		if($collection = $shipment->getShipmentItemCollection())
 			$oldOrder["PRICE"] = $collection->getPrice();
 
-		$oldOrder["WEIGHT"] = 0;
 		$oldOrder["LOCATION_FROM"] = \Bitrix\Main\Config\Option::get(
 			'sale',
 			'location',
@@ -1485,10 +1484,7 @@ class CAllSaleDelivery
 
 			unset($itemFieldValues['DATE_INSERT'], $itemFieldValues['DATE_UPDATE']);
 			$oldOrder["ITEMS"][] = $itemFieldValues;
-			$itemWeight = floatval($basketItem->getField("WEIGHT"));
-
-			if($itemWeight > 0)
-				$oldOrder["WEIGHT"] += $itemWeight*floatval($basketItem->getField("QUANTITY"));
+			$oldOrder["WEIGHT"] = $shipment->getWeight();
 		}
 
 		return $oldOrder;
@@ -1502,7 +1498,13 @@ class CAllSaleDelivery
 	public static function convertOrderOldToNew(array $oldOrder)
 	{
 		$siteId = isset($oldOrder["SITE_ID"]) ? $oldOrder["SITE_ID"] : SITE_ID;
-		$newOrder = \Bitrix\Sale\Order::create($siteId, null, $oldOrder["CURRENCY"]);
+
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$newOrder = $orderClass::create($siteId, null, $oldOrder["CURRENCY"]);
 		$isStartField = $newOrder->isStartField();
 
 		if(!empty($oldOrder["PERSON_TYPE_ID"]) && intval($oldOrder["PERSON_TYPE_ID"]) > 0)
@@ -1521,7 +1523,11 @@ class CAllSaleDelivery
 
 		$newOrder->setPersonTypeId($personTypeId);
 		$newOrder->setFieldNoDemand("PRICE", $oldOrder["PRICE"]);
-		$basket = \Bitrix\Sale\Basket::create($siteId);
+
+		/** @var \Bitrix\Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$basket = $basketClass::create($siteId);
 		$settableFields = array_flip(\Bitrix\Sale\BasketItemBase::getSettableFields());
 
 		if (!empty($oldOrder["ITEMS"]) && is_array($oldOrder["ITEMS"]))

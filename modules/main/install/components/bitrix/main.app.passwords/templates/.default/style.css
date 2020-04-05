@@ -1,6 +1,6 @@
 /*GRID*/
 .bx-otp-wrap-container{
-    padding:20px 25px;
+    /*padding:20px 25px;*/
 }
 h2.bx-otp-wrap-container-title{
     font-size:20px;
@@ -27,7 +27,6 @@ h3.bx-otp-wrap-container-title{
 
 /*white section*/
 .bx-otp-section-white{
-    padding:7px;
     background:#fff;
 }
 .bx-otp-accordion-container{
@@ -169,6 +168,11 @@ h3.bx-otp-wrap-container-title{
     white-space:nowrap;
     color:#abaaaa;
     border-top:1px solid #edeef0;
+	vertical-align: bottom;
+}
+
+.bx-otp-access-table-value .ui-btn {
+	margin-bottom: 2px;
 }
 .bx-otp-access-table-action{
     width:auto !important;
@@ -420,4 +424,3 @@ h3.bx-otp-wrap-container-title{
 .tdn  {text-decoration:none     !important}
 .lhn  {line-height:    normal   !important}
 .ttn  {text-transform: none     !important}
-

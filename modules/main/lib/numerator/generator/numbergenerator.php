@@ -11,9 +11,9 @@ use Bitrix\Main\NotImplementedException;
 abstract class NumberGenerator
 {
 	const USER_DEFINED_SYMBOL_START = '{USER_DEFINED:';
-	const USER_DEFINED_SYMBOL_END   = '}';
-	const SYMBOL_START              = '{';
-	const SYMBOL_END                = '}';
+	const USER_DEFINED_SYMBOL_END = '}';
+	const SYMBOL_START = '{';
+	const SYMBOL_END = '}';
 
 	/** replace specific symbol (that generator is responsible for)
 	 * with some string by internal logic
@@ -91,19 +91,24 @@ abstract class NumberGenerator
 	{
 		if (property_exists(static::class, $value))
 		{
-			if (isset($config[$value]) && $config[$value] !== '')
+			if ($config !== null && array_key_exists($value, $config))
 			{
 				if ($type === 'int')
 				{
 					$this->$value = intval($config[$value]);
-					return;
 				}
-				if ($type === 'bool')
+				elseif ($type === 'string')
+				{
+					$this->$value = (string)$config[$value];
+				}
+				elseif ($type === 'bool')
 				{
 					$this->$value = (bool)$config[$value];
-					return;
 				}
-				$this->$value = $config[$value];
+				else
+				{
+					$this->$value = $config[$value];
+				}
 			}
 			else
 			{

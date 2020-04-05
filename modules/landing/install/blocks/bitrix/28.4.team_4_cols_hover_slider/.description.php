@@ -21,7 +21,7 @@ return array(
 		'.landing-block-node-member-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_4_TEAM_4_COLS--MEMBER_PHOTO'),
 			'type' => 'img',
-			'dimensions' => array('width' => 270, 'height' => 450),
+			'dimensions' => array('width' => 250),
 		),
 		'.landing-block-node-member-post' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_4_TEAM_4_COLS--MEMBER_POST'),

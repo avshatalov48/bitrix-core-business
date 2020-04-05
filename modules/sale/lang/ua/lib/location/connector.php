@@ -1,0 +1,10 @@
+<?
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_BAD_ARGUMENT_NODEINFO_UNSET_EXCEPTION'] = "Параметри вузлів, що перевіряються";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_CANNOT_ADD_EXCEPTION'] = "Помилка додавання зв'язку з місцезнаходженням";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_CANNOT_DELETE_EXCEPTION'] = "Помилка видалення зв'язку з місцезнаходженням";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_DOESNT_SUPPORT_GROUPS'] = "Сутність не підтримує прив'язку до груп";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_LINKS_FLD_NAME'] = "Список зв'язків";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_LINK_FLD_NOT_FOUND_EXCEPTION'] = "Поле зв'язку не знайдено";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_LOCATION_PRIMARY_FLD_NAME'] = "Ідентифікатор місцезнаходження";
+$MESS['SALE_LOCATION_CONNECTOR_ENTITY_PRIMARY_FLD_NAME'] = "Код сутності";
+?>

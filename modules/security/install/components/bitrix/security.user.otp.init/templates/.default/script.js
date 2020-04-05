@@ -27,10 +27,14 @@ BX.Security.UserOtp.Init = (function getUserOtp(BX)
 		options = options || {};
 		this._options = mergeObjects(defaults, options);
 
+		this.signedParameters = this._options.signedParameters;
+		this.componentName = this._options.componentName;
 		this._secret = this._options.data.secret;
 		this._container = BX(this._options.ui.containerId);
 		this._actionUrl = this._options.actionUrl;
 		this._successfulUrl = this._options.successfulUrl;
+		this.needRedirectAfterConnection = this._options.needRedirectAfterConnection === "Y";
+
 		// ToDo: need options here
 		this._completeCallback = BX.proxy(this.onComplete, this);
 		this._errorContainer = null;
@@ -89,29 +93,22 @@ BX.Security.UserOtp.Init = (function getUserOtp(BX)
 		});
 	};
 
-	Otp.prototype.sendRequest = function(action, data, onSuccess, onFailure)
+	Otp.prototype.sendRequest = function(action, dataObj, onSuccess, onFailure)
 	{
 		BX.addClass(document.querySelector('[data-role="check-button"]'), "wait");
 
-		data = data || {};
-		data.action = action || 'check';
-		data.sessid = BX.bitrix_sessid();
-		data = BX.ajax.prepareData(data);
+		dataObj = dataObj || {};
+		dataObj.otpAction = action || 'check';
 
-		return BX.ajax({
-			'method': 'POST',
-			'dataType': 'json',
-			'url': this._actionUrl,
-			'data':  data,
-			'onsuccess': BX.proxy(function proxySuccess(response)
-			{
-				return this.onRequestSuccess(onSuccess, response);
-			}, this),
-			'onfailure': BX.proxy(function proxySuccess(response)
-			{
-				return this.onRequestFailed(onFailure, response);
-			}, this)
-		});
+		BX.ajax.runComponentAction(this.componentName, "setOtp", {
+			signedParameters: this.signedParameters,
+			mode: 'ajax',
+			data: dataObj
+		}).then(function (response) {
+			return this.onRequestSuccess(onSuccess, response.data);
+		}.bind(this), function (response) {
+			return this.onRequestFailed(onFailure, response);
+		}.bind(this));
 	};
 
 	Otp.prototype.onRequestSuccess = function(callback, response)
@@ -179,7 +176,16 @@ BX.Security.UserOtp.Init = (function getUserOtp(BX)
 
 	Otp.prototype.onComplete = function()
 	{
-		location.href = this._successfulUrl;
+		BX.onCustomEvent(
+			window,
+			"BX.Security.UserOtpInit:afterOtpSetup",
+			[ this ]
+		);
+
+		if (this.needRedirectAfterConnection)
+		{
+			location.href = this._successfulUrl;
+		}
 	};
 
 	function mergeObjects(origin, add) {

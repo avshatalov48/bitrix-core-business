@@ -34,6 +34,19 @@ class Error
 	}
 
 	/**
+	 * Returns first error frm errors stack.
+	 * @return \Bitrix\Main\Error|null
+	 */
+	public function getFirstError()
+	{
+		if ($this->errors)
+		{
+			return array_shift(array_values($this->errors));
+		}
+		return null;
+	}
+
+	/**
 	 * Get current errors.
 	 * @return array
 	 */
@@ -53,13 +66,14 @@ class Error
 
 	/**
 	 * Collect errors from result.
-	 * @param \Bitrix\Main\Entity\AddResult|UpdateResult $result Result.
+	 * @param \Bitrix\Main\Result $result Result.
 	 * @return void
 	 */
 	public function addFromResult($result)
 	{
 		if (
 			(
+			$result instanceof \Bitrix\Main\Result ||
 			$result instanceof \Bitrix\Main\Entity\AddResult ||
 			$result instanceof \Bitrix\Main\Entity\UpdateResult ||
 			$result instanceof \Bitrix\Main\Entity\DeleteResult

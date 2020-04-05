@@ -329,6 +329,10 @@ class CWikiSocnet
 			"MESSAGE" => $arFields['MESSAGE']
 		);
 
+		$sanitizer = new CBXSanitizer();
+		$sanitizer->SetLevel(CBXSanitizer::SECURE_LEVEL_LOW);
+		$arResult['EVENT_FORMATTED']['MESSAGE'] = $sanitizer->SanitizeHtml(htmlspecialcharsback($arResult['EVENT_FORMATTED']['MESSAGE']));
+
 		$arResult['HAS_COMMENTS'] = 'N';
 		if (
 			intval($arFields['SOURCE_ID']) > 0

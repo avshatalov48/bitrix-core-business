@@ -2280,12 +2280,28 @@ function Sync()
 		for(j = 0; j < selected_fields.length; j++)
 			delete arFields[selected_fields[j].value];
 	}
-	var save_button = document.getElementById('save_settings');
-	save_button.disabled = false;
+	var absentRequiredFields = [];
 	for(var name in arFields)
 	{
-		if(arFields[name].substring(0,1) == "*")
-			save_button.disabled = true;
+		if(arFields[name].substring(0,1) === "*")
+		{
+			absentRequiredFields.push(arFields[name].substring(1));
+		}
+	}
+	var save_button = document.getElementById('save_settings'),
+		saveErrorMessage = document.getElementById('save_settings_error'),
+		absentFieldList = document.getElementById('absent_required_fields');
+	if (absentRequiredFields.length > 0)
+	{
+		absentFieldList.innerHTML = absentRequiredFields.join('<br>');
+		saveErrorMessage.style.display = 'block';
+		save_button.disabled = true;
+	}
+	else
+	{
+		absentFieldList.innerHTML = '';
+		saveErrorMessage.style.display = 'none';
+		save_button.disabled = false;
 	}
 }
 

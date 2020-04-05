@@ -30,7 +30,34 @@ $arParams['EDIT_URL_TPL'] = isset($arParams['EDIT_URL_TPL']) ? trim($arParams['E
 InitBVar($arParams['SET_TITLE']);
 
 $arResult["GRID_ID"] = "rest_hook_event";
-$arResult["ELEMENTS_ROWS"] = array();
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$arResult["MESSAGES"] = [];
+if ($request->isPost() &&
+	check_bitrix_sessid() &&
+	\Bitrix\Main\Grid\Context::isInternalRequest() &&
+	$request->get("grid_id") == $arResult["GRID_ID"])
+{
+	$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
+
+	if ($request->getPost("action") == \Bitrix\Main\Grid\Actions::GRID_DELETE_ROW)
+	{
+		$event = \Bitrix\Rest\EventTable::getByPrimary($request->getPost("id"))->fetch();
+		if ($event && $event['USER_ID'] == $USER->GetID() && intval($event['APP_ID']) <= 0)
+		{
+			$result = \Bitrix\Rest\EventTable::delete($event['ID']);
+		}
+		else
+		{
+			$result = (new \Bitrix\Main\Result())->addError(new \Bitrix\Main\Error("Could not find event."));
+		}
+		if (!$result->isSuccess())
+		{
+			$arResult["MESSAGES"] = $result->getErrorMessages();
+		}
+	}
+}
+
+$arResult["ELEMENTS_ROWS"] = [];
 
 $filter = array(
 	'=USER_ID' => $USER->GetID(),
@@ -70,8 +97,6 @@ foreach($eventDictionary as $event)
 
 while($event = $dbRes->fetch())
 {
-	$cols = array();
-
 	$eventName = $eventDesc[ToUpper($event['EVENT_NAME'])]['name'];
 	if(strlen($eventName) <= 0)
 	{
@@ -85,36 +110,11 @@ while($event = $dbRes->fetch())
 		"DATE_CREATE" => $c->encode($event['DATE_CREATE']),
 		"EVENT_NAME" => $c->encode($eventName),
 		"EVENT_HANDLER" => $c->encode($event["EVENT_HANDLER"]),
+		"URL" => str_replace("#id#", $event['ID'], $arParams['EDIT_URL_TPL'])
 	);
 
-	$actions = array();
-	$actions[] = array(
-		'ICONCLASS' => 'edit',
-		'TITLE' => Loc::getMessage('REST_HOOK_EDIT'),
-		'TEXT' => Loc::getMessage('REST_HOOK_EDIT'),
-		'ONCLICK' => "jsUtils.Redirect([], '".CUtil::JSEscape(str_replace("#id#", $event['ID'], $arParams['EDIT_URL_TPL']))."');",
-		'DEFAULT' => true
-	);
-
-	$actions[] = array(
-		'ICONCLASS' => 'delete',
-		'TITLE' => Loc::getMessage('REST_HOOK_DELETE'),
-		'TEXT' => Loc::getMessage('REST_HOOK_DELETE'),
-		'ONCLICK' => "BX.Marketplace.Hook.Event.delete('".$event["ID"]."');",
-		'DEFAULT' => false
-	);
-
-	$arResult["ELEMENTS_ROWS"][$event["ID"]] = array("data" => $data, "columns" => $cols, 'actions' => $actions);
+	$arResult["ELEMENTS_ROWS"][$event["ID"]] = $data;
 }
-
-$arResult["HEADERS"] = array(
-	array("id" => "ID", "name" => "ID", "default" => false, "editable" => false),
-	array("id" => "TITLE", "name" => Loc::getMessage("REST_HOOK_TITLE"), "default" => true, "editable" => false),
-	array("id" => "COMMENT", "name" => Loc::getMessage("REST_HOOK_COMMENT"), "default" => true, "editable" => false),
-	array("id" => "DATE_CREATE", "name" => Loc::getMessage("REST_HOOK_DATE_CREATE"), "default" => true, "editable" => false),
-	array("id" => "EVENT_NAME", "name" => Loc::getMessage("REST_HOOK_EVENT_NAME"), "default" => true, "editable" => false),
-	array("id" => "EVENT_HANDLER", "name" => Loc::getMessage("REST_HOOK_EVENT_HANDLER"), "default" => true, "editable" => false),
-);
 
 if($arParams['SET_TITLE'] == 'Y')
 {

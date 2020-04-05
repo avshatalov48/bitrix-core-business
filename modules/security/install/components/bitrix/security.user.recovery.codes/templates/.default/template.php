@@ -36,8 +36,22 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 				<?=GetMessage("SEC_SHORT_NOTICE")?>
 			</div>
 		</div>
-		<a href="<?=$APPLICATION->GetCurPageParam('action=print&ncc=1')?>" class="webform-button webform-button-blue" target="_blank"><?=toUpper(GetMessage("SEC_PRINT"))?></a>
-		<a href="<?=$APPLICATION->GetCurPageParam('action=download&ncc=1')?>" class="webform-button"><?=GetMessage("SEC_SAVE")?></a>
+		<?if (\Bitrix\Main\Context::getCurrent()->getRequest()->isPost()):?>
+			<a href="javascript:void(0)" onclick="BX.Intranet.UserProfile.Security.showRecoveryCodesComponent('print')" class="webform-button webform-button-blue" target="_blank"><?=toUpper(GetMessage("SEC_PRINT"))?></a>
+		<?else:?>
+			<a href="<?=$APPLICATION->GetCurPageParam('codesAction=print&ncc=1')?>" class="webform-button webform-button-blue" target="_blank"><?=toUpper(GetMessage("SEC_PRINT"))?></a>
+		<?endif?>
+		<?
+		if (isset($arParams["PATH_TO_CODES"]))
+		{
+			$pathToCodes = $arParams["PATH_TO_CODES"]."?codesAction=download&ncc=1";
+		}
+		else
+		{
+			$pathToCodes = $APPLICATION->GetCurPageParam('codesAction=download&ncc=1');
+		}
+		?>
+		<a href="<?=$pathToCodes?>" target="_blank" class="webform-button"><?=GetMessage("SEC_SAVE")?></a>
 	</div>
 	<?
 	$jsCodes = array();
@@ -53,7 +67,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	<script>
 		BX.ready(function createOtp()
 		{
-			var recoveryCodes = new BX.Security.UserRecoveryCodes();
+			var recoveryCodes = new BX.Security.UserRecoveryCodes({
+				signedParameters: '<?=$this->getComponent()->getSignedParameters()?>',
+				componentName: '<?=$this->getComponent()->getName() ?>'
+			});
 			recoveryCodes.drawRecoveryCodes(<?=\Bitrix\Main\Web\Json::encode($jsCodes)?>);
 		});
 	</script>

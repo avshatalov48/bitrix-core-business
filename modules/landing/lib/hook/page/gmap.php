@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Main\Page\Asset;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,6 +38,11 @@ class GMap extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		if ($this->isPage())
 		{
 			return false;
@@ -44,22 +50,37 @@ class GMap extends \Bitrix\Landing\Hook\Page
 		else
 		{
 			return \CJSCore::isExtensionLoaded('landing_google_maps_new') ||
-				   $this->fields['USE']->getValue() == 'Y';
+				$this->fields['USE']->getValue() == 'Y';
 		}
 	}
-
+	
 	/**
 	 * Exec hook.
 	 * @return void
 	 */
 	public function exec()
 	{
+		if ($this->execCustom())
+		{
+			return;
+		}
+
+		$code = '';
 		if ($this->fields['USE']->getValue() == 'Y')
 		{
 			$code = \htmlspecialcharsbx(trim($this->fields['CODE']));
 		}
-		\Bitrix\Main\Page\Asset::getInstance()->addString(
-			'<script defer src="https://maps.googleapis.com/maps/api/js?key=' . $code . '"></script>'
+		Asset::getInstance()->addString(
+			"<script defer>
+				(function(){
+					'use strict';
+					//fake function, if API will loaded fasten than blocks
+					window.onGoogleMapApiLoaded = function(){}
+				})();
+			</script>"
+		);
+		Asset::getInstance()->addString(
+			'<script defer src="https://maps.googleapis.com/maps/api/js?key=' . $code . '&callback=onGoogleMapApiLoaded"></script>'
 		);
 	}
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation\Engine;
 
+use Bitrix\Bizproc\Workflow\Template\Tpl;
 use Bitrix\Bizproc\WorkflowTemplateTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
@@ -20,11 +21,11 @@ class Template
 	protected static $sequenceActivityType = 'SequenceActivity';
 	protected static $delayActivityType = 'DelayActivity';
 	protected static $conditionActivityType = 'IfElseActivity';
-
-	protected static $availableActivities = array();
-	protected static $availableActivityClasses = array();
+	protected static $availableActivities = [];
+	protected static $availableActivityClasses = [];
 
 	protected $template;
+	protected $autoExecuteType = \CBPDocumentEventType::Automation;
 	/** @var  null|Robot[] */
 	protected $robots;
 	protected $isExternalModified;
@@ -45,7 +46,10 @@ class Template
 			'ENTITY' => $documentType[1],
 			'DOCUMENT_TYPE' => $documentType[2],
 			'DOCUMENT_STATUS' => $documentStatus,
-			'AUTO_EXECUTE' => \CBPDocumentEventType::Automation
+			'AUTO_EXECUTE' => $this->autoExecuteType,
+			'TEMPLATE' => [],
+			'PARAMETERS' => [],
+			'CONSTANTS' => [],
 		);
 
 		if ($documentStatus)
@@ -56,14 +60,50 @@ class Template
 					'=ENTITY' => $documentType[1],
 					'=DOCUMENT_TYPE' => $documentType[2],
 					'=DOCUMENT_STATUS' => $documentStatus,
-					'=AUTO_EXECUTE' => \CBPDocumentEventType::Automation
+					//'=AUTO_EXECUTE' => $this->autoExecuteType
 				]
 			])->fetch();
 			if ($row)
 			{
 				$this->template = $row;
+				$this->autoExecuteType = (int) $this->template['AUTO_EXECUTE'];
 			}
 		}
+	}
+
+	public static function createByTpl(Tpl $tpl)
+	{
+		$instance = new static($tpl->getDocumentComplexType());
+		$instance->template = $tpl->collectValues();
+		$instance->autoExecuteType = (int) $instance->template['AUTO_EXECUTE'];
+
+		return $instance;
+	}
+
+	public function getDocumentStatus()
+	{
+		return isset($this->template['DOCUMENT_STATUS']) ? $this->template['DOCUMENT_STATUS'] : null;
+	}
+
+	public function setDocumentStatus($status)
+	{
+		$this->template['DOCUMENT_STATUS'] = (string) $status;
+		return $this;
+	}
+
+	public function getExecuteType($autoExecuteType)
+	{
+		return $this->autoExecuteType;
+	}
+
+	public function setExecuteType($autoExecuteType)
+	{
+		if (\CBPDocumentEventType::Out($autoExecuteType) === '')
+		{
+			throw new ArgumentException('Incorrect DocumentEventType');
+		}
+
+		$this->autoExecuteType = $autoExecuteType;
 	}
 
 	public function getId()
@@ -80,21 +120,22 @@ class Template
 
 		unset($robot['Delay'], $robot['Condition']);
 
-		$this->setRobots(array($robot));
+		$copy = clone $this;
+		$copy->setRobots([$robot]);
 
 		return \CBPActivity::callStaticMethod(
 			$robot['Type'],
 			"GetPropertiesDialog",
 			array(
-				$this->getDocumentType(),
-				$robot['Name'],
-				$this->template['TEMPLATE'],
-				array(),
-				array(),
-				null,
-				$request,
-				null,
-				SITE_ID
+				$this->getDocumentType(), //documentType
+				$robot['Name'], //activityName
+				$copy->template['TEMPLATE'], //arWorkflowTemplate
+				[], //arWorkflowParameters
+				[], //arWorkflowVariables
+				$request, //arCurrentValues = null
+				'bizproc_robot_dialog', //formName = ""
+				null, //popupWindow = null
+				SITE_ID //siteId = ''
 			)
 		);
 	}
@@ -111,14 +152,15 @@ class Template
 
 		$request = $this->unConvertRobotProperties($request, $documentType);
 
-		$this->setRobots(array($robot));
-		$raw = $this->template['TEMPLATE'];
+		$copy = clone $this;
+		$copy->setRobots([$robot]);
+		$raw = $copy->template['TEMPLATE'];
 
 		$robotErrors = $v = $p = array();
 		$result = \CBPActivity::callStaticMethod(
 			$robot['Type'],
 			"GetPropertiesDialogValues",
-			array(
+			[
 				$documentType,
 				$robot['Name'],
 				&$raw,
@@ -126,7 +168,7 @@ class Template
 				&$p,
 				$request,
 				&$robotErrors
-			)
+			]
 		);
 
 		if ($result)
@@ -187,7 +229,9 @@ class Template
 				$robot = new Robot($robot);
 
 			if (!($robot instanceof Robot))
+			{
 				throw new ArgumentException('Robots array is incorrect', 'robots');
+			}
 
 			$this->robots[] = $robot;
 		}
@@ -206,7 +250,9 @@ class Template
 		$result = [
 			'ID' => $this->getId(),
 			'DOCUMENT_TYPE' => $this->getDocumentType(),
-			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS']
+			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS'],
+			'PARAMETERS' => $this->template['PARAMETERS'],
+			'CONSTANTS' => $this->template['CONSTANTS'],
 		];
 
 		$result['IS_EXTERNAL_MODIFIED'] = $this->isExternalModified();
@@ -253,9 +299,7 @@ class Template
 
 		$raw = $this->template;
 		$raw['DOCUMENT_TYPE'] = $documentType;
-		$raw['NAME'] = Loc::getMessage('BIZPROC_AUTOMATION_TEMPLATE_NAME', array(
-			'#STATUS#' => $this->template['DOCUMENT_STATUS']
-		));
+		$raw['NAME'] = $this->makeTemplateName();
 		$raw['USER_ID'] = $userId;
 		$raw['MODIFIER_USER'] = new \CBPWorkflowTemplateUser($userId);
 
@@ -268,6 +312,8 @@ class Template
 			$raw['MODULE_ID'] = $documentType[0];
 			$raw['ENTITY'] = $documentType[1];
 			$raw['DOCUMENT_TYPE'] = $documentType[2];
+			$raw['PARAMETERS'] = [];
+			$raw['CONSTANTS'] = [];
 			$this->template = $raw;
 		}
 		catch (\Exception $e)
@@ -278,6 +324,20 @@ class Template
 		return $result;
 	}
 
+	protected function makeTemplateName()
+	{
+		$msg = Loc::getMessage('BIZPROC_AUTOMATION_TEMPLATE_NAME', array(
+			'#STATUS#' => $this->template['DOCUMENT_STATUS']
+		));
+
+		if ($this->autoExecuteType === \CBPDocumentEventType::Script)
+		{
+			$msg = Loc::getMessage('BIZPROC_AUTOMATION_TEMPLATE_SCRIPT_NAME');
+		}
+
+		return $msg;
+	}
+
 	protected function updateBizprocTemplate($id, $userId)
 	{
 		$raw = $this->template;
@@ -285,14 +345,14 @@ class Template
 
 		try
 		{
-			\CBPWorkflowTemplateLoader::update($id, array(
+			\CBPWorkflowTemplateLoader::update($id, [
 				'TEMPLATE'      => $raw['TEMPLATE'],
-				'PARAMETERS'    => array(),
-				'VARIABLES'     => array(),
-				'CONSTANTS'     => array(),
+				'PARAMETERS'    => $raw['PARAMETERS'],
+				'VARIABLES'     => [],
+				'CONSTANTS'     => $raw['CONSTANTS'],
 				'USER_ID' 		=> $userId,
 				'MODIFIER_USER' => new \CBPWorkflowTemplateUser($userId),
-			));
+			]);
 		}
 		catch (\Exception $e)
 		{
@@ -312,11 +372,11 @@ class Template
 			return false; // BP template is lost.
 		}
 
-		if (!empty($raw['PARAMETERS']) || !empty($raw['VARIABLES']) || !empty($raw['CONSTANTS']))
+		/*if (!empty($raw['PARAMETERS']) || !empty($raw['VARIABLES']) || !empty($raw['CONSTANTS']))
 		{
 			$this->isExternalModified = true;
 			return false; // modified or incorrect.
-		}
+		}*/
 
 		if (empty($raw['TEMPLATE'][0]['Children']) || !is_array($raw['TEMPLATE'][0]['Children']))
 			return true;
@@ -395,21 +455,23 @@ class Template
 	protected function unConvertTemplate()
 	{
 		$documentType = $this->getDocumentType();
-		$this->template = array(
+		$this->template = [
 			'ID' => $this->getId(),
 			'MODULE_ID' => $documentType[0],
 			'ENTITY' => $documentType[1],
 			'DOCUMENT_TYPE' => $documentType[2],
 			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS'],
-			'AUTO_EXECUTE' => \CBPDocumentEventType::Automation,
-			'TEMPLATE'     => array(array(
+			'AUTO_EXECUTE' => $this->autoExecuteType,
+			'TEMPLATE'     => [[
 				'Type' => 'SequentialWorkflowActivity',
 				'Name' => 'Template',
-				'Properties' => array('Title' => 'Bizproc Automation template'),
-				'Children' => array()
-			)),
+				'Properties' => ['Title' => 'Bizproc Automation template'],
+				'Children' => []
+			]],
+			'PARAMETERS' => $this->template['PARAMETERS'],
+			'CONSTANTS' => $this->template['CONSTANTS'],
 			'SYSTEM_CODE'  => 'bitrix_bizproc_automation'
-		);
+		];
 
 		if ($this->robots)
 		{
@@ -435,7 +497,7 @@ class Template
 					}
 
 					$sequence['Children'][] = $this->createDelayActivity(
-						$delayInterval->toActivityProperties(),
+						$delayInterval->toActivityProperties($documentType),
 						$delayName
 					);
 				}
@@ -473,7 +535,7 @@ class Template
 	}
 
 	/**
-	 * @return null|Robot[] Robot activities.
+	 * @return Robot[] Robot activities.
 	 */
 	public function getRobots()
 	{
@@ -481,6 +543,31 @@ class Template
 			$this->convertTemplate();
 
 		return $this->robots;
+	}
+
+	/**
+	 * Returns Robot by it`s id.
+	 * @param string $name Robot identificator.
+	 * @return Robot|null Robot instance.
+	 */
+	public function getRobotByName(string $name): ?Robot
+	{
+		foreach ($this->getRobots() as $robot)
+		{
+			if ($name === $robot->getName())
+			{
+				return  $robot;
+			}
+		}
+		return  null;
+	}
+
+	/**
+	 * @return array Template activities.
+	 */
+	public function getActivities()
+	{
+		return $this->template['TEMPLATE'];
 	}
 
 	/**
@@ -493,6 +580,11 @@ class Template
 			$this->getRobots();
 
 		return ($this->isExternalModified === true);
+	}
+
+	public function getDocumentType(): array
+	{
+		return [$this->template['MODULE_ID'], $this->template['ENTITY'], $this->template['DOCUMENT_TYPE']];
 	}
 
 	private function createSequenceActivity()
@@ -562,10 +654,5 @@ class Template
 			}
 		}
 		return $properties;
-	}
-
-	private function getDocumentType()
-	{
-		return [$this->template['MODULE_ID'], $this->template['ENTITY'], $this->template['DOCUMENT_TYPE']];
 	}
 }

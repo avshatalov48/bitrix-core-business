@@ -1,5 +1,4 @@
 <?
-$MESS["F_SET_NAVIGATION"] = "Show Breadcrumb navigation";
 $MESS["F_FORUMS_PER_PAGE"] = "Number of Forums per page";
 $MESS["F_TOPICS_PER_PAGE"] = "Number of Topics per page";
 $MESS["F_MESSAGES_PER_PAGE"] = "Number of Messages per page";

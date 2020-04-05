@@ -137,18 +137,28 @@ class CSecuritySystemInformation
 	 */
 	protected static function getSites()
 	{
+		$converter = CBXPunycode::GetConverter();
 		$result = array();
 		$dbSites = CSite::GetList($b = 'sort', $o = 'asc', array('ACTIVE' => 'Y'));
 		while ($arSite = $dbSites->Fetch())
 		{
-			$domains = explode("\n", str_replace("\r", "\n", $arSite["DOMAINS"]));
-			$domains = array_filter($domains);
 			$result[] = array(
 				'ID' => $arSite['ID'],
-				'DOMAINS' => $domains
+				'DOMAINS' => array(),
 			);
-		}
 
+			$domains = explode("\n", $arSite["DOMAINS"]);
+			foreach($domains as $domainName)
+			{
+				$domainName = trim($domainName, "\r\t ");
+				if ($domainName != "")
+				{
+					$punyName = $converter->Encode($domainName);
+					if ($punyName !== false)
+						$result[count($result) - 1]['DOMAINS'][] = $punyName;
+				}
+			}
+		}
 		return $result;
 	}
 

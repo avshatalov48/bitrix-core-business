@@ -745,7 +745,12 @@ if (
 
 		if (!empty($basketIdList))
 		{
-			$basketRes = Sale\Basket::getList(
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
+			$basketRes = $basketClass::getList(
 				array(
 					'filter' => array(
 						'=ID' => $basketIdList
@@ -4374,9 +4379,9 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][NAME]"                   id="PRODUCT[<?=$val["ID"]?>][NAME]" value="<?=$val["NAME"]?>" />
 						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][PRICE_DEFAULT]"          id="PRODUCT[<?=$val["ID"]?>][PRICE_DEFAULT]" value="<?=$val["PRICE"]; ?>" />
 						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][PRODUCT_ID]"             id="PRODUCT[<?=$val["ID"]?>][PRODUCT_ID]" value="<?=$val["PRODUCT_ID"]?>" />
-						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][BARCODE_MULTI]"          id="PRODUCT[<?=$val["ID"]?>][BARCODE_MULTI]" value="<?=($val["BARCODE_MULTI"] == Y) ? "Y" : "N"?>" />
-						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][HAS_SAVED_QUANTITY]"     id="PRODUCT[<?=$val["ID"]?>][HAS_SAVED_QUANTITY]" value="<?=($val["HAS_SAVED_QUANTITY"] == Y) ? "Y" : "N"?>" />
-						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][CUSTOM_PRICE]"           id="PRODUCT[<?=$val["ID"]?>][CUSTOM_PRICE]" value="<?=($val["CUSTOM_PRICE"] == Y) ? "Y" : "N"?>" />
+						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][BARCODE_MULTI]"          id="PRODUCT[<?=$val["ID"]?>][BARCODE_MULTI]" value="<?=($val["BARCODE_MULTI"] == 'Y') ? "Y" : "N"?>" />
+						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][HAS_SAVED_QUANTITY]"     id="PRODUCT[<?=$val["ID"]?>][HAS_SAVED_QUANTITY]" value="<?=($val["HAS_SAVED_QUANTITY"] == 'Y') ? "Y" : "N"?>" />
+						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][CUSTOM_PRICE]"           id="PRODUCT[<?=$val["ID"]?>][CUSTOM_PRICE]" value="<?=($val["CUSTOM_PRICE"] == 'Y') ? "Y" : "N"?>" />
 						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][TYPE]"                   id="PRODUCT[<?=$val["ID"]?>][TYPE]" value="<?=$val["TYPE"];?>" />
 						<input type="hidden" name="PRODUCT[<?=$val["ID"]?>][SET_PARENT_ID]"          id="PRODUCT[<?=$val["ID"]?>][SET_PARENT_ID]" value="<?=$val["SET_PARENT_ID"];?>" />
 

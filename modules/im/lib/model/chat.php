@@ -148,6 +148,10 @@ class ChatTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'default_value' => 0,
 			),
+			'PREV_MESSAGE_ID' => array(
+				'data_type' => 'integer',
+				'default_value' => 0
+			),
 			'LAST_MESSAGE_ID' => array(
 				'data_type' => 'integer',
 				'default_value' => 0
@@ -190,17 +194,25 @@ class ChatTable extends Entity\DataManager
 	{
 		$id = (int)$id;
 		if($id == 0)
+		{
 			return;
+		}
 
 		$record = parent::getByPrimary($id)->fetch();
 		if(!is_array($record))
+		{
 			return;
+		}
 
-		if (!in_array($record['TYPE'], [\Bitrix\Im\Chat::TYPE_OPEN, \Bitrix\Im\Chat::TYPE_GROUP]))
+		if (in_array($record['TYPE'], [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE]))
+		{
 			return;
+		}
 
-		if ($record['ENTITY_TYPE'] == 'LIVECHAT')
+		if ($record['ENTITY_TYPE'] === 'LIVECHAT')
+		{
 			return;
+		}
 
 		ChatIndexTable::merge(array(
 			'CHAT_ID' => $id,

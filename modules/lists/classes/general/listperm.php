@@ -133,17 +133,17 @@ class CListPermissions
 
 	/**
 	 * @param $USER CUser
-	 * @param $iblock_type_id string
+	 * @param $iblockTypeId string
 	 * @return string
 	 */
-	static protected function _lists_type_check($USER, $iblock_type_id)
+	static protected function _lists_type_check($USER, $iblockTypeId)
 	{
-		$arListsPerm = CLists::GetPermission($iblock_type_id);
-		if(!count($arListsPerm))
+		$listsPermission = CLists::GetPermission($iblockTypeId);
+		if (!is_array($listsPermission) || !count($listsPermission))
 			return CListPermissions::ACCESS_DENIED;
 
-		$arUSER_GROUPS = $USER->GetUserGroupArray();
-		if(count(array_intersect($arListsPerm, $arUSER_GROUPS)) > 0)
+		$userGroups = $USER->GetUserGroupArray();
+		if (count(array_intersect($listsPermission, $userGroups)) > 0)
 			return CListPermissions::IS_ADMIN;
 
 		return CListPermissions::CAN_READ;

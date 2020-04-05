@@ -35,6 +35,7 @@
 		this.audioContext = null;
 		this.mediaStreamNode = null;
 		this.scriptNode = null;
+		this.analyserNode = null;
 
 		this.worker = new window.Worker("/bitrix/js/main/recorder/encoder.js");
 		this.worker.postMessage({action: 'init', type: this.options.type});
@@ -98,6 +99,27 @@
 		this.state = states.recording;
 	};
 
+	BX.Recorder.prototype.attachAnalyser = function(params)
+	{
+		if(this.state !== states.recording)
+			throw "recorder is in the wrong state";
+
+		if(!params)
+		{
+			params = {};
+		}
+
+		if(!this.analyserNode)
+		{
+			this.analyserNode = this.audioContext.createAnalyser();
+			this.analyserNode.fftSize = params.fftSize || 128;
+			this.analyserNode.minDecibels = params.minDecibels || -80;
+			this.analyserNode.maxDecibels = params.maxDecibels || -10;
+
+			this.mediaStreamNode.connect(this.analyserNode);
+		}
+	};
+
 	BX.Recorder.prototype.stop = function()
 	{
 		if(this.state !== states.recording)
@@ -106,6 +128,9 @@
 		this.worker.postMessage({
 			action: 'stop'
 		});
+
+		if(this.analyserNode)
+			this.analyserNode.disconnect();
 
 		if(this.scriptNode)
 			this.scriptNode.disconnect();
@@ -116,6 +141,7 @@
 		if(this.audioContext)
 			this.audioContext.close();
 
+		this.analyserNode = null;
 		this.scriptNode = null;
 		this.mediaStreamNode = null;
 		this.audioContext = null;
@@ -145,9 +171,17 @@
 			throw "stream must be of type MediaStream";
 
 		this.stream = stream;
+		if(this.analyserNode)
+		{
+			this.analyserNode.disconnect();
+		}
 		this.mediaStreamNode.disconnect();
 		this.mediaStreamNode = this.audioContext.createMediaStreamSource(this.stream);
 		this.mediaStreamNode.connect(this.scriptNode);
+		if(this.analyserNode)
+		{
+			this.mediaStreamNode.connect(this.analyserNode);
+		}
 	};
 
 	BX.Recorder.prototype.getState = function()

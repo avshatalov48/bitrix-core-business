@@ -50,6 +50,7 @@ create table if not exists b_sale_basket
 	DELAY char(1) not null default 'N',
 	NAME varchar(255) not null,
 	CAN_BUY char(1) not null default 'Y',
+	MARKING_CODE_GROUP varchar(100) null,
 	MODULE varchar(100) null,
 	CALLBACK_FUNC varchar(100) null,
 	NOTES varchar(250) null,
@@ -181,6 +182,7 @@ create table if not exists b_sale_order
 	EXTERNAL_ORDER char(1) not null default 'N',
 	RUNNING char(1) not null default 'N',
 	BX_USER_ID varchar(32) null,
+	SEARCH_CONTENT mediumtext null,
 	primary key (ID),
 	index IXS_ORDER_PERSON_TYPE_ID(PERSON_TYPE_ID),
 	index IXS_ORDER_STATUS_ID(STATUS_ID),
@@ -292,8 +294,7 @@ create table if not exists b_sale_order_props_relation
   PROPERTY_ID INT NOT NULL,
   ENTITY_ID VARCHAR(35) NOT NULL,
   ENTITY_TYPE CHAR(1) NOT NULL,
-  PRIMARY KEY (PROPERTY_ID, ENTITY_ID, ENTITY_TYPE),
-  index `IX_ENTITY_ID` (`ENTITY_ID`)
+  PRIMARY KEY (PROPERTY_ID, ENTITY_ID, ENTITY_TYPE)
 );
 
 create table if not exists b_sale_pay_system_action
@@ -816,8 +817,7 @@ create table if not exists b_sale_status_lang
 	LID char(2) not null,
 	NAME varchar(100) not null,
 	DESCRIPTION varchar(250) null,
-	primary key (STATUS_ID, LID),
-	unique ixs_status_lang_status_id(STATUS_ID, LID)
+	primary key (STATUS_ID, LID)
 );
 
 create table b_sale_status_group_task
@@ -998,7 +998,6 @@ create table if not exists b_sale_user_transact
 	PAYMENT_ID int null,
 	EMPLOYEE_ID int(11) null,
 	primary key (ID),
-	index IX_S_U_T_USER_ID(USER_ID),
 	index IX_S_U_T_USER_ID_CURRENCY(USER_ID, CURRENCY),
 	index IX_S_U_T_ORDER_ID(ORDER_ID),
 	index IX_S_U_T_PAYMENT_ID(PAYMENT_ID)
@@ -1132,6 +1131,7 @@ create table if not exists b_sale_order_delivery (
 	REASON_MARKED VARCHAR(255) NULL DEFAULT NULL,
 	CURRENCY VARCHAR(3) NULL DEFAULT NULL,
 	`SYSTEM` CHAR(1) NOT NULL DEFAULT 'N',
+	WEIGHT double(18, 4) default 0,
 	RESPONSIBLE_ID int(11) DEFAULT NULL,
 	EMP_RESPONSIBLE_ID int(11) DEFAULT NULL,
 	DATE_RESPONSIBLE_ID datetime DEFAULT NULL,
@@ -1343,6 +1343,7 @@ create table if not exists b_sale_store_barcode (
 	ID INT NOT NULL AUTO_INCREMENT,
 	BASKET_ID INT NOT NULL,
 	BARCODE VARCHAR(100) NULL,
+	MARKING_CODE VARCHAR(100) NULL,
 	STORE_ID INT NULL,
 	QUANTITY DOUBLE NOT NULL,
 	DATE_CREATE DATETIME NULL,
@@ -1466,7 +1467,7 @@ create table if not exists b_sale_bizval
 	CONSUMER_KEY varchar(50) not null,
 	PERSON_TYPE_ID int not null,
 	PROVIDER_KEY varchar(50) not null,
-	PROVIDER_VALUE varchar(2000) null,
+	PROVIDER_VALUE text null,
 	primary key(CODE_KEY, CONSUMER_KEY, PERSON_TYPE_ID)
 );
 
@@ -1887,7 +1888,7 @@ create table if not exists b_sale_exchange_log (
 	PRIMARY KEY (ID),
 	INDEX IX_EXCHANGE_LOG1 (ENTITY_ID, ENTITY_TYPE_ID),
 	INDEX IX_EXCHANGE_LOG2 (ENTITY_DATE_UPDATE),
-	INDEX IX_EXCHANGE_LOG3 (DATE_INSERT)				
+	INDEX IX_EXCHANGE_LOG3 (DATE_INSERT)
 );
 
 create table if not exists b_sale_synchronizer_log (
@@ -1896,7 +1897,14 @@ create table if not exists b_sale_synchronizer_log (
 	MESSAGE LONGTEXT NULL,
 	DATE_INSERT DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (ID),
-	INDEX IX_SYNCHRONIZER_LOG1 (DATE_INSERT)				
+	INDEX IX_SYNCHRONIZER_LOG1 (DATE_INSERT)
+);
+
+create table if not exists b_sale_order_converter_crm_error (
+	ID INT NOT NULL AUTO_INCREMENT,
+	ORDER_ID INT NOT NULL,
+	ERROR TEXT NULL,
+	PRIMARY KEY (ID)
 );
 
 create table if not exists b_sale_usergroup_restr(
@@ -1906,4 +1914,23 @@ create table if not exists b_sale_usergroup_restr(
 	GROUP_ID INT NOT NULL,
 	PRIMARY KEY (ID),
 	INDEX IX_BSUG_ETI_EI_GI(ENTITY_TYPE_ID, ENTITY_ID, GROUP_ID)
+);
+
+create table if not exists b_sale_documentgenerator_callback_registry(
+	ID INT NOT NULL AUTO_INCREMENT,
+	DATE_INSERT datetime not null,
+	MODULE_ID INT NOT NULL,
+	DOCUMENT_ID INT NOT NULL,
+	CALLBACK_CLASS VARCHAR(100) NOT NULL,
+	CALLBACK_METHOD VARCHAR(100) NOT NULL,
+	PRIMARY KEY (ID)
+);
+
+create table if not exists b_sale_order_entities_custom_fields(
+	ID INT NOT NULL AUTO_INCREMENT,
+	ENTITY_ID INT NOT NULL,
+	ENTITY_TYPE varchar(255) NOT NULL,
+	ENTITY_REGISTRY_TYPE varchar(255) not null,
+	FIELD varchar(255) not null,
+	PRIMARY KEY (ID)
 );

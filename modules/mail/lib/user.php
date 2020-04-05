@@ -291,29 +291,12 @@ class User
 			return false;
 		}
 
-		$attachments = array();
-		if (is_array($message['files']))
-		{
-			$tmpDir = \CTempFile::getDirectoryName(6);
-			checkDirPath($tmpDir);
-
-			foreach($message['files'] as $key => $file)
-			{
-				if(
-					!is_uploaded_file($file['tmp_name'])
-					|| $file['size'] <= 0
-				)
-				{
-					continue;
-				}
-
-				$uploadFile = $tmpDir.bx_basename($file['name']);
-				if(move_uploaded_file($file['tmp_name'], $uploadFile))
-				{
-					$attachments[$key] = $uploadFile;
-				}
-			}
-		}
+		$attachments = array_filter(
+			array_combine(
+				array_keys((array) $message['files']),
+				array_column((array) $message['files'], 'tmp_name')
+			)
+		);
 
 		$addResult = User\MessageTable::add(array(
 			'TYPE' => $type,

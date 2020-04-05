@@ -5,7 +5,7 @@ use \Bitrix\Main;
 use \Bitrix\Bizproc;
 use \Bitrix\Bizproc\RestActivityTable;
 
- /**
+/**
  * Workflow runtime.
  *
  * @method \CBPSchedulerService getSchedulerService()
@@ -20,6 +20,7 @@ class CBPRuntime
 {
 	const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
 	const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
+	const EXCEPTION_CODE_INSTANCE_TERMINATED = 499;
 
 	const REST_ACTIVITY_PREFIX = 'rest_';
 
@@ -609,8 +610,10 @@ class CBPRuntime
 			$arProcessedDirs = array_merge($arProcessedDirs, $this->getRestRobots(false, $documentType));
 		}
 
-		if ($type != 'condition')
-			\Bitrix\Main\Type\Collection::sortByColumn($arProcessedDirs, 'NAME');
+		if ($type !== 'condition')
+		{
+			\Bitrix\Main\Type\Collection::sortByColumn($arProcessedDirs, ['SORT' => SORT_ASC, 'NAME' => SORT_ASC]);
+		}
 
 		return $arProcessedDirs;
 	}
@@ -731,6 +734,24 @@ class CBPRuntime
 			&& !$this->checkActivityFilter($activity['FILTER'], $documentType)
 		)
 			$result['EXCLUDED'] = true;
+
+		if (!empty($activity['RETURN_PROPERTIES']))
+		{
+			foreach ($activity['RETURN_PROPERTIES'] as $name => $property)
+			{
+				$result['RETURN'][$name] = array(
+					'NAME' => RestActivityTable::getLocalization($property['NAME'], $lang),
+					'TYPE' => isset($property['TYPE']) ? $property['TYPE'] : \Bitrix\Bizproc\FieldType::STRING
+				);
+			}
+		}
+		if ($activity['USE_SUBSCRIPTION'] !== 'N')
+		{
+			$result['RETURN']['IsTimeout'] = array(
+				'NAME' => GetMessage('BPRA_IS_TIMEOUT'),
+				'TYPE' => \Bitrix\Bizproc\FieldType::INT
+			);
+		}
 
 		return $result;
 	}

@@ -25,7 +25,7 @@ $MESS["VOTE_NOTIFY_N"] = "Нет, не оповещать";
 $MESS["VOTE_VOTES"] = "Голосов: ";
 $MESS["VOTE_EDIT_TITLE"] = "Изменить параметры опроса";
 $MESS["VOTE_ACTIVE_RED_LAMP"] = "Истек срок показа. ";
-$MESS["VOTE_NOT_ACTIVE"] = "Опрос не активен.";
+$MESS["VOTE_NOT_ACTIVE"] = "Опрос неактивен.";
 $MESS["VOTE_IS_NOT_EXPECTED"] = "Опрос не совпадает с сохранённым.";
 $MESS["VOTE_IS_NOT_FOUND"] = "Опрос не найден.";
 

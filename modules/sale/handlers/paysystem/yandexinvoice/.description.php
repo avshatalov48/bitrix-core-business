@@ -3,18 +3,10 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
-
-$licensePrefix = \Bitrix\Main\Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
-if (IsModuleInstalled("bitrix24") && !in_array($licensePrefix, ["ru"]))
-{
-	$isAvailable = \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
-}
-
 $data = array(
 	'NAME' => Loc::getMessage('SALE_HPS_YANDEX_INVOICE'),
 	'SORT' => 500,
-	'IS_AVAILABLE' => $isAvailable,
+	'IS_AVAILABLE' => \Bitrix\Sale\PaySystem\Manager::HANDLER_AVAILABLE_FALSE,
 	'CODES' => array(
 		"YANDEX_INVOICE_SHOP_ID" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_INVOICE_SHOP_ID"),
@@ -62,6 +54,10 @@ $data = array(
 			"INPUT" => array(
 				'TYPE' => 'Y/N'
 			),
+			'DEFAULT' => array(
+				"PROVIDER_KEY" => "INPUT",
+				"PROVIDER_VALUE" => "Y",
+			)
 		),
 		"PS_IS_TEST" => array(
 			"NAME" => Loc::getMessage("SALE_HPS_YANDEX_INVOICE_IS_TEST"),

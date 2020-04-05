@@ -199,6 +199,7 @@ class Uploader
 		$params = is_array($params) ? $params : array($params);
 		$params["copies"] = (is_array($params["copies"]) ? $params["copies"] : array()) + $this->params["copies"];
 		$params["storage"] = (is_array($params["storage"]) ? $params["storage"] : array()) + $this->params["storage"];
+		$params["storage"]["moduleId"] = preg_replace("/[^a-z_-]/i", "_", $params["storage"]["moduleId"]);
 		$this->params = $params;
 		if (array_key_exists("controlId", $params))
 			$this->controlId = $params["controlId"];

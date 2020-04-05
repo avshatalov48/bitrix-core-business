@@ -22,7 +22,8 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 			"GetAdminFilterHTML" => array(__CLASS__,'GetAdminFilterHTML'),
 			"GetSettingsHTML" => array(__CLASS__,'GetSettingsHTML'),
 			"PrepareSettings" => array(__CLASS__,'PrepareSettings'),
-			"AddFilterFields" => array(__CLASS__,'AddFilterFields')
+			"AddFilterFields" => array(__CLASS__,'AddFilterFields'),
+			"GetUIFilterProperty" => array(__CLASS__, 'GetUIFilterProperty')
 		);
 	}
 

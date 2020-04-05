@@ -7,12 +7,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
-	'block' =>
-		array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10'),
-			'section' => array('forms'),
-			'subtype' => 'form',
-		),
+	'block' => array(
+		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10'),
+		'section' => array('forms'),
+		'dynamic' => false,
+		'subtype' => 'form',
+		'type' => ['page', 'store', 'smn'],
+	),
 	'cards' => array(
 		'.landing-block-card-contact' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_CONTACT'),
@@ -23,7 +24,7 @@ return array(
 				'.landing-block-card-linkcontact-title',
 			),
 			'presets' => include __DIR__ . '/presets.php',
-		)
+		),
 	),
 	'groups' => array(
 		'contact' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_CONTACT'),
@@ -116,7 +117,7 @@ return array(
 		
 		'.landing-block-card-linkcontact-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_CONTACT_TITLE'),
-			'type' => 'typo',
+			'type' => 'typo-link',
 		),
 		'.landing-block-card-linkcontact-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_CONTACT_TEXT'),
@@ -124,7 +125,7 @@ return array(
 		),
 		'.landing-block-card-linkcontact-link' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.10_NODE_CONTACT_LINK'),
-			'type' => 'typo',
+			'type' => 'typo-link',
 		),
 	),
 	'assets' => array(

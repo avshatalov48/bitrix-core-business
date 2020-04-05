@@ -3,7 +3,7 @@ namespace Bitrix\Bizproc\Automation;
 
 use Bitrix\Bizproc\WorkflowTemplateTable;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
-use Bitrix\Bizproc\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 
 class Tracker
 {
@@ -63,6 +63,7 @@ class Tracker
 			$isExecute = $isClosed = $isAutocompleted = false;
 			$executeTime = $closedTime = $autocompletedTime = null;
 			$errors = array();
+			$notes = array();
 			foreach ($robotEntry as $entry)
 			{
 				if ($entry['TYPE'] == \CBPTrackingType::ExecuteActivity)
@@ -78,6 +79,10 @@ class Tracker
 				elseif ($entry['TYPE'] == \CBPTrackingType::Error)
 				{
 					$errors[] = $entry['ACTION_NOTE'];
+				}
+				elseif ($entry['TYPE'] == \CBPTrackingType::Custom)
+				{
+					$notes[] = $entry['ACTION_NOTE'];
 				}
 			}
 
@@ -101,7 +106,8 @@ class Tracker
 				'ID' => $robotId,
 				'STATUS' => $status,
 				'MODIFIED' => $modified,
-				'ERRORS' => $errors
+				'ERRORS' => $errors,
+				'NOTES' => $notes
 			);
 		}
 
@@ -171,7 +177,7 @@ class Tracker
 				'=MODULE_ID' => $documentType[0],
 				'=ENTITY' => $documentType[1],
 				'=DOCUMENT_TYPE' => $documentType[2],
-				'=AUTO_EXECUTE' => \CBPDocumentEventType::Automation,
+				//'=AUTO_EXECUTE' => \CBPDocumentEventType::Automation,
 				'@DOCUMENT_STATUS' => $statuses
 			)
 		));

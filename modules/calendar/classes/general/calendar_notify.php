@@ -692,7 +692,7 @@ class CCalendarNotify
 	{
 		if (\Bitrix\Main\Loader::includeModule("im"))
 		{
-			if ($eventId && $eventId)
+			if ($eventId && $userId)
 			{
 				CIMNotify::DeleteByTag("CALENDAR|INVITE|".$eventId."|".$userId);
 				CIMNotify::DeleteByTag("CALENDAR|STATUS|".$eventId."|".$userId);

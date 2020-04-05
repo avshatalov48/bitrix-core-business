@@ -14,7 +14,7 @@ if(strlen($arResult["NAV_STRING"]) > 0)
 	<?
 }
 
-if (count($arResult["PROFILES"]))
+if (is_array($arResult["PROFILES"]) && !empty($arResult["PROFILES"]))
 {
 	?>
 	<table class="table sale-personal-profile-list-container">
@@ -70,7 +70,7 @@ if (count($arResult["PROFILES"]))
 		<?
 	}
 }
-else
+elseif ($arResult['USER_IS_NOT_AUTHORIZED'] !== 'Y')
 {
 	?>
 	<h3><?=Loc::getMessage("STPPL_EMPTY_PROFILE_LIST") ?></h3>

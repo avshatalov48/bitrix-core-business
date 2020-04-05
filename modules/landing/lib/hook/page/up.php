@@ -28,6 +28,11 @@ class Up extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		return $this->fields['SHOW']->getValue() == 'Y';
 	}
 
@@ -37,6 +42,11 @@ class Up extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
+		if ($this->execCustom())
+		{
+			return;
+		}
+
 		Manager::setPageView('BodyClass', 'g-upper-show');
 	}
 }

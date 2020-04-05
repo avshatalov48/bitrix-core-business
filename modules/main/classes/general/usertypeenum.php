@@ -146,9 +146,7 @@ class CUserTypeEnum extends \Bitrix\Main\UserField\TypeBase
 			CJSCore::Init('ui');
 
 			$startValue = array(
-				'NAME' => strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0
-					? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"]
-					: GetMessage('MAIN_NO'),
+				'NAME' => self::getEmptyCaption($arUserField),
 				'VALUE' => '',
 			);
 
@@ -253,7 +251,7 @@ EOT;
 				$result2 .= '<label><input type="radio" value="'.$arEnum["ID"].'" name="'.$arHtmlControl["NAME"].'"'.($bSelected? ' checked': '').($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>'.$arEnum["VALUE"].'</label><br>';
 			}
 			if($arUserField["MANDATORY"]!="Y")
-				$result .= '<label><input type="radio" value="" name="'.$arHtmlControl["NAME"].'"'.(!$bWasSelect? ' checked': '').($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>'.htmlspecialcharsbx(strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0 ? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"] : GetMessage('MAIN_NO')).'</label><br>';
+				$result .= '<label><input type="radio" value="" name="'.$arHtmlControl["NAME"].'"'.(!$bWasSelect? ' checked': '').($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>'.htmlspecialcharsbx(self::getEmptyCaption($arUserField)).'</label><br>';
 			$result .= $result2;
 		}
 		else
@@ -280,10 +278,10 @@ EOT;
 				$size = '';
 			}
 
-			$result = '<select name="'.$arHtmlControl["NAME"].'"'.$size.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>';
+			$result = '<select name="'.$arHtmlControl["NAME"].'"'.$size.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').' style="max-width: 300px;">';
 			if($arUserField["MANDATORY"]!="Y")
 			{
-				$result .= '<option value=""'.(!$bWasSelect? ' selected': '').'>'.htmlspecialcharsbx(strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0 ? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"] : GetMessage('MAIN_NO')).'</option>';
+				$result .= '<option value=""'.(!$bWasSelect? ' selected': '').'>'.htmlspecialcharsbx(self::getEmptyCaption($arUserField)).'</option>';
 			}
 			$result .= $result2;
 			$result .= '</select>';
@@ -330,9 +328,7 @@ EOT;
 			\CJSCore::Init('ui');
 
 			$emptyValue = array(
-				'NAME' => strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0
-					? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"]
-					: GetMessage('MAIN_NO'),
+				'NAME' => self::getEmptyCaption($arUserField),
 				'VALUE' => '',
 			);
 
@@ -465,11 +461,11 @@ EOT;
 		}
 		else
 		{
-			$result = '<select multiple name="'.$arHtmlControl["NAME"].'" size="'.$arUserField["SETTINGS"]["LIST_HEIGHT"].'"'.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': ''). '>';
+			$result = '<select multiple name="'.$arHtmlControl["NAME"].'" size="'.$arUserField["SETTINGS"]["LIST_HEIGHT"].'"'.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': ''). ' style="max-width: 300px;">';
 
 			if($arUserField["MANDATORY"] <> "Y")
 			{
-				$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0 ? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"] : GetMessage('MAIN_NO')).'</option>';
+				$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(self::getEmptyCaption($arUserField)).'</option>';
 			}
 			while($arEnum = $rsEnum->GetNext())
 			{
@@ -574,7 +570,7 @@ EOT;
 		$result = '<select name="'.$arHtmlControl["NAME"].'"'.$size.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>';
 		if($arUserField["MANDATORY"]!="Y")
 		{
-			$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0 ? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"] : GetMessage('MAIN_NO')).'</option>';
+			$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(self::getEmptyCaption($arUserField)).'</option>';
 		}
 		while($arEnum = $rsEnum->GetNext())
 		{
@@ -601,7 +597,7 @@ EOT;
 		$result = '<select multiple name="'.$arHtmlControl["NAME"].'" size="'.$arUserField["SETTINGS"]["LIST_HEIGHT"].'"'.($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': '').'>';
 		if($arUserField["MANDATORY"]!="Y")
 		{
-			$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(strlen($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) > 0 ? $arUserField["SETTINGS"]["CAPTION_NO_VALUE"] : GetMessage('MAIN_NO')).'</option>';
+			$result .= '<option value=""'.(!$arHtmlControl["VALUE"]? ' selected': '').'>'.htmlspecialcharsbx(self::getEmptyCaption($arUserField)).'</option>';
 		}
 		while($arEnum = $rsEnum->GetNext())
 		{
@@ -990,24 +986,27 @@ EOT;
 
 			$tag = '<select '.static::buildTagAttributes($attrList).'>';
 
-			foreach($arUserField["USER_TYPE"]["FIELDS"] as $key => $val)
+			if(isset($arUserField["USER_TYPE"]["FIELDS"]) && is_array($arUserField["USER_TYPE"]["FIELDS"]))
 			{
-				$bSelected = in_array($key, $value) && (
-						(!$bWasSelect) ||
-						($arUserField["MULTIPLE"] == "Y")
-					);
-				$bWasSelect = $bWasSelect || $bSelected;
-
-				$attrList = array(
-					'value' => $key,
-				);
-
-				if($bSelected)
+				foreach($arUserField["USER_TYPE"]["FIELDS"] as $key => $val)
 				{
-					$attrList['selected'] = 'selected';
-				}
+					$bSelected = in_array($key, $value) && (
+							(!$bWasSelect) ||
+							($arUserField["MULTIPLE"] == "Y")
+						);
+					$bWasSelect = $bWasSelect || $bSelected;
 
-				$tag .= '<option '.static::buildTagAttributes($attrList).'>'.htmlspecialcharsbx($val).'</option>';
+					$attrList = array(
+						'value' => $key,
+					);
+
+					if($bSelected)
+					{
+						$attrList['selected'] = 'selected';
+					}
+
+					$tag .= '<option '.static::buildTagAttributes($attrList).'>'.htmlspecialcharsbx($val).'</option>';
+				}
 			}
 			$tag .= '</select>';
 

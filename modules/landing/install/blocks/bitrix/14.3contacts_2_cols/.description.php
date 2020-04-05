@@ -10,7 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_NAME'),
 		'section' => array('contacts'),
-		'version' => '18.5.0',
+		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	),
 	'cards' => array(
 		'.landing-block-card' => array(
@@ -85,7 +85,7 @@ return array(
 		),
 		'.landing-block-node-linkcontact-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_STYLE_LANDINGBLOCKNODECONTACTTITLE'),
-			'type' => 'typo',
+			'type' => 'typo-link',
 		),
 		'.landing-block-node-linkcontact-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_STYLE_LANDINGBLOCKNODECONTACTTEXT'),

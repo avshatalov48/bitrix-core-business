@@ -45,7 +45,8 @@ class ConverterFactory
 			return new ConverterDocumentPayment();
 		}
 		elseif($typeId == EntityType::PROFILE ||
-			$typeId == EntityType::USER_PROFILE)
+			$typeId == EntityType::USER_PROFILE ||
+			$typeId == EntityType::USER_PROFILE_CONTACT_COMPANY)
 		{
 			return new ConverterDocumentProfile();
 		}

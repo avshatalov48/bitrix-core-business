@@ -4,6 +4,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
+\Bitrix\Main\UI\Extension::load(['sender.error_handler']);
+
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -313,7 +315,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 			'ONCLICK' => "BX.Sender.LetterList.resume({$data['ID']});"
 		);
 	}
-	if ($data['STATE']['canWait'] && $canEdit)
+	if ($data['STATE']['isHalted'] && $data['STATE']['canWait'] && $canEdit)
 	{
 		$stateActions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME_TITLE'),
@@ -403,6 +405,8 @@ if ($arParams['CAN_EDIT'])
 	$controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getRemoveButton();
 }
 
+$navigation =  $arResult['NAV_OBJECT'];
+
 $APPLICATION->IncludeComponent(
 	"bitrix:main.ui.grid",
 	"",
@@ -410,7 +414,14 @@ $APPLICATION->IncludeComponent(
 		"GRID_ID" => $arParams['GRID_ID'],
 		"COLUMNS" => $arResult['COLUMNS'],
 		"ROWS" => $arResult['ROWS'],
-		"NAV_OBJECT" => $arResult['NAV_OBJECT'],
+		'NAV_OBJECT' => $navigation,
+		'PAGE_SIZES' => $navigation->getPageSizes(),
+		'DEFAULT_PAGE_SIZE' => $navigation->getPageSize(),
+		'TOTAL_ROWS_COUNT' => $navigation->getRecordCount(),
+		'NAV_PARAM_NAME' => $navigation->getId(),
+		'CURRENT_PAGE' => $navigation->getCurrentPage(),
+		'PAGE_COUNT' => $navigation->getPageCount(),
+		'SHOW_PAGESIZE' => true,
 		"~NAV_PARAMS" => array('SHOW_ALWAYS' => false),
 		'SHOW_ROW_CHECKBOXES' => $arParams['CAN_EDIT'],
 		'SHOW_GRID_SETTINGS_MENU' => true,
@@ -418,7 +429,6 @@ $APPLICATION->IncludeComponent(
 		'SHOW_SELECTED_COUNTER' => true,
 		'SHOW_TOTAL_COUNTER' => true,
 		'ACTION_PANEL' => $controlPanel,
-		"TOTAL_ROWS_COUNT" => $arResult['TOTAL_ROWS_COUNT'],
 		'ALLOW_COLUMNS_SORT' => true,
 		'ALLOW_COLUMNS_RESIZE' => true,
 		"AJAX_MODE" => "Y",

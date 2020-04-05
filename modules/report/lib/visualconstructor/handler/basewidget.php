@@ -3,17 +3,16 @@
 namespace Bitrix\Report\VisualConstructor\Handler;
 
 use Bitrix\Report\VisualConstructor\Entity\Widget;
-use Bitrix\Report\VisualConstructor\Fields\Base as BaseFormField;
+use Bitrix\Report\VisualConstructor\Fields;
 use Bitrix\Report\VisualConstructor\Fields\Container;
 use Bitrix\Report\VisualConstructor\Fields\Valuable\BaseValuable;
-use Bitrix\Report\VisualConstructor\Handler\Base as BaseHandler;
 use Bitrix\Report\VisualConstructor\RuntimeProvider\ViewProvider;
 
 /**
  * Class BaseWidget class for extending to create preset widget classes
  * @package Bitrix\Report\VisualConstructor\Handler
  */
-class BaseWidget extends BaseHandler
+class BaseWidget extends Base
 {
 	private $widget;
 	private $reportHandlerList = array();
@@ -37,7 +36,7 @@ class BaseWidget extends BaseHandler
 	}
 
 	/**
-	 * @return \Bitrix\Report\VisualConstructor\Fields\Base[]
+	 * @return Fields\Base[]
 	 */
 	public function getCollectedFormElements()
 	{
@@ -75,7 +74,7 @@ class BaseWidget extends BaseHandler
 	}
 
 	/**
-	 * @return BaseFormField[]
+	 * @return Fields\Base[]
 	 */
 	public function getFormElements()
 	{

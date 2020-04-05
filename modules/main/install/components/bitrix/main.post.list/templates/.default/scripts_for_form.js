@@ -37,8 +37,7 @@
 					}
 				}
 			}, this),
-
-			OnUCUserQuote : BX.delegate(function(entityId, author, res, safeEdit, loaded) {
+			OnUCQuote : BX.delegate(function(entityId, author, res, safeEdit, loaded) {
 				var origRes = BX.util.htmlspecialchars(res);
 				if (this.entitiesId[entityId])
 				{
@@ -47,7 +46,7 @@
 					this.show([entityId, 0]);
 					if (loaded !== true)
 					{
-						this.handler.exec(this.windowEvents.OnUCUserQuote, [entityId, author, res, safeEdit, true]);
+						this.handler.exec(this.windowEvents.OnUCQuote, [entityId, author, res, safeEdit, true]);
 					}
 					else if (!this.handler.oEditor.toolbar.controls.Quote)
 					{
@@ -60,7 +59,7 @@
 					else
 					{
 						res = origRes;
-						var haveWrittenText = author.gender ?
+						var haveWrittenText = author && author.gender ?
 							BX.message("MPL_HAVE_WRITTEN_"+author.gender) : BX.message("MPL_HAVE_WRITTEN");
 						if (this.handler.oEditor.GetViewMode() == 'wysiwyg') // BB Codes
 						{
@@ -120,13 +119,12 @@
 					}
 				}
 			}, this),
-
-			OnUCUserReply : BX.delegate(function(entityId, authorId, authorName, safeEdit) {
-				if (!this._checkTextSafety([entityId, 0], safeEdit))
+			OnUCReply : function(entityId, authorId, authorName, safeEdit, eventResult) {
+				if (eventResult.caught === true || !this._checkTextSafety([entityId, 0], safeEdit))
 					return;
-
 				if (this.entitiesId[entityId])
 				{
+					eventResult.caught = true;
 					this.show([entityId, 0]);
 					if (authorId > 0)
 					{
@@ -140,8 +138,7 @@
 						}]);
 					}
 				}
-			}, this),
-
+			}.bind(this),
 			OnUCAfterRecordEdit : BX.delegate(function(entityId, id, data, act) {
 				if (!!this.entitiesId[entityId]) {
 					if (act === "EDIT")
@@ -164,16 +161,7 @@
 							this.id = null;
 						}
 					}
-				} }, this),
-
-			OnUCUsersAreWriting : BX.delegate(function(entityId, authorId, authorName, authorAvatar, timeL) {
-				if (!!this.entitiesId[entityId]) { this.showAnswering([entityId, 0], authorId, authorName, authorAvatar, timeL); } }, this),
-
-			OnUCRecordHasDrawn :  BX.delegate(function(entityId, id, data/*, params*/) {
-				if (!!this.entitiesId[entityId]) {
-					var authorId = parseInt(data && data["AUTHOR"] ? data["AUTHOR"]["ID"] : 0);
-					if (authorId > 0)
-						this.hideAnswering([entityId, 0], authorId); } }, this)
+				} }, this)
 		};
 
 		this.linkEntity(arParams['entitiesId']);
@@ -212,7 +200,6 @@
 				this.__content_length = 0;
 				if (!!this.id) {
 					BX.onCustomEvent(this.eventNode, 'OnUCFormAfterHide', [this]);
-					this.showAnswering(this.id);
 				}
 				clearTimeout(this._checkWriteTimeout);
 				this._checkWriteTimeout = 0;
@@ -248,8 +235,6 @@
 			}, this));
 			BX.addCustomEvent(this.eventNode, 'OnAfterShowLHE', BX.delegate(function(show, obj){
 				this._checkWrite(show, obj);
-				if (!!this.id)
-					this.showAnswering(this.id);
 				BX.onCustomEvent(window, "OnUCFeedChanged", [this.id]);
 			}, this));
 			BX.addCustomEvent(this.eventNode, 'OnClickSubmit', BX.delegate(this.submit, this));
@@ -281,11 +266,9 @@
 			if (!this.windowEventsSet && !!this.entitiesId)
 			{
 				BX.addCustomEvent(window, 'OnUCUnlinkForm', this.windowEvents.OnUCUnlinkForm);
-				BX.addCustomEvent(window, 'OnUCUserReply', this.windowEvents.OnUCUserReply);
-				BX.addCustomEvent(window, 'OnUCUserQuote', this.windowEvents.OnUCUserQuote);
+				BX.addCustomEvent(window, 'OnUCReply', this.windowEvents.OnUCReply);
+				BX.addCustomEvent(window, 'OnUCQuote', this.windowEvents.OnUCQuote);
 				BX.addCustomEvent(window, 'OnUCAfterRecordEdit', this.windowEvents.OnUCAfterRecordEdit);
-				BX.addCustomEvent(window, 'OnUCUsersAreWriting', this.windowEvents.OnUCUsersAreWriting);
-				BX.addCustomEvent(window, 'OnUCRecordHasDrawn', this.windowEvents.OnUCRecordHasDrawn);
 				this.windowEventsSet = true;
 			}
 		},
@@ -308,7 +291,7 @@
 					time = 2000;
 				if(content.length >= 4 && this.__content_length != content.length && !!this.id)
 				{
-					BX.onCustomEvent(window, 'OnUCUserIsWriting', [this.id[0], this.id[1], this.jsCommentId]);
+					BX.onCustomEvent(window, 'OnUCUserIsWriting', [this.id[0], {sent : false}]);
 					time = 30000;
 				}
 				this._checkWriteTimeout = setTimeout(func, time);
@@ -396,11 +379,14 @@
 				post_data['COMMENT_EXEMPLAR_ID'] = this.jsCommentId;
 			post_data['SITE_ID'] = BX.message("SITE_ID");
 			post_data['LANGUAGE_ID'] = BX.message("LANGUAGE_ID");
+			post_data["ACTION"] = "ADD";
 
 			if (this.editing === true)
 			{
-				post_data['REVIEW_ACTION'] = "EDIT";
+				post_data['REVIEW_ACTION'] = "EDIT"; // @deprecated
 				post_data["FILTER"] = {"ID" : this.id[1]};
+				post_data["ACTION"] = "EDIT";
+				post_data["ID"] = this.id[1]; // comment to edit
 			}
 			BX.onCustomEvent(this.eventNode, 'OnUCFormSubmit', [this, post_data]);
 			BX.onCustomEvent(window, 'OnUCFormSubmit', [this.id[0], this.id[1], this, post_data]);
@@ -511,158 +497,6 @@
 				BX.removeClass(el, "ui-btn-clock");
 			}
 		},
-		objAnswering : null,
-		showAnswering : function(id, userId, name, avatar, time)
-		{
-			userId = (userId > 0 ? userId : 0);
-			if (userId <= 0)
-				return;
-			var
-				_id = 'uc-writing-' + this.form.id + '-' + id[0],
-				placeHolder = BX(_id + '-area'),
-				switcher = this._getSwitcher(id),
-				ucAnsweringStorage = BX.localStorage.get('ucAnsweringStorage');
-			ucAnsweringStorage = (!!ucAnsweringStorage ? ucAnsweringStorage : {});
-
-			if (!placeHolder && switcher) // non-expanded comment
-			{
-				placeHolder  = BX.create('DIV', {
-					attrs : {id : _id + '-area', className : "feed-com-writers"},
-					//style : { display : "none", "verticalAlign": "top", "fontWeight": "normal", "paddingLeft": "15px", "position": "absolute" },
-					html : '<div id="' + _id + '-users" class="feed-com-writers-wrap"></div><div class="feed-com-writers-pen"></div>'
-				});
-				switcher.appendChild(placeHolder);
-			}
-			if (!!placeHolder)
-			{
-				if (userId > 0)
-				{
-					if (!time)
-					{
-						ucAnsweringStorage['userId' + userId] = {id : id[0], userId : userId, name : name, avatar : avatar, 'time' : (new Date())};
-						BX.localStorage.set('ucAnsweringStorage', ucAnsweringStorage, 3000);
-					}
-					if (!BX(_id + '-user-' + userId))
-					{
-						BX.adjust(
-							BX(_id + '-users'),
-							{
-								children : [
-									BX.create('DIV', {
-											attrs : {
-												"className" : 'feed-com-avatar',
-												id : (_id + '-user-' + userId),
-												title : name
-											},
-											children : (avatar && avatar.length > 0
-												? [
-													BX.create('IMG', {
-														attrs : {
-															src : (avatar && avatar.length > 0 ? avatar : '/bitrix/images/1.gif')
-														}
-													})
-												]
-												: []
-											)
-										}
-									)
-								]
-							}
-						);
-					}
-				}
-				if (BX(_id + '-users').childNodes.length > 0)
-				{
-					if(BX(placeHolder.parentNode).style.display == 'none')
-					{
-						var node = BX('lhe_buttons_' + this.form.id);
-						if (!node || node.style.display == 'none')
-							node = this.form;
-						node.appendChild(placeHolder);
-					}
-					else if(placeHolder.parentNode != switcher)
-					{
-						switcher.appendChild(placeHolder);
-					}
-					BX.show(placeHolder);
-
-					if (this.objAnswering && this.objAnswering.name != 'show')
-						this.objAnswering.stop();
-					if (!this.objAnswering || this.objAnswering.name != 'show')
-					{
-						placeHolder.style.display = 'inline-block';
-						this.objAnswering = (new BX["easing"]({
-							duration : 500,
-							start : { opacity : 0},
-							finish : { opacity: 100},
-							transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
-							step : function(state){
-								placeHolder.style.opacity = state.opacity / 100;
-							}
-						}));
-						this.objAnswering.name = 'show';
-						this.objAnswering.animate();
-					}
-
-					var t = setTimeout(BX.delegate(function(){ this.hideAnswering(id, userId); }, this), (!!time ? time : 40500));
-					if (BX(_id + '-user-' + userId))
-					{
-						clearTimeout(BX(_id + '-user-' + userId).getAttribute("bx-check-timeout"));
-						BX(_id + '-user-' + userId).setAttribute("bx-check-timeout", (t + ''));
-					}
-				}
-			}
-		},
-		hideAnswering : function(id, userId)
-		{
-			var
-				_id = 'uc-writing-' + this.form.id + '-' + id[0],
-				placeHolder = BX(_id + '-area'),
-				el = BX(_id + '-user-' + userId, false);
-			if(el && placeHolder)
-			{
-				if(BX(_id + '-users').childNodes.length > 1)
-				{
-					(new BX["easing"]({
-						duration : 500,
-						start : { opacity: 100},
-						finish : { opacity : 0},
-						transition : BX["easing"].makeEaseOut(BX["easing"].transitions.quart),
-						step : function(state){
-							el.style.opacity = state.opacity / 100;
-						},
-						complete : function(){
-							if(!!el && !!el.parentNode)
-								el.parentNode.removeChild(el);
-						}
-					})).animate();
-				}
-				else
-				{
-					if (this.objAnswering && this.objAnswering.name != 'hide')
-						this.objAnswering.stop();
-					if (!this.objAnswering || this.objAnswering.name != 'hide')
-					{
-						this.objAnswering = (new BX["easing"]({
-							duration : 500,
-							start : { opacity: 100},
-							finish : { opacity : 0},
-							transition : BX["easing"].makeEaseOut(BX.easing.transitions.quart),
-							step : function(state){
-								placeHolder.style.opacity = state.opacity / 100;
-							},
-							complete : function(){
-								placeHolder.style.display = 'none';
-								if(!!el && !!el.parentNode)
-									el.parentNode.removeChild(el);
-							}
-						}));
-						this.objAnswering.name = 'hide';
-						this.objAnswering.animate();
-					}
-				}
-			}
-		}
 	};
 
 	window.convertFormToArray = function(form, data)
@@ -746,27 +580,6 @@
 		return data;
 	};
 
-	window.FCForm.onUCUsersAreWriting = function()
-	{
-		BX.ready(function(){
-			var res = null, timeL = null, ucAnsweringStorage = BX.localStorage.get('ucAnsweringStorage');
-			if(!!ucAnsweringStorage)
-			{
-				for (var ii in ucAnsweringStorage)
-				{
-					if (ucAnsweringStorage.hasOwnProperty(ii))
-					{
-						res = ucAnsweringStorage[ii];
-						if (!!res && res.userId > 0)
-						{
-							timeL = ((new Date()) - res.time);
-							if (timeL < 30000) { BX.onCustomEvent(window, 'OnUCUsersAreWriting', [res.id, res.userId, res.name, res.avatar, timeL]); }
-						}
-					}
-				}
-			}
-		});
-	};
 	window["fRefreshCaptcha"] = function(form)
 	{
 		var captchaIMAGE = null,

@@ -31,6 +31,7 @@
 		this.ajaxAction.request({
 			action: 'acceptAgreement',
 			onsuccess: function () {
+				BX.Event.EventEmitter.emit('BX.Sender.Agreement:onAccept');
 				self.popup.close();
 			},
 			onfailure: function () {
@@ -46,7 +47,7 @@
 			return;
 		}
 
-		window.location.href = '/';
+		top.location.href = '/';
 		setTimeout(this.popup.show.bind(this.popup), 0);
 	};
 	Agreement.prototype.showPopup = function ()
@@ -67,22 +68,24 @@
 					content: '<div class="sender-agreement-wrap">' + BX.message('SENDER_AGREEMENT_TEXT') + '</div>',
 					titleBar: BX.message('SENDER_AGREEMENT_TITLE'),
 					maxHeight: 400,
+					maxWidth: 860,
 					autoHide: false,
 					lightShadow: false,
 					overlay: {
 						opacity: 500,
 						backgroundColor: 'black'
 					},
-					closeByEsc: true,
+					closeByEsc: false,
 					closeIcon: true,
 					//contentColor: 'white',
 					buttons: [
 						this.button
-					]
+					],
+					events: {
+						'onPopupClose': this.onClose.bind(this)
+					}
 				}
 			);
-
-			BX.addCustomEvent(this.popup, "onPopupClose", this.onClose.bind(this));
 		}
 
 		if (this.popup.isShown())

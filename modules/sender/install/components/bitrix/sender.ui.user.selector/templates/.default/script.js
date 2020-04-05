@@ -110,7 +110,6 @@
 		}
 	};
 
-
 	var Controller = {
 		list: [],
 		init: function (userSelector)
@@ -130,13 +129,20 @@
 				return;
 			}
 
-			if (BX.SocNetLogDestination && BX.SocNetLogDestination.obItemsSelected)
+			if (BX.UI.SelectorManager)
 			{
 				var name = userSelector.id;
-				BX.SocNetLogDestination.obItemsSelected[name] = {};
-				userSelector.getUsers().forEach(function (id) {
-					BX.SocNetLogDestination.obItemsSelected[name][id] = 'users';
-				});
+
+				var selectorInstance = BX.UI.SelectorManager.instances[userSelector.id];
+				if (selectorInstance)
+				{
+					selectorInstance.itemsSelected = {};
+					userSelector.getUsers().forEach(function (id) {
+						selectorInstance.itemsSelected[id] = 'users';
+					});
+					selectorInstance.nodes.input = userSelector.selector.input;
+					selectorInstance.nodes.tag = userSelector.selector.buttonSelect;
+				}
 			}
 
 			userSelector.isOpen = true;
@@ -150,7 +156,7 @@
 		select: function (params)
 		{
 			var self = BX.Sender.UI.UserSelectorController;
-			var userSelector = self.getUserSelector(params.name);
+			var userSelector = self.getUserSelector(params.selectorId);
 			if (!userSelector)
 			{
 				return;
@@ -162,7 +168,7 @@
 		unSelect: function (params)
 		{
 			var self = BX.Sender.UI.UserSelectorController;
-			var userSelector = self.getUserSelector(params.name);
+			var userSelector = self.getUserSelector(params.selectorId);
 			if (!userSelector)
 			{
 				return;
@@ -175,16 +181,54 @@
 		closeDialog: function (params)
 		{
 			var self = BX.Sender.UI.UserSelectorController;
-			var userSelector = self.getUserSelector(params.name);
+			var userSelector = self.getUserSelector(params.selectorId);
 			if (!userSelector)
 			{
 				return;
 			}
 
 			userSelector.isOpen = false;
+
+			if (userSelector.selector)
+			{
+				userSelector.selector.input.style.display = 'none';
+				userSelector.selector.buttonSelect.style.display = '';
+			}
 		},
 		openSearch: function (params)
 		{
+			var self = BX.Sender.UI.UserSelectorController;
+			var userSelector = self.getUserSelector(params.selectorId);
+			if (!userSelector)
+			{
+				return;
+			}
+
+			userSelector.isOpen = false;
+
+			if (userSelector.selector)
+			{
+				userSelector.selector.input.style.display = '';
+				userSelector.selector.buttonSelect.style.display = 'none';
+			}
+		},
+		closeSearch: function (params)
+		{
+			var self = BX.Sender.UI.UserSelectorController;
+			var userSelector = self.getUserSelector(params.selectorId);
+			if (!userSelector)
+			{
+				return;
+			}
+
+			userSelector.isOpen = false;
+
+			if (userSelector.selector)
+			{
+				userSelector.selector.input.value = '';
+				userSelector.selector.input.style.display = 'none';
+				userSelector.selector.buttonSelect.style.display = '';
+			}
 		},
 		getUserSelector: function (id)
 		{

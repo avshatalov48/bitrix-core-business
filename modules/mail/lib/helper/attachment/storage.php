@@ -91,7 +91,33 @@ class Storage
 	}
 
 	/**
-	 * Returns disk object by attachment file data
+	 * Returns disk objects by file ID
+	 *
+	 * @param int $fileId File ID.
+	 * @param int $limit Limit.
+	 * @return array
+	 */
+	public static function getObjectsByFileId($fileId, $limit = 0)
+	{
+		$storage = static::getStorage();
+
+		if (!$storage)
+		{
+			return array();
+		}
+
+		return \Bitrix\Disk\File::getModelList(array(
+			'filter' => array(
+				'=STORAGE_ID' => $storage->getId(),
+				'=TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FILE,
+				'=FILE_ID' => $fileId,
+			),
+			'limit' => $limit,
+		));
+	}
+
+	/**
+	 * Returns disk object by attachment file data (creates one if not exists)
 	 *
 	 * @param array $attachment Attachment file data.
 	 * @param boolean $create Create object if not exists.
@@ -99,24 +125,7 @@ class Storage
 	 */
 	public static function getObjectByAttachment(array $attachment, $create = false)
 	{
-		if (!Main\Loader::includeModule('disk'))
-		{
-			return false;
-		}
-
-		$storage = static::getStorage();
-
-		$object = \Bitrix\Disk\File::getModelList(array(
-			'filter' => array(
-				'=STORAGE_ID' => $storage->getId(),
-				'=TYPE' => \Bitrix\Disk\Internals\ObjectTable::TYPE_FILE,
-				'=FILE_ID' => $attachment['FILE_ID'],
-			),
-			'order' => array(
-				'ID' => 'DESC',
-			),
-			'limit' => 1,
-		))[0];
+		$object = reset(static::getObjectsByFileId($attachment['FILE_ID'], 1));
 
 		if (empty($object) && $create)
 		{
@@ -134,12 +143,12 @@ class Storage
 	 */
 	public static function registerAttachment(array $attachment)
 	{
-		if (!Main\Loader::includeModule('disk'))
+		$storage = static::getStorage();
+
+		if (!$storage)
 		{
 			return false;
 		}
-
-		$storage = static::getStorage();
 
 		$folder = $storage->getChild(array(
 			'=NAME' => date('Y-m'),
@@ -169,6 +178,20 @@ class Storage
 			array(),
 			true
 		);
+	}
+
+	/**
+	 * Deletes disk objects by file ID
+	 *
+	 * @param int $fileId File ID.
+	 * @return void
+	 */
+	public static function unregisterAttachment($fileId)
+	{
+		foreach (static::getObjectsByFileId($fileId) as $item)
+		{
+			$item->delete(1); // @TODO
+		}
 	}
 
 }

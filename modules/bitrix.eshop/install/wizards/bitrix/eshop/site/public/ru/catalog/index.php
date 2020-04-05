@@ -2,7 +2,7 @@
 define("HIDE_SIDEBAR", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 ?>
-<?$APPLICATION->IncludeComponent("bitrix:catalog", "", array(
+<?$APPLICATION->IncludeComponent("bitrix:catalog", "bootstrap_v4", array(
 	"IBLOCK_TYPE" => "catalog",
 	"IBLOCK_ID" => "#CATALOG_IBLOCK_ID#",
 	"TEMPLATE_THEME" => "site",

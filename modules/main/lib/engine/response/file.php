@@ -141,6 +141,7 @@ class File extends Main\HttpResponse
 			'cache_time' => $this->getCacheTime(),
 			'attachment_name' => $this->getName(),
 			'content_type' => $this->getContentType(),
+			'fast_download'	=> false,
 		];
 	}
 

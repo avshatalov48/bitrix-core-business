@@ -52,8 +52,7 @@ $writeResponse = function(\Bitrix\Main\Result $data)
 	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
 	echo \Bitrix\Main\Web\Json::encode($result);
-	CMain::FinalActions();
-	die();
+	\Bitrix\Main\Application::getInstance()->end();
 };
 
 $sendData = function (array $data) use ($writeResponse)

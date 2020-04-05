@@ -16,7 +16,7 @@ use Bitrix\Main\Localization\Loc;
 	}
 
 	?>
-	<form method="post" name="form1" action="<?=$APPLICATION->GetCurUri()?>" enctype="multipart/form-data" role="form">
+	<form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data" role="form">
 		<?=$arResult["BX_SESSION_CHECK"]?>
 		<input type="hidden" name="lang" value="<?=LANG?>" />
 		<input type="hidden" name="ID" value="<?=$arResult["ID"]?>" />
@@ -125,18 +125,33 @@ use Bitrix\Main\Localization\Loc;
 		</div>
 
 	</form>
-	<div class="col-sm-12 main-profile-social-block">
-		<?
-		if ($arResult["SOCSERV_ENABLED"])
-		{
-			$APPLICATION->IncludeComponent("bitrix:socserv.auth.split", ".default", array(
-				"SHOW_PROFILES" => "Y",
-				"ALLOW_DELETE" => "Y"
-			),
-				false
-			);
-		}
+	<?
+	$disabledSocServices = isset($arParams['DISABLE_SOCSERV_AUTH']) && $arParams['DISABLE_SOCSERV_AUTH'] === 'Y';
+
+	if (!$disabledSocServices)
+	{
 		?>
-	</div>
+		<div class="col-sm-12 main-profile-social-block">
+			<?
+			if ($arResult["SOCSERV_ENABLED"])
+			{
+				$APPLICATION->IncludeComponent(
+					"bitrix:socserv.auth.split",
+					".default",
+					[
+						"SHOW_PROFILES" => "Y",
+						"ALLOW_DELETE" => "Y",
+					],
+					false
+				);
+			}
+			?>
+		</div>
+		<?
+	}
+	?>
 	<div class="clearfix"></div>
+	<script>
+		BX.Sale.PrivateProfileComponent.init();
+	</script>
 </div>

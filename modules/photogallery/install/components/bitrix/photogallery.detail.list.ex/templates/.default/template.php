@@ -213,9 +213,9 @@ BX.ready(function(){
 		commentsCount: '<?= $arParams["COMMENTS_COUNT"]?>',
 		pElementsCont: pPhotoCont<?=$ucid?>,
 		reloadItemsOnload: <?= ($arResult["MIN_ID"] > 0 ? $arResult["MIN_ID"] : 'false')?>,
-		itemUrl: '<?= $arParams["DETAIL_ITEM_URL"]?>',
+		itemUrl: '<?= CUtil::JSEscape($arParams["DETAIL_ITEM_URL"])?>',
 		itemUrlHash: 'photo_<?=$arParams['SECTION_ID']?>_#ELEMENT_ID#',
-		sectionUrl: '<?= $arParams["ALBUM_URL"]?>',
+		sectionUrl: '<?= CUtil::JSEscape($arParams["ALBUM_URL"])?>',
 		permissions:
 			{
 				view: '<?= $arParams["PERMISSION"] >= 'R'?>',

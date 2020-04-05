@@ -69,11 +69,18 @@ $arResult["ALLOW_DELETE_ID"] = array();
 $arResult["SEND_MY_ACTIVITY"] = '';
 $arResult["PostToShow"]["SPERM"] = array();
 $twitNum = 100;
-$dbSocservUser = CSocServAuthDB::GetList(array("PERSONAL_PHOTO" => "DESC"), array('USER_ID' => $userID, "!EXTERNAL_AUTH_ID" => 'Bitrix24OAuth'));
+
+$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+	'filter' => [
+		'=USER_ID' => $userID,
+		"!EXTERNAL_AUTH_ID" => 'Bitrix24OAuth'
+	]
+]);
+
 //***************************************
 //Obtain data on the related user account.
 //***************************************
-while($arUser = $dbSocservUser->Fetch())
+while($arUser = $dbSocservUser->fetch())
 {
 	if(!array_key_exists($arUser["EXTERNAL_AUTH_ID"], $arServices))
 	{

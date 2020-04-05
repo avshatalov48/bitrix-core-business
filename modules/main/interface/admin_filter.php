@@ -663,6 +663,10 @@ class CAdminFilter
 	var '.$this->id.' = {};
 	BX.ready(function(){
 		'.$this->id.' = new BX.AdminFilter("'.$this->id.'", ['.$sRowIds.']);
+		if (!BX.adminMenu)
+		{
+			BX.adminMenu = new BX.adminMenu();
+		}
 		'.$this->id.'.state.init = true;
 		'.$this->id.'.state.folded = '.($this->arOptFlt["styleFolded"] == "Y" ? "true" : "false").';
 		'.$this->id.'.InitFilter({'.$sVisRowsIds.'});

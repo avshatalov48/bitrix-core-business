@@ -88,14 +88,14 @@ class VkCategories
 	 * @param $exportid
 	 * Remove agent for current export ID
 	 */
-	public static function deleteAgent($exportid)
+	public function deleteAgent()
 	{
 //		not change cache - they will self dropped after ttl
 //		dropped agent
 		$dbRes = \CAgent::GetList(
 			array(),
 			array(
-				'NAME' => self::createAgentName($exportid),
+				'NAME' => self::createAgentName($this->exportId),
 			)
 		);
 		
@@ -107,14 +107,14 @@ class VkCategories
 	/**
 	 * Remove agents for ALL export IDs
 	 */
-	public static function deleteAllAgents()
+	public function deleteAllAgents()
 	{
 		$vk = Vk::getInstance();
 		$settings = $vk->getSettings();
 		
 		foreach ($settings as $id => $value)
 		{
-			self::deleteAgent($id);
+			$this->deleteAgent();
 		}
 	}
 	
@@ -130,13 +130,13 @@ class VkCategories
 	}
 	
 	/**
-	 * @param $exportid
+	 * @param $exportId
 	 * @return string
 	 * Create name for agent
 	 */
-	private static function createAgentName($exportid)
+	private static function createAgentName($exportId)
 	{
-		return 'Bitrix\Sale\TradingPlatform\Vk\VkCategories::updateVkCategoriesAgent("' . $exportid . '");';
+		return 'Bitrix\Sale\TradingPlatform\Vk\VkCategories::updateVkCategoriesAgent("' . $exportId . '");';
 	}
 	
 	/**
@@ -161,9 +161,13 @@ class VkCategories
 		}
 		
 		if ($isTree)
+		{
 			$result = self::convertVkCategoriesToTree($result);
+		}
 		else
+		{
 			$result = self::convertVkCategoriesToList($result);
+		}
 		
 		return $result;
 	}
@@ -173,7 +177,7 @@ class VkCategories
 	 * Load vk-categories from VK and save them to cache.
 	 *
 	 * @param $exportId
-	 * @return bool - array of VkCategories or false if error
+	 * @return array of VkCategories or null if error
 	 */
 	private static function updateDataToCache($exportId)
 	{
@@ -188,7 +192,7 @@ class VkCategories
 		}
 		else
 		{
-			return false;
+			return null;
 		}
 	}
 	
@@ -302,7 +306,9 @@ class VkCategories
 	public function updateVkCategoriesAgent($exportId)
 	{
 		if (self::updateDataToCache($exportId))
+		{
 			return self::createAgentName($exportId);
+		}
 		else return '';
 	}
 }

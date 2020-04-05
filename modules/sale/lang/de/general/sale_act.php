@@ -65,4 +65,7 @@ $MESS["BT_SALE_GIFT_DISCOUNT_DESCR"] = "Geschenk";
 $MESS["BT_SALE_ACT_GROUP_BASKET_DESCR_EXT"] = "für Produkte, für die";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_GROUP_BASKET_DESCR"] = ", aber nicht mehr als";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_ON_GROUP_BASKET_ERROR_CONDITION"] = "Maximale Rabattgröße für den Gesamtbetrag der Bestellung kann nicht eingeschränkt werden.";
+$MESS["BT_SALE_ACT_GROUP_DELETE_CONTROL"] = "Aktion löschen";
+$MESS["BT_SALE_ACT_GROUP_SELECT_CONTROL"] = "Aktion auswählen";
+$MESS["BT_SALE_ACT_GROUP_ADD_CONTROL"] = "Aktion hinzufügen";
 ?>

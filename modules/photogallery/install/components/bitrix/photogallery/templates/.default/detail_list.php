@@ -40,7 +40,7 @@ if ($arParams["USE_COMMENTS"] == "Y")
 <?
 $counter = 1;
 foreach ($arSort as $key => $val):
-	?><li class="photo-control <?=$key?> <?=($counter == 1 ? "photo-control-first" : "")?> <?=($counter == count($arRes) ? "photo-control-last" : "")?> <?
+	?><li class="photo-control <?=$key?> <?=($counter == 1 ? "photo-control-first" : "")?><?
 		?><?=($order == $key ? " photo-control-active " : "")?>">
 		<a href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=".$key, array("order"))?>" <?
 			?>rel="nofollow" title="<?=$val["description"]?>"><span><?=$val["title"]?></span></a>

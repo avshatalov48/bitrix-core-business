@@ -8,9 +8,11 @@
 namespace Bitrix\Main\Authentication;
 
 use Bitrix\Main;
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Data;
+use Bitrix\Main\ORM\Fields;
 
-class ApplicationPasswordTable extends Entity\DataManager
+class ApplicationPasswordTable extends Data\DataManager
 {
 	public static function getTableName()
 	{
@@ -20,28 +22,28 @@ class ApplicationPasswordTable extends Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			new Entity\IntegerField('ID', array(
+			new Fields\IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true
 			)),
-			new Entity\IntegerField('USER_ID', array(
+			new Fields\IntegerField('USER_ID', array(
 				'required' => true,
 				'validation' => '\Bitrix\Main\Authentication\ApplicationPasswordTable::getUserValidators',
 			)),
-			new Entity\StringField('APPLICATION_ID', array(
+			new Fields\StringField('APPLICATION_ID', array(
 				'required' => true,
 			)),
-			new Entity\StringField('PASSWORD', array(
+			new Fields\StringField('PASSWORD', array(
 				'required' => true,
 			)),
-			new Entity\StringField('DIGEST_PASSWORD'),
-			new Entity\DatetimeField('DATE_CREATE'),
-			new Entity\DatetimeField('DATE_LOGIN'),
-			new Entity\StringField('LAST_IP'),
-			new Entity\StringField('COMMENT'),
-			new Entity\StringField('SYSCOMMENT'),
-			new Entity\StringField('CODE'),
-			new Entity\ReferenceField(
+			new Fields\StringField('DIGEST_PASSWORD'),
+			new Fields\DatetimeField('DATE_CREATE'),
+			new Fields\DatetimeField('DATE_LOGIN'),
+			new Fields\StringField('LAST_IP'),
+			new Fields\StringField('COMMENT'),
+			new Fields\StringField('SYSCOMMENT'),
+			new Fields\StringField('CODE'),
+			new Fields\Relations\Reference(
 				'USER',
 				'Bitrix\Main\User',
 				array('=this.USER_ID' => 'ref.ID'),
@@ -53,13 +55,13 @@ class ApplicationPasswordTable extends Entity\DataManager
 	public static function getUserValidators()
 	{
 		return array(
-			new Entity\Validator\Foreign(Main\UserTable::getEntity()->getField('ID')),
+			new Fields\Validators\ForeignValidator(Main\UserTable::getEntity()->getField('ID')),
 		);
 	}
 
-	public static function onBeforeAdd(Entity\Event $event)
+	public static function onBeforeAdd(ORM\Event $event)
 	{
-		$result = new Entity\EventResult;
+		$result = new ORM\EventResult;
 		$data = $event->getParameter("fields");
 
 		if(isset($data["USER_ID"]) && isset($data['PASSWORD']))
@@ -82,6 +84,17 @@ class ApplicationPasswordTable extends Entity\DataManager
 			$result->modifyFields($modified);
 		}
 		return $result;
+	}
+
+	public static function onBeforeDelete(ORM\Event $event)
+	{
+		$id = $event->getParameter("id");
+
+		$row = static::getRowById($id);
+		if($row)
+		{
+			Main\UserAuthActionTable::addLogoutAction($row["USER_ID"], $row["APPLICATION_ID"]);
+		}
 	}
 
 	/**

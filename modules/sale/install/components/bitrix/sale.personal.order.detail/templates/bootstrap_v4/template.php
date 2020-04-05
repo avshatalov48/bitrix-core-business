@@ -30,7 +30,7 @@ if (!empty($arResult['ERRORS']['FATAL']))
 				<div class="alert alert-danger"><?=$arResult['ERRORS']['FATAL'][$component::E_NOT_AUTHORIZED]?></div>
 			</div>
 			<? $authListGetParams = array(); ?>
-			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3" id="catalog-subscriber-auth-form" style="<?=$authStyle?>">
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
 				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
 			</div>
 		</div>
@@ -138,8 +138,8 @@ else
 
 								<div class="col-sm-auto mb-3">
 									<div class="sale-order-detail-prop-name">
-										<?= Loc::getMessage('SPOD_LIST_CURRENT_STATUS', array(
-											'#DATE_ORDER_CREATE#' => $arResult["DATE_INSERT_FORMATED"]
+										<?= Loc::getMessage('SPOD_LIST_CURRENT_STATUS_DATE', array(
+											'#DATE_STATUS#' => $arResult["DATE_STATUS_FORMATED"]
 										)) ?>
 									</div>
 									<div class="sale-order-detail-prop-value">
@@ -344,7 +344,7 @@ else
 																$paymentSubTitle = Loc::getMessage('SPOD_TPL_BILL')." ".Loc::getMessage('SPOD_NUM_SIGN').$payment['ACCOUNT_NUMBER'];
 																if(isset($payment['DATE_BILL']))
 																{
-																	$paymentSubTitle .= " ".Loc::getMessage('SPOD_FROM')." ".$payment['DATE_BILL']->format($arParams['ACTIVE_DATE_FORMAT']);
+																	$paymentSubTitle .= " ".Loc::getMessage('SPOD_FROM')." ".$payment['DATE_BILL_FORMATED'];
 																}
 																$paymentSubTitle .=",";
 																echo htmlspecialcharsbx($paymentSubTitle);
@@ -530,7 +530,7 @@ else
 															$shipmentRow = Loc::getMessage('SPOD_SUB_ORDER_SHIPMENT')." ".Loc::getMessage('SPOD_NUM_SIGN').$shipment["ACCOUNT_NUMBER"];
 															if ($shipment["DATE_DEDUCTED"])
 															{
-																$shipmentRow .= " ".Loc::getMessage('SPOD_FROM')." ".$shipment["DATE_DEDUCTED"]->format($arParams['ACTIVE_DATE_FORMAT']);
+																$shipmentRow .= " ".Loc::getMessage('SPOD_FROM')." ".$shipment["DATE_DEDUCTED_FORMATED"];
 															}
 															$shipmentRow = htmlspecialcharsbx($shipmentRow);
 															$shipmentRow .= ", ".Loc::getMessage('SPOD_SUB_PRICE_DELIVERY', array(

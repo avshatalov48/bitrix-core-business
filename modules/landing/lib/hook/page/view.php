@@ -21,7 +21,8 @@ class View extends \Bitrix\Landing\Hook\Page
 			$items = array(
 				'no' => Loc::getMessage('LANDING_HOOK_VIEW_TYPE_NO'),
 				'ltr' => Loc::getMessage('LANDING_HOOK_VIEW_TYPE_LTR'),
-				'all' => Loc::getMessage('LANDING_HOOK_VIEW_TYPE_ALL')
+				'all' => Loc::getMessage('LANDING_HOOK_VIEW_TYPE_ALL'),
+				'mobile' => Loc::getMessage('LANDING_HOOK_VIEW_TYPE_MOBILE')
 			);
 		}
 		return $items;
@@ -59,6 +60,11 @@ class View extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		return $this->fields['USE']->getValue() == 'Y';
 	}
 
@@ -68,6 +74,11 @@ class View extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
+		if ($this->execCustom())
+		{
+			return;
+		}
+
 		$type = trim($this->fields['TYPE']);
 
 		if ($type == 'ltr')
@@ -82,6 +93,13 @@ class View extends \Bitrix\Landing\Hook\Page
 			Manager::setPageView(
 				'MainClass',
 				'g-py-6 g-px-10 g-py-30--md g-px-50--md'
+			);
+		}
+		elseif ($type == 'mobile')
+		{
+			Manager::setPageView(
+				'MainClass',
+				'g-max-width-768--md mx-md-auto'
 			);
 		}
 	}

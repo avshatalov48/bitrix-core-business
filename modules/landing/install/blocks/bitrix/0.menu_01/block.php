@@ -17,26 +17,26 @@
 					<div class="align-items-center flex-sm-row w-100">
 						<ul class="js-scroll-nav landing-block-node-menu-list navbar-nav text-uppercase g-font-weight-700 g-font-size-13 g-py-20 g-py-0--lg">
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">HOME</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">HOME</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">ABOUT</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">ABOUT</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">SERVICES</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">SERVICES</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">PROJECTS</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">PROJECTS</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">Testomonials</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">Testomonials</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">Best
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">Best
 									offers</a>
 							</li>
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
-								<a href="/" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+								<a href="#" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
 							</li>
 						</ul>
 					</div>

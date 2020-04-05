@@ -8,7 +8,8 @@ class AnalyticBoardManager extends Base
 {
 	private static $analyticBoardList = [];
 	private static $indices = array(
-		'boardKey' => array()
+		'boardKey' => array(),
+		'boardBatchKey' => array(),
 	);
 
 
@@ -50,6 +51,7 @@ class AnalyticBoardManager extends Base
 			{
 				self::$analyticBoardList[$board->getBoardKey()] = $board;
 				self::$indices['boardKey'][$board->getBoardKey()][] = $board->getBoardKey();
+				self::$indices['boardBatchKey'][$board->getBatchKey()][] = $board->getBoardKey();
 			}
 		}
 		return self::$analyticBoardList;

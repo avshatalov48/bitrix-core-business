@@ -6,6 +6,8 @@ global $APPLICATION;
 
 $APPLICATION->restartBuffer();
 
+\CJSCore::init('sidepanel');
+
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -20,20 +22,22 @@ $APPLICATION->restartBuffer();
 	<body>
 		<div style="padding: 0 20px 20px 20px; ">
 			<div class="mail-msg-sidepanel-header">
-				<div class="mail-msg-sidepanel-header-ext">
-					<? $APPLICATION->showViewContent('pagetitle'); ?>
+				<div class="mail-msg-sidepanel-title-container">
+					<div class="mail-msg-sidepanel-title">
+						<? $APPLICATION->showViewContent('pagetitle_icon'); ?>
+						<span class="mail-msg-sidepanel-title-text"><? $APPLICATION->showTitle(); ?></span>
+					</div>
+					<? $APPLICATION->showViewContent('inside_pagetitle'); ?>
 				</div>
-				<div class="mail-msg-sidepanel-title">
-					<? $APPLICATION->showViewContent('pagetitle_icon'); ?>
-					<span><? $APPLICATION->showTitle() ?></span>
+				<div class="mail-msg-sidepanel-title-below">
+					<? $APPLICATION->showViewContent('below_pagetitle'); ?>
+					<div class="mail-msg-sidepanel-title-below-border"></div>
 				</div>
 			</div>
 
-			<?
-
-			call_user_func_array(array($APPLICATION, 'includeComponent'), $arParams['~COMPONENT_ARGUMENTS']);
-
-			?>
+			<div style="position: relative; ">
+				<? call_user_func_array(array($APPLICATION, 'includeComponent'), $arParams['~COMPONENT_ARGUMENTS']); ?>
+			</div>
 
 		</div>
 	</body>

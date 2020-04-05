@@ -31,31 +31,6 @@ class BasketItem extends BasketItemBase
 	private $bundleCollection = null;
 
 	/**
-	 * @param BasketItemCollection $basketItemCollection
-	 * @param $moduleId
-	 * @param $productId
-	 * @param null $basketCode
-	 * @return BasketItemBase
-	 * @throws ArgumentException
-	 * @throws ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectException
-	 * @throws \Exception
-	 */
-	public static function create(BasketItemCollection $basketItemCollection, $moduleId, $productId, $basketCode = null)
-	{
-		$basketItem = parent::create($basketItemCollection, $moduleId, $productId, $basketCode);
-
-		$basket = $basketItemCollection->getBasket();
-		if ($basket instanceof Basket)
-		{
-			$basketItem->setField('LID', $basket->getSiteId());
-		}
-
-		return $basketItem;
-	}
-
-	/**
 	 * @return string
 	 */
 	public static function getRegistryType()
@@ -80,7 +55,7 @@ class BasketItem extends BasketItemBase
 		if ($this->isBundleParent())
 		{
 			$bundleCollection = $this->getBundleCollection();
-			$itemsFromDb = array();
+			$itemsFromDb = [];
 
 			$id = $this->getId();
 			if ($id != 0)
@@ -90,10 +65,10 @@ class BasketItem extends BasketItemBase
 				$basketClassName = $register->getBasketClassName();
 
 				$itemsFromDbList = $basketClassName::getList(
-					array(
-						'select' => array('ID'),
-						'filter' => array('SET_PARENT_ID' => $id),
-					)
+					[
+						'select' => ['ID'],
+						'filter' => ['SET_PARENT_ID' => $id],
+					]
 				);
 				while ($itemsFromDbItem = $itemsFromDbList->fetch())
 				{
@@ -165,7 +140,7 @@ class BasketItem extends BasketItemBase
 					'BASKET_ITEM_ADD_ERROR',
 					null,
 					$this,
-					array("ERROR" => $result->getErrorMessages())
+					["ERROR" => $result->getErrorMessages()]
 				);
 			}
 			else
@@ -186,7 +161,7 @@ class BasketItem extends BasketItemBase
 					"BASKET_SAVED",
 					$this->getId(),
 					$this,
-					array(),
+					[],
 					$orderHistory::SALE_ORDER_HISTORY_ACTION_LOG_LEVEL_1
 				);
 			}
@@ -233,7 +208,7 @@ class BasketItem extends BasketItemBase
 					'BASKET_ITEM_UPDATE_ERROR',
 					null,
 					$this,
-					array("ERROR" => $result->getErrorMessages())
+					["ERROR" => $result->getErrorMessages()]
 				);
 			}
 		}
@@ -255,7 +230,7 @@ class BasketItem extends BasketItemBase
 				"BASKET_SAVED",
 				$this->getId(),
 				$this,
-				array(),
+				[],
 				$orderHistory::SALE_ORDER_HISTORY_ACTION_LOG_LEVEL_1
 			);
 		}
@@ -276,16 +251,16 @@ class BasketItem extends BasketItemBase
 
 		$orderId = $basket->getOrderId();
 
-		$changeMeaningfulFields = array(
+		$changeMeaningfulFields = [
 			"PRODUCT_ID",
 			"QUANTITY",
 			"PRICE",
 			"DISCOUNT_VALUE",
 			"VAT_RATE",
 			"NAME",
-		);
+		];
 
-		$logFields = array();
+		$logFields = [];
 		if ($orderId > 0 && $this->isChanged())
 		{
 			$itemValues = $this->getFields();
@@ -345,7 +320,7 @@ class BasketItem extends BasketItemBase
 								new ResultError(
 									Loc::getMessage(
 										'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED',
-										array('#PRODUCT_NAME#' => $this->getField('NAME'))
+										['#PRODUCT_NAME#' => $this->getField('NAME')]
 									),
 									'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED'
 								)
@@ -487,8 +462,8 @@ class BasketItem extends BasketItemBase
 				throw new ObjectNotFoundException('Entity "BasketBundleCollection" not found');
 			}
 
-			$bundleChildList = array();
-			$result = array();
+			$bundleChildList = [];
+			$result = [];
 
 			$originalQuantity = $this->getQuantity();
 			$originalValues = $this->fields->getOriginalValues();
@@ -515,10 +490,10 @@ class BasketItem extends BasketItemBase
 					$bundleQuantity = 0;
 				}
 
-				$bundleChildList[]["ITEMS"][] = array(
+				$bundleChildList[]["ITEMS"][] = [
 						"PRODUCT_ID" => $bundleBasketItem->getProductId(),
 						"QUANTITY" => $bundleQuantity
-				);
+				];
 
 			}
 
@@ -601,7 +576,7 @@ class BasketItem extends BasketItemBase
 
 		if ($this->getId() > 0)
 		{
-			return $collection->loadFromDb(array("SET_PARENT_ID" => $this->getId(), "TYPE" => false));
+			return $collection->loadFromDb(["SET_PARENT_ID" => $this->getId(), "TYPE" => false]);
 		}
 
 		return $collection;
@@ -622,7 +597,7 @@ class BasketItem extends BasketItemBase
 	{
 		global $USER;
 
-		$bundleChildList = array();
+		$bundleChildList = [];
 
 		/** @var BasketItemCollection $basket */
 		if (!$basket = $this->getCollection())
@@ -634,19 +609,19 @@ class BasketItem extends BasketItemBase
 		$order = $basket->getOrder();
 		if ($order)
 		{
-			$context = array(
+			$context = [
 				'SITE_ID' => $order->getSiteId(),
 				'USER_ID' => $order->getUserId(),
 				'CURRENCY' => $order->getCurrency(),
-			);
+			];
 		}
 		else
 		{
-			$context = array(
+			$context = [
 				'SITE_ID' => SITE_ID,
 				'USER_ID' => $USER && $USER->GetID() > 0 ? $USER->GetID() : 0,
 				'CURRENCY' => CurrencyManager::getBaseCurrency(),
-			);
+			];
 		}
 
 		$creator = Internals\ProviderCreator::create($context);
@@ -801,7 +776,7 @@ class BasketItem extends BasketItemBase
 	{
 		if ($this->getId() > 0)
 		{
-			$fields = array();
+			$fields = [];
 			/** @var Basket $basket */
 			if (!$basket = $this->getCollection())
 			{
@@ -816,11 +791,11 @@ class BasketItem extends BasketItemBase
 					{
 						return;
 					}
-					$fields = array(
+					$fields = [
 						'PRODUCT_ID' => $this->getProductId(),
 						'QUANTITY' => $this->getQuantity(),
 						'NAME' => $this->getField('NAME'),
-					);
+					];
 				}
 
 				$registry = Registry::getInstance(static::getRegistryType());
@@ -835,7 +810,8 @@ class BasketItem extends BasketItemBase
 					$value,
 					$this->getId(),
 					$this,
-					$fields);
+					$fields
+				);
 			}
 		}
 	}
@@ -961,6 +937,10 @@ class BasketItem extends BasketItemBase
 			$result->addErrors($r->getErrors());
 			return $result;
 		}
+		elseif ($r->hasWarnings())
+		{
+			$result->addWarnings($r->getWarnings());
+		}
 
 		if (!$this->isBundleParent())
 			return $result;
@@ -1041,7 +1021,7 @@ class BasketItem extends BasketItemBase
 	 */
 	public static function load(BasketItemCollection $basket, $data)
 	{
-		$bundleItems = array();
+		$bundleItems = [];
 		if (isset($data['ITEMS']))
 		{
 			$bundleItems = $data['ITEMS'];

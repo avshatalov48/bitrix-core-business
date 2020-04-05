@@ -63,11 +63,36 @@ class AdsAudience
 			return null;
 		}
 
+		if (!$name)
+		{
+			self::$errors[] = Loc::getMessage("SEO_RETARGETING_EMPTY_AUDIENCE_NAME");
+			return null;
+		}
 		$audience->setAccountId($accountId);
 		$parameters = array(
-			'NAME' => $name ?: Loc::getMessage('')
+			'NAME' => $name
 		);
 		$addResult = $audience->add($parameters);
+		if ($addResult->isSuccess() && $addResult->getId())
+		{
+			return $addResult->getId();
+		}
+		else
+		{
+			self::$errors = $addResult->getErrorMessages();
+			return null;
+		}
+	}
+
+	public static function addLookalikeAudience($type, $accountId = null, $sourceAudienceId = null, $options = [])
+	{
+		$audience = Service::getAudience($type);
+		if (!$audience)
+		{
+			return null;
+		}
+		$audience->setAccountId($accountId);
+		$addResult = $audience->createLookalike($sourceAudienceId, $options);
 		if ($addResult->isSuccess() && $addResult->getId())
 		{
 			return $addResult->getId();
@@ -110,7 +135,7 @@ class AdsAudience
 							$audienceData['NAME']
 								?
 								$audienceData['NAME'] . (
-								$audienceData['COUNT_VALID'] ?
+								$audienceData['COUNT_VALID'] > 0 ?
 									' (' . $audienceData['COUNT_VALID'] . ')'
 									:
 									''
@@ -127,6 +152,17 @@ class AdsAudience
 		}
 
 		return $result;
+	}
+
+	public static function getRegions($type)
+	{
+		$account = Service::getAccount($type);
+		if (!$account)
+		{
+			return [];
+		}
+
+		return $account->getRegionsList();
 	}
 
 	/**
@@ -146,16 +182,31 @@ class AdsAudience
 			$providers[$type]['IS_SUPPORT_REMOVE_CONTACTS'] =  $audience->isSupportRemoveContacts();
 			//$providers[$type]['IS_ADDING_REQUIRE_CONTACTS'] =  $audience->isAddingRequireContacts();
 			$providers[$type]['IS_SUPPORT_MULTI_TYPE_CONTACTS'] =  $audience->isSupportMultiTypeContacts();
+			$providers[$type]['IS_SUPPORT_ADD_AUDIENCE'] =  $audience->isSupportAddAudience();
+			$lookalikeAudienceParams = $audience->getLookalikeAudiencesParams();
+			$providers[$type]['IS_SUPPORT_LOOKALIKE_AUDIENCE'] =  !!$lookalikeAudienceParams;
+			$providers[$type]['LOOKALIKE_AUDIENCE_PARAMS'] = $lookalikeAudienceParams;
 		}
 
 		return $providers;
 	}
 
+	/**
+	 * Add to audience
+	 * @param AdsAudienceConfig $config Config.
+	 * @param array $contacts Contacts.
+	 * @return bool
+	 */
 	public static function addToAudience(AdsAudienceConfig $config, $contacts)
 	{
 		static $audiences = array();
 		if (!isset($audiences[$config->type]))
 		{
+			if ($config->clientId)
+			{
+				$service = static::getService();
+				$service->setClientId($config->clientId);
+			}
 			$audience = Service::getAudience($config->type);
 			$audiences[$config->type] = $audience;
 		}
@@ -179,7 +230,8 @@ class AdsAudience
 			$config->audienceId,
 			$contacts,
 			array(
-				'type' => $config->contactType
+				'type' => $config->contactType,
+				'parentId' => $config->parentId
 			)
 		);
 
@@ -243,6 +295,12 @@ class AdsAudience
 		return static::getService()->getTypes();
 	}
 
+	/**
+	 * Get providers list
+	 * @param array|null $types Provider types.
+	 * @return array
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	protected static function getServiceProviders(array $types = null)
 	{
 		$typeList = static::getServiceTypes();
@@ -255,25 +313,70 @@ class AdsAudience
 				continue;
 			}
 
-			$authAdapter = static::getService()->getAuthAdapter($type);
-			$account = static::getService()->getAccount($type);
+			$service = static::getService();
+			$authAdapter = $service->getAuthAdapter($type);
+			$account = $service->getAccount($type);
+			$canUserMultiClients = $authAdapter->canUseMultipleClients();
 
 			$providers[$type] = array(
 				'TYPE' => $type,
 				'HAS_AUTH' => $authAdapter->hasAuth(),
 				'AUTH_URL' => $authAdapter->getAuthUrl(),
-				'PROFILE' => $account->getProfileCached(),
+				'PROFILE' => $authAdapter->getToken() ? $account->getProfileCached() : false,
 			);
+			if ($canUserMultiClients)
+			{
+				$providers[$type]['CLIENTS'] = static::getClientsProfiles($authAdapter);
+				if (empty($providers[$type]['CLIENTS']))
+				{
+					$providers[$type]['HAS_AUTH'] = false;
+				}
+			}
 
 			// check if no profile, then may be auth was removed in service
 			if ($providers[$type]['HAS_AUTH'] && empty($providers[$type]['PROFILE']))
 			{
 				static::removeAuth($type);
-				$providers[$type]['HAS_AUTH'] = false;
+				if (!$canUserMultiClients)
+				{
+					$providers[$type]['HAS_AUTH'] = false;
+				}
 			}
 		}
 
 		return $providers;
+	}
+
+	/**
+	 * Get client profiles.
+	 * @param AuthAdapter $authAdapter Auth adapter.
+	 * @return array
+	 */
+	protected static function getClientsProfiles(AuthAdapter $authAdapter)
+	{
+		$type = $authAdapter->getType();
+		return array_values(array_filter(array_map(function ($item) use ($type) {
+			$service = new Service();
+			$service->setClientId($item['proxy_client_id']);
+
+			$authAdapter = Service::getAuthAdapter($type);
+			$authAdapter->setService($service);
+
+			$account = Service::getAccount($type);
+			$account->setService($service);
+			$account->getRequest()->setAuthAdapter($authAdapter);
+
+			$profile = $account->getProfileCached();
+			if ($profile)
+			{
+				return $profile;
+			}
+			else
+			{
+				// if no profile, then may be auth was removed in service
+				$authAdapter->removeAuth();
+			}
+		}, $authAdapter->getAuthorizedClientsList())));
 	}
 
 	/**

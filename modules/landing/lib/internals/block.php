@@ -45,6 +45,10 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE'),
 				'required' => true
 			)),
+			'INITIATOR_APP_CODE' => new Entity\StringField('INITIATOR_APP_CODE', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_INITIATOR_APP_CODE'),
+				'default_value' => ''
+			)),
 			'ANCHOR' => new Entity\StringField('ANCHOR', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_ANCHOR')
 			)),
@@ -72,11 +76,17 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_ACCESS'),
 				'default_value' => 'X'
 			)),
+			'SOURCE_PARAMS' => (new \Bitrix\Main\ORM\Fields\ArrayField('SOURCE_PARAMS', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SOURCE_PARAMS')
+			)))->configureSerializationPhp(),
 			'CONTENT' => new Entity\StringField('CONTENT', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CONTENT'),
 				'required' => true,
 				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
+			)),
+			'SEARCH_CONTENT' => new Entity\StringField('SEARCH_CONTENT', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SEARCH_CONTENT')
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
@@ -98,6 +108,42 @@ class BlockTable extends Entity\DataManager
 	}
 
 	/**
+	 * Prepare change to save.
+	 * @param Entity\Event $event Event instance.
+	 * @return Entity\EventResult
+	 */
+	protected static function prepareChange(Entity\Event $event)
+	{
+		$result = new Entity\EventResult();
+		$primary = $event->getParameter('primary');
+		$fields = $event->getParameter('fields');
+
+		// calculate filter hash
+		if (array_key_exists('SOURCE_PARAMS', $fields))
+		{
+			\Bitrix\Landing\Source\FilterEntity::setFilter(
+				$primary['ID'],
+				$fields['SOURCE_PARAMS']
+			);
+			$result->modifyFields([
+				'SOURCE_PARAMS' => $fields['SOURCE_PARAMS']
+			]);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Before update handler.
+	 * @param Entity\Event $event Event instance.
+	 * @return Entity\EventResult
+	 */
+	public static function onBeforeUpdate(Entity\Event $event)
+	{
+		return self::prepareChange($event);
+	}
+
+	/**
 	 * After delete handler.
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
@@ -107,10 +153,10 @@ class BlockTable extends Entity\DataManager
 		$result = new Entity\EventResult();
 		$primary = $event->getParameter('primary');
 
-		// delete all inner landings
 		if ($primary)
 		{
 			\Bitrix\Landing\File::deleteFromBlock($primary['ID']);
+			\Bitrix\Landing\Source\FilterEntity::removeBlock($primary['ID']);
 		}
 
 		return $result;

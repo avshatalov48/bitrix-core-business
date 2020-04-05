@@ -702,19 +702,19 @@
 
 			if (this.params.PRODUCT && typeof this.params.PRODUCT === 'object')
 			{
+				if (this.config.showPrice)
+				{
+					this.currentPriceMode = this.params.PRODUCT.ITEM_PRICE_MODE;
+					this.currentPrices = this.params.PRODUCT.ITEM_PRICES;
+					this.currentPriceSelected = this.params.PRODUCT.ITEM_PRICE_SELECTED;
+					this.currentQuantityRanges = this.params.PRODUCT.ITEM_QUANTITY_RANGES;
+					this.currentQuantityRangeSelected = this.params.PRODUCT.ITEM_QUANTITY_RANGE_SELECTED;
+				}
+
 				if (this.config.showQuantity)
 				{
 					this.product.checkQuantity = this.params.PRODUCT.CHECK_QUANTITY;
 					this.product.isDblQuantity = this.params.PRODUCT.QUANTITY_FLOAT;
-
-					if (this.config.showPrice)
-					{
-						this.currentPriceMode = this.params.PRODUCT.ITEM_PRICE_MODE;
-						this.currentPrices = this.params.PRODUCT.ITEM_PRICES;
-						this.currentPriceSelected = this.params.PRODUCT.ITEM_PRICE_SELECTED;
-						this.currentQuantityRanges = this.params.PRODUCT.ITEM_QUANTITY_RANGES;
-						this.currentQuantityRangeSelected = this.params.PRODUCT.ITEM_QUANTITY_RANGE_SELECTED;
-					}
 
 					if (this.product.checkQuantity)
 					{

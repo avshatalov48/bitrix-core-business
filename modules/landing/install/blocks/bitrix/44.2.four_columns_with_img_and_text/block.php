@@ -14,7 +14,7 @@
 	</div>
 
 	<div class="container px-0">
-		<div class="row no-gutters">
+		<div class="row no-gutters landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeInUp col-sm-6 col-lg-3 g-bg-primary">
 				<!-- Article -->
 				<article class="u-block-hover">

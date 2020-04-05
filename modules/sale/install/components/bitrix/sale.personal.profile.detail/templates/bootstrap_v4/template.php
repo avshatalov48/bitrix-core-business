@@ -12,7 +12,7 @@ if (!empty($arResult['ERRORS']))
 				<div class="alert alert-danger"><?=$arResult['ERRORS'][$component::E_NOT_AUTHORIZED]?></div>
 			</div>
 			<? $authListGetParams = array(); ?>
-			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3" id="catalog-subscriber-auth-form" style="<?=$authStyle?>">
+			<div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
 				<?$APPLICATION->AuthForm('', false, false, 'N', false);?>
 			</div>
 		</div>
@@ -21,7 +21,7 @@ if (!empty($arResult['ERRORS']))
 
 	return;
 }
-
+CJSCore::Init(array('date'));
 ?>
 <div class="row mb-3">
 	<div class="col">
@@ -378,6 +378,43 @@ if(strlen($arResult["ID"])>0)
 											<?=CFile::InputFile($name."[]", 20, null, false, 0, "IMAGE", "class='btn sale-personal-profile-detail-input-file' ".$multiple)?>
 										</label>
 										<span class="sale-personal-profile-detail-load-file-cancel sale-personal-profile-hide"></span>
+									</div>
+								</div>
+								<?
+							}
+							elseif ($property["TYPE"] === 'DATE')
+							{
+								if ($property["MULTIPLE"] === 'Y')
+								{
+									$name .= '[]';
+								}
+								$currentValue = is_array($currentValue) ? $currentValue : [$currentValue];
+								?>
+								<div class="form-group row mb-2">
+									<label class="col-sm-3 text-right col-form-label <?=$alignTop?>" for="sppd-property-<?=$key?>">
+										<?= $property["NAME"]?>:
+										<? if ($property["REQUIED"] === "Y")
+										{
+											?><span class="req">*</span><?
+										}
+										?>
+									</label>
+									<div class='col-sm-9 sale-personal-profile-detail-form-date'>
+										<?
+										foreach ($currentValue as $dataInputValue)
+										{
+											?>
+											<div class="form-group">
+												<div class='input-group date'>
+													<input class="form-control mb-1" type="text" name="<?=$name?>" maxlength="50" value="<?=$dataInputValue?>"/>
+													<span class="input-group-addon">
+														<i class="bx-calendar"></i>
+													</span>
+												</div>
+											</div>
+											<?
+										}
+										?>
 									</div>
 								</div>
 								<?

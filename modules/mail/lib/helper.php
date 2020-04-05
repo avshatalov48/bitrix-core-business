@@ -46,15 +46,23 @@ class Helper
 
 	public static function cleanupMailboxAgent($id)
 	{
-		if ($mailboxHelper = Helper\Mailbox::createInstance($id, false))
+		$mailboxHelper = Helper\Mailbox::rawInstance($id, false);
+
+		if (empty($mailboxHelper))
 		{
-			if ($mailboxHelper->cleanup() === false)
-			{
-				return sprintf('Bitrix\Mail\Helper::cleanupMailboxAgent(%u);', $id);
-			}
+			return '';
 		}
 
-		return '';
+		$mailboxHelper->setCheckpoint();
+
+		$stage1 = $mailboxHelper->dismissOldMessages();
+		$stage2 = $mailboxHelper->cleanup();
+
+		global $pPERIOD;
+
+		$pPERIOD = min($pPERIOD, max($stage1 && $stage2 ? $pPERIOD : 600, 60));
+
+		return sprintf('Bitrix\Mail\Helper::cleanupMailboxAgent(%u);', $id);
 	}
 
 	/**
@@ -205,20 +213,36 @@ class Helper
 		$error = null;
 
 		$res = MailMessageUidTable::getList(array(
-			'select' => array('ID', 'MAILBOX_ID', 'IS_SEEN'),
+			'select' => array(
+				'ID', 'MAILBOX_ID', 'IS_SEEN',
+				'MAILBOX_USER_ID' => 'MAILBOX.USER_ID',
+				'MAILBOX_OPTIONS' => 'MAILBOX.OPTIONS',
+			),
 			'filter' => array(
-				'=HEADER_MD5'     => $hash,
-				'MAILBOX.USER_ID' => array($userId, 0),
+				'=HEADER_MD5' => $hash,
 			),
 		));
 
-		while ($msgUid = $res->fetch())
+		while ($item = $res->fetch())
 		{
-			if (in_array($msgUid['IS_SEEN'], array('Y', 'S')) != $data['seen'])
+			$isOwner = $item['MAILBOX_USER_ID'] == $userId;
+			$isPublic = in_array('crm_public_bind', (array) $item['MAILBOX_OPTIONS']['flags']);
+			$inQueue = in_array($userId, (array) $item['MAILBOX_OPTIONS']['crm_lead_resp']);
+			if (!$isOwner && !$isPublic && !$inQueue)
+			{
+				continue;
+			}
+
+			if (in_array($item['IS_SEEN'], array('Y', 'S')) != $data['seen'])
 			{
 				MailMessageUidTable::update(
-					array('ID' => $msgUid['ID'], 'MAILBOX_ID' => $msgUid['MAILBOX_ID']),
-					array('IS_SEEN' => $data['seen'] ? 'S' : 'U')
+					array(
+						'ID' => $item['ID'],
+						'MAILBOX_ID' => $item['MAILBOX_ID'],
+					),
+					array(
+						'IS_SEEN' => $data['seen'] ? 'S' : 'U',
+					)
 				);
 			}
 		}
@@ -247,6 +271,7 @@ class DummyMail extends Main\Mail\Mail
 		$this->settingMailFillToEmail = false;
 		$this->settingMailConvertMailHeader = true;
 		$this->settingConvertNewLineUnixToWindows = true;
+		$this->useBlacklist = false;
 	}
 
 	public static function getMailEol()

@@ -81,6 +81,9 @@ class LetterTable extends Entity\DataManager
 			'CREATED_BY' => array(
 				'data_type' => 'integer',
 			),
+			'UPDATED_BY' => array(
+				'data_type' => 'integer',
+			),
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
 				'default_value' => new Type\DateTime(),
@@ -111,6 +114,8 @@ class LetterTable extends Entity\DataManager
 			'TITLE' => array(
 				'data_type' => 'string',
 				'title' => Loc::getMessage('SENDER_ENTITY_MAILING_CHAIN_FIELD_TITLE_TITLE1'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 
 			'AUTO_SEND_TIME' => array(
@@ -132,8 +137,14 @@ class LetterTable extends Entity\DataManager
 				'data_type' => 'integer',
 			),
 
+			'ERROR_MESSAGE' => array(
+				'data_type' => 'string',
+			),
+
 			'SEARCH_CONTENT' => array(
-				'data_type' => 'text'
+				'data_type' => 'text',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 
 			'CAMPAIGN' => array(
@@ -199,7 +210,10 @@ class LetterTable extends Entity\DataManager
 	{
 		$data = $event->getParameters();
 		$fields = static::getRowById($data['primary']['ID']);
-		MessageTable::delete($fields['MESSAGE_ID']);
+		if ($fields)
+		{
+			MessageTable::delete($fields['MESSAGE_ID']);
+		}
 
 		return MailingChainTable::onDelete($event);
 	}

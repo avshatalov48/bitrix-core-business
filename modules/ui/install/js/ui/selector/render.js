@@ -142,7 +142,10 @@ BX.UI.Selector.Render.prototype.deleteItem = function(params)
 		}
 	}
 
-	if (this.selectorInstance.callback.unSelect)
+	if (
+		this.selectorInstance.callback.unSelect
+		&& BX.type.isNotEmptyObject(this.selectorInstance.entities[entityType])
+	)
 	{
 		this.selectorInstance.callback.unSelect({
 			item: this.selectorInstance.entities[entityType].items[itemId],

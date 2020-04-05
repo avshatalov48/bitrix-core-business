@@ -1,6 +1,6 @@
 <section class="landing-block g-pt-30 g-pb-30">
 	<div class="container-fluid g-px-30">
-		<div class="js-carousel g-pos-rel g-mx-minus-15"
+		<div class="js-carousel g-pos-rel g-mx-minus-15 row"
 			 data-autoplay="false"
 			 data-infinite="true"
 			 data-slides-show="2"
@@ -19,12 +19,18 @@
                    "slidesToShow": 1,
                    "slidesToScroll": 1
                  }
-               }]'>
+               }]'
+			 data-init-classes-exclude='[{
+				 "selector": ".landing-block-node-card",
+				 "class": "col-12 col-sm-6 col-lg-6"
+			   }, {
+				 "selector": ".js-carousel",
+				 "class": "row"
+			   }]'>
 			
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-card-video embed-responsive-item"
+					<iframe class="landing-block-node-card-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=0&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
@@ -33,10 +39,9 @@
 				</div>
 			</div>
 			
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-card-video embed-responsive-item"
+					<iframe class="landing-block-node-card-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/PDCsdEdGb_c?autoplay=0&controls=1&loop=0&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=PDCsdEdGb_c"
@@ -45,10 +50,9 @@
 				</div>
 			</div>
 			
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-card-video embed-responsive-item"
+					<iframe class="landing-block-node-card-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/0Ll9z8pwnp4?autoplay=0&controls=1&loop=0&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=0Ll9z8pwnp4"
@@ -57,10 +61,9 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15">
+			<div class="landing-block-node-card js-slide js-animation fadeIn g-px-15 col-12 col-sm-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-card-video embed-responsive-item"
+					<iframe class="landing-block-node-card-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/IISycTRZ-UA?autoplay=0&controls=1&loop=0&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=IISycTRZ-UA"

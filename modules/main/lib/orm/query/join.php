@@ -17,6 +17,12 @@ use Bitrix\Main\ORM\Query\Filter\ConditionTree as Filter;
  */
 class Join
 {
+	const TYPE_INNER = 'INNER';
+	const TYPE_LEFT = 'LEFT';
+	const TYPE_LEFT_OUTER = 'LEFT OUTER';
+	const TYPE_RIGHT = 'RIGHT';
+	const TYPE_RIGHT_OUTER = 'RIGHT OUTER';
+
 	/**
 	 * Short alias to init filter with whereColumn.
 	 * @see Filter::whereColumn()
@@ -29,5 +35,16 @@ class Join
 	{
 		$condition = func_get_args();
 		return call_user_func_array(array(new Filter, 'whereColumn'), $condition);
+	}
+
+	public static function getTypes()
+	{
+		return [
+			static::TYPE_INNER,
+			static::TYPE_LEFT,
+			static::TYPE_LEFT_OUTER,
+			static::TYPE_RIGHT,
+			static::TYPE_RIGHT_OUTER,
+		];
 	}
 }

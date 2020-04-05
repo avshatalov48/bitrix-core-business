@@ -13,11 +13,10 @@ $arComponentParameters = array(
 		"AGREEMENT_TEXT_FILE" => array(
 			"NAME" => GetMessage("SPCD1_AGREEMENT_TEXT_FILE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => '/bitrix/components/bitrix/sale.affiliate.register/agreement-'.SITE_ID.'.htm',
 			"PARENT" => "BASE",
 		),
-		
 		"SET_TITLE" => array(),
+		"USER_CONSENT" => array(),
 	),
 );
 ?>

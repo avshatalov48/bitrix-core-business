@@ -263,6 +263,38 @@ class MultiControlString extends Input\Base
 	{
 		return $value;
 	}
+
+	/**
+	 * @inherit
+	 */
+
+	public static function getError(array $input, $value)
+	{
+		$errors = [];
+
+		foreach($input["ITEMS"] as $key => $item)
+		{
+			$errors = array_merge($errors, Input\Manager::getError($item, $value[$key]));
+		}
+
+		return $errors;
+
+	}
+
+	/**
+	 * @inherit
+	 */
+	public static function getRequiredError(array $input, $value)
+	{
+		$errors = [];
+
+		foreach($input["ITEMS"] as $key => $item)
+		{
+			$errors = array_merge($errors, Input\Manager::getRequiredError($item, $value[$key]));
+		}
+
+		return $errors;
+	}
 }
 
 Input\Manager::register('DELIVERY_MULTI_CONTROL_STRING', array(

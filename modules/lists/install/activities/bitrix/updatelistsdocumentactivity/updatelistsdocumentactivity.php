@@ -20,6 +20,12 @@ class CBPUpdateListsDocumentActivity
 		$documentType = $this->DocumentType;
 		$elementId = $this->ElementId;
 
+		//check for Multiple values
+		if (is_array($elementId))
+		{
+			$elementId = array_shift($elementId);
+		}
+
 		$documentId = [$documentType[0], $documentType[1], $elementId];
 		$fields = $this->Fields;
 
@@ -204,6 +210,15 @@ class CBPUpdateListsDocumentActivity
 				continue;
 			}
 			$fieldKey = substr($fieldKey, 8);
+
+			if (substr($fieldKey, -5) === '_text')
+			{
+				$fieldKey = substr($fieldKey, 0, -5);
+				if (isset($arCurrentValues['fields__'.$fieldKey]))
+				{
+					continue;
+				}
+			}
 
 			$property = $arDocumentFields[$fieldKey];
 

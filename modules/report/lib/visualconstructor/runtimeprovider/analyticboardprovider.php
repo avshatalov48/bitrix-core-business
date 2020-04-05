@@ -3,6 +3,7 @@
 namespace Bitrix\Report\VisualConstructor\RuntimeProvider;
 
 use Bitrix\Report\VisualConstructor\AnalyticBoard;
+use Bitrix\Report\VisualConstructor\AnalyticBoardBatch;
 use Bitrix\Report\VisualConstructor\Internal\Manager\AnalyticBoardManager;
 use Bitrix\Report\VisualConstructor\IProvidable;
 
@@ -18,7 +19,7 @@ class AnalyticBoardProvider extends Base
 	 */
 	protected function availableFilterKeys()
 	{
-		return ['primary', 'boardKey'];
+		return ['primary', 'boardKey', 'boardBatchKey'];
 	}
 
 	/**

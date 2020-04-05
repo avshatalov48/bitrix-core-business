@@ -52,5 +52,9 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_5_THREE_COLS_FIX_TITLE_AND_TEXT_STYLE_LANDINGBLOCKCARHEADER'),
 			'type' => 'border-color',
 		),
+		'.landing-block-inner' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_5_THREE_COLS_FIX_TITLE_AND_TEXT_NODES_LANDINGBLOCKNODE_INNER'),
+			'type' => 'row-align',
+		),
 	),
 );

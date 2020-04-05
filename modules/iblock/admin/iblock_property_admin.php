@@ -10,6 +10,11 @@ Loader::includeModule('iblock');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
@@ -23,7 +28,7 @@ if(!CIBlockRights::UserHasRightTo($arIBlock["ID"], $arIBlock["ID"], "iblock_edit
 $simpleTypeList = array_fill_keys(Iblock\Helpers\Admin\Property::getBaseTypeList(false), true);
 
 $sTableID = "tbl_iblock_property_admin_".$arIBlock["ID"];
-$oSort = new CAdminSorting($sTableID, 'SORT', 'ASC');
+$oSort = new CAdminUiSorting($sTableID, 'SORT', 'ASC');
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $arPropType = Iblock\Helpers\Admin\Property::getBaseTypeList(true);
@@ -153,7 +158,7 @@ if($lAdmin->EditAction())
 
 if($arID = $lAdmin->GroupAction())
 {
-	if (!empty($_REQUEST["action_all_rows_".$sTableID]) && $_REQUEST["action_all_rows_".$sTableID] === "Y")
+	if ($lAdmin->IsGroupActionToAll())
 	{
 		$propertyIterator = Iblock\PropertyTable::getList(array(
 			'select' => array('ID'),

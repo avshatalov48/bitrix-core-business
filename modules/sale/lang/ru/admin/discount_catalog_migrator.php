@@ -12,7 +12,6 @@ $MESS["DISCOUNT_CATALOG_MIGRATOR_CONVERT_STOP_BUTTON"] = "Прервать пе�
 $MESS["DISCOUNT_CATALOG_MIGRATOR_UNKNOWN_ERROR"] = "Неизвестная ошибка при миграции скидки";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_ERROR_REPORT"] = "Не удалось обработать <a href\"#URL#\">#TITLE#</a>: #ERRORS#";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_SAVE"] = "Накопительные скидки";
-$MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_TYPE_SALE"] = "Действие скидки \"Установить цену товара\" ";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_RELATIVE_ACTIVE_PERIOD"] = "Установлен срок действия накопительных скидок \"Время с момента получения\" ";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_CURRENCY_SALE_SITE"] = "Валюта скидки отличается от валюты магазина для этого сайта";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_TEXT"] = "В данный момент мы не объединяем некоторые виды скидок, вам необходимо обратить на них внимание.<br>

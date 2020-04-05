@@ -38,14 +38,22 @@ class View
 	 */
 	public function getTemplates()
 	{
-		$schema = __NAMESPACE__."\\View".$this->order->getVersion()."\\Schema";
-		if (class_exists($schema))
+		$schema = $this->getSchema();
+		if ($schema)
 		{
-			/** @var Schema $view */
-			$view = new $schema();
-
-			return $view->getBlocks($this->order);
+			return $schema->getBlocks($this->order);
 		}
 		return array();
+	}
+
+	private function getSchema()
+	{
+		$version = $this->order->getVersion();
+		if ($version === 1 || $version === 2)
+		{
+			return new TypeFirst\Schema();
+		}
+
+		return null;
 	}
 }

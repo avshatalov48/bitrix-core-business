@@ -165,6 +165,17 @@ $aMenu[] = [
 			return;
 		}
 		BCPEmptyWorkflow = false;
+
+		var btnSave = BX('bizprocdesigner-btn-save');
+		var btnApply = BX('bizprocdesigner-btn-apply');
+		if (btnSave)
+		{
+			BX.removeClass(btnSave, 'ui-btn-wait');
+		}
+		if (btnApply)
+		{
+			BX.removeClass(btnApply, 'ui-btn-wait');
+		}
 	}
 
 	<?$v = str_replace("&amp;", "&", POST_FORM_ACTION_URI);?>
@@ -235,7 +246,8 @@ $aMenu[] = [
 
 	global $JSMESS;
 	$JSMESS = [];
-	$getJsMsg = function ($f, $actId) {
+	$getJsMsg = function ($f, $actId)
+	{
 		global $JSMESS;
 		$MESS = \Bitrix\Main\Localization\Loc::loadLanguageFile($f."/".$actId.".js.php");
 
@@ -278,6 +290,7 @@ $aMenu[] = [
 		var arWorkflowParameters = <?=CUtil::PhpToJSObject($arResult['PARAMETERS'])?>;
 		var arWorkflowVariables = <?=CUtil::PhpToJSObject($arResult['VARIABLES'])?>;
 		var arWorkflowConstants = <?=CUtil::PhpToJSObject($arResult['CONSTANTS'])?>;
+		var arWorkflowGlobalConstants = <?=CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS'])?>;
 		var arWorkflowTemplate = <?=CUtil::PhpToJSObject($arResult['TEMPLATE'][0])?>;
 		var arDocumentFields = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_FIELDS'])?>;
 
@@ -385,19 +398,44 @@ $aMenu[] = [
 	endif;
 	?>
 	<form>
-		<div id="wf1" style="width: 100%; border-bottom: 2px #efefef dotted; "></div>
+		<div id="wf1" style="width: 100%; border-bottom: 2px #efefef dotted; padding-bottom: 10px"></div>
 
+		<?php if (!$isAdminSection):
+
+			$APPLICATION->IncludeComponent('bitrix:ui.button.panel', '', [
+				'BUTTONS' =>
+					[
+						[
+							'ID' => 'bizprocdesigner-btn-save',
+							'TYPE' => 'save',
+							'ONCLICK' => 'BCPSaveTemplate(true); return false;',
+						],
+						[
+							'ID' => 'bizprocdesigner-btn-apply',
+							'TYPE' => 'apply',
+							'ONCLICK' => 'BCPSaveTemplate(); return false;',
+						],
+						[
+							'TYPE' => 'cancel',
+							'ONCLICK' => "window.location='".
+								CUtil::JSEscape(isset($arResult['BACK_URL']) ? $arResult['BACK_URL'] : $arResult['LIST_PAGE_URL'])."';"
+						]
+					],
+				'ALIGN' => 'left'
+			]);
+		else:?>
 		<div id="bizprocsavebuttons">
 			<br>
 			<input type="button"
-				   onclick="BCPSaveTemplate(true);"
-				   value="<? echo GetMessage("BIZPROC_WFEDIT_SAVE_BUTTON") ?>">
+				onclick="BCPSaveTemplate(true);"
+				value="<? echo GetMessage("BIZPROC_WFEDIT_SAVE_BUTTON") ?>">
 			<input type="button"
-				   onclick="BCPSaveTemplate();"
-				   value="<? echo GetMessage("BIZPROC_WFEDIT_APPLY_BUTTON") ?>">
+				onclick="BCPSaveTemplate();"
+				value="<? echo GetMessage("BIZPROC_WFEDIT_APPLY_BUTTON") ?>">
 			<input type="button"
-				   onclick="window.location='<?= htmlspecialcharsbx(CUtil::JSEscape(isset($arResult['BACK_URL']) ? $arResult['BACK_URL'] : $arResult['LIST_PAGE_URL'])) ?>';"
-				   value="<? echo GetMessage("BIZPROC_WFEDIT_CANCEL_BUTTON") ?>">
+				onclick="window.location='<?= htmlspecialcharsbx(CUtil::JSEscape(isset($arResult['BACK_URL']) ? $arResult['BACK_URL'] : $arResult['LIST_PAGE_URL'])) ?>';"
+				value="<? echo GetMessage("BIZPROC_WFEDIT_CANCEL_BUTTON") ?>">
 		</div>
+		<?php endif;?>
 	</form>
 </div>

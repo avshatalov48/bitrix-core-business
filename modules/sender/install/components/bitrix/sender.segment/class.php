@@ -142,8 +142,6 @@ class SenderSegmentComponent extends CBitrixComponent
 	protected function prepareResult()
 	{
 		Preset\Installation\Installer::installNewest();
-		Security\Agreement::requestFromCurrentUser();
-
 		return true;
 	}
 

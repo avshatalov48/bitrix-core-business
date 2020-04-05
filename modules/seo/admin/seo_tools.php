@@ -522,10 +522,10 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 		}
 		
 		//Title
-		$prop_code = COption::GetOptionString('seo', 'property_window_title', 'title');
-		if (isset($_POST["property_" . $prop_code]))
+		$propertyCode = COption::GetOptionString('seo', 'property_window_title', 'title');
+		if (isset($_POST["property_" . $propertyCode]))
 		{
-			$fileContent = SetPrologProperty($fileContent, $prop_code, $_POST["property_" . $prop_code]);
+			$fileContent = SetPrologProperty($fileContent, $propertyCode, $_POST["property_" . $propertyCode]);
 		}
 		
 		//Properties
@@ -719,13 +719,13 @@ foreach(GetModuleEvents("seo", "OnSeoCountersGetList", true) as $arEvent)
 /*************************************/
 $tabControl->BeginNextTab();
 
-if ($prop_code = COption::GetOptionString('seo', 'property_internal_keywords', 'keywords_inner')):
+if ($propertyCode = COption::GetOptionString('seo', 'property_internal_keywords', 'keywords_inner')):
 	$arInnerKeywords = CSeoKeywords::GetByURL($back_url, $site);
-
+	
 	if (count($arInnerKeywords) <= 0)
 	{
-		$arInnerKeywords = $arGlobalProperties[$prop_code] ? $arGlobalProperties[$prop_code] : $arDirProperties[$prop_code];
-
+		$arInnerKeywords = $arGlobalProperties[$propertyCode] ? $arGlobalProperties[$propertyCode] : $arDirProperties[$propertyCode];
+		
 		if (count($arInnerKeywords) >= 0)
 		{
 			CSeoKeywords::Add(array(
@@ -740,11 +740,10 @@ if ($prop_code = COption::GetOptionString('seo', 'property_internal_keywords', '
 		$k = '';
 		foreach ($arInnerKeywords as $key => $value)
 		{
-			$k .= ($k == '' ? '' : ',').$value['KEYWORDS'];
+			$k .= ($k == '' ? '' : ',') . $value['KEYWORDS'];
 		}
 		$arInnerKeywords = $k;
 	}
-
 	if (strlen($arInnerKeywords) > 0)
 	{
 		$arInnerKeywords = explode(',', $arInnerKeywords);
@@ -834,20 +833,22 @@ $tabControl->BeginNextTab();
 	<?
 	endif;
 	
-	if ($prop_code = COption::GetOptionString('seo', 'property_window_title', 'title')):
-		$value = $arGlobalProperties[$prop_code] ? $arGlobalProperties[$prop_code] : $arDirProperties[$prop_code];
+	if ($propertyCode = COption::GetOptionString('seo', 'property_window_title', 'title')):
+		$value = $arGlobalProperties[$propertyCode] ? $arGlobalProperties[$propertyCode] : $arDirProperties[$propertyCode];
 		if (strlen($value) <= 0)
-			$value = $APPLICATION->GetDirProperty($prop_code, array($site, $path));
+		{
+			$value = $APPLICATION->GetDirProperty($propertyCode, array($site, $path));
+		}
 	?>
 	<tr>
-		<td><?echo $arFilemanProperties[$prop_code] ? $arFilemanProperties[$prop_code] : GetMessage('SEO_PAGE_PROPERTY_WINDOW_TITLE')?> (&lt;TITLE&gt;): <?echo SeoShowHelp('property_window_title')?></td>
-		<td><input type="text" name="property_<?echo htmlspecialcharsEx($prop_code)?>" value="<?=htmlspecialcharsEx($value)?>" size="50" /></td>
+		<td><?echo $arFilemanProperties[$propertyCode] ? $arFilemanProperties[$propertyCode] : GetMessage('SEO_PAGE_PROPERTY_WINDOW_TITLE')?> (&lt;TITLE&gt;): <?echo SeoShowHelp('property_window_title')?></td>
+		<td><input type="text" name="property_<?echo HtmlFilter::encode($propertyCode)?>" value="<?=HtmlFilter::encode($value)?>" size="50" /></td>
 	</tr>
 	<?
 		if ($value != $titleWinFinal):
 		?>
 	<tr>
-		<td valign="top"><?echo $arFilemanProperties[$prop_code] ? $arFilemanProperties[$prop_code] : GetMessage('SEO_PAGE_PROPERTY_WINDOW_TITLE')?> (<?echo GetMessage('SEO_PAGE_WINDOW_TITLE_CURRENT')?>): <?echo SeoShowHelp('current_window_title')?></td>
+		<td valign="top"><?echo $arFilemanProperties[$propertyCode] ? $arFilemanProperties[$propertyCode] : GetMessage('SEO_PAGE_PROPERTY_WINDOW_TITLE')?> (<?echo GetMessage('SEO_PAGE_WINDOW_TITLE_CURRENT')?>): <?echo SeoShowHelp('current_window_title')?></td>
 		<td valign="top">
 		<?
 			if ($titleWinChangerLink)
@@ -872,26 +873,32 @@ $tabControl->BeginNextTab();
 	endif;
 	
 	$arEditProperties = array();
-	if ($prop_code = COption::GetOptionString('seo', 'property_keywords', 'keywords')) $arEditProperties['keywords'] = HtmlFilter::encode($prop_code);
-	if ($prop_code = COption::GetOptionString('seo', 'property_description', 'description')) $arEditProperties['description'] = HtmlFilter::encode($prop_code);
+	if ($propertyCode = COption::GetOptionString('seo', 'property_keywords', 'keywords'))
+	{
+		$arEditProperties['keywords'] = HtmlFilter::encode($propertyCode);
+	}
+	if ($propertyCode = COption::GetOptionString('seo', 'property_description', 'description'))
+	{
+		$arEditProperties['description'] = HtmlFilter::encode($propertyCode);
+	}
 	
-	foreach ($arEditProperties as $key => $prop_code):
-		$value = $arGlobalProperties[$prop_code];
+	foreach ($arEditProperties as $propertyCode):
+		$value = $arGlobalProperties[$propertyCode];
 	?>
 	<tr>
-		<td><?echo $arFilemanProperties[$prop_code]?>: <?echo SeoShowHelp('property_'.$key)?></td>
-		<td><input type="hidden" name="PROPERTY[<?=$prop_code?>][CODE]" value="<?=htmlspecialcharsEx($prop_code)?>" />
+		<td><?echo $arFilemanProperties[$propertyCode]?>: <?echo SeoShowHelp('property_'.$key)?></td>
+		<td><input type="hidden" name="PROPERTY[<?=HtmlFilter::encode($propertyCode)?>][CODE]" value="<?=HtmlFilter::encode($propertyCode)?>" />
 		<?
 		if (strlen($value) <= 0):
-			$value = $APPLICATION->GetDirProperty($prop_code, array($site, $path));
+			$value = $APPLICATION->GetDirProperty($propertyCode, array($site, $path));
 		?>
-			<div id="bx_view_property_<?=$prop_code?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid #F8F9FC; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat; height: 22px;" onclick="BXEditProperty('<?=$prop_code?>')" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50';" onmouseout="this.style.borderColor = '#F8F9FC'" class="edit-field"><?=htmlspecialcharsEx($value)?></div>
+			<div id="bx_view_property_<?=HtmlFilter::encode($propertyCode)?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid #F8F9FC; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat; height: 22px;" onclick="BXEditProperty('<?=$propertyCode?>')" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50';" onmouseout="this.style.borderColor = '#F8F9FC'" class="edit-field"><?=htmlspecialcharsEx($value)?></div>
 	
-			<div id="bx_edit_property_<?=$prop_code?>" style="display:none;"></div>
+			<div id="bx_edit_property_<?=HtmlFilter::encode($propertyCode)?>" style="display:none;"></div>
 		<?
 		else:
 		?>
-			<input type="text" name="PROPERTY[<?=$prop_code?>][VALUE]" value="<?=htmlspecialcharsEx($value)?>" size="50" /></td>
+			<input type="text" name="PROPERTY[<?=HtmlFilter::encode($propertyCode)?>][VALUE]" value="<?=HtmlFilter::encode($value)?>" size="50" /></td>
 		<?
 		endif;
 		?>

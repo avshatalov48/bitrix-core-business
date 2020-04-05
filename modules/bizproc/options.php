@@ -42,7 +42,7 @@ if ($REQUEST_METHOD == "POST" && strlen($Update) > 0 && $bizprocPerms == "W" && 
 {
 	COption::SetOptionString("bizproc", "log_cleanup_days", $log_cleanup_days);
 	if ($log_cleanup_days > 0)
-		CAgent::AddAgent("CBPTrackingService::ClearOldAgent();", "bizproc", "N", 43200);
+		CAgent::AddAgent("CBPTrackingService::ClearOldAgent();", "bizproc", "N", 86400);
 	else
 		CAgent::RemoveAgent("CBPTrackingService::ClearOldAgent();", "bizproc");
 

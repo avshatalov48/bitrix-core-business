@@ -85,6 +85,12 @@ $arComponentParameters = array(
 			"VALUES" => $arIBlock,
 			"REFRESH" => "Y",
 		),
+		"PREFILTER_NAME" => array(
+			"PARENT" => "DATA_SOURCE",
+			"NAME" => GetMessage("CP_CF_PREFILTER_NAME"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "preFilter",
+		),
 		"FILTER_NAME" => array(
 			"PARENT" => "DATA_SOURCE",
 			"NAME" => GetMessage("IBLOCK_FILTER_NAME_OUT"),

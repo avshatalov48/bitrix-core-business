@@ -1,6 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 
+\Bitrix\Main\UI\Extension::load("ui.viewer");
+\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 CJSCore::Init(array('socnetlogdest', 'bp_user_selector'));
 \Bitrix\Main\UI\Extension::load("ui.tooltip");
@@ -128,7 +129,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 		<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE")?>: </span>
 		<?
 		if (strlen($arResult["TASK"]["DESCRIPTION"]) > 0):
-			echo nl2br($arResult["TASK"]["DESCRIPTION"]);
+			echo \CBPViewHelper::prepareTaskDescription($arResult["TASK"]["DESCRIPTION"]);
 		else:
 			echo $arResult["TASK"]["NAME"];
 		endif;

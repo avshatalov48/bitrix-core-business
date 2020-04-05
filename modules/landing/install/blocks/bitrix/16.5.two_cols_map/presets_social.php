@@ -126,40 +126,6 @@ return [
 			],
 		],
 	],
-	'vine' => [
-		'name' => '<i class="landing-block-card-social-icon fa fa-vine"></i> Vine',
-		'html' => '<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="vine">
-							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-vine"></i></a>
-						</li>',
-		'disallow' => ['.landing-block-card-social-icon'],
-		'values' => [
-			'.landing-block-card-social-link' => [
-				'href' => '#',
-				'target' => '_blank',
-			],
-			'.landing-block-card-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-vineter'],
-			],
-		],
-	],
-	'google-plus' => [
-		'name' => '<i class="landing-block-card-social-icon fa fa-google-plus"></i> Google-plus',
-		'html' => '<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="google-plus">
-							<a class="landing-block-card-social-link u-icon-v3 u-icon-size--xs g-width-35 g-height-35 g-color-primary g-color-white--hover g-bg-white g-bg-gray-dark-v2--hover g-transition-0_2 g-transition--ease-in" href=""><i class="landing-block-card-social-icon fa fa-google-plus"></i></a>
-						</li>',
-		'disallow' => ['.landing-block-card-social-icon'],
-		'values' => [
-			'.landing-block-card-social-link' => [
-				'href' => '#',
-				'target' => '_blank',
-			],
-			'.landing-block-card-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-google-plus'],
-			],
-		],
-	],
 	'dribbble' => [
 		'name' => '<i class="landing-block-card-social-icon fa fa-dribbble"></i> Dribbble',
 		'html' => '<li class="landing-block-card-social list-inline-item g-mr-10" data-card-preset="dribbble">

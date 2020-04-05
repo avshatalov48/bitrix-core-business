@@ -515,7 +515,8 @@ class ShipmentDocument extends DocumentBase
                 '1C_TIME' => array(
                     'TYPE' => 'datetime'
                 ),
-            );
+				'AGENT' => array()
+			);
 
 			static::unitFieldsInfo(self::$FIELD_INFOS);
 			static::koefFieldsInfo(self::$FIELD_INFOS);

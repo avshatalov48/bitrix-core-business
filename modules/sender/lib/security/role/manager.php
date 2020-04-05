@@ -55,7 +55,7 @@ class Manager
 	 */
 	public static function getTrialText()
 	{
-		return Loc::getMessage('SENDER_SECURITY_ROLE_MANAGER_TRIAL_TEXT');
+		return Loc::getMessage('SENDER_SECURITY_ROLE_MANAGER_TRIAL_TEXT_NEW');
 	}
 
 	/**

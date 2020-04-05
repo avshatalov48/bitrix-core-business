@@ -13,6 +13,7 @@ use Bitrix\Sale\DeliveryStatus;
 use Bitrix\Sale\OrderStatus;
 use Bitrix\Sale\PaySystem\Manager;
 use Bitrix\Sale\Result;
+use Bitrix\Sale;
 
 class Synchronizer extends Engine\Controller
 {
@@ -180,10 +181,15 @@ class Synchronizer extends Engine\Controller
 
 	public function addTimelineAfterOrderModifyAction($orderId, array $params)
 	{
-		if($this->isB24())
+		if ($this->isB24())
 		{
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
 			/** @var \Bitrix\Sale\Order $className */
-			$order = \Bitrix\Sale\Order::load($orderId);
+			$order = $orderClass::load($orderId);
 			if($order)
 			{
 				OrderController::getInstance()->afterModifyExternalEntity($order->getId(), ['TYPE'=>$params['type'], 'MESSAGE'=>$params['message']]);

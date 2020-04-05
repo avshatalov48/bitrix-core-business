@@ -236,7 +236,7 @@ abstract class Provider
 		return self::PERMISSION_DENY;
 	}
 
-	public function getLogId()
+	public function getLogId($params = [])
 	{
 		$result = false;
 
@@ -263,6 +263,15 @@ abstract class Provider
 					else
 					{
 						$filter['=SOURCE_ID'] = $this->entityId;
+					}
+
+					if (
+						is_array($params)
+						&& isset($params['inactive'])
+						&& $params['inactive']
+					)
+					{
+						$filter['=INACTIVE'] = 'Y';
 					}
 
 					$res = \CSocNetLog::getList(
@@ -345,6 +354,11 @@ abstract class Provider
 			&& !!$operation
 		)
 		{
+			$activity = \CSocNetFeatures::isActiveFeature(
+				SONET_ENTITY_GROUP,
+				$result,
+				$feature
+			);
 			$availability = \CSocNetFeaturesPerms::canPerformOperation(
 				$USER->getId(),
 				SONET_ENTITY_GROUP,
@@ -355,7 +369,9 @@ abstract class Provider
 			foreach ($result as $key => $groupId)
 			{
 				if (
-					!isset($availability[$groupId])
+					!isset($activity[$groupId])
+					|| !$activity[$groupId]
+					|| !isset($availability[$groupId])
 					|| !$availability[$groupId]
 				)
 				{

@@ -46,4 +46,20 @@ class IntegerField extends ScalarField
 	{
 		return $this->getConnection()->getSqlHelper()->convertToDbInteger($value);
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getGetterTypeHint()
+	{
+		return '\\int';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetterTypeHint()
+	{
+		return '\\int';
+	}
 }

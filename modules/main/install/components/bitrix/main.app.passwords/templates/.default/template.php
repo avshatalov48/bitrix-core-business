@@ -3,6 +3,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
 use Bitrix\Main\Text\HtmlFilter;
+\Bitrix\Main\UI\Extension::load("ui.common");
+\Bitrix\Main\UI\Extension::load("ui.forms");
+\Bitrix\Main\UI\Extension::load("ui.buttons");
 
 /**
  * @var array $arParams
@@ -27,13 +30,9 @@ var bx_app_pass_mess = {
 </script>
 
 <div class="bx-otp-wrap-container">
-	<h3 class="bx-otp-wrap-container-title"><?echo GetMessage("main_app_pass_title")?></h3>
-	<p class="bx-otp-wrap-container-description">
-		<?echo GetMessage("main_app_pass_text1")?>
-	</p>
-	<p class="bx-otp-wrap-container-description">
-		<?echo GetMessage("main_app_pass_text2")?>
-	</p>
+	<div class="ui-title-4"><?echo GetMessage("main_app_pass_title")?></div>
+	<div class="ui-text-1 ui-color-medium"><?echo GetMessage("main_app_pass_text1")?></div>
+	<div class="ui-text-1 ui-color-medium"><?echo GetMessage("main_app_pass_text2")?></div>
 
 	<div class="bx-otp-section-white">
 
@@ -94,7 +93,7 @@ var bx_app_pass_mess = {
 						<tr>
 							<td class="bx-otp-access-table-param" colspan="3">
 								<form id="bx_app_pass_form_<?=$app_id?>">
-									<table>
+									<table style="width: 100%;">
 										<thead>
 											<tr>
 												<td class="tal" style="padding: 0 30px 0 0;"><small class="fwn ttn m0"><?=($app["OPTIONS_CAPTION"] <> ''? HtmlFilter::encode($app["OPTIONS_CAPTION"]) : GetMessage("main_app_pass_link"))?></small></td>
@@ -103,20 +102,25 @@ var bx_app_pass_mess = {
 										</thead>
 										<tbody>
 											<tr>
-												<td class="tal" style="padding: 0 30px 0 0;">
-													<select name="SYSCOMMENT" id="" class="bx-otp-slt medium">
-													<?if(!empty($app["OPTIONS"]) && is_array($app["OPTIONS"])):?>
-														<?foreach($app["OPTIONS"] as $opt):?>
-														<option value="<?=HtmlFilter::encode($opt)?>"><?=HtmlFilter::encode($opt)?></option>
-														<?endforeach?>
-														<option value="<?echo GetMessage("main_app_pass_other")?>"><?echo GetMessage("main_app_pass_other")?></option>
-													<?else:?>
-														<option value="<?=HtmlFilter::encode($app["NAME"])?>"><?=HtmlFilter::encode($app["NAME"])?></option>
-													<?endif?>
-													</select>
+												<td class="tal" style="padding: 0 10px 0 0;">
+													<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon ui-ctl-dropdown">
+														<div class="ui-ctl-after ui-ctl-icon-angle"></div>
+														<select name="SYSCOMMENT" id="" class="ui-ctl-element">
+														<?if(!empty($app["OPTIONS"]) && is_array($app["OPTIONS"])):?>
+															<?foreach($app["OPTIONS"] as $opt):?>
+															<option value="<?=HtmlFilter::encode($opt)?>"><?=HtmlFilter::encode($opt)?></option>
+															<?endforeach?>
+															<option value="<?echo GetMessage("main_app_pass_other")?>"><?echo GetMessage("main_app_pass_other")?></option>
+														<?else:?>
+															<option value="<?=HtmlFilter::encode($app["NAME"])?>"><?=HtmlFilter::encode($app["NAME"])?></option>
+														<?endif?>
+														</select>
+													</div>
 												</td>
 												<td class="tal" style="padding: 0;">
-													<input type="text" name="COMMENT" class="bx-otp-slt medium m0" placeholder="<?echo GetMessage("main_app_pass_comment_ph")?>">
+													<div class="ui-ctl ui-ctl-textbox">
+														<input type="text" name="COMMENT" class="ui-ctl-element" placeholder="<?echo GetMessage("main_app_pass_comment_ph")?>">
+													</div>
 												</td>
 											</tr>
 										</tbody>
@@ -125,7 +129,7 @@ var bx_app_pass_mess = {
 								</form>
 							</td>
 							<td class="bx-otp-access-table-value" colspan="2">
-								<a class="bx-otp-btn big green mb0" href="javascript:void(0);" onclick="bx_app_pass_show_create_window('bx_app_pass_form_<?=$app_id?>')"><?echo GetMessage("main_app_pass_get_pass")?></a>
+								<a class="ui-btn ui-btn-success" href="javascript:void(0);" onclick="bx_app_pass_show_create_window('bx_app_pass_form_<?=$app_id?>')"><?echo GetMessage("main_app_pass_get_pass")?></a>
 							</td>
 						</tr>
 					</tbody>

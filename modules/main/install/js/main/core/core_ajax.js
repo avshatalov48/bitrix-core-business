@@ -394,9 +394,10 @@ BX.ajax.processRequestData = function(data, config)
 	{
 		case 'JSON':
 
-			BX.addCustomEvent(config.xhr, 'onParseJSONFailure', BX.proxy(BX.ajax._onParseJSONFailure, config));
-			result = BX.parseJSON(data, config.xhr);
-			BX.removeCustomEvent(config.xhr, 'onParseJSONFailure', BX.proxy(BX.ajax._onParseJSONFailure, config));
+			var context = config.xhr || {};
+			BX.addCustomEvent(context, 'onParseJSONFailure', BX.proxy(BX.ajax._onParseJSONFailure, config));
+			result = BX.parseJSON(data, context);
+			BX.removeCustomEvent(context, 'onParseJSONFailure', BX.proxy(BX.ajax._onParseJSONFailure, config));
 
 			if(!!result && BX.type.isArray(result['bxjs']))
 			{
@@ -861,6 +862,25 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 {
 	withoutRestoringCsrf = withoutRestoringCsrf || false;
 	var originalConfig = BX.clone(config);
+	var request = null;
+
+	var onrequeststart = config.onrequeststart;
+	config.onrequeststart = function(xhr) {
+		request = xhr;
+		if (BX.type.isFunction(onrequeststart))
+		{
+			onrequeststart(xhr);
+		}
+	};
+	var onrequeststartOrig = originalConfig.onrequeststart;
+	originalConfig.onrequeststart = function(xhr) {
+		request = xhr;
+		if (BX.type.isFunction(onrequeststartOrig))
+		{
+			onrequeststartOrig(xhr);
+		}
+	};
+
 	var promise = BX.ajax.promise(config);
 
 	return promise.then(function(response) {
@@ -916,6 +936,44 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 		}
 
 		return ajaxReject;
+	}).then(function(response){
+
+		var assetsLoaded = new BX.Promise();
+
+		var headers = request.getAllResponseHeaders().trim().split(/[\r\n]+/);
+		var headerMap = {};
+		headers.forEach(function (line) {
+			var parts = line.split(': ');
+			var header = parts.shift().toLowerCase();
+			headerMap[header] = parts.join(': ');
+		});
+
+		if (!headerMap['x-process-assets'])
+		{
+			assetsLoaded.fulfill(response);
+
+			return assetsLoaded;
+		}
+
+		var assets = BX.prop.getObject(BX.prop.getObject(response, "data", {}), "assets", {});
+		var promise = new Promise(function(resolve, reject) {
+			var css = BX.prop.getArray(assets, "css", []);
+			BX.load(css, function(){
+				BX.loadScript(
+					BX.prop.getArray(assets, "js", []),
+					resolve
+				);
+			});
+		});
+		promise.then(function(){
+			var strings = BX.prop.getArray(assets, "string", []);
+			var stringAsset = strings.join('\n');
+			BX.html(null, stringAsset).then(function(){
+				assetsLoaded.fulfill(response);
+			});
+		});
+
+		return assetsLoaded;
 	});
 };
 

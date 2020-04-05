@@ -254,6 +254,17 @@ if($arResult['NEED_DISPLAY_UPDATE_14_5_2_MESSAGE']):
 	</div>
 </div>
 
+<?php
+$editUrl = CComponentEngine::MakePathFromTemplate(
+	$arParams['PATH_TO_REPORT_CONSTRUCT'], ['report_id' => 'REPORT_ID', 'action' => 'edit']);
+$deleteUrl = CComponentEngine::MakePathFromTemplate(
+	$arParams['PATH_TO_REPORT_CONSTRUCT'], ['report_id' => 'REPORT_ID', 'action' => 'delete']);
+$copyUrl = CComponentEngine::MakePathFromTemplate(
+	$arParams['PATH_TO_REPORT_CONSTRUCT'], ['report_id' => 'REPORT_ID', 'action' => 'copy']);
+$deleteConfirmUrl = CComponentEngine::MakePathFromTemplate(
+	$arParams['PATH_TO_REPORT_CONSTRUCT'], ['report_id' => 'REPORT_ID', 'action' => 'delete_confirmed']);
+?>
+
 <script type="text/javascript">
 	BX(function () {
 
@@ -262,14 +273,10 @@ if($arResult['NEED_DISPLAY_UPDATE_14_5_2_MESSAGE']):
 			containerId:'<?=CUtil::JSEscape($containerID)?>',
 			ownerId: '<?=$ownerId?>',
 			sessionError: '<?= !empty($_SESSION['REPORT_LIST_ERROR']) ? true : false ?>',
-			editUrl:'<?=CComponentEngine::MakePathFromTemplate($arParams['PATH_TO_REPORT_CONSTRUCT'],
-				array('report_id' => 'REPORT_ID', 'action' => 'edit'))?>',
-			deleteUrl:'<?=CComponentEngine::MakePathFromTemplate($arParams['PATH_TO_REPORT_CONSTRUCT'],
-				array('report_id' => 'REPORT_ID', 'action' => 'delete'));?>',
-			copyUrl:'<?=CComponentEngine::MakePathFromTemplate($arParams['PATH_TO_REPORT_CONSTRUCT'],
-				array('report_id' => 'REPORT_ID', 'action' => 'copy'));?>',
-			deleteConfirmUrl:'<?=CComponentEngine::MakePathFromTemplate($arParams['PATH_TO_REPORT_CONSTRUCT'],
-				array('report_id' => 'REPORT_ID', 'action' => 'delete_confirmed'));?>'
+			editUrl: '<?=CUtil::JSEscape($editUrl)?>',
+			deleteUrl: '<?=CUtil::JSEscape($deleteUrl)?>',
+			copyUrl: '<?=CUtil::JSEscape($copyUrl)?>',
+			deleteConfirmUrl: '<?=CUtil::JSEscape($deleteConfirmUrl)?>'
 		});
 
 		BX.message({

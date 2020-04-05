@@ -16,7 +16,7 @@ $MESS["SEO_ROBOTS_YANDEXMEDIA"] = "Multimedia bot";
 $MESS["SEO_ROBOTS_YANDEXIMAGES"] = "<a href=\"http://images.yandex.ru/\" target=\"_blank\">Yandex.Image</a> bot";
 $MESS["SEO_ROBOTS_YANDEXBLOGS"] = "<a href=\"http://blogs.yandex.ru/\" target=\"_blank\">Blog posts and comments</a> bot";
 $MESS["SEO_ROBOTS_YANDEXNEWS"] = "<a href=\"http://news.yandex.ru/\" target=\"_blank\">Yandex.News</a> bot";
-$MESS["SEO_ROBOTS_YANDEXMETRIKA"] = "<a href=\"http://metrika.yandex.ru/\" target=\"_blank\">Yandex.Metrix</a> bot";
+$MESS["SEO_ROBOTS_YANDEXMETRIKA"] = "<a href=\"http://metrika.yandex.ru/\" target=\"_blank\">Yandex.Metrics</a> bot";
 $MESS["SEO_ROBOTS_YANDEXMARKET"] = "<a href=\"http://market.yandex.ru/\" target=\"_blank\">Yandex.Market</a> bot";
 $MESS["SEO_ROBOTS_GOOGLEBOT"] = "Web bot";
 $MESS["SEO_ROBOTS_GOOGLEBOT_NEWS"] = "<a href=\"http://news.google.com/\" target=\"_blank\">Google News</a> bot";

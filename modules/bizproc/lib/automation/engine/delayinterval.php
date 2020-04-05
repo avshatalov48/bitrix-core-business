@@ -228,12 +228,13 @@ class DelayInterval
 
 	/**
 	 * Converts instance to activity properties array.
+	 * @param array $documentType Document type.
 	 * @return array
 	 */
-	public function toActivityProperties()
+	public function toActivityProperties(array $documentType = null)
 	{
 		$properties = [
-			'TimeoutTimeIsLocal' => $this->isLocalTime() ? 'Y' : 'N'
+			'TimeoutTimeIsLocal' => 'N',//$this->isLocalTime() ? 'Y' : 'N'
 		];
 
 		if (
@@ -256,7 +257,13 @@ class DelayInterval
 		}
 		else
 		{
-			$properties['TimeoutTime'] = Helper::getDateTimeIntervalString($this->toArray());
+			$intervalProperties = $this->toArray();
+			if ($documentType)
+			{
+				$intervalProperties['worker'] = Helper::getResponsibleUserExpression($documentType);
+			}
+
+			$properties['TimeoutTime'] = Helper::getDateTimeIntervalString($intervalProperties);
 		}
 
 		return $properties;

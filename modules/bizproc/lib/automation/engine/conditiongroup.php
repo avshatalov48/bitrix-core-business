@@ -185,7 +185,7 @@ class ConditionGroup
 			$field = $condition->getField();
 			$value = $condition->getValue();
 			$property = isset($documentFields[$field]) ? $documentFields[$field] : null;
-			if ($property)
+			if ($property && !in_array($condition->getOperator(), ['empty', '!empty']))
 			{
 				$valueInternal = $documentService->GetFieldInputValue(
 					$documentType,
@@ -204,13 +204,11 @@ class ConditionGroup
 			$fieldCondition[] = [
 				$field,
 				$condition->getOperator(),
-				$value,
+				self::unConvertExpressions($value, $documentType),
 				$bizprocJoiner
 			];
 			$bizprocJoiner = ($joiner === static::JOINER_OR) ? 1 : 0;
 		}
-
-		Helper::unConvertExpressions($fieldCondition, $documentType);
 
 		$activity = array(
 			'Type' => 'IfElseActivity',
@@ -307,6 +305,22 @@ class ConditionGroup
 		else
 		{
 			$value = Helper::convertExpressions($value, $documentType);
+		}
+		return $value;
+	}
+
+	private static function unConvertExpressions($value, array $documentType)
+	{
+		if (is_array($value))
+		{
+			foreach ($value as $k => $v)
+			{
+				$value[$k] = self::unConvertExpressions($v, $documentType);
+			}
+		}
+		else
+		{
+			$value = Helper::unConvertExpressions($value, $documentType);
 		}
 		return $value;
 	}

@@ -9,9 +9,12 @@
 namespace Bitrix\Main\ORM\Fields\Relations;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ORM\Fields\ITypeHintable;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\Field;
 use Bitrix\Main\ORM\Objectify\EntityObject;
+use Bitrix\Main\ORM\Query\Join;
 
 /**
  * Performs relation mapping: back-reference and many-to-many relations.
@@ -19,7 +22,7 @@ use Bitrix\Main\ORM\Objectify\EntityObject;
  * @package    bitrix
  * @subpackage main
  */
-abstract class Relation extends Field
+abstract class Relation extends Field implements ITypeHintable
 {
 	/** @var string Name of target entity */
 	protected $refEntityName;
@@ -30,10 +33,40 @@ abstract class Relation extends Field
 	/** @var string */
 	protected $joinType = null;
 
+	/** @var int */
+	protected $cascadeSavePolicy;
+
+	/** @var int */
+	protected $cascadeDeletePolicy;
+
+	/**
+	 * @param int $cascadeSavePolicy
+	 *
+	 * @return Relation
+	 */
+	public function configureCascadeSavePolicy($cascadeSavePolicy)
+	{
+		$this->cascadeSavePolicy = $cascadeSavePolicy;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $cascadeDeletePolicy
+	 *
+	 * @return Relation
+	 */
+	public function configureCascadeDeletePolicy($cascadeDeletePolicy)
+	{
+		$this->cascadeDeletePolicy = $cascadeDeletePolicy;
+
+		return $this;
+	}
+
 	/**
 	 * @return Entity
 	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws SystemException
 	 */
 	public function getRefEntity()
 	{
@@ -71,7 +104,7 @@ abstract class Relation extends Field
 	{
 		$type = strtoupper($type);
 
-		if (!in_array($type, ['LEFT', 'INNER', 'RIGHT'], true))
+		if (!in_array($type, Join::getTypes(), true))
 		{
 			throw new ArgumentException(sprintf(
 				'Unknown join type `%s` in reference `%s` of `%s` entity',
@@ -90,5 +123,41 @@ abstract class Relation extends Field
 	public function getJoinType()
 	{
 		return $this->joinType;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCascadeSavePolicy()
+	{
+		return $this->cascadeSavePolicy;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCascadeDeletePolicy()
+	{
+		return $this->cascadeDeletePolicy;
+	}
+
+	/**
+	 * @return EntityObject|string
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	public function getGetterTypeHint()
+	{
+		return $this->getRefEntity()->getObjectClass();
+	}
+
+	/**
+	 * @return EntityObject|string
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	public function getSetterTypeHint()
+	{
+		return $this->getRefEntity()->getObjectClass();
 	}
 }

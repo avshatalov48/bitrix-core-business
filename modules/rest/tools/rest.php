@@ -115,6 +115,12 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 									$appFields['DATE_FINISH'] = '';
 								}
 
+								//Configuration app
+								if($appDetailInfo['TYPE'] == \Bitrix\Rest\AppTable::TYPE_CONFIGURATION)
+								{
+									$appFields['INSTALLED'] = \Bitrix\Rest\AppTable::NOT_INSTALLED;
+								}
+
 								$existingApp = \Bitrix\Rest\AppTable::getByClientId($appFields['CLIENT_ID']);
 
 								if($existingApp)
@@ -240,7 +246,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 				$dbRes = \Bitrix\Rest\AppTable::getList(array(
 					'filter' => array(
 						"=CODE" => $code,
-						"!=STATUS" => \Bitrix\Rest\AppTable::STATUS_LOCAL,
+						"!=STATUS" => \Bitrix\Rest\AppTable::STATUS_LOCAL
 					),
 				));
 
@@ -248,7 +254,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 				if($appInfo)
 				{
 					$checkResult = \Bitrix\Rest\AppTable::checkUninstallAvailability($appInfo['ID'], $clean == 'true');
-					if($checkResult->isEmpty())
+					if($checkResult->isEmpty() && \Bitrix\Rest\AppTable::canUninstallByType($appInfo['CODE'], $appInfo['VERSION']))
 					{
 						\Bitrix\Rest\AppTable::uninstall($appInfo['ID'], $clean == "true");
 
@@ -272,6 +278,16 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 						}
 
 						$result = array('error' => $errorMessage);
+						if($checkResult->isEmpty() && \Bitrix\Rest\AppTable::getAppType($appInfo['CODE']) == \Bitrix\Rest\AppTable::TYPE_CONFIGURATION)
+						{
+							$result = [
+								'sliderUrl' => \Bitrix\Main\Config\Option::get(
+									'rest',
+									'application_import_rollback_tpl',
+									\Bitrix\Rest\Marketplace\Url::getConfigurationImportRollbackUrl()
+								)
+							];
+						}
 					}
 				}
 				else

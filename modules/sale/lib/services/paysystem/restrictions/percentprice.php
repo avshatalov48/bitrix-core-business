@@ -3,6 +3,7 @@
 namespace Bitrix\Sale\Services\PaySystem\Restrictions;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\PriceMaths;
 
 Loc::loadMessages(__FILE__);
 
@@ -18,7 +19,7 @@ class PercentPrice extends Price
 		$percent = (float)$paramValue / 100;
 		$price = (float)$entityParams['PRICE_ORDER'] * $percent;
 
-		return roundEx($price, SALE_VALUE_PRECISION);
+		return PriceMaths::roundPrecision($price);
 	}
 
 	/**

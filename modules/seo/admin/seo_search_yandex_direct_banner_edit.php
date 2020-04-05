@@ -250,7 +250,14 @@ if(!$bReadOnly && $request->isPost() && ($request["save"]<>'' || $request["apply
 		);
 	}
 
-	$bannerSettings['MinusKeywords'] = preg_split("/[\\r\\n,;]+\\s*/", $bannerSettings['MinusKeywords']);
+	if(!$bannerSettings['MinusKeywords'])
+	{
+		unset($bannerSettings['MinusKeywords']);
+	}
+	else
+	{
+		$bannerSettings['MinusKeywords'] = preg_split("/[\\r\\n,;]+\\s*/", $bannerSettings['MinusKeywords']);
+	}
 
 	$bannerFields = array(
 		"CAMPAIGN_ID" => $campaignId,
@@ -799,7 +806,18 @@ foreach($regions as $region)
 		$button = '<span class="openbutton empty"></span>';
 	}
 
-	$regionsOutput[$region["PARENT_XML_ID"]] .= '<div class="region-closed">'.$button.'<input type="checkbox" name="region[]" id="region_'.$region['XML_ID'].'" value="'.$region['XML_ID'].'" data-parent="'.$region['PARENT_XML_ID'].'"  data-title="'.HtmlFilter::encode($region['NAME']).'">&nbsp;<label for="region_'.$region['XML_ID'].'">'.HtmlFilter::encode($region['NAME']).'</label></div>';
+	$regionsOutput[$region["PARENT_XML_ID"]] .= '
+		<div class="region-closed">'
+			.$button
+			.'<input
+				type="checkbox"
+				class="region"
+				id="region_'.$region['XML_ID'].'"
+				value="'.$region['XML_ID'].'"
+				data-parent="'.$region['PARENT_XML_ID'].'"
+				data-title="'.HtmlFilter::encode($region['NAME']).'">
+			&nbsp;<label for="region_'.$region['XML_ID'].'">'.HtmlFilter::encode($region['NAME']).'</label>
+		</div>';
 }
 ?>
 <style>
@@ -876,19 +894,19 @@ echo implode('</div>', $regionsOutput).'</div>';
 <script>
 	function showRegions(id, el)
 	{
-		var r = BX('regions_' + id);
-		if(r)
+		var regions = BX('regions_' + id);
+		if(regions)
 		{
 			if(BX.hasClass(el, 'region-opened'))
 			{
 				el.className = 'region-closed';
-				r.style.display = 'none';
+				regions.style.display = 'none';
 			}
 			else
 			{
-				el.appendChild(r);
-				r.style.display = 'block';
-				r.style.paddingLeft = '20px';
+				el.appendChild(regions);
+				regions.style.display = 'block';
+				regions.style.paddingLeft = '20px';
 
 				el.className = 'region-opened';
 			}
@@ -897,74 +915,81 @@ echo implode('</div>', $regionsOutput).'</div>';
 
 	BX.ready(function()
 	{
-		var listCont = BX('regions-list'), resultCont = BX('regions-selected');
+		var listCont = BX('regions-list'),
+			resultCont = BX('regions-selected');
 
-		function checkAll(id, bChecked)
+		function checkRegionWithChildren(id, bChecked)
 		{
-			var r = BX('regions_' + id);
-			if(r)
+			var targetRegion = BX('regions_' + id);
+			if(targetRegion)
 			{
-				var subReg = BX.findChildren(r, {tag: 'INPUT', property: {type: 'checkbox', name: 'region[]'}}, true);
-				if (subReg)
+				var subRegion = BX.findChildren(targetRegion, {tag: 'INPUT', class: 'region', property: {type: 'checkbox'}}, true);
+				if (subRegion)
 				{
-					for (var i = 0; i < subReg.length; i++)
+					for (var i = 0; i < subRegion.length; i++)
 					{
-						subReg[i].checked = bChecked;
-						checkAll(subReg[i].value, bChecked);
+						subRegion[i].checked = bChecked;
+						checkRegionWithChildren(subRegion[i].value, bChecked);
 					}
 				}
 			}
 		}
 
-
-		function drawAll(id, bParentChecked, drawRes, valueRes)
+		function drawRegionWithChildren(id, bParentChecked, drawRes, valueRes)
 		{
-			var c = BX('region_' + id);
-			if(c.checked != bParentChecked)
+			var targetRegion = BX('region_' + id);
+			if(targetRegion.checked != bParentChecked)
 			{
-				if(c.checked)
+				if(targetRegion.checked)
 				{
-					drawRes.push('<b>' + BX.util.htmlspecialchars(c.getAttribute('data-title')) + '</b>');
+					drawRes.push('<b>' + BX.util.htmlspecialchars(targetRegion.getAttribute('data-title')) + '</b>');
 				}
 				else
 				{
-					drawRes.push('<?=Loc::getMessage('SEO_YANDEX_REGIONS_BESIDES', array("#NAME#" => "' + BX.util.htmlspecialchars(c.getAttribute('data-title')) + '"))?>');
+					drawRes.push('<?=Loc::getMessage('SEO_YANDEX_REGIONS_BESIDES', array("#NAME#" => "' + BX.util.htmlspecialchars(targetRegion.getAttribute('data-title')) + '"))?>');
 				}
 
-				valueRes.push((c.checked ? '' : '-') + c.value);
+				valueRes.push((targetRegion.checked ? '' : '-') + targetRegion.value);
 			}
 
-			var r = BX('regions_' + id);
-			if(r)
+			var targetRegionGroup = BX('regions_' + id);
+			if(targetRegionGroup)
 			{
-				var subReg = BX.findChildren(r, {tag: 'INPUT', property: {type: 'checkbox', name: 'region[]'}, attribute: {'data-parent': id}}, true);
+				var subReg = BX.findChildren(targetRegionGroup, {tag: 'INPUT', class: 'region', property: {type: 'checkbox'}, attribute: {'data-parent': id}}, true);
 				if (subReg)
 				{
 					for (var i = 0; i < subReg.length; i++)
 					{
-						drawAll(subReg[i].value, c.checked, drawRes, valueRes);
+						drawRegionWithChildren(subReg[i].value, targetRegion.checked, drawRes, valueRes);
 					}
 				}
 			}
 		}
 
-		var h = function()
+		var onRegionClick = function()
 		{
-			var i, id = this.value,drawRes = [], valueRes = [];
-			checkAll(id, this.checked);
-			drawAll('0', false, drawRes, valueRes);
+			var i,
+				id = this.value,
+				drawRes = [],
+				valueRes = [];
+			checkRegionWithChildren(id, this.checked);
+			drawRegionWithChildren('0', false, drawRes, valueRes);
 
 			if(drawRes.length > 0)
+			{
 				resultCont.innerHTML = '<li>' + drawRes.join('</li><li>') + '</li>';
+			}
 			else
+			{
 				resultCont.innerHTML = '<li><b><?=Loc::getMessage('SEO_YANDEX_REGIONS_ALL')?></b></li>';
+			}
 
 			document.forms.form1['SETTINGS[Geo]'].value = valueRes.join(',');
 		};
 
 		var startValue = document.forms.form1['SETTINGS[Geo]'].value;
 
-		BX.bindDelegate(listCont, 'click', {tag: 'INPUT', props: {type: 'checkbox', name: 'region[]'}}, h)
+		BX.bindDelegate(listCont, 'click', {tag: 'INPUT', class: 'region', property: {type: 'checkbox'}}, onRegionClick);
 
 		if(startValue == '')
 		{
@@ -984,7 +1009,7 @@ echo implode('</div>', $regionsOutput).'</div>';
 			var checkbox = BX('region_' + startValue[i]);
 			checkbox.checked = bChecked;
 
-			h.apply(checkbox, []);
+			onRegionClick.apply(checkbox, []);
 		}
 
 		showRegions("0", BX('region_0').parentNode);
@@ -1290,7 +1315,7 @@ foreach($banner["SETTINGS"]["Phrases"] as $phraseData)
 			timeOut = setTimeout(BX.proxy(hint.close, hint), 10000)
 		});
 		BX.bind(textInput, 'blur', function(){hint.close(); clearTimeout(timeOut);});
-		BX.bind(textInput, 'keyup', parsePhraseList);
+		BX.bind(textInput, 'keyup', BX.debounce(parsePhraseList, 500));
 
 //		minus keywords hint binds
 		var minusKWInput = BX('minus_text');
@@ -1921,7 +1946,7 @@ $tabControl->EndTab();
 if(!$bReadOnly)
 {
 	$tabControl->Buttons(array(
-		"back_url" => $back_url ? $back_url : "seo_search_yandex_direct_banner.php?lang=".LANGUAGE_ID,
+		"back_url" => $back_url ? $back_url : "seo_search_yandex_direct_banner.php?lang=".LANGUAGE_ID.'&campaign='.$campaign['ID'],
 	));
 }
 $tabControl->End();

@@ -119,27 +119,6 @@ $arTemplateParameters = array(
 		"DEFAULT" => "N",
 		"PARENT" => "VISUAL",
 	),
-	"SHOW_COUPONS_BASKET" => array(
-		"NAME" => GetMessage("SHOW_COUPONS_BASKET"),
-		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
-		"DEFAULT" => "Y",
-		"PARENT" => "VISUAL",
-	),
-	"SHOW_COUPONS_DELIVERY" => array(
-		"NAME" => GetMessage("SHOW_COUPONS_DELIVERY"),
-		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
-		"DEFAULT" => "Y",
-		"PARENT" => "VISUAL",
-	),
-	"SHOW_COUPONS_PAY_SYSTEM" => array(
-		"NAME" => GetMessage("SHOW_COUPONS_PAY_SYSTEM"),
-		"TYPE" => "CHECKBOX",
-		"MULTIPLE" => "N",
-		"DEFAULT" => "Y",
-		"PARENT" => "VISUAL",
-	),
 	"SHOW_NEAREST_PICKUP" => array(
 		"NAME" => GetMessage("SHOW_NEAREST_PICKUP"),
 		"TYPE" => "CHECKBOX",
@@ -236,6 +215,14 @@ $arTemplateParameters = array(
 		"HIDDEN" => $arCurrentValues['ALLOW_USER_PROFILES'] !== 'Y' ? 'Y' : 'N',
 		"PARENT" => "BASE"
 	),
+	"SHOW_COUPONS" => array(
+		"NAME" => GetMessage("SHOW_COUPONS"),
+		"TYPE" => "CHECKBOX",
+		"MULTIPLE" => "N",
+		"DEFAULT" => "Y",
+		"REFRESH" => "Y",
+		"PARENT" => "VISUAL",
+	),
 	"USE_YM_GOALS" => array(
 		"NAME" => GetMessage("USE_YM_GOALS1"),
 		"TYPE" => "CHECKBOX",
@@ -244,6 +231,31 @@ $arTemplateParameters = array(
 		"PARENT" => "ANALYTICS_SETTINGS"
 	)
 );
+
+if (!isset($arCurrentValues['SHOW_COUPONS']) || $arCurrentValues['SHOW_COUPONS'] === 'Y')
+{
+	$arTemplateParameters["SHOW_COUPONS_BASKET"] = [
+		"NAME" => GetMessage("SHOW_COUPONS_BASKET"),
+		"TYPE" => "CHECKBOX",
+		"MULTIPLE" => "N",
+		"DEFAULT" => "Y",
+		"PARENT" => "VISUAL",
+	];
+	$arTemplateParameters["SHOW_COUPONS_DELIVERY"] = [
+		"NAME" => GetMessage("SHOW_COUPONS_DELIVERY"),
+		"TYPE" => "CHECKBOX",
+		"MULTIPLE" => "N",
+		"DEFAULT" => "Y",
+		"PARENT" => "VISUAL",
+	];
+	$arTemplateParameters["SHOW_COUPONS_PAY_SYSTEM"] = [
+		"NAME" => GetMessage("SHOW_COUPONS_PAY_SYSTEM"),
+		"TYPE" => "CHECKBOX",
+		"MULTIPLE" => "N",
+		"DEFAULT" => "Y",
+		"PARENT" => "VISUAL",
+	];
+}
 
 if ($arCurrentValues['USE_YM_GOALS'] == 'Y')
 {

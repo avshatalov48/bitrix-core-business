@@ -76,7 +76,7 @@ Extension::load("ui.notification");
 					"bitrix:sender.template.selector",
 					"",
 					array(
-						"MESSAGE_CODE" => $arParams['MESSAGE_CODE'],
+						"MESSAGE_CODE" => $arResult['MESSAGE_CODE'],
 						"IS_TRIGGER" => $arParams['IS_TRIGGER'],
 						"CACHE_TIME" => "60",
 						"CACHE_TYPE" => "N",
@@ -181,22 +181,26 @@ Extension::load("ui.notification");
 
 		<div data-role="letter-buttons" style="<?=($arResult['SHOW_TEMPLATE_SELECTOR'] ? 'display: none;' : '')?>">
 			<?
+			$buttons = [];
+			if ($arParams['CAN_EDIT'])
+			{
+				if ( $arResult['CAN_SAVE_AS_TEMPLATE'])
+				{
+					$buttons[] = [
+						'TYPE' => 'checkbox',
+						'CAPTION' => Loc::getMessage('SENDER_LETTER_EDIT_BTN_SAVE_AS_TEMPLATE'),
+						'NAME' => 'save_as_template'
+					];
+				}
+				$buttons[] = ['TYPE' => 'save'];
+				$buttons[] = ['TYPE' => 'apply', 'ONCLICK' => 'BX.Sender.Letter.applyChanges()'];
+			}
+			$buttons[] = ['TYPE' => 'cancel', 'LINK' => $arParams['PATH_TO_LIST']];
 			$APPLICATION->IncludeComponent(
-				"bitrix:sender.ui.button.panel",
+				"bitrix:ui.button.panel",
 				"",
 				array(
-					'CHECKBOX' => ($arParams['CAN_EDIT'] && $arResult['CAN_SAVE_AS_TEMPLATE'])
-						?
-						[
-							'NAME' =>  'save_as_template',
-							'CAPTION' =>  Loc::getMessage('SENDER_LETTER_EDIT_BTN_SAVE_AS_TEMPLATE')
-						]
-						:
-						null,
-					'SAVE' => $arParams['CAN_EDIT'] ? [] : null,
-					'CANCEL' => array(
-						'URL' => $arParams['PATH_TO_LIST']
-					),
+					'BUTTONS' => $buttons
 				),
 				false
 			);

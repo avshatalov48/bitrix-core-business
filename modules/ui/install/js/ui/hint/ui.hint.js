@@ -62,6 +62,7 @@
 		}
 
 		this.initByClassName();
+		BX.ready(this.initByClassName.bind(this));
 	}
 	Manager.prototype = {
 		attributeName: 'data-hint',

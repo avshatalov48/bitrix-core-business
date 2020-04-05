@@ -1,8 +1,11 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\Text;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Search\MapBuilder;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -148,6 +151,11 @@ class MessageTable extends Main\Entity\DataManager
 				'reference' => array('=this.CHAT_ID' => 'ref.CHAT_ID'),
 				'join_type' => 'INNER',
 			),
+			'INDEX' => array(
+				'data_type' => 'Bitrix\Im\Model\MessageIndex',
+				'reference' => array('=this.ID' => 'ref.MESSAGE_ID'),
+				'join_type' => 'INNER',
+			),
 		);
 	}
 	/**
@@ -225,6 +233,89 @@ class MessageTable extends Main\Entity\DataManager
 	public static function getCurrentDate()
 	{
 		return new \Bitrix\Main\Type\DateTime();
+	}
+
+	/**
+	 * Add message data to MessageIndex table
+	 * @param $id
+	 *
+	 * @return bool|void
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function indexRecord($id)
+	{
+		$message = parent::getByPrimary($id)->fetch();
+		if (!is_array($message))
+		{
+			return;
+		}
+
+		MessageIndexTable::merge(
+			[
+				'MESSAGE_ID' => $id,
+				'SEARCH_CONTENT' => self::generateSearchContent($message)
+			]
+		);
+
+		return true;
+	}
+
+	/**
+	 * Generate text with all the info about message for searching purposes
+	 * @param array $message
+	 *
+	 * @return string
+	 * @throws Main\NotImplementedException
+	 */
+	private static function generateSearchContent(array $message) : string
+	{
+		$builder = MapBuilder::create();
+
+		if($message['AUTHOR_ID'] > 0)
+		{
+			$authorName = \Bitrix\Im\User::getInstance($message['AUTHOR_ID'])->getFullName();
+			$builder->addText($authorName);
+		}
+
+		$messageText = $message['MESSAGE'];
+		if($message['NOTIFY_TYPE'] === IM_NOTIFY_FROM)
+		{
+			$messageText = strip_tags($messageText);
+		}
+		else if($message['NOTIFY_TYPE'] === IM_NOTIFY_MESSAGE)
+		{
+			$messageText = Text::removeBbCodes($messageText);
+		}
+		$builder->addText($messageText);
+
+		$params = \CIMMessageParam::Get($message['ID']);
+		// Add text from attaches to builder
+		if(isset($params['ATTACH']))
+		{
+			$textNodes = \CIMMessageParamAttach::GetTextForIndex($params['ATTACH'][0]);
+			foreach($textNodes as $text)
+			{
+				$builder->addText($text);
+			}
+		}
+
+		// Add file names to builder
+		if(isset($params['FILE_ID']))
+		{
+			foreach($params['FILE_ID'] as $fileId)
+			{
+				$file = \Bitrix\Disk\File::getById($fileId);
+				if (!$file)
+				{
+					continue;
+				}
+				$builder->addText($file->getName());
+			}
+		}
+
+		return $builder->build();
 	}
 }
 

@@ -5,6 +5,8 @@ if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
 	//@TODO remake
 	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
 }
+
+\Bitrix\Main\UI\Extension::load("ui.viewer");
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
 
@@ -24,6 +26,7 @@ if (strlen($arResult["FatalErrorMessage"]) > 0)
 }
 else
 {
+	if (empty($arParams['SHOW_DOCUMENT_TYPES_TOOLBAR']) || $arParams['SHOW_DOCUMENT_TYPES_TOOLBAR'] !== 'N'):
 	?>
 	<div class="bp-interface-toolbar-container">
 		<div class="bp-interface-toolbar">
@@ -58,6 +61,7 @@ else
 		</div>
 	</div>
 	<?
+	endif;
 
 	if (strlen($arResult["ErrorMessage"]) > 0)
 	{
@@ -72,17 +76,30 @@ else
 	{
 		foreach ($arResult["RECORDS"] as $key => $record)
 		{
+			$noPopup = (
+				$record['data']['ACTIVITY'] == 'RequestInformationActivity'
+				|| $record['data']['ACTIVITY'] == 'RequestInformationOptionalActivity'
+				|| $record['data']['MODULE_ID'] == 'rpa'
+			);
+
 			$popupJs = 'return BX.Bizproc.showTaskPopup('.$record['data']['ID'].', function(){window[\'bxGrid_'.$arResult["GRID_ID"].'\'].Reload()}, '.(int)$arResult['TARGET_USER_ID'].', this)';
+			$taskHref = $record['data']['URL']['TASK'];
+
+			$attrs = 'href="#" onclick="'.$popupJs.'"';
+			if ($noPopup)
+			{
+				$attrs = 'href="'.$taskHref.'"';
+			}
 
 			if (strlen($record['data']["DOCUMENT_URL"]) > 0 && strlen($record['data']["DOCUMENT_NAME"]) > 0)
 			{
 				$arResult["RECORDS"][$key]['data']['DOCUMENT_NAME'] = '<a href="'.$record['data']["DOCUMENT_URL"].'" class="bp-folder-title-link">'.$record['data']['DOCUMENT_NAME'].'</a>';
 			}
-			$arResult["RECORDS"][$key]['data']['COMMENTS'] = '<div class="bp-comments"><a onclick="'.$popupJs.'"><span class="bp-comments-icon"></span>'
+			$arResult["RECORDS"][$key]['data']['COMMENTS'] = '<div class="bp-comments"><a '.$attrs.'><span class="bp-comments-icon"></span>'
 				.(!empty($arResult["COMMENTS_COUNT"]['WF_'.$record['data']["WORKFLOW_ID"]]) ? (int) $arResult["COMMENTS_COUNT"]['WF_'.$record['data']["WORKFLOW_ID"]] : '0')
 				.'</a></div>';
 
-			$arResult["RECORDS"][$key]['data']["NAME"] = '<span class="bp-task"><a href="#" onclick="'.$popupJs.'" title="'.$record['data']["NAME"].'">'.$record['data']["NAME"].'</a></span>';
+			$arResult["RECORDS"][$key]['data']["NAME"] = '<span class="bp-task"><a '.$attrs.' title="'.$record['data']["NAME"].'">'.$record['data']["NAME"].'</a></span>';
 			if ($record['data']['IS_MY'])
 			{
 				if ($record['data']['USER_STATUS'] > CBPTaskUserStatus::Waiting)
@@ -120,7 +137,7 @@ else
 				}
 				else
 				{
-					$anchor = '<a href="#" class="bp-button bp-button bp-button-blue" onclick="'.$popupJs.'">'.GetMessage("BPATL_BEGIN").'</a>';
+					$anchor = '<a '.$attrs.' class="bp-button bp-button bp-button-blue">'.GetMessage("BPATL_BEGIN").'</a>';
 					if ($record['data']['ACTIVITY'] == 'RequestInformationActivity' || $record['data']['ACTIVITY'] == 'RequestInformationOptionalActivity')
 					{
 						$anchor = '<a href="'.$record['data']['URL']['TASK'].'" class="bp-button bp-button bp-button-blue">'.GetMessage("BPATL_BEGIN").'</a>';
@@ -149,18 +166,27 @@ else
 				);
 				$arResult["RECORDS"][$key]['data']['WORKFLOW_PROGRESS'] = ob_get_clean();
 			}
+
+			if (array_key_exists("DESCRIPTION", $arResult["RECORDS"][$key]['data']))
+			{
+				$arResult["RECORDS"][$key]['data']["DESCRIPTION"] = \CBPViewHelper::prepareTaskDescription(
+					$arResult["RECORDS"][$key]['data']["DESCRIPTION"]
+				);
+			}
 		}
 	}
 
 	$actionHtml = '';
 	$actionList = array();
-	if ($arResult['IS_MY_TASKS'] && empty($arResult['IS_COMPLETED']))
+	$showActions = \CBPHelper::getBool($arParams['SHOW_GROUP_ACTIONS'] ?? 'Y');
+
+	if ($showActions && $arResult['IS_MY_TASKS'] && empty($arResult['IS_COMPLETED']))
 	{
 		$actionList['set_status_'.CBPTaskUserStatus::Yes] = GetMessage("BPATL_GROUP_ACTION_YES");
 		$actionList['set_status_'.CBPTaskUserStatus::No] = GetMessage("BPATL_GROUP_ACTION_NO");
 		$actionList['set_status_'.CBPTaskUserStatus::Ok] = GetMessage("BPATL_GROUP_ACTION_OK");
 	}
-	if ($arResult['USE_SUBORDINATION'] && empty($arResult['IS_COMPLETED']))
+	if ($showActions && $arResult['USE_SUBORDINATION'] && empty($arResult['IS_COMPLETED']))
 		$actionList['delegate_to'] = GetMessage("BPATL_GROUP_ACTION_DELEGATE");
 
 	if (isset($actionList['delegate_to']))

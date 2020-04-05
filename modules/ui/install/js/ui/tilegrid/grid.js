@@ -8,6 +8,10 @@ BX.TileGrid.Grid = function(options)
 {
 	this.options = options;
 	this.id = options.id;
+
+	this.tileMargin = options.tileMargin;
+	this.sizeRatio = options.sizeRatio;
+
 	this.tileSize = options.tileSize;
 	this.itemHeight = options.itemHeight;
 	this.itemMinWidth = options.itemMinWidth;
@@ -61,6 +65,24 @@ BX.TileGrid.Grid.prototype =
 		return this.id;
 	},
 
+	getTileMargin: function(options)
+	{
+		if(!this.tileMargin)
+		{
+			this.tileMargin = 9;
+		}
+
+		return this.tileMargin
+	},
+
+	getSizeRatio: function(options)
+	{
+		if(!this.sizeRatio)
+			return false;
+
+		return this.sizeRatio
+	},
+
 	bindEvents: function()
 	{
 		BX.bind(window, 'resize', this.setStyle.bind(this));
@@ -88,7 +110,7 @@ BX.TileGrid.Grid.prototype =
 			this.setBackspaceButton(event);
 			this.setEnterButton(event);
 			this.processButtonSelection();
-			if (this.isKeyPressedDelete())
+			if (this.isKeyPressedDelete() && !this.isKeyPressedShift() && !this.isKeyControlKey())
 			{
 				this.removeSelectedItems(event);
 			}
@@ -289,8 +311,18 @@ BX.TileGrid.Grid.prototype =
 		var head = document.head;
 		var styles = 	'#' + this.getId() +
 						' .ui-grid-tile-item { ' +
-						'width: calc(' + (100 / this.calculateCountItemsPerRow()) + '% - 18px); ' +
-						'}';
+						'width: calc(' + (100 / this.calculateCountItemsPerRow()) + '% - ' + this.getTileMargin() * 2 + 'px); ' +
+						'} ';
+
+		if (this.sizeRatio)
+		{
+			var beforeStyles =  '#' + this.getId() +
+								' .ui-grid-tile-item:before { ' +
+								'padding-top: ' + this.getSizeRatio() +
+								'} ';
+
+			styles = styles + beforeStyles;
+		}
 
 		if(!this.style)
 		{
@@ -362,7 +394,22 @@ BX.TileGrid.Grid.prototype =
 			return this.calculateCountItemsPerRowXL();
 		}
 
-		return this.calculateCountItemsPerRowM();
+		if(!this.itemMinWidth)
+		{
+			return this.calculateCountItemsPerRowM();
+		}
+
+		var i = -1;
+		var itemWidthSum = 0;
+		var tileWidth = this.itemMinWidth + (this.tileMargin * 2);
+
+		while (itemWidthSum < this.getContainerWidth())
+		{
+			itemWidthSum = itemWidthSum + tileWidth;
+			i++;
+		}
+
+		return i;
 	},
 
 	calculateCountItemsPerRowM: function()
@@ -421,12 +468,17 @@ BX.TileGrid.Grid.prototype =
 			return
 		}
 
-		return this.container = BX.create('div', {
+		this.container = BX.create('div', {
 			attrs: {
 				id: this.getId(),
 				className: 'ui-grid-tile'
+			},
+			style: {
+				margin: "0 -" + this.getTileMargin() + "px"
 			}
-		})
+		});
+
+		return this.container;
 	},
 
 	setMinHeightContainer: function()
@@ -508,7 +560,7 @@ BX.TileGrid.Grid.prototype =
 
 		this.items.forEach(function(item)
 		{
-			item.removeNode();
+			item.removeNode(false);
 		}, this);
 
 		this.items = [];

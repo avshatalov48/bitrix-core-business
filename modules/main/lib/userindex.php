@@ -77,38 +77,61 @@ class UserIndexTable extends Main\Entity\DataManager
 	}
 
 	public static function merge(array $data)
-    {
-        $result = new Entity\AddResult();
+	{
+		global $DB;
 
-        $helper = Application::getConnection()->getSqlHelper();
-        $insertData = $data;
-        $updateData = $data;
-        $mergeFields = static::getMergeFields();
+		$result = new Entity\AddResult();
 
-        foreach ($mergeFields as $field)
-        {
-            unset($updateData[$field]);
-        }
+		$helper = Application::getConnection()->getSqlHelper();
+		$insertData = $data;
+		$updateData = $data;
+		$mergeFields = static::getMergeFields();
 
-        $merge = $helper->prepareMerge(
-            static::getTableName(),
-            static::getMergeFields(),
-            $insertData,
-            $updateData
-        );
+		foreach ($mergeFields as $field)
+		{
+			unset($updateData[$field]);
+		}
 
-        if ($merge[0] != "")
-        {
-            Application::getConnection()->query($merge[0]);
-            $id = Application::getConnection()->getInsertedId();
-            $result->setId($id);
-            $result->setData($data);
-        }
-        else
-        {
-            $result->addError(new Error('Error constructing query'));
-        }
+		if (isset($updateData['SEARCH_USER_CONTENT']))
+		{
+			$value = $DB->forSql($updateData['SEARCH_USER_CONTENT']);
+			$encryptedValue = sha1($updateData['SEARCH_USER_CONTENT']);
+			$updateData['SEARCH_USER_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_USER_CONTENT) = '{$encryptedValue}', SEARCH_USER_CONTENT, '{$value}')");
+		}
 
-        return $result;
-    }
+		if (isset($updateData['SEARCH_DEPARTMENT_CONTENT']))
+		{
+			$value = $DB->forSql($updateData['SEARCH_DEPARTMENT_CONTENT']);
+			$encryptedValue = sha1($updateData['SEARCH_DEPARTMENT_CONTENT']);
+			$updateData['SEARCH_DEPARTMENT_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_DEPARTMENT_CONTENT) = '{$encryptedValue}', SEARCH_DEPARTMENT_CONTENT, '{$value}')");
+		}
+
+		if (isset($updateData['SEARCH_ADMIN_CONTENT']))
+		{
+			$value = $DB->forSql($updateData['SEARCH_ADMIN_CONTENT']);
+			$encryptedValue = sha1($updateData['SEARCH_ADMIN_CONTENT']);
+			$updateData['SEARCH_ADMIN_CONTENT'] = new \Bitrix\Main\DB\SqlExpression("IF(SHA1(SEARCH_ADMIN_CONTENT) = '{$encryptedValue}', SEARCH_ADMIN_CONTENT, '{$value}')");
+		}
+
+		$merge = $helper->prepareMerge(
+			static::getTableName(),
+			static::getMergeFields(),
+			$insertData,
+			$updateData
+		);
+
+		if ($merge[0] != "")
+		{
+			Application::getConnection()->query($merge[0]);
+			$id = Application::getConnection()->getInsertedId();
+			$result->setId($id);
+			$result->setData($data);
+		}
+		else
+		{
+			$result->addError(new Error('Error constructing query'));
+		}
+
+		return $result;
+	}
 }

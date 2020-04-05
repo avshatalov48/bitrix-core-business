@@ -1323,7 +1323,7 @@ class CAllSaleDiscount
 		$discountResult['BASKET'] = array_values($discountResult['BASKET']);
 	}
 
-	protected function __Unpack($arOrder, $strUnpack)
+	protected static function __Unpack($arOrder, $strUnpack)
 	{
 		$checkOrder = null;
 		if (empty($strUnpack))
@@ -1336,7 +1336,7 @@ class CAllSaleDiscount
 		return $boolRes;
 	}
 
-	protected function __ApplyActions(&$arOrder, $strActions)
+	protected static function __ApplyActions(&$arOrder, $strActions)
 	{
 		$applyOrder = null;
 		if (!empty($strActions))
@@ -1685,7 +1685,7 @@ class CAllSaleDiscount
 		return $boolResult;
 	}
 
-	protected function prepareDiscountConditions(&$conditions, &$result, &$handlers, $type, $site)
+	protected static function prepareDiscountConditions(&$conditions, &$result, &$handlers, $type, $site)
 	{
 		global $APPLICATION;
 
@@ -1777,7 +1777,7 @@ class CAllSaleDiscount
 		return true;
 	}
 
-	protected function updateDiscountHandlers($discountID, $handlers, $update)
+	protected static function updateDiscountHandlers($discountID, $handlers, $update)
 	{
 		$discountID = (int)$discountID;
 		if ($discountID <= 0 || empty($handlers) || !is_array($handlers))
@@ -1786,7 +1786,7 @@ class CAllSaleDiscount
 			Sale\Internals\DiscountModuleTable::updateByDiscount($discountID, $handlers['MODULES'], $update);
 	}
 
-	protected function getDiscountHandlers($discountList)
+	protected static function getDiscountHandlers($discountList)
 	{
 		$result = array();
 		if (!empty($discountList) && is_array($discountList))
@@ -1811,7 +1811,7 @@ class CAllSaleDiscount
 	* @deprecated deprecated since sale 14.11.0
 	* @see \Bitrix\Sale\Internals\DiscountGroupTable::updateByDiscount
 	*/
-	protected function updateUserGroups($discountID, $userGroups, $active = '', $updateData)
+	protected function updateUserGroups($discountID, $userGroups, $active, $updateData)
 	{
 		Sale\Internals\DiscountGroupTable::updateByDiscount($discountID, $userGroups, $active, $updateData);
 	}

@@ -4,6 +4,7 @@ use Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main,
 	Bitrix\Iblock,
+	Bitrix\Sale,
 	Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
@@ -164,7 +165,6 @@ Loader::registerAutoLoadClasses(
 		'CProductQueryBuilder' => 'general/querybuilder.php',
 
 		'\Bitrix\Catalog\Compatible\EventCompatibility' => 'lib/compatible/eventcompatibility.php',
-		'\Bitrix\Catalog\Config\Configuration' => 'lib/config/state.php', // deprecated, temporary
 		'\Bitrix\Catalog\Config\Feature' => 'lib/config/feature.php',
 		'\Bitrix\Catalog\Config\State' => 'lib/config/state.php',
 		'\Bitrix\Catalog\Discount\DiscountManager' => 'lib/discount/discountmanager.php',
@@ -172,6 +172,7 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Catalog\Ebay\ExportOffer' => 'lib/ebay/exportoffer.php',
 		'\Bitrix\Catalog\Ebay\ExportOfferCreator' => 'lib/ebay/exportoffercreator.php',
 		'\Bitrix\Catalog\Ebay\ExportOfferSKU' => 'lib/ebay/exportoffersku.php',
+		'\Bitrix\Catalog\Grid\ProductAction' => 'lib/grid/productaction.php',
 		'\Bitrix\Catalog\Helpers\Admin\CatalogEdit' => 'lib/helpers/admin/catalogedit.php',
 		'\Bitrix\Catalog\Helpers\Admin\IblockPriceChanger' => 'lib/helpers/admin/iblockpricechanger.php',
 		'\Bitrix\Catalog\Helpers\Admin\RoundEdit' => 'lib/helpers/admin/roundedit.php',
@@ -183,15 +184,16 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Catalog\Model\Price' => 'lib/model/price.php',
 		'\Bitrix\Catalog\Model\Product' => 'lib/model/product.php',
 		'\Bitrix\Catalog\Product\Price\Calculation' => 'lib/product/price/calculation.php',
-		'\Bitrix\Catalog\Product\Basket' =>  'lib/product/basket.php',
-		'\Bitrix\Catalog\Product\CatalogProvider' =>  'lib/product/catalogprovider.php',
-		'\Bitrix\Catalog\Product\CatalogProviderCompatibility' =>  'lib/product/catalogprovidercompatibility.php',
+		'\Bitrix\Catalog\Product\Basket' => 'lib/product/basket.php',
+		'\Bitrix\Catalog\Product\CatalogProvider' => 'lib/product/catalogprovider.php',
+		'\Bitrix\Catalog\Product\CatalogProviderCompatibility' => 'lib/product/catalogprovidercompatibility.php',
 		'\Bitrix\Catalog\Product\Price' => 'lib/product/price.php',
 		'\Bitrix\Catalog\Product\PropertyCatalogFeature' => 'lib/product/propertycatalogfeature.php',
-		'\Bitrix\Catalog\Product\QuantityControl' =>  'lib/product/quantitycontrol.php',
+		'\Bitrix\Catalog\Product\QuantityControl' => 'lib/product/quantitycontrol.php',
 		'\Bitrix\Catalog\Product\Search' => 'lib/product/search.php',
 		'\Bitrix\Catalog\Product\Sku' => 'lib/product/sku.php',
 		'\Bitrix\Catalog\Product\SubscribeManager' => 'lib/product/subscribemanager.php',
+		'\Bitrix\Catalog\Product\SystemField' => 'lib/product/systemfield.php',
 		'\Bitrix\Catalog\Product\Viewed' => 'lib/product/viewed.php',
 		'\Bitrix\Catalog\Update\AdminFilterOption' => 'lib/update/adminfilteroption.php',
 		'\Bitrix\Catalog\Update\AdminGridOption' => 'lib/update/admingridoption.php',
@@ -1509,7 +1511,7 @@ function Add2Basket($PRICE_ID, $QUANTITY = 1, $arRewriteFields = array(), $arPro
 
 /**
  * @deprecated deprecated since catalog 17.5.9
- * @see \Bitrix\Catalog\Product\Basket::add
+ * @see \Bitrix\Catalog\Product\Basket::addProduct
  *
  * @param int $productId
  * @param float|int $quantity
@@ -1522,6 +1524,13 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 	global $APPLICATION;
 
 	$result = false;
+
+	if (!Loader::includeModule('sale'))
+	{
+		return $result;
+	}
+
+	$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
 	/* for old use */
 	if ($productParams === false)
@@ -1576,8 +1585,10 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 			{
 				$siteId = $rewriteFields['LID'];
 			}
+			/** @var Sale\Basket $basketClassName */
+			$basketClassName = $registry->getBasketClassName();
 
-			$basket = \Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $siteId);
+			$basket = $basketClassName::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $siteId);
 
 			$propertyList = array();
 			if (!empty($product['PROPS']) && is_array($product['PROPS']))
@@ -1591,8 +1602,11 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 				$basketItem->setFieldNoDemand('ORDER_ID', intval($rewriteFields['ORDER_ID']));
 				$r = $basket->save();
 
+				/** @var Sale\Order $orderClass */
+				$orderClass = $registry->getOrderClassName();
+
 				$orderId = intval($rewriteFields['ORDER_ID']);
-				$order = \Bitrix\Sale\Order::load($orderId);
+				$order = $orderClass::load($orderId);
 				if ($order)
 				{
 					$basket = $order->getBasket();

@@ -18,6 +18,7 @@ use Bitrix\Sale\Result;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentCollection;
 use Bitrix\Sale\ShipmentItem;
+use Bitrix\Sale\ShipmentItemStore;
 
 /**
  * Class Check
@@ -160,48 +161,30 @@ abstract class Check
 				$this->fields['SUM'] = $entity->getSum();
 				$this->fields['CURRENCY'] = $entity->getField('CURRENCY');
 			}
-			elseif ($entity instanceof Shipment)
+
+			// compatibility
+			if ($entity instanceof Shipment)
 			{
 				$this->fields['SHIPMENT_ID'] = $entity->getId();
-
-				if (!$this->fields['CURRENCY'])
-					$this->fields['CURRENCY'] = $entity->getParentOrder()->getCurrency();
-
-				if ($this->fields['SUM'] <= 0)
-				{
-					$this->fields['SUM'] = $entity->getPrice();
-					$shipmentItemCollection = $entity->getShipmentItemCollection();
-					/** @var ShipmentItem $item */
-					foreach ($shipmentItemCollection as $item)
-					{
-						$basketItem = $item->getBasketItem();
-						$this->fields['SUM'] += PriceMaths::roundPrecision($item->getQuantity() * $basketItem->getPrice());
-					}
-				}
-			}
-			else
-			{
-				throw new Main\ArgumentTypeException('entities');
 			}
 
 			if ($entityRegistryType === null)
 			{
-				$entityRegistryType = $entity->getRegistryType();
+				$entityRegistryType = $entity::getRegistryType();
 			}
-			elseif ($entityRegistryType !== $entity->getRegistryType())
+			elseif ($entityRegistryType !== $entity::getRegistryType())
 			{
 				throw new Main\ArgumentTypeException('entities');
 			}
 
 			/** @var PaymentCollection|ShipmentCollection $collection */
 			$collection = $entity->getCollection();
-			$colOrderId = $collection->getOrder()->getId();
 
 			if ($orderId === null)
 			{
-				$orderId = $colOrderId;
+				$orderId = $collection->getOrder()->getId();
 			}
-			elseif ($orderId != $colOrderId)
+			elseif ($orderId != $collection->getOrder()->getId())
 			{
 				throw new Main\ArgumentTypeException('entities');
 			}
@@ -213,10 +196,58 @@ abstract class Check
 
 	/**
 	 * @param array $entities
+	 * @throws Main\NotSupportedException
 	 */
 	public function setRelatedEntities(array $entities)
 	{
+		$this->checkRelatedEntities($entities);
+
 		$this->relatedEntities = $entities;
+
+		foreach ($this->relatedEntities as $type => $entityList)
+		{
+			foreach ($entityList as $entity)
+			{
+				if ($entity instanceof Payment)
+				{
+					$this->fields['SUM'] += $entity->getSum();
+					$this->fields['CURRENCY'] = $entity->getField('CURRENCY');
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param $entities
+	 * @throws Main\NotImplementedException
+	 * @throws Main\NotSupportedException
+	 */
+	protected function checkRelatedEntities($entities)
+	{
+		foreach ($entities as $type => $entityList)
+		{
+			foreach ($entityList as $entity)
+			{
+				if (static::getSupportedRelatedEntityType() === self::SUPPORTED_ENTITY_TYPE_NONE)
+				{
+					throw new Main\NotSupportedException(static::getType().' is not supported any related entities');
+				}
+
+				if (static::getSupportedRelatedEntityType() === self::SUPPORTED_ENTITY_TYPE_PAYMENT
+					&& !($entity instanceof Payment)
+				)
+				{
+					throw new Main\NotSupportedException(static::getType().' is not supported payment as related entity');
+				}
+
+				if (static::getSupportedRelatedEntityType() === self::SUPPORTED_ENTITY_TYPE_SHIPMENT
+					&& !($entity instanceof Shipment)
+				)
+				{
+					throw new Main\NotSupportedException(static::getType().' is not supported shipment as related entity');
+				}
+			}
+		}
 	}
 
 	/**
@@ -229,7 +260,9 @@ abstract class Check
 	public function getRelatedEntities()
 	{
 		if ($this->relatedEntities)
+		{
 			return $this->relatedEntities;
+		}
 
 		$registry = Registry::getInstance($this->fields['ENTITY_REGISTRY_TYPE']);
 		$order = null;
@@ -239,8 +272,6 @@ abstract class Check
 		{
 			if ($order === null)
 			{
-				$orderId = 0;
-
 				if ($entity['ENTITY_TYPE'] === CheckRelatedEntitiesTable::ENTITY_TYPE_PAYMENT)
 				{
 					/** @var Payment $paymentClassName */
@@ -251,7 +282,9 @@ abstract class Check
 					));
 					if ($data = $dbResPayment->fetch())
 					{
-						$orderId = $data['ORDER_ID'];
+						/** @var Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+						$order = $orderClass::load($data['ORDER_ID']);
 					}
 				}
 				elseif ($entity['ENTITY_TYPE'] === CheckRelatedEntitiesTable::ENTITY_TYPE_SHIPMENT)
@@ -264,13 +297,15 @@ abstract class Check
 					));
 					if ($data = $dbResShipment->fetch())
 					{
-						$orderId = $data['ORDER_ID'];
+						/** @var Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+						$order = $orderClass::load($data['ORDER_ID']);
 					}
 				}
 
-				if ($orderId > 0)
+				if ($order === null)
 				{
-					$order = Order::load($orderId);
+					continue;
 				}
 			}
 
@@ -379,7 +414,9 @@ abstract class Check
 		$checkId = $result->getId();
 		$this->fields['ID'] = $checkId;
 		foreach ($this->cashboxList as $cashbox)
+		{
 			Check2CashboxTable::add(array('CHECK_ID' => $checkId, 'CASHBOX_ID' => $cashbox['ID']));
+		}
 
 		foreach ($this->relatedEntities as $checkType => $entities)
 		{
@@ -439,30 +476,37 @@ abstract class Check
 			'date_create' => new Main\Type\DateTime()
 		);
 
-		$entitiesData = $this->extractData();
+		$data = $this->extractData();
 
-		if ($entitiesData)
+		if ($data)
 		{
-			if (isset($entitiesData['ORDER']))
+			if (isset($data['ORDER']))
 			{
-				$result['order'] = $entitiesData['ORDER'];
+				$result['order'] = $data['ORDER'];
 			}
 
-			foreach ($entitiesData['PAYMENTS'] as $payment)
+			foreach ($data['PAYMENTS'] as $payment)
 			{
-				$result['payments'][] = array(
+				$item = [
 					'entity' => $payment['ENTITY'],
 					'type' => $payment['TYPE'],
 					'is_cash' => $payment['IS_CASH'],
 					'sum' => $payment['SUM']
-				);
+				];
+
+				if (isset($payment['ADDITIONAL_PARAMS']))
+				{
+					$item['additional_params'] = $payment['ADDITIONAL_PARAMS'];
+				}
+
+				$result['payments'][] = $item;
 			}
 
-			if (isset($entitiesData['PRODUCTS']))
+			if (isset($data['PRODUCTS']))
 			{
-				foreach ($entitiesData['PRODUCTS'] as $product)
+				foreach ($data['PRODUCTS'] as $product)
 				{
-					$item = array(
+					$item = [
 						'entity' => $product['ENTITY'],
 						'name' => $product['NAME'],
 						'base_price' => $product['BASE_PRICE'],
@@ -471,25 +515,35 @@ abstract class Check
 						'quantity' => $product['QUANTITY'],
 						'vat' => $product['VAT'],
 						'payment_object' => $product['PAYMENT_OBJECT'],
-					);
+					];
+
+					if (isset($product['NOMENCLATURE_CODE']))
+					{
+						$item['nomenclature_code'] = $product['NOMENCLATURE_CODE'];
+					}
 
 					if ($product['DISCOUNT'])
 					{
-						$item['discount'] = array(
+						$item['discount'] = [
 							'discount' => $product['DISCOUNT']['PRICE'],
 							'discount_type' => $product['DISCOUNT']['TYPE'],
-						);
+						];
+					}
+
+					if (isset($product['ADDITIONAL_PARAMS']))
+					{
+						$item['additional_params'] = $product['ADDITIONAL_PARAMS'];
 					}
 
 					$result['items'][] = $item;
 				}
 			}
 
-			if (isset($entitiesData['DELIVERY']))
+			if (isset($data['DELIVERY']))
 			{
-				foreach ($entitiesData['DELIVERY'] as $delivery)
+				foreach ($data['DELIVERY'] as $delivery)
 				{
-					$item = array(
+					$item = [
 						'entity' => $delivery['ENTITY'],
 						'name' => $delivery['NAME'],
 						'base_price' => $delivery['BASE_PRICE'],
@@ -498,30 +552,40 @@ abstract class Check
 						'quantity' => $delivery['QUANTITY'],
 						'vat' => $delivery['VAT'],
 						'payment_object' => $delivery['PAYMENT_OBJECT'],
-					);
+					];
 
 					if ($delivery['DISCOUNT'])
 					{
-						$item['discount'] = array(
+						$item['discount'] = [
 							'discount' => $delivery['DISCOUNT']['PRICE'],
 							'discount_type' => $delivery['DISCOUNT']['TYPE'],
-						);
+						];
+					}
+
+					if (isset($delivery['ADDITIONAL_PARAMS']))
+					{
+						$item['additional_params'] = $delivery['ADDITIONAL_PARAMS'];
 					}
 
 					$result['items'][] = $item;
 				}
 			}
 
-			if (isset($entitiesData['BUYER']))
+			if (isset($data['BUYER']))
 			{
-				if (isset($entitiesData['BUYER']['EMAIL']))
-					$result['client_email'] = $entitiesData['BUYER']['EMAIL'];
+				if (isset($data['BUYER']['EMAIL']))
+					$result['client_email'] = $data['BUYER']['EMAIL'];
 
-				if (isset($entitiesData['BUYER']['PHONE']))
-					$result['client_phone'] = $entitiesData['BUYER']['PHONE'];
+				if (isset($data['BUYER']['PHONE']))
+					$result['client_phone'] = $data['BUYER']['PHONE'];
 			}
 
-			$result['total_sum'] = $entitiesData['TOTAL_SUM'];
+			if (isset($data['ADDITIONAL_PARAMS']))
+			{
+				$result['additional_params'] = $data['ADDITIONAL_PARAMS'];
+			}
+
+			$result['total_sum'] = $data['TOTAL_SUM'];
 		}
 
 		return $result;
@@ -595,7 +659,7 @@ abstract class Check
 						'NAME' => $basketItem->getField('NAME'),
 						'BASE_PRICE' => $basketItem->getBasePriceWithVat(),
 						'PRICE' => $basketItem->getPriceWithVat(),
-						'SUM' => $basketItem->getPriceWithVat() * $shipmentItem->getQuantity(),
+						'SUM' => PriceMaths::roundPrecision($basketItem->getPriceWithVat() * $shipmentItem->getQuantity()),
 						'QUANTITY' => (float)$shipmentItem->getQuantity(),
 						'VAT' => $this->getProductVatId($basketItem),
 						'PAYMENT_OBJECT' => static::PAYMENT_OBJECT_COMMODITY
@@ -616,7 +680,38 @@ abstract class Check
 						}
 					}
 
-					$result['PRODUCTS'][] = $item;
+					if ($basketItem->isSupportedMarkingCode())
+					{
+						$item['QUANTITY'] = 1;
+						$item['SUM'] = $basketItem->getPriceWithVat();
+
+						$shipmentItem->getShipmentItemStoreCollection()->rewind();
+
+						$storeCollection = $shipmentItem->getShipmentItemStoreCollection();
+						for ($i = $basketItem->getQuantity(); $i > 0; $i--)
+						{
+							$markingCode = '';
+
+							/** @var ShipmentItemStore $itemStore */
+							if ($itemStore = $storeCollection->current())
+							{
+								$markingCode = $this->buildTag1162(
+									$itemStore->getMarkingCode(),
+									$basketItem->getMarkingCodeGroup()
+								);
+
+								$storeCollection->next();
+							}
+
+							$item['NOMENCLATURE_CODE'] = $markingCode;
+
+							$result['PRODUCTS'][] = $item;
+						}
+					}
+					else
+					{
+						$result['PRODUCTS'][] = $item;
+					}
 				}
 
 				$priceDelivery = (float)$entity->getPrice();
@@ -624,7 +719,7 @@ abstract class Check
 				{
 					$item = array(
 						'ENTITY' => $entity,
-						'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_SELL_DELIVERY'),
+						'NAME' => Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_DELIVERY'),
 						'BASE_PRICE' => (float)$entity->getField('BASE_PRICE_DELIVERY'),
 						'PRICE' => (float)$entity->getPrice(),
 						'SUM' => (float)$entity->getPrice(),
@@ -659,16 +754,109 @@ abstract class Check
 
 			$properties = $order->getPropertyCollection();
 			$email = $properties->getUserEmail();
-			if ($email)
+			if ($email && $email->getValue())
+			{
 				$result['BUYER']['EMAIL'] = $email->getValue();
+			}
+
 			$phone = $properties->getPhone();
-			if ($phone)
+			if ($phone && $phone->getValue())
+			{
 				$result['BUYER']['PHONE'] = $phone->getValue();
+			}
+
+			if (!$result['BUYER'])
+			{
+				$result['BUYER']['EMAIL'] = Main\Config\Option::get("main", "email_from", "admin@".$_SERVER['SERVER_NAME']);
+			}
 		}
 
 		$result['TOTAL_SUM'] = $totalSum;
 
 		unset($shopPrices, $discounts);
+
+		return $result;
+	}
+
+	/**
+	 * @param string $markingCode
+	 * @param string $markingCodeGroup
+	 * @return string
+	 */
+	protected function buildTag1162(string $markingCode, string $markingCodeGroup) : string
+	{
+		list($gtin, $serial, ) = $this->parseMarkingCode($markingCode);
+
+		return
+			$this->convertToBinaryFormat($markingCodeGroup, 2).' '.
+			$this->convertToBinaryFormat($gtin, 6).' '.
+			$this->convertCharsToHex($serial);
+	}
+
+	/**
+	 * @param $code
+	 * @return array
+	 */
+	private function parseMarkingCode(string $code) : array
+	{
+		$gtin = substr($code, 2, 14);
+		$serial = substr($code, 18, 13);
+		$reserve = substr($code, 27);
+
+		return [$gtin, $serial, $reserve];
+	}
+
+	/**
+	 * @param $string
+	 * @param $size
+	 * @return string
+	 */
+	protected function convertToBinaryFormat($string, $size) : string
+	{
+		$result = '';
+
+		for ($i = 0; $i < $size; $i++)
+		{
+			$hex = dechex(($string >> (8 * $i)) & 0xFF);
+			if (strlen($hex) === 1)
+			{
+				$hex = '0'.$hex;
+			}
+
+			if ($i !== 0)
+			{
+				$result = ' '.$result;
+			}
+
+			$result = ToUpper($hex).$result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param $string
+	 * @return string
+	 */
+	protected function convertCharsToHex($string) : string
+	{
+		$result = '';
+
+		for ($i = 0, $len = strlen($string); $i < $len; $i++)
+		{
+			$hex = dechex(ord($string[$i]));
+			if (strlen($hex) === 1)
+			{
+				$hex = '0'.$hex;
+			}
+
+			$result .= ToUpper($hex);
+
+			if ($i !== $len - 1)
+			{
+				$result .= ' ';
+			}
+		}
 
 		return $result;
 	}
@@ -713,7 +901,6 @@ abstract class Check
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\LoaderException
-	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
@@ -762,6 +949,7 @@ abstract class Check
 	 * @return int
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\SystemException
 	 */
 	protected function getDeliveryVatId(Shipment $shipment)
 	{
@@ -877,14 +1065,46 @@ abstract class Check
 
 		if (!isset($data['PRODUCTS']))
 		{
-			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_SELL_ERROR_NO_PRODUCTS')));
-			return $result;
+			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_ERROR_NO_PRODUCTS')));
+		}
+		else
+		{
+			$errors = [];
+
+			foreach ($data['PRODUCTS'] as $product)
+			{
+				if (isset($product['NOMENCLATURE_CODE']) && $product['NOMENCLATURE_CODE'] === '')
+				{
+					if (isset($errors[$product['PRODUCT_ID']]))
+					{
+						continue;
+					}
+
+					$errors[$product['PRODUCT_ID']] = new Main\Error(
+						Main\Localization\Loc::getMessage(
+							'SALE_CASHBOX_CHECK_ERROR_NO_NOMENCLATURE_CODE',
+							[
+								'#PRODUCT_NAME#' => $product['NAME']
+							]
+						)
+					);
+				}
+			}
+
+			if ($errors)
+			{
+				$result->addErrors($errors);
+			}
 		}
 
 		if (!$this->isCorrectSum($data))
 		{
-			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_SELL_ERROR_CHECK_SUM')));
-			return $result;
+			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_ERROR_CHECK_SUM')));
+		}
+
+		if (!isset($data['BUYER']) || !$data['BUYER'])
+		{
+			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_CHECK_ERROR_NO_BUYER_INFO')));
 		}
 
 		return $result;

@@ -1,0 +1,37 @@
+<?
+$MESS["STATUS_TITLE"] = "Вартість сплачених замовлень";
+$MESS["ERROR_DELETE"] = "Помилка видалення статусу";
+$MESS["STATUS_DEL_CONF"] = "Ви впевнені, що хочете видалити цей статус? Якщо є замовлення з цим статусом, то статус видалено не буде.";
+$MESS["STATUS_NAV"] = "Статуси";
+$MESS["STATUS_ID"] = "Код";
+$MESS["STATUS_SORT"] = "Сорт.";
+$MESS["STATUS_UPD"] = "Зберегти";
+$MESS["STATUS_RESET"] = "Скасування";
+$MESS["STATUS_F_DESCR"] = "Опис:";
+$MESS["STATUS_F_NAME"] = "Назва:";
+$MESS["ERROR_ADD_REC"] = "Помилка додавання статусу";
+$MESS["ERROR_EMPTY_NAME1"] = "Встановіть назву статусу";
+$MESS["ERROR_EMPTY_NAME2"] = "для мови";
+$MESS["ERROR_UPDATE_REC"] = "Помилка оновлення статусу";
+$MESS["ERROR_EMPTY_NEW_NAME"] = "Встановіть назву нового статусу для мови";
+$MESS["ERROR_ADD_NEW_REC"] = "Помилка додавання нового статусу";
+$MESS["STATUS_DEL"] = "Видалити";
+$MESS["ERROR_DEL_STATUS"] = "Помилка видалення статусу.";
+$MESS["SALE_ADD_STATUS"] = "Додати";
+$MESS["SALE_NAME"] = "Назва";
+$MESS["SALE_ACTIONS"] = "Дії";
+$MESS["SALE_EDIT_DESCR"] = "Змінити параметри статусу";
+$MESS["SALE_EDIT"] = "Змінити";
+$MESS["SALE_DELETE_DESCR"] = "Видалити статус";
+$MESS["SALE_NOTES1"] = "<b>N</b> — початковий статус, у який замовлення встановлюється при створенні. Цей статус не можна видалити.";
+$MESS["SALE_NOTES2"] = "<b>F</b> — фінальний статус, в якому замовлення вважається виконаним. Цей статус не можна видалити.";
+$MESS["SSAN_ADD_NEW"] = "Новий статус";
+$MESS["SSAN_ADD_NEW_ALT"] = "Натисніть для додавання нового статусу";
+$MESS["SSAN_NOTIFY"] = "Сповіщення";
+$MESS["SSAN_NOTIFY_Y"] = "Так";
+$MESS["SSAN_NOTIFY_N"] = "Ні";
+$MESS["SSAN_TYPE"] = "Тип статусу";
+$MESS["SSAN_COLOR"] = "Колір статусу";
+$MESS["SSEN_TYPE_O"] = "Замовлення";
+$MESS["SSEN_TYPE_D"] = "Доставка";
+?>

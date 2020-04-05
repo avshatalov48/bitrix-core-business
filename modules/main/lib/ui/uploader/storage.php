@@ -221,11 +221,11 @@ class CloudStorage extends Storage implements Storable
 		$finished = false;
 		if(!$upload->isStarted() && !$upload->start($bucket->ID, $file["size"], $file["type"]))
 		{
-			$result->addError(new Error("File transfer into Cloud is failed.", "BXU346.2"));
+			$result->addError(new Error(Loc::getMessage("BXU_FileTransferIntoTheCloudIsFailed"), "BXU346.2"));
 		}
 		else if (!($fileContent = \Bitrix\Main\IO\File::getFileContents($file["tmp_name"])))
 		{
-			$result->addError(new Error("It is impossible to get file content.", "BXU346.3"));
+			$result->addError(new Error(Loc::getMessage("BXU_FileIsFailedToRead"), "BXU346.3"));
 		}
 		else
 		{

@@ -16,8 +16,8 @@ include_once(__DIR__.'/default_option.php');
 $arDefaultValues['default'] = $messageservice_default_option;
 
 $arAllOptions = array(
-	array("smsru_partner", GetMessage("MESSAGESERVICE_SMSRU_PARTNER"), $messageservice_default_option['smsru_partner'], array("text", 50)),
-	array("smsru_secret_key", GetMessage("MESSAGESERVICE_SMSRU_SECRET_KEY"), $messageservice_default_option['smsru_secret_key'], array("text", 50)),
+	//array("smsru_partner", GetMessage("MESSAGESERVICE_SMSRU_PARTNER"), $messageservice_default_option['smsru_partner'], array("text", 50)),
+	//array("smsru_secret_key", GetMessage("MESSAGESERVICE_SMSRU_SECRET_KEY"), $messageservice_default_option['smsru_secret_key'], array("text", 50)),
 	array("clean_up_period", GetMessage("MESSAGESERVICE_CLEAN_UP_PERIOD"), "14", array("text", 3)),
 	array("queue_limit", GetMessage("MESSAGESERVICE_QUEUE_LIMIT"), "5", array("text", 3)),
 );

@@ -394,6 +394,16 @@ BX.BXGCE.init = function(params) {
 		i = null,
 		cnt = null;
 
+	if (
+		BX.type.isNotEmptyString(params.preset)
+		&& parseInt(this.groupId) <= 0
+	)
+	{
+		this.recalcForm({
+			type: params.preset
+		});
+	}
+
 	if (BX('sonet_group_create_form_step_1'))
 	{
 		var tiles = BX.findChildren(BX('sonet_group_create_form_step_1'), {
@@ -515,22 +525,24 @@ BX.BXGCE.init = function(params) {
 		}
 	});
 
-	BX.bind(BX("sonet_group_create_popup_form_button_step_2_cancel"), "click", function(e) {
+	if (BX("sonet_group_create_popup_form_button_step_2_cancel"))
+	{
+		BX.bind(BX("sonet_group_create_popup_form_button_step_2_cancel"), "click", function(e) {
+			var currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
+			if (currentSlider)
+			{
+				window.top.BX.onCustomEvent(
+					"SidePanel.Slider:onClose",
+					[ currentSlider.getEvent('onClose') ]
+				);
+			}
 
-		var currentSlider = BX.SidePanel.Instance.getSliderByWindow(window);
-		if (currentSlider)
-		{
-			window.top.BX.onCustomEvent(
-				"SidePanel.Slider:onClose",
-				[ currentSlider.getEvent('onClose') ]
-			);
-		}
+			window.top.BX.onCustomEvent("BX.Bitrix24.PageSlider:close", [false]);
+			window.top.BX.onCustomEvent('onSonetIframeCancelClick');
 
-		window.top.BX.onCustomEvent("BX.Bitrix24.PageSlider:close", [false]);
-		window.top.BX.onCustomEvent('onSonetIframeCancelClick');
-
-		return e.preventDefault();
-	});
+			return e.preventDefault();
+		});
+	}
 
 	if (BX.SidePanel.Instance.getTopSlider())
 	{
@@ -843,7 +855,7 @@ BX.BXGCE.recalcFormPartProjectBlock = function(blockId, isChecked)
 		}
 		else
 		{
-			BX.removeClass(blockId, 'sgcp-switch-project');
+			BX.removeClass(BX(blockId), 'sgcp-switch-project');
 		}
 	}
 };
@@ -924,6 +936,11 @@ BX.BXGCE.recalcForm = function (params) {
 	if (BX('IS_EXTRANET_GROUP'))
 	{
 		this.setCheckedValue(BX('IS_EXTRANET_GROUP'), (this.types[type].EXTERNAL == 'Y'));
+	}
+
+	if (BX('GROUP_LANDING'))
+	{
+		this.setCheckedValue(BX('GROUP_LANDING'), (this.types[type].LANDING == 'Y'));
 	}
 
 	this.recalcFormDependencies();

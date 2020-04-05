@@ -25,26 +25,19 @@ class CIMSettings
 
 	public static function Get($userId = false)
 	{
-		global $USER, $CACHE_MANAGER;
+		global $USER;
 
 		$userId = intval($userId);
 		if ($userId == 0)
 			$userId = $USER->GetId();
 
-		$arSettings = Array();
-		$res = $CACHE_MANAGER->Read(2678400, $cache_id="b_ims_".intval($userId), "b_im_options");
-		if ($res)
-			$arSettings = $CACHE_MANAGER->Get($cache_id);
+		$arSettings[self::SETTINGS] = CUserOptions::GetOption('im', self::SETTINGS, Array(), $userId);
+		$arSettings[self::NOTIFY] = CUserOptions::GetOption('im', self::NOTIFY, Array(), $userId);
 
-		if(!is_array($arSettings) || !isset($arSettings['settings']) || !isset($arSettings['notify']))
-		{
-			$arSettings[self::SETTINGS] = CUserOptions::GetOption('im', self::SETTINGS, Array(), $userId);
-			$arSettings[self::NOTIFY] = CUserOptions::GetOption('im', self::NOTIFY, Array(), $userId);
-			$CACHE_MANAGER->Set($cache_id, $arSettings);
-		}
 		// Check fields and add default values
 		$arSettings[self::SETTINGS] = self::checkValues(self::SETTINGS, $arSettings[self::SETTINGS]);
 		$arSettings[self::NOTIFY] = self::checkValues(self::NOTIFY, $arSettings[self::NOTIFY]);
+
 		return $arSettings;
 	}
 
@@ -91,8 +84,6 @@ class CIMSettings
 		{
 			$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]));
 		}
-
-		self::ClearCache($userId);
 
 		return true;
 	}
@@ -144,8 +135,6 @@ class CIMSettings
 			$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]));
 		}
 
-		self::ClearCache($userId);
-
 		return true;
 	}
 
@@ -169,8 +158,6 @@ class CIMSettings
 		$arSettings = self::Get($userId);
 		if ($arSettings['settings']['notifyScheme'] == 'simple')
 		{
-			//if ($arSettings['settings']['notifySchemeLevel'] == 'important' && !$arSettings['notify']['important|'.$moduleId.'|'.$eventId])
-			//	return false;
 			if ($clientId == self::CLIENT_SITE && !$arSettings['settings']['notifySchemeSendSite'])
 				return false;
 			elseif ($clientId == self::CLIENT_XMPP && !$arSettings['settings']['notifySchemeSendXmpp'])
@@ -346,6 +333,7 @@ class CIMSettings
 					$arValues[$key] = $default;
 			}
 		}
+
 		return $arValues;
 	}
 
@@ -433,14 +421,6 @@ class CIMSettings
 
 	public static function ClearCache($userId = false)
 	{
-		global $CACHE_MANAGER;
-
-		$userId = intval($userId);
-		if ($userId == 0)
-			$CACHE_MANAGER->CleanDir("b_im_options");
-		else
-			$CACHE_MANAGER->Clean("b_ims_".intval($userId), "b_im_options");
-
 		return true;
 	}
 }

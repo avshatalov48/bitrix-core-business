@@ -1,17 +1,50 @@
 
-.mail-msg-sidepanel-header-ext {
-	float: right;
-	white-space: nowrap;
-	padding-left: 20px;
-	height: 74px;
+.mail-msg-sidepanel-title-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
 	align-items: center;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	font: 26px/26px 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .mail-msg-sidepanel-title {
-	padding: 24px 0;
-	font: 26px/26px 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	height: 30px;
+	margin: 21px 21px 21px 0px;
 	white-space: nowrap;
-	overflow-x: hidden;
+	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.mail-msg-sidepanel-title-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mail-msg-sidepanel-title-below {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	position: relative;
+}
+
+.mail-msg-sidepanel-title-below-border {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	border-top: 1px solid #dce2e6;
 }

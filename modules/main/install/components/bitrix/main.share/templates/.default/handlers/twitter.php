@@ -6,6 +6,7 @@ $name = "twitter";
 $title = GetMessage("BOOKMARK_HANDLER_TWITTER");
 
 if (
+	false &&
 	is_array($arParams)
 	&& array_key_exists("SHORTEN_URL_LOGIN", $arParams) 
 	&& strlen(trim($arParams["SHORTEN_URL_LOGIN"])) > 0

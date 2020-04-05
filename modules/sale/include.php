@@ -154,7 +154,6 @@ CModule::AddAutoloadClasses(
 		"CSaleOrderChangeFormat" => "general/order_change.php",
 
 		"\\Bitrix\\Sale\\Internals\\FuserTable" => "lib/internals/fuser.php",
-		"\\Bitrix\\Sale\\FuserTable" => "lib/internals/fuser_old.php",
 		"\\Bitrix\\Sale\\Fuser" => "lib/fuser.php",
 
 		// begin lists
@@ -174,7 +173,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\Internals\StatusGroupTaskTable' => 'lib/internals/status_grouptask.php',
 		'CSaleOrderProps'                                => 'general/order_props.php',
 		'CSaleOrderPropsAdapter'                         => 'general/order_props.php',
-		'CSaleOrderPropsValue'                           => 'general/order_props_values.php',
+		'CSaleOrderPropsValue'                           => $DBType.'/order_props_values.php',
 		'\Bitrix\Sale\PropertyValueCollection'           => 'lib/propertyvaluecollection.php',
 		'\Bitrix\Sale\Internals\OrderPropsTable'         => 'lib/internals/orderprops.php',
 		'\Bitrix\Sale\Internals\OrderPropsGroupTable'    => 'lib/internals/orderprops_group.php',
@@ -194,10 +193,6 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\UserMessageException' => 'lib/exception.php',
 		// end lists
 
-
-		"Bitrix\\Sale\\Internals\\DeliveryHandlerTable" => "lib/internals/deliveryhandler.php",
-		"Bitrix\\Sale\\DeliveryHandlerTable" => "lib/internals/deliveryhandler_old.php",
-
 		"\\Bitrix\\Sale\\Configuration" => "lib/configuration.php",
 		"\\Bitrix\\Sale\\Order" => "lib/order.php",
 		"\\Bitrix\\Sale\\PersonType" => "lib/persontype.php",
@@ -205,22 +200,10 @@ CModule::AddAutoloadClasses(
 		"CSaleReportSaleGoodsHelper" => "general/sale_report_helper.php",
 		"CSaleReportSaleProductHelper" => "general/sale_report_helper.php",
 
-		"Bitrix\\Sale\\ProductTable" => "lib/internals/product_old.php",
-		"\\Bitrix\\Sale\\ProductTable" => "lib/internals/product_old.php",
 		"\\Bitrix\\Sale\\Internals\\ProductTable" => "lib/internals/product.php",
-
-		"Bitrix\\Sale\\GoodsSectionTable" => "lib/internals/goodssection_old.php",
-		"\\Bitrix\\Sale\\GoodsSectionTable" => "lib/internals/goodssection_old.php",
 		"\\Bitrix\\Sale\\Internals\\GoodsSectionTable" => "lib/internals/goodssection.php",
-
-		"Bitrix\\Sale\\SectionTable" => "lib/internals/section_old.php",
-		"\\Bitrix\\Sale\\SectionTable" => "lib/internals/section_old.php",
 		"\\Bitrix\\Sale\\Internals\\SectionTable" => "lib/internals/section.php",
-
 		"\\Bitrix\\Sale\\Internals\\StoreProductTable" => "lib/internals/storeproduct.php",
-		"\\Bitrix\\Sale\\StoreProductTable" => "lib/internals/storeproduct_old.php",
-
-
 
 		"\\Bitrix\\Sale\\SalesZone" => "lib/saleszone.php",
 		"Bitrix\\Sale\\Internals\\OrderDeliveryReqTable" => "lib/internals/orderdeliveryreq.php",
@@ -231,17 +214,14 @@ CModule::AddAutoloadClasses(
 
 		"\\Bitrix\\Sale\\UserConsent" => "lib/userconsent.php",
 
-		"\\Bitrix\\Sale\\Product2ProductTable" => "lib/internals/product2product_old.php",
 		"\\Bitrix\\Sale\\Internals\\Product2ProductTable" => "lib/internals/product2product.php",
 
-		"Bitrix\\Sale\\OrderProcessingTable" => "lib/internals/orderprocessing_old.php",
 		"Bitrix\\Sale\\Internals\\OrderProcessingTable" => "lib/internals/orderprocessing.php",
 
 		"\\Bitrix\\Sale\\OrderBase" => "lib/orderbase.php",
 		"\\Bitrix\\Sale\\Internals\\Entity" => "lib/internals/entity.php",
 		"\\Bitrix\\Sale\\Internals\\EntityCollection" => "lib/internals/entitycollection.php",
 		"\\Bitrix\\Sale\\Internals\\CollectionBase" => "lib/internals/collectionbase.php",
-		//"\\Bitrix\\Sale\\Order" => "lib/order.php",
 
 		"\\Bitrix\\Sale\\Shipment" => "lib/shipment.php",
 		"\\Bitrix\\Sale\\ShipmentCollection" => "lib/shipmentcollection.php",
@@ -291,7 +271,6 @@ CModule::AddAutoloadClasses(
 		"\\Bitrix\\Sale\\Tax" => "lib/tax.php",
 
 		"\\Bitrix\\Sale\\Internals\\OrderTable" => "lib/internals/order.php",
-		"\\Bitrix\\Sale\\OrderTable" => "lib/internals/order_old.php",
 
 		"\\Bitrix\\Sale\\Internals\\BasketTable" => "lib/internals/basket.php",
 
@@ -300,10 +279,6 @@ CModule::AddAutoloadClasses(
 
 		"\\Bitrix\\Sale\\Internals\\PaySystemServiceTable" => "lib/internals/paysystemservice.php",
 		"\\Bitrix\\Sale\\Internals\\PaymentTable" => "lib/internals/payment.php",
-
-		"\\Bitrix\\Sale\\Internals\\PaySystemTable" => "lib/internals/paysystem.php",
-		"\\Bitrix\\Sale\\PaySystemTable" => "lib/internals/paysystem_old.php",
-
 
 		"\\Bitrix\\Sale\\Internals\\ShipmentItemStoreTable" => "lib/internals/shipmentitemstore.php",
 		"\\Bitrix\\Sale\\Internals\\ShipmentExtraService" => "lib/internals/shipmentextraservice.php",
@@ -329,13 +304,14 @@ CModule::AddAutoloadClasses(
 
 		"\\Bitrix\\Sale\\OrderHistory" => "lib/orderhistory.php",
 
+		'\Bitrix\Sale\Internals\CallbackRegistryTable' => "lib/internals/callbackregistry.php",
+
 		"\\Bitrix\\Sale\\Internals\\BasketPropertyTable" => "lib/internals/basketproperties.php",
 		"\\Bitrix\\Sale\\Internals\\CompanyTable" => "lib/internals/company.php",
 		"\\Bitrix\\Sale\\Internals\\CompanyGroupTable" => "lib/internals/companygroup.php",
 		"\\Bitrix\\Sale\\Internals\\CompanyResponsibleGroupTable" => "lib/internals/companyresponsiblegroup.php",
 
 		"\\Bitrix\\Sale\\Internals\\PersonTypeTable" => "lib/internals/persontype.php",
-		"\\Bitrix\\Sale\\PersonTypeTable" => "lib/internals/persontype_old.php",
 		"\\Bitrix\\Sale\\Internals\\PersonTypeSiteTable" => "lib/internals/persontypesite.php",
 
 		"\\Bitrix\\Sale\\Internals\\Pool" => "lib/internals/pool.php",
@@ -564,6 +540,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\PaySystem\BaseServiceHandler' => 'lib/paysystem/baseservicehandler.php',
 		'\Bitrix\Sale\PaySystem\ServiceHandler' => 'lib/paysystem/servicehandler.php',
 		'\Bitrix\Sale\PaySystem\IRefund' => 'lib/paysystem/irefund.php',
+		'\Bitrix\Sale\PaySystem\IPdf' => 'lib/paysystem/ipdf.php',
 		'\Bitrix\Sale\PaySystem\IRequested' => 'lib/paysystem/irequested.php',
 		'\Bitrix\Sale\PaySystem\IRefundExtended' => 'lib/paysystem/irefundextended.php',
 		'\Bitrix\Sale\PaySystem\Cert' => 'lib/paysystem/cert.php',
@@ -572,6 +549,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\PaySystem\IPrePayable' => 'lib/paysystem/iprepayable.php',
 		'\Bitrix\Sale\PaySystem\CompatibilityHandler' => 'lib/paysystem/compatibilityhandler.php',
 		'\Bitrix\Sale\PaySystem\IHold' => 'lib/paysystem/ihold.php',
+		'\Bitrix\Sale\PaySystem\IPartialHold' => 'lib/paysystem/ipartialhold.php',
 		'\Bitrix\Sale\Internals\PaymentLogTable' => 'lib/internals/paymentlog.php',
 		'\Bitrix\Sale\Services\PaySystem\Restrictions\Manager' => 'lib/services/paysystem/restrictions/manager.php',
 		'\Bitrix\Sale\Services\Base\Restriction' => 'lib/services/base/restriction.php',
@@ -639,7 +617,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\Delivery\Requests\ShipmentTable' => '/lib/delivery/requests/shipment.php',
 		'\Bitrix\Sale\Delivery\Requests\Result' => '/lib/delivery/requests/result.php',
 		'\Bitrix\Sale\Delivery\Requests\ResultFile' => '/lib/delivery/requests/resultfile.php',
-		
+
 		'\Bitrix\Sale\Delivery\Packing\Packer' => '/lib/delivery/packing/packer.php',
 
 		'\Bitrix\Sale\Recurring' => '/lib/recurring.php',
@@ -652,12 +630,23 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\Location\Normalizer\NullNormalizer' => '/lib/location/normalizer/nullnormalizer.php',
 		'\Bitrix\Sale\Location\Normalizer\SpaceNormalizer' => '/lib/location/normalizer/spacenormalizer.php',
 		'\Bitrix\Sale\Location\Normalizer\LanguageNormalizer' => '/lib/location/normalizer/languagenormalizer.php',
-		'\Bitrix\Sale\Location\Normalizer\Helper' => '/lib/location/normalizer/helper.php'
+		'\Bitrix\Sale\Location\Normalizer\Helper' => '/lib/location/normalizer/helper.php',
+
+		'\Sale\Handlers\Delivery\Additional\RusPost\Reliability\Service' => '/handlers/delivery/additional/ruspost/reliability/service.php'
 	)
 );
 
 class_alias('Bitrix\Sale\TradingPlatform\YMarket\YandexMarket', 'Bitrix\Sale\TradingPlatform\YandexMarket');
 class_alias('\Bitrix\Sale\PaySystem\Logger', '\Bitrix\Sale\PaySystem\ErrorLog');
+class_alias('\Bitrix\Sale\Internals\OrderTable', '\Bitrix\Sale\OrderTable');
+class_alias('\Bitrix\Sale\Internals\FuserTable', '\Bitrix\Sale\FuserTable');
+class_alias('\Bitrix\Sale\Internals\Product2ProductTable', '\Bitrix\Sale\Product2ProductTable');
+class_alias('\Bitrix\Sale\Internals\StoreProductTable', '\Bitrix\Sale\StoreProductTable');
+class_alias('\Bitrix\Sale\Internals\PersonTypeTable', '\Bitrix\Sale\PersonTypeTable');
+class_alias('\Bitrix\Sale\Internals\ProductTable', '\Bitrix\Sale\ProductTable');
+class_alias('\Bitrix\Sale\Internals\SectionTable', '\Bitrix\Sale\SectionTable');
+class_alias('\Bitrix\Sale\Internals\OrderProcessingTable', '\Bitrix\Sale\OrderProcessingTable');
+class_alias('\Bitrix\Sale\Internals\GoodsSectionTable', '\Bitrix\Sale\GoodsSectionTable');
 
 $psConverted = \Bitrix\Main\Config\Option::get('main', '~sale_paysystem_converted');
 if ($psConverted == '')

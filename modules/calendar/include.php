@@ -69,7 +69,7 @@ CJSCore::RegisterExt('userfield_resourcebooking', array(
 	),
 	'css' => array('/bitrix/js/calendar/userfield/resourcebooking.css'),
 	'lang' => '/bitrix/modules/calendar/lang/'.LANGUAGE_ID.'/lib/userfield/resourcebooking.php',
-	'rel' => array('uf', 'popup', 'translit')
+	'rel' => array('uf', 'popup', 'translit', 'date', 'ajax')
 ));
 
 $basePath = '/bitrix/js/calendar/new/';

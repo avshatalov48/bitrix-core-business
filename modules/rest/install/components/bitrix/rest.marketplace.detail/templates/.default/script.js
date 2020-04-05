@@ -12,10 +12,15 @@ BX.Rest.Marketplace.Detail =
 		this.siteId = params.siteId || null;
 		this.appName = params.appName || "";
 		this.appCode = params.appCode || "";
+		this.importUrl = params.importUrl || "";
+		this.openImport = params.openImport || false;
 
 		this.description = document.querySelector('[data-role="mp-detail-main-description"]');
 		this.descriptionWrapper = document.querySelector('[data-role="mp-detail-main-description-wrapper"]');
-
+		if(this.openImport === true && params.importUrl !== '')
+		{
+			BX.SidePanel.Instance.open(params.importUrl);
+		}
 	/*	this.descriptionMore = document.querySelector('[data-role="mp-detail-main-description-more"]');
 
 		BX.bind(this.descriptionMore, 'click', function() {

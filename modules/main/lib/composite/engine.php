@@ -551,14 +551,6 @@ final class Engine
 				"spread" => array_map(array("CUtil", "JSEscape"), $APPLICATION->GetSpreadCookieUrls()),
 			);
 
-			if ($USER->isAuthorized() && self::getUseAppCache())
-			{
-				if (Loader::includeModule("pull") && \CPullOptions::CheckNeedRun())
-				{
-					$content["pull"] = \CPullChannel::GetConfig($USER->GetID());
-				}
-			}
-
 			$content = \CUtil::PhpToJSObject($content);
 		}
 		else
@@ -622,6 +614,7 @@ final class Engine
 						"CONTENT" => $areaContent,
 						"HASH" => $areaContentMd5,
 						"PROPS" => array(
+							"ID" => $area->id,
 							"CONTAINER_ID" => $dynamicArea->getContainerId(),
 							"USE_BROWSER_STORAGE" => $dynamicArea->getBrowserStorage(),
 							"AUTO_UPDATE" => $dynamicArea->getAutoUpdate(),

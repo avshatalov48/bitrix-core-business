@@ -52,6 +52,14 @@
 			else if (!Utils.isNotEmptyString(format))
 				return "";
 
+			var replaceMap = (format.match(/{{([^{}]*)}}/g) || []).map(function(x) { return (x.match(/[^{}]+/) || [''])[0]; });
+			if (replaceMap.length > 0)
+			{
+				replaceMap.forEach(function(element, index) {
+					format = format.replace("{{"+element+"}}", "{{"+index+"}}");
+				});
+			}
+
 			var formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tommorow|tomorrow|[a-z])/gi;
 
 			var dateFormats = {
@@ -558,6 +566,13 @@
 								replace(/(\s*00:00\s*)(?!:)/g, "");
 			}
 
+			if (replaceMap.length > 0)
+			{
+				replaceMap.forEach(function(element, index) {
+					result = result.replace("{{"+index+"}}", element);
+				});
+			}
+
 			return result;
 
 			function _formatDateInterval(formats, date, nowDate, isUTC)
@@ -728,7 +743,6 @@
 				return formats.length > 0 ? _this.format(formats[formats.length - 1][1], date, nowDate, isUTC) : "";
 			}
 
-
 			function getFullYear(date) { return isUTC ? date.getUTCFullYear() : date.getFullYear(); }
 			function getDate(date) { return isUTC ? date.getUTCDate() : date.getDate(); }
 			function getMonth(date) { return isUTC ? date.getUTCMonth() : date.getMonth(); }
@@ -864,7 +878,7 @@
 			   ["", "#05#"]
 			];
 			var formattedDate = this.format(format, timestamp, now, utc);
-
+			var match = null;
 			if ((match = /^#(\d+)#(.*)/.exec(formattedDate)) != null)
 			{
 				switch (match[1])
@@ -913,6 +927,173 @@
 		_getMessage: function(message)
 		{
 			return BX.message(message);
+		},
+
+		/**
+		 * The method used to parse date from string by given format.
+		 *
+		 * @param {string} str - date in given format
+		 * @param {boolean} isUTC - is date in UTC
+		 * @param {string} formatDate - format of the date without time
+		 * @param {string} formatDatetime - format of the date with time
+		 * @returns {Date|null} - returns Date object if string was parsed or null
+		 */
+		parse: function(str, isUTC, formatDate, formatDatetime)
+		{
+			if (Utils.isNotEmptyString(str))
+			{
+				if (!formatDate)
+					formatDate = this._getMessage('FORMAT_DATE');
+				if (!formatDatetime)
+					formatDatetime = this._getMessage('FORMAT_DATETIME');
+
+				var regMonths = '';
+				for (i = 1; i <= 12; i++)
+				{
+					regMonths = regMonths + '|' + this._getMessage('MON_'+i);
+				}
+
+				var
+					expr = new RegExp('([0-9]+|[a-z]+' + regMonths + ')', 'ig'),
+					aDate = str.match(expr),
+					aFormat = formatDate.match(/(DD|MI|MMMM|MM|M|YYYY)/ig),
+					i, cnt,
+					aDateArgs=[], aFormatArgs=[],
+					aResult={};
+
+				if (!aDate)
+				{
+					return null;
+				}
+
+				if(aDate.length > aFormat.length)
+				{
+					aFormat = formatDatetime.match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
+				}
+
+				for(i = 0, cnt = aDate.length; i < cnt; i++)
+				{
+					if(aDate[i].trim() !== '')
+					{
+						aDateArgs[aDateArgs.length] = aDate[i];
+					}
+				}
+
+				for(i = 0, cnt = aFormat.length; i < cnt; i++)
+				{
+					if(aFormat[i].trim() !== '')
+					{
+						aFormatArgs[aFormatArgs.length] = aFormat[i];
+					}
+				}
+
+				var m = Utils.array_search('MMMM', aFormatArgs);
+				if (m > 0)
+				{
+					aDateArgs[m] = this.getMonthIndex(aDateArgs[m]);
+					aFormatArgs[m] = "MM";
+				}
+				else
+				{
+					m = Utils.array_search('M', aFormatArgs);
+					if (m > 0)
+					{
+						aDateArgs[m] = this.getMonthIndex(aDateArgs[m]);
+						aFormatArgs[m] = "MM";
+					}
+				}
+
+				for(i = 0, cnt = aFormatArgs.length; i < cnt; i++)
+				{
+					var k = aFormatArgs[i].toUpperCase();
+					aResult[k] = k === 'T' || k === 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
+				}
+
+				if(aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
+				{
+					var d = new Date();
+
+					if(isUTC)
+					{
+						d.setUTCDate(1);
+						d.setUTCFullYear(aResult['YYYY']);
+						d.setUTCMonth(aResult['MM'] - 1);
+						d.setUTCDate(aResult['DD']);
+						d.setUTCHours(0, 0, 0, 0);
+					}
+					else
+					{
+						d.setDate(1);
+						d.setFullYear(aResult['YYYY']);
+						d.setMonth(aResult['MM'] - 1);
+						d.setDate(aResult['DD']);
+						d.setHours(0, 0, 0, 0);
+					}
+
+					if(
+						(!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G']))
+						&& !isNaN(aResult['MI'])
+					)
+					{
+						if (!isNaN(aResult['H']) || !isNaN(aResult['G']))
+						{
+							var
+								bPM = (aResult['T']||aResult['TT']||'am').toUpperCase() === 'PM',
+								h = parseInt(aResult['H']||aResult['G']||0, 10);
+
+							if(bPM)
+							{
+								aResult['HH'] = h + (h === 12 ? 0 : 12);
+							}
+							else
+							{
+								aResult['HH'] = h < 12 ? h : 0;
+							}
+						}
+						else
+						{
+							aResult['HH'] = parseInt(aResult['HH']||aResult['GG']||0, 10);
+						}
+
+						if (isNaN(aResult['SS']))
+							aResult['SS'] = 0;
+
+						if(isUTC)
+						{
+							d.setUTCHours(aResult['HH'], aResult['MI'], aResult['SS']);
+						}
+						else
+						{
+							d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
+						}
+					}
+
+					return d;
+				}
+			}
+
+			return null;
+		},
+
+		getMonthIndex: function(month)
+		{
+			var
+				i,
+				q = month.toUpperCase(),
+				wordMonthCut = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'],
+				wordMonth = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+			for (i = 1; i <= 12; i++)
+			{
+				if (q === this._getMessage('MON_'+i).toUpperCase()
+					|| q === this._getMessage('MONTH_'+i).toUpperCase()
+					|| q === wordMonthCut[i-1].toUpperCase()
+					|| q === wordMonth[i-1].toUpperCase())
+				{
+					return i;
+				}
+			}
+			return month;
 		}
 	};
 
@@ -944,7 +1125,20 @@
 				input = padString + input;
 
 			return input;
-		}
+		},
+		/**
+		 * @deprecated
+		 * @use myArr.findIndex(item => item === needle);
+		 */
+		array_search: function(needle, haystack)
+		{
+			for(var i = 0; i < haystack.length; i++)
+			{
+				if(haystack[i] == needle)
+					return i;
+			}
+			return -1;
+		},
 	};
 
 })(window);

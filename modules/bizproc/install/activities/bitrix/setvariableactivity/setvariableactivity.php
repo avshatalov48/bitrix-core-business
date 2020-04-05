@@ -156,5 +156,17 @@ class CBPSetVariableActivity
 
 		return true;
 	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		if (is_array($this->arProperties["VariableValue"]))
+		{
+			foreach (array_keys($this->arProperties["VariableValue"]) as $v)
+			{
+				$usages[] = $this->getObjectSourceType('Variable', $v);
+			}
+		}
+		return $usages;
+	}
 }
-?>

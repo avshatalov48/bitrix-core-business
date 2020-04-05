@@ -29,7 +29,7 @@ class AddResult extends Result
 	 */
 	public function getId()
 	{
-		if (count($this->primary) == 1)
+		if (is_array($this->primary) && count($this->primary) == 1)
 		{
 			return end($this->primary);
 		}

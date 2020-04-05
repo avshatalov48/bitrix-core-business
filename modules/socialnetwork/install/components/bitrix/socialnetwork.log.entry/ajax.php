@@ -692,11 +692,34 @@ if(CModule::IncludeModule("socialnetwork"))
 				: array("CHECK_RIGHTS" => "Y", "USE_SUBSCRIBE" => "N")
 		);
 
-		if (
-			intval($log_tmp_id) > 0
-			&& ($rsLog = CSocNetLog::GetList(array(), array("ID" => $log_tmp_id), false, false, array("ID", "EVENT_ID", "SOURCE_ID", "RATING_TYPE_ID", "RATING_ENTITY_ID"), $arListParams))
-			&& ($arLog = $rsLog->Fetch())
-		)
+		$arLog = [];
+		if (intval($log_tmp_id) > 0)
+		{
+			$rsLog = CSocNetLog::GetList(array(), array("ID" => $log_tmp_id), false, false, array("ID", "EVENT_ID", "SOURCE_ID", "RATING_TYPE_ID", "RATING_ENTITY_ID"), $arListParams);
+			if ($rsLog)
+			{
+				$arLog = $rsLog->Fetch();
+			}
+
+			if (
+				empty($arLog)
+				&& !empty($arListParams['IS_CRM'])
+				&& $arListParams['IS_CRM'] == 'Y'
+			)
+			{
+				$arListParams = [
+					'CHECK_RIGHTS' => 'Y',
+					'USE_SUBSCRIBE' => 'N'
+				];
+				$rsLog = CSocNetLog::GetList(array(), array("ID" => $log_tmp_id), false, false, array("ID", "EVENT_ID", "SOURCE_ID", "RATING_TYPE_ID", "RATING_ENTITY_ID"), $arListParams);
+				if ($rsLog)
+				{
+					$arLog = $rsLog->Fetch();
+				}
+			}
+		}
+
+		if (!empty($arLog))
 		{
 			$postContentTypeId = $commentContentTypeId = $commentEntitySuffix = '';
 			$contentId = \Bitrix\Socialnetwork\Livefeed\Provider::getContentId($arLog);
@@ -802,7 +825,7 @@ if(CModule::IncludeModule("socialnetwork"))
 					"ID", "LOG_ID", "SOURCE_ID", "ENTITY_TYPE", "ENTITY_ID", "USER_ID", "EVENT_ID", "LOG_DATE", "MESSAGE", "TEXT_MESSAGE", "URL", "MODULE_ID",
 					"GROUP_NAME", "GROUP_OWNER_ID", "GROUP_VISIBLE", "GROUP_OPENED", "GROUP_IMAGE_ID",
 					"USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_LOGIN", "USER_PERSONAL_PHOTO", "USER_PERSONAL_GENDER",
-					"CREATED_BY_NAME", "CREATED_BY_LAST_NAME", "CREATED_BY_SECOND_NAME", "CREATED_BY_LOGIN", "CREATED_BY_PERSONAL_PHOTO", "CREATED_BY_PERSONAL_GENDER",
+					"CREATED_BY_NAME", "CREATED_BY_LAST_NAME", "CREATED_BY_SECOND_NAME", "CREATED_BY_LOGIN", "CREATED_BY_PERSONAL_PHOTO", "CREATED_BY_PERSONAL_GENDER", "CREATED_BY_EXTERNAL_AUTH_ID",
 					"LOG_SITE_ID", "LOG_SOURCE_ID",
 					"RATING_TYPE_ID", "RATING_ENTITY_ID",
 					"SHARE_DEST",
@@ -995,7 +1018,9 @@ if(CModule::IncludeModule("socialnetwork"))
 						"SECOND_NAME" => $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["SECOND_NAME"],
 						"LOGIN" => $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["LOGIN"],
 						"PERSONAL_GENDER" => $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["PERSONAL_GENDER"],
-						"AVATAR" => $arComment["AVATAR_SRC"]
+						"AVATAR" => $arComment["AVATAR_SRC"],
+						"EXTERNAL_AUTH_ID" => (isset($arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["EXTERNAL_AUTH_ID"]) ? $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["EXTERNAL_AUTH_ID"] : false),
+						"UF_USER_CRM_ENTITY" => (isset($arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["UF_USER_CRM_ENTITY"]) ? $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["UF_USER_CRM_ENTITY"] : false)
 					),
 					"FILES" => false,
 					"UF" => $arComment["UF"],

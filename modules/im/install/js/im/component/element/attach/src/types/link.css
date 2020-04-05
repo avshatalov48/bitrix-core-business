@@ -1,0 +1,10 @@
+.bx-im-element-attach-type-link-image {
+	cursor: pointer;
+}
+.bx-im-element-attach-type-link-name {
+	cursor: pointer;
+	color: #1d54a2;
+}
+.bx-im-element-attach-type-link-name:hover {
+	text-decoration: underline;
+}

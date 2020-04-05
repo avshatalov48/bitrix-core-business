@@ -243,6 +243,7 @@ class SenderSegmentEditComponent extends CBitrixComponent
 			}
 
 			$fieldValuesList = $filters[$connector->getModuleId()][$connector->getCode()];
+			$existedNamedCounters = [];
 			foreach($fieldValuesList as $fieldValues)
 			{
 				$connector->setFieldFormName('post_form');
@@ -253,8 +254,27 @@ class SenderSegmentEditComponent extends CBitrixComponent
 				$connector->setFieldValues($fieldValues);
 
 				$connectorData = $this->prepareConnectorData($connector);
-				$connectorData['NUM'] = $counter;
-				$connectorData['FORM'] = str_replace('%CONNECTOR_NUM%', $counter, $connectorData['FORM']);
+				$connectorData['FILTER_ID'] = preg_replace('/--filter--([^-]+)--/', '%CONNECTOR_NUM%', $connectorData['FILTER_ID']);
+				if (preg_match('/--filter--([^-]+)--/', $connectorData['FORM'], $matches))
+				{
+					$namedCounter = $matches[1];
+					if (in_array($namedCounter, $existedNamedCounters))
+					{
+						$namedCounter .= $counter;
+					}
+					else
+					{
+						$existedNamedCounters[] = $namedCounter;
+					}
+					$namedCounter = '--filter--'.$namedCounter.'--';
+					$connectorData['NUM'] = $namedCounter;
+					$connectorData['FORM'] = preg_replace('/--filter--([^-]+)--/', $namedCounter, $connectorData['FORM']);
+				}
+				else
+				{
+					$connectorData['NUM'] = $counter;
+				}
+				$connectorData['FORM'] = str_replace('%CONNECTOR_NUM%', $connectorData['NUM'], $connectorData['FORM']);
 
 				$addressCounter += $connectorData['COUNT']['summary'];
 

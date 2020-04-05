@@ -16,6 +16,31 @@ class Sender
 			$fields['OPTIONS'] = array();
 		}
 
+		if (empty($fields['IS_CONFIRMED']) && !empty($fields['OPTIONS']['smtp']))
+		{
+			$smtpConfig = $fields['OPTIONS']['smtp'];
+			$smtpConfig = new Smtp\Config(array(
+				'from' => $fields['EMAIL'],
+				'host' => $smtpConfig['server'],
+				'port' => $smtpConfig['port'],
+				'protocol' => $smtpConfig['protocol'],
+				'login' => $smtpConfig['login'],
+				'password' => $smtpConfig['password'],
+			));
+
+			if ($smtpConfig->canCheck())
+			{
+				if ($smtpConfig->check($error, $errors))
+				{
+					$fields['IS_CONFIRMED'] = true;
+				}
+				else
+				{
+					return array('error' => $error, 'errors' => $errors);
+				}
+			}
+		}
+
 		if (empty($fields['IS_CONFIRMED']))
 		{
 			$fields['OPTIONS']['confirm_code'] = \Bitrix\Main\Security\Random::getStringByCharsets(5, '0123456789abcdefghjklmnpqrstuvwxyz');
@@ -24,7 +49,7 @@ class Sender
 
 		$senderId = 0;
 		$result = Internal\SenderTable::add($fields);
-		if($result->isSuccess())
+		if ($result->isSuccess())
 		{
 			$senderId = $result->getId();
 		}
@@ -38,23 +63,14 @@ class Sender
 				'CONFIRM_CODE' => strtoupper($fields['OPTIONS']['confirm_code']),
 			);
 
-			if (!empty($fields['OPTIONS']['smtp']))
+			if (!empty($smtpConfig))
 			{
 				\Bitrix\Main\EventManager::getInstance()->addEventHandlerCompatible(
 					'main',
 					'OnBeforeEventSend',
-					function (&$eventFields, &$message, $context) use (&$fields)
+					function (&$eventFields, &$message, $context) use (&$smtpConfig)
 					{
-						$config = $fields['OPTIONS']['smtp'];
-						$config = new Smtp\Config(array(
-							'from' => $fields['EMAIL'],
-							'host' => $config['server'],
-							'port' => $config['port'],
-							'login' => $config['login'],
-							'password' => $config['password'],
-						));
-
-						$context->setSmtp($config);
+						$context->setSmtp($smtpConfig);
 					}
 				);
 			}
@@ -71,7 +87,7 @@ class Sender
 			}
 		}
 
-		return ['senderId' => $senderId];
+		return ['senderId' => $senderId, 'confirmed' => !empty($fields['IS_CONFIRMED'])];
 	}
 
 	public static function confirm($ids)
@@ -222,6 +238,7 @@ class Sender
 					'from' => $email,
 					'host' => $config['server'],
 					'port' => $config['port'],
+					'protocol' => $config['protocol'],
 					'login' => $config['login'],
 					'password' => $config['password'],
 				));
@@ -347,17 +364,6 @@ class Sender
 			$mailboxes[$userId][$key] = array(
 				'name'  => $crmAddress->getName() ?: $userNameFormated,
 				'email' => $crmAddress->getEmail(),
-			);
-		}
-
-		$userAddress = new Address($userData['EMAIL']);
-		if ($userAddress->validate())
-		{
-			$key = hash('crc32b', strtolower($userNameFormated) . $userAddress->getEmail());
-
-			$mailboxes[$userId][$key] = array(
-				'name'  => $userNameFormated,
-				'email' => $userAddress->getEmail(),
 			);
 		}
 

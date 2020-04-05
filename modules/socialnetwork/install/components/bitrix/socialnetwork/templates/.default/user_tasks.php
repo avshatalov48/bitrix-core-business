@@ -32,12 +32,15 @@ else
 			$componentName = 'bitrix:tasks.task.gantt';
 			break;
 		case 'VIEW_MODE_PLAN':
-//			case 'VIEW_MODE_KANBAN':
+			//case 'VIEW_MODE_KANBAN':
 			$componentName = 'bitrix:tasks.kanban';
 			break;
-		//		case 'VIEW_MODE_TIMELINE':
-		//			$componentName = 'bitrix:tasks.timeline';
-		//			break;
+		case 'VIEW_MODE_TIMELINE':
+			$componentName = 'bitrix:tasks.timeline';
+			break;
+		case 'VIEW_MODE_CALENDAR':
+			$componentName = 'bitrix:tasks.task.calendar';
+			break;
 		default:
 			\Bitrix\Tasks\Ui\Filter\Task::listStateInit()->setViewMode(\CTaskListState::VIEW_MODE_LIST);
 			$componentName = 'bitrix:tasks.task.list';

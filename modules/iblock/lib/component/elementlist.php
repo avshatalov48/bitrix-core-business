@@ -145,25 +145,17 @@ abstract class ElementList extends Base
 			$params['CACHE_TIME'] = 0;
 		}
 
-		if (empty($params['ELEMENT_SORT_FIELD']))
-		{
-			$params['ELEMENT_SORT_FIELD'] = 'sort';
-		}
+		$params = $this->prepareElementSortRow(
+			$params,
+			['ORDER' => 'ELEMENT_SORT_FIELD', 'DIRECTION' => 'ELEMENT_SORT_ORDER'],
+			['ORDER' => 'SORT', 'DIRECTION' => 'asc']
+		);
 
-		if (!preg_match(self::SORT_ORDER_MASK, $params['ELEMENT_SORT_ORDER']))
-		{
-			$params['ELEMENT_SORT_ORDER'] = 'asc';
-		}
-
-		if (empty($params['ELEMENT_SORT_FIELD2']))
-		{
-			$params['ELEMENT_SORT_FIELD2'] = 'id';
-		}
-
-		if (!preg_match(self::SORT_ORDER_MASK, $params['ELEMENT_SORT_ORDER2']))
-		{
-			$params['ELEMENT_SORT_ORDER2'] = 'desc';
-		}
+		$params = $this->prepareElementSortRow(
+			$params,
+			['ORDER' => 'ELEMENT_SORT_FIELD2', 'DIRECTION' => 'ELEMENT_SORT_ORDER2'],
+			['ORDER' => 'ID', 'DIRECTION' => 'desc']
+		);
 
 		if (!empty($params['PAGER_PARAMS_NAME']) && preg_match(self::PARAM_TITLE_MASK, $params['PAGER_PARAMS_NAME']))
 		{
@@ -197,6 +189,45 @@ abstract class ElementList extends Base
 		}
 
 		$this->getSpecificIblockParams($params);
+
+		return $params;
+	}
+
+	/**
+	 * @param array $params
+	 * @param array $orderRow
+	 * @param array $default
+	 * @return array
+	 */
+	protected function prepareElementSortRow(array $params, array $orderRow, array $default)
+	{
+		$order = (isset($orderRow['ORDER']) ? trim($orderRow['ORDER']) : '');
+		$direction = (isset($orderRow['DIRECTION']) ? trim($orderRow['DIRECTION']) : '');
+		if (empty($params) || $order === '' || $direction === '')
+		{
+			return $params;
+		}
+		if (empty($params[$order]))
+		{
+			$params[$order] = (isset($default['ORDER']) ? $default['ORDER'] : 'SORT');
+		}
+		$params[$order] = strtoupper($params[$order]);
+
+		if ($params[$order] === 'ID' && !empty($params[$direction]) && is_array($params[$direction]))
+		{
+			Collection::normalizeArrayValuesByInt($params[$direction], false);
+			if (empty($params[$direction]))
+			{
+				$params[$direction] = (isset($default['DIRECTION']) ? $default['DIRECTION'] : 'desc');
+			}
+		}
+		else
+		{
+			if (empty($params[$direction]) || !preg_match(self::SORT_ORDER_MASK, $params[$direction]))
+			{
+				$params[$direction] = (isset($default['DIRECTION']) ? $default['DIRECTION'] : 'desc');
+			}
+		}
 
 		return $params;
 	}
@@ -732,12 +763,12 @@ abstract class ElementList extends Base
 			&& $this->offerIblockExist($this->arParams['IBLOCK_ID'])
 		)
 		{
-			$priceFilter = array();
+			$catalogFilter = array();
 			foreach ($this->globalFilter as $key => $value)
 			{
-				if (\CProductQueryBuilder::isPriceFilterField($key))
+				if (\CProductQueryBuilder::isCatalogFilterField($key))
 				{
-					$priceFilter[$key] = $value;
+					$catalogFilter[$key] = $value;
 					unset($this->globalFilter[$key]);
 				}
 			}
@@ -747,7 +778,7 @@ abstract class ElementList extends Base
 
 			if ($offersFilterExists)
 			{
-				$this->storage['SUB_FILTER'] = array_merge($this->globalFilter['OFFERS'], $priceFilter);
+				$this->storage['SUB_FILTER'] = array_merge($this->globalFilter['OFFERS'], $catalogFilter);
 				$this->storage['SUB_FILTER']['IBLOCK_ID'] = $iblock['IBLOCK_ID'];
 				$this->storage['SUB_FILTER']['ACTIVE_DATE'] = 'Y';
 				$this->storage['SUB_FILTER']['ACTIVE'] = 'Y';
@@ -762,15 +793,15 @@ abstract class ElementList extends Base
 					$this->storage['SUB_FILTER']
 				);
 			}
-			elseif (!empty($priceFilter))
+			elseif (!empty($catalogFilter))
 			{
-				$this->storage['SUB_FILTER'] = $priceFilter;
+				$this->storage['SUB_FILTER'] = $catalogFilter;
 				$this->storage['SUB_FILTER']['IBLOCK_ID'] = $iblock['IBLOCK_ID'];
 				$this->storage['SUB_FILTER']['ACTIVE_DATE'] = 'Y';
 				$this->storage['SUB_FILTER']['ACTIVE'] = 'Y';
 				$this->filterFields[] = array(
 					'LOGIC' => 'OR',
-					array($priceFilter),
+					array($catalogFilter),
 					'=ID' => \CIBlockElement::SubQuery(
 						'PROPERTY_'.$iblock['SKU_PROPERTY_ID'],
 						$this->storage['SUB_FILTER']
@@ -925,15 +956,18 @@ abstract class ElementList extends Base
 			$sortFields['AVAILABLE'] = 'desc,nulls';
 		}
 
-		if (!isset($sortFields[$this->arParams['ELEMENT_SORT_FIELD']]))
+		$field = strtoupper($this->arParams['ELEMENT_SORT_FIELD']);
+		if (!isset($sortFields[$field]))
 		{
-			$sortFields[$this->arParams['ELEMENT_SORT_FIELD']] = $this->arParams['ELEMENT_SORT_ORDER'];
+			$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER'];
 		}
 
-		if (!isset($sortFields[$this->arParams['ELEMENT_SORT_FIELD2']]))
+		$field = strtoupper($this->arParams['ELEMENT_SORT_FIELD2']);
+		if (!isset($sortFields[$field]))
 		{
-			$sortFields[$this->arParams['ELEMENT_SORT_FIELD2']] = $this->arParams['ELEMENT_SORT_ORDER2'];
+			$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER2'];
 		}
+		unset($field);
 
 		return $sortFields;
 	}

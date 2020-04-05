@@ -1,6 +1,6 @@
 <section class="landing-block js-animation fadeIn g-bg-gray-light-v5 g-pt-20 g-pb-20">
 
-        <div class="js-carousel"
+        <div class="js-carousel row"
              data-autoplay="true"
 			 data-pause-hover="true"
              data-infinite="true"
@@ -24,8 +24,15 @@
                "settings": {
                  "slidesToShow": 1
                }
-             }]'>
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+             }]'
+			 data-init-classes-exclude='[{
+				 "selector": ".landing-block-card-carousel-element",
+				 "class": "col-12 col-sm-6 col-lg-3"
+			   }, {
+				 "selector": ".js-carousel",
+				 "class": "row"
+			   }]'>
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img1.jpg" alt="">
 
@@ -38,7 +45,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img9.jpg" alt="">
 
@@ -51,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3 ">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img3.jpg" alt="">
 
@@ -64,7 +71,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img4.jpg" alt="">
 
@@ -77,7 +84,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img10.jpg" alt="">
 
@@ -90,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img6.jpg" alt="">
 
@@ -104,7 +111,7 @@
                 </div>
             </div>
 
-            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15">
+            <div class="landing-block-card-carousel-element js-slide g-pt-60 g-pb-5 g-px-15 col-12 col-sm-6 col-lg-3">
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img7.jpg" alt="">
 

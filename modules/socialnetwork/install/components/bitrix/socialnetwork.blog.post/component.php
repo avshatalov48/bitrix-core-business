@@ -13,6 +13,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
+use Bitrix\Blog\Item\Permissions;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -36,15 +37,22 @@ if (
 }
 
 $arResult["bFromList"] = ($arParams["FROM_LOG"] == "Y" || $arParams["TYPE"] == "DRAFT" || $arParams["TYPE"] == "MODERATION");
+$arResult["contentViewIsSet"] = false;
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 $arResult["bExtranetInstalled"] = ($arResult["bIntranetInstalled"] && CModule::IncludeModule("extranet"));
 $arResult["bExtranetSite"] = ($arResult["bExtranetInstalled"] && CExtranet::IsExtranetSite());
 $arResult["bExtranetUser"] = ($arResult["bExtranetInstalled"] && !CExtranet::IsIntranetUser());
-$arResult["ReadOnly"] = (isset($arParams["GROUP_READ_ONLY"]) && $arParams["GROUP_READ_ONLY"] == "Y");
+$arResult["ReadOnly"] = (
+	(isset($arParams["GROUP_READ_ONLY"]) && $arParams["GROUP_READ_ONLY"] == "Y")
+	|| (isset($arParams["MODE"]) && $arParams["MODE"] == "LANDING")
+);
 
 $folderUsers = COption::GetOptionString("socialnetwork", "user_page", false, SITE_ID);
 $arParams["PATH_TO_LOG_TAG"] = $folderUsers."log/?TAG=#tag#";
-if (SITE_TEMPLATE_ID == 'bitrix24')
+if (
+	defined('SITE_TEMPLATE_ID')
+	&& SITE_TEMPLATE_ID == 'bitrix24'
+)
 {
 	$arParams["PATH_TO_LOG_TAG"] .= "&apply_filter=Y";
 }
@@ -75,8 +83,9 @@ $arResult["bTasksAvailable"] = (
 	&& $arResult["bTasksInstalled"]
 	&& (
 		!CModule::IncludeModule('bitrix24')
-		|| CBitrix24BusinessTools::isToolAvailable($USER->GetID(), "tasks")
+		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
 	)
+	&& CSocNetFeaturesPerms::CurrentUserCanPerformOperation(SONET_ENTITY_USER, $USER->getId(), "tasks", "create_tasks")
 );
 
 if (!$arResult["bPublicPage"])
@@ -370,31 +379,31 @@ if(
 
 		if($arPost["AUTHOR_ID"] == $user_id)
 		{
-			$arPost["perms"] = $arResult["PostPerm"] = BLOG_PERMS_FULL;
+			$arPost["perms"] = $arResult["PostPerm"] = Permissions::FULL;
 		}
 		elseif ($arResult["bFromList"])
 		{
-			$arPost["perms"] = $arResult["PostPerm"] = BLOG_PERMS_READ;
+			$arPost["perms"] = $arResult["PostPerm"] = Permissions::READ;
 			if (
 				CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, (!isset($arParams["MOBILE"]) || $arParams["MOBILE"] != "Y"))
 				|| $APPLICATION->GetGroupRight("blog") >= "W"
 			)
 			{
-				$arPost["perms"] = $arResult["PostPerm"] = BLOG_PERMS_FULL;
+				$arPost["perms"] = $arResult["PostPerm"] = Permissions::FULL;
 			}
 		}
 		else
 		{
 			if ($bNoLogEntry)
 			{
-				$arPost["perms"] = $arResult["PostPerm"] = \Bitrix\Blog\Item\Permissions::DENY;
+				$arPost["perms"] = $arResult["PostPerm"] = Permissions::DENY;
 			}
 			elseif (
 				CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, (!isset($arParams["MOBILE"]) || $arParams["MOBILE"] != "Y"))
 				|| $APPLICATION->GetGroupRight("blog") >= "W"
 			)
 			{
-				$arPost["perms"] = $arResult["PostPerm"] = BLOG_PERMS_FULL;
+				$arPost["perms"] = $arResult["PostPerm"] = Permissions::FULL;
 			}
 			else
 			{
@@ -405,7 +414,7 @@ if(
 				));
 				$arPost["perms"] = $arResult["PostPerm"] = $permsResult['PERM'];
 				$arResult["ReadOnly"] = (
-					$permsResult['PERM'] <= \Bitrix\Blog\Item\Permissions::READ
+					$permsResult['PERM'] <= Permissions::READ
 					&& $permsResult['READ_BY_OSG']
 				);
 			}
@@ -419,6 +428,7 @@ if(
 		$arResult["PostSrc"]["bExtranetSite"] = $arResult["bExtranetSite"];
 
 		$arResult["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("post_id"=>CBlogPost::GetPostID($arResult["Post"]["ID"], $arResult["Post"]["CODE"], $arParams["ALLOW_POST_CODE"]), "user_id" => $arPost["AUTHOR_ID"]));
+		$arResult["urlToPostPub"] = (isset($arParams["POST_DATA"]) && is_array($arParams["POST_DATA"]) && isset($arParams["POST_DATA"]["urlToPub"])? $arParams["POST_DATA"]["urlToPub"] : '');
 
 		if (
 			!$arResult["bPublicPage"]
@@ -443,7 +453,7 @@ if(
 		{
 			if (check_bitrix_sessid())
 			{
-				if ($arResult["PostPerm"] >= BLOG_PERMS_FULL)
+				if ($arResult["PostPerm"] >= Permissions::FULL)
 				{
 					CBlogPost::DeleteLog($arParams["ID"]);
 
@@ -488,7 +498,7 @@ if(
 		{
 			if (check_bitrix_sessid())
 			{
-				if ($arResult["PostPerm"] >= BLOG_PERMS_MODERATE)
+				if ($arResult["PostPerm"] >= Permissions::MODERATE)
 				{
 					if(CBlogPost::Update($arParams["ID"], Array("PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_READY)))
 					{
@@ -504,7 +514,10 @@ if(
 							'TYPE' => 'post_general',
 							'POST_ID' => $arParams["ID"]
 						)));
-						CBlogPost::DeleteLog($arParams["ID"]);
+						if ($postItem = \Bitrix\Blog\Item\Post::getById($arParams["ID"]))
+						{
+							$postItem->deactivateLogEntry();
+						}
 
 						$url = (
 							isset($_REQUEST["SONET_GROUP_ID"])
@@ -538,7 +551,7 @@ if(
 			}
 		}
 
-		if ($arResult["PostPerm"] > BLOG_PERMS_DENY)
+		if ($arResult["PostPerm"] > Permissions::DENY)
 		{
 			if (
 				!$arResult["bFromList"]
@@ -553,6 +566,7 @@ if(
 					'LOG_ID' => (isset($arParams["LOG_ID"]) ? intval($arParams["LOG_ID"]) : false)
 				)))
 				{
+					$arResult['contentViewIsSet'] = true;
 					$liveFeedEntity->setContentView();
 				}
 			}
@@ -733,14 +747,7 @@ if(
 					$strTitle = htmlspecialcharsback(TruncateText($strTitle, 100));
 				}
 
-				if ($arResult["bIntranetInstalled"])
-				{
-					$APPLICATION->SetPageProperty("title", $strTitle);
-				}
-				else
-				{
-					$APPLICATION->SetTitle($strTitle);
-				}
+				$APPLICATION->SetTitle($strTitle);
 			}
 
 			if ($arParams["SET_NAV_CHAIN"] == "Y")
@@ -1223,6 +1230,10 @@ if(
 									}
 
 									$isExtranet = (is_array($GLOBALS["arExtranetGroupID"]) && in_array($vv["ENTITY_ID"], $GLOBALS["arExtranetGroupID"]));
+									if (defined("BX_COMP_MANAGED_CACHE"))
+									{
+										$CACHE_MANAGER->RegisterTag("sonet_group_".intval($vv["ENTITY_ID"]));
+									}
 								}
 							}
 							elseif($type == "U")
@@ -1342,6 +1353,8 @@ if(
 
 					if (
 						count($arResult["Post"]["SPERM"]) == 1
+						&& isset($arResult["Post"]["SPERM"]["U"])
+						&& is_array($arResult["Post"]["SPERM"]["U"])
 						&& count($arResult["Post"]["SPERM"]["U"]) == 1
 						&& $bAll
 					)
@@ -1417,15 +1430,6 @@ if(
 
 			$arResult["arUser"]["urlToPostImportant"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_IMPORTANT"], array("user_id"=> $arPost["AUTHOR_ID"]));
 
-			$arResult["CanComment"] = (
-				!$arResult["ReadOnly"]
-				&& (
-					!isset($arResult["Post"]["ONLY_CLOSED_GROUPS"])
-					|| !$arResult["Post"]["ONLY_CLOSED_GROUPS"]
-					|| COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") == "Y"
-				)
-			);
-
 			$arResult["dest_users"] = array();
 			foreach ($arResult["Post"]["SPERM"] as $key => $value) 
 			{
@@ -1476,7 +1480,7 @@ if(
 							)
 							|| (
 								$group_code == "U"
-								&& isset($arUserIdVisible)
+								&& isset($arUserIdVisible) // current extranet user
 								&& is_array($arUserIdVisible)
 								&& !in_array($entity_id, $arUserIdVisible)
 							)
@@ -1503,9 +1507,13 @@ if(
 				}
 			}
 
-			$arResult["CommentPerm"] = BLOG_PERMS_WRITE;
+			$arResult["CommentPerm"] = Permissions::WRITE;
+
 			if (
-				$arParams["CHECK_COMMENTS_PERMS"] == "Y"
+				(
+					$arParams["CHECK_COMMENTS_PERMS"] == "Y"
+					|| !$arResult["bFromList"]
+				)
 				&& !CSocNetUser::IsCurrentUserModuleAdmin()
 				&& is_object($USER)
 				&& $USER->GetId() != $arResult["Post"]["AUTHOR_ID"]
@@ -1514,14 +1522,45 @@ if(
 			)
 			{
 				$arResult["CommentPerm"] = CBlogComment::GetSocNetUserPerms($arResult["Post"]["ID"], $arResult["Post"]["AUTHOR_ID"]);
+				$arResult["ReadOnly"] = (
+					$arResult["ReadOnly"]
+					&& $arResult["CommentPerm"] < Permissions::PREMODERATE
+				);
+			}
+
+			$arResult["CanComment"] = (
+				!isset($arResult["Post"]["ONLY_CLOSED_GROUPS"])
+				|| !$arResult["Post"]["ONLY_CLOSED_GROUPS"]
+				|| COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") == "Y"
+			);
+
+			if (!empty($arParams['SONET_GROUP_ID']))
+			{
+				if (
+					$arResult["CanComment"]
+					&& $arResult["ReadOnly"]
+				)
+				{
+					$arResult["CanComment"] = \Bitrix\Socialnetwork\ComponentHelper::checkCanCommentInWorkgroup([
+						'userId' => $arResult["USER_ID"],
+						'workgroupId' => $arParams['SONET_GROUP_ID']
+					]);
+				}
+			}
+			else
+			{
+				$arResult["CanComment"] = (
+					$arResult["CanComment"]
+					&& !$arResult["ReadOnly"]
+				);
 			}
 
 			$arResult["PostSrc"]["SPERM_NAME"] = $arResult["Post"]["SPERM"];
 
 			if(
-				$arResult["PostPerm"] > BLOG_PERMS_MODERATE
+				$arResult["PostPerm"] > Permissions::MODERATE
 				|| (
-					$arResult["PostPerm"] >= BLOG_PERMS_WRITE
+					$arResult["PostPerm"] >= Permissions::WRITE
 					&& $arPost["AUTHOR_ID"] == $arResult["USER_ID"]
 				)
 			)
@@ -1535,12 +1574,12 @@ if(
 
 			if($arParams["FROM_LOG"] != "Y")
 			{
-				if($arResult["PostPerm"]>=BLOG_PERMS_MODERATE)
+				if($arResult["PostPerm"] >= Permissions::MODERATE)
 				{
 					$arResult["urlToHide"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("hide=Y"."&".bitrix_sessid_get(), Array("sessid", "success", "hide", "delete")));
 				}
 
-				if($arResult["PostPerm"] >= BLOG_PERMS_FULL)
+				if($arResult["PostPerm"] >= Permissions::FULL)
 				{
 					if(in_array($arParams["TYPE"], array("DRAFT", "MODERATION")))
 					{
@@ -1558,7 +1597,7 @@ if(
 			}
 			else
 			{
-				if($arResult["PostPerm"] >= BLOG_PERMS_FULL)
+				if($arResult["PostPerm"] >= Permissions::FULL)
 				{
 					$arResult["urlToDelete"] = $arResult["urlToEdit"];
 					if(strpos($arResult["urlToDelete"], "?") === false)
@@ -1748,6 +1787,13 @@ if (
 	|| empty($arResult["FATAL_MESSAGE"])
 )
 {
+	if (
+		isset($arParams["SITE_TEMPLATE_ID"])
+		&& strlen($arParams["SITE_TEMPLATE_ID"]) > 0
+	)
+	{
+		$this->setSiteTemplateId($arParams["SITE_TEMPLATE_ID"]);
+	}
 	$this->IncludeComponentTemplate();
 }
 

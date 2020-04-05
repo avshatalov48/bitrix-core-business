@@ -272,8 +272,8 @@ final class PreviewManager
 
 		return [
 			'alt' => [
-				'contentType' => $getContentType->bindTo($this),
-				'sourceUri' => $getSourceUri->bindTo($this),
+				'contentType' => $getContentType->bindTo($this, $this),
+				'sourceUri' => $getSourceUri->bindTo($this, $this),
 			],
 		];
 	}
@@ -330,6 +330,26 @@ final class PreviewManager
 		}
 
 		return Response\AjaxJson::createError();
+	}
+
+	public function setPreviewImageId($fileId, $previewImageId)
+	{
+		$alreadyPreview = $this->getFilePreviewEntryByFileId($fileId);
+		if (isset($alreadyPreview['ID']))
+		{
+			$result = FilePreviewTable::update($fileId, [
+				'PREVIEW_IMAGE_ID' => $previewImageId,
+			]);
+		}
+		else
+		{
+			$result = FilePreviewTable::add([
+				'FILE_ID' => $fileId,
+				'PREVIEW_IMAGE_ID' => $previewImageId,
+			]);
+		}
+
+		return $result;
 	}
 
 	public function generatePreview($fileId)
@@ -465,7 +485,31 @@ final class PreviewManager
 			$rendererClass = $this->findRenderClassByContentType($contentTypeByName);
 		}
 
-		return $rendererClass?: Renderer\Stub::class;
+		$rendererClass = $rendererClass? : Renderer\Stub::class;
+
+		if ($this->shouldRestrictBySize($file, $rendererClass))
+		{
+			return Renderer\RestrictedBySize::class;
+		}
+
+		return $rendererClass;
+	}
+
+	private function shouldRestrictBySize(array $file, $rendererClass)
+	{
+		if (!isset($file['size']))
+		{
+			return false;
+		}
+
+		$size = $file['size'];
+		$restriction = $rendererClass::getSizeRestriction();
+		if ($restriction !== null && $size !== null && $size > $restriction)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	private function findRenderClassByContentType($contentType)

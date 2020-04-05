@@ -16,17 +16,21 @@ Loc::loadMessages(__FILE__);
  */
 class SequentNumberGenerator extends NumberGenerator implements Sequenceable, UserConfigurable
 {
-	const DAY                  = 'day';
-	const MONTH                = 'month';
-	const YEAR                 = 'year';
+	const DAY = 'day';
+	const MONTH = 'month';
+	const YEAR = 'year';
 	const TEMPLATE_WORD_NUMBER = 'NUMBER';
 
 	const ERROR_SEQUENCE_NOT_SET = 'ERROR_SEQUENCE_NOT_SET';
 
 	protected $start;
 	protected $step;
+	protected $length = 0;
+	protected $padString = '0';
 	protected $periodicBy;
 	protected $timezone;
+	protected $isDirectNumeration;
+
 	protected $nowTime;
 
 	/** value stored in database */
@@ -38,19 +42,15 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	protected $lastInvocationTime;
 	protected $numeratorId;
 	protected $numberHash;
-	protected $isDirectNumeration;
-
 
 	/** @inheritdoc */
 	public function setConfig($config)
 	{
 		$this->setFromArrayOrDefault('timezone', $config);
-		if ($this->timezone)
-		{
-			date_default_timezone_set($this->timezone);
-		}
 		$this->setFromArrayOrDefault('start', $config, 1, 'int');
 		$this->setFromArrayOrDefault('step', $config, 1, 'int');
+		$this->setFromArrayOrDefault('length', $config, 0, 'int');
+		$this->setFromArrayOrDefault('padString', $config, '0', 'string');
 		$this->setFromArrayOrDefault('isDirectNumeration', $config, false, 'bool');
 		$this->setFromArrayOrDefault('periodicBy', $config);
 		$this->setFromArrayOrDefault('nowTime', $config, time());
@@ -80,42 +80,50 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 		}
 		return [
 			[
+				'settingName' => 'length', 'type' => 'int', 'default' => 0,
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_LENGTH'),
+			],
+			[
+				'settingName' => 'padString', 'type' => 'string', 'default' => '0',
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PAD_STRING'),
+			],
+			[
 				'settingName' => 'start', 'type' => 'int', 'default' => 1,
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_START'),
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_START'),
 			],
 			[
 				'settingName' => 'step', 'type' => 'int', 'default' => 1,
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_STEP'),
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_STEP'),
 			],
 			[
 				'settingName' => 'periodicBy', 'type' => 'array',
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY'),
-				'values'      => [
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY'),
+				'values' => [
 					[
 						'settingName' => 'default', 'value' => '',
-						'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_DEFAULT'),
+						'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_DEFAULT'),
 					],
 					[
 						'settingName' => self::DAY, 'value' => self::DAY,
-						'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_DAY'),
+						'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_DAY'),
 					],
 					[
 						'settingName' => self::MONTH, 'value' => self::MONTH,
-						'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_MONTH'),
+						'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_MONTH'),
 					],
 					[
 						'settingName' => self::YEAR, 'value' => self::YEAR,
-						'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_YEAR'),
+						'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_PERIODICBY_YEAR'),
 					],
 				],
 			],
 			[
 				'settingName' => 'timezone', 'type' => 'array', 'values' => $timezonesSettings,
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_TIMEZONE'),
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_TIMEZONE'),
 			],
 			[
 				'settingName' => 'isDirectNumeration', 'type' => 'boolean',
-				'title'       => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_ISDIRECTNUMERATION'),
+				'title' => Loc::getMessage('TITLE_BITRIX_MAIN_NUMERATOR_GENERATOR_SEQUENTNUMBERGENERATOR_ISDIRECTNUMERATION'),
 			],
 		];
 	}
@@ -133,27 +141,35 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	public function getConfig()
 	{
 		return [
-			'start'              => $this->start,
-			'step'               => $this->step,
-			'periodicBy'         => $this->periodicBy,
-			'timezone'           => $this->timezone,
+			'start' => $this->start,
+			'step' => $this->step,
+			'length' => $this->length,
+			'padString' => $this->padString,
+			'periodicBy' => $this->periodicBy,
+			'timezone' => $this->timezone,
 			'isDirectNumeration' => (bool)$this->isDirectNumeration,
 		];
 	}
 
 	/**
+	 * @param null $numeratorId
+	 * @param bool $createIfEmpty
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\DB\SqlQueryException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function getSettings()
+	protected function getSettings($numeratorId = null, $createIfEmpty = true)
 	{
-		$nextNumberSettings = NumeratorSequenceTable::getSettings($this->numeratorId, $this->getNumberHash());
-		if (!$nextNumberSettings)
+		if ($numeratorId === null)
 		{
-			$nextNumberSettings = NumeratorSequenceTable::setSettings($this->numeratorId, $this->getNumberHash(), $this->start, $this->nowTime);
+			$numeratorId = $this->numeratorId;
+		}
+		$nextNumberSettings = NumeratorSequenceTable::getSettings($numeratorId, $this->getNumberHash());
+		if (!$nextNumberSettings && $createIfEmpty)
+		{
+			$nextNumberSettings = NumeratorSequenceTable::setSettings($numeratorId, $this->getNumberHash(), $this->start, $this->nowTime);
 		}
 		return $nextNumberSettings;
 	}
@@ -175,42 +191,37 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	{
 		for ($tryouts = 0; $tryouts < 50; $tryouts++)
 		{
-			$this->nextNumber = $this->currentNumber = null;
+			$this->nextNumber = null;
+			$this->currentNumber = null;
 			$nextNumberSettings = $this->getSettings();
 			if (!$nextNumberSettings)
 			{
 				continue;
 			}
-			$affectedRows = $this->updateNextNumberSettings($nextNumberSettings);
+			$this->lastInvocationTime = $nextNumberSettings['LAST_INVOCATION_TIME'];
+			$this->calculateNextAndCurrentNumber($nextNumberSettings['NEXT_NUMBER']);
+			$this->lastInvocationTime = $this->nowTime;
+			$affectedRows = $this->saveNumeratorSequenceSettings(
+				$this->numeratorId,
+				$this->getNumberHash(),
+				[
+					'NEXT_NUMBER' => $this->nextNumber,
+					'LAST_INVOCATION_TIME' => $this->lastInvocationTime,
+				],
+				$nextNumberSettings['NEXT_NUMBER']
+			);
 			if ($affectedRows == 1)
 			{
 				break;
 			}
 		}
-		$template = str_replace(static::getPatternFor(static::TEMPLATE_WORD_NUMBER), $this->currentNumber, $template);
 
-		return $template;
+		return $this->replaceNumberInPattern($template);
 	}
 
-	/**
-	 * @param $nextNumberSettings
-	 * @return bool|int
-	 * @throws \Bitrix\Main\DB\SqlQueryException
-	 */
-	private function updateNextNumberSettings($nextNumberSettings)
+	protected function saveNumeratorSequenceSettings($numeratorId, $numberHash, $fields, $whereNextNumber = null)
 	{
-		$this->lastInvocationTime = $nextNumberSettings['LAST_INVOCATION_TIME'];
-		$currentNumberForWhereCondition = $this->currentNumber = $nextNumberSettings['NEXT_NUMBER'];
-		$this->resetCurrentNumberIfNeeded();
-		$this->nextNumber = $this->currentNumber + $this->step;
-		$this->lastInvocationTime = $this->nowTime;
-		return NumeratorSequenceTable::updateSettings(
-			$this->numeratorId, $this->getNumberHash(),
-			[
-				'NEXT_NUMBER'          => $this->nextNumber,
-				'LAST_INVOCATION_TIME' => $this->lastInvocationTime,
-			],
-			$currentNumberForWhereCondition);
+		return NumeratorSequenceTable::updateSettings($numeratorId, $numberHash, $fields, $whereNextNumber);
 	}
 
 	/** @inheritdoc */
@@ -222,7 +233,20 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	/** @inheritdoc */
 	public function parseTemplateForPreview($template)
 	{
-		return str_replace(static::getPatternFor(static::TEMPLATE_WORD_NUMBER), $this->getNextNumber($this->numeratorId), $template);
+		$nextNumberSettings = $this->getSettings($this->numeratorId, false);
+		$this->lastInvocationTime = isset($nextNumberSettings['LAST_INVOCATION_TIME']) ? $nextNumberSettings['LAST_INVOCATION_TIME'] : $this->nowTime;
+		$this->calculateNextAndCurrentNumber(isset($nextNumberSettings['NEXT_NUMBER']) ? $nextNumberSettings['NEXT_NUMBER'] : $this->start);
+		return $this->replaceNumberInPattern($template);
+	}
+
+	private function replaceNumberInPattern($template)
+	{
+		$resultNumber = $this->currentNumber;
+		if ($this->length > 0)
+		{
+			$resultNumber = str_pad($resultNumber, $this->length, $this->padString, STR_PAD_LEFT);
+		}
+		return str_replace(static::getPatternFor(static::TEMPLATE_WORD_NUMBER), $resultNumber, $template);
 	}
 
 	/** @inheritdoc */
@@ -233,7 +257,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 			return null;
 		}
 		$this->numeratorId = $numeratorId;
-		$nextNumberSettings = NumeratorSequenceTable::getSettings($this->numeratorId, $this->getNumberHash());
+		$nextNumberSettings = $this->getSettings($numeratorId, false);
 		if ($nextNumberSettings)
 		{
 			return $nextNumberSettings['NEXT_NUMBER'];
@@ -256,16 +280,19 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	public function setNextNumber($numeratorId, $newNumber, $whereNumber)
 	{
 		$this->nextNumber = $newNumber;
-		$sequence = NumeratorSequenceTable::getSettings($numeratorId, $this->getNumberHash());
+		$sequence = $this->getSettings($numeratorId, false);
 		if (!$sequence)
 		{
 			return (new Result())->addError(new Error(Loc::getMessage('NUMERATOR_UPDATE_SEQUENT_IS_NOT_SET_YET')));
 		}
-		$affectedRows = NumeratorSequenceTable::updateSettings($numeratorId, $this->getNumberHash(),
+		$affectedRows = $this->saveNumeratorSequenceSettings(
+			$numeratorId,
+			$this->getNumberHash(),
 			[
 				'NEXT_NUMBER' => $this->nextNumber,
 			],
-			$whereNumber);
+			$whereNumber
+		);
 		if ($affectedRows == 1)
 		{
 			return new Result();
@@ -308,7 +335,7 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	 */
 	private function isSameMonthButDifferentYear()
 	{
-		return date('m', $this->lastInvocationTime) == date('m', $this->nowTime) && $this->isHasChanged(static::YEAR);
+		return $this->getLastInvocationUserTime()->format('m') === $this->getNowUserTime()->format('m') && $this->isHasChanged(static::YEAR);
 	}
 
 	/**
@@ -317,13 +344,14 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	 */
 	private function isSameDayButDifferent($interval)
 	{
+		$isSameDay = $this->getLastInvocationUserTime()->format('d') === $this->getNowUserTime()->format('d');
 		if ($interval == static::MONTH)
 		{
-			return date('d', $this->lastInvocationTime) == date('d', $this->nowTime) && $this->isHasChanged(static::MONTH);
+			return $isSameDay && $this->isHasChanged(static::MONTH);
 		}
 		if ($interval == static::YEAR)
 		{
-			return date('d', $this->lastInvocationTime) == date('d', $this->nowTime) && $this->isHasChanged(static::YEAR);
+			return $isSameDay && $this->isHasChanged(static::YEAR);
 		}
 		return false;
 	}
@@ -336,15 +364,15 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 	{
 		if ($interval == static::MONTH)
 		{
-			return date('m', $this->lastInvocationTime) != date('m', $this->nowTime);
+			return $this->getLastInvocationUserTime()->format('m') !== $this->getNowUserTime()->format('m');
 		}
 		if ($interval == static::DAY)
 		{
-			return date('d', $this->lastInvocationTime) != date('d', $this->nowTime);
+			return $this->getLastInvocationUserTime()->format('d') !== $this->getNowUserTime()->format('d');
 		}
 		if ($interval == static::YEAR)
 		{
-			return date('Y', $this->lastInvocationTime) != date('Y', $this->nowTime);
+			return $this->getLastInvocationUserTime()->format('Y') !== $this->getNowUserTime()->format('Y');
 		}
 		return false;
 	}
@@ -361,6 +389,30 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 			$settings[] = ['name' => $timezoneName, 'value' => $timezoneValue,];
 		}
 		return $settings;
+	}
+
+	private function getNowUserTime()
+	{
+		return $this->createDateTimeInCurrentTimezone($this->nowTime);
+	}
+
+	private function getLastInvocationUserTime()
+	{
+		return $this->createDateTimeInCurrentTimezone($this->lastInvocationTime);
+	}
+
+	private function createDateTimeInCurrentTimezone($timestamp)
+	{
+		$dateTime = \DateTime::createFromFormat('U', $timestamp);
+		if ($this->timezone)
+		{
+			$result = $dateTime->setTimezone(new \DateTimeZone($this->timezone));
+			if ($result === false)
+			{
+				$dateTime = \DateTime::createFromFormat('U', $timestamp);
+			}
+		}
+		return $dateTime;
 	}
 
 	/** @inheritdoc */
@@ -381,5 +433,12 @@ class SequentNumberGenerator extends NumberGenerator implements Sequenceable, Us
 		{
 			$this->numberHash = (string)$numberHash;
 		}
+	}
+
+	private function calculateNextAndCurrentNumber($initNumber)
+	{
+		$this->currentNumber = $initNumber;
+		$this->resetCurrentNumberIfNeeded();
+		$this->nextNumber = $this->currentNumber + $this->step;
 	}
 }

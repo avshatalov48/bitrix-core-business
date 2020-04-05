@@ -8,3 +8,6 @@ $MESS["SALE_HPS_LIQPAY_CURRENCY"] = "Валюта счета";
 $MESS["SALE_HPS_LIQPAY_SHOULD_PAY"] = "К оплате";
 $MESS["SALE_HPS_LIQPAY_PAYMENT_PM"] = "Способ оплаты";
 $MESS["SALE_HPS_LIQPAY_PHONE"] = "Телефон клиента";
+$MESS["SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION"] = "Назначение платежа";
+$MESS["SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION_DESC"] = "Текст может содержать метки: #PAYMENT_ID# - ID оплаты, #ORDER_ID# - ID заказа, #PAYMENT_NUMBER# - номер оплаты, #ORDER_NUMBER# - номер заказа, #USER_EMAIL# - Email покупателя";
+$MESS["SALE_HPS_LIQPAY_PAYMENT_DESCRIPTION_TEMPLATE"] = "Оплата №#PAYMENT_NUMBER# заказа №#ORDER_NUMBER# для #USER_EMAIL#";

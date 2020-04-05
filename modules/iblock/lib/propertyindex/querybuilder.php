@@ -223,11 +223,14 @@ class QueryBuilder
 	 */
 	private function fillWhere(&$where, &$hasAdditionalFilters, &$toUnset, &$filter)
 	{
-		$properties = $this->getFilterProperty();
+		$properties = null;
 		foreach ($filter as $filterKey => $filterValue)
 		{
 			if (preg_match("/^(=)PROPERTY\$/i", $filterKey, $keyDetails) && is_array($filterValue))
 			{
+				if ($properties === null)
+					$properties = $this->getFilterProperty();
+
 				foreach ($filterValue as $propertyId => $value)
 				{
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
@@ -249,6 +252,9 @@ class QueryBuilder
 			}
 			elseif (preg_match("/^(=)PROPERTY_(\\d+)\$/i", $filterKey, $keyDetails))
 			{
+				if ($properties === null)
+					$properties = $this->getFilterProperty();
+
 				$propertyId = $keyDetails[2];
 				$value = $filterValue;
 				$facetId = $this->storage->propertyIdToFacetId($propertyId);
@@ -269,6 +275,9 @@ class QueryBuilder
 			}
 			elseif (preg_match("/^(>=|<=)PROPERTY\$/i", $filterKey, $keyDetails) && is_array($filterValue))
 			{
+				if ($properties === null)
+					$properties = $this->getFilterProperty();
+
 				foreach ($filterValue as $propertyId => $value)
 				{
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
@@ -304,6 +313,9 @@ class QueryBuilder
 			}
 			elseif (preg_match("/^(><)PROPERTY\$/i", $filterKey, $keyDetails) && is_array($filterValue))
 			{
+				if ($properties === null)
+					$properties = $this->getFilterProperty();
+
 				foreach ($filterValue as $propertyId => $value)
 				{
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
@@ -487,6 +499,7 @@ class QueryBuilder
 	 */
 	private function getFilterProperty()
 	{
+		//TODO: remove this code to \Bitrix\Iblock\Model\Property
 		if (!isset($this->propertyFilter))
 		{
 			$this->propertyFilter = array();

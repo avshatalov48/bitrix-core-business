@@ -314,5 +314,10 @@ Class security extends CModule
 		);
 		return $arr;
 	}
+
+	public function migrateToBox()
+	{
+		CModule::IncludeModule('security');
+		CSecuritySession::deactivate();
+	}
 }
-?>

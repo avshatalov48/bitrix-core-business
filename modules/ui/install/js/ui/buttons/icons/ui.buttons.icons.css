@@ -2,49 +2,100 @@
 .ui-btn[class*="ui-btn-icon-"],
 .ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main,
 .ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main {
-	padding-left: calc(var(--ui-btn-height) + 8px );
+	padding-left: calc(var(--ui-btn-height) + 5px );
 }
 
-.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
-.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
-.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty,
-.ui-btn[class*="ui-btn-icon-"].ui-btn-empty:not(input),
-.ui-btn-split[class*="ui-btn-icon-"].ui-btn-empty .ui-btn-main,
-.ui-btn-double[class*="ui-btn-icon-"].ui-btn-empty .ui-btn-main {
+
+.ui-btn.ui-btn-lg[class*="ui-btn-icon-"],
+.ui-btn-split.ui-btn-lg[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-double.ui-btn-lg[class*="ui-btn-icon-"] .ui-btn-main {
+	padding-left: var(--ui-btn-height) ;
+}
+
+
+.ui-btn:not(input):empty,
+.ui-btn-split .ui-btn-main:empty,
+.ui-btn-double .ui-btn-main:empty,
+.ui-btn.ui-btn-empty:not(input),
+.ui-btn.ui-btn-collapsed:not(input),
+.ui-btn-split.ui-btn-empty .ui-btn-main,
+.ui-btn-split.ui-btn-collapsed .ui-btn-main,
+.ui-btn-double.ui-btn-empty .ui-btn-main,
+.ui-btn-double.ui-btn-collapsed .ui-btn-main {
 	padding: 0;
 	min-width: 0;
 	width: var(--ui-btn-height);
 	height: var(--ui-btn-height);
+	font-size: 0;
 }
 
-.ui-btn[class*="ui-btn-icon-"]:not(input):empty:after,
-.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty:after,
-.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty:after,
-.ui-btn[class*="ui-btn-icon-"].ui-btn-empty:not(input):after,
-.ui-btn-split[class*="ui-btn-icon-"].ui-btn-empty .ui-btn-main:after,
-.ui-btn-double[class*="ui-btn-icon-"].ui-btn-empty .ui-btn-main:after {
+.ui-btn-dropdown.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.ui-btn-dropdown.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.ui-btn-dropdown.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.ui-btn-dropdown.ui-btn.ui-btn-empty[class*="ui-btn-icon-"]:not(input),
+.ui-btn-dropdown.ui-btn.ui-btn-collapsed[class*="ui-btn-icon-"]:not(input),
+.ui-btn-dropdown.ui-btn-split.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-double.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-double.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
+	width: calc(var(--ui-btn-height) * 2);
+}
+
+.ui-btn-dropdown.ui-btn-lg.ui-btn[class*="ui-btn-icon-"]:not(input):empty,
+.ui-btn-dropdown.ui-btn-lg.ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.ui-btn-dropdown.ui-btn-lg.ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main:empty,
+.ui-btn-dropdown.ui-btn-lg.ui-btn.ui-btn-empty[class*="ui-btn-icon-"]:not(input),
+.ui-btn-dropdown.ui-btn-lg.ui-btn.ui-btn-collapsed[class*="ui-btn-icon-"]:not(input),
+.ui-btn-dropdown.ui-btn-lg.ui-btn-split.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-lg.ui-btn-split.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-lg.ui-btn-double.ui-btn-empty[class*="ui-btn-icon-"] .ui-btn-main,
+.ui-btn-dropdown.ui-btn-lg.ui-btn-double.ui-btn-collapsed[class*="ui-btn-icon-"] .ui-btn-main {
+	width: calc(var(--ui-btn-height) * 1.5);
+}
+
+.ui-btn[class*="ui-btn-icon-"]:not(input):not(.ui-btn-dropdown):empty:after,
+.ui-btn-split[class*="ui-btn-icon-"]:not(.ui-btn-dropdown) .ui-btn-main:empty:after,
+.ui-btn-double[class*="ui-btn-icon-"]:not(.ui-btn-dropdown) .ui-btn-main:empty:after,
+.ui-btn[class*="ui-btn-icon-"].ui-btn-empty:not(input):not(.ui-btn-dropdown):after,
+.ui-btn[class*="ui-btn-icon-"].ui-btn-collapsed:not(input):not(.ui-btn-dropdown):after,
+.ui-btn-split[class*="ui-btn-icon-"].ui-btn-empty:not(.ui-btn-dropdown) .ui-btn-main:after,
+.ui-btn-split[class*="ui-btn-icon-"].ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after,
+.ui-btn-double[class*="ui-btn-icon-"].ui-btn-empty:not(.ui-btn-dropdown) .ui-btn-main:after,
+.ui-btn-double[class*="ui-btn-icon-"].ui-btn-collapsed:not(.ui-btn-dropdown) .ui-btn-main:after {
 	left: 50%;
 	top: 50%;
-	transform: translate(-50%, -50%);
-	margin: 0;
+	transform: none;
+	margin: -12px 0 0 -12px;
 }
 
 .ui-btn:after,
 .ui-btn-main:after {
 	position: absolute;
 	top: 50%;
-	left: 8px;
+	left: 12px;
 	display: block;
 	transform: translateY(-50%);
-	width: 27px;
-	height: 27px;
+	width: 24px;
+	height: 24px;
 	background: no-repeat center;
 	background-image: var(--ui-btn-icon);
 	content: '';
-	transition: 160ms color linear, 160ms transform linear, 160ms opacity linear, 160ms background-color linear;
+	transition: 160ms color linear, 160ms opacity linear, 160ms background-color linear;
 }
 
-/*endregion*/
+.ui-btn-lg.ui-btn:after,
+.ui-btn-lg .ui-btn-main:after {}
+
+.ui-btn-md.ui-btn:after,
+.ui-btn-md .ui-btn-main:after {}
+
+.ui-btn-sm.ui-btn:after,
+.ui-btn-sm .ui-btn-main:after { left: 5px; }
+
+.ui-btn-xs.ui-btn:after,
+.ui-btn-xs .ui-btn-main:after { left: 2px; }
+
+	/*endregion*/
 
 /*region Icons list*/
 /*region ui-btn-icon-add-folder*/
@@ -107,6 +158,48 @@
 .ui-btn-icon-business-confirm.ui-btn-secondary,
 .ui-btn-icon-business-confirm.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-business-confirm.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-business-process-confirm-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-disk*/
+.ui-btn-icon-disk.ui-btn,
+.ui-btn-icon-disk.ui-btn-split,
+.ui-btn-icon-disk.ui-btn-double,
+.ui-btn-icon-disk.ui-btn-danger,
+.ui-btn-icon-disk.ui-btn-primary,
+.ui-btn-icon-disk.ui-btn-default,
+.ui-btn-icon-disk.ui-btn-danger-dark,
+.ui-btn-icon-disk.ui-btn-success-dark,
+.ui-btn-icon-disk.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-disk.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-disk-light.svg?v=1.1); }
+
+.ui-btn-icon-disk.ui-btn-link,
+.ui-btn-icon-disk.ui-btn-light,
+.ui-btn-icon-disk.ui-btn-success,
+.ui-btn-icon-disk.ui-btn-secondary,
+.ui-btn-icon-disk.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-disk.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-disk-dark.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-done*/
+.ui-btn-icon-done.ui-btn,
+.ui-btn-icon-done.ui-btn-split,
+.ui-btn-icon-done.ui-btn-double,
+.ui-btn-icon-done.ui-btn-danger,
+.ui-btn-icon-done.ui-btn-primary,
+.ui-btn-icon-done.ui-btn-default,
+.ui-btn-icon-done.ui-btn-danger-dark,
+.ui-btn-icon-done.ui-btn-success-dark,
+.ui-btn-icon-done.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-done.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-done-light.svg?v=1.1); }
+
+.ui-btn-icon-done.ui-btn-link,
+.ui-btn-icon-done.ui-btn-light,
+.ui-btn-icon-done.ui-btn-success,
+.ui-btn-icon-done.ui-btn-secondary,
+.ui-btn-icon-done.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-done.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-done-dark.svg?v=1.1); }
 
 /*endregion*/
 
@@ -278,6 +371,27 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-lock*/
+.ui-btn-icon-lock.ui-btn,
+.ui-btn-icon-lock.ui-btn-split,
+.ui-btn-icon-lock.ui-btn-double,
+.ui-btn-icon-lock.ui-btn-danger,
+.ui-btn-icon-lock.ui-btn-primary,
+.ui-btn-icon-lock.ui-btn-default,
+.ui-btn-icon-lock.ui-btn-danger-dark,
+.ui-btn-icon-lock.ui-btn-success-dark,
+.ui-btn-icon-lock.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-lock.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-lock-light.svg?v=1.1); }
+
+.ui-btn-icon-lock.ui-btn-link,
+.ui-btn-icon-lock.ui-btn-light,
+.ui-btn-icon-lock.ui-btn-success,
+.ui-btn-icon-lock.ui-btn-secondary,
+.ui-btn-icon-lock.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-lock.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-lock-dark.svg?v=1.1); }
+
+/*endregion*/
+
 /*region ui-btn-icon-print*/
 .ui-btn-icon-print.ui-btn,
 .ui-btn-icon-print.ui-btn-split,
@@ -380,6 +494,27 @@
 .ui-btn-icon-phone-down.ui-btn-secondary,
 .ui-btn-icon-phone-down.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-phone-down.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-phone-down-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-phone-call*/
+.ui-btn-icon-phone-call.ui-btn,
+.ui-btn-icon-phone-call.ui-btn-split,
+.ui-btn-icon-phone-call.ui-btn-double,
+.ui-btn-icon-phone-call.ui-btn-danger,
+.ui-btn-icon-phone-call.ui-btn-primary,
+.ui-btn-icon-phone-call.ui-btn-default,
+.ui-btn-icon-phone-call.ui-btn-danger-dark,
+.ui-btn-icon-phone-call.ui-btn-success-dark,
+.ui-btn-icon-phone-call.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-phone-call.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-phone-call-white.svg?v=1.1); }
+
+.ui-btn-icon-phone-call.ui-btn-link,
+.ui-btn-icon-phone-call.ui-btn-light,
+.ui-btn-icon-phone-call.ui-btn-success,
+.ui-btn-icon-phone-call.ui-btn-secondary,
+.ui-btn-icon-phone-call.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-phone-call.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-phone-call-black.svg?v=1.1); }
 
 /*endregion*/
 
@@ -590,6 +725,82 @@
 .ui-btn-icon-page.ui-btn-secondary,
 .ui-btn-icon-page.ui-btn-light-border,
 .bitrix24-dark-theme .ui-btn-icon-page.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-page-black.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-mail*/
+.ui-btn-icon-mail.ui-btn,
+.ui-btn-icon-mail.ui-btn-split,
+.ui-btn-icon-mail.ui-btn-double,
+.ui-btn-icon-mail.ui-btn-danger,
+.ui-btn-icon-mail.ui-btn-primary,
+.ui-btn-icon-mail.ui-btn-default,
+.ui-btn-icon-mail.ui-btn-danger-dark,
+.ui-btn-icon-mail.ui-btn-success-dark,
+.ui-btn-icon-mail.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-mail.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-mail-white.svg?v=1.2); }
+
+.ui-btn-icon-mail.ui-btn-link,
+.ui-btn-icon-mail.ui-btn-light,
+.ui-btn-icon-mail.ui-btn-success,
+.ui-btn-icon-mail.ui-btn-secondary,
+.ui-btn-icon-mail.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-mail.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-mail-black.svg?v=1.2); }
+
+/*region ui-btn-icon-chat*/
+.ui-btn-icon-chat.ui-btn,
+.ui-btn-icon-chat.ui-btn-split,
+.ui-btn-icon-chat.ui-btn-double,
+.ui-btn-icon-chat.ui-btn-danger,
+.ui-btn-icon-chat.ui-btn-primary,
+.ui-btn-icon-chat.ui-btn-default,
+.ui-btn-icon-chat.ui-btn-danger-dark,
+.ui-btn-icon-chat.ui-btn-success-dark,
+.ui-btn-icon-chat.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-chat.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-chat-white.svg?v=1.2); }
+
+.ui-btn-icon-chat.ui-btn-link,
+.ui-btn-icon-chat.ui-btn-light,
+.ui-btn-icon-chat.ui-btn-success,
+.ui-btn-icon-chat.ui-btn-secondary,
+.ui-btn-icon-chat.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-chat.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-chat-black.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-success*/
+.ui-btn-icon-success.ui-btn,
+.ui-btn-icon-success.ui-btn-split,
+.ui-btn-icon-success.ui-btn-double,
+.ui-btn-icon-success.ui-btn-danger,
+.ui-btn-icon-success.ui-btn-primary,
+.ui-btn-icon-success.ui-btn-default,
+.ui-btn-icon-success.ui-btn-danger-dark,
+.ui-btn-icon-success.ui-btn-success-dark,
+.ui-btn-icon-success.ui-btn-primary-dark,
+.ui-btn-icon-success.ui-btn-link,
+.ui-btn-icon-success.ui-btn-light,
+.ui-btn-icon-success.ui-btn-success,
+.ui-btn-icon-success.ui-btn-secondary,
+.ui-btn-icon-success.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-success.svg?v=1.2); }
+
+/*endregion*/
+
+/*region ui-btn-icon-fail*/
+.ui-btn-icon-fail.ui-btn,
+.ui-btn-icon-fail.ui-btn-split,
+.ui-btn-icon-fail.ui-btn-double,
+.ui-btn-icon-fail.ui-btn-danger,
+.ui-btn-icon-fail.ui-btn-primary,
+.ui-btn-icon-fail.ui-btn-default,
+.ui-btn-icon-fail.ui-btn-danger-dark,
+.ui-btn-icon-fail.ui-btn-success-dark,
+.ui-btn-icon-fail.ui-btn-primary-dark,
+.ui-btn-icon-fail.ui-btn-link,
+.ui-btn-icon-fail.ui-btn-light,
+.ui-btn-icon-fail.ui-btn-success,
+.ui-btn-icon-fail.ui-btn-secondary,
+.ui-btn-icon-fail.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-fail.svg?v=1.2); }
 
 /*endregion*/
 

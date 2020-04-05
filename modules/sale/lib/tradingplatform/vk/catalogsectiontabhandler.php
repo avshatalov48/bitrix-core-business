@@ -173,10 +173,12 @@ class CatalogSectionTabHandler extends TabHandler
 		$vk = Vk::getInstance();
 		$exports = $vk->getExportProfilesList();
 		if (empty($exports))
+		{
 			return
 				'<tr><td colspan="2">' .
 				Loc::getMessage("SALE_VK_NEED_EXPORT_PROFILE", array('#A1' => '/bitrix/admin/sale_vk_export_list.php')) .
 				'</td></tr>';
+		}
 
 
 //		----------- PRINT ------------
@@ -214,11 +216,26 @@ class CatalogSectionTabHandler extends TabHandler
 		
 		foreach ($exports as $export)
 		{
-			$sectionsList = new SectionsList($export['ID']);
-			$currSettings = $sectionsList->prepareSectionToShow($sectionId);
-//			load values from post, if page will be reload (e.g. if error)
-			$currSettings = $this->compareSettingsWithPost($currSettings, $export["ID"]);
-			$currSettings = $sectionsList->prepareSettingsVisibility($currSettings, $sectionId);
+			try
+			{
+				$sectionsList = new SectionsList($export['ID']);
+				$currSettings = $sectionsList->prepareSectionToShow($sectionId);
+//				load values from post, if page will be reload (e.g. if error)
+				$currSettings = $this->compareSettingsWithPost($currSettings, $export["ID"]);
+				$currSettings = $sectionsList->prepareSettingsVisibility($currSettings, $sectionId);
+				
+				$categoriesVk = new VkCategories($export["ID"]);
+				$vkCategorySelector = $categoriesVk->getVkCategorySelector(
+					$currSettings["VK_CATEGORY"],
+					Loc::getMessage('SALE_VK_CATEGORY_SELECTOR_DEFAULT')
+				);
+			}
+			catch (ExecuteException $e)
+			{
+//				export is wrong
+				self::setUnactiveExport($export['ID']);
+				continue;
+			}
 
 			$resultHtml .= '<tr id="tr_EXPORT__' . $export["ID"] . ' class="vk_export_row" mode="both" left_margin="124" >';
 
@@ -252,7 +269,10 @@ class CatalogSectionTabHandler extends TabHandler
 					name="VK_EXPORT[' . $export["ID"] . '][ENABLE]" 
 					value="1">
 				<input type="hidden" name="VK_EXPORT[' . $export["ID"] . '][IBLOCK]" value="' . $iblockId . '">
-				<input type="hidden" id="vk_export_enable_parent_' . $export["ID"] . '"  value="' . $currSettings["ENABLE__PARENT"] . '">
+				<input
+					type="hidden"
+					id="vk_export_enable_parent_' . $export["ID"] . '"
+					value="' . $currSettings["ENABLE__PARENT"] . '">
 			</td>';
 
 //			TO ALBUM
@@ -264,7 +284,10 @@ class CatalogSectionTabHandler extends TabHandler
 					id="vk_export_to_album_current_' . $export["ID"] . '" 
 					name="VK_EXPORT[' . $export["ID"] . '][TO_ALBUM_CURRENT]" 
 					value="' . $sectionId . '">
-				<input type="hidden" id="vk_export_to_album_parent_' . $export["ID"] . '"  value="' . $currSettings["TO_ALBUM__PARENT"] . '">
+				<input
+					type="hidden"
+					id="vk_export_to_album_parent_' . $export["ID"] . '"
+					value="' . $currSettings["TO_ALBUM__PARENT"] . '">
 
 				<select ' . $currSettings["TO_ALBUM__DISPLAY"] . '
 					style="width: 100%"
@@ -302,13 +325,14 @@ class CatalogSectionTabHandler extends TabHandler
 					name="VK_EXPORT[' . $export["ID"] . '][INCLUDE_CHILDS]" 
 					value="1"
 				>
-				<input type="hidden" id="vk_export_include_childs_parent_' . $export["ID"] . '" value="' . $currSettings["INCLUDE_CHILDS__PARENT"] . '">
+				<input
+					type="hidden"
+					id="vk_export_include_childs_parent_' . $export["ID"] . '"
+					value="' . $currSettings["INCLUDE_CHILDS__PARENT"] . '">
 
 			</td>';
 
 //			categories SELECTOR
-			$categoriesVk = new VkCategories($export["ID"]);
-			$vkCategorySelector = $categoriesVk->getVkCategorySelector($currSettings["VK_CATEGORY"], Loc::getMessage('SALE_VK_CATEGORY_SELECTOR_DEFAULT'));
 			$resultHtml .= '
 			<td class="internal - right">
 				<select ' . $currSettings["VK_CATEGORY__DISPLAY"] . '
@@ -316,7 +340,10 @@ class CatalogSectionTabHandler extends TabHandler
 					name="VK_EXPORT[' . $export["ID"] . '][VK_CATEGORY]">' .
 				$vkCategorySelector . '
 				</select>
-				<input type="hidden" id="vk_export_vk_category_parent_' . $export["ID"] . '"  value="' . $currSettings["VK_CATEGORY__PARENT"] . '">
+				<input
+					type="hidden"
+					id="vk_export_vk_category_parent_' . $export["ID"] . '"
+					value="' . $currSettings["VK_CATEGORY__PARENT"] . '">
 			</td>';
 			
 			$resultHtml .= '</tr>';
@@ -356,5 +383,11 @@ class CatalogSectionTabHandler extends TabHandler
 		$settings["INCLUDE_CHILDS"] = $_POST['VK_EXPORT'][$exportId]["INCLUDE_CHILDS"] ? true : $settings["INCLUDE_CHILDS"];
 
 		return $settings;
+	}
+	
+	private static function setUnactiveExport($exportId)
+	{
+		$vk = Vk::getInstance();
+		$vk->unsetActiveById($exportId);
 	}
 }

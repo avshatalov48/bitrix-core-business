@@ -21,7 +21,7 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function executeComponent()
+	public function executeComponent($level = 1)
 	{
 		global $USER, $APPLICATION;
 
@@ -68,11 +68,26 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 		if ($messageId > 0)
 		{
 			$message = Mail\MailMessageTable::getList(array(
+				'runtime' => array(
+					new Main\ORM\Fields\Relations\Reference(
+						'MESSAGE_UID',
+						'Bitrix\Mail\MailMessageUidTable',
+						array(
+							'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+							'=this.ID' => 'ref.MESSAGE_ID',
+						),
+						array(
+							'join_type' => 'INNER',
+						)
+					),
+				),
 				'select' => array(
 					'*',
 					'MAILBOX_EMAIL' => 'MAILBOX.EMAIL',
 					'MAILBOX_NAME' => 'MAILBOX.NAME',
 					'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
+					'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
+					'MSG_UID' => 'MESSAGE_UID.MSG_UID',
 				),
 				'filter' => array(
 					'=ID' => $messageId,
@@ -100,14 +115,23 @@ class CMailClientMessageNewComponent extends CBitrixComponent
 				);
 			}
 
-			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
-				'select' => array(
-					'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
-				),
-				'filter' => array(
-					'=MESSAGE_ID' => $message['ID'],
-				),
-			))->fetchAll();
+			if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
+			{
+				return $this->executeComponent($level + 1);
+			}
+
+			$message['__files'] = array();
+			if ($message['ATTACHMENTS'] > 0)
+			{
+				$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
+					'select' => array(
+						'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
+					),
+					'filter' => array(
+						'=MESSAGE_ID' => $message['ID'],
+					),
+				))->fetchAll();
+			}
 
 			$message['ID'] = 0;
 

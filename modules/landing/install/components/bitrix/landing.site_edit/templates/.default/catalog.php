@@ -59,7 +59,7 @@ $uriSave->addParams(array(
 ));
 
 // domain
-if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+if (Manager::isB24())
 {
 	$domainName = isset($domains[$row['DOMAIN_ID']['CURRENT']]['DOMAIN'])
 				? $domains[$row['DOMAIN_ID']['CURRENT']]['DOMAIN']
@@ -73,7 +73,7 @@ else
 
 <form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form ui-form-gray-padding landing-form-collapsed landing-form-settings" id="landing-site-set-form">
 	<input type="hidden" name="fields[SAVE_FORM]" value="Y" />
-	<input type="hidden" name="fields[TYPE]" value="<?= $arParams['TYPE'];?>" />
+	<input type="hidden" name="fields[TYPE]" value="<?= $row['TYPE']['CURRENT'];?>" />
 	<input type="hidden" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'];?>" />
 	<input type="hidden" name="fields[TPL_ID]" value="<?= $row['TPL_ID']['CURRENT'];?>" />
 	<input type="hidden" name="fields[LANDING_ID_404]" value="<?= $row['LANDING_ID_404']['CURRENT'];?>" />
@@ -216,7 +216,7 @@ else
 									</label>
 									<div class="landing-form-wrapper">
 										<?$APPLICATION->IncludeComponent(
-											'bitrix:main.userconsent.selector',
+											'bitrix:landing.userconsent.selector',
 											'',
 											array(
 												'ID' => $agreementId,
@@ -255,8 +255,11 @@ else
 		top.window['landingSettingsSaved'] = false;
 		<?if ($arParams['SUCCESS_SAVE']):?>
 		top.window['landingSettingsSaved'] = true;
-		top.BX.onCustomEvent('BX.Main.Filter:apply');
+		top.BX.onCustomEvent('BX.Landing.Filter:apply');
 		editComponent.actionClose();
 		<?endif;?>
+		BX.Landing.Env.createInstance({
+			params: {type: '<?= $arParams['TYPE'];?>'}
+		});
 	});
 </script>

@@ -245,7 +245,7 @@ Class blog extends CModule
 
 		RegisterModule("blog");
 		RegisterModuleDependences("search", "OnReindex", "blog", "CBlogSearch", "OnSearchReindex");
-		RegisterModuleDependences("main", "OnUserDelete", "blog", "CBlogUser", "Delete");
+		RegisterModuleDependences("main", "OnUserDelete", "blog", "\Bitrix\Blog\BlogUser", "onUserDelete");
 		RegisterModuleDependences("main", "OnSiteDelete", "blog", "CBlogSitePath", "DeleteBySiteID");
 
 		RegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "blog", "CBlogSoNetPost", "OnGroupDelete");
@@ -315,7 +315,7 @@ Class blog extends CModule
 			CSearch::DeleteIndex("blog");
 
 		UnRegisterModuleDependences("search", "OnReindex", "blog", "CBlogSearch", "OnSearchReindex");
-		UnRegisterModuleDependences("main", "OnUserDelete", "blog", "CBlogUser", "Delete");
+		UnRegisterModuleDependences("main", "OnUserDelete", "blog", "\Bitrix\Blog\BlogUser", "onUserDelete");
 		UnRegisterModuleDependences("main", "OnSiteDelete", "blog", "CBlogSitePath", "DeleteBySiteID");
 
 		UnRegisterModuleDependences("socialnetwork", "OnSocNetGroupDelete", "blog", "CBlogSoNetPost", "OnGroupDelete");

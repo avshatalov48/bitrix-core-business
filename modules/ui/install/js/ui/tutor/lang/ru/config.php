@@ -1,0 +1,26 @@
+<?
+$MESS["JS_UI_TUTOR_TITLE"] = "Наставник";
+$MESS["JS_UI_TUTOR_BTN_BEGIN"] = "Начать";
+$MESS["JS_UI_TUTOR_BTN_START"] = "Приступить";
+$MESS["JS_UI_TUTOR_BTN_SKIP"] = "Пропустить";
+$MESS["JS_UI_TUTOR_BTN_REPEAT"] = "Повторить";
+$MESS["JS_UI_TUTOR_BTN_DEFER"] = "отложить";
+$MESS["JS_UI_TUTOR_BTN_NEXT"] = "Далее";
+$MESS["JS_UI_TUTOR_BTN_COMPLETED"] = "Задание выполнено";
+$MESS["JS_UI_TUTOR_BTN_COMPLETED_SHORT"] = "выполнено";
+$MESS["JS_UI_TUTOR_BTN_SUPPORT"] = "Помощь";
+$MESS["JS_UI_TUTOR_COUNTER_TEXT"] = "Задание";
+$MESS["JS_UI_TUTOR_COUNTER_NUMBER"] = "Шаг #NUMBER# из #NUMBER_TOTAL#";
+$MESS["JS_UI_TUTOR_STEP_TITLE"] = "Задание";
+$MESS["JS_UI_TUTOR_ARTICLE_HELP_TOPIC"] = "Прочитать статьи по теме";
+$MESS["JS_UI_TUTOR_STEP_COMPLETED"] = "Задание выполнено";
+$MESS["JS_UI_TUTOR_FINAL_TEXT"] = "Вы успешно прошли наставника!";
+$MESS["JS_UI_TUTOR_FINAL_NOTICE"] = "Все задания выполнены";
+$MESS["JS_UI_TUTOR_FINAL_CONGRATULATIONS"] = "Поздравляем!";
+$MESS["JS_UI_TUTOR_STEP_NEW"] = "Но сейчас в нем появились новые шаги, хотите их пройти";
+$MESS["JS_UI_TUTOR_CLOSE_POPUP_BTN"] = "Вернусь позже";
+$MESS["JS_UI_TUTOR_CLOSE_POPUP_TEXT"] = "Хотите вернуться к наставнику позже или совсем закрыть?";
+$MESS["JS_UI_TUTOR_DEFER_MENU_HOUR"] = "На час";
+$MESS["JS_UI_TUTOR_DEFER_MENU_TOMORROW"] = "До завтра";
+$MESS["JS_UI_TUTOR_DEFER_MENU_WEEK"] = "На неделю";
+$MESS["JS_UI_TUTOR_DEFER_MENU_FOREVER"] = "Навсегда";

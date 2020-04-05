@@ -23,6 +23,8 @@ $MESS['MAIN_MAIL_CONFIRM_PUBLIC_HINT'] = 'Добавленный адрес см
 $MESS['MAIN_MAIL_CONFIRM_CODE_PLACEHOLDER'] = 'Введите код подтверждения';
 
 $MESS['MAIN_MAIL_CONFIRM_SMTP_SERVER'] = 'Сервер';
+$MESS['MAIN_MAIL_CONFIRM_SMTP_PORT'] = 'Порт';
+$MESS['MAIN_MAIL_CONFIRM_SMTP_SSL'] = 'использовать защищенное соединение';
 $MESS['MAIN_MAIL_CONFIRM_SMTP_LOGIN'] = 'Логин';
 $MESS['MAIN_MAIL_CONFIRM_SMTP_PASSWORD'] = 'Пароль';
 
@@ -42,3 +44,6 @@ $MESS['MAIN_MAIL_CONFIRM_SMTP_WARNING'] = 'Важно! Будьте внимат
 
 $MESS["MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM"] = "Вы действительно хотите удалить отправителя?";
 $MESS["MAIN_MAIL_DELETE_SENDER_ERROR"] = "Ошибка удаления отправителя";
+
+$MESS['MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER'] = 'Отправитель по умолчанию';
+$MESS['MAIN_MAIL_CONFIRM_MENU_UNKNOWN'] = 'Выбрать отправителя';

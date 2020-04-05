@@ -126,6 +126,7 @@ class CAllCurrencyRates
 
 			Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
 			Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
+			Currency\CurrencyRateTable::getEntity()->cleanCache();
 			self::$currentCache = array();
 
 			foreach (GetModuleEvents("currency", "OnCurrencyRateAdd", true) as $arEvent)
@@ -183,6 +184,7 @@ class CAllCurrencyRates
 				$stackCacheManager->Clear("currency_rate");
 				Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
 				Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
+				Currency\CurrencyRateTable::getEntity()->cleanCache();
 				self::$currentCache = array();
 			}
 			foreach (GetModuleEvents("currency", "OnCurrencyRateUpdate", true) as $arEvent)
@@ -224,6 +226,7 @@ class CAllCurrencyRates
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
 		Currency\CurrencyManager::clearTagCache($arFields['CURRENCY']);
+		Currency\CurrencyRateTable::getEntity()->cleanCache();
 		self::$currentCache = array();
 
 		foreach(GetModuleEvents("currency", "OnCurrencyRateDelete", true) as $arEvent)

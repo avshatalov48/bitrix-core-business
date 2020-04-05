@@ -826,7 +826,7 @@ abstract class DiscountBase
 				$this->setUseMode(self::USE_MODE_FULL);
 			elseif ($this->isOrderChanged())
 				$this->setUseMode(self::USE_MODE_MIXED);
-			elseif ($this->getOrder()->getCalculateType() == Order::SALE_ORDER_CALC_TYPE_REFRESH)
+			elseif ($this->getOrder()->getCalculateType() == $this->getOrder()::SALE_ORDER_CALC_TYPE_REFRESH)
 				$this->setUseMode(self::USE_MODE_FULL);
 			else
 				$this->setUseMode(self::USE_MODE_APPLY);

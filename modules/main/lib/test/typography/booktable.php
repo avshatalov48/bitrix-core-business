@@ -57,8 +57,8 @@ class BookTable extends DataManager
 	{
 		return [
 			(new IntegerField('ID'))
-				->configurePrimary(true)
-				->configureAutocomplete(true),
+				->configurePrimary()
+				->configureAutocomplete(),
 
 			(new StringField('TITLE')),
 
@@ -71,7 +71,8 @@ class BookTable extends DataManager
 				))
 				->configureJoinType('inner'),
 
-			(new StringField('ISBN')),
+			(new StringField('ISBN'))
+				->configureUnique(),
 
 			(new BooleanField('IS_ARCHIVED'))
 				->configureValues('N', 'Y'),

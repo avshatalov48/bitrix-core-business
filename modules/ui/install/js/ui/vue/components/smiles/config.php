@@ -14,9 +14,9 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'ui.vue.directives.lazyload',
-		'ui.dexie',
 		'ui.vue',
 		'rest.client',
+		'ui.dexie',
 	],
 	'skip_core' => true,
 ];

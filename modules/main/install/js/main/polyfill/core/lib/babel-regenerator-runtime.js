@@ -16,22 +16,9 @@
 	var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
 	var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
-	var inModule = typeof module === "object";
-	var runtime = global.regeneratorRuntime;
-	if (runtime) {
-		if (inModule) {
-			// If regeneratorRuntime is defined globally and we're in a module,
-			// make the exports object identical to regeneratorRuntime.
-			module.exports = runtime;
-		}
-		// Don't bother evaluating the rest of this file if the runtime was
-		// already defined globally.
-		return;
-	}
-
 	// Define the runtime globally (as expected by generated code) as either
 	// module.exports (if we're in a module) or a new, empty object.
-	runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+	var runtime = global.regeneratorRuntime = {};
 
 	function wrap(innerFn, outerFn, self, tryLocsList) {
 		// If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.

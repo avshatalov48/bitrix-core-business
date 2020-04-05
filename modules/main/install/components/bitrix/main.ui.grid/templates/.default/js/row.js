@@ -152,85 +152,11 @@
 				}
 				else if(BX.hasClass(editor, 'main-grid-editor-custom'))
 				{
-					result = [];
-					var inputs = [].slice.call(editor.querySelectorAll('input, select, checkbox, textarea'));
-					inputs.forEach(function(element) {
-						switch (element.tagName)
-						{
-							case "SELECT":
-								if (element.multiple)
-								{
-									var selectValues = [];
-									element.querySelectorAll('option').forEach(function(option) {
-										if (option.selected)
-										{
-											selectValues.push(option.value);
-										}
-									});
-									result.push({
-										'NAME': editor.getAttribute('data-name'),
-										'RAW_NAME': element.name,
-										'RAW_VALUE': selectValues,
-										'VALUE': selectValues
-									});
-								}
-								else
-								{
-									result.push({
-										'NAME': editor.getAttribute('data-name'),
-										'RAW_NAME': element.name,
-										'RAW_VALUE': element.value,
-										'VALUE': element.value
-									});
-								}
-								break;
-							case 'INPUT':
-								switch(element.type.toUpperCase())
-								{
-									case 'RADIO':
-									case 'CHECKBOX':
-										result.push({
-											'NAME': editor.getAttribute('data-name'),
-											'RAW_NAME': element.name,
-											'RAW_VALUE': element.checked ? element.value : '',
-											'VALUE': element.checked ? element.value : ''
-										});
-										break;
-									default:
-										result.push({
-											'NAME': editor.getAttribute('data-name'),
-											'RAW_NAME': element.name,
-											'RAW_VALUE': element.value,
-											'VALUE': element.value
-										});
-								}
-								break;
-							default:
-								result.push({
-									'NAME': editor.getAttribute('data-name'),
-									'RAW_NAME': element.name,
-									'RAW_VALUE': element.value,
-									'VALUE': element.value
-								});
-						}
-					});
+					result = this.getCustomValue(editor);
 				}
 				else
 				{
-					if (editor.value)
-					{
-						result = {
-							'NAME': editor.getAttribute('name'),
-							'VALUE': editor.value
-						};
-					}
-					else
-					{
-						result = {
-							'NAME': editor.getAttribute('name'),
-							'VALUE': BX.data(editor, 'value')
-						};
-					}
+					result = this.getImageValue(editor);
 				}
 			}
 
@@ -298,6 +224,122 @@
 			return content;
 		},
 
+		getCustomValue: function(editor)
+		{
+			var map = new Map(), name = editor.getAttribute('data-name');
+			var inputs = [].slice.call(editor.querySelectorAll('input, select, checkbox, textarea'));
+			inputs.forEach(function(element) {
+
+				var resultObject = {
+					'NAME': name,
+					'RAW_NAME': element.name,
+					'RAW_VALUE': element.value,
+					'VALUE': element.value
+				};
+
+				switch (element.tagName)
+				{
+					case 'SELECT':
+						if (element.multiple)
+						{
+							var selectValues = [];
+							element.querySelectorAll('option').forEach(function(option) {
+								if (option.selected)
+								{
+									selectValues.push(option.value);
+								}
+							});
+							resultObject['RAW_VALUE'] = selectValues;
+							resultObject['VALUE'] = selectValues;
+							map.set(element.name, resultObject);
+						}
+						else
+						{
+							map.set(element.name, resultObject);
+						}
+						break;
+					case 'INPUT':
+						switch(element.type.toUpperCase())
+						{
+							case 'RADIO':
+								if (element.checked)
+								{
+									resultObject['RAW_VALUE'] = element.value;
+									resultObject['VALUE'] = element.value;
+									map.set(element.name, resultObject);
+								}
+								break;
+							case 'CHECKBOX':
+								resultObject['RAW_VALUE'] = element.checked ? element.value : '';
+								resultObject['VALUE'] = element.checked ? element.value : '';
+								map.set(element.name, resultObject);
+								break;
+							case 'FILE':
+								resultObject['RAW_VALUE'] = element.files[0];
+								resultObject['VALUE'] = element.files[0];
+								map.set(element.name, resultObject);
+								break;
+							default:
+								map.set(element.name, resultObject);
+						}
+						break;
+					default:
+						map.set(element.name, resultObject);
+				}
+			});
+
+			var result = [];
+			map.forEach(function(value) {
+				result.push(value);
+			});
+
+			return result;
+		},
+
+		getImageValue: function(editor)
+		{
+			var result = null;
+			if (BX.hasClass(editor, 'main-grid-image-editor'))
+			{
+				var input = editor.querySelector('.main-grid-image-editor-file-input');
+
+				if (input)
+				{
+					result = {
+						'NAME': input.name,
+						'VALUE': input.files[0]
+					};
+				}
+				else
+				{
+					var fakeInput = editor.querySelector('.main-grid-image-editor-fake-file-input');
+
+					if (fakeInput)
+					{
+						result = {
+							'NAME': fakeInput.name,
+							'VALUE': fakeInput.value
+						};
+					}
+				}
+			}
+			else if (editor.value)
+			{
+				result = {
+					'NAME': editor.getAttribute('name'),
+					'VALUE': editor.value
+				};
+			}
+			else
+			{
+				result = {
+					'NAME': editor.getAttribute('name'),
+					'VALUE': BX.data(editor, 'value')
+				};
+			}
+
+			return result;
+		},
 
 		/**
 		 * @param {HTMLTableCellElement} cell

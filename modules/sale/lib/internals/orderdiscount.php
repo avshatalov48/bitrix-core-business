@@ -1162,8 +1162,6 @@ class OrderRulesTable extends Main\Entity\DataManager
 			$rule['ID'] = (int)$rule['ID'];
 			$rule['ORDER_DISCOUNT_ID'] = (int)$rule['ORDER_DISCOUNT_ID'];
 			$rule['COUPON_ID'] = (int)$rule['COUPON_ID'];
-			if ($rule['COUPON_ID'] > 0)
-				$orderCouponList[$rule['COUPON_ID']] = $rule['COUPON_ID'];
 			$ruleList[] = $rule['ID'];
 		}
 		unset($rule, $ruleIterator);

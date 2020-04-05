@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NAME'),
-		'section' => array('tiles'),
+		'section' => array('tiles', 'news'),
 	),
 	'cards' => array(
 		'.landing-block-card' => array(
@@ -21,7 +21,8 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1073),
+			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'allowInlineEdit' => false,
 		),
 		'.landing-block-node-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODESUBTITLE'),
@@ -34,7 +35,7 @@ return array(
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1000, 'height' => 565),
+			'dimensions' => array('width' => 540),
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODETEXT'),
@@ -52,33 +53,36 @@ return array(
 		'nodes' => array(
 			'.landing-block-card' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODE_CARD'),
-				'type' => array('columns', 'animation'),
+				'type' => array('columns', 'animation', 'bg', 'paddings'),
 			),
-			'.landing-block-node-subtitle' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODESUBTITLE'),
-					'type' => 'typo',
-				),
-			'.landing-block-node-title' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODETITLE'),
-					'type' => 'typo',
-				),
-			'.landing-block-node-text' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODETEXT'),
-					'type' => 'typo',
-				),
-			'.landing-block-node-button' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBUTTON'),
-					'type' => 'button',
-				),
-			'.landing-block-node-button-container' =>
-				array(
-					'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBUTTON'),
-					'type' => 'text-align',
-				),
+			'.landing-block-node-subtitle' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODESUBTITLE'),
+				'type' => 'typo',
+			),
+			'.landing-block-node-title' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODETITLE'),
+				'type' => 'typo',
+			),
+			'.landing-block-node-img-container' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEIMG'),
+				'type' => 'text-align',
+			),
+			'.landing-block-node-text' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_STYLE_LANDINGBLOCKNODETEXT'),
+				'type' => 'typo',
+			),
+			'.landing-block-node-button' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBUTTON'),
+				'type' => 'button',
+			),
+			'.landing-block-node-button-container' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBUTTON'),
+				'type' => 'text-align',
+			),
+			'.landing-block-inner' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODE_INNER'),
+				'type' => 'row-align',
+			),
 		),
 	),
 );

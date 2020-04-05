@@ -11,7 +11,6 @@ $MESS["DISCOUNT_CATALOG_MIGRATOR_CONVERT_STOP_BUTTON"] = "Abbrechen";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_UNKNOWN_ERROR"] = "Unbekannter Fehler bei Migration der Rabatte";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_ERROR_REPORT"] = "Verarbeitung fehlgeschlagen <a href\"#URL#\">#TITLE#</a>: #ERRORS#";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_SAVE"] = "Progressive Rabatte";
-$MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_TYPE_SALE"] = "Rabattaktion \"Produktpreis definieren\" ";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_FEATURE_DISC_CURRENCY_SALE_SITE"] = "Die Währung des Rabatts unterscheidet sich von der des Onlineshops für diese Website.";
 $MESS["DISCOUNT_CATALOG_MIGRATOR_NON_SUPPORTED_TEXT"] = "Einige Rabatte können derzeit nicht konvertiert oder vereinigt werden, Sie sollten das bitte beachten.<br>
 Es wurden folgende Rabatte gefunden, die nicht unterstützt werden:<br><br>

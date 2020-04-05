@@ -24,9 +24,9 @@
 			<div class="landing-block-node-card js-slide">
 				<div class="container text-center g-max-width-750">
 					<div class="g-mb-20">
-						<img class="landing-block-node-card-img d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup5.png" alt="">
-						<img class="landing-block-node-card-img2 d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img2 d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 
@@ -46,9 +46,9 @@
 			<div class="landing-block-node-card js-slide">
 				<div class="container text-center g-max-width-750">
 					<div class="g-mb-20">
-						<img class="landing-block-node-card-img d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup5.png" alt="">
-						<img class="landing-block-node-card-img2 d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img2 d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 
@@ -71,9 +71,9 @@
 			<div class="landing-block-node-card js-slide">
 				<div class="container text-center g-max-width-750">
 					<div class="g-mb-20">
-						<img class="landing-block-node-card-img d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup5.png" alt="">
-						<img class="landing-block-node-card-img2 d-inline-block g-mw-45"
+						<img class="landing-block-node-card-img2 d-inline-block g-mb-45 g-mx-10--md g-mx-5 g-mw-45"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/mockups/mockup6.png" alt="">
 					</div>
 

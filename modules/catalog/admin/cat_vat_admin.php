@@ -5,6 +5,11 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
@@ -28,7 +33,7 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_catalog_vat";
 
-$oSort = new CAdminSorting($sTableID, "C_SORT", "ASC");
+$oSort = new CAdminUiSorting($sTableID, "C_SORT", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $filterFields = array(

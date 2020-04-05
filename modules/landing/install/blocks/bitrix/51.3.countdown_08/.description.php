@@ -10,32 +10,22 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NAME'),
 		'section' => array('countdowns'),
-		'version' => '18.5.0',
+		'dynamic' => false,
+		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
+		'type' => ['page', 'store', 'smn'],
 	),
 	'nodes' => array(
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--IMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1332, 'height' => 806),
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--TITLE'),
 			'type' => 'text',
 		),
 		
-		'.landing-block-node-number-text-days' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-hours' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-minutes' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-seconds' => array(
+		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT'),
 			'type' => 'text',
 		),
@@ -59,17 +49,13 @@ return array(
 			),
 			'.landing-block-node-number' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_NUMBER'),
-				'type' => array('border-color'),
-			),
-			'.landing-block-node-img' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--IMG'),
-				'type' => 'background-attachment',
+				'type' => array('bg', 'border-color'),
 			),
 		),
 	),
 	'attrs' => array(
 		'.landing-block-node-date' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--DATE'),
+			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--DATW'),
 			'time' => true,
 			'type' => 'date',
 			'format' => 'ms',

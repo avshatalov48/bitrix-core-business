@@ -1184,6 +1184,30 @@
 		showEventDescriptionInSimplePopup: function()
 		{
 			return !this.isMeetingsEnabled();
+		},
+
+		doBxContextFix: function()
+		{
+			if (top !== window)
+			{
+				Object.keys(window.BX.message).forEach(function(key)
+				{
+					var message = {};
+					message[key] = window.BX.message[key];
+					top.BX.message(message);
+				});
+				window.__BX = window.BX;
+				window.BX = top.BX;
+			}
+		},
+
+		restoreBxContextFix: function()
+		{
+			if (window.__BX)
+			{
+				window.BX = window.__BX;
+				delete window.__BX;
+			}
 		}
 	};
 

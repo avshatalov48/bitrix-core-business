@@ -26,18 +26,40 @@ class Demos extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function deleteByAppCode($code)
 	{
+		$demos = [];
+
 		// delete blocks from repo
-		$res = self::getList(array(
-			'select' => array(
-				'ID'
-			),
-			'filter' => array(
+		$res = self::getList([
+			'select' => [
+				'ID', 'APP_CODE', 'XML_ID'
+			],
+			'filter' => [
 				'=APP_CODE' => $code
-			)
-		));
+			]
+		]);
 		while ($row = $res->fetch())
 		{
+			$demos[$row['APP_CODE'] . '.' . $row['XML_ID']] = $row;
 			self::delete($row['ID']);
 		}
+
+		// and pages, which created with this templates
+		if ($demos)
+		{
+			$res = Landing::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'=TPL_CODE' => array_keys($demos)
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				Landing::delete($row['ID'], true);
+			}
+		}
+
+		unset($demos, $row, $res);
 	}
 }

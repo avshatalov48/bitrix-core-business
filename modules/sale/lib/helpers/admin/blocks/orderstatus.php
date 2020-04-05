@@ -2,15 +2,12 @@
 
 namespace Bitrix\Sale\Helpers\Admin\Blocks;
 
+use Bitrix\Main\Type\Date;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
-use Bitrix\Sale\Internals\StatusLangTable;
-use Bitrix\Sale\Internals\StatusTable;
 use Bitrix\Sale\Order;
+use Bitrix\Sale;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\TradingPlatform\OrderTable;
-use Bitrix\Main\Application;
-use Bitrix\Main\SiteTable;
-use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
@@ -18,14 +15,21 @@ class OrderStatus
 {
 	public static function getEdit(Order $order, \CUser $user, $showCancel, $showSaveButton)
 	{
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		$data = self::prepareData($order);
-		$orderLocked = \Bitrix\Sale\Order::isLocked($order->getId());
+		$orderLocked = $orderClass::isLocked($order->getId());
 
 		$allowCancel = false;
 
 		if($showCancel)
 		{
-			$allowedStatusesCancel = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($user->GetID(), array('cancel'));
+			/** @var Sale\OrderStatus $orderClass */
+			$orderStatusClass = $registry->getOrderStatusClassName();
+
+			$allowedStatusesCancel = $orderStatusClass::getStatusesUserCanDoOperations($user->GetID(), array('cancel'));
 			if (is_array($allowedStatusesCancel))
 			{
 				$allowCancel = in_array($order->getField("STATUS_ID"), $allowedStatusesCancel);
@@ -276,8 +280,8 @@ class OrderStatus
 			}
 
 			$result = array(
-				"DATE_INSERT" => $order->getDateInsert()->toString(),
-				"DATE_UPDATE" => $order->getField('DATE_UPDATE')->toString(),
+				"DATE_INSERT" => ($order->getDateInsert() instanceof Date) ? $order->getDateInsert()->toString() : '',
+				"DATE_UPDATE" => ($order->getField('DATE_UPDATE') instanceof Date) ? $order->getField('DATE_UPDATE')->toString() : '',
 				"CREATOR_USER_NAME" => $creatorName,
 				"CREATOR_USER_ID" => $creator["ID"],
 				"STATUS_ID" => $order->getField('STATUS_ID'),

@@ -1,7 +1,15 @@
 (function(window) {
 
 if (BX.Finder)
+{
 	return;
+}
+
+BX.FinderManager = {
+	checkInitHandlerAdded: false,
+	initHandlerAdded: false,
+	initHandler2Added: false
+};
 
 BX.Finder = function(container, context, panels, lang, oContext)
 {
@@ -455,7 +463,11 @@ BX.Finder.checkInitFinderDb = function(obDestination, name, version, entities, o
 	
 		obDestination.obClientDb = dbObject;
 
-		BX.addCustomEvent("onFinderAjaxLoadAll", BX.Finder.onFinderAjaxLoadAll);
+		if (!BX.FinderManager.checkInitHandlerAdded)
+		{
+			BX.addCustomEvent("onFinderAjaxLoadAll", BX.Finder.onFinderAjaxLoadAll);
+			BX.FinderManager.checkInitHandlerAdded = true;
+		}
 
 		var entity = null;
 		var entitiesToInit = [];
@@ -523,14 +535,21 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 				for (var j = 0; j < values.length; j++)
 				{
 					cursorValue = values[j].value;
-					
+
 					if (typeof obDestination.obClientDbData[this.entity] == 'undefined')
 					{
 						obDestination.obClientDbData[this.entity] = {};
-						BX.addCustomEvent("findEntityByName", BX.Finder.findEntityByName);
-						BX.addCustomEvent("syncClientDb", BX.Finder.syncClientDb);
-						BX.addCustomEvent(BX.UI.SelectorManager, "syncClientDb", BX.Finder.syncClientDbNew);
-						BX.addCustomEvent("removeClientDbObject", BX.Finder.removeClientDbObject);
+						if (!BX.FinderManager.initHandlerAdded)
+						{
+							BX.addCustomEvent("findEntityByName", BX.Finder.findEntityByName);
+							BX.addCustomEvent("syncClientDb", BX.Finder.syncClientDb);
+							if (BX.type.isNotEmptyObject(BX.UI.SelectorManager))
+							{
+								BX.addCustomEvent(BX.UI.SelectorManager, "syncClientDb", BX.Finder.syncClientDbNew);
+							}
+							BX.addCustomEvent("removeClientDbObject", BX.Finder.removeClientDbObject);
+							BX.FinderManager.initHandlerAdded = true;
+						}
 					}
 
 					obDestination.obClientDbData[this.entity][cursorValue.id] = cursorValue;
@@ -538,8 +557,12 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 				}
 			}, { entity: entities[i] }));
 		}
-		BX.addCustomEvent(oContext, "onFinderAjaxSuccess", BX.Finder.onFinderAjaxSuccess);
-	
+		if (!BX.FinderManager.initHandler2Added)
+		{
+			BX.addCustomEvent(oContext, "onFinderAjaxSuccess", BX.Finder.onFinderAjaxSuccess);
+			BX.FinderManager.initHandler2Added = true;
+		}
+
 	}, { entities: entities }));
 };
 
@@ -738,6 +761,6 @@ BX.Finder.clearEntityDb = function(obClientDb, type)
 BX.Finder.loadAll = function(params)
 {
 	BX.onCustomEvent('loadAllFinderDb', [ params ]);
-}
+};
 
 })(window);

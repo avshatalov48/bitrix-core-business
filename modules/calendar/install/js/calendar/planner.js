@@ -329,7 +329,7 @@ CalendarPlanner.prototype =
 
 		if (params.scaleDateTo !== undefined)
 		{
-			this.scaleDateTo = typeof params.scaleDateTo == 'string' ? BX.parseDate(params.scaleDateTo) : params.scaleDateTo;
+			this.scaleDateTo = BX.type.isString(params.scaleDateTo) ? BX.parseDate(params.scaleDateTo) : params.scaleDateTo;
 		}
 		else if (!this.scaleDateTo)
 		{
@@ -342,7 +342,7 @@ CalendarPlanner.prototype =
 				this.scaleDateTo = new Date(new Date().getTime() + this.dayLength * this.scaleLimitOffsetRight /* days after */);
 			}
 		}
-		this.scaleDateTo.setHours(this.scaleType == '1day' ? 0 : this.shownScaleTimeTo, 0, 0, 0);
+		this.scaleDateTo.setHours(this.scaleType === '1day' ? 0 : this.shownScaleTimeTo, 0, 0, 0);
 	},
 
 	SetLoadedDataLimits: function(from, to)
@@ -373,7 +373,7 @@ CalendarPlanner.prototype =
 				this.scaleDateTo.setHours(this.shownScaleTimeTo, 0,0,0);
 		}
 
-		this.checkSelectorPosition = this.shownScaleTimeFrom != 0 || this.shownScaleTimeTo != 24;
+		this.checkSelectorPosition = this.shownScaleTimeFrom !== 0 || this.shownScaleTimeTo !== 24;
 	},
 
 	AdjustCellWidth: function()
@@ -733,7 +733,9 @@ CalendarPlanner.prototype =
 	UpdateData:  function(params)
 	{
 		if (!params.accessibility)
+		{
 			params.accessibility = {};
+		}
 
 		this.accessibility = params.accessibility;
 		this.entries = params.entries;
@@ -812,10 +814,10 @@ CalendarPlanner.prototype =
 					acc = params.accessibility[entry.id] || [];
 					entry.uid = this.getEntryUniqueId(entry);
 
-					if (entry.type == 'user')
+					if (entry.type === 'user')
 						usersCount++;
 
-					if (this.minEntryRows && (i < this.minEntryRows || params.entries.length == this.minEntryRows + 1))
+					if (this.minEntryRows && (i < this.minEntryRows || params.entries.length === this.minEntryRows + 1))
 					{
 						dispDataCount++;
 						this.displayEntryRow(entry, acc);
@@ -842,7 +844,7 @@ CalendarPlanner.prototype =
 
 				if (cutAmount > 0)
 				{
-					if (dispDataCount == this.maxEntryRows)
+					if (dispDataCount === this.maxEntryRows)
 					{
 						this.displayEntryRow({name: BX.message('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')', type: 'lastUsers', title: cutDataTitle.join(', ')}, cutData);
 					}
@@ -886,9 +888,9 @@ CalendarPlanner.prototype =
 		if (!entry.toReal)
 		{
 			// Full day
-			if ((entry.toTimestamp - entry.fromTimestamp) % this.dayLength == 0
+			if ((entry.toTimestamp - entry.fromTimestamp) % this.dayLength === 0
 				&&
-				BX.date.format('H:i', entry.toTimestamp / 1000) == '00:00'
+				BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00'
 			)
 			{
 				entry.toReal = new Date(entry.to.getTime() + this.dayLength);
@@ -912,8 +914,8 @@ CalendarPlanner.prototype =
 			hidden = false,
 			fromTimestamp = entry.fromTimestamp,
 			toTimestamp = entry.toTimestampReal || entry.toTimestamp,
-			shownScaleTimeFrom = this.scaleType == '1day' ? 0 : this.shownScaleTimeFrom,
-			shownScaleTimeTo = this.scaleType == '1day' ? 24 : this.shownScaleTimeTo,
+			shownScaleTimeFrom = this.scaleType === '1day' ? 0 : this.shownScaleTimeFrom,
+			shownScaleTimeTo = this.scaleType === '1day' ? 24 : this.shownScaleTimeTo,
 			from = new Date(fromTimestamp),
 			to = new Date(toTimestamp);
 
@@ -957,12 +959,19 @@ CalendarPlanner.prototype =
 				toPos = this.GetPosByDate(to);
 
 			entry.node = wrap.appendChild(BX.create("DIV", {
-				props: {className: 'calendar-planner-acc-entry' + (entry.type && entry.type == 'hr' ? ' calendar-planner-acc-entry-hr' : '')},
+				props: {
+					className: 'calendar-planner-acc-entry' + (entry.type && entry.type === 'hr' ? ' calendar-planner-acc-entry-hr' : '')
+				},
 				style: {
 					left: fromPos + 'px',
-					width: Math.max((toPos - fromPos), 1) + 'px'
+					width: Math.max((toPos - fromPos), 3) + 'px'
 				}
 			}));
+
+			if (entry.title)
+			{
+				entry.node.title = entry.title;
+			}
 		}
 	},
 
@@ -1009,7 +1018,7 @@ CalendarPlanner.prototype =
 
 	displayEntryRow: function(entry, accessibility)
 	{
-		if (entry.type == 'moreLink')
+		if (entry.type === 'moreLink')
 		{
 			entry.rowWrap = this.entriesListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
 
@@ -1032,7 +1041,7 @@ CalendarPlanner.prototype =
 				}));
 			}
 		}
-		else if (entry.type == 'lastUsers')
+		else if (entry.type === 'lastUsers')
 		{
 			entry.rowWrap = this.entriesListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
 
@@ -1054,7 +1063,7 @@ CalendarPlanner.prototype =
 				}));
 			}
 		}
-		else if (entry.id && entry.type == 'user')
+		else if (entry.id && entry.type === 'user')
 		{
 			entry.rowWrap = this.entriesListWrap.appendChild(BX.create("DIV", {
 				attrs: {
@@ -1101,7 +1110,7 @@ CalendarPlanner.prototype =
 					}));
 			}
 		}
-		else if (entry.id && entry.type == 'room')
+		else if (entry.id && entry.type === 'room')
 		{
 			entry.rowWrap = this.entriesListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
 
@@ -1123,7 +1132,7 @@ CalendarPlanner.prototype =
 				entry.rowWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-location-image-icon', title: entry.name}}));
 			}
 		}
-		else if (entry.type == 'resource')
+		else if (entry.type === 'resource')
 		{
 			if (!this.entriesResourceListWrap || !BX.isNodeInDom(this.entriesResourceListWrap))
 			{
@@ -3236,7 +3245,7 @@ CalendarPlanner.prototype =
 				}
 			}
 		}
-		else
+		else if (BX.type.isArray(this.entries))
 		{
 			var
 				entriesAccessibleIndex = {},
@@ -3255,7 +3264,7 @@ CalendarPlanner.prototype =
 					{
 						if (this.selectMode)
 						{
-							entry = this.entries.find(function(el){return el.id == entryId;});
+							entry = this.entries.find(function(el){return parseInt(el.id) === parseInt(entryId);});
 							if (entry && !entry.selected)
 							{
 								continue;
@@ -3339,7 +3348,7 @@ CalendarPlanner.prototype =
 		for (i = 0; i < scales.length; i++)
 		{
 			scaleWrap.appendChild(BX.create('span', {
-				props: {className: 'calendar-planner-option-tab' + (scales[i] == this.scaleType ? ' calendar-planner-option-tab-active' : '')},
+				props: {className: 'calendar-planner-option-tab' + (scales[i] === this.scaleType ? ' calendar-planner-option-tab-active' : '')},
 				attrs: {'data-bx-planner-scale': scales[i]},
 				text: BX.message('EC_PL_SETTINGS_SCALE_' + scales[i].toUpperCase())
 			}));

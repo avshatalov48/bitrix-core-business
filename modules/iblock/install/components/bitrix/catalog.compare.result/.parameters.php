@@ -10,6 +10,8 @@ if (!Loader::includeModule("iblock"))
 
 $boolCatalog = Loader::includeModule("catalog");
 
+$usePropertyFeatures = Iblock\Model\PropertyFeature::isEnabledFeatures();
+
 $iblockExists = (!empty($arCurrentValues['IBLOCK_ID']) && (int)$arCurrentValues['IBLOCK_ID'] > 0);
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
@@ -269,10 +271,16 @@ $arComponentParameters = array(
 	),
 );
 
+if ($usePropertyFeatures)
+{
+	unset($arComponentParameters['PARAMETERS']['PROPERTY_CODE']);
+	unset($arComponentParameters['PARAMETERS']['OFFERS_PROPERTY_CODE']);
+}
+
 if ($boolCatalog)
 {
 	$arComponentParameters["PARAMETERS"]['HIDE_NOT_AVAILABLE'] = array(
-		'NAME' => GetMessage('CP_BCCR_HIDE_NOT_AVAILABLE'),
+		'NAME' => GetMessage('CP_BCCR_HIDE_NOT_AVAILABLE_EXT'),
 		'TYPE' => 'CHECKBOX',
 		'DEFAULT' => 'N',
 	);

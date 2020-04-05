@@ -27,7 +27,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 	{
 		$convertedItem = array();
 		$convertedItem['~NAME'] = $item['NAME'];
-		$convertedItem['NAME'] = htmlspecialcharsbx($convertedItem['~NAME']);
+		$convertedItem['NAME'] = isset($item['NAME_HTML']) ? $item['NAME_HTML'] : htmlspecialcharsbx($convertedItem['~NAME']);
 		$convertedItem['ACTIVE'] = (bool)$item['ACTIVE'];
 
 		if (!empty($item['ATTRIBUTES']) && is_array($item['ATTRIBUTES']))
@@ -36,19 +36,20 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 			$convertedItem['ATTRIBUTES'] = $this->prepareAttributes($convertedItem['~ATTRIBUTES']);
 		}
 
-		if (!empty($item['CHILDREN']))
+		if (empty($item['CHILDREN']))
 		{
-			if (empty($convertedItem['ATTRIBUTES']['bx-hide-active']))
-			{
-				$convertedItem['ATTRIBUTES']['bx-hide-active'] = 'Y';
-			}
-
+			$convertedItem['OPERATIVE'] = true;
+		}
+		else
+		{
+			$convertedItem['OPERATIVE'] = isset($item['OPERATIVE']) ? (bool)$item['OPERATIVE'] : false;
 			$convertedItem['~CHILDREN'] = $item['CHILDREN'];
 			foreach ($item['CHILDREN'] as &$children)
 			{
 				$convertedItem['CHILDREN'][] = $this->prepareItem($children);
 			}
 		}
+		$convertedItem['ATTRIBUTES']['bx-operative'] = ($convertedItem['OPERATIVE'] ? 'Y' : 'N');
 
 		return $convertedItem;
 	}
@@ -93,16 +94,23 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 		{
 			$this->arResult['TITLE'] = (string)$this->arParams['~TITLE_HTML'];
 		}
-		else
+		elseif (isset($this->arParams['TITLE']))
 		{
 			$this->arResult['TITLE'] = (string)$this->arParams['TITLE'];
 		}
+		else
+		{
+			$this->arResult['TITLE'] = '';
+		}
+
 		$this->arResult['ITEMS'] = array();
 		$this->arResult['ID'] = !empty($this->arParams['ID']) ? $this->arParams['ID'] : '';
 		foreach ($this->arParams['ITEMS'] as $item)
 		{
 			$this->arResult['ITEMS'][] = $this->prepareItem($item);
 		}
+
+		$this->arResult['VIEW_TARGET'] = $this->arParams['VIEW_TARGET'] ?? 'left-panel';
 
 		return $this->arResult;
 	}
@@ -114,7 +122,13 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 	 */
 	public function executeComponent()
 	{
-		$this->arParams['FRAME'] = (isset($this->arParams['FRAME']) ? (bool)$this->arParams['FRAME'] : $this->isPageSliderContext());
+		$this->arParams['FRAME'] = (
+			isset($this->arParams['FRAME']) ? (bool)$this->arParams['FRAME'] : $this->isPageSliderContext()
+		);
+
+		$this->arParams['ITEMS'] = (
+			isset($this->arParams['ITEMS']) && is_array($this->arParams['ITEMS']) ? $this->arParams['ITEMS'] : []
+		);
 
 		$this->prepareResult();
 		$this->includeComponentTemplate();

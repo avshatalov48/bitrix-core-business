@@ -2,7 +2,7 @@
 
 namespace Sale\Handlers\Delivery;
 
-use Bitrix\Sale\Order;
+use Bitrix\Sale;
 use Bitrix\Main\Error;
 use Bitrix\Sale\Result;
 use Bitrix\Main\Loader;
@@ -87,7 +87,11 @@ class SpsrTracking extends \Bitrix\Sale\Delivery\Tracking\Base
 		if($orderId <= 0)
 			return null;
 
-		$order = Order::load($orderId);
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::load($orderId);
 
 		if(!$order)
 			return null;

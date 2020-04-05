@@ -367,7 +367,6 @@ class Command
 
 				call_user_func_array(array($params["CLASS"], $params["METHOD_COMMAND_ADD"]), Array($messageId, $messageFields));
 			}
-
 		}
 		unset($messageFields['COMMAND']);
 		unset($messageFields['COMMAND_ID']);
@@ -406,6 +405,10 @@ class Command
 
 		$orm = \Bitrix\Im\Model\MessageTable::getById($messageId);
 		if (!($message = $orm->fetch()))
+			return false;
+
+		$orm = \Bitrix\Im\Model\ChatTable::getById($message['CHAT_ID']);
+		if (!($chat = $orm->fetch()))
 			return false;
 
 		$relations = \CIMChat::GetRelationById($message['CHAT_ID']);

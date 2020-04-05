@@ -1,0 +1,1 @@
+{"version":3,"sources":["editor_config.js"],"names":["document","execCommand","top","window","parent","addEventListener","event","BX","onCustomEvent"],"mappings":"CAAC,WACA,aAKAA,SAASC,YAAY,4BAA6B,MAAO,KAKzDD,SAASC,YAAY,eAAgB,MAAO,MAG5C,GAAIC,MAAQC,OACZ,CACCC,OAAOJ,SAASK,iBAAiB,UAAW,SAASC,GACpDF,OAAOG,GAAGC,cAAcJ,OAAOJ,SAAU,kBAAmBM,QAjB9D","file":"editor_config.map.js"}

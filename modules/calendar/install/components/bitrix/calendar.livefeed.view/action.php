@@ -122,6 +122,7 @@ if (!empty($event_feed_action) && check_bitrix_sessid())
 			echo '#EVENT_FEED_RESULT_OK#';
 		}
 	}
+	CMain::FinalActions();
 	die();
 }
 ?>

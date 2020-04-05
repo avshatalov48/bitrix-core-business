@@ -6,3 +6,4 @@ DROP TABLE IF EXISTS b_report_visual_report_configuration;
 DROP TABLE IF EXISTS b_report_visual_report_entity_config;
 DROP TABLE IF EXISTS b_report_visual_report_widget_config;
 DROP TABLE IF EXISTS b_report_visual_report_dashboard_row;
+DROP TABLE IF EXISTS b_report_visual_report_dashboard;

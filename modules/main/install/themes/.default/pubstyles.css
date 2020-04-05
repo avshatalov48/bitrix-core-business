@@ -220,7 +220,7 @@ div.bx-component-border-over {border:1px dashed #FF8000; padding:0px; z-index:1;
 div.bx-component-debug {border:1px solid red; font-family:Verdana,Arial; font-size:10px; color:black; background-color:white; margin:0px; padding:2px; font-weight:normal;line-height:normal; text-align:left; background-image:none;}
 div.bx-component-debug a, div.bx-component-debug a:visited {color:blue; text-decoration:none;}
 div.bx-component-debug a:hover {color:red; text-decoration:underline}
-div.bx-debug-summary {margin:5px; width:300px; font-size:11px; padding:5px;line-height:normal; font-weight:normal; position:fixed; bottom:10px; left:10px; z-index:900; opacity: 0.4;}
+div.bx-debug-summary {margin:5px; width:300px; font-size:11px; padding:5px;line-height:normal; font-weight:normal; position:fixed; bottom:10px; left:10px; z-index:1000; opacity: 0.4;}
 div.bx-debug-summary:hover {opacity: 1;}
 
 /*Component panel*/

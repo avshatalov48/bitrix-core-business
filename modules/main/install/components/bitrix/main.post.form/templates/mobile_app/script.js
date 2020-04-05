@@ -150,7 +150,7 @@
 						{
 							id = UF["VALUE"][ii];
 							node = BX(this.prefixHTMLNode + id);
-							name = (node.getAttribute("data-bx-title") || "noname");
+							name = (node && node.getAttribute("data-bx-title") || "noname");
 							ext = (name.lastIndexOf('.') > 0 ? name.substr(name.lastIndexOf('.') + 1).toLowerCase() : "");
 							iconUrl = "blank";
 							tempId = getId();
@@ -457,12 +457,23 @@
 						}
 					}
 				},
-				init : function(text) {
+				init : function(text, params) {
 					text = (text || '');
 
 					this.params.text = text;
-					//window.BXMobileApp.UI.Page.TextPanel.show(this.params);
-					window.BX.MobileUI.TextField.show(this.params);
+					if (
+						BX.type.isNotEmptyObject(params)
+						&& params.hideForm
+						&& typeof window.BX.MobileUI.TextField["setDefaultParams"] == "function"
+					)
+					{
+						window.BX.MobileUI.TextField.setDefaultParams(this.params);
+					}
+					else
+					{
+						window.BX.MobileUI.TextField.show(this.params);
+						BX.onCustomEvent('main.post.form/mobile_simple', []);
+					}
 
 					if (BX.type.isNotEmptyString(text))
 					{
@@ -627,6 +638,7 @@
 					BX.onCustomEvent(this, "onFormSubmitted", [data.text, data.attachedFiles, data.extraData]);
 				},
 				cancelExtendedForm : function() {
+					BX.onCustomEvent(this, "onCancelComment", []); // Service event for controllers
 					this.stopCheckWriting();
 				},
 				show : function(text, attachments) {
@@ -685,6 +697,7 @@
 				throw this.errors["error01"];
 
 			this.id = this.form.id;
+			this.forumContext = params.forumContext || '';
 
 			BX.hide(this.form);
 			document.body.appendChild(this.form);
@@ -726,6 +739,7 @@
 				//BX.addCustomEvent(this.simpleForm, 'onFileSubmitted', BX.delegate(this.submitBase64, this));
 				BX.addCustomEvent(this.simpleForm, 'onUserIsWriting', BX.delegate(this.writing, this));
 				BX.addCustomEvent(this.extendedForm, 'onFormSubmitted', BX.delegate(this.submitExtended, this));
+				BX.addCustomEvent(this.extendedForm, 'onCancelComment', this.cancel.bind(this));
 			},
 			initControllers : function(controllers) {
 				if (controllers || typeof controllers == "object")
@@ -765,10 +779,11 @@
 				this.currentForm = (extended === true ? this.extendedForm : this.simpleForm);
 			},
 			init : function(comment) {
-
 				this.comment = comment;
 				this.setForm(false);
-				this.simpleForm.init(comment.text);
+				this.simpleForm.init(comment.text, {
+					hideForm: (BX.type.isNotEmptyString(this.forumContext) && this.forumContext.toLowerCase() == 'task')
+				});
 			},
 			show : function(comment, edit) {
 				BX.onCustomEvent(this, "onShow", [this, comment]);

@@ -1,5 +1,4 @@
-<section
-		class="landing-block js-animation fadeInLeft landing-block-node-mainimg u-bg-overlay g-bg-img-hero g-bg-primary-opacity-0_9--after g-pt-40 g-pb-40"
+<section class="landing-block js-animation fadeInLeft landing-block-node-mainimg u-bg-overlay g-bg-img-hero g-bg-primary-opacity-0_9--after g-pt-40 g-pb-40"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1073/img1.jpg);">
 	<div class="container g-max-width-800 u-bg-overlay__inner">
 

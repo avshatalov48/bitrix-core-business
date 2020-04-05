@@ -7,11 +7,13 @@
  */
 namespace Bitrix\Main\Text;
 
+use Bitrix\Main\Application;
+
 class UtfSafeString
 {
 	public static function getLastPosition($haystack, $needle)
 	{
-		if (defined("BX_UTF"))
+		if (Application::isUtfMode())
 		{
 			//mb_strrpos does not work on invalid UTF-8 strings
 			$ln = strlen($needle);
@@ -67,5 +69,89 @@ class UtfSafeString
 			|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF])
 			|([\x80-\xFF])/x', $escape, $string
 		);
+	}
+
+
+	/**
+	 * Pads utf string as str_pad.
+	 * Using parameters like native str_pad().
+	 *
+	 * @param $string
+	 * @param $padLength
+	 * @param string $padString
+	 * @param int $padType
+	 * @return string
+	 */
+	public static function pad($string, $padLen, $padStr = ' ', $padType = STR_PAD_RIGHT)
+	{
+		$strLength = strlen($string);
+		$padStrLength = strlen($padStr);
+		if (!$strLength && ($padType == STR_PAD_RIGHT || $padType == STR_PAD_LEFT))
+		{
+			$strLength = 1; // @debug
+		}
+		if (!$padLen || !$padStrLength || $padLen <= $strLength)
+		{
+			return $string;
+		}
+
+		$result = null;
+		$repeat = ceil(($padLen - $strLength) / $padStrLength);
+		if ($padType == STR_PAD_RIGHT)
+		{
+			$result = $string . str_repeat($padStr, $repeat);
+			$result = substr($result, 0, $padLen);
+		}
+		else if ($padType == STR_PAD_LEFT)
+		{
+			$result = str_repeat($padStr, $repeat) . $string;
+			$result = substr($result, -$padLen);
+		}
+		else if ($padType == STR_PAD_BOTH)
+		{
+			$length = ($padLen - $strLength) / 2;
+			$repeat = ceil($length / $padStrLength);
+			$result = substr(str_repeat($padStr, $repeat), 0, floor($length))
+				. $string
+				. substr(str_repeat($padStr, $repeat), 0, ceil($length));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Checks array of strings or string for invalid unicode symbols.
+	 * If input data does not contain invalid characters, returns TRUE; otherwise, returns FALSE.
+	 *
+	 * @param array|string $data Input data to validate.
+	 *
+	 * @return boolean
+	 */
+	public static function checkEncoding($data)
+	{
+		if (!Application::isUtfMode())
+		{
+			return true;
+		}
+
+		if (!is_string($data) && !is_array($data))
+		{
+			return true;
+		}
+
+		if (is_string($data))
+		{
+			return mb_check_encoding($data);
+		}
+
+		foreach ($data as $value)
+		{
+			if (!static::checkEncoding($value))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

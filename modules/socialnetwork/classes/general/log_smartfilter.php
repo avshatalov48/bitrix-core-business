@@ -1,7 +1,7 @@
 <?
 class CAllSocNetLogSmartFilter
 {
-	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -48,15 +48,13 @@ class CAllSocNetLogSmartFilter
 		if ($DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__))
 			return true;
 		else
-			return false;		
+			return false;
 	}
 
 	public static function GetDefaultValue($user_id)
 	{
 		if (intval($user_id) <= 0)
 			return false;
-
-		global $CACHE_MANAGER;
 
 		if(defined("BX_COMP_MANAGED_CACHE"))
 			$ttl = 2592000;

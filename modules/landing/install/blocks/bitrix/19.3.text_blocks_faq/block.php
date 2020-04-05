@@ -1,9 +1,9 @@
 <section class="landing-block g-pt-90 g-pb-90">
 	<div class="container">
 		<div class="text-uppercase g-line-height-1_3 g-mb-20">
-			<h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-11 g-mb-15"><span
-						class="g-color-primary">10.</span> FAQ</h4>
-			<h2 class="landing-block-node-title js-animation fadeIn g-font-size-36 mb-0">Have some <span style="font-weight: bold;">problems?</span>
+			<h4 class="landing-block-node-subtitle g-font-weight-700 g-font-size-11 g-mb-15">
+				<span class="g-color-primary">10.</span> FAQ</h4>
+			<h2 class="landing-block-node-title js-animation fadeIn g-font-size-36 mb-0">Have any <span style="font-weight: bold;">problems?</span>
 			</h2>
 		</div>
 
@@ -22,7 +22,7 @@
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
-					<a class="landing-block-node-card-link text-uppercase g-font-size-11" href="#"><span style="font-weight: bold;">Read more</span></a>
+					<a class="landing-block-node-card-link text-uppercase g-font-size-11 g-font-weight-700" href="#">Read more</a>
 				</div>
 
 				<div class="landing-block-node-card js-animation slideInUp g-brd-bottom g-brd-gray-light-v5 g-py-40">
@@ -32,7 +32,7 @@
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
-					<a class="landing-block-node-card-link text-uppercase g-font-size-11" href="#"><span style="font-weight: bold;">Read more</span></a>
+					<a class="landing-block-node-card-link text-uppercase g-font-size-11 g-font-weight-700" href="#">Read more</a>
 				</div>
 
 				<div class="landing-block-node-card js-animation slideInUp g-brd-bottom g-brd-gray-light-v5 g-py-40">
@@ -42,7 +42,7 @@
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
-					<a class="landing-block-node-card-link text-uppercase g-font-size-11" href="#"><span style="font-weight: bold;">Read more</span></a>
+					<a class="landing-block-node-card-link text-uppercase g-font-size-11 g-font-weight-700" href="#">Read more</a>
 				</div>
 
 				<div class="landing-block-node-card js-animation slideInUp g-brd-bottom g-brd-gray-light-v5 g-py-40">
@@ -52,7 +52,7 @@
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
-					<a class="landing-block-node-card-link text-uppercase g-font-size-11" href="#"><span style="font-weight: bold;">Read more</span></a>
+					<a class="landing-block-node-card-link text-uppercase g-font-size-11 g-font-weight-700" href="#">Read more</a>
 				</div>
 			</div>
 		</div>

@@ -9,8 +9,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['Category'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/category.gif',
 			id : 'Category',
-			name : '<?=GetMessage('WIKI_BUTTON_CATEGORY')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_CATEGORY')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_CATEGORY')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_CATEGORY')?>',
 			handler : function (p)
 			{
 				this.bNotFocus = true;
@@ -21,8 +21,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['ImageUpload'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/image.gif',
 			id : 'ImageUpload',
-			name : '<?=GetMessage('WIKI_BUTTON_IMAGE_UPLOAD')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_IMAGE_UPLOAD')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_IMAGE_UPLOAD')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_IMAGE_UPLOAD')?>',
 			handler : function (p)
 			{
 				this.bNotFocus = true;
@@ -32,8 +32,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['ImageLink'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/image_upload.gif',
 			id : 'ImageLink',
-			name : '<?=GetMessage('WIKI_BUTTON_IMAGE_LINK')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_IMAGE_LINK')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_IMAGE_LINK')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_IMAGE_LINK')?>',
 			handler : function (p)
 			{
 				this.bNotFocus = true;
@@ -44,7 +44,7 @@ if(CModule::IncludeModule('fileman')):
 				obj: {
 					Parse: function(sName, sContent, pLEditor)
 					{
-						sContent = sContent.replace(/\[?\[((File|<?=GetMessage('FILE_NAME');?>):(.+?))\]\]?/ig, function(s, s1, s2, f)
+						sContent = sContent.replace(/\[?\[((File|<?=GetMessageJS('FILE_NAME');?>):(.+?))\]\]?/ig, function(s, s1, s2, f)
 						{
 							var imageSrc = false;
 							var _imgStyle = '';
@@ -95,7 +95,7 @@ if(CModule::IncludeModule('fileman')):
 					{
 						if (bxTag && bxTag.tag && bxTag.tag == "wiki_img")
 						{
-							return '[<?=GetMessage('FILE_NAME');?>:'+bxTag.params.file_name+']';
+							return '[<?=GetMessageJS('FILE_NAME');?>:'+bxTag.params.file_name+']';
 						}
 						return '';
 					}
@@ -105,8 +105,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['Signature']	= {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/signature.gif',
 			id : 'Signature',
-			name : '<?=GetMessage('WIKI_BUTTON_SIGNATURE')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_SIGNATURE')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_SIGNATURE')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_SIGNATURE')?>',
 			handler : function (p)
 			{
 				wikiMainEditor.wiki_signature();
@@ -116,8 +116,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['intenalLink'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/link.gif',
 			id : 'intenalLink',
-			name : '<?=GetMessage('WIKI_BUTTON_HYPERLINK')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_HYPERLINK')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_HYPERLINK')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_HYPERLINK')?>',
 			handler : function (p)
 			{
 				this.bNotFocus = true;
@@ -128,8 +128,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['externalLink'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/external_link.gif',
 			id : 'externalLink',
-			name : '<?=GetMessage('WIKI_BUTTON_EXTERNAL_HYPERLINK')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_EXTERNAL_HYPERLINK')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_EXTERNAL_HYPERLINK')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_EXTERNAL_HYPERLINK')?>',
 			handler : function (p)
 			{
 				this.bNotFocus = true;
@@ -140,8 +140,8 @@ if(CModule::IncludeModule('fileman')):
 		window.LHEButtons['nowiki'] = {
 			src : '/bitrix/components/bitrix/wiki.edit/templates/.default/images/wcode/nowiki.gif',
 			id : 'nowiki',
-			name : '<?=GetMessage('WIKI_BUTTON_NOWIKI')?>',
-			title : '<?=GetMessage('WIKI_BUTTON_NOWIKI')?>',
+			name : '<?=GetMessageJS('WIKI_BUTTON_NOWIKI')?>',
+			title : '<?=GetMessageJS('WIKI_BUTTON_NOWIKI')?>',
 			handler : function (p)
 			{
 				var

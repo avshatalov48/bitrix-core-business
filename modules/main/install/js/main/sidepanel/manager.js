@@ -6,25 +6,29 @@
  * @typedef {object} BX.SidePanel.Options
  * @property {function} [contentCallback]
  * @property {number} [width]
+ * @property {string} [title]
  * @property {boolean} [cacheable=true]
  * @property {boolean} [autoFocus=true]
  * @property {boolean} [printable=true]
  * @property {boolean} [allowChangeHistory=true]
+ * @property {boolean} [allowChangeTitle]
  * @property {string} [requestMethod]
  * @property {object} [requestParams]
  * @property {string} [loader]
+ * @property {string} [contentClassName]
  * @property {object} [data]
  * @property {string} [typeLoader] - option for compatibility
  * @property {number} [animationDuration]
  * @property {number} [customLeftBoundary]
  * @property {number} [customRightBoundary]
  * @property {number} [customTopBoundary]
+ * @property {object} [label]
  * @property {?object.<string, function>} [events]
  */
 
 /**
  * @typedef {object} BX.SidePanel.Link
- * @property {string} href - URL
+ * @property {string} url - URL
  * @property {string} target - Target Attribute
  * @property {Element} anchor - Dom Node
  * @property {array} [matches] - RegExp Matches
@@ -81,6 +85,7 @@ Object.defineProperty(BX.SidePanel, "Instance", {
 BX.SidePanel.Manager = function(options)
 {
 	this.anchorRules = [];
+	this.anchorBinding = true;
 
 	this.openSliders = [];
 	this.lastOpenSlider = null;
@@ -90,6 +95,8 @@ BX.SidePanel.Manager = function(options)
 	this.hacksApplied = false;
 
 	this.pageUrl = this.getCurrentUrl();
+	this.pageTitle = this.getCurrentTitle();
+	this.titleChanged = false;
 
 	this.handleAnchorClick = this.handleAnchorClick.bind(this);
 	this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
@@ -181,6 +188,12 @@ BX.SidePanel.Manager.prototype =
 		}
 		else
 		{
+			if (typeof(options) === "undefined")
+			{
+				var rule = this.getUrlRule(url);
+				options = rule && rule.options ? rule.options : options;
+			}
+
 			var sliderClass = BX.SidePanel.Manager.getSliderClass();
 			slider = new sliderClass(url, options);
 
@@ -357,6 +370,18 @@ BX.SidePanel.Manager.prototype =
 
 	/**
 	 * @public
+	 */
+	reload: function()
+	{
+		var topSlider = this.getTopSlider();
+		if (topSlider)
+		{
+			topSlider.reload();
+		}
+	},
+
+	/**
+	 * @public
 	 * @returns {BX.SidePanel.Slider|null}
 	 */
 	getTopSlider: function()
@@ -409,6 +434,7 @@ BX.SidePanel.Manager.prototype =
 	/**
 	 * @public
 	 * @param {Window} window
+	 * @return {BX.SidePanel.Slider|null}
 	 */
 	getSliderByWindow: function(window)
 	{
@@ -552,7 +578,12 @@ BX.SidePanel.Manager.prototype =
 	 */
 	refineUrl: function(url)
 	{
-		return BX.util.remove_url_param(url, ["IFRAME", "IFRAME_TYPE"]);
+		if (BX.type.isNotEmptyString(url) && url.match(/IFRAME/))
+		{
+			return BX.util.remove_url_param(url, ["IFRAME", "IFRAME_TYPE"]);
+		}
+
+		return url;
 	},
 
 	/**
@@ -571,6 +602,30 @@ BX.SidePanel.Manager.prototype =
 	getCurrentUrl: function()
 	{
 		return window.location.pathname + window.location.search + window.location.hash;
+	},
+
+	/**
+	 * @public
+	 * @returns {string}
+	 */
+	getPageTitle: function()
+	{
+		return this.pageTitle;
+	},
+
+	/**
+	 * @public
+	 * @returns {string}
+	 */
+	getCurrentTitle: function()
+	{
+		var title = document.title;
+		if (BX.IM)
+		{
+			title = title.replace(/^\([0-9]+\) /, ""); //replace a messenger counter.
+		}
+
+		return title;
 	},
 
 	/**
@@ -732,8 +787,52 @@ BX.SidePanel.Manager.prototype =
 				console.trace();
 			}
 
-			this.anchorRules = this.anchorRules.concat(parameters.rules);
+			parameters.rules.forEach((function(rule) {
+				if (BX.type.isArray(rule.condition))
+				{
+					for (var m = 0; m < rule.condition.length; m++)
+					{
+						if (BX.type.isString(rule.condition[m]))
+						{
+							rule.condition[m] = new RegExp(rule.condition[m], "i");
+						}
+					}
+				}
+
+				rule.options = BX.type.isPlainObject(rule.options) ? rule.options : {};
+				if (BX.type.isNotEmptyString(rule.loader) && !BX.type.isNotEmptyString(rule.options.loader))
+				{
+					rule.options.loader = rule.loader;
+					delete rule.loader;
+				}
+
+				this.anchorRules.push(rule);
+			}).bind(this));
 		}
+	},
+
+	/**
+	 * @public
+	 */
+	isAnchorBinding: function()
+	{
+		return this.anchorBinding;
+	},
+
+	/**
+	 * @public
+	 */
+	enableAnchorBinding: function()
+	{
+		this.anchorBinding = true;
+	},
+
+	/**
+	 * @public
+	 */
+	disableAnchorBinding: function()
+	{
+		this.anchorBinding = false;
 	},
 
 	/**
@@ -748,10 +847,19 @@ BX.SidePanel.Manager.prototype =
 		}
 
 		var slider = event.getSlider();
+		if (slider.isDestroyed())
+		{
+			return;
+		}
 
 		if (this.getTopSlider())
 		{
 			this.getTopSlider().hideOverlay();
+			if (this.getTopSlider().getOffset() !== slider.getOffset())
+			{
+				this.getTopSlider().showShadow();
+			}
+
 			this.getTopSlider().hideCloseBtn();
 			this.getTopSlider().hidePrintBtn();
 		}
@@ -761,11 +869,17 @@ BX.SidePanel.Manager.prototype =
 		}
 
 		this.addOpenSlider(slider);
+
+		this.getOpenSliders().forEach(function(slider, index, openSliders) {
+			slider.getLabel().moveAt(openSliders.length - index - 1); //move down
+		}, this);
+
 		this.losePageFocus();
 
 		if (!this.opened)
 		{
 			this.pageUrl = this.getCurrentUrl();
+			this.pageTitle = this.getCurrentTitle();
 		}
 
 		this.opened = true;
@@ -780,6 +894,7 @@ BX.SidePanel.Manager.prototype =
 	handleSliderOpenComplete: function(event)
 	{
 		this.setBrowserHistory(event.getSlider());
+		this.updateBrowserTitle();
 	},
 
 	/**
@@ -788,13 +903,29 @@ BX.SidePanel.Manager.prototype =
 	 */
 	handleSliderClose: function(event)
 	{
+		if (event.getSlider() && event.getSlider().isDestroyed())
+		{
+			return;
+		}
+
 		var previousSlider = this.getPreviousSlider();
 		var topSlider = this.getTopSlider();
+
+		this.getOpenSliders().forEach(function(slider, index, openSliders) {
+			slider.getLabel().moveAt(openSliders.length - index - 2); //move up
+		}, this);
 
 		if (previousSlider)
 		{
 			previousSlider.unhideOverlay();
-			topSlider && topSlider.hideOverlay();
+			previousSlider.hideShadow();
+			previousSlider.showCloseBtn();
+
+			if (topSlider)
+			{
+				topSlider.hideOverlay();
+				topSlider.hideShadow();
+			}
 		}
 	},
 
@@ -862,10 +993,18 @@ BX.SidePanel.Manager.prototype =
 		this.removeOpenSlider(slider);
 
 		slider.unhideOverlay();
+		slider.hideShadow();
+
+		this.getOpenSliders().forEach(function(slider, index, openSliders) {
+			slider.getLabel().moveAt(openSliders.length - index - 1); //update position
+		}, this);
 
 		if (this.getTopSlider())
 		{
 			this.getTopSlider().showCloseBtn();
+			this.getTopSlider().unhideOverlay();
+			this.getTopSlider().hideShadow();
+
 			if (this.getTopSlider().isPrintable())
 			{
 				this.getTopSlider().showPrintBtn();
@@ -884,6 +1023,7 @@ BX.SidePanel.Manager.prototype =
 		}
 
 		this.resetBrowserHistory();
+		this.updateBrowserTitle();
 	},
 
 	/**
@@ -899,6 +1039,7 @@ BX.SidePanel.Manager.prototype =
 		}
 
 		this.setBrowserHistory(event.getSlider());
+		this.updateBrowserTitle();
 	},
 
 	/**
@@ -1150,30 +1291,21 @@ BX.SidePanel.Manager.prototype =
 	 */
 	handleAnchorClick: function(event)
 	{
+		if (!this.isAnchorBinding())
+		{
+			return;
+		}
+
 		var link = this.extractLinkFromEvent(event);
+
 		if (!link || BX.data(link.anchor, "slider-ignore-autobinding"))
 		{
 			return;
 		}
 
 		var rule = this.getUrlRule(link.url, link);
-		if (!rule)
-		{
-			return;
-		}
 
-		if (rule.allowCrossDomain !== true && BX.ajax.isCrossDomain(link.url))
-		{
-			return;
-		}
-
-		if (rule.mobileFriendly !== true && BX.browser.IsMobile())
-		{
-			return;
-		}
-
-		var isValidLink = BX.type.isFunction(rule.validate) ? rule.validate(link) : this.isValidLink(link);
-		if (!isValidLink)
+		if (!this.isValidLink(rule, link))
 		{
 			return;
 		}
@@ -1185,17 +1317,44 @@ BX.SidePanel.Manager.prototype =
 		else
 		{
 			event.preventDefault();
-
-			var options = BX.type.isPlainObject(rule.options) ? rule.options : {};
-			if (!BX.type.isNotEmptyString(options.loader) && BX.type.isNotEmptyString(rule.loader))
-			{
-				options.loader = rule.loader;
-			}
-
-			this.open(link.url, options);
+			this.open(link.url, rule.options);
 		}
 	},
+	/**
+	 * @public
+	 * @param {string} url
+	 */
+	emulateAnchorClick: function(url)
+	{
+		var link = {
+			url : url,
+			anchor : null,
+			target : null
+		};
+		var rule = this.getUrlRule(url, link);
 
+		if (!this.isValidLink(rule, link))
+		{
+			BX.reload(url);
+		}
+		else if (BX.type.isFunction(rule.handler))
+		{
+			rule.handler(
+				new Event(
+					"slider",
+					{
+						"bubbles" : false,
+						"cancelable" : true
+					}
+				),
+				link
+			);
+		}
+		else
+		{
+			this.open(link.url, rule.options);
+		}
+	},
 	/**
 	 * @private
 	 * @param {string} href
@@ -1220,11 +1379,6 @@ BX.SidePanel.Manager.prototype =
 
 			for (var m = 0; m < rule.condition.length; m++)
 			{
-				if (BX.type.isString(rule.condition[m]))
-				{
-					rule.condition[m] = new RegExp(rule.condition[m], "i");
-				}
-
 				var matches = href.match(rule.condition[m]);
 				if (matches && !this.hasStopParams(href, rule.stopParameters))
 				{
@@ -1240,16 +1394,35 @@ BX.SidePanel.Manager.prototype =
 
 		return null;
 	},
-
 	/**
 	 * @private
+	 * @param {BX.SidePanel.Rule} rule
 	 * @param {BX.SidePanel.Link} link
 	 * @returns {boolean}
 	 */
-	isValidLink: function(link)
+	isValidLink: function(rule, link)
 	{
+		if (!rule)
+		{
+			return false;
+		}
+
+		if (rule.allowCrossDomain !== true && BX.ajax.isCrossDomain(link.url))
+		{
+			return false;
+		}
+
+		if (rule.mobileFriendly !== true && BX.browser.IsMobile())
+		{
+			return false;
+		}
+
+		if (BX.type.isFunction(rule.validate) && !rule.validate(link))
+		{
+			return false;
+		}
+
 		return true;
-		// return link.target !== "_blank" && link.target !== "_top";
 	},
 
 	/**
@@ -1269,6 +1442,9 @@ BX.SidePanel.Manager.prototype =
 		}
 	},
 
+	/**
+	 * @private
+	 */
 	resetBrowserHistory: function()
 	{
 		var topSlider = null;
@@ -1288,6 +1464,54 @@ BX.SidePanel.Manager.prototype =
 		{
 			window.history.replaceState({}, "", url);
 		}
+	},
+
+	/**
+	 * @public
+	 */
+	updateBrowserTitle: function()
+	{
+		var title = null;
+		var openSliders = this.getOpenSliders();
+		for (var i = openSliders.length - 1; i >= 0; i--)
+		{
+			title = this.getBrowserTitle(openSliders[i]);
+			if (BX.type.isNotEmptyString(title))
+			{
+				break;
+			}
+		}
+
+		if (BX.type.isNotEmptyString(title))
+		{
+			document.title = title;
+			this.titleChanged = true;
+		}
+		else if (this.titleChanged)
+		{
+			document.title = this.getPageTitle();
+			this.titleChanged = false;
+		}
+	},
+
+	/**
+	 * @private
+	 * @param {BX.SidePanel.Slider} slider
+	 */
+	getBrowserTitle: function(slider)
+	{
+		if (!slider || !slider.canChangeTitle() || !slider.isOpen() || !slider.isLoaded())
+		{
+			return null;
+		}
+
+		var title = slider.getTitle();
+		if (!title && !slider.isSelfContained())
+		{
+			title = slider.getFrameWindow() ? slider.getFrameWindow().document.title : null;
+		}
+
+		return BX.type.isNotEmptyString(title) ? title : null;
 	},
 
 	/**

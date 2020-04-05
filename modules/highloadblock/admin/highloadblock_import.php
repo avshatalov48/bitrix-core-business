@@ -196,7 +196,11 @@ function __prepareArrayFromXml(array $item, $code = false)
 }
 
 // process
-if ($request->get('start') == 'Y' && $server->getRequestMethod() == 'POST')
+if (
+	$request->get('start') == 'Y' &&
+	$server->getRequestMethod() == 'POST' &&
+	check_bitrix_sessid()
+)
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_js.php');
 
@@ -214,7 +218,7 @@ if ($request->get('start') == 'Y' && $server->getRequestMethod() == 'POST')
 		'last_id' => (int)$request->get('last_id'),
 		'count' => (int)$request->get('count'),
 		'has_files' => (int)$request->get('has_files'),
-		'xml_pos' => unserialize($request->get('xml_pos')),
+		'xml_pos' => explode('|', $request->get('xml_pos')),
 		'left_margin' => 0,
 		'right_margin' => 0,
 		'all' => 0,
@@ -656,7 +660,7 @@ if ($request->get('start') == 'Y' && $server->getRequestMethod() == 'POST')
 				$allSize = filesize($server->getDocumentRoot() . $NS['url_data_file']);
 				$NS['percent'] = round($curSize / $allSize * 100, 2);
 			}
-			$NS['xml_pos'] = serialize($NS['xml_pos']);
+			$NS['xml_pos'] = implode('|', $NS['xml_pos']);
 		}
 	}
 	else

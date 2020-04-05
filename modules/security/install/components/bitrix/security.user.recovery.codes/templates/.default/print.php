@@ -102,3 +102,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	</script>
 	</html>
 <?endif?>
+
+<?if (\Bitrix\Main\Context::getCurrent()->getRequest()->isPost()):?>
+	<span class="ui-btn ui-btn-light-border" onclick="BX.Intranet.UserProfile.Security.showRecoveryCodesComponent()">
+		<?=GetMessage("SECURITY_USER_RECOVERY_CODES_PRINT_BACK")?>
+	</span>
+<?endif?>

@@ -614,10 +614,10 @@ class DiscountManager
 	{
 		if (empty($productIds) || empty($userGroups))
 			return;
-		Collection::normalizeArrayValuesByInt($productIds);
+		Collection::normalizeArrayValuesByInt($productIds, true);
 		if (empty($productIds))
 			return;
-		Collection::normalizeArrayValuesByInt($userGroups);
+		Collection::normalizeArrayValuesByInt($userGroups, true);
 		if (empty($userGroups))
 			return;
 
@@ -635,7 +635,7 @@ class DiscountManager
 			return;
 		}
 
-		Collection::normalizeArrayValuesByInt($discountIds);
+		Collection::normalizeArrayValuesByInt($discountIds, true);
 
 		$entityList = $discountCache->getDiscountEntities($discountIds);
 		if(!$entityList || empty($entityList['catalog']))

@@ -1,0 +1,112 @@
+.landing-ui-form {
+	margin-bottom: 40px;
+}
+
+.landing-ui-form-header {
+	font-family: 'OpenSans-Light', Helvetca, Arial, sans-sarif;
+	font-size: 22px;
+	color: #333333;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	line-height: 28px;
+	padding-top: 3px;
+	padding-bottom: 10px;
+}
+
+.landing-form-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+
+
+.landing-ui-form-header + .landing-ui-form-body {
+	margin-top: 12px;
+}
+
+
+.landing-ui-form .landing-ui-form {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.landing-ui-form-description,
+.landing-ui-form-description a {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+	padding-bottom: 15px;
+	color: #A9ADB2;
+}
+
+.landing-ui-form-description a {
+	border-bottom: 1px rgba(169, 173, 178, .65) solid;
+	padding: 0!important;
+	text-decoration: none;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-form-description a:hover {
+	opacity: .45;
+	color: #A9ADB2;
+	text-decoration: none;
+}
+
+.landing-ui-form-footer:empty {
+	display: none!important;
+}
+
+.landing-ui-panel-content-edit .landing-ui-form:nth-last-of-type {
+	margin-bottom: 160px;
+}
+
+.landing-ui-panel-content-edit .landing-ui-form + .popup-window {
+	margin-bottom: 40px;
+}
+
+.landing-ui-form-header-checkbox {
+	display: flex;
+	align-items: center;
+}
+
+.landing-ui-form-header-checkbox-label {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #525C69;
+	line-height: normal;
+	font-weight: normal;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	margin-bottom: -2px;
+}
+
+.landing-ui-form-header-checkbox-input {
+	margin-right: 7px;
+}
+
+.landing-ui-form-header-checkbox-help {
+	position: relative;
+	width: 13px;
+	margin-left: 13px;
+	cursor: pointer;
+}
+
+.landing-ui-form-header-checkbox-help::before {
+	content: '';
+	width: 13px;
+	height: 13px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate3d(-53%, -37%, 0);
+	background: url("/bitrix/images/landing/help.svg");
+	opacity: .8;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-form-header-checkbox-help:hover::before {
+	opacity: 1;
+}

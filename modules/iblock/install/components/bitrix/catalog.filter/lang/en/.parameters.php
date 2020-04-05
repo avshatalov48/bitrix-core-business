@@ -14,4 +14,5 @@ $MESS["CP_BCF_CACHE_GROUPS"] = "Respect Access Permissions";
 $MESS["CP_BCF_OFFERS_FIELD_CODE"] = "SKU Fields";
 $MESS["CP_BCF_OFFERS_PROPERTY_CODE"] = "SKU Properties";
 $MESS["CP_BCF_PAGER_PARAMS_NAME"] = "The name of an array with variables to build breadcrumb links";
+$MESS["CP_CF_PREFILTER_NAME"] = "Name of the input array with additional item filters";
 ?>

@@ -391,6 +391,7 @@
 	font: bold 11px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #828B95;
 	text-transform: uppercase;
+	white-space: nowrap;
 }
 
 .mail-msg-view-control-wrapper:before {
@@ -479,6 +480,7 @@
 }
 
 .mail-msg-view-body {
+	position: relative;
 	padding: 10px 20px 33px 20px;
 	color: #535c69;
 	overflow-x: auto;
@@ -515,6 +517,11 @@
 	text-align: center;
 	line-height: 5px;
 	cursor: pointer;
+}
+
+.mail-msg-view-body img {
+	max-width: 100%;
+	height: auto;
 }
 
 .mail-msg-view-file-block {

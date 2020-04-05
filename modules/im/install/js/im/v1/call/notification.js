@@ -215,7 +215,7 @@
 												document.createTextNode(this.video ? BX.message("IM_M_VIDEO_CALL_FROM") : BX.message("IM_M_CALL_FROM")),
 												BX.create("span", {
 													props: {className: "bx-messenger-call-overlay-title-caller"},
-													text: BX.util.htmlspecialchars(this.callerName)
+													text: BX.util.htmlspecialcharsback(this.callerName)
 												})
 											]
 										}),

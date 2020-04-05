@@ -1,6 +1,6 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/include.php");
+\Bitrix\Main\Loader::includeModule('bizproc');
 
 if (!check_bitrix_sessid())
 	die();
@@ -24,10 +24,6 @@ if (LANG_CHARSET != "UTF-8" && isset($_REQUEST['Type']['Options']) && is_array($
 
 $v = $documentService->GetFieldInputValue($_REQUEST['DocumentType'], $_REQUEST['Type'], $_REQUEST['Field'], $_REQUEST, $arErrors);
 
-$vp = $documentService->GetFieldInputValuePrintable($_REQUEST['DocumentType'], $_REQUEST['Type'], $v);
-if (is_array($vp))
-	$vp = implode(", ", $vp);
-
-echo CUtil::PhpToJSObject(array($v, $vp));
+echo CUtil::PhpToJSObject([$v, '']);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");

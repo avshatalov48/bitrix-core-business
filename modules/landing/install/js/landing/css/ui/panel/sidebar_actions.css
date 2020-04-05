@@ -1,0 +1,60 @@
+.landing-ui-panel-sidebar-actions {
+	background: transparent!important;
+	position: absolute;
+	top: 40px;
+	right: 16px;
+	left: auto;
+	z-index: 320;
+	opacity: 0;
+	transition: opacity 200ms ease 0s;
+}
+
+.block-wrapper:hover .landing-ui-panel-sidebar-actions,
+.block-wrapper.landing-ui-hover .landing-ui-panel-sidebar-actions {
+	opacity: 1;
+}
+
+.landing-ui-panel-sidebar-actions .landing-ui-button-action {
+	background: #ffffff;
+	border: 1px #757D87 solid;
+	border-radius: 20px;
+}
+
+.landing-ui-panel-sidebar-actions .landing-ui-button-text {
+	position: relative;
+	width: 30px;
+	height: 37px;
+	display: inline-block;
+}
+
+.landing-ui-panel-sidebar-actions .landing-ui-button-text::before {
+	background: url("/bitrix/images/landing/sidebar-actions.svg") center center no-repeat;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 0;
+	margin-top: -8px;
+	width: 16px;
+	height: 16px;
+	transition: background 200ms ease 0s;
+}
+
+.landing-ui-panel-sidebar-actions:hover .landing-ui-button-text::before {
+	background-image: url("/bitrix/images/landing/sidebar-actions-hover.svg");
+}
+
+.landing-ui-panel-sidebar-actions .landing-ui-button-text::after {
+	background: url("/bitrix/images/landing/sidebar-actions-arrow.svg") center center no-repeat;
+	content: '';
+	position: absolute;
+	top: 50%;
+	right: 0;
+	margin-top: -3px;
+	width: 8px;
+	height: 6px;
+	transition: background 200ms ease 0s;
+}
+
+.landing-ui-panel-sidebar-actions:hover .landing-ui-button-text::after {
+	background-image: url("/bitrix/images/landing/sidebar-actions-arrow-hover.svg");
+}

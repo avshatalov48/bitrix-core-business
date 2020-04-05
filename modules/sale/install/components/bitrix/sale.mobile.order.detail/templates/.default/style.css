@@ -180,11 +180,9 @@ body{
 	padding-bottom:10px;
 	text-shadow:0 1px 0 #fff;
 }
-.order_title span{
+.order-title-date {
 	font-size:14px;
 	color:#6f7f8b;
-	right:0;
-	position:absolute;
 }
 
 .order_nav{margin-bottom:10px}

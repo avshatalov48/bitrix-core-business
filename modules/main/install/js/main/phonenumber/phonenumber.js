@@ -1462,28 +1462,22 @@
 			return result;
 		}
 
-		var params = {
-			'sessid': BX.bitrix_sessid(),
-			'ACTION': 'getCountries'
-		};
-		var self = this;
-
-		BX.ajax({
-			url: ajaxUrl,
-			method: 'POST',
-			dataType: 'json',
-			data: params,
-			onsuccess: function(data)
+		BX.ajax.runAction("main.phonenumber.getCountries").then(function(response)
+		{
+			this.countries = response.data;
+			result.fulfill();
+		}.bind(this)).catch(function(response)
+		{
+			if(response.errors)
 			{
-				if(BX.type.isArray(data))
+				response.errors.map(function(error)
 				{
-					self.countries = data;
-					self.countries.sort(function(a, b)
-					{
-						return a.NAME.localeCompare(b.NAME);
-					});
-					result.fulfill();
-				}
+					console.error(error.message);
+				});
+			}
+			else
+			{
+				console.error(response);
 			}
 		});
 		return result;
@@ -1792,7 +1786,8 @@
 			// Check leading digits first
 			if(countryMetadata.hasOwnProperty('leadingDigits'))
 			{
-				if(localNumber.match(new RegExp(countryMetadata['leadingDigits'])))
+				var leadingDigitsRegex = '^(' + countryMetadata['leadingDigits'] + ')';
+				if(localNumber.match(new RegExp(leadingDigitsRegex)))
 				{
 					return possibleCountry;
 				}
@@ -2095,7 +2090,7 @@
 		{
 			for (var i = 0; i < leadingDigits.length; i++)
 			{
-				re = new RegExp('^' + leadingDigits[i]);
+				re = new RegExp('^(' + leadingDigits[i] + ')');
 				matches = phoneNumber.match(re);
 				if(matches)
 				{
@@ -2105,7 +2100,7 @@
 		}
 		else
 		{
-			re = new RegExp('^' + leadingDigits);
+			re = new RegExp('^(' + leadingDigits + ')');
 			matches = phoneNumber.match(re);
 			if(matches)
 			{

@@ -28,7 +28,7 @@ class Numerator
 	private $type;
 	private $name;
 	/** @var NumberGenerator[] */
-	private $generators;
+	private $generators = [];
 	private $id;
 
 	const NUMERATOR_DEFAULT_TYPE = 'DEFAULT';

@@ -1,7 +1,6 @@
 <?php
 $MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--NAME'] = 'Таймер в круглой рамке на светлом фоне';
 $MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--DATE'] = 'Дата окончания';
-$MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--IMG'] = 'Фоновая картинка';
 $MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--TITLE'] = 'Заголовок';
 $MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_NUMBER'] = 'Число';
 $MESS['LANDING_BLOCK_51_7_COUNTDOWN_13--NUMBER_TEXT'] = 'Подпись';

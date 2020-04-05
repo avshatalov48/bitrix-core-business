@@ -21,12 +21,17 @@ class UserSignature extends Base
 		$unsafeFields = (array) $this->getRequest()->getPostList()->getRaw('fields');
 		\CUtil::decodeUriComponent($unsafeFields);
 
-		$count = UserSignatureTable::getCount();
-		if($count > static::USER_SIGNATURES_LIMIT)
+		if (($limit = Main\Config\Option::get('mail', 'user_signatures_limit', static::USER_SIGNATURES_LIMIT)) > 0)
 		{
-			Loc::loadMessages(__FILE__);
-			$this->errorCollection[] = new Error(Loc::getMessage('MAIL_USER_SIGNATURE_LIMIT'));
-			return false;
+			$count = UserSignatureTable::getCount(array(
+				'USER_ID' => CurrentUser::get()->getId(),
+			));
+			if ($count >= $limit)
+			{
+				Loc::loadMessages(__FILE__);
+				$this->errorCollection[] = new Error(Loc::getMessage('MAIL_USER_SIGNATURE_LIMIT'));
+				return false;
+			}
 		}
 
 		$userSignature = new \Bitrix\Mail\Internals\Entity\UserSignature;

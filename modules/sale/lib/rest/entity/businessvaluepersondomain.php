@@ -28,4 +28,53 @@ class BusinessValuePersonDomain extends Base
 			]
 		];
 	}
+
+	public function convertKeysToSnakeCaseArguments($name, $arguments)
+	{
+		if($name == 'deletebyfilter')
+		{
+			if(isset($arguments['fields']))
+			{
+				$fields = $arguments['fields'];
+				if(!empty($fields))
+					$arguments['fields'] = $this->convertKeysToSnakeCaseFields($fields);
+			}
+		}
+		else
+		{
+			$arguments =  parent::convertKeysToSnakeCaseArguments($name, $arguments);
+		}
+
+		return $arguments;
+	}
+
+	public function checkArguments($name, $arguments)
+	{
+		if($name == 'deletebyfilter')
+		{
+			$r = $this->checkFieldsAdd($arguments['fields']);
+		}
+		else
+		{
+			$r = parent::checkArguments($name, $arguments);
+		}
+
+		return $r;
+	}
+
+	public function internalizeArguments($name, $arguments)
+	{
+		if($name == 'deletebyfilter')
+		{
+			$fields = $arguments['fields'];
+			if(!empty($fields))
+				$arguments['fields'] = $this->internalizeFieldsAdd($fields);
+		}
+		else
+		{
+			parent::internalizeArguments($name, $arguments);
+		}
+
+		return $arguments;
+	}
 }

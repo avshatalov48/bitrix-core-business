@@ -1149,7 +1149,7 @@ class ComponentHelper
 			$text = $parser->convertHtmlToBB($text);
 		}
 
-		preg_match_all("/\[url\s*=\s*([^\]]*)\](.+?)\[\/url\]/ies".BX_UTF_PCRE_MODIFIER, $text, $res);
+		preg_match_all("/\[url\s*=\s*([^\]]*)\](.+?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER, $text, $res);
 
 		if (
 			!empty($res)
@@ -1992,6 +1992,8 @@ class ComponentHelper
 					'sourceEntityType' => $sourceEntityType,
 					'sourceEntityId' => $sourceEntityId,
 					'taskId' => $taskId,
+					'taskUrl' => \CTaskNotifications::getNotificationPath(['ID' => $task['CREATED_BY']], $task['ID'], false),
+					'taskResponsibleId' => $task['CREATED_BY'],
 					'taskName' => htmlspecialcharsback($task['TITLE']),
 					'sourceEntityLink' => (
 						$sourceEntityType == CreateTask::SOURCE_TYPE_BLOG_COMMENT
@@ -2126,6 +2128,8 @@ class ComponentHelper
 				'sourceEntityType' => $sourceEntityType,
 				'sourceEntityId' => $sourceEntityId,
 				'taskId' => $taskId,
+				'taskUrl' => \CTaskNotifications::getNotificationPath(['ID' => $task['CREATED_BY']], $task['ID'], false),
+				'taskResponsibleId' => $task['CREATED_BY'],
 				'taskName' => htmlspecialcharsback($task['TITLE']),
 				'suffix' => (
 					$provider->getType() == Provider::TYPE_COMMENT
@@ -2249,7 +2253,7 @@ class ComponentHelper
 			}
 
 			if (
-				$authId == 'sale'
+				in_array($authId, [ 'sale', 'shop' ])
 				&& !ModuleManager::isModuleInstalled("sale")
 			)
 			{
@@ -2308,11 +2312,12 @@ class ComponentHelper
 		$limit = (isset($params['limit']) && intval($params['limit']) > 0 ? intval($params['limit']) : 500);
 		$useProjects = (!empty($params['useProjects']) && $params['useProjects'] == 'Y' ? 'Y' : 'N');
 		$siteId = (!empty($params['siteId']) ? $params['siteId'] : SITE_ID);
+		$landing = (!empty($params['landing']) && $params['landing'] == 'Y' ? 'Y' : '');
 
 		$currentCache = \Bitrix\Main\Data\Cache::createInstance();
 
 		$cacheTtl = defined("BX_COMP_MANAGED_CACHE") ? 3153600 : 3600*4;
-		$cacheId = 'dest_group_'.$siteId.'_'.$currentUserId.'_'.$limit.$useProjects;
+		$cacheId = 'dest_group_'.$siteId.'_'.$currentUserId.'_'.$limit.$useProjects.$landing;
 		$cacheDir = '/sonet/dest_sonet_groups/'.$siteId.'/'.$currentUserId;
 
 		if($currentCache->startDataCache($cacheTtl, $cacheId, $cacheDir))
@@ -2320,12 +2325,20 @@ class ComponentHelper
 			global $CACHE_MANAGER;
 
 			$limitReached = false;
-			$groupList = \CSocNetLogDestination::getSocnetGroup(array(
+
+			$filter = [
 				'features' => array("blog", array("premoderate_post", "moderate_post", "write_post", "full_post")),
 				'limit' => $limit,
 				'useProjects' => $useProjects,
-				'site_id' => $siteId
-			), $limitReached);
+				'site_id' => $siteId,
+			];
+
+			if ($landing == 'Y')
+			{
+				$filter['landing'] = 'Y';
+			}
+
+			$groupList = \CSocNetLogDestination::getSocnetGroup($filter, $limitReached);
 
 			if(defined("BX_COMP_MANAGED_CACHE"))
 			{
@@ -2336,6 +2349,10 @@ class ComponentHelper
 					$CACHE_MANAGER->registerTag("sonet_group_".$group["entityId"]);
 				}
 				$CACHE_MANAGER->registerTag("sonet_user2group_U".$currentUserId);
+				if ($landing == 'Y')
+				{
+					$CACHE_MANAGER->registerTag("sonet_group");
+				}
 				$CACHE_MANAGER->endTagCache();
 			}
 			$currentCache->endDataCache(array(
@@ -2913,7 +2930,7 @@ class ComponentHelper
 					"OK_MESSAGE" => "",
 					"RESULT" => $listCommentId,
 					"PUSH&PULL" => array(
-						"ACTION" => "REPLY",
+						"ACTION" => ($params["ACTION"] === "UPDATE" ? "EDIT" : "REPLY"),
 						"ID" => $listCommentId
 					),
 					"MODE" => "PULL_MESSAGE",
@@ -3048,7 +3065,10 @@ class ComponentHelper
 		$res = \CUser::getList(
 			$o = "ID",
 			$b = "ASC",
-			array("=EMAIL" => $userEmail),
+			array(
+				"=EMAIL" => $userEmail,
+				"!EXTERNAL_AUTH_ID" => [ "bot", "controller", "replica", "shop", "imconnector", "sale", "saleanonymous" ]
+			),
 			array("FIELDS" => array("ID", "EXTERNAL_AUTH_ID", "ACTIVE"))
 		);
 
@@ -3779,36 +3799,49 @@ class ComponentHelper
 		}
 
 		$result = \CBlogPost::getSocNetPermsCode($postId);
-		if(!in_array("U".$authorId, $result))
-		{
-			$result[] = "U".$authorId;
-		}
-		$result[] = "SA"; // socnet admin
 
-		if (
-			in_array("AU", $result)
-			|| in_array("G2", $result)
-		)
+		$profileBlogPost = false;
+		foreach($result as $perm)
 		{
-			$socnetPermsAdd = array();
-
-			foreach($result as $perm)
+			if (preg_match('/^UP(\d+)$/', $perm, $matches))
 			{
-				if (preg_match('/^SG(\d+)$/', $perm, $matches))
+				$profileBlogPost = true;
+				break;
+			}
+		}
+		if (!$profileBlogPost)
+		{
+			if(!in_array("U".$authorId, $result))
+			{
+				$result[] = "U".$authorId;
+			}
+			$result[] = "SA"; // socnet admin
+
+			if (
+				in_array("AU", $result)
+				|| in_array("G2", $result)
+			)
+			{
+				$socnetPermsAdd = array();
+
+				foreach($result as $perm)
 				{
-					if (
-						!in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_USER, $result)
-						&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_MODERATOR, $result)
-						&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_OWNER, $result)
-					)
+					if (preg_match('/^SG(\d+)$/', $perm, $matches))
 					{
-						$socnetPermsAdd[] = "SG".$matches[1]."_".$result;
+						if (
+							!in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_USER, $result)
+							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_MODERATOR, $result)
+							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_OWNER, $result)
+						)
+						{
+							$socnetPermsAdd[] = "SG".$matches[1]."_".$result;
+						}
 					}
 				}
-			}
-			if (count($socnetPermsAdd) > 0)
-			{
-				$result = array_merge($result, $socnetPermsAdd);
+				if (count($socnetPermsAdd) > 0)
+				{
+					$result = array_merge($result, $socnetPermsAdd);
+				}
 			}
 		}
 
@@ -4018,7 +4051,7 @@ class ComponentHelper
 		return Option::get('socialnetwork', 'workgroups_page', $siteDir.'workgroups/', $siteId);
 	}
 
-	public static function convertBlogPostPermToDestinationList($params = array(), &$resultFields)
+	public static function convertBlogPostPermToDestinationList($params, &$resultFields)
 	{
 		global $USER;
 
@@ -4137,7 +4170,7 @@ class ComponentHelper
 		return $result;
 	}
 
-	public static function checkBlogPostDestinationList($params = array(), &$resultFields)
+	public static function checkBlogPostDestinationList($params, &$resultFields)
 	{
 		global $USER;
 
@@ -4254,17 +4287,24 @@ class ComponentHelper
 				{
 					if (
 						!$postId
-						|| (
-							!empty($postFields)
-							&& $postFields["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
-						)
-					)
+						&& $resultFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+					) // new post
 					{
 						$resultFields["PUBLISH_STATUS"] = BLOG_PUBLISH_STATUS_READY;
 					}
-					else
+					elseif (
+						$postId
+						&& $resultFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
+					) // new post
 					{
-						$resultFields["ERROR_MESSAGE"] = Loc::getMessage("SBPE_EXISTING_POST_PREMODERATION");
+						if ($postFields["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH)
+						{
+							$resultFields["PUBLISH_STATUS"] = $postFields["PUBLISH_STATUS"];
+						}
+						else
+						{
+							$resultFields["ERROR_MESSAGE"] = Loc::getMessage("SBPE_EXISTING_POST_PREMODERATION");
+						}
 					}
 				}
 				else
@@ -4835,5 +4875,32 @@ class ComponentHelper
 		}
 
 		return $result;
+	}
+
+	public static function checkCanCommentInWorkgroup($params)
+	{
+		static $canCommentCached = [];
+
+		$userId = (isset($params['userId']) ? intval($params['userId']) : 0);
+		$workgroupId = (isset($params['workgroupId']) ? intval($params['workgroupId']) : 0);
+		if (
+			$userId <= 0
+			|| $workgroupId <= 0
+		)
+		{
+			return false;
+		}
+
+		$cacheKey = $userId.'_'.$workgroupId;
+
+		if (!isset($canCommentCached[$cacheKey]))
+		{
+			$canCommentCached[$cacheKey] = (
+				\CSocNetFeaturesPerms::canPerformOperation($userId, SONET_ENTITY_GROUP, $workgroupId, "blog", "premoderate_comment")
+				|| \CSocNetFeaturesPerms::canPerformOperation($userId, SONET_ENTITY_GROUP, $workgroupId, "blog", "write_comment")
+			);
+		}
+
+		return $canCommentCached[$cacheKey];
 	}
 }

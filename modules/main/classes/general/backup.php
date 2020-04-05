@@ -91,9 +91,6 @@ class CBackup
 		{
 			if (is_link($path))
 			{
-				if (IntOption("skip_symlinks"))
-					return true;
-
 				if (strpos(realpath($path), self::$REAL_DOCUMENT_ROOT_SITE) !== false) // если симлинк ведет на папку внутри структуры сайта
 					return true;
 			}
@@ -755,34 +752,38 @@ class CPasswordStorage
 {
 	const SIGN = 'CACHE_';
 
-	function Init()
+	public static function Init()
 	{
 		if (!function_exists('mcrypt_encrypt') && !function_exists('openssl_encrypt'))
 			return false;
 		return true;
 	}
 
-	function getEncryptKey()
+	public static function getEncryptKey()
 	{
 		static $key;
 
-		if (!$LICENSE_KEY)
+		if ($key === null)
 		{
+			/** @var string $LICENSE_KEY defined in the license_key.php */
 			if (file_exists($file = $_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/license_key.php'))
 				include($file);
-			if (!$LICENSE_KEY)
+			if ($LICENSE_KEY == '')
 				$LICENSE_KEY = 'DEMO';
+
+			$key = $LICENSE_KEY;
+
+			$l = CTar::strlen($key);
+			if ($l > 56)
+				$key = CTar::substr($key, 0, 56);
+			elseif ($l < 16)
+				$key = str_repeat($key, ceil(16/$l));
 		}
-		$key = $LICENSE_KEY;
-		$l = CTar::strlen($key);
-		if ($l > 56)
-			$key = CTar::substr($key, 0, 56);
-		elseif (CTar::strlen($key) < 16)
-			$key = str_repeat($key, ceil(16/$l));
+
 		return $key;
 	}
 
-	static function Set($strName, $strVal)
+	public static function Set($strName, $strVal)
 	{
 		if (!self::Init())
 			return false;
@@ -793,7 +794,7 @@ class CPasswordStorage
 		return COption::SetOptionString('main', $strName, base64_encode($temporary_cache));
 	}
 
-	static function Get($strName)
+	public static function Get($strName)
 	{
 		if (!self::Init())
 			return false;

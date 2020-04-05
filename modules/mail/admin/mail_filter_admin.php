@@ -13,9 +13,8 @@ require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/mail/prolog.php");
 $MOD_RIGHT = $APPLICATION->GetGroupRight("mail");
 if($MOD_RIGHT<"R") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 IncludeModuleLangFile(__FILE__);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/include.php");
 
-
+\Bitrix\Main\Loader::includeModule('mail');
 
 $err_mess = "File: ".__FILE__."<br>Line: ";
 

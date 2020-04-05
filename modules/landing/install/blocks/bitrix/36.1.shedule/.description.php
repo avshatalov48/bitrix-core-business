@@ -25,7 +25,7 @@ return array(
 		'.landing-block-node-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 200, 'height' => 200),
+			'dimensions' => array('width' => 170, 'height' => 170),
 			'resize_type' => BX_RESIZE_IMAGE_EXACT,
 		),
 		'.landing-block-node-card-subtitle' => array(
@@ -61,7 +61,15 @@ return array(
 		),
 		'.landing-block-node-card-time' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_NODES_LANDINGBLOCKNODECARD_TIME'),
-			'type' => ['color', 'background-color'],
+			'type' => ['typo', 'background-color'],
+		),
+		'.landing-block-node-card-time-dot' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_NODES_LANDINGBLOCKNODECARD_TIME_DOT'),
+			'type' => ['border-color', 'background-color'],
+		),
+		'.landing-block-node-timeline-container' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_NODES_LANDINGBLOCKNODECARD_TIME_VERTICAL_LINE'),
+			'type' => ['background-color-before'],
 		),
 		'.landing-block-node-card-time-line' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_NODES_LANDINGBLOCKNODECARD_TIME'),
@@ -70,6 +78,10 @@ return array(
 		'.landing-block-node-card-img-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_STYLE_LANDINGBLOCKNODECARDIMGCONTAINER'),
 			'type' => 'background-overlay',
+		),
+		'.landing-block-node-card-inner' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_36.1.SHEDULE_STYLE_LANDINGBLOCKNODECARDIMGCONTAINER'),
+			'type' => 'align-items',
 		),
 	),
 );

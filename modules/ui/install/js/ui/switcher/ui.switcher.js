@@ -54,6 +54,12 @@
 		attributeName: 'data-switcher',
 		attributeInitName: 'data-switcher-init',
 		classNameOff: 'ui-switcher-off',
+		classNameSize: {
+			small: 'ui-switcher-size-sm'
+		},
+		classNameColor: {
+			green: 'ui-switcher-color-green'
+		},
 		popup: null,
 		content: null,
 		popupParameters: null,
@@ -87,6 +93,16 @@
 				this.id = data.id;
 				this.checked = !!data.checked;
 				this.inputName = data.inputName;
+
+				if (this.classNameSize[data.size])
+				{
+					this.node.classList.add(this.classNameSize[data.size]);
+				}
+				if (this.classNameColor[data.color])
+				{
+					this.node.classList.add(this.classNameColor[data.color]);
+				}
+
 			}
 			else
 			{
@@ -112,6 +128,21 @@
 
 			this.initNode();
 			this.check(this.checked);
+
+			this.enableNode = this.node.querySelector('.ui-switcher-enabled');
+			this.disableNode = this.node.querySelector('.ui-switcher-disabled');
+
+			if(this.classNameSize.small)
+			{
+				if(this.enableNode && this.enableNode.innerHTML.length >= 5)
+				{
+					this.enableNode.classList.add('ui-switcher-text-size-sm');
+				}
+				if(this.disableNode && this.disableNode.innerHTML.length >= 5)
+				{
+					this.disableNode.classList.add('ui-switcher-text-size-sm');
+				}
+			}
 		},
 
 		/**
@@ -132,14 +163,10 @@
 			node.setAttribute(this.attributeInitName, 'y');
 
 			BX.addClass(node, Switcher.className);
-			node.innerHTML = '<span class="ui-switcher-enabled">\n' +
-				'<span class="ui-switcher-enabled-text">' + BX.message('UI_SWITCHER_ON') + '</span>\n' +
-				'</span>\n' +
-				'<span class="ui-switcher-disabled">\n' +
+			node.innerHTML =
 				'<span class="ui-switcher-cursor"></span>\n' +
-				'<span class="ui-switcher-disabled-text">' + BX.message('UI_SWITCHER_OFF') + '</span>\n' +
-			'</span>';
-
+				'<span class="ui-switcher-enabled">' + BX.message('UI_SWITCHER_ON') + '</span>\n' +
+				'<span class="ui-switcher-disabled">' + BX.message('UI_SWITCHER_OFF') + '</span>\n';
 			if (this.inputName)
 			{
 				this.inputNode = document.createElement('input');
@@ -192,7 +219,9 @@
 			BX.onCustomEvent(this, this.events.toggled);
 		}
 	};
-
-	Switcher.initByClassName();
+	
 	namespace.Switcher = Switcher;
+	BX.ready(function () {
+		namespace.Switcher.initByClassName();
+	});
 })();

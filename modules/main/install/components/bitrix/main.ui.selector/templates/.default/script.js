@@ -33,6 +33,7 @@
 		this.tag = null;
 		this.options = null;
 		this.callback = null;
+		this.callbackBefore = null;
 		this.items = null;
 		this.entities = null;
 		this.mainPopupWindow = null;
@@ -42,6 +43,8 @@
 		this.entityTypes = {};
 		this.auxObject = null;
 		this.selectorInstance = null;
+
+		this.eventOpenBinded = false;
 	};
 
 	BX.Main.SelectorV2.controls = {};
@@ -57,12 +60,20 @@
 		}
 		else if (typeof BX.Main.selectorManagerV2.controls[params.id] != 'undefined')
 		{
-			return BX.Main.selectorManagerV2.controls[params.id];
+			var control = BX.Main.selectorManagerV2.controls[params.id];
+			if (control.bindNode && !document.body.contains(control.bindNode))
+			{
+				delete BX.Main.selectorManagerV2.controls[params.id];
+			}
+			else
+			{
+				return BX.Main.selectorManagerV2.controls[params.id];
+			}
 		}
 
 		var self = new BX.Main.SelectorV2();
+		BX.Main.selectorManagerV2.controls[params.id] = self;
 		self.init(params);
-		BX.Main.selectorManagerV2.controls[self.getId()] = self;
 
 		return self;
 	};
@@ -90,6 +101,7 @@
 
 			this.options = params.options || {};
 			this.callback = params.callback || null;
+			this.callbackBefore = params.callbackBefore || null;
 
 			this.items = params.items || null;
 			this.entities = params.entities || null;
@@ -118,6 +130,7 @@
 					userNameTemplate: this.getOption('userNameTemplate'),
 					siteDepartmentId: this.getOption('siteDepartmentId'), // siteDepartmentID
 					showCloseIcon: 'Y',
+					popupAutoHide: (this.getOption('popupAutoHide') == 'N' ? 'N' : 'Y'),
 					last: {
 						disable: (this.getOption('disableLast') == 'Y' ? 'Y' : 'N'), // lastTabDisable
 					},
@@ -136,7 +149,8 @@
 					offsetTop: 5,
 					offsetLeft: 15
 				},
-				callback: this.callback
+				callback: this.callback,
+				callbackBefore: this.callbackBefore
 			});
 
 			BX.addCustomEvent('BX.UI.SelectorManager:getTreeItemRelation', function(params) {
@@ -186,14 +200,15 @@
 
 								for (i=0; i < fullList.length; i++)
 								{
-									if (
-										BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]])
-										&& BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]].items)
-										&& BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]].items[itemId])
-									)
+									if (BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]]))
 									{
 										selectorInstance.unselectItem({
-											itemNode: selectorInstance.entities[fullList[i]].items[itemId],
+											itemNode: (
+												BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]].items)
+												&& BX.type.isNotEmptyObject(selectorInstance.entities[fullList[i]].items[itemId])
+													? selectorInstance.entities[fullList[i]].items[itemId]
+													: false
+											),
 											itemId: itemId,
 											entityType: fullList[i],
 											mode: 'reinit'
@@ -403,8 +418,12 @@
 								id: this.id
 							} ]);
 
-							if (typeof this.options.eventOpen != 'undefined')
+							if (
+								typeof this.options.eventOpen != 'undefined'
+								&& !this.eventOpenBinded
+							)
 							{
+								this.eventOpenBinded = true;
 								BX.addCustomEvent(window, this.options.eventOpen, function(params) {
 
 									if (
@@ -527,9 +546,7 @@
 
 		openDialog: function(openDialogParams)
 		{
-			if (
-				BX.type.isNotEmptyObject(openDialogParams)
-			)
+			if (BX.type.isNotEmptyObject(openDialogParams))
 			{
 				if (typeof openDialogParams.bindNode != 'undefined')
 				{

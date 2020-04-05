@@ -80,6 +80,7 @@ class MainMailConfirmAjax
 			$smtp = array(
 				'server'   => strtolower(trim($smtp['server'])),
 				'port'     => strtolower(trim($smtp['port'])),
+				'protocol' => 'Y' == $smtp['ssl'] ? 'smtps' : 'smtp',
 				'login'    => $smtp['login'],
 				'password' => $smtp['password'],
 			);
@@ -177,7 +178,14 @@ class MainMailConfirmAjax
 				$fields['OPTIONS']['smtp'] = $smtp;
 			}
 
-			return Main\Mail\Sender::add($fields);
+			$result = Main\Mail\Sender::add($fields);
+			if (!empty($result['error']))
+			{
+				$error = $result['error'];
+				return;
+			}
+
+			return $result;
 		}
 		else
 		{

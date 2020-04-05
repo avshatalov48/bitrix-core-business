@@ -1,9 +1,9 @@
+/*
+dbg: was deleted all font, except woff - it is all what we need
+*/
 @font-face {
   font-family: 'hs-icons';
-  src:
-    url('fonts/hs-icons.ttf?xa77py') format('truetype'),
-    url('fonts/hs-icons.woff?xa77py') format('woff'),
-    url('fonts/hs-icons.svg?xa77py#hs-icons') format('svg');
+  src: url('/bitrix/templates/landing24/assets/vendor/icon-hs/fonts/hs-icons.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }

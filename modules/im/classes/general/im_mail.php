@@ -259,12 +259,15 @@ class CIMMail
 		foreach ($arToUser as $toID=> $arToInfo)
 		{
 			$message = "";
+			$messagesFromUsers = array();
 			$bHeader = false;
 			$arNames = Array();
 			$arFromId = Array();
 			$bFirstMessage = true;
 			foreach ($arDialog[$toID] as $fromID => $arMessages)
 			{
+				$fromIdUserMessages = "";
+
 				if ($bFirstMessage)
 					$bFirstMessage = false;
 				else
@@ -278,7 +281,11 @@ class CIMMail
 				$arNames[] = $arFromUser[$fromID]['FROM_USER'];
 				$arFromId[] = $arFromUser[$fromID]['FROM_USER_ID'];
 				foreach ($arMessages as $arMessage)
+				{
 					$message .= GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_TEXT', Array('#DATE_CREATE#' => $arMessage['DATE_CREATE'], '#MESSAGE#' => $arMessage['MESSAGE']))."\n";
+					$fromIdUserMessages .= nl2br(GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_TEXT', Array('#DATE_CREATE#' => $arMessage['DATE_CREATE'], '#MESSAGE#' => $arMessage['MESSAGE']))."\n");
+				}
+				$messagesFromUsers[$fromID] = $fromIdUserMessages;
 			}
 			if ($bHeader)
 				$message .= "\n".GetMessage('IM_MAIL_TEMPLATE_NEW_MESSAGE_FOOTER');
@@ -293,6 +300,7 @@ class CIMMail
 				"EMAIL_TO" => $arToInfo["EMAIL_TO"],
 				"TITLE" => $arToInfo["TITLE"],
 				"MESSAGES" => $message,
+				"MESSAGES_FROM_USERS" => serialize($messagesFromUsers)
 			);
 			$arFields['FROM_USER_ID'] = implode(', ', $arFromId);
 			if (count($arNames) > 1)

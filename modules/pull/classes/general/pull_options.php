@@ -12,6 +12,9 @@ class CPullOptions
 	const MAX_MESSAGES_PER_REQUEST = 'limit_max_messages_per_request';
 	const MAX_PAYLOAD = 'limit_max_payload';
 
+	const SERVER_MODE_SHARED = 'shared';
+	const SERVER_MODE_PERSONAL = 'personal';
+
 	public static function CheckNeedRun($bGetSectionStatus = true)
 	{
 		$arExcludeSites = CPullOptions::GetExcludeSites();
@@ -101,8 +104,14 @@ class CPullOptions
 	}
 	public static function GetQueueServerStatus()
 	{
-		$result = COption::GetOptionString("pull", "nginx", self::GetDefaultOption("nginx"));
-		return $result == 'N'? false: true;
+		if(static::IsServerShared())
+		{
+			return \Bitrix\Pull\SharedServer\Config::isRegistered();
+		}
+		else
+		{
+			return COption::GetOptionString("pull", "nginx", self::GetDefaultOption("nginx")) == "Y";
+		}
 	}
 	public static function GetQueueServerHeaders()
 	{
@@ -119,8 +128,13 @@ class CPullOptions
 	}
 	public static function SetQueueServerStatus($flag = "N")
 	{
-		COption::SetOptionString("pull", "nginx", $flag=='Y'?'Y':'N');
+		$currentValue = COption::GetOptionString("pull", "nginx");
+		if($currentValue === $flag)
+		{
+			return true;
+		}
 
+		COption::SetOptionString("pull", "nginx", $flag=='Y'?'Y':'N');
 		if ($flag=='Y')
 		{
 			CAgent::AddAgent("CPullChannel::CheckOnlineChannel();", "pull", "N", 240, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+240, "FULL"));
@@ -139,6 +153,27 @@ class CPullOptions
 	{
 		COption::SetOptionString("pull", "nginx_headers", $flag=='Y'?'Y':'N');
 		return true;
+	}
+
+	/**
+	 * Return operation mode of the associated server.
+	 * @return string
+	 */
+	public static function GetQueueServerMode()
+	{
+		return Option::get("pull", "server_mode");
+	}
+	/**
+	 * Sets operation mode of the associated server.
+	 * @param string $mode Operation mode of the server.
+	 */
+	public static function SetQueueServerMode($mode)
+	{
+		Option::set("pull", "server_mode", $mode);
+	}
+	public static function IsServerShared()
+	{
+		return static::GetQueueServerMode() == static::SERVER_MODE_SHARED;
 	}
 
 	public static function GetPushStatus()
@@ -185,7 +220,7 @@ class CPullOptions
 
 	public static function GetPublishUrl($channelId = "")
 	{
-		$url = COption::GetOptionString("pull", "path_to_publish", self::GetDefaultOption("path_to_publish")).(strlen($channelId)>0?'?CHANNEL_ID='.$channelId:'');
+		$url = COption::GetOptionString("pull", "path_to_publish", self::GetDefaultOption("path_to_publish"));
 		return $url;
 	}
 
@@ -434,40 +469,6 @@ class CPullOptions
 		return COption::GetOptionInt("pull", "config_timestamp");
 	}
 
-	/* UTILITY */
-
-	public static function SendConfigDie()
-	{
-		$arMessage = Array(
-			'module_id' => 'pull',
-			'command' => 'config_expire',
-			'params' => Array()
-		);
-		CPullStack::AddBroadcast($arMessage);
-	}
-
-	public static function GetDefaultOption($optionName)
-	{
-		if (is_null(self::$optionDefaultConfig))
-		{
-			$config = \Bitrix\Main\Config\Configuration::getValue('pull');
-			self::$optionDefaultConfig = is_null($config) ? Array() : $config;
-		}
-
-		if (is_null(self::$optionDefaultModule))
-		{
-			include($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/pull/default_option.php');
-			self::$optionDefaultModule = $pull_default_option;
-		}
-
-		if (array_key_exists($optionName, self::$optionDefaultConfig))
-		{
-			return self::$optionDefaultConfig[$optionName];
-		}
-
-		return array_key_exists($optionName, self::$optionDefaultModule)? self::$optionDefaultModule[$optionName]: null;
-	}
-
 	public static function GetMaxPayload()
 	{
 		$maxPayload = (int)Option::get('pull', static::MAX_PAYLOAD);
@@ -507,6 +508,40 @@ class CPullOptions
 	public static function IsProtobufEnabled()
 	{
 		return (Option::get('pull', static::PROTOBUF_ENABLED) === 'Y');
+	}
+
+	/* UTILITY */
+
+	public static function SendConfigDie()
+	{
+		$arMessage = Array(
+			'module_id' => 'pull',
+			'command' => 'config_expire',
+			'params' => Array()
+		);
+		CPullStack::AddBroadcast($arMessage);
+	}
+
+	public static function GetDefaultOption($optionName)
+	{
+		if (is_null(self::$optionDefaultConfig))
+		{
+			$config = \Bitrix\Main\Config\Configuration::getValue('pull');
+			self::$optionDefaultConfig = is_null($config) ? Array() : $config;
+		}
+
+		if (is_null(self::$optionDefaultModule))
+		{
+			include($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/pull/default_option.php');
+			self::$optionDefaultModule = $pull_default_option;
+		}
+
+		if (array_key_exists($optionName, self::$optionDefaultConfig))
+		{
+			return self::$optionDefaultConfig[$optionName];
+		}
+
+		return array_key_exists($optionName, self::$optionDefaultModule)? self::$optionDefaultModule[$optionName]: null;
 	}
 
 	public static function ClearCheckCache()

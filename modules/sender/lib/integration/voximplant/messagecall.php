@@ -65,6 +65,10 @@ class MessageCall implements Message\iBase, Message\iMailable
 		return array(TransportCall::CODE);
 	}
 
+	/**
+	 * Set configuration options
+	 * @return void
+	 */
 	protected function setConfigurationOptions()
 	{
 		if ($this->configuration->hasOptions())
@@ -87,11 +91,17 @@ class MessageCall implements Message\iBase, Message\iMailable
 						array(
 							"INPUT_NAME" => "%INPUT_NAME%",
 							"VALUE" => "%INPUT_VALUE%",
+							"MESSAGE_TYPE" => $this->getCode()
 						)
 					);
 					return ob_get_clean();
 				},
 				'required' => true,
+				'show_in_list' => true,
+				'readonly_view' => function($value)
+				{
+					return Service::getFormattedOutputNumber($value);
+				},
 			),
 			array(
 				'type' => 'text',

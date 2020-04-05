@@ -1,0 +1,40 @@
+<section class="landing-block g-pt-20 g-pb-20">
+	<div class="container">
+		<!-- Carousel -->
+		<div class="js-carousel"
+			 data-autoplay="false"
+			 data-infinite="true"
+			 data-arrows-classes="g-top-77 g-top-174--md g-top-292--lg u-arrow-v1 g-pos-abs g-width-40--md g-width-30 g-height-40--md g-height-30 g-brd-gray-light-v4 g-brd-around g-bg-transparent g-bg-white-opacity-0_4--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"
+			 data-arrow-left-classes="fa fa-chevron-left g-left-10 g-color-gray-light-v4"
+			 data-arrow-right-classes="fa fa-chevron-right g-right-10 g-color-gray-light-v4"
+			 data-pagi-classes="u-carousel-indicators-v1 justify-content-center align-items-center g-pos-rel">
+			<div class="landing-block-card js-slide js-animation fadeIn">
+				<div class="landing-block-card-img g-min-height-184 g-min-height-388--md g-min-height-624--lg g-bg-img-hero g-px-0"
+					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img1.jpg);"></div>
+				<div class="landing-block-card-text g-font-size-17 g-color-black text-center g-mt-30 g-mb-0">
+					<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
+				</div>
+				<div class="landing-block-border g-brd-bottom g-brd-2 g-brd-black g-width-80 g-ml-auto g-mr-auto g-mt-30 g-mb-30"></div>
+			</div>
+
+			<div class="landing-block-card js-slide js-animation fadeIn">
+				<div class="landing-block-card-img g-min-height-184 g-min-height-388--md g-min-height-624--lg g-bg-img-hero g-px-0"
+					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img2.jpg);"></div>
+				<div class="landing-block-card-text g-font-size-17 g-color-black text-center g-mt-30 g-mb-0">
+					<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
+				</div>
+				<div class="landing-block-border g-brd-bottom g-brd-2 g-brd-black g-width-80 g-ml-auto g-mr-auto g-mt-30 g-mb-30"></div>
+			</div>
+
+			<div class="landing-block-card js-slide js-animation fadeIn">
+				<div class="landing-block-card-img g-min-height-184 g-min-height-388--md g-min-height-624--lg g-bg-img-hero g-px-0"
+					 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1230x736/img1.jpg);"></div>
+				<div class="landing-block-card-text g-font-size-17 g-color-black text-center g-mt-30 g-mb-0">
+					<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
+				</div>
+				<div class="landing-block-border g-brd-bottom g-brd-2 g-brd-black g-width-80 g-ml-auto g-mr-auto g-mt-30 g-mb-30"></div>
+			</div>
+		</div>
+		<!-- End Carouse -->
+	</div>
+</section>

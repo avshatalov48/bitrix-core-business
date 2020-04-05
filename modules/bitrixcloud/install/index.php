@@ -176,5 +176,9 @@ class bitrixcloud extends CModule
 			}
 		}
 	}
+
+	public function migrateToBox()
+	{
+		COption::RemoveOption($this->MODULE_ID);
+	}
 }
-?>

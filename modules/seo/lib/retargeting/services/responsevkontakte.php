@@ -30,6 +30,10 @@ class ResponseVkontakte extends Response
 					);
 					break;
 			}
+
+			$errorMessage = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_VKONTAKTE_ERROR')
+				. ': '
+				. $errorMessage;
 			$this->addError(new Error($errorMessage, $parsed['error']['error_code']));
 		}
 

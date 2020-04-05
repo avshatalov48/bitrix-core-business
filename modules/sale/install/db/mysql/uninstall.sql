@@ -126,3 +126,5 @@ drop table if exists b_sale_delivery_req_shp;
 drop table if exists b_sale_check_related_entities;
 drop table if exists b_sale_exchange_log;
 drop table if exists b_sale_pay_system_rest_handlers;
+drop table if exists b_sale_order_converter_crm_error;
+drop table if exists b_sale_order_entities_custom_fields;

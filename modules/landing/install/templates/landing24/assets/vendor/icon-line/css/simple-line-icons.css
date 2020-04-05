@@ -1,7 +1,10 @@
+/*
+dbg: was deleted all font, except woff - it is all what we need
+*/
 @font-face {
   font-family: 'simple-line-icons';
-  src: url('../fonts/simple-line-icons.eot?v=2.4.0');
-  src: url('../fonts/simple-line-icons.eot?v=2.4.0#iefix') format('embedded-opentype'), url('../fonts/simple-line-icons.woff2?v=2.4.0') format('woff2'), url('../fonts/simple-line-icons.ttf?v=2.4.0') format('truetype'), url('../fonts/simple-line-icons.woff?v=2.4.0') format('woff'), url('../fonts/simple-line-icons.svg?v=2.4.0#simple-line-icons') format('svg');
+  src: url('/bitrix/templates/landing24/assets/vendor/icon-line/fonts/simple-line-icons.woff2?v=2.4.0') format('woff2'),
+  url('/bitrix/templates/landing24/assets/vendor/icon-line/fonts/simple-line-icons.woff?v=2.4.0') format('woff');
   font-weight: normal;
   font-style: normal;
 }

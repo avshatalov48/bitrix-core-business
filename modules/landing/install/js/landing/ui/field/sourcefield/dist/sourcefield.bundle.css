@@ -1,0 +1,147 @@
+.landing-ui-field-source {
+	position: relative;
+	margin-bottom: 20px;
+}
+
+.landing-ui-field-source-grid .landing-ui-field-input {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	    flex-wrap: wrap;
+	padding: 2px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.landing-ui-field-source-placeholder {
+	background-color: #B8E9F8;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	padding: 4px 6px 5px 11px;
+	border-radius: 2px;
+	margin: 1px;
+}
+
+.landing-ui-field-source-placeholder-text {
+	color: #000000;
+	font-size: 15px;
+	max-width: 200px;
+	white-space: nowrap;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	position: relative;
+	cursor: pointer;
+}
+
+.landing-ui-field-source-placeholder-text::before {
+	content: '';
+	position: absolute;
+	bottom: 2px;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid rgba(0, 0, 0, .4);
+}
+
+.landing-ui-field-source-placeholder-text-plain {
+	cursor: default;
+}
+
+.landing-ui-field-source-placeholder-text-plain::before {
+	display: none;
+}
+
+.landing-ui-field-source-placeholder-remove {
+	background: url(/bitrix/images/landing/remove-icon.svg) center center no-repeat;
+	width: 30px;
+	margin-right: -6px;
+	margin-top: -4px;
+	margin-bottom: -4px;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+	opacity: .5;
+	-webkit-transition: opacity 200ms ease;
+	-o-transition: opacity 200ms ease;
+	transition: opacity 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-field-source-placeholder-remove:hover {
+	opacity: 1;
+}
+
+.landing-ui-field-source-popup .landing-ui-field-checkbox {
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-left: -10px;
+	margin-right: -10px;
+	-webkit-transition: opacity 200ms ease;
+	-o-transition: opacity 200ms ease;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-field-source-popup {
+	min-width: 170px;
+}
+
+.landing-ui-field-source-popup .landing-ui-field-checkbox:hover {
+	background-color: #f6f8f9;
+}
+
+.landing-ui-field-source-popup .landing-ui-field-checkbox .landing-ui-field-header {
+	display: none;
+}
+
+.landing-ui-field-source-popup .landing-ui-field-checkbox .landing-ui-field-input {
+	background: transparent;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.landing-ui-field-source-popup .landing-ui-field-checkbox-item-label {
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+
+.landing-ui-field-source-grid {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: start;
+	    -ms-flex-align: start;
+	        align-items: start;
+	margin-bottom: 3px;
+}
+
+.landing-ui-field-source-grid-left {
+	margin-right: 5px;
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+}
+
+.landing-ui-field-source-grid-right {
+	padding-top: 3px;
+}
+
+
+.landing-ui-field-source-placeholder[data-item*="filterStub"] {
+	background-color: transparent;
+}
+
+.landing-ui-field-source-placeholder[data-item*="filterStub"] .landing-ui-field-source-placeholder-remove {
+	display: none;
+}
+
+.landing-ui-field-source-placeholder-text-plain:last-child {
+	padding-right: 6px;
+}

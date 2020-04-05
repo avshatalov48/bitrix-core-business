@@ -2,7 +2,7 @@
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
 
-$renderField = function($htmlFormId, $field, $isExt = false)
+$renderField = function($htmlFormId, $field, $isExt = false, $version)
 {
 	global $APPLICATION;
 
@@ -70,6 +70,15 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 					<span class="main-mail-form-field-title main-mail-form-field-value-menu"><?
 						echo htmlspecialcharsbx($field['value'] ?: $field['placeholder']);
 					?></span>
+					<? if (!empty($field['copy'])): ?>
+						<label class="main-mail-form-field-from-copy">
+							<span class="main-mail-form-field-spacer-25"></span>
+							<input class="main-mail-form-field-from-copy-checkbox" type="checkbox"
+								name="<?=htmlspecialcharsbx($field['copy']) ?>" value="Y" id="<?=$htmlFieldId ?>_copy"
+								<? if (\CUserOptions::getOption('main.mail.form', 'copy_to_sender', true)): ?> checked<? endif ?>><!--
+							--><span class="main-mail-form-field-title main-mail-form-field-from-copy-text"><?=getMessage('MAIN_MAIL_FORM_FROM_FIELD_COPY') ?></span>
+						</label>
+					<? endif ?>
 				</td>
 				<?
 				break;
@@ -81,20 +90,187 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 					<span class="main-mail-form-field-spacer"></span>
 					<span class="main-mail-form-field-title"><?=preg_replace('/[\r\n]+/', '<br>', htmlspecialcharsbx($field['title'])) ?>:</span>
 				</td>
-				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>">
-					<div class="main-mail-form-field-value-wrapper">
+				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>"><?
+
+					if ($version >= 2)
+					{
+						$enabledCrmContacts = (
+							!empty($field['selector'])
+							&& !empty($field['selector']['CrmTypes'])
+							&& is_array($field['selector']['CrmTypes'])
+							&& in_array('CRMCONTACT', $field['selector']['CrmTypes'])
+						);
+						$enabledCrmCompanies = (
+							!empty($field['selector'])
+							&& !empty($field['selector']['CrmTypes'])
+							&& is_array($field['selector']['CrmTypes'])
+							&& in_array('CRMCOMPANY', $field['selector']['CrmTypes'])
+						);
+						$enabledCrmLeads = (
+							!empty($field['selector'])
+							&& !empty($field['selector']['CrmTypes'])
+							&& is_array($field['selector']['CrmTypes'])
+							&& in_array('CRMLEAD', $field['selector']['CrmTypes'])
+						);
+
+						$selectedItemsData = [];
+						if (
+							!empty($field['selector']['itemsSelected'])
+							&& !empty($field['selector']['items'])
+							&& !empty($field['selector']['items']['mailcontacts'])
+						)
+						{
+							foreach($field['selector']['itemsSelected'] as $key => $value)
+							{
+								if (!empty($field['selector']['items']['mailcontacts'][$key]))
+								{
+									$selectedItemsData[$key] = [
+										'name' => $field['selector']['items']['mailcontacts'][$key]['name']
+									];
+								}
+							}
+						}
+
+						$APPLICATION->IncludeComponent(
+							"bitrix:main.user.selector",
+							"",
+							[
+								"ID" => $field['id'],
+								"LIST" => $field['selector']['itemsSelected'],
+								"LAZYLOAD" => "N",
+								"INPUT_NAME" => $field['name']."[]",
+								"API_VERSION" => 3,
+								"USE_SYMBOLIC_ID" => "Y",
+								"BUTTON_SELECT_CAPTION" => $field['placeholder'],
+								"SELECTOR_OPTIONS" => array(
+									'lazyLoad' => 'N',
+									'enableCrm' => (
+										!empty($field['selector'])
+										&& !empty($field['selector']['isCrmFeed'])
+											? 'Y'
+											: 'N'
+									),
+									'context' => 'MAIL_LAST_RCPT',
+									'contextCode' => '',
+									'enableDepartments' => 'N',
+									'enableUsers' => (!isset($field['selector']['enableUsers']) || $field['selector']['enableUsers'] ? 'Y' : 'N'),
+									'enableEmailUsers' => (isset($field['selector']['enableUsers']) && $field['selector']['enableUsers'] ? 'Y' : 'N'),
+									'enableMailContacts' => 'Y',
+									'addMailContactsTab' => 'Y',
+									'allowAddMailContact' => 'Y',
+									'enableCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
+									'addTabCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
+									'enableCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
+									'addTabCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
+									'enableCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
+									'addTabCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
+									'onlyWithEmail' => 'Y',
+									'returnMultiEmail' => 'Y',
+									'returnJsonValue' => 'Y',
+									'selectedItemsData' => $selectedItemsData,
+									'nameTemplate' => '#NAME# <#EMAIL#>'
+								)
+							]
+						);
+					}
+					else
+					{
+						?>
+						<div class="main-mail-form-field-value-wrapper">
 						<span class="main-mail-form-field-rcpt-more-wrapper" style="display: none; ">
 							<span class="feed-add-post-destination main-mail-form-field-rcpt-item-more"
 								title="<?=getMessage('MAIN_MAIL_FORM_RCPT_MORE_HINT', array('#NUM#' => 0)) ?>">...</span>
 						</span>
-						<span class="main-mail-form-field-rcpt-value-wrapper" style="display: none; ">
+							<span class="main-mail-form-field-rcpt-value-wrapper" style="display: none; ">
 							<input class="main-mail-form-field-value main-mail-form-field-rcpt-value"
 								type="text" id="<?=$htmlFieldId ?>_fvalue">
 						</span>
-						<a class="feed-add-destination-link main-mail-form-field-rcpt-add-link" href="javascript:void(0)"><?
-							echo htmlspecialcharsbx($field['placeholder']);
-						?></a>
-					</div>
+							<a class="feed-add-destination-link main-mail-form-field-rcpt-add-link" href="javascript:void(0)"><?
+								echo htmlspecialcharsbx($field['placeholder']);
+								?></a>
+						</div>
+						<?
+					}
+					?>
+				</td>
+				<?
+				break;
+
+			case 'entity':
+				$valueSubClass .= ' main-mail-form-field-value-rcpt';
+				?>
+				<td class="main-mail-form-fields-table-cell <?=$titleSubClass ?>">
+					<span class="main-mail-form-field-spacer"></span>
+					<span class="main-mail-form-field-title"><?=preg_replace('/[\r\n]+/', '<br>', htmlspecialcharsbx($field['title'])) ?>:</span>
+				</td>
+				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>"><?
+
+					$enabledCrmDeals = (
+						!empty($field['selector'])
+						&& !empty($field['selector']['CrmTypes'])
+						&& is_array($field['selector']['CrmTypes'])
+						&& in_array('CRMDEAL', $field['selector']['CrmTypes'])
+					);
+					$enabledCrmLeads = (
+						!empty($field['selector'])
+						&& !empty($field['selector']['CrmTypes'])
+						&& is_array($field['selector']['CrmTypes'])
+						&& in_array('CRMLEAD', $field['selector']['CrmTypes'])
+					);
+					$enabledCrmCompanies = (
+						!empty($field['selector'])
+						&& !empty($field['selector']['CrmTypes'])
+						&& is_array($field['selector']['CrmTypes'])
+						&& in_array('CRMCOMPANY', $field['selector']['CrmTypes'])
+					);
+					$enabledCrmContacts = (
+						!empty($field['selector'])
+						&& !empty($field['selector']['CrmTypes'])
+						&& is_array($field['selector']['CrmTypes'])
+						&& in_array('CRMCONTACT', $field['selector']['CrmTypes'])
+					);
+
+					$APPLICATION->IncludeComponent(
+						"bitrix:main.user.selector",
+						"",
+						[
+							"ID" => $field['id'],
+							"LIST" => $field['selector']['itemsSelected'],
+							"LAZYLOAD" => "N",
+							"INPUT_NAME" => $field['name']."[]",
+							"API_VERSION" => 3,
+							"USE_SYMBOLIC_ID" => "Y",
+							"SELECTOR_OPTIONS" => array(
+								'lazyLoad' => 'N',
+								'enableCrm' => (
+									!empty($field['selector'])
+									&& !empty($field['selector']['isCrmFeed'])
+										? 'Y'
+										: 'N'
+								),
+								'context' => 'MAIL_LAST_ENTITY',
+								'contextCode' => '',
+								'enableDepartments' => 'N',
+								'enableUsers' => 'N',
+								'enableEmailUsers' => 'N',
+								'enableMailContacts' => 'N',
+								'addMailContactsTab' => 'N',
+								'allowAddMailContact' => 'N',
+								'enableCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
+								'addTabCrmCompanies' => ($enabledCrmCompanies ? 'Y' : 'N'),
+								'enableCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
+								'addTabCrmContacts' => ($enabledCrmContacts ? 'Y' : 'N'),
+								'enableCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
+								'addTabCrmLeads' => ($enabledCrmLeads ? 'Y' : 'N'),
+								'enableCrmDeals' => ($enabledCrmDeals ? 'Y' : 'N'),
+								'addTabCrmDeals' => ($enabledCrmDeals ? 'Y' : 'N'),
+								'onlyWithEmail' => 'N',
+								'returnJsonValue' => 'Y'
+							)
+						]
+					);
+					?>
+
 				</td>
 				<?
 				break;
@@ -144,7 +320,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 		<table class="main-mail-form-fields-table">
 			<?
 			foreach ($arParams['FIELDS'] as $field)
-				$renderField($htmlFormId, $field);
+				$renderField($htmlFormId, $field, false, $arParams['VERSION']);
 			?>
 			<tr id="<?=sprintf('%s_fields_footer', $htmlFormId) ?>">
 				<td class="main-mail-form-fields-footer-cell" colspan="2">
@@ -276,7 +452,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 			<table class="main-mail-form-fields-table">
 				<?
 				foreach ($arParams['FIELDS_EXT'] as $field)
-					$renderField($htmlFormId, $field, true);
+					$renderField($htmlFormId, $field, true, $arParams['VERSION']);
 				?>
 				<tr id="<?=sprintf('%s_fields_ext_footer', $htmlFormId) ?>">
 					<td class="main-mail-form-fields-footer-cell" colspan="2">
@@ -329,6 +505,7 @@ $renderField = function($htmlFormId, $field, $isExt = false)
 
 	<input id="<?=htmlspecialcharsbx($htmlFormId) ?>_<?=htmlspecialcharsbx($arParams['EDITOR']['id']) ?>_value"
 		type="hidden" name="<?=htmlspecialcharsbx($arParams['EDITOR']['name']) ?>">
+	<div id="<?=sprintf('%s_dummy_footer', $htmlFormId) ?>" style="display: none; "></div>
 	<input type="submit" name="<?=sprintf('%s_submit', $htmlFormId) ?>" value="Y" style="display: none; ">
 </div>
 
@@ -346,6 +523,7 @@ BX.ready(function()
 			'submitAjax' => !empty($arParams['SUBMIT_AJAX']),
 			'foldQuote'  => !empty($arParams['FOLD_QUOTE']),
 			'foldFiles'  => !empty($arParams['FOLD_FILES']),
+			'version'  => $arParams['VERSION']
 		)) ?>
 	);
 

@@ -225,7 +225,7 @@ class CAllIBlockProperty
 	///////////////////////////////////////////////////////////////////
 	// Add
 	///////////////////////////////////////////////////////////////////
-	function Add($arFields)
+	public function Add($arFields)
 	{
 		global $DB;
 
@@ -366,7 +366,7 @@ class CAllIBlockProperty
 	///////////////////////////////////////////////////////////////////
 	// This one called before any Update or Add
 	///////////////////////////////////////////////////////////////////
-	function CheckFields(&$arFields, $ID=false, $bFormValidate=false)
+	public function CheckFields(&$arFields, $ID=false, $bFormValidate=false)
 	{
 		/** @var CMain $APPLICATION */
 		global $APPLICATION;
@@ -380,9 +380,9 @@ class CAllIBlockProperty
 		if(array_key_exists("CODE", $arFields) && strlen($arFields["CODE"]))
 		{
 			if(strpos("0123456789", substr($arFields["CODE"], 0, 1))!==false)
-				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_CODE_FIRST_LETTER").": ".$arFields["CODE"]."<br>";
+				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_CODE_FIRST_LETTER").": ".htmlspecialcharsbx($arFields["CODE"])."<br>";
 			if(preg_match("/[^A-Za-z0-9_]/",  $arFields["CODE"]))
-				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_WRONG_CODE").": ".$arFields["CODE"]."<br>";
+				$this->LAST_ERROR .= GetMessage("IBLOCK_PROPERTY_WRONG_CODE").": ".htmlspecialcharsbx($arFields["CODE"])."<br>";
 		}
 
 		if(!$bFormValidate)
@@ -452,7 +452,7 @@ class CAllIBlockProperty
 	///////////////////////////////////////////////////////////////////
 	// Update method
 	///////////////////////////////////////////////////////////////////
-	function Update($ID, $arFields, $bCheckDescription = false)
+	public function Update($ID, $arFields, $bCheckDescription = false)
 	{
 		global $DB;
 		$ID = (int)$ID;

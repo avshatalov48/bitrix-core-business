@@ -13,9 +13,16 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'im.component.element.media',
+		'im.component.element.attach',
+		'im.component.element.keyboard',
+		'im.component.element.chatteaser',
+		'ui.vue.components.reaction',
 		'ui.vue',
+		'ui.vue.vuex',
 		'im.model',
-		'im.component.element.file',
+		'im.const',
+		'im.utils',
 	],
 	'skip_core' => true,
 ];

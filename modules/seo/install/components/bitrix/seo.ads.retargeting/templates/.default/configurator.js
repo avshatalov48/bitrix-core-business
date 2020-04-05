@@ -9,6 +9,7 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		this.componentName = params.componentName;
 		this.signedParameters = params.signedParameters;
 		this.mess = params.mess;
+		this.multiClients = !!params.multiClients;
 
 		if (params.destroyEventName)
 		{
@@ -18,14 +19,27 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			}, this));
 		}
 
+		this.clientId = params.clientId;
 		this.accountId = params.accountId;
 		this.audienceId = params.audienceId;
+		this.audienceRegion = params.audienceRegion;
 		this.autoRemoveDayNumber = params.autoRemoveDayNumber;
+		this.audienceLookalikeMode = params.audienceLookalikeMode;
 
 		this.hasAudiences = false;
 		this.loaded = [];
+		if (this.multiClients && !this.clientId && !this.provider.PROFILE)
+		{ // use first client by default
+			for (var i=0; i<this.provider.CLIENTS.length; i++)
+			{
+				this.setProfile(this.provider.CLIENTS[i]);
+				break;
+			}
+		}
 		this.init();
 		this.showBlockByAuth();
+
+		this.entityTitleNode = params.titleNodeSelector ? document.querySelector(params.titleNodeSelector) : null;
 	};
 	CrmAdsRetargeting.prototype = {
 		instances: [],
@@ -70,6 +84,8 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				'name': this.containerNode.querySelector('[data-bx-ads-auth-name]'),
 				'link': this.containerNode.querySelector('[data-bx-ads-auth-link]'),
 				'logout': this.containerNode.querySelector('[data-bx-ads-auth-logout]'),
+				'clientBlock': this.containerNode.querySelector('[data-bx-ads-client]'),
+				'clientInput': this.containerNode.querySelector('[data-bx-ads-client-input]'),
 				'account': this.containerNode.querySelector('[data-bx-ads-account]'),
 				'accountLoader': this.containerNode.querySelector('[data-bx-ads-account-loader]'),
 				'audience': [],
@@ -82,7 +98,11 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 					'node': this.containerNode.querySelector('[data-bx-ads-audience-auto-remove]'),
 					'checker': this.containerNode.querySelector('[data-bx-ads-audience-auto-remove-checker]'),
 					'select': this.containerNode.querySelector('[data-bx-ads-audience-auto-remove-select]')
-				}
+				},
+				'addClientBtn': this.containerNode.querySelector('[data-bx-ads-client-add-btn]'),
+				'addAudienceBtn': this.containerNode.querySelector('[data-bx-ads-audience-add]'),
+				'regionInput':  this.containerNode.querySelector('[data-bx-ads-region]'),
+				'regionLoader':  this.containerNode.querySelector('[data-bx-ads-region-loader]')
 			};
 
 			var attrAudience = 'data-bx-ads-audience';
@@ -132,8 +152,42 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			}
 
 			this.loader.init(this);
-			BX.bind(this.uiNodes.logout, 'click', BX.proxy(this.logout, this));
+			BX.bind(this.uiNodes.logout, 'click', BX.proxy(function () {
+				this.logout(this.clientId);
+			}, this));
+
+			BX.bind(this.uiNodes.addAudienceBtn, 'click', BX.proxy(function () {
+				this.addAudience(this.uiNodes.account.value);
+			}, this));
+
+			BX.bind(this.uiNodes.addClientBtn, 'click', BX.proxy(function () {
+				BX.util.popup(_this.provider.AUTH_URL, 800, 600);
+			}, this));
+
 			this.listenSeoAuth();
+			if (this.multiClients)
+			{
+				if (this.clientSelector) {
+					this.clientSelector.destroy();
+				}
+				var _this = this;
+				this.clientSelector = new BX.Seo.Ads.ClientSelector(this.uiNodes.clientBlock, {
+					selected: this.provider.PROFILE,
+					items: this.provider.CLIENTS,
+					canAddItems: true,
+					events: {
+						onNewItem: function() {
+							BX.util.popup(_this.provider.AUTH_URL, 800, 600);
+						},
+						onSelectItem: function(item) {
+							_this.setProfile(item);
+						},
+						onRemoveItem: function(item) {
+							_this.logout(item.CLIENT_ID);
+						}
+					}
+				});
+			}
 
 			BX.UI.Hint.init(this.containerNode);
 		},
@@ -159,21 +213,48 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		onSeoAuth: function (eventData)
 		{
 			eventData.reload = false;
-			this.getProvider();
+			this.getProvider(eventData.clientId);
 		},
-		logout: function ()
+		logout: function (clientId)
 		{
 			this.showBlock('loading');
-			this.request('logout', {}, BX.delegate(function (provider) {
+			this.request('logout', {logoutClientId: clientId}, BX.delegate(function (provider) {
 				this.provider = provider;
+				if (this.clientSelector)
+				{
+					this.clientSelector.setSelected(this.provider.PROFILE);
+					this.clientSelector.setItems(this.provider.CLIENTS);
+				}
 				this.showBlockByAuth();
 			}, this));
 		},
-		getProvider: function ()
+		addAudience: function (accountId)
+		{
+			var audienceName = this.entityTitleNode ? this.entityTitleNode.value : '';
+			this.showNewAudiencePopup(accountId, audienceName);
+		},
+		getProvider: function (clientId)
 		{
 			this.showBlock('loading');
 			this.request('getProvider', {}, BX.delegate(function (provider) {
 				this.provider = provider;
+				if (this.clientSelector)
+				{
+					if (!this.provider.PROFILE || (clientId && clientId != this.provider.PROFILE.CLIENT_ID)) {
+						// set PROFILE equal to clientId or first record from CLIENTS:
+						for (var i=0; i<this.provider.CLIENTS.length; i++)
+						{
+							var client = this.provider.CLIENTS[i];
+							if (!clientId || clientId == client.CLIENT_ID)
+							{
+								this.setProfile(client);
+								break;
+							}
+						}
+					}
+					this.clientSelector.setSelected(this.provider.PROFILE);
+					this.clientSelector.setItems(this.provider.CLIENTS);
+				}
 				this.showBlockByAuth();
 			}, this));
 		},
@@ -205,6 +286,9 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 					'BX.util.popup(\'' + this.provider.AUTH_URL + '\', 800, 600);'
 				);
 			}
+			if (this.uiNodes.clientInput) {
+				this.uiNodes.clientInput.value = "";
+			}
 		},
 		showBlockMain: function ()
 		{
@@ -226,6 +310,12 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				{
 					this.uiNodes.link.removeAttribute('href');
 				}
+			}
+			if (this.uiNodes.clientInput) {
+				this.uiNodes.clientInput.value =
+					this.provider.PROFILE && this.provider.PROFILE.CLIENT_ID ?
+						this.provider.PROFILE.CLIENT_ID :
+						"";
 			}
 
 			this.showBlock(['auth', 'main']);
@@ -266,6 +356,7 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		request: function (action, requestData, callback) {
 			requestData.action = action;
 			requestData.type = this.provider.TYPE;
+			requestData.clientId = this.clientId;
 
 			if (this.onRequest)
 			{
@@ -322,7 +413,10 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 					autoHide: true,
 					lightShadow: true,
 					closeByEsc: true,
-					overlay: {backgroundColor: 'black', opacity: 500}
+					overlay: {backgroundColor: 'black', opacity: 500},
+					events: {
+						'onPopupClose': this.onErrorPopupClose.bind(this)
+					}
 				}
 			);
 			popup.setButtons([
@@ -333,6 +427,85 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 			]);
 			popup.setContent('<span class="crm-ads-rtg-warning-popup-alert">' + text + '</span>');
 			popup.show();
+		},
+		showNewAudiencePopup: function(accountId, audienceName)
+		{
+			var popup = BX.PopupWindowManager.create(
+				'crm_ads_rtg_new_audience',
+				null,
+				{
+					width: 500,
+					autoHide: true,
+					lightShadow: true,
+					closeByEsc: true
+				}
+			);
+			var input = BX.create('input', {
+				attrs : {
+					type: 'text',
+					className : "crm-ads-rtg-input-input",
+					value: audienceName
+				}
+			});
+			var content =
+				BX.create('div', {
+					attrs : {
+						className : "crm-ads-rtg-input"
+					},
+					children: [
+						BX.create('div', {
+							attrs : {
+								className : "crm-ads-rtg-input-label",
+							},
+							html: this.mess.newAudienceNameLabel
+						}),
+						input
+					]
+				});
+			popup.setContent(content);
+
+			var _this = this;
+			popup.setButtons([
+				new BX.UI.Button({
+					color: BX.UI.Button.Color.LINK,
+					text: this.mess.dlgBtnCancel,
+					events: {click: function(){popup.close();}}
+				}),
+				new BX.UI.Button({
+					color: BX.UI.Button.Color.SUCCESS,
+					text: this.mess.dlgBtnCreate,
+					events: {click: function() {
+						var name = input.value;
+						popup.close();
+						_this.hideAddAudienceButton();
+						_this.loader.forAudience(true);
+						_this.request('addAudience', {accountId: accountId, name: name}, BX.delegate(function(data) {
+								_this.audienceId = data.id;
+								_this.loadSettingsAudiences(accountId);
+						}, _this));
+					}}
+				})
+			]);
+			popup.show();
+		},
+		onErrorPopupClose: function()
+		{
+			if (this.clientSelector) {
+				this.clientSelector.enable();
+				this.loader.forAccount(false);
+				this.loader.forAudience(false);
+				this.showAddAudienceButton();
+			}
+		},
+		setProfile: function(item)
+		{
+			this.clientId = item && item.CLIENT_ID ? item.CLIENT_ID : null;
+			this.provider.PROFILE = item;
+			this.accountId = null;
+			this.audienceId = null;
+			if (this.containerNode) {
+				this.showBlockMain();
+			}
 		},
 		loader: {
 			init: function (caller) {
@@ -357,26 +530,42 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				{
 					this.caller.uiNodes.autoRemover.node.style.display = isShow ? 'none' : '';
 				}
-			}
+			},
+			forRegion: function (isShow) {
+				this.change(this.caller.uiNodes.regionLoader, this.caller.uiNodes.regionInput, isShow);
+			},
 		},
 		loadSettings: function()
 		{
 			var type = this.provider.TYPE;
 			var isSupportAccount = this.provider.IS_SUPPORT_ACCOUNT;
+			var isSupportLookalikeAudience = this.audienceLookalikeMode && this.provider.IS_SUPPORT_LOOKALIKE_AUDIENCE;
 
-			if(BX.util.in_array(type, this.loaded)) return;
-			this.loaded.push(type);
+			if (!this.provider.PROFILE) {
+				return;
+			}
+			var typeLoaded = BX.util.in_array(type, this.loaded);
+			if(!typeLoaded) {
+				this.loaded.push(type);
+			}
+
+			if (isSupportLookalikeAudience && this.uiNodes.regionInput)
+			{
+				this.loadRegionsList();
+			}
 
 			if (this.uiNodes.account && isSupportAccount)
 			{
-				var queryAudiences = function () {
-					this.loadSettingsAudiences(this.uiNodes.account.value);
-				};
-				BX.bind(
-					this.uiNodes.account,
-					'change',
-					queryAudiences.bind(this)
-				);
+				if(!typeLoaded) {
+					var queryAudiences = function () {
+						this.loadSettingsAudiences(this.uiNodes.account.value);
+					};
+					BX.bind(
+						this.uiNodes.account,
+						'change',
+						queryAudiences.bind(this)
+					);
+				}
 				this.loadSettingsAccounts();
 			}
 			else
@@ -386,8 +575,19 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		},
 		loadSettingsAccounts: function()
 		{
+			this.hideAddAudienceButton();
 			this.loader.forAccount(true);
+			for (var i=0; i < this.uiNodes.audience.length; i++) {
+				this.uiNodes.audience[i].node.disabled = true;
+				this.fillDropDownControl(this.uiNodes.audience[i].node, []);
+			}
+			if (this.clientSelector) {
+				this.clientSelector.disable();
+			}
 			this.request('getAccounts', {}, BX.delegate(function(data){
+				if (this.clientSelector) {
+					this.clientSelector.enable();
+				}
 				var dropDownData = data.map(function (accountData) {
 					return {
 						caption: accountData.name,
@@ -415,11 +615,22 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 		},
 		loadSettingsAudiences: function(accountId)
 		{
+			var isSupportLookalikeAudience = this.audienceLookalikeMode && this.provider.IS_SUPPORT_LOOKALIKE_AUDIENCE;
+			if (isSupportLookalikeAudience)
+				return;
+
+			this.hideAddAudienceButton();
 			var requestData = {
 				'accountId': accountId || null
 			};
 			this.loader.forAudience(true);
+			if (this.clientSelector) {
+				this.clientSelector.disable();
+			}
 			this.request('getAudiences', requestData, BX.delegate(function(data){
+				if (this.clientSelector) {
+					this.clientSelector.enable();
+				}
 				var hasAudiences = false;
 				var dropDownData = [];
 				var dropDownDataByType = {};
@@ -495,11 +706,49 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				this.ShowErrorEmptyAudiences();
 				this.loader.forAudience(false);
 
+				this.showAddAudienceButton();
+
+			}, this));
+		},
+		loadRegionsList: function()
+		{
+			this.loader.forRegion(true);
+			this.fillDropDownControl(this.uiNodes.regionInput, []);
+			if (this.clientSelector) {
+				this.clientSelector.disable();
+			}
+			this.request('getRegions', {}, BX.delegate(function(data){
+				if (this.clientSelector) {
+					this.clientSelector.enable();
+				}
+				var dropDownData = data.map(function (regionData) {
+					return {
+						caption: regionData.name,
+						value: regionData.id,
+						selected: this.audienceRegion ? (regionData.id == this.audienceRegion) : regionData.isDefault
+					};
+				}, this);
+
+				this.fillDropDownControl(this.uiNodes.regionInput, dropDownData);
+				this.loader.forRegion(false);
 			}, this));
 		},
 		ShowErrorEmptyAudiences: function()
 		{
-			this.uiNodes.errorNotFound.style.display = this.hasAudiences ? 'none' : '';
+			if (this.uiNodes.errorNotFound)
+			{
+				this.uiNodes.errorNotFound.style.display = this.hasAudiences ? 'none' : '';
+			}
+		},
+		hideAddAudienceButton: function()
+		{
+			if (this.uiNodes.addAudienceBtn)
+				BX.hide(this.uiNodes.addAudienceBtn);
+		},
+		showAddAudienceButton: function()
+		{
+			if (this.uiNodes.addAudienceBtn)
+				BX.show(this.uiNodes.addAudienceBtn);
 		},
 		fillDropDownControl: function(node, items)
 		{

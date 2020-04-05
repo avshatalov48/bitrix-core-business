@@ -3,7 +3,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Склады");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.store",
-	"",
+	"bootstrap_v4",
 	Array(
 		"SEF_MODE" => "Y",
 		"PHONE" => "N",

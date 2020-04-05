@@ -92,17 +92,17 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			</td>
 			<? } ?>
 			<td>
-				<b><?=$params["SELLER_COMPANY_NAME"]; ?></b><br><?
+				<b><?=htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]); ?></b><br><?
 				if ($params["SELLER_COMPANY_ADDRESS"]) {
 					$sellerAddr = $params["SELLER_COMPANY_ADDRESS"];
 					if (is_array($sellerAddr))
 						$sellerAddr = implode(', ', $sellerAddr);
 					else
 						$sellerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($sellerAddr));
-					?><b><?= $sellerAddr ?></b><br><?
+					?><b><?=htmlspecialcharsbx($sellerAddr);?></b><br><?
 				} ?>
 				<? if ($params["SELLER_COMPANY_PHONE"]) { ?>
-				<b><?=Loc::getMessage('SALE_HPS_BILL_SELLER_COMPANY_PHONE', array('#PHONE#' => $params["SELLER_COMPANY_PHONE"]));?></b><br>
+				<b><?=Loc::getMessage('SALE_HPS_BILL_SELLER_COMPANY_PHONE', array('#PHONE#' => htmlspecialcharsbx($params["SELLER_COMPANY_PHONE"])));?></b><br>
 				<? } ?>
 			</td>
 		</tr>
@@ -123,7 +123,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		$sellerBank = sprintf(
 			"%s %s",
 			$params["SELLER_COMPANY_BANK_NAME"],
-			$sellerBankCity
+			htmlspecialcharsbx($sellerBankCity)
 		);
 		$sellerRs = $params["SELLER_COMPANY_BANK_ACCOUNT"];
 	}
@@ -148,14 +148,14 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 		<tr>
 			<td>
 				<? if ($params["SELLER_COMPANY_INN"]) { ?>
-				<?=Loc::getMessage('SALE_HPS_BILL_INN', array('#INN#' => $params["SELLER_COMPANY_INN"]));?>
+				<?=Loc::getMessage('SALE_HPS_BILL_INN', array('#INN#' => htmlspecialcharsbx($params["SELLER_COMPANY_INN"])));?>
 				<? } else { ?>
 				&nbsp;
 				<? } ?>
 			</td>
 			<td>
 				<? if ($params["SELLER_COMPANY_KPP"]) { ?>
-				<?=Loc::getMessage('SALE_HPS_BILL_KPP', array('#KPP#' => $params["SELLER_COMPANY_KPP"]));?>
+				<?=Loc::getMessage('SALE_HPS_BILL_KPP', array('#KPP#' => htmlspecialcharsbx($params["SELLER_COMPANY_KPP"])));?>
 				<? } else { ?>
 				&nbsp;
 				<? } ?>
@@ -168,27 +168,27 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			<td rowspan="2">
 				<br>
 				<br>
-				<?=$sellerRs; ?>
+				<?=htmlspecialcharsbx($sellerRs);?>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2">
 				<?=Loc::getMessage('SALE_HPS_BILL_SELLER_NAME')?><br>
-				<?=$params["SELLER_COMPANY_NAME"]; ?>
+				<?=htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]);?>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2">
 				<?=Loc::getMessage('SALE_HPS_BILL_SELLER_BANK_NAME')?><br>
-				<?=$sellerBank; ?>
+				<?=htmlspecialcharsbx($sellerBank);?>
 			</td>
 			<td>
-				<?=Loc::getMessage('SALE_HPS_BILL_SELLER_BANK_BIK')?><br>
+				<?=Loc::getMessage('SALE_HPS_BILL_SELLER_BANK_BIK');?><br>
 				<?=Loc::getMessage('SALE_HPS_BILL_SELLER_ACC_CORR')?><br>
 			</td>
 			<td>
-				<?=$params["SELLER_COMPANY_BANK_BIC"]; ?><br>
-				<?=$params["SELLER_COMPANY_BANK_ACCOUNT_CORR"]; ?>
+				<?=htmlspecialcharsbx($params["SELLER_COMPANY_BANK_BIC"]); ?><br>
+				<?=htmlspecialcharsbx($params["SELLER_COMPANY_BANK_ACCOUNT_CORR"]);?>
 			</td>
 		</tr>
 	</table>
@@ -206,7 +206,8 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	<tr>
 		<td></td>
 		<td style="font-size: 2em; font-weight: bold; text-align: center">
-			<nobr><?=$params['BILL_HEADER'];?> <?=Loc::getMessage('SALE_HPS_BILL_SELLER_TITLE', array('#PAYMENT_NUM#' => $params["ACCOUNT_NUMBER"], '#PAYMENT_DATE#' => $params["PAYMENT_DATE_INSERT"]));?>
+			<nobr>
+				<?=htmlspecialcharsbx($params['BILL_HEADER']);?> <?=Loc::getMessage('SALE_HPS_BILL_SELLER_TITLE', array('#PAYMENT_NUM#' => htmlspecialcharsbx($params["ACCOUNT_NUMBER"]), '#PAYMENT_DATE#' => htmlspecialcharsbx($params["PAYMENT_DATE_INSERT"])));?>
 			</nobr>
 		</td>
 		<td></td>
@@ -215,7 +216,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 <? if ($params["BILL_ORDER_SUBJECT"]) { ?>
 	<tr>
 		<td></td>
-		<td><?=$params["BILL_ORDER_SUBJECT"]; ?></td>
+		<td><?=htmlspecialcharsbx($params["BILL_ORDER_SUBJECT"]); ?></td>
 		<td></td>
 	</tr>
 <? } ?>
@@ -223,7 +224,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	<tr>
 		<td></td>
 		<td>
-			<?=Loc::getMessage('SALE_HPS_BILL_SELLER_DATE_END', array('#PAYMENT_DATE_END#' => ConvertDateTime($params["PAYMENT_DATE_PAY_BEFORE"], FORMAT_DATE) ?: $params["PAYMENT_DATE_PAY_BEFORE"]));?>
+			<?=Loc::getMessage('SALE_HPS_BILL_SELLER_DATE_END', array('#PAYMENT_DATE_END#' => ConvertDateTime($params["PAYMENT_DATE_PAY_BEFORE"], FORMAT_DATE) ?: htmlspecialcharsbx($params["PAYMENT_DATE_PAY_BEFORE"])));?>
 		</td>
 		<td></td>
 	</tr>
@@ -235,9 +236,9 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 
 if ($params['BILL_PAYER_SHOW'] == 'Y'):
 	if ($params["BUYER_PERSON_COMPANY_NAME"]) {
-		echo Loc::getMessage('SALE_HPS_BILL_BUYER_NAME', array('#BUYER_NAME#' => $params["BUYER_PERSON_COMPANY_NAME"]));
+		echo Loc::getMessage('SALE_HPS_BILL_BUYER_NAME', array('#BUYER_NAME#' => htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_NAME"])));
 		if ($params["BUYER_PERSON_COMPANY_INN"])
-			echo Loc::getMessage('SALE_HPS_BILL_BUYER_INN', array('#INN#' => $params["BUYER_PERSON_COMPANY_INN"]));
+			echo Loc::getMessage('SALE_HPS_BILL_BUYER_INN', array('#INN#' => htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_INN"])));
 		if ($params["BUYER_PERSON_COMPANY_ADDRESS"])
 		{
 			$buyerAddr = $params["BUYER_PERSON_COMPANY_ADDRESS"];
@@ -245,14 +246,14 @@ if ($params['BILL_PAYER_SHOW'] == 'Y'):
 				$buyerAddr = implode(', ', $buyerAddr);
 			else
 				$buyerAddr = str_replace(array("\r\n", "\n", "\r"), ', ', strval($buyerAddr));
-			echo sprintf(", %s", $buyerAddr);
+			echo sprintf(", %s", htmlspecialcharsbx($buyerAddr));
 		}
 		if ($params["BUYER_PERSON_COMPANY_PHONE"])
-			echo sprintf(", %s", $params["BUYER_PERSON_COMPANY_PHONE"]);
+			echo sprintf(", %s", htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_PHONE"]));
 		if ($params["BUYER_PERSON_COMPANY_FAX"])
-			echo sprintf(", %s", $params["BUYER_PERSON_COMPANY_FAX"]);
+			echo sprintf(", %s", htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_FAX"]));
 		if ($params["BUYER_PERSON_COMPANY_NAME_CONTACT"])
-			echo sprintf(", %s", $params["BUYER_PERSON_COMPANY_NAME_CONTACT"]);
+			echo sprintf(", %s", htmlspecialcharsbx($params["BUYER_PERSON_COMPANY_NAME_CONTACT"]));
 	}
 endif;
 ?>
@@ -385,7 +386,7 @@ if ($params['DELIVERY_PRICE'] > 0)
 	$deliveryItem = Loc::getMessage('SALE_HPS_BILL_DELIVERY');
 
 	if ($params['DELIVERY_NAME'])
-		$deliveryItem .= sprintf(" (%s)", $params['DELIVERY_NAME']);
+		$deliveryItem .= sprintf(" (%s)", htmlspecialcharsbx($params['DELIVERY_NAME']));
 	$cells[++$n] = array();
 	foreach ($arCols as $columnId => $caption)
 	{
@@ -461,8 +462,8 @@ if ($params['BILL_TOTAL_SHOW'] == 'Y')
 		for ($i = 0; $i < $columnCount; $i++)
 			$cells[$n][$i] = null;
 
-		$cells[$n][$arColumnKeys[$columnCount-2]] = htmlspecialcharsbx(Loc::getMessage('SALE_HPS_BILL_TOTAL_VAT_RATE'));
-		$cells[$n][$arColumnKeys[$columnCount-1]] = htmlspecialcharsbx(Loc::getMessage('SALE_HPS_BILL_TOTAL_VAT_RATE_NO'));
+		$cells[$n][$arColumnKeys[$columnCount-2]] = Loc::getMessage('SALE_HPS_BILL_TOTAL_VAT_RATE');
+		$cells[$n][$arColumnKeys[$columnCount-1]] = Loc::getMessage('SALE_HPS_BILL_TOTAL_VAT_RATE_NO');
 	}
 
 	if ($params['SUM_PAID'] > 0)
@@ -635,7 +636,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 		<table class="sign">
 			<? if ($params["SELLER_COMPANY_DIRECTOR_POSITION"]) { ?>
 			<tr>
-				<td style="width: 150pt; "><?=$params["SELLER_COMPANY_DIRECTOR_POSITION"]; ?></td>
+				<td style="width: 150pt; "><?=htmlspecialcharsbx($params["SELLER_COMPANY_DIRECTOR_POSITION"]); ?></td>
 				<td style="width: 160pt; border: 1pt solid #000000; border-width: 0pt 0pt 1pt 0pt; text-align: center; ">
 					<? if (!$blank) { ?>
 					<?=CFile::ShowImage($params["SELLER_COMPANY_DIR_SIGN"], 200, 50); ?>
@@ -643,7 +644,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 				</td>
 				<td>
 					<? if ($params["SELLER_COMPANY_DIRECTOR_NAME"]) { ?>
-					(<?=$params["SELLER_COMPANY_DIRECTOR_NAME"]; ?>)
+					(<?=htmlspecialcharsbx($params["SELLER_COMPANY_DIRECTOR_NAME"]); ?>)
 					<? } ?>
 				</td>
 			</tr>
@@ -651,7 +652,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 			<? } ?>
 			<? if ($params["SELLER_COMPANY_ACCOUNTANT_POSITION"]) { ?>
 			<tr>
-				<td style="width: 150pt; "><?=$params["SELLER_COMPANY_ACCOUNTANT_POSITION"]; ?></td>
+				<td style="width: 150pt; "><?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_POSITION"]); ?></td>
 				<td style="width: 160pt; border: 1pt solid #000000; border-width: 0pt 0pt 1pt 0pt; text-align: center; ">
 					<? if (!$blank) { ?>
 					<?=CFile::ShowImage($params["SELLER_COMPANY_ACC_SIGN"], 200, 50); ?>
@@ -659,7 +660,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 				</td>
 				<td>
 					<? if ($params["SELLER_COMPANY_ACCOUNTANT_NAME"]) { ?>
-					(<?=$params["SELLER_COMPANY_ACCOUNTANT_NAME"]; ?>)
+					(<?=htmlspecialcharsbx($params["SELLER_COMPANY_ACCOUNTANT_NAME"]); ?>)
 					<? } ?>
 				</td>
 			</tr>

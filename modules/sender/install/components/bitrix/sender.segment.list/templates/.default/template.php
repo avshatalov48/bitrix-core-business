@@ -24,7 +24,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 
 	if ($data['NAME'] && $data['URLS']['EDIT'])
 	{
-		$data['NAME'] = '<a onclick="' . "BX.Sender.Page.open('".CUtil::JSEscape($data['URLS']['EDIT'])."'); return false;" . '" href="' . htmlspecialcharsbx($data['URLS']['EDIT']) . '">'
+		$data['NAME'] = '<a onclick="' . "BX.Sender.Page.open('".CUtil::JSEscape(htmlspecialcharsbx($data['URLS']['EDIT']))."'); return false;" . '" href="' . htmlspecialcharsbx($data['URLS']['EDIT']) . '">'
 			.  htmlspecialcharsbx($data['NAME'])
 			. '</a>';
 	}

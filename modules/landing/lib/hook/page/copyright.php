@@ -34,11 +34,25 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
+	 * Gets message for locked state.
+	 * @return string
+	 */
+	public function getLockedMessage()
+	{
+		return Loc::getMessage('LANDING_HOOK_COPYRIGHT_LOCKED');
+	}
+
+	/**
 	 * Enable or not the hook.
 	 * @return boolean
 	 */
 	public function enabled()
 	{
+		if ($this->isLocked())
+		{
+			return false;
+		}
+
 		return $this->fields['SHOW']->getValue() != 'N';
 	}
 

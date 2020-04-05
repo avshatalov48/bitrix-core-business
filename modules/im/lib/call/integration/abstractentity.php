@@ -49,7 +49,7 @@ abstract class AbstractEntity
 
 	abstract public function onUserAdd($userId);
 
-	abstract public function onStateChange($state);
+	abstract public function onStateChange($state, $prevState);
 
 	public function toArray($currentUserId = 0)
 	{

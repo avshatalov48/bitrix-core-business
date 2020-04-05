@@ -10,4 +10,12 @@
 	 * Allows setts styles as css properties
 	 */
 	document.execCommand("styleWithCSS", false, true);
+
+
+	if (top !== window)
+	{
+		parent.document.addEventListener("keydown", function(event) {
+			parent.BX.onCustomEvent(parent.document, "iframe:keydown", [event]);
+		});
+	}
 })();

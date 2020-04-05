@@ -1,10 +1,10 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-strlen('/install/index.php'));
-include(GetLangFileName($strPath2Lang.'/lang/', '/install/index.php'));
+<?php
+
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 if(class_exists('wiki')) return;
+
 Class wiki extends CModule
 {
 	var $MODULE_ID = 'wiki';
@@ -16,7 +16,7 @@ Class wiki extends CModule
 	var $MODULE_GROUP_RIGHTS = 'Y';
 	var $error = '';
 
-	function wiki()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -35,8 +35,8 @@ Class wiki extends CModule
 			$this->MODULE_VERSION_DATE = WIKI_VERSION_DATE;
 		}
 
-		$this->MODULE_NAME = GetMessage('WIKI_INSTALL_NAME');
-		$this->MODULE_DESCRIPTION = GetMessage('WIKI_INSTALL_DESCRIPTION');
+		$this->MODULE_NAME = Loc::getMessage('WIKI_INSTALL_NAME');
+		$this->MODULE_DESCRIPTION = Loc::getMessage('WIKI_INSTALL_DESCRIPTION');
 	}
 
 	function InstallDB()
@@ -107,20 +107,20 @@ Class wiki extends CModule
 
 		if(!CBXFeatures::IsFeatureEditable('Wiki'))
 		{
-			$this->error = GetMessage('MAIN_FEATURE_ERROR_EDITABLE');
+			$this->error = Loc::getMessage('MAIN_FEATURE_ERROR_EDITABLE');
 			$GLOBALS['errors'] = $this->error;
-			$APPLICATION->IncludeAdminFile(GetMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step3.php');
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step3.php');
 		}
 		elseif ($step < 2)
-			$APPLICATION->IncludeAdminFile(GetMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step.php');
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step.php');
 		elseif ($step == 2)
-			$APPLICATION->IncludeAdminFile(GetMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step2.php');
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step2.php');
 		else
 		{
 			$this->InstallDB();
 			$this->InstallFiles();
 			CBXFeatures::SetFeatureEnabled('Wiki', true);
-			$APPLICATION->IncludeAdminFile(GetMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step3.php');
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('WIKI_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/step3.php');
 		}
 	}
 
@@ -135,7 +135,7 @@ Class wiki extends CModule
 		$this->UnInstallFiles();
 		$this->UnInstallDB();
 		CBXFeatures::SetFeatureEnabled('Wiki', false);
-		$APPLICATION->IncludeAdminFile(GetMessage('WIKI_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/unstep.php');
+		$APPLICATION->IncludeAdminFile(Loc::getMessage('WIKI_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/wiki/install/unstep.php');
 	}
 
 	function GetModuleRightList()
@@ -143,12 +143,12 @@ Class wiki extends CModule
 		$arr = array(
 			'reference_id' => array('D', 'R', 'W', 'Y'),
 			'reference' => array(
-					'[D] '.GetMessage('WIKI_PERM_D'),
-					'[R] '.GetMessage('WIKI_PERM_R'),
-					'[W] '.GetMessage('WIKI_PERM_W'),
-					//'[X] '.GetMessage('WIKI_PERM_X'),
-					'[Y] '.GetMessage('WIKI_PERM_Y'),
-					//'[Z] '.GetMessage('WIKI_PERM_Z')
+					'[D] '.Loc::getMessage('WIKI_PERM_D'),
+					'[R] '.Loc::getMessage('WIKI_PERM_R'),
+					'[W] '.Loc::getMessage('WIKI_PERM_W'),
+					//'[X] '.Loc::getMessage('WIKI_PERM_X'),
+					'[Y] '.Loc::getMessage('WIKI_PERM_Y'),
+					//'[Z] '.Loc::getMessage('WIKI_PERM_Z')
 				)
 			);
 		return $arr;

@@ -19,6 +19,7 @@ else
 	$APPLICATION->IncludeComponent(
 		$arParams['POPUP_COMPONENT_NAME'],
 		$arParams['POPUP_COMPONENT_TEMPLATE_NAME'],
-		$arParams['POPUP_COMPONENT_PARAMS']
+		$arParams['POPUP_COMPONENT_PARAMS'],
+		$arParams['POPUP_COMPONENT_PARENT']
 	);
 }

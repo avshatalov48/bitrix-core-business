@@ -1,8 +1,14 @@
 <?
 namespace Sale\Handlers\Delivery\Additional\RusPost;
 
+use Bitrix\Main\Error;
 use \Bitrix\Sale\Delivery\Services;
+use Bitrix\Sale\Result;
 
+/**
+ * Class Helper
+ * @package Sale\Handlers\Delivery\Additional\RusPost
+ */
 class Helper
 {
 	/**
@@ -43,18 +49,55 @@ class Helper
 			}
 		}
 
+		$res = self::getEnabledShippingPointsListResult($deliveryId);
+		$result = $res->getData();
+
+		if($useCache)
+		{
+			$cacheManager->set($cacheId, $result);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param int $deliveryId
+	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getEnabledShippingPointsListResult($deliveryId)
+	{
+		$result = new Result();
+		$deliveryId = (int)$deliveryId;
+
+		if($deliveryId <= 0)
+		{
+			$result->addError(new Error('deliveryId is less than zero'));
+			return $result;
+		}
+
+		if(!($deliveryService = Services\Manager::getObjectById($deliveryId)))
+		{
+			$result->addError(new Error('Can\t obtain delivery object'));
+			return $result;
+		}
+
 		/** @var Sale\Handlers\Delivery\Additional\DeliveryRequests\RusPost\Handler $deliveryRequest*/
 		if(!($deliveryRequest = $deliveryService->getDeliveryRequestHandler()))
 		{
-			return [];
+			$result->addError(new Error('Can\t obtain request handler'));
+			return $result;
 		}
 
 		if(get_class($deliveryRequest) != 'Sale\Handlers\Delivery\Additional\DeliveryRequests\RusPost\Handler')
 		{
-			return [];
+			$result->addError(new Error('Can\t obtain class Sale\Handlers\Delivery\Additional\DeliveryRequests\RusPost\Handler'));
+			return $result;
 		}
 
-		$result = [];
+		$points = [];
+		/** @var Result $res */
 		$res = $deliveryRequest->send('USER_SETTINGS', []);
 
 		if($res->isSuccess())
@@ -67,15 +110,16 @@ class Helper
 				{
 					if($sPoint['enabled'] == 1)
 					{
-						$result[$sPoint['operator-postcode']] = $sPoint;
+						$points[$sPoint['operator-postcode']] = $sPoint;
 					}
 				}
 			}
-		}
 
-		if($useCache)
+			$result->setData($points);
+		}
+		else
 		{
-			$cacheManager->set($cacheId, $result);
+			$result->addErrors($res->getErrors());
 		}
 
 		return $result;

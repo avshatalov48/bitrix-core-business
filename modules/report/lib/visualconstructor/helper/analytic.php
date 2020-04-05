@@ -24,18 +24,4 @@ class Analytic
 			return false;
 		}
 	}
-
-
-
-	public static function isEnabledCrmAnalytics()
-	{
-		if (Loader::includeModule('crm'))
-		{
-			return Option::get("report", '~analytics_enabled', 'N') === 'Y' && \CCrmPerms::IsAccessEnabled();
-		}
-		else
-		{
-			return false;
-		}
-	}
 }

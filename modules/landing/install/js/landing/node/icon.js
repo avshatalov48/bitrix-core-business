@@ -16,6 +16,7 @@
 	BX.Landing.Block.Node.Icon = function(options)
 	{
 		BX.Landing.Block.Node.Img.apply(this, arguments);
+		this.type = "icon";
 	};
 
 	function getPseudoUrl(node)

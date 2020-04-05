@@ -7,7 +7,7 @@ $salePermissions = $APPLICATION->GetGroupRight('sale');
 if ($salePermissions < 'R')
 	return;
 
-include_once($GLOBALS["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+\Bitrix\Main\Loader::includeModule('sale');
 
 use	Bitrix\Sale\Helpers\Admin\BusinessValueControl;
 use Bitrix\Main\Localization\Loc;

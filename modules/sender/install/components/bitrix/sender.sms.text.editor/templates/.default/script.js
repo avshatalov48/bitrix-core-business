@@ -36,21 +36,24 @@
 	};
 	TextEditor.prototype.refresh = function ()
 	{
-		var value = this.input.value;
+		var count = this.input.value.length;
+		var hasMultiBites = this.hasMultiBites();
 
-		var ratio = (this.hasMultiBites() ? 2 : 1);
-		var count = value.length;
-		var numberCharsAtSms = (140 / ratio);
-		var smsCount = Math.floor(count / numberCharsAtSms) + 1;
+		var numberCharsAtSms = hasMultiBites ? 70 : 160;
+		var effectiveNumberCharsAtSms = numberCharsAtSms;
+		if (count > numberCharsAtSms)
+		{
+			effectiveNumberCharsAtSms = hasMultiBites ? 67 : 153;
+		}
 
+		this.sms.textContent = Math.ceil(count / effectiveNumberCharsAtSms);
 		this.num.textContent = numberCharsAtSms;
-		this.sms.textContent = smsCount;
 		this.counter.textContent = count;
 	};
 	TextEditor.prototype.hasMultiBites = function ()
 	{
 		var value = this.input.value;
-		if (value.length == 0)
+		if (value.length === 0)
 		{
 			return false;
 		}

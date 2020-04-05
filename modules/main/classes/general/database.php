@@ -736,7 +736,10 @@ abstract class CAllDBResult
 
 	public function NavContinue()
 	{
-		if (count($this->arResultAdd) > 0)
+		if (
+			is_array($this->arResultAdd)
+			&& count($this->arResultAdd) > 0
+		)
 		{
 			$this->arResult = $this->arResultAdd;
 			return true;

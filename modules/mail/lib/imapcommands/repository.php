@@ -146,6 +146,8 @@ class Repository
 			],
 			$mailFieldsForEvent
 		);
+
+		// @TODO: use API
 		$connection = Main\Application::getInstance()->getConnection();
 		$connection->query(
 			'DELETE from ' . Mail\MailMessageTable::getTableName() .

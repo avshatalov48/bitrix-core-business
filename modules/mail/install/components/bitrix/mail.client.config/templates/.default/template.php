@@ -9,6 +9,15 @@ $newPath = \CComponentEngine::makePathFromTemplate(
 	array('act' => 'new')
 );
 
+if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
+{
+	if (\CModule::includeModule('bitrix24'))
+	{
+		\CJsCore::init('popup');
+		\CBitrix24::initLicenseInfoPopupJS();
+	}
+}
+
 ?>
 <div class="mail-add">
 	<div class="mail-add-inner">
@@ -20,7 +29,12 @@ $newPath = \CComponentEngine::makePathFromTemplate(
 			<div class="mail-add-list">
 				<? foreach ($arParams['SERVICES'] as $id => $settings): ?>
 					<? if ($settings['type'] != 'imap') continue; ?>
-					<a class="mail-add-item" href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $id))) ?>">
+					<a class="mail-add-item"
+						<? if ($arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
+							href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $id))) ?>"
+						<? else: ?>
+							onclick="showLicenseInfoPopup('limit')"
+						<? endif ?>>
 						<? if ($settings['icon']): ?>
 							<img class="mail-add-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
 						<? else: ?>
@@ -37,20 +51,56 @@ $newPath = \CComponentEngine::makePathFromTemplate(
 
 <script type="text/javascript">
 
-	if (window === top.window)
-	{
-		BX.addCustomEvent(
-			'SidePanel.Slider:onMessage',
-			function (event)
+	BX.addCustomEvent(
+		'SidePanel.Slider:onMessage',
+		function (event)
+		{
+			var urlParams = {};
+			if (window !== window.top)
 			{
-				if (event.getEventId() == 'mail-mailbox-config-success')
-				{
-					window.location.href = '<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', event.data.id);
+				urlParams.IFRAME = 'Y';
+			}
 
-					top.BX.SidePanel.Instance.closeAll();
+			if (event.getEventId() == 'mail-mailbox-config-success')
+			{
+				event.data.handled = false;
+
+				top.BX.SidePanel.Instance.postMessage(window, event.getEventId(), event.data);
+
+				if (event.data.handled)
+				{
+					var slider = top.BX.SidePanel.Instance.getSliderByWindow(window);
+					if (slider)
+					{
+						slider.setCacheable(false);
+						slider.close();
+					}
+				}
+				else
+				{
+					window.location.href = BX.util.add_url_param(
+						'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_MSG_LIST']) ?>'.replace('#id#', event.data.id),
+						urlParams
+					);
 				}
 			}
+		}
+	);
+
+	function showLicenseInfoPopup(id)
+	{
+		B24 && B24.licenseInfoPopup && B24.licenseInfoPopup.show(
+			'mail_setup_' + id,
+			'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE')) ?>',
+			'<?=\CUtil::jsEscape(Loc::getMessage(
+				'MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY',
+				array('#LIMIT#' => $arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'])
+			)) ?>'
 		);
 	}
+
+	<? if (!$arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
+		showLicenseInfoPopup('limit');
+	<? endif ?>
 
 </script>

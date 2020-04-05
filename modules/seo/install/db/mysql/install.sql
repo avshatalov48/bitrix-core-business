@@ -84,7 +84,7 @@ CREATE TABLE if not exists b_seo_adv_campaign
 	XML_ID varchar(255) NOT NULL,
 	NAME varchar(255) NOT NULL,
 	LAST_UPDATE timestamp NULL,
-	SETTINGS text NULL,
+	SETTINGS mediumtext NULL,
 	PRIMARY KEY (ID),
 	UNIQUE INDEX ux_b_seo_adv_campaign(ENGINE_ID, XML_ID)
 );
@@ -116,7 +116,7 @@ CREATE TABLE if not exists b_seo_adv_banner
 	XML_ID varchar(255) NOT NULL,
 	LAST_UPDATE timestamp NULL,
 	NAME varchar(255) NOT NULL,
-	SETTINGS text NULL,
+	SETTINGS mediumtext NULL,
 	CAMPAIGN_ID int(11) NOT NULL,
 	GROUP_ID int(11) NULL,
 	AUTO_QUANTITY_OFF char(1) NULL DEFAULT 'N',
@@ -224,8 +224,10 @@ CREATE TABLE if not exists b_seo_service_rtg_queue (
 	ID int(11) NOT NULL AUTO_INCREMENT,
 	DATE_INSERT datetime DEFAULT NULL,
 	TYPE varchar(20) NOT NULL,
+	CLIENT_ID varchar(50) DEFAULT NULL,
 	ACCOUNT_ID varchar(50) DEFAULT NULL,
 	AUDIENCE_ID varchar(50) NOT NULL,
+	PARENT_ID varchar(100) DEFAULT NULL,
 	CONTACT_TYPE varchar(15) NOT NULL,
 	VALUE varchar(255) NOT NULL,
 	ACTION char(3) NOT NULL,

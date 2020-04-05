@@ -298,8 +298,6 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		return $hostname;
 	}
 
-
-
 	/**
 	 * @param $id
 	 *
@@ -319,6 +317,9 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			session_write_close();
 
 			$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($id);
+			$mailboxHelper->setSyncParams(array(
+				'full' => true,
+			));
 
 			$result = $mailboxHelper->sync();
 
@@ -331,17 +332,6 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 				$response['new'] = $result;
 				$response['complete'] = $mailboxHelper->getMailbox()['SYNC_LOCK'] < 0;
 				$response['status'] = $mailboxHelper->getSyncStatus();
-
-				$usersWithAccessToMailbox = Mail\Helper\Mailbox\SharedMailboxesManager::getUserIdsWithAccessToMailbox($mailbox['ID']);
-				foreach ($usersWithAccessToMailbox as $userId)
-				{
-					\CUserCounter::set(
-						$userId,
-						'mail_unseen',
-						Mail\Helper\Message::getTotalUnseenCount($userId),
-						$mailbox['LID']
-					);
-				}
 			}
 		}
 		else
@@ -506,14 +496,27 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		$attachments = array();
 		$attachmentIds = array();
-		if (!empty($data['__diskfiles']) && is_array($data['__diskfiles']))
+		if (!empty($data['__diskfiles']) && is_array($data['__diskfiles']) && Main\Loader::includeModule('disk'))
 		{
 			foreach ($data['__diskfiles'] as $item)
 			{
+				if (!preg_match('/n\d+/i', $item))
+				{
+					continue;
+				}
+
 				$id = ltrim($item, 'n');
 
-				$diskFile = \Bitrix\Disk\File::loadById($id);
-				$file = \CFile::makeFileArray($diskFile->getFileId());
+				if (!($diskFile = \Bitrix\Disk\File::loadById($id)))
+				{
+					continue;
+				}
+
+				if (!($file = \CFile::makeFileArray($diskFile->getFileId())))
+				{
+					continue;
+				}
+
 				$attachmentIds[] = $id;
 
 				$contentId = sprintf(
@@ -578,6 +581,8 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			),
 		);
 
+		$messageBindings = array();
+
 		// crm activity
 		if ($this->isCrmEnable && count($crmCommunication) > 0)
 		{
@@ -616,6 +621,8 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 				return;
 			}
 
+			$messageBindings[] = Mail\Internals\MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY;
+
 			//$activityId = $activityFields['ID'];
 			//$urn = $messageFields['URN'];
 			$messageId = $messageFields['MSG_ID'];
@@ -642,6 +649,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
+			$eventKey = Main\EventManager::getInstance()->addEventHandler(
+				'mail',
+				'onBeforeUserFieldSave',
+				function (\Bitrix\Main\Event $event) use (&$messageBindings)
+				{
+					$params = $event->getParameters();
+					$messageBindings[] = $params['entity_type'];
+				}
+			);
+
 			$result = $mailboxHelper->mail(array_merge(
 				$outgoingParams,
 				array(
@@ -654,7 +671,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					),
 				)
 			));
+
+			Main\EventManager::getInstance()->removeEventHandler('mail', 'onBeforeUserFieldSave', $eventKey);
 		}
+
+		addEventToStatFile(
+			'mail',
+			(empty($data['IN_REPLY_TO']) ? 'send_message' : 'send_reply'),
+			join(',', array_unique(array_filter($messageBindings))),
+			trim(trim($messageId), '<>')
+		);
 
 		return;
 	}
@@ -670,7 +696,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function createCrmActivityAction($messageId)
+	public function createCrmActivityAction($messageId, $level = 1)
 	{
 		if (!\Bitrix\Main\Loader::includeModule('crm'))
 		{
@@ -699,9 +725,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 				'MAILBOX_LOGIN' => 'MAILBOX.LOGIN',
 				'IS_SEEN' => 'MESSAGE_UID.IS_SEEN',
 				'MSG_HASH' => 'MESSAGE_UID.HEADER_MD5',
+				'DIR_MD5' => 'MESSAGE_UID.DIR_MD5',
+				'MSG_UID' => 'MESSAGE_UID.MSG_UID',
 			),
 			'filter' => array(
 				'=ID' => $messageId,
+			),
+			'order' => array(
+				'FIELD_DATE' => 'DESC',
+				'MESSAGE_UID.ID' => 'DESC',
+				'MESSAGE_UID.MSG_UID' => 'ASC',
 			),
 			'limit' => 1,
 		))->fetch();
@@ -718,36 +751,27 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
-		$result = array();
-
-		$eventManager = \Bitrix\Main\EventManager::getInstance();
-		$eventManager->addEventHandler(
-			'mail',
-			'onBeforeUserFieldSave',
-			function (\Bitrix\Main\Event $event) use (&$message, &$result)
-			{
-				$params = $event->getParameters();
-
-				if ($params['mailbox_id'] == $message['MAILBOX_ID'] && $params['message_id'] == $message['ID'])
-				{
-					if ($params['entity_type'] == 'CRM_ACTIVITY')
-					{
-						$result[] = $params['entity_id'];
-					}
-				}
-			}
-		);
+		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
+		{
+			return $this->createCrmActivityAction($messageId, $level + 1);
+		}
 
 		Mail\Helper\Message::prepare($message);
 
 		$message['IS_OUTCOME'] = $message['__is_outcome'];
 		//$message['IS_TRASH'] = !empty($params['trash']);
 		//$message['IS_SPAM'] = !empty($params['spam']);
+		$message['IS_SEEN'] = in_array($message['IS_SEEN'], array('Y', 'S'));
 
 		$message['__forced'] = true;
-		\CCrmEMail::imapEmailMessageAdd($message);
-
-		return $result;
+		if (!\CCrmEMail::imapEmailMessageAdd($message, null, $error))
+		{
+			$this->addError(new Error(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR')));
+			if ($error)
+			{
+				$this->addError($error instanceof Error ? $error : new Error($error));
+			}
+		}
 	}
 
 	/**
@@ -824,7 +848,10 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			{
 				foreach (array_merge($message['__from'], $message['__reply_to']) as $item)
 				{
-					\Bitrix\Crm\Exclusion\Store::add(\Bitrix\Crm\Communication\Type::EMAIL, $item['email']);
+					if (!empty($item['email']))
+					{
+						\Bitrix\Crm\Exclusion\Store::add(\Bitrix\Crm\Communication\Type::EMAIL, $item['email']);
+					}
 				}
 			}
 		}

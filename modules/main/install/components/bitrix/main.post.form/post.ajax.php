@@ -196,7 +196,7 @@ if (check_bitrix_sessid())
 						'%EMAIL' => $searchWords,
 					],
 				];
-				$queryFilter[] = ['=USER_ID', $currentUser->getId()];
+				$queryFilter[] = ['=USER_ID' => $currentUser->getId()];
 				$mailContacts = \Bitrix\Mail\Internals\MailContactTable::getList([
 					'order' => [
 						'SORT_WEIGHT' => 'DESC',

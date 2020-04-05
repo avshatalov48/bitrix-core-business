@@ -151,6 +151,14 @@ class OrderArchiveTable extends Main\Entity\DataManager
 			new Main\Entity\StringField('ORDER_DATA'),
 
 			new Main\Entity\ReferenceField(
+				'BASKET_ARCHIVE',
+				'Bitrix\Sale\Internals\BasketArchive',
+				array(
+					'=ref.ARCHIVE_ID' => 'this.ID'
+				)
+			),
+
+			new Main\Entity\ReferenceField(
 				'ORDER_PACKED',
 				'Bitrix\Sale\Internals\OrderArchivePacked',
 				array('=this.ID' => 'ref.ORDER_ARCHIVE_ID'),

@@ -71,7 +71,11 @@
 			this.onInputHandler(this.input.innerText);
 			this.onValueChangeHandler(this);
 
-			fireCustomEvent(this, "BX.Landing.UI.Field:change", [this.getValue()]);
+			var event = new BX.Event.BaseEvent({
+				data: {value: this.getValue()},
+				compatData: [this.getValue()],
+			});
+			this.emit('change', event);
 		},
 
 
@@ -237,9 +241,6 @@
 					BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 					this.input.contentEditable = true;
 				}
-
-				// Adjust input focus
-				this.input.focus();
 			}
 		},
 

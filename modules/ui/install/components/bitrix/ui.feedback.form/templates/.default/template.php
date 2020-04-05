@@ -5,6 +5,8 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
 
+$this->setFrameMode(true);
+
 Extension::load(['sidepanel', 'ui.buttons', 'ui.feedback.form']);
 $buttonId = $arParams['ID'] . '-button';
 
@@ -17,7 +19,7 @@ if ($arParams['VIEW_TARGET'])
 }
 ?>
 
-<div id="<?=htmlspecialcharsbx($buttonId)?>" class="ui-btn ui-btn-light-border">
+<div id="<?=htmlspecialcharsbx($buttonId)?>" class="ui-btn ui-btn-themes ui-btn-light-border">
 	<?=htmlspecialcharsbx($title);?>
 </div>
 <script>

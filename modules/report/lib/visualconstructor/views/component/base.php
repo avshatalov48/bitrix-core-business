@@ -18,7 +18,6 @@ abstract class Base extends View
 	private $componentTemplateName = '';
 	private $componentParameters;
 
-
 	/**
 	 * Base component type view constructor.
 	 */
@@ -45,7 +44,6 @@ abstract class Base extends View
 	{
 		$this->componentName = $componentName;
 	}
-
 
 	/**
 	 * @return string
@@ -75,7 +73,6 @@ abstract class Base extends View
 		$this->componentParameters[$key] = $value;
 	}
 
-
 	/**
 	 * Handle all data prepared for this view.
 	 *
@@ -88,7 +85,6 @@ abstract class Base extends View
 		return $result;
 	}
 
-
 	/**
 	 * Method to modify Content which pass to widget view, in absolute end.
 	 *
@@ -98,14 +94,11 @@ abstract class Base extends View
 	 */
 	public function prepareWidgetContent(Widget $widget, $withCalculatedData = false)
 	{
-
 		$resultWidget = parent::prepareWidgetContent($widget, $withCalculatedData);
-
 		if (!$withCalculatedData)
 		{
 			return $resultWidget;
 		}
-
 		if ($withCalculatedData)
 		{
 			$resultWidget['content']['params']['color'] = $widget->getWidgetHandler()->getFormElement('color')->getValue();
@@ -137,7 +130,6 @@ abstract class Base extends View
 			$reportResult['config']['color'] = $widget->getWidgetHandler()->getReportHandlers()[0]->getFormElement('color')->getValue();
 			$reportResult['title'] = $widget->getWidgetHandler()->getReportHandlers()[0]->getFormElement('label')->getValue();
 		}
-
 
 		$this->addComponentParameters('WIDGET', $widget);
 		$this->addComponentParameters('RESULT', $result);
@@ -186,8 +178,16 @@ abstract class Base extends View
 		$result['html'] = $componentContent;
 		$result['js'] = $APPLICATION->arHeadScripts;
 		$result['css'] = $APPLICATION->sPath2css;
-		return $result;
 
+		foreach ($result['js'] as $key => $value)
+		{
+			$result['js'][$key] = \CUtil::GetAdditionalFileURL($value);
+		}
+		foreach ($result['css'] as $key => $value)
+		{
+			$result['css'][$key] = \CUtil::GetAdditionalFileURL($value);
+		}
+		return $result;
 	}
 
 	/**
@@ -205,5 +205,4 @@ abstract class Base extends View
 	{
 		$this->componentTemplateName = $componentTemplateName;
 	}
-
 }

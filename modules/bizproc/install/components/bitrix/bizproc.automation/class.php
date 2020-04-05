@@ -29,6 +29,14 @@ class BizprocAutomationComponent extends \CBitrixComponent
 	{
 		return isset($this->arParams['WORKFLOW_EDIT_URL']) ? $this->arParams['WORKFLOW_EDIT_URL'] : null;
 	}
+	private function getConstantsEditUrl()
+	{
+		return isset($this->arParams['CONSTANTS_EDIT_URL']) ? $this->arParams['CONSTANTS_EDIT_URL'] : null;
+	}
+	private function getParametersEditUrl()
+	{
+		return isset($this->arParams['PARAMETERS_EDIT_URL']) ? $this->arParams['PARAMETERS_EDIT_URL'] : null;
+	}
 
 	private function getTitleView()
 	{
@@ -43,6 +51,21 @@ class BizprocAutomationComponent extends \CBitrixComponent
 	protected function getDocumentCategoryId()
 	{
 		return isset($this->arParams['DOCUMENT_CATEGORY_ID']) ? (int)$this->arParams['DOCUMENT_CATEGORY_ID'] : 0;
+	}
+
+	protected function isApiMode()
+	{
+		return (isset($this->arParams['API_MODE']) && $this->arParams['API_MODE'] === 'Y');
+	}
+
+	protected function isOneTemplateMode()
+	{
+		return (isset($this->arParams['ONE_TEMPLATE_MODE']) && $this->arParams['ONE_TEMPLATE_MODE'] === true);
+	}
+
+	protected function getTemplateInfo()
+	{
+		return isset($this->arParams['TEMPLATE']) ? $this->arParams['TEMPLATE'] : null;
 	}
 
 	protected function getTemplates(array $statuses)
@@ -73,6 +96,48 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		}
 
 		return array_values($relation);
+	}
+
+	protected function prepareTemplateForView()
+	{
+		$template = $this->getTemplateInfo();
+
+		if ($template)
+		{
+			$tpl = \Bitrix\Bizproc\WorkflowTemplateTable::getById($template['ID'])->fetchObject();
+			$documentType = $tpl->getDocumentComplexType();
+			$template = \Bitrix\Bizproc\Automation\Engine\Template::createByTpl($tpl);
+
+			if ($template->getId() > 0)
+			{
+				$templateArray = $template->toArray();
+				foreach ($templateArray['ROBOTS'] as $i => $robot)
+				{
+					$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
+				}
+
+				return $templateArray;
+			}
+		}
+
+		return null;
+	}
+
+	protected function getTemplateStatusList()
+	{
+		$template = $this->getTemplateInfo();
+		$list = [];
+
+		if ($template)
+		{
+			$status = $template['DOCUMENT_STATUS'];
+			$list[$status] = [
+				'STATUS_ID' => $status,
+				'NAME' => $template['NAME'],
+			];
+		}
+
+		return $list;
 	}
 
 	public static function getRobotViewData($robot, array $documentType)
@@ -143,26 +208,34 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		$documentType = $this->getDocumentType();
 		$documentCategoryId = $this->getDocumentCategoryId();
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
+		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
 
-		$documentService = $runtime->GetService('DocumentService');
-
-		/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
-		$target = $documentService->createAutomationTarget($documentType);
-
-		if (!$target)
+		if ($this->isApiMode())
 		{
-			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
+			$this->arResult['DOCUMENT_FIELDS'] = $this->getDocumentFields();
+			$this->arResult['DOCUMENT_SIGNED'] = static::signDocument($documentType, $documentCategoryId, null);
+			$this->arResult['DOCUMENT_NAME'] = $documentService->getEntityName($documentType[0], $documentType[1]);
+			$this->includeComponentTemplate('api');
+			return;
 		}
 
-		if (!$target->isAvailable())
-		{
-			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
-		}
+		$target = null;
 
-		//for HTML editor
-		Main\Loader::includeModule('fileman');
+		if (!$this->isOneTemplateMode())
+		{
+			/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
+			$target = $documentService->createAutomationTarget($documentType);
+
+			if (!$target)
+			{
+				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
+			}
+
+			if (!$target->isAvailable())
+			{
+				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
+			}
+		}
 
 		$tplUser = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
 
@@ -177,7 +250,10 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		);
 		$documentId = $this->getDocumentId();
 
-		$target->setDocumentId($documentId);
+		if ($target)
+		{
+			$target->setDocumentId($documentId);
+		}
 
 		if (!$canEdit)
 		{
@@ -241,10 +317,10 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			return;
 		}
 
-		$statusList = $target->getDocumentStatusList($documentCategoryId);
+		$statusList = $target ? $target->getDocumentStatusList($documentCategoryId) : $this->getTemplateStatusList();
 
 		$log = [];
-		if ($documentId)
+		if ($documentId && $target)
 		{
 			$tracker = new \Bitrix\Bizproc\Automation\Tracker($target);
 			$log = $tracker->getLog(array_keys($statusList));
@@ -257,7 +333,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'TITLE_VIEW' => $this->getTitleView(),
 			'TITLE_EDIT' => $this->getTitleEdit(),
 
-			'DOCUMENT_STATUS' => $target->getDocumentStatus(),
+			'DOCUMENT_STATUS' => $target ? $target->getDocumentStatus() : null,
 			'DOCUMENT_TYPE' => $documentType,
 			'DOCUMENT_ID' => $documentId,
 			'DOCUMENT_CATEGORY_ID' => $documentCategoryId,
@@ -267,29 +343,27 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 			'STATUSES' => $statusList,
 
-			'TEMPLATES' => $this->getTemplates(array_keys($statusList)),
-			'TRIGGERS' => $target->getTriggers(array_keys($statusList)),
-			'AVAILABLE_TRIGGERS' => $target->getAvailableTriggers(),
+			'TEMPLATES' => $target ? $this->getTemplates(array_keys($statusList)) : [$this->prepareTemplateForView()],
+			'TRIGGERS' => $target ? $target->getTriggers(array_keys($statusList)) : [],
+			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
+			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
 
 			'DOCUMENT_FIELDS' => $this->getDocumentFields(),
 			'LOG' => $log,
 
 			'WORKFLOW_EDIT_URL' => $this->getWorkflowEditUrl(),
+			'CONSTANTS_EDIT_URL' => $this->getConstantsEditUrl(),
+			'PARAMETERS_EDIT_URL' => $this->getParametersEditUrl(),
 			'STATUSES_EDIT_URL' => $this->getStatusesEditUrl(),
-			'B24_TARIF_ZONE' => SITE_ID,
+
 			'USER_OPTIONS' => array(
 				'defaults' => \CUserOptions::GetOption('bizproc.automation', 'defaults', array()),
 				'save_state_checkboxes' => \CUserOptions::GetOption('bizproc.automation', 'save_state_checkboxes', array())
 			),
 			'FRAME_MODE' => $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER',
-			'USE_DISK' => Main\Loader::includeModule('disk')
+			'USE_DISK' => Main\Loader::includeModule('disk'),
 		);
-
-		if (IsModuleInstalled('bitrix24') && CModule::IncludeModule('bitrix24'))
-		{
-			$this->arResult['B24_TARIF_ZONE'] = \CBitrix24::getLicensePrefix();
-		}
 
 		$this->includeComponentTemplate();
 	}
@@ -323,6 +397,9 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return $result;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function getDestinationData(array $documentType)
 	{
 		$result = ['LAST' => []];

@@ -6,7 +6,8 @@ if ($saleModulePermissions <= "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 $arFieldsShop = Array(
 	"COMPANY_NAME" => Array("NAME" => GetMessage("SRE_COMPANY_NAME"), "TYPE" => "", "VALUE" => ""),

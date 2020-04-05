@@ -22,6 +22,9 @@ final class Loader
 	private static $arLoadedModulesHolders = array("main" => self::BITRIX_HOLDER);
 	private static $arSharewareModules = array();
 
+	/** @var array Additional autoload handlers */
+	private static $additionalHandlers = [];
+
 	/**
 	 * Custom autoload paths.
 	 * @var array [namespace => path]
@@ -279,6 +282,11 @@ final class Loader
 		static::$customNamespaces[$namespace] = $path;
 	}
 
+	public static function registerHandler(callable $handler)
+	{
+		static::$additionalHandlers[] = $handler;
+	}
+
 	public static function isAutoLoadClassRegistered($className)
 	{
 		$className = trim(ltrim($className, "\\"));
@@ -406,16 +414,18 @@ final class Loader
 			}
 		}
 
-		// still not found, check for auto-generated entity classes
-		if (!class_exists($className))
+		// still not found, check additional handlers
+		if (!class_exists($className) && !empty(static::$additionalHandlers))
 		{
-			\Bitrix\Main\ORM\Loader::autoLoad($className);
-		}
+			foreach (static::$additionalHandlers as $handler)
+			{
+				call_user_func($handler, $className);
 
-		// still not found, check for auto-generated iblock entity classes
-		if (!class_exists($className) && !empty(static::$arLoadedModules['iblock']) && class_exists(\Bitrix\Iblock\ORM\Loader::class))
-		{
-			\Bitrix\Iblock\ORM\Loader::autoLoad($className);
+				if (class_exists($className))
+				{
+					break;
+				}
+			}
 		}
 	}
 

@@ -125,14 +125,17 @@ class PrepaymentCheck extends Check
 				}
 			}
 
-			$lastElement = $countProductPositions - 1;
-			$result['PRODUCTS'][$lastElement]['SUM'] = $paymentSum - $totalSum;
-			$price = PriceMaths::roundPrecision($result['PRODUCTS'][$lastElement]['SUM'] / $result['PRODUCTS'][$lastElement]['QUANTITY']);
-			$result['PRODUCTS'][$lastElement]['BASE_PRICE'] = $result['PRODUCTS'][$lastElement]['PRICE'] = $price;
-
-			if (isset($result['PRODUCTS'][$lastElement]['DISCOUNT']))
+			if (isset($result['PRODUCTS']))
 			{
-				unset($result['PRODUCTS'][$lastElement]['DISCOUNT']);
+				$lastElement = $countProductPositions - 1;
+				$result['PRODUCTS'][$lastElement]['SUM'] = PriceMaths::roundPrecision($paymentSum - $totalSum);
+				$price = PriceMaths::roundPrecision($result['PRODUCTS'][$lastElement]['SUM'] / $result['PRODUCTS'][$lastElement]['QUANTITY']);
+				$result['PRODUCTS'][$lastElement]['BASE_PRICE'] = $result['PRODUCTS'][$lastElement]['PRICE'] = $price;
+
+				if (isset($result['PRODUCTS'][$lastElement]['DISCOUNT']))
+				{
+					unset($result['PRODUCTS'][$lastElement]['DISCOUNT']);
+				}
 			}
 		}
 		else
@@ -155,7 +158,7 @@ class PrepaymentCheck extends Check
 
 			if ($countDeliveryPositions === 1)
 			{
-				$result['DELIVERY'][0]['SUM'] = $paymentSum - $totalSum;
+				$result['DELIVERY'][0]['SUM'] = PriceMaths::roundPrecision($paymentSum - $totalSum);
 				$price = PriceMaths::roundPrecision($result['DELIVERY'][0]['SUM'] / $result['DELIVERY'][0]['QUANTITY']);
 				$result['DELIVERY'][0]['BASE_PRICE'] = $result['DELIVERY'][0]['PRICE'] = $price;
 
@@ -181,14 +184,17 @@ class PrepaymentCheck extends Check
 					}
 				}
 
-				$lastElement = $countDeliveryPositions - 1;
-				$result['DELIVERY'][$lastElement]['SUM'] = $paymentSum - $totalSum;
-				$price = PriceMaths::roundPrecision($result['DELIVERY'][$lastElement]['SUM'] / $result['DELIVERY'][$lastElement]['QUANTITY']);
-				$result['DELIVERY'][$lastElement]['BASE_PRICE'] = $result['DELIVERY'][$lastElement]['PRICE'] = $price;
-
-				if (isset($result['DELIVERY'][$lastElement]['DISCOUNT']))
+				if (isset($result['DELIVERY']))
 				{
-					unset($result['DELIVERY'][$lastElement]['DISCOUNT']);
+					$lastElement = $countDeliveryPositions - 1;
+					$result['DELIVERY'][$lastElement]['SUM'] = PriceMaths::roundPrecision($paymentSum - $totalSum);
+					$price = PriceMaths::roundPrecision($result['DELIVERY'][$lastElement]['SUM'] / $result['DELIVERY'][$lastElement]['QUANTITY']);
+					$result['DELIVERY'][$lastElement]['BASE_PRICE'] = $result['DELIVERY'][$lastElement]['PRICE'] = $price;
+
+					if (isset($result['DELIVERY'][$lastElement]['DISCOUNT']))
+					{
+						unset($result['DELIVERY'][$lastElement]['DISCOUNT']);
+					}
 				}
 			}
 		}

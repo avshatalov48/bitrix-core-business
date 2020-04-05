@@ -34,6 +34,17 @@
 	 */
 	BX.Landing.MediaService.FacebookPages.validate = function(url)
 	{
+		if (
+			url.endsWith
+			&& (
+				url.endsWith('facebook.com/')
+				|| url.endsWith('facebook.com')
+			)
+		)
+		{
+			return false;
+		}
+
 		return BX.Landing.Utils.Matchers.facebookPages.test(url);
 	};
 
@@ -55,44 +66,44 @@
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_SMALL_HEADER"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_SMALL_HEADER"),
 						selector: "small_header",
 						content: settings.small_header === "true" || settings.small_header === true,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_COVER"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_COVER"),
 						selector: "hide_cover",
 						content: settings.hide_cover === "true" || settings.hide_cover === true,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: false},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: true}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: false},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: true}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_FACES"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_FACES"),
 						selector: "show_facepile",
 						content: settings.show_facepile === "true" || settings.show_facepile === true,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
 						]
 					})
 				);
 
 				var tabsItems = [
-					{name: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_TIMELINE"), value: "timeline"},
-					{name: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_MESSAGES"), value: "messages"},
-					{name: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_EVENTS"), value: "events"}
+					{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_TIMELINE"), value: "timeline"},
+					{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_MESSAGES"), value: "messages"},
+					{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS_EVENTS"), value: "events"}
 				];
 
 				var selectedTabs = isString(settings.tabs) ? settings.tabs.split(", ") : [];
@@ -106,7 +117,7 @@
 
 				this.form.addField(
 					new BX.Landing.UI.Field.MultiSelect({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_FB_PAGE_TABS"),
 						selector: "tabs",
 						value: selectedTabs,
 						items: tabsItems

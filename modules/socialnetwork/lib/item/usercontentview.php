@@ -87,10 +87,10 @@ class UserContentView
 	{
 		global $USER;
 
-		$result = array(
-			'items' => array(),
+		$result = [
+			'items' => [],
 			'hiddenCount' => 0
-		);
+		];
 
 		$contentId = (!empty($params['contentId']) ? $params['contentId'] : false);
 		$pageNum = (!empty($params['page']) ? intval($params['page']) : 1);
@@ -105,9 +105,15 @@ class UserContentView
 			return $result;
 		}
 
-		$select = array(
-			'USER_ID', 'DATE_VIEW', 'USER.ID', 'USER.NAME', 'USER.LAST_NAME', 'USER.SECOND_NAME', 'USER.LOGIN', 'USER.PERSONAL_PHOTO'
-		);
+		$select = [
+			'USER_ID',
+			'DATE_VIEW',
+			'USER_NAME' => 'USER.NAME',
+			'USER_LAST_NAME' => 'USER.LAST_NAME',
+			'USER_SECOND_NAME' => 'USER.SECOND_NAME',
+			'USER_LOGIN' => 'USER.LOGIN',
+			'USER_PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO'
+		];
 
 		$extranetInstalled = $mailInstalled = false;
 		$extranetIdList = array();
@@ -115,24 +121,24 @@ class UserContentView
 		if (ModuleManager::isModuleInstalled('extranet'))
 		{
 			$extranetInstalled = true;
-			$select[] = "USER.UF_DEPARTMENT";
+			$select['USER_UF_DEPARTMENT'] = "USER.UF_DEPARTMENT";
 		}
 
 		if (IsModuleInstalled('mail'))
 		{
 			$mailInstalled = true;
-			$select[] = "USER.EXTERNAL_AUTH_ID";
+			$select['USER_EXTERNAL_AUTH_ID'] = "USER.EXTERNAL_AUTH_ID";
 		}
 
-		$queryParams = array(
-			'order' => array(
+		$queryParams = [
+			'order' => [
 				'DATE_VIEW' => 'DESC'
-			),
-			'filter' => array(
+			],
+			'filter' => [
 				'=CONTENT_ID' => $contentId
-			),
+			],
 			'select' => $select
-		);
+		];
 
 		if (!$extranetInstalled)
 		{
@@ -140,21 +146,21 @@ class UserContentView
 			$queryParams['offset'] = ($pageNum - 1) * $pageSize;
 		}
 
-		$userList = array();
+		$userList = [];
 		$timeZoneOffset = \CTimeZone::getOffset();
 
-		$res = \Bitrix\Socialnetwork\UserContentViewTable::getList($queryParams);
+		$res = UserContentViewTable::getList($queryParams);
 
 		while ($fields = $res->fetch())
 		{
 			$photoSrc = '';
 			if (
-				!empty($fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_PERSONAL_PHOTO'])
-				&& intval($fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_PERSONAL_PHOTO']) > 0
+				!empty($fields['USER_PERSONAL_PHOTO'])
+				&& intval($fields['USER_PERSONAL_PHOTO']) > 0
 			)
 			{
 				$file = \CFile::resizeImageGet(
-					$fields["SOCIALNETWORK_USER_CONTENT_VIEW_USER_PERSONAL_PHOTO"],
+					$fields["USER_PERSONAL_PHOTO"],
 					array('width' => 58, 'height' => 58),
 					BX_RESIZE_IMAGE_EXACT,
 					false
@@ -162,17 +168,17 @@ class UserContentView
 				$photoSrc = $file["src"];
 			}
 
-			$userFields = array(
-				'NAME' => $fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_NAME'],
-				'LAST_NAME' => $fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_LAST_NAME'],
-				'SECOND_NAME' => $fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_SECOND_NAME'],
-				'LOGIN' => $fields['SOCIALNETWORK_USER_CONTENT_VIEW_USER_LOGIN'],
-			);
+			$userFields = [
+				'NAME' => $fields['USER_NAME'],
+				'LAST_NAME' => $fields['USER_LAST_NAME'],
+				'SECOND_NAME' => $fields['USER_SECOND_NAME'],
+				'LOGIN' => $fields['USER_LOGIN'],
+			];
 
 			$userType = '';
 			if (
 				$mailInstalled
-				&& $fields["SOCIALNETWORK_USER_CONTENT_VIEW_USER_EXTERNAL_AUTH_ID"] == "email"
+				&& $fields["USER_EXTERNAL_AUTH_ID"] == "email"
 			)
 			{
 				$userType = "mail";
@@ -180,8 +186,8 @@ class UserContentView
 			elseif (
 				$extranetInstalled
 				&& (
-					empty($fields["SOCIALNETWORK_USER_CONTENT_VIEW_USER_UF_DEPARTMENT"])
-					|| intval($fields["SOCIALNETWORK_USER_CONTENT_VIEW_USER_UF_DEPARTMENT"][0]) <= 0
+					empty($fields["USER_UF_DEPARTMENT"])
+					|| intval($fields["USER_UF_DEPARTMENT"][0]) <= 0
 				)
 			)
 			{
@@ -191,22 +197,22 @@ class UserContentView
 
 			$dateView = ($fields['DATE_VIEW'] instanceof \Bitrix\Main\Type\DateTime ? $fields['DATE_VIEW']->toString() : '');
 
-			$userList[$fields['USER_ID']] = array(
+			$userList[$fields['USER_ID']] = [
 				'ID' => $fields['USER_ID'],
 				'TYPE' => $userType,
-				'URL' => \CUtil::jSEscape(\CComponentEngine::makePathFromTemplate($pathToUserProfile, array(
+				'URL' => \CUtil::jSEscape(\CComponentEngine::makePathFromTemplate($pathToUserProfile, [
 					"UID" => $fields["USER_ID"],
 					"user_id" => $fields["USER_ID"],
 					"USER_ID" => $fields["USER_ID"]
-				))),
+				])),
 				'PHOTO_SRC' => $photoSrc,
 				'FULL_NAME' => \CUser::formatName(\CSite::getNameFormat(), $userFields, true, true),
 				'DATE_VIEW' => $dateView,
 				'DATE_VIEW_FORMATTED' => (!empty($dateView) ? \CComponentUtil::getDateTimeFormatted(MakeTimeStamp($dateView), "FULL", $timeZoneOffset) : '')
-			);
+			];
 		}
 
-		$userIdToCheckList = array();
+		$userIdToCheckList = [];
 
 		if (Loader::includeModule('extranet'))
 		{
@@ -252,7 +258,7 @@ class UserContentView
 			}
 			else
 			{
-				$result['items'] = array();
+				$result['items'] = [];
 			}
 		}
 

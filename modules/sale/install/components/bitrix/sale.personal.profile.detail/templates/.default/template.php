@@ -10,6 +10,7 @@ use Bitrix\Main\Localization\Loc;
 if(strlen($arResult["ID"])>0)
 {
 	ShowError($arResult["ERROR_MESSAGE"]);
+	CJSCore::Init(array('date'));
 	?>
 	<form method="post"  class="col-md-12 sale-profile-detail-form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 		<?=bitrix_sessid_post()?>
@@ -300,6 +301,33 @@ if(strlen($arResult["ID"])>0)
 									<?=CFile::InputFile($name."[]", 20, null, false, 0, "IMAGE", "class='btn sale-personal-profile-detail-input-file' ".$multiple)?>
 								</label>
 								<span class="sale-personal-profile-detail-load-file-cancel sale-personal-profile-hide"></span>
+								<?
+							}
+							elseif ($property["TYPE"] === 'DATE')
+							{
+								if ($property["MULTIPLE"] === 'Y')
+								{
+									$name .= '[]';
+								}
+								$currentValue = is_array($currentValue) ? $currentValue : [$currentValue];
+								?>
+								<div class='sale-personal-profile-detail-form-date'>
+									<?
+										foreach ($currentValue as $dataInputValue)
+										{
+											?>
+											<div class="form-group">
+												<div class='input-group date'>
+													<input class="form-control mb-1" type="text" name="<?=$name?>" maxlength="50" value="<?=$dataInputValue?>"/>
+													<span class="input-group-addon">
+													<i class="bx-calendar"></i>
+												</span>
+												</div>
+											</div>
+											<?
+										}
+									?>
+								</div>
 								<?
 							}
 

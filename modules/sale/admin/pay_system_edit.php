@@ -11,9 +11,11 @@ use Bitrix\Main\SystemException;
 use Bitrix\Main\IO;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/lib/helpers/admin/businessvalue.php');
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/cashbox/inputs/file.php");
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."sale_pay_system.php?lang=".LANGUAGE_ID;
@@ -64,6 +66,9 @@ $request = $context->getRequest();
 $server = $context->getServer();
 $documentRoot = Application::getDocumentRoot();
 $paySystem = array();
+
+$psDescription = '';
+$description = '';
 
 $id = (int)$request->get('ID');
 
@@ -277,12 +282,29 @@ if ($server->getRequestMethod() == "POST"
 		}
 		elseif ($id <= 0)
 		{
-			$image = '/bitrix/images/sale/sale_payments/'.$request->get('ACTION_FILE').'.png';
-			if (\Bitrix\Main\IO\File::isFileExists($documentRoot.$image))
+			$psMode = $request->get('PS_MODE');
+			$handler = $request->get('ACTION_FILE');
+
+			if ($psMode)
 			{
-				$fields['LOGOTIP'] = CFile::MakeFileArray($image);
-				$fields['LOGOTIP']['MODULE_ID'] = "sale";
-				CFile::SaveForDB($fields, 'LOGOTIP', 'sale/paysystem/logotip');
+				$image = '/bitrix/images/sale/sale_payments/'.$handler.'/'.$psMode.'.png';
+				if (IO\File::isFileExists($documentRoot.$image))
+				{
+					$fields['LOGOTIP'] = CFile::MakeFileArray($image);
+					$fields['LOGOTIP']['MODULE_ID'] = "sale";
+					CFile::SaveForDB($fields, 'LOGOTIP', 'sale/paysystem/logotip');
+				}
+			}
+
+			if (!isset($fields['LOGOTIP']))
+			{
+				$image = '/bitrix/images/sale/sale_payments/'.$handler.'.png';
+				if (IO\File::isFileExists($documentRoot.$image))
+				{
+					$fields['LOGOTIP'] = CFile::MakeFileArray($image);
+					$fields['LOGOTIP']['MODULE_ID'] = "sale";
+					CFile::SaveForDB($fields, 'LOGOTIP', 'sale/paysystem/logotip');
+				}
 			}
 		}
 
@@ -533,7 +555,9 @@ $tabControl->BeginNextTab();
 						$pathToDesc = $documentRoot.$pathToHandler.'/.description.php';
 
 					if ($pathToDesc !== '')
+					{
 						include $pathToDesc;
+					}
 
 					$selected = false;
 				?>
@@ -583,6 +607,7 @@ $tabControl->BeginNextTab();
 								|| (
 									IsModuleInstalled('documentgenerator')
 									&& strpos($handler, 'bill') === 0
+									&& ToLower($handlerName) !== ToLower($handler)
 								)
 							)
 							{
@@ -600,7 +625,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tbody id="pay_system_ps_mode">
 	<?
-		$psMode = $request->get('PS_MODE') ? $request->get('PS_MODE') : $paySystem['PS_MODE'];
+		$psMode = ($request->get('PS_MODE') !== null) ? $request->get('PS_MODE') : $paySystem['PS_MODE'];
 
 		/** @var PaySystem\BaseServiceHandler $className */
 		$className = PaySystem\Manager::getClassNameFromPath($handlerName);
@@ -634,7 +659,11 @@ $tabControl->BeginNextTab();
 						{
 							echo Bitrix\Sale\Internals\Input\Enum::getEditHtml(
 								'PS_MODE',
-								['OPTIONS' => $handlerModeList, 'ID' => 'PS_MODE'],
+								[
+									'OPTIONS' => $handlerModeList,
+									'ID' => 'PS_MODE',
+									'ONCHANGE' => "BX.Sale.PaySystem.getHandlerOptions(BX('ACTION_FILE'))",
+								],
 								$psMode
 							);
 						}
@@ -664,11 +693,11 @@ $tabControl->BeginNextTab();
 	</tbody>
 	<?
 		$handlerDescription = '';
-		if (isset($psDescription))
+		if ($psDescription)
 		{
 			$handlerDescription = $psDescription;
 		}
-		elseif (isset($description))
+		elseif ($description)
 		{
 			if (is_array($description))
 			{

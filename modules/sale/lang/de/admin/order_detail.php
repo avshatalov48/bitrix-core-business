@@ -187,7 +187,7 @@ $MESS["SALE_F_BASKET_DISCOUNT_VALUE"] = "Rabattsumme";
 $MESS["SALE_F_BASKET_DISCOUNT_COUPON"] = "Rabattgutschein";
 $MESS["SOD_ORDER_ID"] = "ID";
 $MESS["SOD_ORDER_DATE_CREATE"] = "Bestellt am";
-$MESS["SOD_CANCEL_N"] = "Stornierung der Bestellung aufheben";
+$MESS["SOD_CANCEL_N"] = "Stornierung der Bestellung aufheben...";
 $MESS["SOD_CANCEL_Y"] = "Bestellung stornieren";
 $MESS["SOD_PAYED_N"] = "Bezahlung der Bestellung stornieren";
 $MESS["SOD_PAYED_Y"] = "Bezahlen";

@@ -51,12 +51,33 @@ class Result extends BaseResult
 	protected $objectInitPassed = false;
 
 	/** @var array Column names (chain aliases) of primary fields in result */
-	protected $primaryAliases;
+	protected $primaryAliases = [];
+
+	/** @var string[] Fields available for for fetchObject, but hidden for fetch */
+	protected $hiddenObjectFields;
 
 	public function __construct(Query $query, BaseResult $result)
 	{
 		$this->query = $query;
 		$this->result = $result;
+	}
+
+	/**
+	 * @param string[] $hiddenObjectFields
+	 */
+	public function setHiddenObjectFields($hiddenObjectFields)
+	{
+		$this->hiddenObjectFields = $hiddenObjectFields;
+	}
+
+	protected function hideObjectFields(&$row)
+	{
+		foreach ($this->hiddenObjectFields as $fieldName)
+		{
+			unset($row[$fieldName]);
+		}
+
+		return $row;
 	}
 
 	public function getFields()
@@ -375,7 +396,21 @@ class Result extends BaseResult
 			{
 				/** @var Collection $collection */
 				$collection = $this->fetchCollection();
+
+				// remember original result
+				$originalResult = $this->result;
+
 				$this->result = new ArrayResult($collection->getAll());
+
+				// recover count total
+				try
+				{
+					if ($originalResult->getCount())
+					{
+						$this->result->setCount($originalResult->getCount());
+					}
+				}
+				catch (\Bitrix\Main\ObjectPropertyException $e) {}
 			}
 		}
 	}
@@ -553,12 +588,29 @@ class Result extends BaseResult
 
 	public function fetch(\Bitrix\Main\Text\Converter $converter = null)
 	{
-		return $this->result->fetch($converter);
+		return empty($this->hiddenObjectFields)
+			? $this->result->fetch($converter)
+			: $this->hideObjectFields($this->result->fetch($converter));
 	}
 
 	public function fetchAll(\Bitrix\Main\Text\Converter $converter = null)
 	{
-		return $this->result->fetchAll($converter);
+		if (empty($this->hiddenObjectFields))
+		{
+			return $this->result->fetchAll($converter);
+		}
+		else
+		{
+			$data = $this->result->fetchAll($converter);
+
+			foreach ($data as $row)
+			{
+				$this->hideObjectFields($row);
+			}
+
+			return $data;
+		}
+
 	}
 
 	public function getTrackerQuery()

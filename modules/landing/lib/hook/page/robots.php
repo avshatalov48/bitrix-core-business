@@ -3,7 +3,6 @@ namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -42,6 +41,15 @@ Disallow: /document.php'
 	}
 
 	/**
+	 * Exec or not hook in edit mode.
+	 * @return boolean
+	 */
+	public function enabledInEditMode()
+	{
+		return false;
+	}
+
+	/**
 	 * Enable or not the hook.
 	 * @return boolean
 	 */
@@ -57,14 +65,5 @@ Disallow: /document.php'
 	public function exec()
 	{
 		return $this->fields['CONTENT']->getValue();
-	}
-
-	/**
-	 * Active or not the hook.
-	 * @return bool
-	 */
-	public function active()
-	{
-		return ModuleManager::isModuleInstalled('bitrix24');
 	}
 }

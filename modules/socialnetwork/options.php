@@ -365,8 +365,6 @@ if ($bIntranet)
 
 if ($bCalendar)
 {
-	$arAllOptionsGroupsBlocks["calendar"][] = array("default_calendar_operation_write_group", GetMessage("SONET_CALENDAR_OPERATION_WRITE_GROUP"), SONET_ROLES_MODERATOR, Array("select_group"));
-	$arAllOptionsGroupsBlocks["calendar"][] = array("default_calendar_operation_view_group", GetMessage("SONET_CALENDAR_OPERATION_VIEW_GROUP"), SONET_ROLES_USER, Array("select_group"));
 	$arAllOptionsGroupsBlocks["calendar"][] = array("default_calendar_create_default", GetMessage("SONET_FUNCTIONALITY_CREATE_DEFAULT"), "Y", Array("checkbox"));
 }
 

@@ -13,7 +13,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/include.php");
 ClearVars();
 IncludeModuleLangFile(__FILE__);
 $err_mess = "File: ".__FILE__."<br>Line: ";
-define("HELP_FILE","vote_user_votes.php");
 
 /********************************************************************
 				Actions 

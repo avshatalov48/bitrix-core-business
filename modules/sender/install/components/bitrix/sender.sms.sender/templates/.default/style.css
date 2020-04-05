@@ -35,3 +35,6 @@
 .sender-sms-informer-hint {
 	margin: 0 0 0 auto;
 }
+.sender-sms-popup-menu-item-disabled {
+	opacity: 0.7;
+}

@@ -171,6 +171,17 @@ class Date
 	}
 
 	/**
+	 * Returns difference between dates.
+	 *
+	 * @param DateTime $time
+	 * @return \DateInterval
+	 */
+	public function getDiff(DateTime $time)
+	{
+		return $this->value->diff($time->value);
+	}
+
+	/**
 	 * Converts a date to the string.
 	 *
 	 * @param Context\Culture $culture Culture contains date format.
@@ -209,7 +220,10 @@ class Date
 			if($defaultCulture === null)
 			{
 				$context = Context::getCurrent();
-				$defaultCulture = $context->getCulture();
+				if($context)
+				{
+					$defaultCulture = $context->getCulture();
+				}
 			}
 			$culture = $defaultCulture;
 		}
@@ -226,9 +240,13 @@ class Date
 	 *
 	 * @return string
 	 */
-	protected static function getCultureFormat(Context\Culture $culture)
+	protected static function getCultureFormat(Context\Culture $culture = null)
 	{
-		return $culture->getDateFormat();
+		if($culture)
+		{
+			return $culture->getDateFormat();
+		}
+		return "DD.MM.YYYY";
 	}
 
 	/**

@@ -15,6 +15,7 @@ use Bitrix\Main\Result;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
 
+use Bitrix\Sender\Message\iLookalikeAds;
 use Bitrix\Seo\Retargeting;
 
 Loc::loadMessages(__FILE__);
@@ -30,6 +31,8 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 	const CODE_ADS_FB = 'ads_fb';
 	const CODE_ADS_YA = 'ads_ya';
 	const CODE_ADS_GA = 'ads_ga';
+	const CODE_ADS_LOOKALIKE_FB = 'ads_lookalike_fb';
+	const CODE_ADS_LOOKALIKE_VK = 'ads_lookalike_vk';
 
 	/** @var Message\Configuration $configuration Configuration. */
 	protected $configuration;
@@ -70,6 +73,12 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 	protected function setConfigurationOptions()
 	{
 		$this->configuration->setArrayOptions(array(
+			array(
+				'type' => 'string',
+				'code' => 'CLIENT_ID',
+				'name' => Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_CLIENT_ID'),
+				'required' => true,
+			),
 			array(
 				'type' => 'string',
 				'code' => 'ACCOUNT_ID',
@@ -142,22 +151,40 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 
 				$containerNodeId = 'seo-ads-' . $configuration->getId();
 				ob_start();
+				$provider = Service::getAdsProvider($self->getAdsType(), $configuration->getOption('CLIENT_ID')->getValue());
+				$audienceSize =  $configuration->getOption('AUDIENCE_SIZE') ?  $configuration->getOption('AUDIENCE_SIZE')->getValue() : null;
+				$audienceRegion =  $configuration->getOption('AUDIENCE_REGION') ?  $configuration->getOption('AUDIENCE_REGION')->getValue() : null;
+				$autoRemoveDays = $configuration->getOption('AUTO_REMOVE_DAY_NUMBER') ? $configuration->getOption('AUTO_REMOVE_DAY_NUMBER')->getValue() : null;
+
+				$audienceLookalikeMode = $provider['IS_SUPPORT_LOOKALIKE_AUDIENCE'] && ($this instanceof iLookalikeAds);
+
 				$GLOBALS['APPLICATION']->IncludeComponent(
 					'bitrix:seo.ads.retargeting',
 					'',
 					array(
 						'INPUT_NAME_PREFIX' => 'CONFIGURATION_',
 						'CONTAINER_NODE_ID' => $containerNodeId,
-						'PROVIDER' => Service::getAdsProvider($self->getAdsType()),
-						'ACCOUNT_ID' => $configuration->get('ACCOUNT_ID'),
+						'PROVIDER' => $provider,
+						'ACCOUNT_ID' => $configuration->getOption('ACCOUNT_ID')->getValue(),
+						'CLIENT_ID' => $configuration->getOption('CLIENT_ID')->getValue(),
 						'AUDIENCE_ID' => $audienceId,
-						'AUTO_REMOVE_DAY_NUMBER' => $configuration->get('AUTO_REMOVE_DAY_NUMBER'),
+						'AUDIENCE_SIZE' => $audienceSize,
+						'AUDIENCE_REGION' => $audienceRegion,
+						'AUDIENCE_LOOKALIKE_MODE' => $audienceLookalikeMode,
+						'AUTO_REMOVE_DAY_NUMBER' => $autoRemoveDays,
 						'JS_DESTROY_EVENT_NAME' => '',
+						'TITLE_NODE_SELECTOR' => '[data-role="letter-title"]',
 						'HAS_ACCESS' => true // TODO: check SENDER-module permissions
 					)
 				);
 
-				return ob_get_clean() . "<div id=\"$containerNodeId\"></div><div style=\"padding: 12px 14px; background: #F8F4BC; color: #91711E;\">" . Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_SYNC_WARN') . "</div>";
+				$result = ob_get_clean();
+				$result .= "<div id=\"$containerNodeId\"></div>";
+				if (!$audienceLookalikeMode)
+				{
+					$result .= "<div style=\"padding: 12px 14px; background: #F8F4BC; color: #91711E;\">" . Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_SYNC_WARN') . "</div>";
+				}
+				return $result;
 			}
 		);
 
@@ -173,7 +200,22 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 	public function saveConfiguration(Message\Configuration $configuration)
 	{
 		$config = $configuration;
-		if (!$config->get('AUDIENCE_ID') && !$config->get('AUDIENCE_EMAIL_ID') && !$config->get('AUDIENCE_PHONE_ID'))
+		$clientId = $config->getOption('CLIENT_ID')->getValue();
+		if (!$clientId)
+		{
+			$result = new Result();
+			$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_ERROR_NO_CLIENT')));
+
+			return $result;
+		}
+		$provider = Service::getAdsProvider($this->getAdsType(), $clientId);
+
+		if (
+			!$provider['IS_SUPPORT_LOOKALIKE_AUDIENCE'] &&
+			!$config->getOption('AUDIENCE_ID')->getValue() &&
+			!$config->getOption('AUDIENCE_EMAIL_ID')->getValue() &&
+			!$config->getOption('AUDIENCE_PHONE_ID')->getValue()
+		)
 		{
 			$result = new Result();
 			$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_ERROR_NO_AUDIENCE')));

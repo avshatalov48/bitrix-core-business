@@ -48,4 +48,8 @@ $MESS["top_panel_pin"] = "Прикрепление панели";
 $MESS["top_panel_pin_on"] = "Прикрепить панель";
 $MESS["top_panel_pin_off"] = "Открепить панель";
 $MESS["admin_panel_notif_block_title"] = "Просмотр уведомлений";
+$MESS["adm_top_panel_view_b24_title"] = "Перейти в режим работы с Битрикс24";
+$MESS["admin_panel_b24"] = "Битрикс24";
+$MESS["adm_top_panel_view_public_site_title"] = "Перейти в режим работы с публичным сайтом";
+$MESS["admin_panel_public_site"] = "Публичный сайт";
 ?>

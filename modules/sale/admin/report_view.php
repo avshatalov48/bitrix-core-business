@@ -1,7 +1,8 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions <= "D")
@@ -120,7 +121,8 @@ if (!$fCriticalError)
 								'F_SALE_SITE' => $arParams['F_SALE_SITE'],
 								'F_SALE_PRODUCT' => $arParams['F_SALE_PRODUCT'],
 								'USE_CHART' => $arParams['USE_CHART'],
-								'USER_NAME_FORMAT' => $arParams['USER_NAME_FORMAT']
+								'USER_NAME_FORMAT' => $arParams['USER_NAME_FORMAT'],
+								'SHOW_EDIT_BUTTON' => $arParams['SHOW_EDIT_BUTTON'],
 							),
 							null,
 							array('HIDE_ICONS' => 'Y')

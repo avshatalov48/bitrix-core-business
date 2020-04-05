@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="11px" height="11px" viewBox="0 0 11 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FAFAFA" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="45.0380068%"></stop>
+            <stop stop-color="#EEF2F4" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="1" width="677" height="1018"></rect>
+        <filter x="-1.2%" y="-1.3%" width="103.8%" height="102.6%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="5" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.100278628 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Финал" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="02-Контролы" transform="translate(-784.000000, -539.000000)">
+            <rect id="dark" fill-opacity="1" fill="#181B1C" transform="translate(418.500000, 553.000000) scale(-1, 1) translate(-418.500000, -553.000000) " x="0" y="13" width="837" height="1080"></rect>
+            <g id="Group-2" transform="translate(507.000000, 52.000000)" fill="url(#linearGradient-1)">
+                <rect id="Rectangle" x="0" y="0" width="759" height="1041"></rect>
+            </g>
+            <g id="left" transform="translate(171.000000, 66.000000)">
+                <rect id="Rectangle" fill="#000000" opacity="1" x="1" y="0" width="1685" height="1019"></rect>
+                <g id="Rectangle">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                    <use fill="#EEF2F4" fill-rule="evenodd" xlink:href="#path-2"></use>
+                </g>
+                <polygon id="Rectangle-12-Copy" fill="#FFFFFF" points="21 82 657 82 657 994 21 994"></polygon>
+            </g>
+            <g id="Group-3" transform="translate(238.000000, 533.000000)" fill="#828B95" opacity="1">
+                <g id="Group">
+                    <g id="Icons-/-·-Set-2-/-Icon-24" transform="translate(543.000000, 3.000000)">
+                        <polygon id="Icon" points="10.3421459 8.72756493 13.5713077 11.9567268 11.9567268 13.5713077 8.72756493 10.3421459 5.49840307 13.5713077 3.88382214 11.9567268 7.112984 8.72756493 3.88382214 5.49840307 5.49840307 3.88382214 8.72756493 7.112984 11.9567268 3.88382214 13.5713077 5.49840307"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

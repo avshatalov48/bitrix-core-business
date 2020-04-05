@@ -516,7 +516,18 @@ class CCalendarWebService extends IWebService
 				if (isset($arData['EventDate']))
 				{
 					$fromTsUTC = $this->__makeTS($arData['EventDate']);
-					$toTsUTC = $this->__makeTS($arData['EndDate']) + ($arData['fAllDayEvent'] ? -86340 : 0);
+					if ($arData['RecurrenceData'] && $arData['fAllDayEvent'])
+					{
+						$toTsUTC = $fromTsUTC;
+					}
+					elseif (!$arData['RecurrenceData'] && $arData['fAllDayEvent'])
+					{
+						$toTsUTC = $this->__makeTS($arData['EndDate']) - 86340;
+					}
+					else
+					{
+						$toTsUTC = $this->__makeTS($arData['EndDate']);
+					}
 
 					$skipTime = $arData['fAllDayEvent'] ? 'Y' : 'N';
 					$fromTs = $fromTsUTC;
@@ -543,7 +554,7 @@ class CCalendarWebService extends IWebService
 					$obRecurRepeat = $obRecurRule->children[1];
 					$obNode = $obRecurRepeat->children[0];
 
-					$arData['RRULE'] = array();
+					$arData['RRULE'] = [];
 					switch($obNode->name)
 					{
 						case 'daily':
@@ -569,13 +580,15 @@ class CCalendarWebService extends IWebService
 
 						case 'weekly':
 							$arData['RRULE']['FREQ'] = 'WEEKLY';
-							$arData['RRULE']['BYDAY'] = '';
+							$arData['RRULE']['BYDAY'] = [];
 
-							$arWeekDays = array('mo', 'tu', 'we', 'th', 'fr', 'sa', 'su');
+							$arWeekDays = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'];
 							foreach ($arWeekDays as $day => $value)
 							{
 								if ($obNode->getAttribute($value))
+								{
 									$arData['RRULE']['BYDAY'][] = strtoupper($value);
+								}
 							}
 
 							$arData['RRULE']['BYDAY'] = implode(',', $arData['RRULE']['BYDAY']);

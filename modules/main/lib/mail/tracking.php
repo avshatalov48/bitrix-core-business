@@ -247,6 +247,18 @@ class Tracking
 			}
 		}
 
+		if (empty($data['MODULE_ID']) || $data['MODULE_ID'] === 'main')
+		{
+			if (empty($subscription['main']))
+			{
+				$subscription['main'] = [];
+			}
+			$subscription['main'] = array_merge(
+				$subscription['main'],
+				EventManager::onMailEventSubscriptionList($data)
+			);
+		}
+
 		if(array_key_exists('MODULE_ID', $data))
 			$subscription = $subscription[$data['MODULE_ID']];
 
@@ -294,6 +306,11 @@ class Tracking
 			{
 				return false;
 			}
+		}
+
+		if (!empty($data['MODULE_ID']) && $data['MODULE_ID'] === 'main')
+		{
+			return EventManager::onMailEventSubscriptionDisable($data);
 		}
 
 		return true;

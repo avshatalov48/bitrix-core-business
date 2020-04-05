@@ -8,31 +8,40 @@ use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
+use Bitrix\Sale;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
-use Bitrix\Sale\Provider;
 
 class BasketItem extends Controller
 {
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\BasketItem::class,
+			Sale\BasketItem::class,
 			'basketItem',
 			function($className, $id) {
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
-				$r = \Bitrix\Sale\Basket::getList([
+				/** @var Sale\Basket $basketClass */
+				$basketClass = $registry->getBasketClassName();
+
+				$r = $basketClass::getList([
 					'select'=>['ORDER_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($row = $r->fetch())
 				{
-					$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+					/** @var Sale\Order $orderClass */
+					$orderClass = $registry->getOrderClassName();
+
+					$order = $orderClass::load($row['ORDER_ID']);
 					$basket = $order->getBasket()->getItemByBasketCode($id);
-					if($basket instanceof \Bitrix\Sale\BasketItem)
+					if ($basket instanceof \Bitrix\Sale\BasketItem)
+					{
 						return $basket;
+					}
 				}
 				else
 				{
@@ -92,34 +101,39 @@ class BasketItem extends Controller
 		$data['ORDER']['ID'] = $fields['ORDER_ID'];
 		$data['ORDER']['BASKET_ITEMS'] = [$fields];
 
-		$builder = $this->getBuilder(
-			new SettingsContainer([
-				'deleteBaketItemsIfNotExists' => false
-			])
-		);
-		$builder->buildEntityBasket($data);
-
-		if($builder->getErrorsContainer()->getErrorCollection()->count()>0)
+		$r = $this->addValidate($fields);
+		if($r->isSuccess())
 		{
-			$this->addErrors($builder->getErrorsContainer()->getErrors());
-			return null;
-		}
+			$builder = $this->getBuilder(
+				new SettingsContainer([
+					'deleteBaketItemsIfNotExists' => false
+				])
+			);
+			$builder->buildEntityBasket($data);
 
-		$order = $builder->getOrder();
-
-		$idx=0;
-		$collection = $order->getBasket();
-		/** @var \Bitrix\Sale\BasketItem $basketItem */
-		foreach($collection as $basketItem)
-		{
-			if($basketItem->getId() <= 0)
+			if($builder->getErrorsContainer()->getErrorCollection()->count()>0)
 			{
-				$idx = $basketItem->getInternalIndex();
-				break;
+				$this->addErrors($builder->getErrorsContainer()->getErrors());
+				return null;
 			}
+
+			$order = $builder->getOrder();
+
+			$idx=0;
+			$collection = $order->getBasket();
+			/** @var \Bitrix\Sale\BasketItem $basketItem */
+			foreach($collection as $basketItem)
+			{
+				if($basketItem->getId() <= 0)
+				{
+					$idx = $basketItem->getInternalIndex();
+					break;
+				}
+			}
+
+			$r = $order->save();
 		}
 
-		$r = $order->save();
 		if(!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
@@ -209,7 +223,12 @@ class BasketItem extends Controller
 		$select = empty($select)? ['*']:$select;
 		$order = empty($order)? ['ID'=>'ASC']:$order;
 
-		$items = \Bitrix\Sale\Basket::getList(
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Basket $basketClass */
+		$basketClass = $registry->getBasketClassName();
+
+		$items = $basketClass::getList(
 			[
 				'select'=>$select,
 				'filter'=>$filter,
@@ -221,8 +240,13 @@ class BasketItem extends Controller
 
 		return new Page('BASKET_ITEMS', $items, function() use ($filter)
 		{
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
 			return count(
-				\Bitrix\Sale\Basket::getList(['filter'=>$filter])->fetchAll()
+				$basketClass::getList(['filter'=>$filter])->fetchAll()
 			);
 		});
 	}
@@ -443,5 +467,30 @@ class BasketItem extends Controller
 		}
 
 		return $r;
+	}
+
+	protected function addValidate($fields)
+	{
+		$result = new Result();
+
+		if(isset($fields['ORDER_ID']) == false || intval($fields['ORDER_ID'])<=0)
+		{
+			$result->addError(new Error('Required fields: fields[ORDER_ID]'));
+		}
+		else
+		{
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+			/** @var Sale\Order $orderClass */
+			$orderClass = $registry->getOrderClassName();
+
+			$order = $orderClass::load($fields['ORDER_ID']);
+			if($order->getCurrency() <> $fields['CURRENCY'])
+			{
+				$result->addError(new Error('Currency must be the currency of the order'));
+			}
+		}
+
+		return $result;
+
 	}
 }

@@ -74,4 +74,20 @@ class LogRightTable extends Entity\DataManager
 
 		return true;
 	}
+
+	public static function deleteByGroupCode($value = '')
+	{
+		if (strlen($value) <= 0)
+		{
+			return false;
+		}
+
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$tableName = self::getTableName();
+		$connection->queryExecute("DELETE FROM {$tableName} WHERE `GROUP_CODE` = '".$helper->forSql($value)."'");
+
+		return true;
+	}
 }

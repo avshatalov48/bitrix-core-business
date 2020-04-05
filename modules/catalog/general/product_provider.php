@@ -58,20 +58,27 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 	{
 		$adminSection = (defined('ADMIN_SECTION') && ADMIN_SECTION === true);
 
+		$useSaleDiscountOnly = CCatalogDiscount::isUsedSaleDiscountOnly();
+
 		if (!isset($arParams['QUANTITY']) || (float)$arParams['QUANTITY'] <= 0)
 			$arParams['QUANTITY'] = 0;
 
-		if (CCatalogDiscount::isUsedSaleDiscountOnly())
+		if ($useSaleDiscountOnly && !isset($arParams['CHECK_DISCOUNT']))
 			$arParams['CHECK_DISCOUNT'] = 'N';
 
 		$arParams['RENEWAL'] = (isset($arParams['RENEWAL']) && $arParams['RENEWAL'] == 'Y' ? 'Y' : 'N');
 		$arParams['CHECK_QUANTITY'] = (isset($arParams['CHECK_QUANTITY']) && $arParams["CHECK_QUANTITY"] == 'N' ? 'N' : 'Y');
 		$arParams['CHECK_PRICE'] = (isset($arParams['CHECK_PRICE']) && $arParams['CHECK_PRICE'] == 'N' ? 'N' : 'Y');
 		$arParams['CHECK_DISCOUNT'] = (isset($arParams['CHECK_DISCOUNT']) && $arParams['CHECK_DISCOUNT'] == 'N' ? 'N' : 'Y');
-		if ($arParams['CHECK_DISCOUNT'] == 'Y')
-			$arParams['CHECK_COUPONS'] = (isset($arParams['CHECK_COUPONS']) && $arParams['CHECK_COUPONS'] == 'N' ? 'N' : 'Y');
-		else
-			$arParams['CHECK_COUPONS'] = 'N';
+		$arParams['CHECK_COUPONS'] = (isset($arParams['CHECK_COUPONS']) && $arParams['CHECK_COUPONS'] == 'N' ? 'N' : 'Y');
+		if (!$useSaleDiscountOnly)
+		{
+			if ($arParams['CHECK_DISCOUNT'] == 'N')
+			{
+				$arParams['CHECK_COUPONS'] = 'N';
+			}
+		}
+
 		$arParams['AVAILABLE_QUANTITY'] = (isset($arParams['AVAILABLE_QUANTITY']) && $arParams['AVAILABLE_QUANTITY'] == 'Y' ? 'Y' : 'N');
 		$arParams['SELECT_QUANTITY_TRACE'] = (isset($arParams['SELECT_QUANTITY_TRACE']) && $arParams['SELECT_QUANTITY_TRACE'] == 'Y' ? 'Y' : 'N');
 		$arParams['SELECT_CHECK_MAX_QUANTITY'] = (isset($arParams['SELECT_CHECK_MAX_QUANTITY']) && $arParams['SELECT_CHECK_MAX_QUANTITY'] == 'Y' ? 'Y' : 'N');
@@ -160,17 +167,20 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		if (!$arCatalogProduct = static::getHitCache(self::CACHE_PRODUCT, $productID))
 		{
+			$select = array('ID', 'TYPE', 'AVAILABLE',
+				'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
+				'WEIGHT', 'WIDTH', 'HEIGHT', 'LENGTH',
+				'BARCODE_MULTI',
+				'MEASURE'
+			);
+			$select = array_merge($select, Catalog\Product\SystemField::getFieldList());
 			$arCatalogProduct = Catalog\ProductTable::getList(array(
-				'select' => array('ID', 'TYPE', 'AVAILABLE',
-					'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
-					'WEIGHT', 'WIDTH', 'HEIGHT', 'LENGTH',
-					'BARCODE_MULTI',
-					'MEASURE'
-				),
+				'select' => $select,
 				'filter' => array('=ID' => $productID)
 			))->fetch();
 			if (!empty($arCatalogProduct))
 			{
+				Catalog\Product\SystemField::convertRow($arCatalogProduct);
 				$arCatalogProduct['QUANTITY'] = (float)$arCatalogProduct['QUANTITY'];
 				static::setHitCache(self::CACHE_PRODUCT, $productID, $arCatalogProduct);
 			}
@@ -277,6 +287,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 				"LENGTH" => $arCatalogProduct["LENGTH"]
 			)),
 			"TYPE" => ($arCatalogProduct["TYPE"] == Catalog\ProductTable::TYPE_SET ? CCatalogProductSet::TYPE_SET : null),
+			"MARKING_CODE_GROUP" => $arCatalogProduct["MARKING_CODE_GROUP"],
 			"VAT_INCLUDED" => "Y",
 			"MEASURE_ID" => $arCatalogProduct['MEASURE'],
 			"MEASURE_NAME" => $arCatalogProduct['MEASURE_NAME'],
@@ -320,7 +331,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 		if ($arParams["CHECK_PRICE"] == "Y")
 		{
 			$productHash = array(
-				'MODULE_ID' => 'catalog',
+				'MODULE_ID' => ($useSaleDiscountOnly ? 'sale' : 'catalog'),
 				'PRODUCT_ID' => $productID,
 				'BASKET_ID' => $arParams['BASKET_ID']
 			);
@@ -328,7 +339,14 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			$arCoupons = array();
 			if ($arParams['CHECK_COUPONS'] == 'Y')
 			{
-				$arCoupons = DiscountCouponsManager::getForApply(array('MODULE_ID' => 'catalog'), $productHash, true);
+				if ($useSaleDiscountOnly)
+				{
+					$arCoupons = DiscountCouponsManager::getForApply(array('MODULE_ID' => 'sale'), $productHash, true);
+				}
+				else
+				{
+					$arCoupons = DiscountCouponsManager::getForApply(array('MODULE_ID' => 'catalog'), $productHash, true);
+				}
 				if (!empty($arCoupons))
 					$arCoupons = array_keys($arCoupons);
 			}
@@ -484,7 +502,9 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 	{
 		$adminSection = (defined('ADMIN_SECTION') && ADMIN_SECTION === true);
 
-		if (CCatalogDiscount::isUsedSaleDiscountOnly())
+		$useSaleDiscountOnly = CCatalogDiscount::isUsedSaleDiscountOnly();
+
+		if ($useSaleDiscountOnly && !isset($arParams['CHECK_DISCOUNT']))
 			$arParams['CHECK_DISCOUNT'] = 'N';
 
 		$arParams['RENEWAL'] = (isset($arParams['RENEWAL']) && $arParams['RENEWAL'] == 'Y' ? 'Y' : 'N');
@@ -562,17 +582,20 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		if (!$arCatalogProduct = static::getHitCache(self::CACHE_PRODUCT, $productID))
 		{
+			$select = array('ID', 'TYPE', 'AVAILABLE',
+				'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
+				'WEIGHT', 'WIDTH', 'HEIGHT', 'LENGTH',
+				'BARCODE_MULTI',
+				'MEASURE'
+			);
+			$select = array_merge($select, Catalog\Product\SystemField::getFieldList());
 			$arCatalogProduct = Catalog\ProductTable::getList(array(
-				'select' => array('ID', 'TYPE', 'AVAILABLE',
-					'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
-					'WEIGHT', 'WIDTH', 'HEIGHT', 'LENGTH',
-					'BARCODE_MULTI',
-					'MEASURE'
-				),
+				'select' => $select,
 				'filter' => array('=ID' => $productID)
 			))->fetch();
 			if (!empty($arCatalogProduct))
 			{
+				Catalog\Product\SystemField::convertRow($arCatalogProduct);
 				$arCatalogProduct['QUANTITY'] = (float)$arCatalogProduct['QUANTITY'];
 				static::setHitCache(self::CACHE_PRODUCT, $productID, $arCatalogProduct);
 			}
@@ -607,7 +630,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			CCatalogDiscountSave::SetDiscountUserID($intUserID);
 
 		$productHash = array(
-			'MODULE' => 'catalog',
+			'MODULE' => ($useSaleDiscountOnly ? 'sale' : 'catalog'),
 			'PRODUCT_ID' => $productID,
 			'BASKET_ID' => $arParams['BASKET_ID']
 		);
@@ -714,6 +737,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			"NOTES" => $arPrice["PRICE"]["CATALOG_GROUP_NAME"],
 			"DISCOUNT_PRICE" => $arPrice['RESULT_PRICE']['DISCOUNT'],
 			"TYPE" => ($arCatalogProduct["TYPE"] == Catalog\ProductTable::TYPE_SET ? CCatalogProductSet::TYPE_SET : null),
+			"MARKING_CODE_GROUP" => $arCatalogProduct["MARKING_CODE_GROUP"],
 			"DISCOUNT_VALUE" => ($arPrice['RESULT_PRICE']['PERCENT'] > 0 ? $arPrice['RESULT_PRICE']['PERCENT'].'%' : null),
 			"DISCOUNT_NAME" => null,
 			"DISCOUNT_COUPON" => null,

@@ -185,8 +185,13 @@ if (($ids = $lAdmin->GroupAction()) && !$bReadOnly)
 		if ($item['ID'] <= 0 || $item['ORDER_ID'] <= 0)
 			continue;
 
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		/** @var \Bitrix\Sale\Order $currentOrder */
-		$currentOrder = Order::load($item['ORDER_ID']);
+		$currentOrder = $orderClass::load($item['ORDER_ID']);
 
 		/** @var \Bitrix\Sale\PaymentCollection $paymentCollection */
 		$paymentCollection = $currentOrder->getPaymentCollection();

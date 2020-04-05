@@ -1,4 +1,11 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Socialnetwork\LogCommentTable;
+
+global $USER_FIELD_MANAGER;
+
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return false;
@@ -481,15 +488,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				if (intVal($arResult["MESSAGE"]["AUTHOR_ID"]) > 0)
 					$arSonetFields["USER_ID"] = $arResult["MESSAGE"]["AUTHOR_ID"];
 
+				$userFieldsList = $USER_FIELD_MANAGER->GetUserFields("SONET_COMMENT", 0, LANGUAGE_ID);
+				$controlId = false;
+				if (
+					!empty($userFieldsList['UF_SONET_COM_FILE'])
+					&& !empty($userFieldsList['UF_SONET_COM_FILE']['ID'])
+				)
+				{
+					$controlId = LogCommentTable::getUfId().'-'.$userFieldsList['UF_SONET_COM_FILE']['ID'].'-UF_SONET_COM_FILE';
+					FileInputUtility::instance()->registerControl($controlId, $controlId);
+				}
+
 				$ufFileID = array();
 				$dbAddedMessageFiles = CForumFiles::GetList(array("ID" => "ASC"), array("MESSAGE_ID" => $MID1));
+				while ($arAddedMessageFiles = $dbAddedMessageFiles->Fetch())
+				{
+					$ufFileID[] = $arAddedMessageFiles["FILE_ID"];
+					if ($controlId)
+					{
+						FileInputUtility::instance()->registerFile($controlId, $arAddedMessageFiles["FILE_ID"]);
+					}
+				}
 
 				if (count($ufFileID) > 0)
 					$arSonetFields["UF_SONET_LOG_FILE"] = $ufFileID;
 				else
 					unset($arSonetFields["UF_SONET_LOG_FILE"]);
 
-				$ufDocID = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $MID1, LANGUAGE_ID);
+				$ufDocID = $USER_FIELD_MANAGER->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $MID1, LANGUAGE_ID);
 				if ($ufDocID)
 					$arSonetFields["UF_SONET_LOG_DOC"] = $ufDocID;
 				else
@@ -576,8 +602,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 						if ($arRes = $dbRes->Fetch())
 						{
 							// message/comment
+							if (isset($arSonetFields['UF_SONET_LOG_DOC']))
+							{
+								$arSonetFields['UF_SONET_COM_DOC'] = $arSonetFields['UF_SONET_LOG_DOC'];
+								unset($arSonetFields['UF_SONET_LOG_DOC']);
+							}
+							if (isset($arSonetFields['UF_SONET_LOG_FILE']))
+							{
+								$arSonetFields['UF_SONET_COM_FILE'] = $arSonetFields['UF_SONET_LOG_FILE'];
+								unset($arSonetFields['UF_SONET_LOG_FILE']);
+							}
+
 							$arSonetFields = array_intersect_key($arSonetFields,
-								array_flip(array("MESSAGE", "TEXT_MESSAGE", "PARAMS")));
+								array_flip(array("MESSAGE", "TEXT_MESSAGE", "PARAMS", "UF_SONET_COM_DOC", "UF_SONET_COM_FILE")));
 
 							CSocNetLogComments::Update($arRes["ID"], $arSonetFields);
 						}

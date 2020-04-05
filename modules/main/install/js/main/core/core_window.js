@@ -1497,7 +1497,7 @@ BX.CDialog.prototype.SetHead = function(head)
 	this.adjustSize();
 };
 
-BX.CDialog.prototype.Notify = function(note, bError)
+BX.CDialog.prototype.Notify = function(note, bError, html)
 {
 	if (!this.PARTS.NOTIFY)
 	{
@@ -1522,6 +1522,11 @@ BX.CDialog.prototype.Notify = function(note, bError)
 		BX.addClass(this.PARTS.NOTIFY, 'adm-warning-block-red');
 	else
 		BX.removeClass(this.PARTS.NOTIFY, 'adm-warning-block-red');
+
+	if(html !== true)
+	{
+		note = BX.util.htmlspecialchars(note);
+	}
 
 	this.PARTS.NOTIFY.firstChild.innerHTML = note || '&nbsp;';
 	this.PARTS.NOTIFY.firstChild.style.width = (this.PARAMS.width-50) + 'px';
@@ -1809,10 +1814,14 @@ BX.CDialog.prototype.Show = function(bNotRegister)
 
 		this.__adjustSize();
 
+		BX.removeCustomEvent(this, 'onWindowResize', BX.proxy(this.__adjustSize, this));
 		BX.addCustomEvent(this, 'onWindowResize', BX.proxy(this.__adjustSize, this));
 
 		if (this.PARAMS.resizable && (this.PARAMS.content_url || this.PARAMS.resize_id))
-			BX.addCustomEvent(this, 'onWindowResizeFinished', BX.delegate(this.__onResizeFinished, this));
+		{
+			BX.removeCustomEvent(this, 'onWindowResizeFinished', BX.proxy(this.__onResizeFinished, this));
+			BX.addCustomEvent(this, 'onWindowResizeFinished', BX.proxy(this.__onResizeFinished, this));
+		}
 	}
 };
 

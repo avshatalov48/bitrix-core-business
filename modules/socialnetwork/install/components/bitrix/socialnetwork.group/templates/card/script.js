@@ -191,7 +191,8 @@ SonetGroupCardSlider.prototype = {
 						requests: BX.message('SGCSPathToRequests'),
 						requestsOut: BX.message('SGCSPathToRequestsOut'),
 						userRequestGroup: BX.message('SGCSPathToUserRequestGroup'),
-						userLeaveGroup: BX.message('SGCSPathToUserLeaveGroup')
+						userLeaveGroup: BX.message('SGCSPathToUserLeaveGroup'),
+						copy: BX.message('SGCSPathToCopy')
 					}
 				});
 

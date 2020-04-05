@@ -4,6 +4,12 @@ use Bitrix\Main\Entity;
 
 class CReport
 {
+	protected static $totalCountableAggrFuncs = [
+		'SUM', 'COUNT_DISTINCT', 'AVG', 'MAX', 'MIN'
+	];
+
+	protected static $alternateColumnPhrases = null;
+
 	public static $iBlockCompareVariations = array(
 		'EQUAL' => '=',
 		'GREATER_OR_EQUAL' => '>=',
@@ -13,7 +19,9 @@ class CReport
 		'NOT_EQUAL' => '!',
 		'START_WITH' => '>%',
 		'CONTAINS' => '%',
-		'NOT_CONTAINS' => '!%'
+		'NOT_CONTAINS' => '!%',
+		'BETWEEN' => '><',
+		'NOT_BETWEEN' => '!><'
 	);
 
 	public static function Add($settings)
@@ -208,23 +216,21 @@ class CReport
 
 	public static function clearViewParams($id)
 	{
-		global $USER;
-
-		if (get_class($USER) === 'CUser' && $id !== null && intval($id) >= 0)
+		if ($id !== null && intval($id) >= 0)
 		{
-			$user_id = $USER->GetId();
-			if ($user_id != null)
+			$dbRes = CUserOptions::GetList(
+				array("ID" => "ASC"),
+				array('CATEGORY' => 'report', 'NAME_MASK' => 'view_params_'.$id.'_')
+			);
+			if (is_object($dbRes))
 			{
-				$dbRes = CUserOptions::GetList(
-					array("ID" => "ASC"),
-					array('USER_ID' => $user_id, 'CATEGORY' => 'report', 'NAME_MASK' => 'view_params_'.$id.'_')
-				);
-				if (is_object($dbRes))
+				while ($row = $dbRes->fetch())
 				{
-					while ($row = $dbRes->fetch())
+					$userId = (int)$row['USER_ID'];
+					if ($userId > 0)
 					{
 						if (strpos($row['NAME'], 'view_params_'.$id.'_') === 0)
-							CUserOptions::DeleteOption('report', $row['NAME'], false, $user_id);
+							CUserOptions::DeleteOption('report', $row['NAME'], false, $userId);
 					}
 				}
 			}
@@ -302,6 +308,56 @@ class CReport
 		return $chains;
 	}
 
+	protected static function initializeAlternateColumnPhrases($helperClass)
+	{
+		if (static::$alternateColumnPhrases === null)
+		{
+			static::$alternateColumnPhrases = [];
+			
+			if (is_string($helperClass)
+				&& $helperClass !== ''
+				&& method_exists($helperClass, 'getAlternatePhrasesOfColumns'))
+			{
+				$phrases = call_user_func([$helperClass, 'getAlternatePhrasesOfColumns']);
+				if (is_array($phrases))
+				{
+					static::$alternateColumnPhrases[$helperClass] = $phrases;
+				}
+				else
+				{
+					static::$alternateColumnPhrases[$helperClass] = [];
+				}
+			}
+		}
+	}
+
+	public static function isAlternateColumnPhraseExists($helperClass, $messageCode)
+	{
+		static::initializeAlternateColumnPhrases($helperClass);
+
+		$result = false;
+
+		if (is_string($helperClass) && $helperClass !== ''
+			&& is_array(static::$alternateColumnPhrases[$helperClass])
+			&& isset(static::$alternateColumnPhrases[$helperClass][$messageCode]))
+		{
+			$result = true;
+		}
+
+		return $result;
+	}
+
+	public static function getAlternateColumnPhrase($helperClass, $messageCode)
+	{
+		$result = '';
+
+		if (static::isAlternateColumnPhraseExists($helperClass, $messageCode))
+		{
+			$result = static::$alternateColumnPhrases[$helperClass][$messageCode];
+		}
+
+		return $result;
+	}
 
 	public static function generateColumnTree($chains, $initEntity, $helper_class, $level = 0)
 	{
@@ -363,20 +419,18 @@ class CReport
 		return $tree;
 	}
 
-	protected static function attachLangToColumnTree(&$tree, $initEntity, $helper_class, $preTitle = array())
+	protected static function attachLangToColumnTree(&$tree, $initEntity, $helperClass, $preTitle = array())
 	{
-		$arUFInfo = call_user_func(array($helper_class, 'getUFInfo'));
-
 		foreach($tree as &$treeElem)
 		{
-			$ownerId = call_user_func(array($helper_class, 'getOwnerId'));
+			$ownerId = call_user_func(array($helperClass, 'getOwnerId'));
 
 			$humanTitle = '';
 
 			if (!empty($treeElem['field']))
 			{
 				// detect UF
-				$arUF = call_user_func(array($helper_class, 'detectUserField'), $treeElem['field']);
+				$arUF = call_user_func(array($helperClass, 'detectUserField'), $treeElem['field']);
 				if ($arUF['isUF'])
 				{
 					$treeElem['isUF'] = true;
@@ -391,9 +445,34 @@ class CReport
 				// second: entity-defined lang
 				$eElementTitle = $treeElem['field']->getLangCode();
 
-				//$elementTitle = HasMessage($rElementTitle) ? $rElementTitle : $eElementTitle;
-				$elementMessage = GetMessage($rElementTitle);
-				$elementTitle = (!empty($elementMessage)) ? $rElementTitle : $eElementTitle;
+				// PRCNT hack should not be here
+				if (substr($rElementTitle, -12) === '_PRCNT_FIELD')
+				{
+					$messageCode = substr($rElementTitle, 0, -12).'_FIELD';
+				}
+				else
+				{
+					$messageCode = $rElementTitle;
+				}
+
+				if (static::isAlternateColumnPhraseExists($helperClass, $messageCode))
+				{
+					$elementTitle = $rElementTitle;
+				}
+				else
+				{
+					$elementMessage = GetMessage($messageCode);
+					if (is_string($elementMessage) && $elementMessage !== '')
+					{
+						$elementTitle = $rElementTitle;
+					}
+					else
+					{
+						$elementTitle = $eElementTitle;
+					}
+				}
+
+				unset($messageCode);
 			}
 			else
 			{
@@ -405,17 +484,28 @@ class CReport
 			if (!isset($treeElem['isUF']) || !$treeElem['isUF'])
 			{
 				// PRCNT hack should not be here
-				if (substr($elementTitle, -12) == '_PRCNT_FIELD')
+				if (substr($elementTitle, -12) === '_PRCNT_FIELD')
 				{
-					$humanTitle = GetMessage(substr($elementTitle, 0, -12).'_FIELD');
+					$messageCode = substr($elementTitle, 0, -12).'_FIELD';
 				}
 				else
 				{
-					$humanTitle = GetMessage($elementTitle);
+					$messageCode = $elementTitle;
 				}
+
+				if (static::isAlternateColumnPhraseExists($helperClass, $messageCode))
+				{
+					$humanTitle = static::getAlternateColumnPhrase($helperClass, $messageCode);
+				}
+				else
+				{
+					$humanTitle = GetMessage($messageCode);
+				}
+
+				unset($messageCode);
 			}
 
-			if (empty($humanTitle))
+			if (!is_string($humanTitle) || $humanTitle === '')
 			{
 				$humanTitle = $treeElem['fieldName'];
 			}
@@ -444,7 +534,7 @@ class CReport
 
 				$sendPreTitle = array($humanTitle);
 
-				self::attachLangToColumnTree($treeElem['branch'], $initEntity, $helper_class, $sendPreTitle);
+				self::attachLangToColumnTree($treeElem['branch'], $initEntity, $helperClass, $sendPreTitle);
 			}
 		}
 	}
@@ -507,15 +597,16 @@ class CReport
 	/**
 	 * @param                     $elem
 	 * @param                     $select
-	 * @param                     $is_init_entity_aggregated
+	 * @param                     $isInitEntityAggregated
 	 * @param                     $fList
 	 * @param Entity\QueryChain[] $fChainList
-	 * @param                     $helper_class
+	 * @param                     $helperClassName
 	 * @param Entity\Base         $entity
 	 *
 	 * @return array
 	 */
-	public static function prepareSelectViewElement($elem, $select, $is_init_entity_aggregated, $fList, $fChainList, $helper_class, Entity\Base $entity)
+	public static function prepareSelectViewElement($elem, $select, $isInitEntityAggregated, $fList, $fChainList,
+		$helperClassName, Entity\Base $entity)
 	{
 		$selectElem = null;
 		$totalInfo = null;
@@ -534,7 +625,22 @@ class CReport
 			$chain = $fChainList[$elem['name']];
 			$sourceAlias = $alias = $chain->getAlias();
 
-			$dataType = call_user_func(array($helper_class, 'getFieldDataType'), $field);
+			$dataType = call_user_func(array($helperClassName, 'getFieldDataType'), $field);
+
+			// Need pack 1:N aggregations into subquery?
+			$needPack1NAggr = false;
+			if ($chain->hasBackReference() && $elem['aggr'] != 'GROUP_CONCAT')
+			{
+				$confirm = call_user_func_array(
+					array($helperClassName, 'confirmSelectBackReferenceRewrite'),
+					array(&$elem, $chain)
+				);
+
+				if ($confirm)
+				{
+					$needPack1NAggr = true;
+				}
+			}
 
 			if (!empty($elem['aggr']))
 			{
@@ -576,48 +682,117 @@ class CReport
 					}
 					else
 					{
-						$expression = array(
-							$elem['aggr'].'('.$localDef.')', $elem['name']
-						);
+						if ($elem['aggr'] === 'AVG')
+						{
+							if (!is_array($totalInfo))
+							{
+								$totalInfo = [];
+							}
+							$totalInfo['average'] = [
+								'type' => 'average',
+								'cnt' => [
+									'alias' => $sourceAlias.'_AVGCNT',
+									'def' => [
+										'data_type' => 'integer',
+										'expression' => ['COUNT(1)']
+									]
+								],
+								'sum' => [
+									'alias' => $sourceAlias.'_AVGSUM',
+									'def' => [
+										'data_type' => $dataType,
+										'expression' => ['SUM('.$localDef.')', $elem['name']]
+									]
+								]
+							];
+						}
+						else
+						{
+							if ($elem['aggr'] === 'MIN' || $elem['aggr'] === 'MAX')
+							{
+								$typeMap = ['MIN' => 'minimum', 'MAX' => 'maximum'];
+								$type = $typeMap[$elem['aggr']];
+								if (!is_array($totalInfo))
+								{
+									$totalInfo = [];
+								}
+								$totalInfo[$type] = ['type' => $type];
+								unset($typeMap, $type);
+							}
+						}
+
+						$expression = [$elem['aggr'].'('.$localDef.')', $elem['name']];
 					}
 				}
 
 				// pack 1:N aggregations into subquery
-				if ($chain->hasBackReference() && $elem['aggr'] != 'GROUP_CONCAT')
+				if ($needPack1NAggr)
 				{
-					$confirm = call_user_func_array(
-						array($helper_class, 'confirmSelectBackReferenceRewrite'),
-						array(&$elem, $chain)
-					);
-
-					if ($confirm)
+					$filter = array();
+					foreach ($entity->GetPrimaryArray() as $primary)
 					{
-						$filter = array();
-						foreach ($entity->GetPrimaryArray() as $primary)
+						$filter['='.$primary] = new CSQLWhereExpression(
+							'?#', ToLower($entity->getCode()).'.'.$primary
+						);
+					}
+
+					$query = new Entity\Query($entity);
+					$query->addSelect(new Entity\ExpressionField('X', $expression[0], $elem['name']));
+					$query->setFilter($filter);
+					$query->setTableAliasPostfix('_sub');
+
+					$expression = array('('.$query->getQuery().')');
+
+					// double aggregation if init entity aggregated
+					if ($isInitEntityAggregated)
+					{
+						if ($elem['aggr'] == 'COUNT_DISTINCT')
 						{
-							$filter['='.$primary] = new CSQLWhereExpression('?#', ToLower($entity->getCode()).'.'.$primary);
+							$expression[0] = 'SUM('.$expression[0].')';
 						}
-
-						$query = new Entity\Query($entity);
-						$query->addSelect(new Entity\ExpressionField('X', $expression[0], $elem['name']));
-						$query->setFilter($filter);
-						$query->setTableAliasPostfix('_sub');
-
-						$expression = array('('.$query->getQuery().')');
-
-						// double aggregation if init entity aggregated
-						if ($is_init_entity_aggregated)
+						else
 						{
-							if ($elem['aggr'] == 'COUNT_DISTINCT')
+							if ($elem['aggr'] === 'AVG')
 							{
-								$expression[0] = 'SUM('.$expression[0].')';
+								$cntQuery = new Entity\Query($entity);
+								$cntQuery->addSelect(new Entity\ExpressionField('CNT', 'COUNT(1)', $elem['name']));
+								$cntQuery->setFilter($filter);
+								$cntQuery->setTableAliasPostfix('_cnt');
+
+								$sumQuery = new Entity\Query($entity);
+								$sumQuery->addSelect(new Entity\ExpressionField(
+									'SUM', 'SUM('.$localDef.')', $elem['name'])
+								);
+								$sumQuery->setFilter($filter);
+								$sumQuery->setTableAliasPostfix('_sum');
+
+								if (!is_array($totalInfo))
+								{
+									$totalInfo = [];
+								}
+								$totalInfo['average'] = [
+									'type' => 'average',
+									'cnt' => [
+										'alias' => $sourceAlias.'_AVGCNT',
+										'def' => [
+											'data_type' => 'integer',
+											'expression' => ['SUM(('.$cntQuery->getQuery().'))']
+										]
+									],
+									'sum' => [
+										'alias' => $sourceAlias.'_AVGSUM',
+										'def' => [
+											'data_type' => $dataType,
+											'expression' => ['SUM(('.$sumQuery->getQuery().'))']
+										]
+									]
+								];
+
+								unset($cntQuery, $sumQuery);
 							}
-							else
-							{
-								$expression[0] = $elem['aggr'].'('.$expression[0].')';
-							}
+							$expression[0] = $elem['aggr'].'('.$expression[0].')';
 						}
-					} // confirmed
+					}
 				}
 			}
 
@@ -646,7 +821,15 @@ class CReport
 						$localMembers = array_slice($expression, 1);
 					}
 
-					list($remoteAlias, $remoteSelect) = self::prepareSelectViewElement($select[$elem['prcnt']], $select, $is_init_entity_aggregated, $fList, $fChainList, $helper_class, $entity);
+					list($remoteAlias, $remoteSelect) = self::prepareSelectViewElement(
+						$select[$elem['prcnt']],
+						$select,
+						$isInitEntityAggregated,
+						$fList,
+						$fChainList,
+						$helperClassName,
+						$entity
+					);
 
 					if (is_array($remoteSelect) && !empty($remoteSelect['expression']))
 					{
@@ -674,7 +857,11 @@ class CReport
 					$expression = array_merge(array($exprDef), $localMembers, $remoteMembers);
 
 					// Total expression
-					$totalInfo = [
+					if (!is_array($totalInfo))
+					{
+						$totalInfo = [];
+					}
+					$totalInfo['prcntFromCol'] = [
 						'type' => 'prcntFromCol',
 						'local' => [
 							'alias' => $sourceAlias.'_PRCNTFC',
@@ -754,6 +941,16 @@ class CReport
 		return false;
 	}
 
+	public static function getTotalCountableAggregationFunctions()
+	{
+		return static::$totalCountableAggrFuncs;
+	}
+
+	public static function isTotalCountableAggregationFunction($aggr)
+	{
+		return in_array($aggr, static::getTotalCountableAggregationFunctions(), true);
+	}
+
 	public static function isColumnTotalCountable($view, $helperClassName)
 	{
 		/** @var Entity\Field[] $view */
@@ -765,7 +962,7 @@ class CReport
 		{
 			return true;
 		}
-		elseif ($view['aggr'] == 'SUM' || $view['aggr'] == 'COUNT_DISTINCT')
+		elseif (static::isTotalCountableAggregationFunction($view['aggr']))
 		{
 			return true;
 		}
@@ -1040,6 +1237,7 @@ class CReport
 					switch ($compare)
 					{
 						case '!':
+						case '!%':
 							$iFilterItems[] = [
 								'LOGIC' => 'OR',
 								$compare.$name => $value,

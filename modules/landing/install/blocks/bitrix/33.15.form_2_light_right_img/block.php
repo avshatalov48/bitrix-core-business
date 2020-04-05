@@ -56,6 +56,10 @@
 				 data-form-style-main-bg-light="1"
 			>
 			</div>
+			<div class="g-bg-white"
+				 data-form-style-light-bg="1"
+			>
+			</div>
 		</div>
 
 		<div class="row">
@@ -66,7 +70,7 @@
 					 data-b24form-show-header="N"
 				></div>
 			</div>
-			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-contain--xs g-bg-size-cover--sm"
+			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/570x511/img1.png);"></div>
 		</div>
 	</div>

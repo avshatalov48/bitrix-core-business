@@ -261,7 +261,7 @@ class CAllSalePersonType
 	function OnBeforeLangDelete($lang)
 	{
 		global $DB;
-		$r = $DB->Query("SELECT 'x' FROM b_sale_person_type WHERE LID = '".$DB->ForSQL($lang, 2)."'");
+		$r = $DB->Query("SELECT 'x' FROM b_sale_person_type WHERE LID = '".$DB->ForSQL($lang, 2)."' AND ENTITY_REGISTRY_TYPE='".\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER."'");
 		return ($r->Fetch() ? false : true);
 	}
 

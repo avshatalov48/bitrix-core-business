@@ -5,6 +5,11 @@ class CListsSocnet
 {
 	public static function OnFillSocNetFeaturesList(&$arSocNetFeaturesSettings)
 	{
+		if (CModule::IncludeModule("lists") && !CLists::isFeatureEnabled("lists"))
+		{
+			return;
+		}
+
 		$arSocNetFeaturesSettings["group_lists"] = array(
 			"allowed" 		=> array(SONET_ENTITY_GROUP),
 			"operations"	=> array(

@@ -60,18 +60,6 @@ class CUserTypeEntity extends CAllUserTypeEntity
 	}
 }
 
-class CSQLWhere extends CAllSQLWhere
-{
-	function _Empty($field)
-	{
-		return "(".$field." IS NULL OR ".$field." = '')";
-	}
-	function _NotEmpty($field)
-	{
-		return "(".$field." IS NOT NULL AND LENGTH(".$field.") > 0)";
-	}
-}
-
 /**
  * Ёта переменна€ содержит экземпл€р класса через API которого
  * и происходит работа с пользовательскими свойствами.
@@ -79,4 +67,3 @@ class CSQLWhere extends CAllSQLWhere
  * @name $USER_FIELD_MANAGER
  */
 $GLOBALS['USER_FIELD_MANAGER'] = new CUserTypeManager;
-?>

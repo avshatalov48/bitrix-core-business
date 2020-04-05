@@ -198,10 +198,10 @@ class YandexHandler
 		$paymentSum = $this->getBusinessValue($payment, 'PAYMENT_SHOULD_PAY');
 
 		PaySystem\Logger::addDebugInfo(
-			'Yandex: yandexSum='.roundEx($sum, 2)."; paymentSum=".roundEx($paymentSum, 2)
+			'Yandex: yandexSum='.round($sum, 2)."; paymentSum=".round($paymentSum, 2)
 		);
 
-		return roundEx($paymentSum, 2) == roundEx($sum, 2);
+		return round($paymentSum, 2) == round($sum, 2);
 	}
 
 	/**

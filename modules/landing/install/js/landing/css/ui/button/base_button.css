@@ -152,6 +152,11 @@
 	top: 12px;
 }
 
+.landing-ui-disabled.landing-ui-button-desktop,
+.landing-ui-disabled.landing-ui-button-tablet,
+.landing-ui-disabled.landing-ui-button-mobile {
+	opacity: .3;
+}
 
 .landing-ui-button[data-id="text-left"],
 .landing-ui-button[data-id="text-center"],

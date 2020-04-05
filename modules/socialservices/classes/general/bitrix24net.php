@@ -2,6 +2,7 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialservices\Network;
+use Bitrix\Socialservices\UserTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -87,7 +88,7 @@ class CSocServBitrix24Net extends CSocServAuth
 			.'&backurl='.urlencode($GLOBALS["APPLICATION"]->GetCurPageParam(
 				'check_key='.CSocServAuthManager::GetUniqueKey(),
 				array_merge(array(
-					"auth_service_error", "auth_service_id", "check_key"
+					"auth_service_error", "auth_service_id", "check_key", "error_message"
 				), \Bitrix\Main\HttpRequest::getSystemParameters())
 			))
 			.'&mode='.$mode;
@@ -112,6 +113,7 @@ class CSocServBitrix24Net extends CSocServAuth
 
 		$bProcessState = false;
 		$authError = SOCSERV_AUTHORISATION_ERROR;
+		$errorMessage = '';
 
 		if(
 			$skipCheck
@@ -166,6 +168,7 @@ class CSocServBitrix24Net extends CSocServAuth
 						if(ExecuteModuleEventEx($arEvent, array(&$arFields, $arB24NetUser, $this)) === false)
 						{
 							$authError = SOCSERV_AUTHORISATION_ERROR;
+							$errorMessage = $APPLICATION->GetException();
 							break;
 						}
 					}
@@ -265,7 +268,7 @@ class CSocServBitrix24Net extends CSocServAuth
 				{
 					unset($_SESSION['B24_NETWORK_REDIRECT_TRY']);
 					$url = self::getUrl();
-					$url .= (strpos($url, '?') >= 0 ? '&' : '?').'skip_redirect=1';
+					$url .= (strpos($url, '?') >= 0 ? '&' : '?').'skip_redirect=1&error_message='.urlencode($errorMessage);
 				}else
 				{
 					$_SESSION['B24_NETWORK_REDIRECT_TRY'] = true;
@@ -282,6 +285,10 @@ class CSocServBitrix24Net extends CSocServAuth
 				elseif($bSuccess !== true)
 				{
 					$url = (isset($urlPath)) ? $urlPath.'?auth_service_id='.self::ID.'&auth_service_error='.$authError : $GLOBALS['APPLICATION']->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$authError), $aRemove);
+				}
+				if (strlen($errorMessage))
+				{
+					$url .= '&error_message=' . urlencode($errorMessage);
 				}
 			}
 		}
@@ -614,18 +621,18 @@ class CBitrix24NetOAuthInterface
 
 			if($save && intval($userId) > 0)
 			{
-				$dbSocservUser = CSocServAuthDB::GetList(
-					array(),
-					array(
-						"USER_ID" => intval($userId),
-						"EXTERNAL_AUTH_ID" => CSocServBitrix24Net::ID
-					), false, false, array("ID")
-				);
+				$dbSocservUser = UserTable::getList([
+					'filter' => [
+						"=USER_ID" => intval($userId),
+						"=EXTERNAL_AUTH_ID" => CSocServBitrix24Net::ID
+					],
+					'select' => ['ID']
+				]);
 
-				$arOauth = $dbSocservUser->Fetch();
+				$arOauth = $dbSocservUser->fetch();
 				if($arOauth)
 				{
-					CSocServAuthDB::Update(
+					UserTable::update(
 						$arOauth["ID"], array(
 							"OATOKEN" => $this->access_token,
 							"OATOKEN_EXPIRES" => $this->accessTokenExpires,
@@ -688,15 +695,15 @@ class CBitrix24NetOAuthInterface
 		$accessToken = '';
 		if(is_object($USER) && $USER->IsAuthorized())
 		{
-			$dbSocservUser = CSocServAuthDB::GetList(
-				array(),
-				array(
-					'USER_ID' => $USER->GetID(),
-					"EXTERNAL_AUTH_ID" => CSocServBitrix24Net::ID
-				), false, false, array("USER_ID", "OATOKEN", "OATOKEN_EXPIRES", "REFRESH_TOKEN")
-			);
+			$dbSocservUser = UserTable::getList([
+				'filter' => [
+					'=USER_ID' => $USER->GetID(),
+					'=EXTERNAL_AUTH_ID' => CSocServBitrix24Net::ID
+				],
+				'select' => ["USER_ID", "OATOKEN", "OATOKEN_EXPIRES", "REFRESH_TOKEN"]
+			]);
 
-			$accessToken = $dbSocservUser->Fetch();
+			$accessToken = $dbSocservUser->fetch();
 		}
 		return $accessToken;
 	}
@@ -718,6 +725,11 @@ class CBitrix24NetTransport
 	const METHOD_PROFILE_ADD_CHECK = 'profile.add.check';
 	const METHOD_PROFILE_UPDATE = 'profile.update';
 	const METHOD_PROFILE_DELETE = 'profile.delete';
+	const METHOD_PROFILE_CONTACTS = 'profile.contacts';
+	const METHOD_PROFILE_RESTORE_PASSWORD = 'profile.password.restore';
+
+	const RESTORE_PASSWORD_METHOD_EMAIL = 'EMAIL';
+	const RESTORE_PASSWORD_METHOD_PHONE = 'PHONE';
 
 	const REPONSE_KEY_BROADCAST = "broadcast";
 
@@ -856,6 +868,22 @@ class CBitrix24NetTransport
 	public function deleteProfile($ID)
 	{
 		return $this->call(self::METHOD_PROFILE_DELETE, array("ID" => $ID));
+	}
+
+	public function getProfileContacts($userId)
+	{
+		return $this->call(self::METHOD_PROFILE_CONTACTS, array("USER_ID" => $userId));
+	}
+
+	/**
+	 * Restore user profile password
+	 * @param int $userId User id whom password should be restored.
+	 * @param string $restoreMethod Restore method (via email or via phone).
+	 * @return mixed
+	 */
+	public function restoreProfilePassword($userId, $restoreMethod)
+	{
+		return $this->call(self::METHOD_PROFILE_RESTORE_PASSWORD, array("USER_ID" => $userId, 'RESTORE_METHOD' => $restoreMethod, 'LANGUAGE_ID' => LANGUAGE_ID));
 	}
 }
 

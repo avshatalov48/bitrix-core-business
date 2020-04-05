@@ -15,6 +15,7 @@ class Multipart extends Part
 {
 	const MIXED = 'multipart/mixed';
 	const ALTERNATIVE = 'multipart/alternative';
+	const RELATED = 'multipart/related';
 
 	/** @var Multipart[]|Part[] $parts Parts. */
 	protected $parts = [];

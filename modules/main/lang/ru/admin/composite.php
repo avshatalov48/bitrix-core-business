@@ -110,4 +110,6 @@ $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_TASK1"] = "Ознакомьтесь с <a
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_TASK2"] = "Адаптируйте шаблоны компонентов (включите разметку для композитного режима).";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_TASK3"] = "Если возникли сложности, обратитесь к партнеру, который поможет перейти на технологию композитный сайт.";
 $MESS["MAIN_COMPOSITE_COMPOSITE_SWITCH_TASK4"] = "Нажмите кнопку &laquo;Включить композит&raquo;.";
+$MESS["MAIN_COMPOSITE_CORPORATE_PORTAL_DOMAIN_WARNING"] = "<span class=\"required\">Внимание!</span> Не указывайте домен, на котором находится портал в списке доменных имен на вкладке \"Настройки\". Шаблон портала не предназначен для работы в композитном режиме";
+$MESS["MAIN_COMPOSITE_SAVE_ERROR"] = "Ошибка сохранения";
 ?>

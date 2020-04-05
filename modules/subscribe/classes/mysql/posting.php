@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/classes/genera
 
 class CPosting extends CPostingGeneral
 {
-	function GetList($aSort=Array(), $arFilter=Array())
+	function GetList($aSort=Array(), $arFilter=Array(), $arSelect=Array(), $arNavStartParams=false)
 	{
 		global $DB;
 		$this->LAST_ERROR = "";
@@ -113,15 +113,15 @@ class CPosting extends CPostingGeneral
 			$ord = (strtoupper($ord) <> "ASC"? "DESC": "ASC");
 			switch($key)
 			{
-				case "ID":		$arOrder[$key] = "P.ID ".$ord; break;
-				case "TIMESTAMP":	$arOrder[$key] = "P.TIMESTAMP_X ".$ord; break;
-				case "SUBJECT":		$arOrder[$key] = "P.SUBJECT ".$ord; break;
-				case "BODY_TYPE":	$arOrder[$key] = "P.BODY_TYPE ".$ord; break;
-				case "STATUS":		$arOrder[$key] = "P.STATUS ".$ord; break;
-				case "DATE_SENT":	$arOrder[$key] = "P.DATE_SENT ".$ord; break;
-				case "AUTO_SEND_TIME":	$arOrder[$key] = "P.AUTO_SEND_TIME ".$ord; break;
-				case "FROM_FIELD":	$arOrder[$key] = "P.FROM_FIELD ".$ord; break;
-				case "TO_FIELD":	$arOrder[$key] = "P.TO_FIELD ".$ord; break;
+				case "ID": $arOrder[$key] = "P.ID ".$ord; break;
+				case "TIMESTAMP": $arOrder[$key] = "P.TIMESTAMP_X ".$ord; break;
+				case "SUBJECT": $arOrder[$key] = "P.SUBJECT ".$ord; break;
+				case "BODY_TYPE": $arOrder[$key] = "P.BODY_TYPE ".$ord; break;
+				case "STATUS": $arOrder[$key] = "P.STATUS ".$ord; break;
+				case "DATE_SENT": $arOrder[$key] = "P.DATE_SENT ".$ord; break;
+				case "AUTO_SEND_TIME": $arOrder[$key] = "P.AUTO_SEND_TIME ".$ord; break;
+				case "FROM_FIELD": $arOrder[$key] = "P.FROM_FIELD ".$ord; break;
+				case "TO_FIELD": $arOrder[$key] = "P.TO_FIELD ".$ord; break;
 			}
 		}
 		if(count($arOrder) <= 0)
@@ -130,40 +130,85 @@ class CPosting extends CPostingGeneral
 		}
 		$strSqlOrder = " ORDER BY ".implode(", ", $arOrder);
 
+		$arSelectFields = array(
+			"STATUS_TITLE" => "if(P.STATUS='S','".$DB->ForSql(GetMessage("POST_STATUS_SENT"))."',
+			if(P.STATUS='P','".$DB->ForSql(GetMessage("POST_STATUS_PART"))."',
+			if(P.STATUS='E','".$DB->ForSql(GetMessage("POST_STATUS_ERROR"))."',
+			if(P.STATUS='W','".$DB->ForSql(GetMessage("POST_STATUS_WAIT"))."',
+			'".$DB->ForSql(GetMessage("POST_STATUS_DRAFT"))."'))))",
+			"ID" => "P.ID",
+			"STATUS" => "P.STATUS",
+			"FROM_FIELD" => "P.FROM_FIELD",
+			"TO_FIELD" => "P.TO_FIELD",
+			"EMAIL_FILTER" => "P.EMAIL_FILTER",
+			"SUBJECT" => "P.SUBJECT",
+			"BODY_TYPE" => "P.BODY_TYPE",
+			"DIRECT_SEND" => "P.DIRECT_SEND",
+			"CHARSET" => "P.CHARSET",
+			"MSG_CHARSET" => "P.MSG_CHARSET",
+			"SUBSCR_FORMAT" => "P.SUBSCR_FORMAT",
+			"TIMESTAMP_X" => $DB->DateToCharFunction("P.TIMESTAMP_X"),
+			"DATE_SENT" => $DB->DateToCharFunction("P.DATE_SENT"),
+		);
+
+		if (!is_array($arSelect) || empty($arSelect))
+		{
+			$arSelect = array_keys($arSelectFields);
+		}
+
+		$arSqlSelect = array();
+		foreach ($arSelect as $selectField)
+		{
+			if (isset($arSelectFields[$selectField]))
+			{
+				$arSqlSelect[$selectField] = $arSelectFields[$selectField]." as ".$selectField;
+			}
+		}
+		if (!$arSqlSelect)
+		{
+			$arSqlSelect["ID"] = $arSelectFields["ID"]." as ID";
+		}
+
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
-			SELECT
-				if(P.STATUS='S','".$DB->ForSql(GetMessage("POST_STATUS_SENT"))."',
-				if(P.STATUS='P','".$DB->ForSql(GetMessage("POST_STATUS_PART"))."',
-				if(P.STATUS='E','".$DB->ForSql(GetMessage("POST_STATUS_ERROR"))."',
-				if(P.STATUS='W','".$DB->ForSql(GetMessage("POST_STATUS_WAIT"))."',
-				'".$DB->ForSql(GetMessage("POST_STATUS_DRAFT"))."')))) as STATUS_TITLE
-				,P.ID
-				,P.STATUS
-				,P.FROM_FIELD
-				,P.TO_FIELD
-				,P.EMAIL_FILTER
-				,P.SUBJECT
-				,P.BODY_TYPE
-				,P.DIRECT_SEND
-				,P.CHARSET
-				,P.MSG_CHARSET
-				,P.SUBSCR_FORMAT
-				,".$DB->DateToCharFunction("P.TIMESTAMP_X")." TIMESTAMP_X
-				,".$DB->DateToCharFunction("P.DATE_SENT")." DATE_SENT
+			SELECT ".implode(", ", $arSqlSelect)."
 			FROM b_posting P
 			WHERE
 			".$strSqlSearch."
-		";
-		if(count($arSqlSearch_h)>0)
-		{
-			$strSqlSearch_h = GetFilterSqlSearch($arSqlSearch_h);
-			$strSql = $strSql." HAVING ".$strSqlSearch_h;
-		}
-		$strSql.=$strSqlOrder;
+			".($arSqlSearch_h? " HAVING ".GetFilterSqlSearch($arSqlSearch_h): "")."
+		".$strSqlOrder;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		if (is_array($arNavStartParams))
+		{
+			$nTopCount = (isset($arNavStartParams['nTopCount']) ? (int)$arNavStartParams['nTopCount'] : 0);
+			if ($nTopCount > 0)
+			{
+				$res = $DB->Query($DB->TopSql(
+					$strSql,
+					$nTopCount
+				));
+			}
+			else
+			{
+				$res_cnt = $DB->Query("
+					SELECT COUNT(P.ID) as C
+					FROM b_posting P
+					WHERE
+					".$strSqlSearch."
+					".($arSqlSearch_h? " HAVING ".GetFilterSqlSearch($arSqlSearch_h): "")."
+				");
+				$res_cnt = $res_cnt->Fetch();
+				$res = new CDBResult();
+				$res->NavQuery($strSql, $res_cnt["C"], $arNavStartParams);
+			}
+		}
+		else
+		{
+			$res = $DB->Query($strSql);
+		}
+
 		$res->is_filtered = (IsFiltered($strSqlSearch));
+
 		return $res;
 	}
 

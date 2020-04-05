@@ -180,6 +180,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				this.visibleControlMoreButton();
 			}
 
+			if ('ajaxSettings' in params)
+			{
+				this.ajaxSettings = params.ajaxSettings;
+			}
+
 			this.moreButton = this.getMoreButton();
 
 			this.listChildItems = {};
@@ -1607,23 +1612,134 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				var item = listAllItems[itemId];
 				if (item["PARENT_ID"] === parentId)
 				{
+					var events = {}, items = [], ajaxMode = item.hasOwnProperty("AJAX_OPTIONS");
+
+					if (ajaxMode)
+					{
+						events = this._getEvents(item["AJAX_OPTIONS"]);
+						items = [
+							{
+								id: "loading",
+								text: this.message("MIB_MAIN_BUTTONS_LOADING")
+							}
+						];
+					}
+
 					var listChildItems, itemData = {
 						text: item["TEXT"],
 						href: item["URL"],
 						onclick: item["ON_CLICK"],
-						title: item["TITLE"]
+						title: item["TITLE"],
+						events: events,
+						items: items
 					};
-					listChildItems = this.getListItems(listAllItems, itemId);
-					if (listChildItems.length)
+
+					if (ajaxMode)
 					{
-						itemData.items = listChildItems;
+						itemData.cacheable = true;
 					}
+					else
+					{
+						listChildItems = this.getListItems(listAllItems, itemId);
+						if (listChildItems.length)
+						{
+							itemData.items = listChildItems;
+						}
+					}
+
 					listItems.push(itemData);
 					delete listAllItems[itemId];
 				}
 			}
 
 			return listItems;
+		},
+
+		_setAjaxMode: function(items)
+		{
+			for (var itemId in items)
+			{
+				if (!items.hasOwnProperty(itemId))
+				{
+					continue;
+				}
+				if (items[itemId].hasOwnProperty("ajaxOptions"))
+				{
+					items[itemId].cacheable = true;
+					items[itemId].events = this._getEvents(items[itemId]["ajaxOptions"]);
+					items[itemId].items = [
+						{
+							id: "loading",
+							text: this.message("MIB_MAIN_BUTTONS_LOADING")
+						}
+					];
+				}
+			}
+		},
+
+		_getEvents: function(ajaxOptions)
+		{
+			var _this = this;
+			return {
+				onSubMenuShow: function()
+				{
+					if (this.subMenuLoaded)
+					{
+						return;
+					}
+
+					var submenu = this.getSubMenu();
+					submenu.removeMenuItem("loading");
+					var loadingItem = submenu.getMenuItem("loading");
+
+					_this.getSubItems(ajaxOptions).then(function(items)
+					{
+						_this._setAjaxMode(items);
+						this.subMenuLoaded = true;
+						this.addSubMenu(items);
+						this.showSubMenu();
+					}.bind(this)).catch(function(text)
+					{
+						if (loadingItem)
+						{
+							loadingItem.getLayout().text.innerText = text;
+						}
+					});
+				}
+			};
+		},
+
+		getSubItems: function(ajaxOptions)
+		{
+			return new Promise(function(resolve, reject) {
+				if (this.progress)
+				{
+					reject(this.message("MIB_MAIN_BUTTONS_LOADING"));
+					return;
+				}
+				if (ajaxOptions.mode === "component")
+				{
+					this.progress = true;
+					BX.ajax.runComponentAction(ajaxOptions.component, ajaxOptions.action, {
+						mode: ajaxOptions.componentMode,
+						signedParameters: (ajaxOptions.signedParameters ? ajaxOptions.signedParameters : {}),
+						data: ajaxOptions.data,
+					}).then(function(response) {
+						this.progress = false;
+						resolve(response.data);
+					}.bind(this));
+				}
+				else
+				{
+					this.progress = true;
+					BX.ajax.runAction(ajaxOptions.action, {
+						data: ajaxOptions.data,
+					}).then(function(response) {
+						this.progress = false;
+						resolve(response.data);
+					}.bind(this));
+				}
+			});
 		},
 
 		/**

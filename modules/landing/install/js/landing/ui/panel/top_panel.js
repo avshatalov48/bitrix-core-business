@@ -26,7 +26,7 @@
 	{
 		BX.Landing.UI.Panel.BasePanel.apply(this, arguments);
 
-		this.layout = top.document.querySelector(".landing-ui-panel-top");
+		this.layout = document.querySelector(".landing-ui-panel-top");
 		this.siteButton = this.layout.querySelector(".landing-ui-panel-top-chain-link-site");
 		this.pageButton = this.layout.querySelector(".landing-ui-panel-top-chain-link-page");
 		this.undoButton = this.layout.querySelector(".landing-ui-panel-top-history-undo");
@@ -34,8 +34,8 @@
 		this.desktopButton = this.layout.querySelector(".landing-ui-button-desktop");
 		this.tabletButton = this.layout.querySelector(".landing-ui-button-tablet");
 		this.mobileButton = this.layout.querySelector(".landing-ui-button-mobile");
-		this.iframeWrapper = top.document.querySelector(".landing-ui-view-iframe-wrapper");
-		this.iframe = top.document.querySelector(".landing-ui-view");
+		this.iframeWrapper = document.querySelector(".landing-ui-view-iframe-wrapper");
+		this.iframe = document.querySelector(".landing-ui-view");
 
 		this.lastActive = this.desktopButton;
 		this.loader = null;
@@ -57,11 +57,11 @@
 		bind(this.iframe.contentDocument, "click", this.onIframeClick);
 		bind(this.undoButton, "click", this.onUndo);
 		bind(this.redoButton, "click", this.onRedo);
-		bind(top.document, "keydown", this.onKeyDown);
+		bind(document, "keydown", this.onKeyDown);
 
-		onCustomEvent(top.document, "iframe:keydown", this.onKeyDown);
-		onCustomEvent(top.window, "BX.Landing.History:init", this.adjustHistoryButtonsState);
-		onCustomEvent(top.window, "BX.Landing.History:update", this.adjustHistoryButtonsState);
+		onCustomEvent(document, "iframe:keydown", this.onKeyDown);
+		onCustomEvent(window, "BX.Landing.History:init", this.adjustHistoryButtonsState);
+		onCustomEvent(window, "BX.Landing.History:update", this.adjustHistoryButtonsState);
 
 		var sitesCount = parseInt(BX.Landing.Main.getInstance().options.sites_count);
 		var pagesCount = parseInt(BX.Landing.Main.getInstance().options.pages_count);
@@ -77,6 +77,13 @@
 		}
 
 		// Force history init
+		var rootWindow = BX.Landing.PageObject.getRootWindow();
+		var topHistory = rootWindow.BX.getClass('BX.Landing.History');
+		if (topHistory)
+		{
+			rootWindow.BX.Landing.History.instance = null;
+		}
+
 		BX.Landing.History.getInstance();
 	};
 
@@ -90,12 +97,14 @@
 	 */
 	BX.Landing.UI.Panel.Top.getInstance = function()
 	{
-		if (!top.BX.Landing.UI.Panel.Top.instance)
+		var rootWindow = BX.Landing.PageObject.getRootWindow();
+
+		if (!rootWindow.BX.Landing.UI.Panel.Top.instance)
 		{
-			top.BX.Landing.UI.Panel.Top.instance = new BX.Landing.UI.Panel.Top("top_panel");
+			rootWindow.BX.Landing.UI.Panel.Top.instance = new BX.Landing.UI.Panel.Top("top_panel");
 		}
 
-		return top.BX.Landing.UI.Panel.Top.instance;
+		return rootWindow.BX.Landing.UI.Panel.Top.instance;
 	};
 
 
@@ -113,7 +122,7 @@
 		{
 			var key = event.keyCode || event.which;
 
-			if (key === 90 && (top.window.navigator.userAgent.match(/win/i) ? event.ctrlKey : event.metaKey))
+			if (key === 90 && (window.navigator.userAgent.match(/win/i) ? event.ctrlKey : event.metaKey))
 			{
 				if (event.shiftKey)
 				{
@@ -134,7 +143,10 @@
 		 */
 		onUndo: function()
 		{
-			if (BX.Landing.History.getInstance().canUndo())
+			if (
+				BX.Landing.History.getInstance().canUndo()
+				&& !this.undoButton.hasAttribute('data-disabled')
+			)
 			{
 				this.getLoader().show(this.undoButton);
 				addClass(this.undoButton, "landing-ui-onload");
@@ -157,7 +169,10 @@
 		 */
 		onRedo: function()
 		{
-			if (BX.Landing.History.getInstance().canRedo())
+			if (
+				BX.Landing.History.getInstance().canRedo()
+				&& !this.redoButton.hasAttribute('data-disabled')
+			)
 			{
 				this.getLoader().show(this.redoButton);
 				addClass(this.redoButton, "landing-ui-onload");
@@ -183,10 +198,13 @@
 		{
 			if (this.loader === null)
 			{
-				this.loader = new BX.Loader({size: 22, offset: {top: "3px", left: "1px"}});
+				this.loader = new BX.Loader({size: 23, offset: {top: "3px", left: "1px"}});
 				void style(this.loader.layout.querySelector(".main-ui-loader-svg-circle"), {
 					"stroke-width": "4px"
-				})
+				});
+				void style(this.loader.layout.querySelector(".main-ui-loader-svg"), {
+					"margin-top": "-3px"
+				});
 			}
 
 			return this.loader;
@@ -202,6 +220,7 @@
 			if (history.canUndo())
 			{
 				this.undoButton.classList.remove("landing-ui-disabled");
+				this.undoButton.removeAttribute('data-disabled');
 			}
 			else
 			{
@@ -211,6 +230,7 @@
 			if (history.canRedo())
 			{
 				this.redoButton.classList.remove("landing-ui-disabled");
+				this.redoButton.removeAttribute('data-disabled');
 			}
 			else
 			{
@@ -218,6 +238,32 @@
 			}
 		},
 
+		disableHistory: function()
+		{
+			this.undoButton.classList.add("landing-ui-disabled");
+			this.undoButton.setAttribute('data-disabled', '');
+			this.redoButton.classList.add("landing-ui-disabled");
+			this.redoButton.setAttribute('data-disabled', '');
+		},
+
+		enableHistory: function()
+		{
+			this.adjustHistoryButtonsState(BX.Landing.History.getInstance());
+		},
+
+		disableDevices: function()
+		{
+			this.desktopButton.classList.add("landing-ui-disabled");
+			this.tabletButton.classList.add("landing-ui-disabled");
+			this.mobileButton.classList.add("landing-ui-disabled");
+		},
+
+		enableDevices: function()
+		{
+			this.desktopButton.classList.remove("landing-ui-disabled");
+			this.tabletButton.classList.remove("landing-ui-disabled");
+			this.mobileButton.classList.remove("landing-ui-disabled");
+		},
 
 		/**
 		 * Handles desktop size change event
@@ -247,7 +293,7 @@
 			this.tabletButton.classList.add("active");
 
 			BX.DOM.write(function() {
-				this.iframeWrapper.style.width = "991px";
+				this.iframeWrapper.style.width = "990px";
 			}.bind(this));
 
 			this.iframeWrapper.dataset.postfix = "--md";
@@ -305,7 +351,8 @@
 					}
 				};
 
-				BX.Landing.UI.Panel.URLList.getInstance().getSites(options)
+				BX.Landing.Backend.getInstance()
+					.getSites(options)
 					.then(function(sites) {
 						return new Promise(function(resolve) {
 							setTimeout(resolve.bind(null, sites), 300);
@@ -325,12 +372,12 @@
 									var showMask = BX.Landing.Main.getInstance().options.params.sef_url.site_show;
 
 									items.push({
-										text: BX.message("LANDING_ENTITIES_MENU_PAGES_LIST"),
+										text: BX.Landing.Loc.getMessage("LANDING_ENTITIES_MENU_PAGES_LIST"),
 										href: showMask.replace("#site_show#", site.ID)
 									});
 
 									items.push({
-										text: BX.message("LANDING_ENTITIES_MENU_EDIT"),
+										text: BX.Landing.Loc.getMessage("LANDING_ENTITIES_MENU_EDIT"),
 										href: editMask.replace("#site_edit#", site.ID)
 									});
 
@@ -383,8 +430,8 @@
 					}
 				};
 
-				BX.Landing.UI.Panel.URLList.getInstance()
-					.getLandings(options.siteId, options)
+				BX.Landing.Backend.getInstance()
+					.getLandings({siteId: options.siteId})
 					.then(function(landings) {
 						return new Promise(function(resolve) {
 							setTimeout(resolve.bind(null, landings), 300);
@@ -409,18 +456,23 @@
 										{
 											var siteShowMask = BX.Landing.Main.getInstance().options.params.sef_url.site_show;
 											items.push({
-												text: BX.message("LANDING_ENTITIES_MENU_PAGES_LIST"),
-												href: siteShowMask.replace("#site_show#", landing.SITE_ID) + "?folderId=" + landing.ID
+												text: BX.Landing.Loc.getMessage("LANDING_ENTITIES_MENU_PAGES_LIST"),
+												href: BX.Landing.Utils.addQueryParams(
+													siteShowMask.replace("#site_show#", landing.SITE_ID),
+													{
+														folderId: landing.ID
+													}
+												)
 											});
 										}
 
 										items.push({
-											text: BX.message("LANDING_ENTITIES_MENU_PAGES_EDIT"),
+											text: BX.Landing.Loc.getMessage("LANDING_ENTITIES_MENU_PAGES_EDIT"),
 											href: viewMask.replace("#site_show#", landing.SITE_ID).replace("#landing_edit#", landing.ID)
 										});
 
 										items.push({
-											text: BX.message("LANDING_ENTITIES_MENU_PAGES_SETTINGS"),
+											text: BX.Landing.Loc.getMessage("LANDING_ENTITIES_MENU_PAGES_SETTINGS"),
 											href: editMask.replace("#site_show#", landing.SITE_ID).replace("#landing_edit#", landing.ID)
 										});
 

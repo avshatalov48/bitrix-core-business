@@ -86,7 +86,7 @@ class User
 
 						while ($absence = $res->fetch())
 						{
-							$result[$absence['PROPERTY_USER_VALUE']] = array(
+							$result[] = array(
 								'USER_ID' => $absence['PROPERTY_USER_VALUE'],
 								'DATE_FROM' =>  $absence['DATE_ACTIVE_FROM'],
 								'DATE_TO' =>  $absence['DATE_ACTIVE_TO'],
@@ -107,7 +107,7 @@ class User
 	public static function getDayVacationList($params = array())
 	{
 		$result = array();
-		$userList = (isset($params['userList']) && is_array($params['userList']) ? $params['userList'] : false);
+		$userList = (isset($params['userList']) && is_array($params['userList']) ? $params['userList'] : []);
 		$vacationList = self::getVacationList();
 
 		if (empty($vacationList))
@@ -120,8 +120,8 @@ class User
 		foreach($vacationList as $vacation)
 		{
 			if (
-				$userList
-				&& !in_array($vacation['ID'], $userList)
+				!empty($userList)
+				&& !in_array($vacation['USER_ID'], $userList)
 			)
 			{
 				continue;

@@ -5,6 +5,9 @@ use Bitrix\Mail\Internals\MessageAccessTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+$bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
+$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view')));
+
 $message = $arResult['MESSAGE'];
 
 $this->setViewTarget('pagetitle_icon');
@@ -12,7 +15,6 @@ $this->setViewTarget('pagetitle_icon');
 ?>
 
 <span class="mail-msg-title-icon mail-msg-title-icon-<?=($message['__is_outcome'] ? 'outcome' : 'income') ?>"></span>
-<span class="mail-msg-title-icon-placeholder ">&nbsp;</span>
 
 <?
 
@@ -70,21 +72,24 @@ $createMenu['__default'] = &$createMenu[\CUserOptions::getOption('mail', 'defaul
 
 if (SITE_TEMPLATE_ID == 'bitrix24' || $_REQUEST['IFRAME'] == 'Y' && $_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
 {
-	$this->setViewTarget('pagetitle');
+	$this->setViewTarget('inside_pagetitle');
 }
 
 ?>
 
-<? if (!empty($message['BIND_LINKS']) && !empty(@call_user_func_array('array_merge', (array) $message['BIND_LINKS']))): ?>
-	<div class="mail-msg-header-control-item mail-msg-header-control-select" id="mail-msg-additional-switch">
-		<div class="mail-msg-header-control-text"><?=Loc::getMessage('MAIL_MESSAGE_EXT_BLOCK_LINK') ?></div>
-		<div class="mail-msg-header-control-triangle"></div>
-	</div>
-<? endif ?>
+<div class="pagetitle-container mail-pagetitle-flexible-space"></div>
+<div class="mail-msg-header-group">
+	<? if (!empty($message['BIND_LINKS']) && !empty(@call_user_func_array('array_merge', (array) $message['BIND_LINKS']))): ?>
+		<div class="mail-msg-header-control-item mail-msg-header-control-select" id="mail-msg-additional-switch">
+			<div class="mail-msg-header-control-text"><?=Loc::getMessage('MAIL_MESSAGE_EXT_BLOCK_LINK') ?></div>
+			<div class="mail-msg-header-control-triangle"></div>
+		</div>
+	<? endif ?>
 
-<div class="ui-btn-double ui-btn-primary"> 
-	<a class="ui-btn-main" id="mail-msg-view-create-btn"><?=$createMenu['__default']['title'] ?></a> 
-	<a class="ui-btn-extra" id="mail-msg-view-create-menu-btn"></a> 
+	<div class="ui-btn-double ui-btn-primary" style="<? if ($_REQUEST['IFRAME'] != 'Y'): ?> margin-right: 20px;<? endif ?>">
+		<a class="ui-btn-main" id="mail-msg-view-create-btn"><?=$createMenu['__default']['title'] ?></a>
+		<a class="ui-btn-extra" id="mail-msg-view-create-menu-btn"></a>
+	</div>
 </div>
 
 <?
@@ -246,7 +251,7 @@ BX.message({
 	MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN')) ?>',
 	MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>',
 	MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')) ?>',
-	MAIL_MESSAGE_LIST_NOTIFY_NOT_ADDED_TO_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_NOT_ADDED_TO_CRM')) ?>',
+	MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR')) ?>',
 	MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')) ?>'
 });
 

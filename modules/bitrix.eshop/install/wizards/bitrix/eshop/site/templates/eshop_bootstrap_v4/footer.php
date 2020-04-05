@@ -1,5 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 				</div><!--end .bx-content -->
+
+				<!-- region Sidebar -->
 				<?if (!$needSidebar):?>
 					<div class="sidebar col-md-3 col-sm-4">
 						<?$APPLICATION->IncludeComponent(
@@ -14,8 +16,10 @@
 							false,
 							Array('HIDE_ICONS' => 'Y')
 						);?>
-					</div><!--// sidebar -->
+					</div>
 				<?endif?>
+				<!--endregion -->
+
 			</div><!--end row-->
 			<?$APPLICATION->IncludeComponent(
 				"bitrix:main.include",
@@ -54,38 +58,52 @@
 				<div class="row">
 					<div class="col-sm-6 col-lg-3 order-lg-2 order-1 mb-4 mb-lg-0">
 						<h4 class="bx-block-title text-light">
-							<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
-								"AREA_FILE_SHOW" => "file",
-								"PATH" => SITE_DIR."include/about_title.php"
-							), false);?>
+							<? $APPLICATION->IncludeComponent(
+								"bitrix:main.include",
+								"",
+								array(
+									"AREA_FILE_SHOW" => "file",
+									"PATH" => SITE_DIR."include/about_title.php"
+								),
+								false
+							);?>
 						</h4>
-						<? $APPLICATION->IncludeComponent("bitrix:menu", "bottom_menu", array(
+						<? $APPLICATION->IncludeComponent(
+							"bitrix:menu",
+							"bottom_menu",
+							array(
 								"ROOT_MENU_TYPE" => "bottom",
 								"MAX_LEVEL" => "1",
 								"MENU_CACHE_TYPE" => "A",
 								"CACHE_SELECTED_ITEMS" => "N",
 								"MENU_CACHE_TIME" => "36000000",
 								"MENU_CACHE_USE_GROUPS" => "Y",
-								"MENU_CACHE_GET_VARS" => array(
-								),
+								"MENU_CACHE_GET_VARS" => array(),
 							),
 							false
 						);?>
 					</div>
 					<div class="col-sm-6 col-lg-3 order-lg-3 order-2 mb-4 mb-lg-0">
 						<h4 class="bx-block-title text-light">
-							<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
-								"AREA_FILE_SHOW" => "file",
-								"PATH" => SITE_DIR."include/catalog_title.php"
-							), false);?>
+							<? $APPLICATION->IncludeComponent(
+								"bitrix:main.include",
+								"",
+								array(
+									"AREA_FILE_SHOW" => "file",
+									"PATH" => SITE_DIR."include/catalog_title.php"
+								),
+								false
+							);?>
 						</h4>
-						<?$APPLICATION->IncludeComponent("bitrix:menu", "bottom_menu", array(
+						<?$APPLICATION->IncludeComponent(
+							"bitrix:menu",
+							"bottom_menu",
+							array(
 								"ROOT_MENU_TYPE" => "left",
 								"MENU_CACHE_TYPE" => "A",
 								"MENU_CACHE_TIME" => "36000000",
 								"MENU_CACHE_USE_GROUPS" => "Y",
-								"MENU_CACHE_GET_VARS" => array(
-								),
+								"MENU_CACHE_GET_VARS" => array(),
 								"CACHE_SELECTED_ITEMS" => "N",
 								"MAX_LEVEL" => "1",
 								"USE_EXT" => "Y",
@@ -97,14 +115,17 @@
 					</div>
 					<div class="col-sm-6 col-lg-3 order-lg-4 order-3">
 						<div style="padding: 20px;background:#eaeaeb">
-							<? $APPLICATION->IncludeComponent("bitrix:main.include", "", Array(
+							<? $APPLICATION->IncludeComponent(
+								"bitrix:main.include",
+								"",
+								array(
 									"AREA_FILE_SHOW" => "file",
 									"PATH" => SITE_DIR."include/sender.php",
 									"AREA_FILE_RECURSIVE" => "N",
 									"EDIT_MODE" => "html",
 								),
 								false,
-								Array('HIDE_ICONS' => 'Y')
+								array('HIDE_ICONS' => 'Y')
 							);?>
 						</div>
 						<div id="bx-composite-banner" style="padding-top: 20px"></div>
@@ -112,32 +133,51 @@
 					<div class="col-sm-6 col-lg-3 order-lg-1 order-4">
 						<div class="mb-3">
 							<a class="bx-footer-logo" href="<?=SITE_DIR?>">
-								<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
-									"AREA_FILE_SHOW" => "file",
-									"PATH" => SITE_DIR."include/company_logo_mobile.php"
-								), false);?>
+								<? $APPLICATION->IncludeComponent(
+									"bitrix:main.include",
+									"",
+									array(
+										"AREA_FILE_SHOW" => "file",
+										"PATH" => SITE_DIR."include/company_logo_mobile.php"
+									),
+								false
+								);?>
 							</a>
 						</div>
 						<div class="mb-3 d-flex align-items-center">
 							<i class="fa fa-phone pr-3 text-white" style="font-size: 25px;"></i>
 							<span class="text-white">
-								<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
-									"AREA_FILE_SHOW" => "file",
-									"PATH" => SITE_DIR."include/telephone.php"
-								), false);?>
+								<? $APPLICATION->IncludeComponent(
+									"bitrix:main.include",
+									"", array(
+										"AREA_FILE_SHOW" => "file",
+										"PATH" => SITE_DIR."include/telephone.php"
+									),
+									false
+								);?>
 							</span>
 						</div>
 						<div class="mb-3 text-white">
-							<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
+							<? $APPLICATION->IncludeComponent(
+								"bitrix:main.include",
+								"",
+								array(
 									"AREA_FILE_SHOW" => "file",
 									"PATH" => SITE_DIR."include/schedule.php"
-								), false);?>
+								),
+								false
+							);?>
 						</div>
 						<div class="mb-3 text-white">
-							<? $APPLICATION->IncludeComponent("bitrix:main.include", "", array(
-								"AREA_FILE_SHOW" => "file",
-								"PATH" => SITE_DIR."include/personal.php"
-							), false);?>
+							<? $APPLICATION->IncludeComponent(
+								"bitrix:main.include",
+								"",
+								array(
+									"AREA_FILE_SHOW" => "file",
+									"PATH" => SITE_DIR."include/personal.php"
+								),
+								false
+							);?>
 						</div>
 					</div>
 				</div>

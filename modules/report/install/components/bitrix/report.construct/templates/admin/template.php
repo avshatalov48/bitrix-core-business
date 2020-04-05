@@ -976,14 +976,24 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 	</div>
 </div>
 
-<!-- choose filter column popup -->
+<!-- choose filter column popup --><?php
+$refChooseParam = call_user_func([$arParams['REPORT_HELPER_CLASS'], 'getFiltrableColumnGroups']);
+if (!is_array($refChooseParam) || empty($refChooseParam))
+{
+	$refChooseParam = true;
+}
+?>
 <div class="reports-add_col-popup-cont reports-add_filcol-popup-cont" id="reports-add_filcol-popup-cont" style="display:none;">
 	<div class="reports-add_col-popup-title">
 		<?=GetMessage('REPORT_POPUP_FILTER_TITLE'.'_'.call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'getOwnerId')))?>
 	</div>
 	<div class="popup-window-hr popup-window-buttons-hr"><i></i></div>
 	<div class="reports-add_col-popup">
-		<?=call_user_func(array($arParams['REPORT_HELPER_CLASS'], 'buildHTMLSelectTreePopup'), $arResult['fieldsTree'], true)?>
+		<?php echo call_user_func(
+			[$arParams['REPORT_HELPER_CLASS'], 'buildHTMLSelectTreePopup'],
+			$arResult['fieldsTree'],
+			$refChooseParam
+		); ?>
 	</div>
 </div>
 

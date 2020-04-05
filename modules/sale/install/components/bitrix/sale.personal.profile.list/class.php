@@ -57,6 +57,7 @@ class PersonalProfileList extends CBitrixComponent
 		{
 			if(!$this->arParams['AUTH_FORM_IN_TEMPLATE'])
 			{
+				$this->arResult['USER_IS_NOT_AUTHORIZED'] = 'Y';
 				$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"), false, false, 'N', false);
 			}
 			else

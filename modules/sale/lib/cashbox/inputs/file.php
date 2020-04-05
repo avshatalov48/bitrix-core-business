@@ -52,31 +52,42 @@ class File extends Input\Base
 
 		$otherAttributes = static::extractAttributes($input, array('DISABLED'=>''), array('FORM'=>1), false);
 
-		$fileName = static::getFileName($name);
-
 		return static::getViewHtmlSingle($input, $value)
 			.'<input type="hidden" name="'.$name.'" value="'.htmlspecialcharsbx($value).'"'.$otherAttributes.'>'
-			.'<input type="file" name="'.$fileName.'" style="position:absolute; visibility:hidden"'.$fileAttributes.'>'
-			.'<input type="button" value="'.Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL_BROWSE').'" onclick="this.previousSibling.click()">';
+			.'<input type="file" name="'.$name.'" style="position:absolute; visibility:hidden"'.$fileAttributes.'>'
+			.'<input type="button" value="'.Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL_BROWSE').'" onclick="this.previousSibling.click()">'
+			.(
+			$input['NO_DELETE']
+				? ''
+				: '<label>'.Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL_DELETE').' <input type="checkbox" name="'.$name.'[DELETE]" onclick="'
+				."var button = this.parentNode.previousSibling, file = button.previousSibling;"
+				."button.disabled = file.disabled = this.checked;"
+				.'"'.$otherAttributes.'></label>'
+			);
 	}
 
 	/**
-	 * @param $name
-	 * @return string
+	 * @param array $input
+	 * @param $value
+	 * @return array|void
 	 */
-	private static function getFileName($name)
+	public static function getErrorSingle(array $input, $value)
 	{
-		$length = strlen($name);
-		if ($name[$length - 1] === ']')
-		{
-			return substr($name, 0, $length-1).'_FILE]';
-		}
-
-		return $name.'_FILE';
+		$errors = [];
+		return $errors;
 	}
 }
 
+/**
+ * @deprecated Type SECURITY_FILE_CONTROL is deprecated. Use DATABASE_FILE
+ * @see DATABASE_FILE
+ */
 Input\Manager::register('SECURITY_FILE_CONTROL', array(
+	'CLASS' => __NAMESPACE__.'\\File',
+	'NAME' => Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL')
+));
+
+Input\Manager::register('DATABASE_FILE', array(
 	'CLASS' => __NAMESPACE__.'\\File',
 	'NAME' => Localization\Loc::getMessage('SALE_CASHBOX_INPUT_SECURITY_FILE_CONTROL')
 ));

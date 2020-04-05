@@ -757,185 +757,21 @@ class CAllBPWorkflowTemplateLoader
 		return null;
 	}
 
-	private static function ConvertValueCharset($s, $direction)
-	{
-		if ("utf-8" == strtolower(LANG_CHARSET))
-			return $s;
-
-		if (is_numeric($s))
-			return $s;
-
-		if ($direction == BP_EI_DIRECTION_EXPORT)
-			$s = $GLOBALS["APPLICATION"]->ConvertCharset($s, LANG_CHARSET, "UTF-8");
-		else
-			$s = $GLOBALS["APPLICATION"]->ConvertCharset($s, "UTF-8", LANG_CHARSET);
-
-		return $s;
-	}
-
-	private static function ConvertArrayCharset($value, $direction = BP_EI_DIRECTION_EXPORT)
-	{
-		if (is_array($value))
-		{
-			$valueNew = array();
-			foreach ($value as $k => $v)
-			{
-				$k = self::ConvertValueCharset($k, $direction);
-				$v = self::ConvertArrayCharset($v, $direction);
-				$valueNew[$k] = $v;
-			}
-			$value = $valueNew;
-		}
-		else
-		{
-			$value = self::ConvertValueCharset($value, $direction);
-		}
-
-		return $value;
-	}
-
-	private static function replaceTemplateDocumentFieldsAliases(&$template, $aliases)
-	{
-		foreach ($template as &$activity)
-		{
-			self::replaceActivityDocumentFieldsAliases($activity, $aliases);
-			if (is_array($activity["Children"]))
-			{
-				self::replaceTemplateDocumentFieldsAliases($activity['Children'], $aliases);
-			}
-		}
-	}
-
-	private static function replaceActivityDocumentFieldsAliases(&$activity, $aliases)
-	{
-		if (!is_array($activity['Properties']))
-			return;
-
-		foreach ($activity['Properties'] as $key => $value)
-		{
-			$activity['Properties'][$key] = self::replaceValueDocumentFieldsAliases($value, $aliases);
-			// Replace field conditions
-			if ($activity['Type'] === 'IfElseBranchActivity' && $key === 'fieldcondition')
-			{
-				$activity['Properties'][$key] = self::replaceFieldConditionsDocumentFieldsAliases(
-					$activity['Properties'][$key],
-					$aliases
-				);
-			}
-		}
-	}
-
-	private static function replaceVariablesDocumentFieldsAliases(&$variables, $aliases)
-	{
-		if (!is_array($variables))
-			return;
-
-		foreach ($variables as $key => &$variable)
-		{
-			$variable['Default'] = self::replaceValueDocumentFieldsAliases($variable['Default'], $aliases);
-			//Type Internalselect use options as link to document field.
-			if (is_scalar($variable['Options']) && array_key_exists($variable['Options'], $aliases))
-				$variable['Options'] = $aliases[$variable['Options']];
-		}
-	}
-
-	private static function replaceValueDocumentFieldsAliases($value, $aliases)
-	{
-		if (is_array($value))
-		{
-			$replacesValue = array();
-			foreach ($value as $key => $val)
-			{
-				if (array_key_exists($key, $aliases))
-					$key = $aliases[$key];
-
-				$replacesValue[$key] = self::replaceValueDocumentFieldsAliases($val, $aliases);
-			}
-
-			if (
-				sizeof($replacesValue) == 2
-				&& isset($replacesValue[0])
-				&& $replacesValue[0] == 'Document'
-				&& isset($replacesValue[1])
-				&& array_key_exists($replacesValue[1], $aliases)
-			)
-			{
-				$replacesValue[1] = $aliases[$replacesValue[1]];
-			}
-			$value = $replacesValue;
-		}
-		else
-		{
-			foreach ($aliases as $search => $replace)
-			{
-				$value = preg_replace('#(\{=\s*Document\s*\:\s*)'.$search.'#i', '\\1'.$replace, $value);
-			}
-		}
-
-		return $value;
-	}
-
-	private static function replaceFieldConditionsDocumentFieldsAliases($conditions, $aliases)
-	{
-		foreach ($conditions as $key => $condition)
-		{
-			if (array_key_exists($condition[0], $aliases))
-				$conditions[$key][0] = $aliases[$condition[0]];
-		}
-
-		return $conditions;
-	}
-
 	public static function ExportTemplate($id, $bCompress = true)
 	{
-		$id = intval($id);
-		if ($id <= 0)
-			return false;
-
-		$db = self::GetList(array("ID" => "DESC"), array("ID" => $id), false, false, array("TEMPLATE", "PARAMETERS", "VARIABLES", "CONSTANTS", "MODULE_ID", "ENTITY", "DOCUMENT_TYPE"));
-		if ($ar = $db->Fetch())
+		$tpl = \Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($id)->fetchObject();
+		if (!$tpl)
 		{
-			$runtime = CBPRuntime::GetRuntime();
-			$runtime->StartRuntime();
-
-			/** @var CBPDocumentService $documentService */
-			$documentService = $runtime->GetService("DocumentService");
-			$arDocumentFieldsTmp = $documentService->GetDocumentFields($ar["DOCUMENT_TYPE"], true);
-			$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($arDocumentFieldsTmp);
-
-			$arDocumentFields = array();
-			$len = strlen("_PRINTABLE");
-			foreach ($arDocumentFieldsTmp as $k => $v)
-			{
-				if (strtoupper(substr($k, -$len)) != "_PRINTABLE")
-					$arDocumentFields[$k] = $v;
-			}
-
-			if ($documentFieldsAliasesMap)
-			{
-				self::replaceTemplateDocumentFieldsAliases($ar['TEMPLATE'], $documentFieldsAliasesMap);
-				self::replaceVariablesDocumentFieldsAliases($ar['PARAMETERS'], $documentFieldsAliasesMap);
-				self::replaceVariablesDocumentFieldsAliases($ar['VARIABLES'], $documentFieldsAliasesMap);
-				self::replaceVariablesDocumentFieldsAliases($ar['CONSTANTS'], $documentFieldsAliasesMap);
-			}
-
-			$datum = array(
-				"VERSION" => 2,
-				"TEMPLATE" => self::ConvertArrayCharset($ar["TEMPLATE"], BP_EI_DIRECTION_EXPORT),
-				"PARAMETERS" => self::ConvertArrayCharset($ar["PARAMETERS"], BP_EI_DIRECTION_EXPORT),
-				"VARIABLES" => self::ConvertArrayCharset($ar["VARIABLES"], BP_EI_DIRECTION_EXPORT),
-				"CONSTANTS" => self::ConvertArrayCharset($ar["CONSTANTS"], BP_EI_DIRECTION_EXPORT),
-				"DOCUMENT_FIELDS" => self::ConvertArrayCharset($arDocumentFields, BP_EI_DIRECTION_EXPORT),
-			);
-
-			$datum = serialize($datum);
-			if ($bCompress && function_exists("gzcompress"))
-				$datum = gzcompress($datum, 9);
-
-			return $datum;
+			return false;
 		}
 
-		return false;
+		$packer = new \Bitrix\Bizproc\Workflow\Template\Packer\Bpt();
+		if (!$bCompress)
+		{
+			$packer->disableCompression();
+		}
+
+		return $packer->pack($tpl)->getPackage();
 	}
 
 	private static function WalkThroughWorkflowTemplate(&$arWorkflowTemplate, $callback, $user)
@@ -977,46 +813,31 @@ class CAllBPWorkflowTemplateLoader
 		if ($id <= 0)
 			$id = 0;
 
-		$datumTmp = CheckSerializedData($datum)? @unserialize($datum) : null;
+		$packer = new \Bitrix\Bizproc\Workflow\Template\Packer\Bpt();
+		$unpackResult = $packer->unpack($datum);
 
-		if (!is_array($datumTmp) || is_array($datumTmp) && !array_key_exists("TEMPLATE", $datumTmp))
+		if (!$unpackResult->isSuccess())
 		{
-			if (function_exists("gzcompress"))
-			{
-				$datumTmp = @gzuncompress($datum);
-				$datumTmp = CheckSerializedData($datumTmp)? @unserialize($datumTmp) : null;
-			}
+			throw new \Bitrix\Main\ArgumentException(reset($unpackResult->getErrorMessages()));
 		}
 
-		if (!is_array($datumTmp) || is_array($datumTmp) && !array_key_exists("TEMPLATE", $datumTmp))
-			throw new Exception(GetMessage("BPCGWTL_WRONG_TEMPLATE"));
-
-		if (array_key_exists("VERSION", $datumTmp) && $datumTmp["VERSION"] == 2)
-		{
-			$datumTmp["TEMPLATE"] = self::ConvertArrayCharset($datumTmp["TEMPLATE"], BP_EI_DIRECTION_IMPORT);
-			$datumTmp["PARAMETERS"] = self::ConvertArrayCharset($datumTmp["PARAMETERS"], BP_EI_DIRECTION_IMPORT);
-			$datumTmp["VARIABLES"] = self::ConvertArrayCharset($datumTmp["VARIABLES"], BP_EI_DIRECTION_IMPORT);
-			$datumTmp["CONSTANTS"] = isset($datumTmp["CONSTANTS"])?
-				self::ConvertArrayCharset($datumTmp["CONSTANTS"], BP_EI_DIRECTION_IMPORT)
-				: array();
-			$datumTmp["DOCUMENT_FIELDS"] = self::ConvertArrayCharset($datumTmp["DOCUMENT_FIELDS"], BP_EI_DIRECTION_IMPORT);
-		}
+		$templateFields = $unpackResult->getTpl()->collectValues();
 
 		if (!$systemImport)
 		{
-			if (!self::WalkThroughWorkflowTemplate($datumTmp["TEMPLATE"], array("CBPWorkflowTemplateLoader", "ImportTemplateChecker"), new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)))
+			if (!self::WalkThroughWorkflowTemplate($templateFields["TEMPLATE"], array("CBPWorkflowTemplateLoader", "ImportTemplateChecker"), new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)))
 				return false;
 		}
-		elseif ($id > 0 && !empty($datumTmp["CONSTANTS"]))
+		elseif ($id > 0 && !empty($templateFields["CONSTANTS"]))
 		{
 			$userConstants = self::getTemplateConstants($id);
 			if (!empty($userConstants))
 			{
 				foreach ($userConstants as $constantName => $constantData)
 				{
-					if (isset($datumTmp["CONSTANTS"][$constantName]))
+					if (isset($templateFields["CONSTANTS"][$constantName]))
 					{
-						$datumTmp["CONSTANTS"][$constantName]['Default'] = $constantData['Default'];
+						$templateFields["CONSTANTS"][$constantName]['Default'] = $constantData['Default'];
 					}
 				}
 			}
@@ -1027,10 +848,10 @@ class CAllBPWorkflowTemplateLoader
 			"AUTO_EXECUTE" => $autoExecute,
 			"NAME" => $name,
 			"DESCRIPTION" => $description,
-			"TEMPLATE" => $datumTmp["TEMPLATE"],
-			"PARAMETERS" => $datumTmp["PARAMETERS"],
-			"VARIABLES" => $datumTmp["VARIABLES"],
-			"CONSTANTS" => $datumTmp["CONSTANTS"],
+			"TEMPLATE" => $templateFields["TEMPLATE"],
+			"PARAMETERS" => $templateFields["PARAMETERS"],
+			"VARIABLES" => $templateFields["VARIABLES"],
+			"CONSTANTS" => $templateFields["CONSTANTS"],
 			"USER_ID" => $systemImport ? 1 : $GLOBALS["USER"]->GetID(),
 			"MODIFIER_USER" => new CBPWorkflowTemplateUser($systemImport ? 1 : CBPWorkflowTemplateUser::CurrentUser),
 		);
@@ -1044,19 +865,16 @@ class CAllBPWorkflowTemplateLoader
 		else
 			$id = self::Add($templateData, $systemImport);
 
-		$runtime = CBPRuntime::GetRuntime();
-		$runtime->StartRuntime();
-
-		/** @var CBPDocumentService $documentService */
-		$documentService = $runtime->GetService("DocumentService");
-		$arDocumentFields = $documentService->GetDocumentFields($documentType, true);
-
-		if (is_array($datumTmp["DOCUMENT_FIELDS"]))
+		$documentFields = $unpackResult->getDocumentFields();
+		if ($documentFields)
 		{
-			\Bitrix\Main\Type\Collection::sortByColumn($datumTmp["DOCUMENT_FIELDS"], "sort");
+			$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+			$currentDocumentFields = $documentService->GetDocumentFields($documentType, true);
+
+			\Bitrix\Main\Type\Collection::sortByColumn($documentFields, "sort");
 			$len = strlen("_PRINTABLE");
 
-			foreach ($datumTmp["DOCUMENT_FIELDS"] as $code => $field)
+			foreach ($documentFields as $code => $field)
 			{
 				//skip printable
 				if (strtoupper(substr($code, -$len)) == "_PRINTABLE")
@@ -1087,7 +905,7 @@ class CAllBPWorkflowTemplateLoader
 				unset($field["Name"], $field["Type"], $field["Multiple"], $field["Required"], $field["Options"]);
 				$documentField = array_merge($documentField, $field);
 
-				if (!array_key_exists($code, $arDocumentFields))
+				if (!array_key_exists($code, $currentDocumentFields))
 				{
 					$documentService->AddDocumentField($documentType, $documentField);
 				}
@@ -1106,7 +924,7 @@ class CAllBPWorkflowTemplateLoader
 		global $DB;
 
 		if (count($arSelectFields) <= 0)
-			$arSelectFields = array("ID", "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", "AUTO_EXECUTE", "NAME", "DESCRIPTION", "TEMPLATE", "PARAMETERS", "VARIABLES", "CONSTANTS", "MODIFIED", "USER_ID", "ACTIVE", "IS_MODIFIED");
+			$arSelectFields = array("ID", "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", "DOCUMENT_STATUS", "AUTO_EXECUTE", "NAME", "DESCRIPTION", "TEMPLATE", "PARAMETERS", "VARIABLES", "CONSTANTS", "MODIFIED", "USER_ID", "ACTIVE", "IS_MODIFIED");
 
 		if (count(array_intersect($arSelectFields, array("MODULE_ID", "ENTITY", "DOCUMENT_TYPE"))) > 0)
 		{
@@ -1140,6 +958,8 @@ class CAllBPWorkflowTemplateLoader
 				$arFilter["AUTO_EXECUTE"] = array(4, 5, 6, 7);
 			elseif ($arFilter["AUTO_EXECUTE"] == CBPDocumentEventType::Automation)
 				$arFilter["AUTO_EXECUTE"] = 8;
+			elseif ($arFilter["AUTO_EXECUTE"] == CBPDocumentEventType::Script)
+				$arFilter["AUTO_EXECUTE"] = 32;
 			else
 				$arFilter["AUTO_EXECUTE"] = array(-1);
 		}
@@ -1149,6 +969,7 @@ class CAllBPWorkflowTemplateLoader
 			"MODULE_ID" => Array("FIELD" => "T.MODULE_ID", "TYPE" => "string"),
 			"ENTITY" => Array("FIELD" => "T.ENTITY", "TYPE" => "string"),
 			"DOCUMENT_TYPE" => Array("FIELD" => "T.DOCUMENT_TYPE", "TYPE" => "string"),
+			"DOCUMENT_STATUS" => Array("FIELD" => "T.DOCUMENT_STATUS", "TYPE" => "string"),
 			"AUTO_EXECUTE" => Array("FIELD" => "T.AUTO_EXECUTE", "TYPE" => "int"),
 			"NAME" => Array("FIELD" => "T.NAME", "TYPE" => "string"),
 			"DESCRIPTION" => Array("FIELD" => "T.DESCRIPTION", "TYPE" => "string"),

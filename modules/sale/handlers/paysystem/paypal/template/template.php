@@ -21,7 +21,7 @@ if ($params["PAYED"] != "Y")
 					<input type="hidden" name="business" value="<?= htmlspecialcharsbx($params["PAYPAL_BUSINESS"]) ?>">
 					<input type="hidden" name="item_name" value="<?=htmlspecialcharsbx($itemName)?>">
 					<input type="hidden" name="currency_code" value="<?=htmlspecialcharsbx($params["PAYMENT_CURRENCY"])?>">
-					<input type="hidden" name="amount" value="<?=roundEx($params["PAYMENT_SHOULD_PAY"], 2);?>">
+					<input type="hidden" name="amount" value="<?=round($params["PAYMENT_SHOULD_PAY"], 2);?>">
 					<input type="hidden" name="custom" value="<?=htmlspecialcharsbx($params["PAYMENT_ID"])?>">
 
 					<?if ($params["PAYPAL_ON0"] != ''):?>

@@ -26,6 +26,9 @@ if (
 			case 'VIEW_MODE_TIMELINE':
 				$componentName = 'bitrix:tasks.timeline';
 				break;
+			case 'VIEW_MODE_CALENDAR':
+				$componentName = 'bitrix:tasks.task.calendar';
+				break;
 			default:
 				$componentName = 'bitrix:tasks.task.list';
 				break;

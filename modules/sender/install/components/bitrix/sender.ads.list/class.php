@@ -143,8 +143,19 @@ class SenderAdsListComponent extends CBitrixComponent
 		$this->setUiGridColumns();
 
 		// create nav
+		$pageSizes = [];
+		foreach ([5, 10, 20, 30, 50, 100] as $index)
+		{
+			$pageSizes[] = ['NAME' => $index, 'VALUE' => $index];
+		}
+
+		$gridOptions = new GridOptions($this->arParams['GRID_ID']);
+		$navData = $gridOptions->getNavParams(['nPageSize' => 10]);
 		$nav = new PageNavigation("page-sender-ads");
-		$nav->allowAllRecords(true)->setPageSize(10)->initFromUri();
+		$nav->allowAllRecords(true)
+			->setPageSize($navData['nPageSize'])
+			->setPageSizes($pageSizes)
+			->initFromUri();
 
 		// get rows
 		$selectParameters = array(
@@ -184,8 +195,11 @@ class SenderAdsListComponent extends CBitrixComponent
 			{
 				$item['DATE_INSERT'] = clone $item['DATE_INSERT'];
 			}
+			$isError = (strlen($item['ERROR_MESSAGE']) > 0);
+
 			$item['DURATION'] = $letter->getDuration()->getFormattedInterval();
-			$item['STATE_NAME'] = $letter->getState()->getName();
+			$item['STATE_NAME'] = $isError ? Loc::getMessage('SENDER_LETTER_LIST_STATE_ERROR') : $letter->getState()->getName();
+
 			$item['STATE'] = array(
 				'dateSend' => $this->formatDate($letter->getState()->getDateSend()),
 				'datePause' => $this->formatDate($letter->getState()->getDatePause()),
@@ -198,6 +212,7 @@ class SenderAdsListComponent extends CBitrixComponent
 				'isFinished' => $letter->getState()->isFinished(),
 				'isStopped' => $letter->getState()->isStopped(),
 				'isSent' => $letter->getState()->isSent(),
+				'isError' => $isError,
 				'wasStartedSending' => $letter->getState()->wasStartedSending(),
 				'canSend' => $letter->getState()->canSend(),
 				'canPause' => $letter->getState()->canPause(),
@@ -234,7 +249,7 @@ class SenderAdsListComponent extends CBitrixComponent
 		}
 
 		$dateTime = clone $dateTime;
-		return PrettyDate::formatDateTime($dateTime->toUserTime());
+		return PrettyDate::formatDateTime($dateTime);
 	}
 
 	protected function getDataFilter()
@@ -272,7 +287,14 @@ class SenderAdsListComponent extends CBitrixComponent
 		{
 			$filter['<=DATE_INSERT'] = $requestFilter['DATE_INSERT_to'];
 		}
-
+		if (isset($requestFilter['POSTING_DATE_SENT_from']) && $requestFilter['POSTING_DATE_SENT_from'])
+		{
+			$filter['>=POSTING.DATE_SENT'] = $requestFilter['POSTING_DATE_SENT_from'];
+		}
+		if (isset($requestFilter['POSTING_DATE_SENT_to']) && $requestFilter['POSTING_DATE_SENT_to'])
+		{
+			$filter['<=POSTING.DATE_SENT'] = $requestFilter['POSTING_DATE_SENT_to'];
+		}
 		return $filter;
 	}
 
@@ -388,6 +410,18 @@ class SenderAdsListComponent extends CBitrixComponent
 					'group' => array('USER_NAME', 'USER_LAST_NAME', 'USER_ID'),
 					'cache' => array('ttl' => 3600),
 				))->fetchAll())
+			),
+			array(
+				"id" => "DATE_INSERT",
+				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_INSERT2'),
+				"type" => "date",
+				"default" => true,
+			),
+			array(
+				"id" => "POSTING_DATE_SENT",
+				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_SENT'),
+				"type" => "date",
+				"default" => true,
 			),
 		);
 	}

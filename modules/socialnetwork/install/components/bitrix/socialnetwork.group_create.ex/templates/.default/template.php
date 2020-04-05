@@ -118,6 +118,7 @@ else
 					BX.BXGCE.types = <?=CUtil::phpToJSObject($arResult['Types'])?>;
 					BX.BXGCE.arUserSelector = [];
 					BX.BXGCE.init({
+						preset: '<?=(!empty($arResult["preset"]) ? \CUtil::jsEscape($arResult["preset"]) : '')?>',
 						groupId: <?=intval($arParams["GROUP_ID"])?>,
 						config: <?=CUtil::phpToJSObject($arResult['ClientConfig'])?>,
 						avatarUploaderId: '<?=$arResult['AVATAR_UPLOADER_CID']?>'
@@ -176,10 +177,9 @@ else
 							<div class="social-group-create-container first-step"><?
 
 								$typeCode = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
-									'typesList' => $arResult['Types'],
-									'fields' => $arResult['POST']
+									"typesList" => $arResult["Types"],
+									"fields" => $arResult["POST"]
 								));
-
 								foreach($arResult["TypeRowList"] as $rowCode)
 								{
 									?><div class="social-group-create-inner">
@@ -211,7 +211,7 @@ else
 					{
 						if ($arParams["GROUP_ID"] > 0)
 						{
-							$strSubmitButtonTitle = Loc::getMessage("SONET_GCE_T_DO_EDIT");
+							$strSubmitButtonTitle = Loc::getMessage("SONET_GCE_T_DO_EDIT_1");
 							$actionType = "edit";
 						}
 						else
@@ -320,7 +320,7 @@ else
 												"ID" => $selectorName,
 												"INPUT_NAME" => 'OWNER_CODE',
 												"LIST" => (!empty($arResult["POST"]) && !empty($arResult["POST"]["OWNER_ID"]) ? array('U'.$arResult["POST"]["OWNER_ID"]) : array('U'.$arResult["currentUserId"])),
-												"USE_SYMBOLIC_ID" => "Y",
+												"USE_SYMBOLIC_ID" => true,
 												"BUTTON_SELECT_CAPTION" => GetMessage('SONET_GCE_T_ADD_OWNER'),
 												"API_VERSION" => 3,
 												"SELECTOR_OPTIONS" => array(
@@ -371,7 +371,7 @@ else
 												"ID" => $selectorName,
 												"INPUT_NAME" => 'MODERATOR_CODES[]',
 												"LIST" => $moderatorsList,
-												"USE_SYMBOLIC_ID" => "Y",
+												"USE_SYMBOLIC_ID" => true,
 												"BUTTON_SELECT_CAPTION" => ($arResult["intranetInstalled"] ? GetMessage('SONET_GCE_T_ADD_EMPLOYEE') : GetMessage('SONET_GCE_T_ADD_USER')),
 												"BUTTON_SELECT_CAPTION_MORE" => GetMessage('SONET_GCE_T_DEST_LINK_2'),
 												"API_VERSION" => 3,
@@ -432,7 +432,7 @@ else
 												"ID" => $selectorName,
 												"INPUT_NAME" => 'USER_CODES[]',
 												"LIST" => $userLists,
-												"USE_SYMBOLIC_ID" => "Y",
+												"USE_SYMBOLIC_ID" => true,
 												"OPEN_DIALOG_WHEN_INIT" => ($arResult["POST"]["IS_EXTRANET_GROUP"] != "Y" && $arResult["TAB"] == "invite"),
 												"FIRE_CLICK_EVENT" => (
 														$arResult["POST"]["IS_EXTRANET_GROUP"] != "Y"
@@ -512,7 +512,7 @@ else
 														"ID" => $selectorName,
 														"INPUT_NAME" => 'USER_CODES[]',
 														"LIST" => $userLists,
-														"USE_SYMBOLIC_ID" => "Y",
+														"USE_SYMBOLIC_ID" => true,
 														"BUTTON_SELECT_CAPTION" => GetMessage('SONET_GCE_T_ADD_EXTRANET'),
 														"BUTTON_SELECT_CAPTION_MORE" => GetMessage('SONET_GCE_T_DEST_LINK_2'),
 														"API_VERSION" => 3,
@@ -979,6 +979,23 @@ else
 															}
 														}
 
+														if ($arResult["landingInstalled"])
+														{
+															if ($arResult["hidePresetSettings"])
+															{
+																?><input type="hidden" id="GROUP_LANDING" value="<?=($arResult["POST"]["LANDING"] == "Y") ? "Y" : "N"?>" name="GROUP_LANDING"><?
+															}
+															else
+															{
+																?><div class="social-group-create-form-field-list-item">
+																<label class="social-group-create-form-field-list-label">
+																	<input type="checkbox" id="GROUP_LANDING" name="GROUP_LANDING" value="Y" class="social-group-create-form-field-list-input" <?= ($arResult["POST"]["LANDING"] == "Y") ? " checked" : ""?>>
+																	<span class="social-group-create-form-field-list-name"><?=Loc::getMessage("SONET_GCE_T_PARAMS_LANDING") ?></span>
+																</label>
+																</div><?
+															}
+														}
+
 													?></div>
 												</div>
 											</div>
@@ -1064,11 +1081,6 @@ else
 								else
 								{
 									?><button class="ui-btn ui-btn-link" id="sonet_group_create_popup_form_button_step_2_cancel"><?=Loc::getMessage("SONET_GCE_T_T_CANCEL")?></button><?
-								}
-
-								if (false && $arResult["templateEditMode"] != 'Y')
-								{
-									?><input type="checkbox" class="task-edit-add-template-checkbox" id="SAVE_AS_TEMPLATE" name="SAVE_AS_TEMPLATE" value="Y"><?
 								}
 
 							?></span><? // class="popup-window-buttons"

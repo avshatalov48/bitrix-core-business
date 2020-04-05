@@ -159,7 +159,7 @@ class Location extends ExternalLocationMap
 
 				$lastId = self::fillNormalizedTable((int)$step, $timeout);
 
-				if($lastId < $_SESSION['SALE_HNDL_ADD_DLV_LOC_MAX_ID'])
+				if($lastId > 0 && $lastId < $_SESSION['SALE_HNDL_ADD_DLV_LOC_MAX_ID'])
 				{
 					$result->setData(array(
 						'STAGE' => 'create_normalized_loc_table',

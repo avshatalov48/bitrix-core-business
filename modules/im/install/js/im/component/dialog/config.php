@@ -15,7 +15,11 @@ return [
 		'main.polyfill.core',
 		'main.polyfill.intersectionobserver',
 		'ui.vue',
+		'ui.vue.vuex',
 		'im.component.message',
+		'im.const',
+		'im.utils',
+		'im.tools.animation',
 	],
 	'skip_core' => true,
 ];

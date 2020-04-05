@@ -19,8 +19,6 @@ class PaymentCollection extends Internals\EntityCollection
 	/** @var Order */
 	protected $order;
 
-	private static $eventClassName = null;
-
 	/**
 	 * @return Order
 	 */
@@ -30,15 +28,15 @@ class PaymentCollection extends Internals\EntityCollection
 	}
 
 	/**
-	 * @param Service|null $paySystemService
+	 * @param Service|null $service
 	 * @return Payment
 	 */
-	public function createItem(Service $paySystemService = null)
+	public function createItem(Service $service = null)
 	{
 		/** @var Payment $paymentClassName */
 		$paymentClassName = static::getItemCollectionClassName();
 
-		$payment = $paymentClassName::create($this, $paySystemService);
+		$payment = $paymentClassName::create($this, $service);
 		$this->addItem($payment);
 
 		return $payment;
@@ -149,30 +147,37 @@ class PaymentCollection extends Internals\EntityCollection
 				if (($order = $this->getOrder()) && !$order->isCanceled())
 				{
 					$currentPayment = false;
-					$allowQuantityChange = false;
+					$allowSumChange = false;
 					if (count($this->collection) == 1)
 					{
 						/** @var Payment $currentPayment */
 						if ($currentPayment = $this->rewind())
 						{
-							$allowQuantityChange = (bool)(!$currentPayment->isPaid() && !$currentPayment->isReturn() && ($currentPayment->getSum() == $oldValue));
+							$allowSumChange = (bool)(!$currentPayment->isPaid() && !$currentPayment->isReturn() && ($currentPayment->getSum() == $oldValue));
 							
-							if ($allowQuantityChange)
+							if ($allowSumChange)
 							{
 								if ($paySystemService = $currentPayment->getPaysystem())
 								{
-									$allowQuantityChange = $paySystemService->isAllowEditPayment();
+									$allowSumChange = $paySystemService->isAllowEditPayment();
 								}
 							}
 						}
 					}
 
-					if ($allowQuantityChange && $currentPayment)
+					if ($allowSumChange && $currentPayment)
 					{
 						$r = $currentPayment->setField("SUM", $value);
 						if (!$r->isSuccess())
 						{
 							$result->addErrors($r->getErrors());
+						}
+
+						$service = $currentPayment->getPaySystem();
+						if ($service)
+						{
+							$price = $service->getPaymentPrice($currentPayment);
+							$currentPayment->setField('PRICE_COD', $price);
 						}
 					}
 				}
@@ -220,6 +225,8 @@ class PaymentCollection extends Internals\EntityCollection
 	/**
 	 * @param Order $order
 	 * @return PaymentCollection
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
 	 */
 	public static function load(Order $order)
 	{
@@ -289,13 +296,29 @@ class PaymentCollection extends Internals\EntityCollection
 	 */
 	public function hasPaidPayment()
 	{
-		if (!empty($this->collection) && is_array($this->collection))
+		/** @var Payment $payment */
+		foreach ($this->collection as $payment)
 		{
-			/** @var Payment $payment */
-			foreach ($this->collection as $payment)
+			if ($payment->getField('PAID') === "Y")
 			{
-				if ($payment->getField('PAID') == "Y")
-					return true;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasUnpaidPayment()
+	{
+		/** @var Payment $payment */
+		foreach ($this->collection as $payment)
+		{
+			if ($payment->getField('PAID') === "N")
+			{
+				return true;
 			}
 		}
 
@@ -406,19 +429,12 @@ class PaymentCollection extends Internals\EntityCollection
 				unset($itemsFromDb[$payment->getId()]);
 		}
 
-		if (self::$eventClassName === null)
-		{
-			/** @var Payment $paymentClassName */
-			$paymentClassName = static::getItemCollectionClassName();
-			self::$eventClassName = $paymentClassName::getEntityEventName();
-		}
-
 		foreach ($itemsFromDb as $k => $v)
 		{
 			$v['ENTITY_REGISTRY_TYPE'] = static::getRegistryType();
 
 			/** @var Main\Event $event */
-			$event = new Main\Event('sale', "OnBefore".self::$eventClassName."Deleted", array(
+			$event = new Main\Event('sale', "OnBeforeSalePaymentDeleted", array(
 					'VALUES' => $v,
 			));
 			$event->send();
@@ -426,7 +442,7 @@ class PaymentCollection extends Internals\EntityCollection
 			static::deleteInternal($k);
 
 			/** @var Main\Event $event */
-			$event = new Main\Event('sale', "On".self::$eventClassName."Deleted", array(
+			$event = new Main\Event('sale', "OnSalePaymentDeleted", array(
 					'VALUES' => $v,
 			));
 			$event->send();
@@ -516,14 +532,6 @@ class PaymentCollection extends Internals\EntityCollection
 		}
 
 		return false;
-	}
-
-	/**
-	 * @return int
-	 */
-	public static function getInnerPaySystemId()
-	{
-		return PaySystem\Manager::getInnerPaySystemId();
 	}
 
 	/**
@@ -649,5 +657,15 @@ class PaymentCollection extends Internals\EntityCollection
 	public static function getList(array $parameters = array())
 	{
 		return Internals\PaymentTable::getList($parameters);
+	}
+
+	/**
+	 * @deprecated Use \Bitrix\Sale\PaySystem\Manager::getInnerPaySystemId instead
+	 *
+	 * @return int
+	 */
+	public static function getInnerPaySystemId()
+	{
+		return PaySystem\Manager::getInnerPaySystemId();
 	}
 }

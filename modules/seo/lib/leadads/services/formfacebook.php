@@ -215,6 +215,7 @@ class FormFacebook extends LeadAds\Form
 			'method' => 'POST',
 			'endpoint' => $this->accountId . '/subscribed_apps',
 			'fields' => array(
+				'subscribed_fields' => 'leadgen',
 				'access_token' => $pageAccessToken
 			)
 		));

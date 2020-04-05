@@ -132,15 +132,14 @@ class CAgent extends CAllAgent
 		/** @var callable|false $logFunction */
 		$logFunction = (defined("BX_AGENTS_LOG_FUNCTION") && function_exists(BX_AGENTS_LOG_FUNCTION)? BX_AGENTS_LOG_FUNCTION : false);
 
+		ignore_user_abort(true);
+
 		for($i = 0, $n = count($agents_array); $i < $n; $i++)
 		{
 			$arAgent = $agents_array[$i];
 
 			if ($logFunction)
 				$logFunction($arAgent, "start");
-
-			@set_time_limit(0);
-			ignore_user_abort(true);
 
 			if(strlen($arAgent["MODULE_ID"])>0 && $arAgent["MODULE_ID"]!="main")
 			{
@@ -182,12 +181,21 @@ class CAgent extends CAllAgent
 			{
 				continue;
 			}
-			elseif(strlen($eval_result)<=0)
+			elseif($eval_result == '')
 			{
 				$strSql = "DELETE FROM b_agent WHERE ID=".$arAgent["ID"];
 			}
 			else
 			{
+				if ($logFunction && function_exists('token_get_all'))
+				{
+					if(count(token_get_all("<?php ".$eval_result)) < 3)
+					{
+						//probably there is an error in the result
+						$logFunction($arAgent, "not_callable", $eval_result, $e);
+					}
+				}
+
 				$strSql = "
 					UPDATE b_agent SET
 						NAME='".$DB->ForSQL($eval_result)."',

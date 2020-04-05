@@ -11,16 +11,14 @@
 	color: #333;
 	box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
 	word-break: break-word;
-	transition: background-color 1s, color 1s;
-	overflow: hidden;
+	transition: background-color .5s, color .5s, font-size .3s;
+	margin-bottom: 5px;
 }
 
 .bx-im-message-content a {color:#1d54a2; text-decoration:underline;}
 .bx-im-message-content a:hover {text-decoration:none;}
 
-.bx-im-message-type-opponent .bx-im-message-content,
-.bx-im-message-type-opponent .bx-im-message-content-name,
-.bx-im-message-type-opponent .bx-im-message-content-body-with-text {
+.bx-im-message-type-opponent .bx-im-message-content {
 	border: 0;
 	background-color: #fff;
 }
@@ -32,9 +30,7 @@
 	color: #717171;
 }
 
-.bx-im-message-status-unread .bx-im-message-content,
-.bx-im-message-status-unread .bx-im-message-content-name,
-.bx-im-message-status-unread .bx-im-message-content-body-with-text {
+.bx-im-message-status-unread .bx-im-message-content {
 	background-color: #fffadd;
 }
 
@@ -49,6 +45,8 @@
 
 .bx-im-message-status-error .bx-im-message-content {
 	background-color: #fcdcde;
+}
+.bx-im-message-status-error .bx-im-message-content {
 	box-shadow: 0 1px 0 0 rgba(255, 0, 0, 0.15);
 }
 
@@ -68,15 +66,10 @@
 	font-size: 14px;
 	color: #048bd0;
 	cursor: pointer;
-	transition: background-color 1s, color 1s;
+	transition: color 1s;
 }
 .bx-im-dialog-list-item+.bx-im-dialog-list-item .bx-im-message-content-name {
 	display: none;
-}
-
-.bx-im-message-content-body-with-text
-{
-	transition: background-color 1s, color 1s;
 }
 
 .bx-im-message-content-quote {
@@ -96,7 +89,13 @@
 	font-size: 12px;
 	color: #767a7e;
 	padding-top: 1px;
-	white-space: nowrap;
+}
+.bx-im-message-content-quote-name-text {
+	padding-right: 5px;
+}
+.bx-im-message-content-quote-name-time {
+	display: inline-block;
+	font-size: 11px;
 }
 .bx-im-message-content-code {
 	white-space: pre-line;
@@ -104,12 +103,6 @@
 	color: #505050;
 	border-left: 3px solid #505050;
 }
-.bx-im-message-content-quote-time {
-	display: inline-block;
-	padding-left: 5px;
-	font-size: 11px;
-}
-
 
 .bx-im-message-content-params {
 	float: right;
@@ -148,6 +141,7 @@
 .bx-im-message .bx-im-message-content-fit {
 	padding: 0;
 	border: 0;
+	margin-bottom: 14px;
 }
 .bx-im-message .bx-im-message-content-fit .bx-im-message-content-box {
 	padding:0;
@@ -160,7 +154,7 @@
 	padding: 0 16px 0 16px
 }
 .bx-im-message .bx-im-message-content-fit .bx-im-message-content-body-without-text .bx-im-message-content-params {
-	margin-top: -28px;
+	margin-top: -37px;
 }
 .bx-im-message .bx-im-message-content-fit .bx-im-message-content-body-without-text .bx-im-message-content-date {
 	color: #fff;
@@ -170,14 +164,19 @@
 	padding: 7px 16px 8px 16px;
 }
 
+.bx-im-mention {
+	color: #1d54a2;
+	border-bottom: 1px dotted #1d54a2;
+}
+
 .bx-im-smile-like {
 	display: inline-block;
 	height: 20px;
 	width: 20px;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%3E%0A%20%20%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%3Crect%20width%3D%2240%22%20height%3D%2240%22%20fill%3D%22%233BC8F5%22%20rx%3D%2220%22/%3E%0A%20%20%20%20%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M10%2016.6095c0-.5573.4434-1.009%201.0094-1.009h1.9812c.5575%200%201.0094.4388%201.0094%201.009v10.313c0%20.5573-.4434%201.009-1.0094%201.009h-1.9812c-.5575%200-1.0094-.4388-1.0094-1.009v-10.313zm20.1278-1.294c1.034%200%201.2214%201.0147%201.2147%201.7227-.0067.708-.1353%201.406-1.048%201.854.6713.6454.4347%202.6414-.7707%203.104.7287.3747.4527%202.634-.6666%202.8747.8333.7293-.0787%202.6447-.8547%202.938-.7753.2927-1.614.21-1.614.21s-.9093.0393-1.042.0393h-8.3567c-.7253%200-1.3146-.58-1.3146-1.296V16.1576c0-.342.14-.6727.386-.9154%200%200%203.2346-2.266%205.9053-6.1786.3753-.55%201.1433-.508%201.6587%200%20.246.242.3866.5726.3866.9146v1.046c0%20.0967-.012.3134-.0933.8507-.0827.538-1.152%202.9487-1.152%202.9487-.144.638.64.492%201.4867.492h5.8746z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A');
 	background-size: cover;
-
 }
+
 .bx-im-smile-dislike {
 	display: inline-block;
 	height: 20px;
@@ -186,6 +185,33 @@
 	background-size: cover;
 }
 
+.bx-im-message-content-reaction {
+	position: relative;
+	z-index: 1;
+}
+
+.bx-im-message-content-reaction .ui-vue-reaction {
+   	float: right;
+	margin-top: -6px;
+	margin-bottom: -21px;
+	margin-right: -12px;
+}
+.bx-im-message-content-reaction .ui-vue-reaction-mobile {
+	margin-top: -9px;
+}
+
+.bx-im-message-content-fit .bx-im-message-content-reaction {
+	margin-right: 16px;
+	margin-top: -9px;
+}
+
+.bx-im-dialog-dark-background .bx-im-message-type-system .bx-im-message-content {
+	color: #949494;
+}
+
+.bx-im-dialog-dark-background .bx-im-dialog-status {
+	color: #949494;
+}
 
 /*
 temporary
@@ -272,15 +298,12 @@ temporary
 .bx-messenger-content-item-ol-output .bx-messenger-content-item-date { color: #bac5cd!important; }
 .bx-messenger-content-item-ol-attention .bx-messenger-content-item-date { color: #a6aaae!important; }
 
-.bx-messenger-content-item-menu-with-apps {  background-position: 0 -30px;  opacity: .8;  }
-.bx-messenger-content-item-menu-with-apps:hover {  background-position: 0 -15px;  }
-.bx-messenger-content-item:hover .bx-messenger-content-item-menu { opacity: 0.6 }
-.bx-messenger-content-item:hover .bx-messenger-content-item-menu-with-apps { opacity: .8 }
-.bx-messenger-content-item-menu-hover .bx-messenger-content-item-menu { opacity: 1!important; }
-.bx-im-message-type-opponent .bx-messenger-content-item-menu { float: right; margin-left: 0; margin-right: -42px; }
-.bx-messenger-chat-guest .bx-messenger-content-item-menu { display: none; }
-
 /* endregion 03. Message params (date, like, etc) */
 
 .bx-notifier-popup-user-more, .bx-messenger-cl, .bx-messenger-cl-notify-button, .bx-messenger-content-item-avatar, .bx-messenger-content-item-date, .bx-messenger-history-item-avatar,
 .bx-messenger-textarea-cntr-enter, .bx-notifier-item-help-popup { -moz-user-select:none; -khtml-user-select:none; -o-user-select:none; -webkit-user-select:none; user-select:none; cursor: default; }
+
+.bx-im-message-large-font .bx-im-message-content {
+	font-size: 35px;
+	line-height: 35px;
+}

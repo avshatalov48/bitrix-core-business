@@ -1,0 +1,169 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 1200 100%" preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect fill="#EBF1F4" width="100%" height="1200"/>
+        <rect fill="#fff"    width="100%" height="60" x="260" y="0"/>
+        <rect fill="#fff"    width="100%" height="1200" x="260" y="217"/>
+        <rect fill="#EBF1F4" width="100%" height="110" x="0" y="570"/>
+        <rect fill="#fff"    width="400"  height="39" x="260" y="86"/>
+        <rect fill="#2FC6F6" width="200"  height="39" x="100%" y="86" transform="translate(-222, 0)" rx="2" ry="2"/>
+<!--        <rect fill="#EBF1F4" width="220"  height="1200" x="0" y="0"/>-->
+    </svg>
+
+
+    <svg height="1200px"  width="80%" id="header" style="" x="260">
+
+        <style>
+            @media (min-width: 1200px) {
+                .column_3 {display: none}
+            }
+            @media (max-width: 1200px) {
+                .column_4 {display: none}
+            }
+        </style>
+
+        <defs>
+            <g id="post">
+                <rect fill="#DEE2E7"     rx="2"  ry="2"  width="66"  height="66" x="21"  y="19"/>
+                <rect fill="#DEE2E7"     rx="2"  ry="2"  width="45%" height="8"  x="105" y="19"/>
+                <rect fill="#DEE2E7"     rx="2"  ry="2"  width="30%" height="8"  x="105" y="36"/>
+                <rect fill="#DEE2E7"     rx="2"  ry="2"  width="20%" height="4"  x="105" y="54"/>
+                <rect fill="transparent" rx="13" ry="13" width="94"  height="26" x="105" y="69" stroke="#DEE2E7"/>
+                <rect fill="#DEE2E7"     rx="2"  ry="2"  width="76"  height="8"  x="114" y="78"/>
+                <line stroke="#EBEDEC"   x1="0" y1="105" x2="100%" y2="105"/>
+            </g>
+        </defs>
+
+        <svg width="100%" x="20" y="0">
+            <rect fill="#DEE2E7" rx="2" ry="2" width="15%" height="7" x="0"   y="29"/>
+            <rect fill="#DEE2E7" rx="2" ry="2" width="15%" height="7" x="20%" y="29"/>
+            <rect fill="#DEE2E7" rx="2" ry="2" width="15%" height="7" x="40%" y="29"/>
+            <rect fill="#DEE2E7" rx="2" ry="2" width="15%" height="7" x="60%" y="29"/>
+            <rect fill="#DEE2E7" rx="2" ry="2" width="15%" height="7" x="80%" y="29"/>
+        </svg>
+
+        <rect fill="#DEE2E7" rx="2" ry="2" width="120" height="7"  x="20" y="102"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="120" height="12" x="20" y="151"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="92"  height="7"  x="20" y="187"/>
+
+        <rect fill="#DEE2E7" rx="2" ry="2" width="120" height="12" x="20" y="620"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="92"  height="7"  x="20" y="657"/>
+
+        <svg class="column_4" width="24%" x="0%"  y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+        <svg class="column_4" width="24%" x="25%" y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+        <svg class="column_4" width="24%" x="50%" y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+        <svg class="column_4" width="24%" x="75%" y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+
+        <svg class="column_3" width="32%" x="0%"  y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+        <svg class="column_3" width="32%" x="33%" y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+        <svg class="column_3" width="32%" x="66%" y="217" preserveAspectRatio="xMinYMin meet" >
+            <use  fill="dodgerblue"  xlink:href="#post"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="124"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="248"> </use>
+
+            <use  fill="dodgerblue"  xlink:href="#post" y="476"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="600"> </use>
+            <use  fill="dodgerblue"  xlink:href="#post" y="724"> </use>
+        </svg>
+    </svg>
+
+    <svg id="menu" width="100%" x="20" y="0">
+        <rect fill="#58D1F7" rx="2" ry="2" width="165" height="7" x="100%" y="102" transform="translate(-225, 0)"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="210" height="13" x="0" y="24"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="83"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="124"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="165"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="206"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="247"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="288"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="329"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="370"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="411"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="452"/>
+        <rect fill="#DEE2E7" rx="2" ry="2" width="124" height="8"  x="0" y="493"/>
+    </svg>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1200"/>
+
+    <mask id="headerMsk" fill="white">
+        <use xlink:href="#header"/>
+        <use xlink:href="#menu"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+    <svg height="1200px">
+        <rect fill="#EBF1F4" width="20"   height="1200" x="100%" y="0"   transform="translate(-20, 0)"/>
+    </svg>
+
+    <svg height="1200px"  width="80%" style="" x="260">
+        <rect class="column_4" fill="#EBF1F4" width="15" height="1200" x="25%" y="217" transform="translate(-15, 0)"/>
+        <rect class="column_4" fill="#EBF1F4" width="15" height="1200" x="50%" y="217" transform="translate(-15, 0)"/>
+        <rect class="column_4" fill="#EBF1F4" width="15" height="1200" x="75%" y="217" transform="translate(-15, 0)"/>
+
+        <rect class="column_3" fill="#EBF1F4" width="15" height="1200" x="33%" y="217" transform="translate(-15, 0)"/>
+        <rect class="column_3" fill="#EBF1F4" width="15" height="1200" x="66%" y="217" transform="translate(-15, 0)"/>
+    </svg>
+
+    <svg height="1200px"  width="100%">
+        <rect fill="#EBF1F4" width="100%" height="18" x="0" y="322"/>
+        <rect fill="#EBF1F4" width="100%" height="18" x="0" y="446"/>
+        <rect fill="#EBF1F4" width="100%" height="18" x="0" y="674"/>
+        <rect fill="#EBF1F4" width="100%" height="18" x="0" y="798"/>
+        <rect fill="#EBF1F4" width="100%" height="18" x="0" y="922"/>
+    </svg>
+
+</svg>

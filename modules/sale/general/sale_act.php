@@ -492,6 +492,11 @@ class CSaleActionGiftCtrlGroup extends CSaleActionCtrlGroup
 			'showIn' => static::GetShowIn($arParams['SHOW_IN_GROUPS']),
 			'control' => array(
 				Loc::getMessage('BT_SALE_ACT_GIFT_GROUP_PRODUCT_PREFIX'),
+			),
+			'mess' => array(
+				'ADD_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_ADD_CONTROL'),
+				'SELECT_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_SELECT_CONTROL'),
+				'DELETE_CONTROL' => Loc::getMessage('BT_SALE_ACT_GROUP_DELETE_CONTROL')
 			)
 		);
 	}
@@ -704,6 +709,9 @@ class CSaleActionCtrlDelivery extends CSaleActionCtrl
 				$arAtoms['Type'],
 				$arAtoms['Value'],
 				$arAtoms['Unit']
+			),
+			'mess' => array(
+				'DELETE_CONTROL' => Loc::getMessage('BT_SALE_ACT_GROUP_DELETE_CONTROL')
 			)
 		);
 
@@ -1101,7 +1109,8 @@ class CSaleActionCtrlBasketGroup extends CSaleActionCtrlAction
 			),
 			'mess' => array(
 				'ADD_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_ADD_CONTROL'),
-				'SELECT_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_SELECT_CONTROL')
+				'SELECT_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_SELECT_CONTROL'),
+				'DELETE_CONTROL' => Loc::getMessage('BT_SALE_ACT_GROUP_DELETE_CONTROL')
 			)
 		);
 	}
@@ -1492,6 +1501,19 @@ class CSaleActionCtrlSubGroup extends CGlobalCondCtrlGroup
 		$arControls = array(CSaleActionCtrlBasketGroup::GetControlID());
 		return $arControls;
 	}
+
+	public static function GetControlShow($params)
+	{
+		$result = parent::GetControlShow($params);
+
+		$result['mess'] = array(
+			'ADD_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_ADD_CONTROL'),
+			'SELECT_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_SELECT_CONTROL'),
+			'DELETE_CONTROL' => Loc::getMessage('BT_SALE_SUBACT_DELETE_CONTROL')
+		);
+
+		return $result;
+	}
 }
 
 class CSaleActionCondCtrlBasketFields extends CSaleCondCtrlBasketFields
@@ -1537,6 +1559,18 @@ class CSaleActionTree extends CGlobalCondTree
 	public function __destruct()
 	{
 		parent::__destruct();
+	}
+
+	public function Init($mode, $event, $params = array())
+	{
+		if (!isset($params['SYSTEM_MESSAGES']) || !is_array($params['SYSTEM_MESSAGES']))
+			$params['SYSTEM_MESSAGES'] = [];
+		if (!isset($params['SYSTEM_MESSAGES']['SELECT_CONTROL']))
+			$params['SYSTEM_MESSAGES']['SELECT_CONTROL'] = Loc::getMessage('BT_SALE_ACT_GROUP_SELECT_CONTROL');
+		if (!isset($params['SYSTEM_MESSAGES']['ADD_CONTROL']))
+			$params['SYSTEM_MESSAGES']['ADD_CONTROL'] = Loc::getMessage('BT_SALE_ACT_GROUP_ADD_CONTROL');
+
+		return parent::Init($mode, $event, $params);
 	}
 
 	public function Generate($arConditions, $arParams)

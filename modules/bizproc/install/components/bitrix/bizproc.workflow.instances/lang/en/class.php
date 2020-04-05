@@ -1,6 +1,6 @@
 <?
 $MESS["BPWI_NO_ACCESS"] = "Only the portal administrators can access this page.";
-$MESS["BPWI_PAGE_TITLE"] = "Running workflows";
+$MESS["BPWI_PAGE_TITLE"] = "Running Workflows";
 $MESS["BPWI_MODIFIED"] = "Modified on";
 $MESS["BPWI_IS_LOCKED"] = "Hung";
 $MESS["BPWI_OWNED_UNTIL"] = "Locked until";

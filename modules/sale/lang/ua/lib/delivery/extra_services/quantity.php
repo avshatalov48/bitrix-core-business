@@ -1,0 +1,4 @@
+<?
+$MESS["DELIVERY_EXTRA_SERVICE_QUANTITY_TITLE"] = "Кількісна послуга";
+$MESS["DELIVERY_EXTRA_SERVICE_QUANTITY_PRICE"] = "Ціна за шт.";
+?>

@@ -57,9 +57,6 @@ abstract class OrderBase extends Internals\Entity
 	/** @var bool $isStartField */
 	protected $isStartField = null;
 
-	/** @var null $eventClassName */
-	protected static $eventClassName = null;
-
 
 	/** @var null|string $calculateType */
 	protected $calculateType = null;
@@ -75,9 +72,9 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	protected function __construct(array $fields = array())
 	{
-		$priceRoundedFields = ['PRICE', 'PRICE_DELIVERY', 'SUM_PAID', 'PRICE_PAYMENT', 'DISCOUNT_VALUE'];
+		$priceFields = ['PRICE', 'PRICE_DELIVERY', 'SUM_PAID', 'PRICE_PAYMENT', 'DISCOUNT_VALUE'];
 
-		foreach ($priceRoundedFields as $code)
+		foreach ($priceFields as $code)
 		{
 			if (isset($fields[$code]))
 			{
@@ -155,6 +152,14 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isSaveRunning()
+	{
+		return $this->isSaveExecuting;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected static function getMeaningfulFields()
@@ -177,13 +182,11 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
-	 * Return registry type of class
-	 *
-	 * @throws Main\NotImplementedException
+	 * @return string
 	 */
-	public static function getRegistryType()
+	public static function getRegistryEntity()
 	{
-		throw new Main\NotImplementedException();
+		return Registry::ENTITY_ORDER;
 	}
 
 	/**
@@ -199,7 +202,14 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public static function create($siteId, $userId = null, $currency = null)
 	{
-		$order = static::createOrderObject();
+		$fields = [
+			'CANCELED' => 'N',
+			'DEDUCTED' => 'N',
+			'ALLOW_DELIVERY' => 'N',
+			'PAYED' => 'N',
+		];
+
+		$order = static::createOrderObject($fields);
 		$order->setFieldNoDemand('LID', $siteId);
 		if (intval($userId) > 0)
 		{
@@ -243,12 +253,14 @@ abstract class OrderBase extends Internals\Entity
 	public static function load($id)
 	{
 		if (intval($id) <= 0)
+		{
 			throw new Main\ArgumentNullException("id");
+		}
 
-		$filter = array(
-			'filter' => array('ID' => $id),
-			'select' => array('*'),
-		);
+		$filter = [
+			'filter' => ['ID' => $id],
+			'select' => ['*'],
+		];
 
 		$list = static::loadByFilter($filter);
 		if (!empty($list) && is_array($list))
@@ -269,7 +281,7 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public static function loadByFilter(array $parameters)
 	{
-		$list = array();
+		$list = [];
 
 		$parameters = static::prepareParams($parameters);
 
@@ -283,7 +295,7 @@ abstract class OrderBase extends Internals\Entity
 			$list[] = $order;
 		}
 
-		return (!empty($list) ? $list : null);
+		return $list;
 	}
 
 	/**
@@ -297,15 +309,25 @@ abstract class OrderBase extends Internals\Entity
 		);
 
 		if (isset($parameters['filter']))
+		{
 			$result['filter'] = $parameters['filter'];
+		}
 		if (isset($parameters['limit']))
+		{
 			$result['limit'] = $parameters['limit'];
+		}
 		if (isset($parameters['order']))
+		{
 			$result['order'] = $parameters['order'];
+		}
 		if (isset($parameters['offset']))
+		{
 			$result['offset'] = $parameters['offset'];
+		}
 		if (isset($parameters['runtime']))
+		{
 			$result['runtime'] = $parameters['runtime'];
+		}
 
 		return $result;
 	}
@@ -321,21 +343,19 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public static function loadByAccountNumber($value)
 	{
-		if (strval(trim($value)) == '')
-			throw new Main\ArgumentNullException("value");
-
-		$filter = array(
-			'filter' => array('=ACCOUNT_NUMBER' => $value),
-			'select' => array('*'),
-		);
-
-		$list = static::loadByFilter($filter);
-		if (!empty($list) && is_array($list))
+		if (trim($value) == '')
 		{
-			return reset($list);
+			throw new Main\ArgumentNullException("value");
 		}
 
-		return null;
+		$parameters = [
+			'filter' => ['=ACCOUNT_NUMBER' => $value],
+			'select' => ['*'],
+		];
+
+		$list = static::loadByFilter($parameters);
+
+		return reset($list);
 	}
 
 	/**
@@ -362,7 +382,7 @@ abstract class OrderBase extends Internals\Entity
 		if (!$this->isMathActionOnly())
 		{
 			/** @var Result $r */
-			$r = $basket->refreshData(array('PRICE', 'QUANTITY', 'COUPONS'));
+			$r = $basket->refreshData(['PRICE', 'QUANTITY', 'COUPONS']);
 			if (!$r->isSuccess())
 			{
 				$result->addErrors($r->getErrors());
@@ -410,18 +430,6 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
-	 * Check basket for emptiness
-	 *
-	 * @return bool
-	 */
-	public function isNotEmptyBasket()
-	{
-		$basket = $this->getBasket();
-
-		return !empty($basket);
-	}
-
-	/**
 	 * Load basket appended to order
 	 *
 	 * @return BasketBase|null
@@ -448,18 +456,20 @@ abstract class OrderBase extends Internals\Entity
 	 * @param $name
 	 * @param $value
 	 * @return Result
-	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 */
 	public function setField($name, $value)
 	{
-		$priceRoundedFields = array(
+		$priceFields = array(
 			'PRICE' => 'PRICE',
 			'PRICE_DELIVERY' => 'PRICE_DELIVERY',
 			'SUM_PAID' => 'SUM_PAID',
 			'PRICE_PAYMENT' => 'PRICE_PAYMENT',
 			'DISCOUNT_VALUE' => 'DISCOUNT_VALUE',
 		);
-		if (isset($priceRoundedFields[$name]))
+		if (isset($priceFields[$name]))
 		{
 			$value = PriceMaths::roundPrecision($value);
 		}
@@ -470,41 +480,59 @@ abstract class OrderBase extends Internals\Entity
 			return new Result();
 		}
 
-		$r = parent::setField($name, $value);
+		return parent::setField($name, $value);
+	}
 
-		if (!$r->isSuccess())
+	/**
+	 * @param $name
+	 * @param $value
+	 * @return Result
+	 * @throws Main\NotImplementedException
+	 */
+	protected function checkValueBeforeSet($name, $value)
+	{
+		$result = parent::checkValueBeforeSet($name, $value);
+
+		if ($name === 'ACCOUNT_NUMBER')
 		{
-			return $r;
+			$dbRes = static::getList([
+				'select' => ['ID'],
+				'filter' => ['=ACCOUNT_NUMBER' => $value]
+			]);
+
+			if ($dbRes->fetch())
+			{
+				$result->addError(
+					new ResultError(
+						Loc::getMessage('SALE_ORDER_ACCOUNT_NUMBER_EXISTS')
+					)
+				);
+			}
 		}
 
-		$fields = $this->fields->getChangedValues();
-		if (!empty($fields) && !array_key_exists("UPDATED_1C", $fields) && $name != 'UPDATED_1C')
-		{
-			parent::setField("UPDATED_1C", "N");
-		}
-
-		return $r;
+		return $result;
 	}
 
 	/**
 	 * @internal
-	 *
 	 * Set value without call events on field modify
 	 *
 	 * @param $name
 	 * @param $value
+	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 */
 	public function setFieldNoDemand($name, $value)
 	{
-		$priceRoundedFields = array(
+		$priceFields = array(
 			'PRICE' => 'PRICE',
 			'PRICE_DELIVERY' => 'PRICE_DELIVERY',
 			'SUM_PAID' => 'SUM_PAID',
 			'PRICE_PAYMENT' => 'PRICE_PAYMENT',
 			'DISCOUNT_VALUE' => 'DISCOUNT_VALUE',
 		);
-		if (isset($priceRoundedFields[$name]))
+		if (isset($priceFields[$name]))
 		{
 			$value = PriceMaths::roundPrecision($value);
 		}
@@ -517,7 +545,7 @@ abstract class OrderBase extends Internals\Entity
 
 		if (!$this->fields->isChanged("UPDATED_1C") && $name != 'UPDATED_1C')
 		{
-			parent::setField("UPDATED_1C", "N");
+			$this->setField("UPDATED_1C", "N");
 		}
 
 		if ($this->isSaveExecuting === false)
@@ -573,11 +601,11 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
-	 * Return collection of order properties
-	 *
 	 * @return PropertyValueCollectionBase
 	 * @throws Main\ArgumentException
 	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	public function getPropertyCollection()
 	{
@@ -637,6 +665,8 @@ abstract class OrderBase extends Internals\Entity
 
 		$this->calculateType = ($this->getId() > 0 ? static::SALE_ORDER_CALC_TYPE_REFRESH : static::SALE_ORDER_CALC_TYPE_NEW);
 
+		$this->resetData();
+
 		$this->refreshInternal();
 
 		if ($isStartField)
@@ -656,10 +686,10 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
-	 * @param $select
 	 * @return Result
-	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 */
 	protected function refreshInternal()
 	{
@@ -765,72 +795,6 @@ abstract class OrderBase extends Internals\Entity
 	public function getTaxValue()
 	{
 		return floatval($this->getField('TAX_VALUE'));
-	}
-
-	/**
-	 * @return Result
-	 * @throws Main\ObjectNotFoundException
-	 */
-	protected function syncOrderTax()
-	{
-		$result = new Result();
-
-		/** @var Tax $tax */
-		if (!$tax = $this->getTax())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Tax" not found');
-		}
-
-		$this->resetTax();
-		/** @var Result $r */
-		$r = $tax->calculate();
-		if ($r->isSuccess())
-		{
-			$taxResult = $r->getData();
-			if (isset($taxResult['TAX_PRICE']) && floatval($taxResult['TAX_PRICE']) > 0)
-			{
-				/** @var Result $r */
-				$r = $this->setField('TAX_PRICE', $taxResult['TAX_PRICE']);
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
-			}
-
-			if (isset($taxResult['VAT_SUM']) && floatval($taxResult['VAT_SUM']) > 0)
-			{
-				/** @var Result $r */
-				$r = $this->setField('VAT_SUM', $taxResult['VAT_SUM']);
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
-			}
-
-			if (isset($taxResult['VAT_DELIVERY']) && floatval($taxResult['VAT_DELIVERY']) > 0)
-			{
-				/** @var Result $r */
-				$r = $this->setField('VAT_DELIVERY', $taxResult['VAT_DELIVERY']);
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
-			}
-
-			/** @var Result $r */
-			$r = $this->setField('TAX_VALUE', $this->isUsedVat()? $this->getVatSum() : $this->getField('TAX_PRICE'));
-			if (!$r->isSuccess())
-			{
-				$result->addErrors($r->getErrors());
-			}
-
-		}
-		else
-		{
-			$result->addErrors($r->getErrors());
-		}
-
-		return $result;
 	}
 
 	/**
@@ -1108,8 +1072,7 @@ abstract class OrderBase extends Internals\Entity
 		$r = $this->verify();
 		if (!$r->isSuccess())
 		{
-			$this->isSaveExecuting = false;
-			return $r;
+			$result->addWarnings($r->getErrors());
 		}
 
 		$r = $this->onBeforeSave();
@@ -1325,11 +1288,7 @@ abstract class OrderBase extends Internals\Entity
 		$this->setFieldNoDemand('ID', $id);
 		$result->setId($id);
 
-		$accountNumber = $this->setAccountNumber();
-		if ($accountNumber)
-		{
-			$this->setField('ACCOUNT_NUMBER', $accountNumber);
-		}
+		$this->setAccountNumber();
 
 		return $result;
 	}
@@ -1381,27 +1340,19 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	protected function callEventOnSaleOrderEntitySaved()
 	{
-		if (self::$eventClassName === null)
-		{
-			self::$eventClassName = static::getEntityEventName();
-		}
+		$oldEntityValues = $this->fields->getOriginalValues();
 
-		if (self::$eventClassName)
+		if (!empty($oldEntityValues))
 		{
-			$oldEntityValues = $this->fields->getOriginalValues();
-
-			if (!empty($oldEntityValues))
+			$eventManager = Main\EventManager::getInstance();
+			if ($eventsList = $eventManager->findEventHandlers('sale', 'OnSaleOrderEntitySaved'))
 			{
-				$eventManager = Main\EventManager::getInstance();
-				if ($eventsList = $eventManager->findEventHandlers('sale', 'On'.self::$eventClassName.'EntitySaved'))
-				{
-					/** @var Main\Event $event */
-					$event = new Main\Event('sale', 'On'.self::$eventClassName.'EntitySaved', array(
-						'ENTITY' => $this,
-						'VALUES' => $oldEntityValues,
-					));
-					$event->send();
-				}
+				/** @var Main\Event $event */
+				$event = new Main\Event('sale', 'OnSaleOrderEntitySaved', array(
+					'ENTITY' => $this,
+					'VALUES' => $oldEntityValues,
+				));
+				$event->send();
 			}
 		}
 	}
@@ -1472,6 +1423,12 @@ abstract class OrderBase extends Internals\Entity
 
 	/**
 	 * @return Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	protected function saveEntities()
 	{
@@ -1515,7 +1472,6 @@ abstract class OrderBase extends Internals\Entity
 	/**
 	 * Set account number.
 	 *
-	 * @return mixed
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
@@ -1526,10 +1482,10 @@ abstract class OrderBase extends Internals\Entity
 		$accountNumber = Internals\AccountNumberGenerator::generateForOrder($this);
 		if ($accountNumber !== false)
 		{
+			$this->setField('ACCOUNT_NUMBER', $accountNumber);
+
 			static::updateInternal($this->getId(), ['ACCOUNT_NUMBER' => $accountNumber]);
 		}
-
-		return $accountNumber;
 	}
 
 	/**
@@ -1573,22 +1529,26 @@ abstract class OrderBase extends Internals\Entity
 	}
 
 	/**
-	 * Modify order field.
-	 *
-	 * @param string $name				Field name.
-	 * @param mixed|string|int|float $oldValue			Old value.
-	 * @param mixed|string|int|float $value				New value.
+	 * @param string $name
+	 * @param mixed $oldValue
+	 * @param mixed $value
 	 * @return Result
+	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\ObjectException
 	 */
 	protected function onFieldModify($name, $oldValue, $value)
 	{
 		global $USER;
 
 		$result = new Result();
+
+		if ($name !== 'UPDATED_1C' && !$this->getFields()->isChanged('UPDATED_1C'))
+		{
+			$this->setField("UPDATED_1C", "N");
+		}
 
 		if ($name == "PRICE")
 		{
@@ -1651,7 +1611,9 @@ abstract class OrderBase extends Internals\Entity
 			$this->setField('DATE_CANCELED', new Type\DateTime());
 
 			if (is_object($USER) && $USER->isAuthorized())
+			{
 				$this->setField('EMP_CANCELED_ID', $USER->getID());
+			}
 
 			Internals\EventsPool::addEvent(
 				$this->getInternalId(),
@@ -1675,8 +1637,10 @@ abstract class OrderBase extends Internals\Entity
 			{
 				$this->setField('DATE_MARKED', new Type\DateTime());
 
-				if ($USER->isAuthorized())
+				if (is_object($USER) && $USER->isAuthorized())
+				{
 					$this->setField('EMP_MARKED_ID', $USER->getID());
+				}
 			}
 			elseif ($value == "N")
 			{
@@ -2007,6 +1971,7 @@ abstract class OrderBase extends Internals\Entity
 	public function verify()
 	{
 		$result = new Result();
+
 		/** @var BasketBase $basket */
 		if ($basket = $this->getBasket())
 		{
@@ -2203,6 +2168,13 @@ abstract class OrderBase extends Internals\Entity
 
 		/** @var Result $r */
 		$r = $order->setField('CANCELED', 'Y');
+		if (!$r->isSuccess())
+		{
+			$result->addErrors($r->getErrors());
+			return $result;
+		}
+
+		$r = $order->save();
 		if (!$r->isSuccess())
 		{
 			$result->addErrors($r->getErrors());
@@ -2473,58 +2445,50 @@ abstract class OrderBase extends Internals\Entity
 		{
 			$this->setMathActionOnly(true);
 
-			if (self::$eventClassName === null)
+			$eventManager = Main\EventManager::getInstance();
+			$eventsList = $eventManager->findEventHandlers('sale', 'OnBeforeSaleOrderFinalAction');
+			if (!empty($eventsList))
 			{
-				self::$eventClassName = static::getEntityEventName();
-			}
+				$event = new Main\Event('sale', 'OnBeforeSaleOrderFinalAction', array(
+					'ENTITY' => $this,
+					'HAS_MEANINGFUL_FIELD' => $hasMeaningfulField,
+					'BASKET' => $basket,
+				));
+				$event->send();
 
-			if (self::$eventClassName)
-			{
-				$eventManager = Main\EventManager::getInstance();
-				$eventsList = $eventManager->findEventHandlers('sale', 'OnBefore'.self::$eventClassName.'FinalAction');
-				if (!empty($eventsList))
+				if ($event->getResults())
 				{
-					$event = new Main\Event('sale', 'OnBefore'.self::$eventClassName.'FinalAction', array(
-						'ENTITY' => $this,
-						'HAS_MEANINGFUL_FIELD' => $hasMeaningfulField,
-						'BASKET' => $basket,
-					));
-					$event->send();
-
-					if ($event->getResults())
+					/** @var Main\EventResult $eventResult */
+					foreach($event->getResults() as $eventResult)
 					{
-						/** @var Main\EventResult $eventResult */
-						foreach($event->getResults() as $eventResult)
+						if($eventResult->getType() == Main\EventResult::ERROR)
 						{
-							if($eventResult->getType() == Main\EventResult::ERROR)
+							$errorMsg = new ResultError(
+								Main\Localization\Loc::getMessage(
+									'SALE_EVENT_ON_BEFORE_SALEORDER_FINAL_ACTION_ERROR'
+								),
+								'SALE_EVENT_ON_BEFORE_SALEORDER_FINAL_ACTION_ERROR'
+							);
+
+							$eventResultData = $eventResult->getParameters();
+							if ($eventResultData)
 							{
-								$errorMsg = new ResultError(
-									Main\Localization\Loc::getMessage(
-										'SALE_EVENT_ON_BEFORE_'.strtoupper(self::$eventClassName).'_FINAL_ACTION_ERROR'
-									),
-									'SALE_EVENT_ON_BEFORE_'.strtoupper(self::$eventClassName).'_FINAL_ACTION_ERROR'
-								);
-
-								$eventResultData = $eventResult->getParameters();
-								if ($eventResultData)
+								if (isset($eventResultData) && $eventResultData instanceof ResultError)
 								{
-									if (isset($eventResultData) && $eventResultData instanceof ResultError)
-									{
-										/** @var ResultError $errorMsg */
-										$errorMsg = $eventResultData;
-									}
+									/** @var ResultError $errorMsg */
+									$errorMsg = $eventResultData;
 								}
-
-								$result->addError($errorMsg);
 							}
+
+							$result->addError($errorMsg);
 						}
 					}
 				}
+			}
 
-				if (!$result->isSuccess())
-				{
-					return $result;
-				}
+			if (!$result->isSuccess())
+			{
+				return $result;
 			}
 
 			// discount
@@ -2599,18 +2563,15 @@ abstract class OrderBase extends Internals\Entity
 
 		$this->clearStartField();
 
-		if (self::$eventClassName)
+		$eventManager = Main\EventManager::getInstance();
+		if ($eventsList = $eventManager->findEventHandlers('sale', 'OnAfterSaleOrderFinalAction'))
 		{
-			$eventManager = Main\EventManager::getInstance();
-			if ($eventsList = $eventManager->findEventHandlers('sale', 'OnAfter'.self::$eventClassName.'FinalAction'))
-			{
-				$event = new Main\Event(
-					'sale',
-					'OnAfter'.self::$eventClassName.'FinalAction',
-					array('ENTITY' => $this)
-				);
-				$event->send();
-			}
+			$event = new Main\Event(
+				'sale',
+				'OnAfterSaleOrderFinalAction',
+				array('ENTITY' => $this)
+			);
+			$event->send();
 		}
 
 		return $result;
@@ -2847,5 +2808,15 @@ abstract class OrderBase extends Internals\Entity
 	public static function getSettableFields()
 	{
 		return static::getAvailableFields();
+	}
+
+	/**
+	 * @return null|string
+	 * @internal
+	 *
+	 */
+	public static function getEntityEventName()
+	{
+		return 'SaleOrder';
 	}
 }

@@ -21,6 +21,10 @@ $arComponentParameters = Array(
 		'BUTTONS' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_BUTTONS'),
 			'TYPE' => 'LIST'
-		)
+		),
+		'DRAFT_MODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_DRAFT_MODE'),
+			'TYPE' => 'CHECKBOX'
+		),
 	)
 );

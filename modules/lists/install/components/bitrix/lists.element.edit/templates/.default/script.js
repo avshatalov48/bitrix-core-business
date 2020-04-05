@@ -12,8 +12,10 @@ BX.Lists.ListsElementEditClass = (function ()
 		this.sectionId = parameters.sectionId;
 		this.jsClass = 'ListsElementEditClass_'+parameters.randomString;
 		this.elementUrl = parameters.elementUrl;
+		this.sectionUrl = parameters.sectionUrl;
 		this.listAction = parameters.listAction;
 		this.isConstantsTuned = parameters.isConstantsTuned;
+		this.lockStatus = parameters.lockStatus;
 
 		this.init();
 	};
@@ -29,6 +31,16 @@ BX.Lists.ListsElementEditClass = (function ()
 		BX.bind(this.actionButton, 'click', BX.delegate(this.showListAction, this));
 
 		if(this.isConstantsTuned) this.setConstants();
+
+		if (this.lockStatus)
+		{
+			window.addEventListener("beforeunload", this.onBeforeUnloadHandler.bind(this));
+		}
+	};
+
+	ListsElementEditClass.prototype.onBeforeUnloadHandler = function()
+	{
+		this.unLock(true);
 	};
 
 	ListsElementEditClass.prototype.showListAction = function ()
@@ -150,6 +162,23 @@ BX.Lists.ListsElementEditClass = (function ()
 				}
 			}, this)
 		});
+	};
+
+	ListsElementEditClass.prototype.unLock = function(onBeforeUnload)
+	{
+		BX.ajax.runAction("lists.controller.lock.unLock", {
+			data: {
+				element_id: this.elementId,
+				iblock_type_id: this.iblockTypeId,
+				iblock_id: this.iblockId,
+				socnet_group_id: this.socnetGroupId
+			}
+		}).then(function (response) {
+			if (!onBeforeUnload)
+			{
+				document.location.href = this.sectionUrl;
+			}
+		}.bind(this), function (response) {});
 	};
 
 	ListsElementEditClass.prototype.fillConstants = function(listTemplateId)

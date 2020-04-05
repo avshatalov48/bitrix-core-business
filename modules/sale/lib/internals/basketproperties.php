@@ -89,7 +89,10 @@ class BasketPropertyTable
 			),
 
 			new Main\Entity\StringField(
-				'XML_ID'
+				'XML_ID',
+				array(
+					'size' => 255,
+				)
 			),
 		);
 	}

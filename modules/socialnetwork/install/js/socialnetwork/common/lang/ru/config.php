@@ -26,4 +26,6 @@ $MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN_PROJECT"] = "Присоединитьс�
 $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT"] = "Покинуть группу";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT_PROJECT"] = "Покинуть проект";
 $MESS["SONET_EXT_COMMON_WAIT"] = "Пожалуйста, подождите&hellip;";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_COPY"] = "Копировать группу";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT"] = "Копировать проект";
 ?>

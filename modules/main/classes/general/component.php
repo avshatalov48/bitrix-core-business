@@ -54,6 +54,7 @@ class CBitrixComponent
 
 	private $__editButtons = array();
 	private static $__classes_map = array();
+	private static $classes = array();
 	private $classOfComponent = "";
 	private $randomSequence = null;
 	private $frameMode = null;
@@ -413,10 +414,19 @@ class CBitrixComponent
 				include_once($fname);
 				$afterClasses = get_declared_classes();
 				$afterClassesCount = count($afterClasses);
+
 				for ($i = $beforeClassesCount; $i < $afterClassesCount; $i++)
 				{
-					if (is_subclass_of($afterClasses[$i], "cbitrixcomponent"))
-						self::$__classes_map[$componentPath] = $afterClasses[$i];
+					if (!isset(self::$classes[$afterClasses[$i]]) && is_subclass_of($afterClasses[$i], "cbitrixcomponent"))
+					{
+						if (!isset(self::$__classes_map[$componentPath]) || is_subclass_of($afterClasses[$i], self::$__classes_map[$componentPath]))
+						{
+							self::$__classes_map[$componentPath] = $afterClasses[$i];
+
+							//recursion control
+							self::$classes[$afterClasses[$i]] = true;
+						}
+					}
 				}
 			}
 			else
@@ -864,7 +874,7 @@ class CBitrixComponent
 		if ($this->__cachePath === false)
 			$this->__cachePath = $CACHE_MANAGER->getCompCachePath($this->__relativePath);
 
-		$this->__cache = \Bitrix\Main\Data\Cache::createInstance();
+		$this->__cache = \Bitrix\Main\Data\Cache::createInstance(['actual_data' => false]);
 		if ($this->__cache->startDataCache($cacheTime, $this->__cacheID, $this->__cachePath))
 		{
 			$this->__NavNum = $GLOBALS["NavNum"];
@@ -1603,7 +1613,7 @@ class CBitrixComponent
 
 		$compositeOptions = \Bitrix\Main\Composite\Helper::getOptions();
 		$componentParams = $this->arParams;
-		
+
 		if (
 			isset($componentParams["COMPOSITE_FRAME_MODE"]) &&
 			in_array($componentParams["COMPOSITE_FRAME_MODE"], array("Y", "N"))
@@ -1615,7 +1625,7 @@ class CBitrixComponent
 		{
 			$frameMode = $compositeOptions["FRAME_MODE"] === "Y";
 		}
-		
+
 		return $frameMode;
 	}
 }

@@ -21,7 +21,7 @@ return array(
 		'.landing-block-node-member-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER_PHOTO'),
 			'type' => 'img',
-			'dimensions' => array('width' => 270, 'height' => 450),
+			'dimensions' => array('width' => 260),
 		),
 		'.landing-block-node-member-name' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER_NAME'),
@@ -51,7 +51,7 @@ return array(
 	'style' => array(
 		'.landing-block-card-member' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER'),
-			'type' => array('animation'),
+			'type' => array('animation', 'align-self'),
 		),
 		'.landing-block-card-member-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER'),
@@ -72,6 +72,10 @@ return array(
 		'.landing-block-node-member-contact-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER_TEXT'),
 			'type' => 'color',
+		),
+		'.landing-block-text-container' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER_TEXT'),
+			'type' => array('padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'background-color'),
 		),
 	),
 	'assets' => array(

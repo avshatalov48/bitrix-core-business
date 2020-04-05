@@ -23,6 +23,9 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 	$arResult['VARS']['site_show'],
 	$arParams['PAGE_URL_SITE_EDIT']
 );
+$arParams['DEMO_TYPE'] = ($arParams['STRICT_TYPE'] == 'Y')
+						? $arParams['TYPE']
+						: 'PAGE';
 ?>
 
 <?if ($arResult['VARS']['landing_edit']):?>
@@ -35,7 +38,8 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 			'LANDING_ID' => $arResult['VARS']['landing_edit'],
 			'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
 			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
-			'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT']
+			'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+			'TYPE' => $arParams['TYPE']
 		),
 		$component
 	);?>
@@ -47,9 +51,10 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 		'.default',
 		array(
 			'CODE' => $template,
-			'TYPE' => 'PAGE',//$arParams['TYPE'],
+			'TYPE' => $arParams['DEMO_TYPE'],//$arParams['TYPE'],
 			'PAGE_URL_BACK' => $arParams['PAGE_URL_SITE_SHOW'],
 			'SITE_ID' => $arResult['VARS']['site_show'],
+			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
 		),
 		$component
 	);?>
@@ -60,11 +65,12 @@ $arParams['PAGE_URL_SITE_EDIT'] = str_replace(
 		'bitrix:landing.demo',
 		'.default',
 		array(
-			'TYPE' => 'PAGE',//$arParams['TYPE'],
+			'TYPE' => $arParams['DEMO_TYPE'],
 			'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
 			'SITE_ID' => $arResult['VARS']['site_show'],
 			'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
-			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW']
+			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
+			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
 		),
 		$component
 	);?>

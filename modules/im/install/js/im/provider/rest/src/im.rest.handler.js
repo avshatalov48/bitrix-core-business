@@ -8,9 +8,21 @@
  */
 
 import {BaseRestAnswerHandler} from "./base.answer";
+import {FileStatus} from "im.const";
+import {VuexBuilderModel} from "ui.vue.vuex";
 
 class ImRestAnswerHandler extends BaseRestAnswerHandler
 {
+	handleImUserListGetSuccess(data)
+	{
+		this.store.dispatch('users/set', VuexBuilderModel.convertToArray(data));
+	}
+
+	handleImUserGetSuccess(data)
+	{
+		this.store.dispatch('users/set', [data]);
+	}
+
 	handleImChatGetSuccess(data)
 	{
 		this.store.dispatch('dialogues/set', data);
@@ -18,16 +30,23 @@ class ImRestAnswerHandler extends BaseRestAnswerHandler
 
 	handleImDialogMessagesGetSuccess(data)
 	{
-		this.store.dispatch('messages/setBefore', data.messages);
 		this.store.dispatch('users/set', data.users);
 		this.store.dispatch('files/setBefore', this.controller.prepareFilesBeforeSave(data.files));
+		this.store.dispatch('messages/setBefore', data.messages);
 	}
 
-	handleImDialogMessagesUnreadSuccess(data)
+	handleImDialogMessagesGetInitSuccess(data)
 	{
-		this.store.dispatch('messages/set', data.messages);
 		this.store.dispatch('users/set', data.users);
 		this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(data.files));
+		this.store.dispatch('messages/set', data.messages.reverse());
+	}
+
+	handleImDialogMessagesGetUnreadSuccess(data)
+	{
+		this.store.dispatch('users/set', data.users);
+		this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(data.files));
+		this.store.dispatch('messages/setAfter', data.messages);
 	}
 
 	handleImDiskFolderGetSuccess(data)
@@ -39,37 +58,62 @@ class ImRestAnswerHandler extends BaseRestAnswerHandler
 
 	handleImMessageAddSuccess(messageId, message)
 	{
-		if (typeof messageId === "number")
-		{
-			this.store.dispatch('messages/update', {
-				id:  message.id,
-				chatId: this.controller.getChatId(),
-				fields: {
-					id: messageId,
-					sending: false,
-					error: false,
-				}
-			});
-
+		this.store.dispatch('messages/update', {
+			id:  message.id,
+			chatId: message.chatId,
+			fields: {
+				id: messageId,
+				sending: false,
+				error: false,
+			}
+		}).then(() => {
 			this.store.dispatch('messages/actionFinish', {
 				id: messageId,
-				chatId: this.controller.getChatId()
+				chatId: message.chatId
 			});
-		}
-		else
-		{
-			this.store.dispatch('messages/actionError', {
-				id: message.id,
-				chatId: this.controller.getChatId()
-			});
-		}
+		});
 	}
 
 	handleImMessageAddError(error, message)
 	{
 		this.store.dispatch('messages/actionError', {
 			id: message.id,
-			chatId: this.controller.getChatId()
+			chatId: message.chatId
+		});
+	}
+
+	handleImDiskFileCommitSuccess(result, message)
+	{
+		this.store.dispatch('messages/update', {
+			id:  message.id,
+			chatId: message.chatId,
+			fields: {
+				id: result['MESSAGE_ID'],
+				sending: false,
+				error: false,
+			}
+		}).then(() => {
+			this.store.dispatch('messages/actionFinish', {
+				id: result['MESSAGE_ID'],
+				chatId: message.chatId
+			});
+		});
+	}
+
+	handleImDiskFileCommitError(error, message)
+	{
+		this.store.dispatch('files/update', {
+			chatId: message.chatId,
+			id: message.file.id,
+			fields: {
+				status: FileStatus.error,
+				progress: 0
+			}
+		});
+		this.store.dispatch('messages/actionError', {
+			id: message.id,
+			chatId: message.chatId,
+			retry: false
 		});
 	}
 }

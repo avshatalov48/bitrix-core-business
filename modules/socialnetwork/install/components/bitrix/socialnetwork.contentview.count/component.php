@@ -22,6 +22,7 @@ if (!empty($arParams['CONTENT_ID']))
 
 	$arResult['CONTENT_ID'] = $arParams['CONTENT_ID'];
 	$arResult['CONTENT_VIEW_CNT'] = (isset($arParams["CONTENT_VIEW_CNT"]) ? intval($arParams["CONTENT_VIEW_CNT"]) : 0);
+	$arResult['IS_SET'] = (isset($arParams["IS_SET"]) && $arParams["IS_SET"] == 'Y' ? 'Y' : 'N');
 
 	if (!empty($arParams['PATH_TO_USER_PROFILE']))
 	{
@@ -44,6 +45,5 @@ if (!empty($arParams['CONTENT_ID']))
 
 	$this->IncludeComponentTemplate();
 }
-
 
 ?>

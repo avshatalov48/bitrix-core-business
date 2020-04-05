@@ -1,0 +1,11 @@
+.sale-order-shipment-barcode{
+	border: solid 1px gray;
+}
+
+.sale-order-shipment-barcode.exists{
+	border-color: green;
+}
+
+.sale-order-shipment-barcode.not-exists{
+	border-color: red;
+}

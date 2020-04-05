@@ -236,6 +236,13 @@
 			});
 
 			return result;
+		},
+
+		getByLayout: function(layout)
+		{
+			return this.find(function(item) {
+				return BX.Type.isObject(item) && item.layout === layout;
+			});
 		}
 	};
 })();

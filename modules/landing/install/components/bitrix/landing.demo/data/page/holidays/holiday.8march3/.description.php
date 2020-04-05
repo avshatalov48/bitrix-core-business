@@ -118,9 +118,9 @@ return array(
 				'CODE' => '21.3.two_cols_big_bgimg_title_text_button',
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
-        <div class="row no-gutters g-overflow-hidden">
-				<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img9.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+        <div class="row no-gutters g-overflow-hidden landing-block-inner">
+				<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img9.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
 						<h3 class="landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-text-transform-none g-font-size-75 js-animation fadeIn"><span style="font-style: italic;">Perfume<br /></span></h3>
 						<div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
 						<div class="landing-block-node-button-container">
@@ -128,8 +128,8 @@ return array(
 						</div>
 					</div>
 				</div>
-				<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-img-hero row no-gutters align-items-center justify-content-center g-bg-black-opacity-0_6--after u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img10.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+				<div class="landing-block-card col-lg-6 landing-block-node-img g-min-height-500 g-bg-img-hero row no-gutters align-items-center justify-content-center g-bg-black-opacity-0_6--after u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/900x506/img10.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
 						<h3 class="landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-font-cormorant-infant g-text-transform-none g-font-size-75 js-animation fadeIn"><span style="font-style: italic;">Make up</span></h3>
 						<div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis.</p></div>
 						<div class="landing-block-node-button-container">
@@ -162,7 +162,7 @@ return array(
         <div class="container">
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row row justify-content-center no-gutters landing-block-inner">
 
                 
 
@@ -224,7 +224,7 @@ return array(
 				'CONTENT' => '<section class="landing-block g-theme-photography-bg-gray-dark-v4">
 	<div>
 		<div class="row mx-0">
-			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-contain--xs g-bg-size-cover--sm" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1000x667/img6.jpg\');" data-fileid="-1"></div>
+			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1000x667/img6.jpg\');" data-fileid="-1"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
 				<h3 class="landing-block-node-title g-font-weight-700 g-font-size-default g-color-white g-mb-25 g-font-cormorant-infant g-text-transform-none g-font-size-46 js-animation fadeInUp"><span style="font-weight: normal;font-style: italic;">Only in our store!</span></h3>
@@ -365,9 +365,9 @@ return array(
 				'CODE' => '21.1.four_cols_big_bgimg_title_text_button',
 				'SORT' => '7000',
 				'CONTENT' => '<section class="landing-block container-fluid px-0">
-        <div class="row no-gutters g-overflow-hidden">
-                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img1.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+        <div class="row no-gutters g-overflow-hidden landing-block-inner">
+                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img1.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn"><span style="font-weight: 400;">Charm</span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Praesent malesuada facilisis maximus.</p></div>
                         <div class="landing-block-node-button-container">
@@ -376,8 +376,8 @@ return array(
                     </div>
                 </div>
 
-                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img3.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img3.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn"><span style="font-weight: normal;">Moon</span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Praesent malesuada facilisis maximus.</p></div>
                         <div class="landing-block-node-button-container">
@@ -386,8 +386,8 @@ return array(
                     </div>
                 </div>
 
-            	<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img6.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+            	<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img6.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn"><span style="font-weight: 400;">Rose<br /></span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Praesent malesuada facilisis maximus.</p></div>
                         <div class="landing-block-node-button-container">
@@ -396,8 +396,8 @@ return array(
                     </div>
                 </div>
 
-            	<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img5.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+            	<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img5.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn"><span style="font-weight: 400;">Sea<br /></span></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Praesent malesuada facilisis maximus.</p></div>
                         <div class="landing-block-node-button-container">
@@ -407,8 +407,8 @@ return array(
                 </div>
 
 
-				<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img2.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+				<div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img2.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
 						<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn" style=""><span style="font-weight: 400;">Gold</span></h3>
 						<div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn" style=""><p>Praesent malesuada facilisis maximus.</p></div>
 						<div class="landing-block-node-button-container">
@@ -417,8 +417,8 @@ return array(
 					</div>
 				</div>
 
-                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img4.jpg\');" data-fileid="-1">
-					<div class="text-center u-bg-overlay__inner g-pa-40">
+                <div class="landing-block-card col-lg-2 landing-block-node-img g-min-height-350 g-bg-black-opacity-0_6--after g-bg-img-hero row no-gutters align-items-center justify-content-center u-bg-overlay g-transition--ease-in g-transition-0_2 g-transform-scale-1_03--hover js-animation animation-none g-pa-40" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/250x350/img4.jpg\');" data-fileid="-1">
+					<div class="text-center u-bg-overlay__inner" data-stop-propagation>
                         <h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-18 g-letter-spacing-2 g-font-open-sans js-animation fadeIn"><p><span style="font-weight: 400; font-size: 1.28571rem; letter-spacing: 0.14286rem;">sapphire</span><br /></p></h3>
                         <div class="landing-block-node-text g-color-white-opacity-0_7 g-font-open-sans js-animation fadeIn"><p>Praesent malesuada facilisis maximus.</p></div>
                         <div class="landing-block-node-button-container">
@@ -451,7 +451,7 @@ return array(
 	
 	<div class="container">
 		<!-- Team Block -->
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-card-employee js-animation col-md-6 col-lg-3 g-mb-30 g-mb-0--lg fadeIn">
 				<div class="text-center">
 					<!-- Figure -->
@@ -461,8 +461,8 @@ return array(
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
+						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none g-mt-0">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
 						
 						<!-- End Figure Caption -->
 					</figcaption></figure>
@@ -485,8 +485,8 @@ return array(
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
+						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none g-mt-0">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
 						
 						<!-- End Figure Caption -->
 					</figcaption></figure>
@@ -509,8 +509,8 @@ return array(
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
+						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none g-mt-0">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
 						
 						<!-- End Figure Caption -->
 					</figcaption></figure>
@@ -533,8 +533,8 @@ return array(
 						<!-- End Figure Image -->
 
 						<!-- Figure Caption -->
-						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
+						<figcaption class="g-pos-abs g-top-0 g-left-0 g-flex-middle w-100 h-100 g-bg-primary-opacity-0_8 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in g-pointer-events-none g-mt-0">
+							<div class="landing-block-node-employee-quote text-uppercase g-flex-middle-item g-line-height-1_4 g-font-weight-700 g-font-size-16 g-color-white g-pointer-events-all">&quot;Proin in varius leo placerat mi vulputate suscipit&quot;</div>
 						
 						<!-- End Figure Caption -->
 					</figcaption></figure>

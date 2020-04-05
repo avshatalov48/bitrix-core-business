@@ -1,7 +1,7 @@
 <section class="landing-block g-bg-gray-dark-v3 ">
 	<div>
 		<div class="row mx-0">
-			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
+			<div class="col-md-6 col-lg-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
 				<h3 class="landing-block-node-title js-animation fadeInUp text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25">
 					Part-time
 					cfo/controller</h3>
@@ -22,7 +22,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0"
+			<div class="landing-block-node-img col-md-6 col-lg-6 g-min-height-300 g-bg-img-hero g-px-0"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x960/img1.jpg);"></div>
 		</div>
 	</div>

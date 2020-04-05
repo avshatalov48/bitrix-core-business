@@ -69,4 +69,36 @@ class PublicActionResult
 	{
 		return $this->result;
 	}
+
+	/**
+	 * Sanitizes data's keys, if data is array.
+	 * @param mixed $data Some data.
+	 * @param bool $sanitizeValue Sanitize value of key too.
+	 * @return mixed
+	 */
+	public function sanitizeKeys($data, $sanitizeValue = false)
+	{
+		if (is_array($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				if (
+					strpos($key, '.') !== false ||
+					strtolower($key) == 'runtime' ||
+					$sanitizeValue && strpos($value, '.') !== false
+				)
+				{
+					unset($data[$key]);
+				}
+				else
+				{
+					$data[$key] = $this->sanitizeKeys(
+						$value,
+						strtolower($key) == 'select'
+					);
+				}
+			}
+		}
+		return $data;
+	}
 }

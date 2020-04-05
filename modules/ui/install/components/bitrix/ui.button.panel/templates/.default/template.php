@@ -46,7 +46,7 @@ $containerId = $arParams['ID'];
 </script>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="ui-button-panel-wrapper ui-pinner ui-pinner-bottom <?=($arParams['FRAME'] ? 'ui-pinner-full-width' : '')?>">
-	<div class="ui-button-panel <?=htmlspecialcharsbx($alignClass)?>">
+	<div class="ui-button-panel <?=htmlspecialcharsbx($alignClass)?> <?=$arParams['CLASS_NAME']?>">
 		<?foreach ($arResult['LIST'] as $item)
 		{
 			$item['CLASS_NAME'] = '';

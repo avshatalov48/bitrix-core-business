@@ -1,7 +1,6 @@
 <?php
-use Bitrix\Disk\Banner;
-use Bitrix\Disk\Desktop;
-use Bitrix\Main\Localization\Loc;
+
+use Bitrix\Main\Loader;
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arParams */
@@ -28,6 +27,21 @@ include("util_group_profile.php");
 		<tr>
 			<td>
 				<?php
+
+				if (Loader::includeModule("disk"))
+				{
+					$APPLICATION->includeComponent(
+						"bitrix:socialnetwork.copy.checker",
+						"",
+						[
+							"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
+							"HELPER" => new Bitrix\Disk\Copy\Integration\Group()
+						],
+						$component,
+						["HIDE_ICONS" => "Y"]
+					);
+				}
+
 				$APPLICATION->IncludeComponent(
 					'bitrix:disk.folder.list',
 					'',

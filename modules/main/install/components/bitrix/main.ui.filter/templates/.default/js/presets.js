@@ -934,6 +934,11 @@
 					break;
 				}
 
+				case this.parent.types.TEXTAREA : {
+					control = this.parent.getFields().createTextarea(fieldData);
+					break;
+				}
+
 				case this.parent.types.SELECT : {
 					control = this.parent.getFields().createSelect(fieldData);
 					break;
@@ -983,6 +988,16 @@
 			{
 				control.dataset.name = fieldData.NAME;
 				control.FieldController = new BX.Filter.FieldController(control, this.parent);
+
+				if (Boolean(fieldData.REQUIRED))
+				{
+					var removeButton = control.querySelector('.main-ui-filter-field-delete');
+
+					if (removeButton)
+					{
+						BX.remove(removeButton);
+					}
+				}
 			}
 
 			return control;

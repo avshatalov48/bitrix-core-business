@@ -313,7 +313,7 @@ function __logShowHiddenDestination(log_id, created_by_id, bindElement)
 								if (typeof (arDestinations[i]['TITLE']) != 'undefined' && arDestinations[i]['TITLE'].length > 0)
 								{
 									cont.appendChild(BX.create('SPAN', {
-										html: ',&nbsp;'
+										html: ', '
 									}));
 
 									if (typeof (arDestinations[i]['CRM_PREFIX']) != 'undefined' && arDestinations[i]['CRM_PREFIX'].length > 0)
@@ -404,38 +404,28 @@ function __logSetFollow(log_id)
 		followNode.setAttribute("data-follow", strFollowNew);
 	}
 
-	var actionUrl = BX.message('sonetLSetPath');
-	actionUrl = BX.util.add_url_param(actionUrl, {
-		b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
-	});
-
-	BX.ajax({
-		url: actionUrl,
-		method: 'POST',
-		dataType: 'json',
+	BX.ajax.runAction('socialnetwork.api.livefeed.changeFollow', {
 		data: {
-			log_id: log_id,
-			action: "change_follow",
-			follow: strFollowNew,
-			sessid: BX.bitrix_sessid(),
-			site: BX.message('sonetLSiteId')
+			logId: log_id,
+			value: strFollowNew
 		},
-		onsuccess: function(data) {
-			if (
-				data["SUCCESS"] != "Y"
-				&& followNode
-			)
-			{
-				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
-				followNode.setAttribute("data-follow", strFollowOld);
-			}
-		},
-		onfailure: function(data) {
-			if (followNode)
-			{
-				BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
-				followNode.setAttribute("data-follow", strFollowOld);
-			}
+		analyticsLabel: {
+			b24statAction: (strFollowNew == 'Y' ? 'setFollow' : 'setUnfollow')
+		}
+	}).then(function(response) {
+		if (
+			!response.data.success
+			&& followNode
+		)
+		{
+			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
+			followNode.setAttribute("data-follow", strFollowOld);
+		}
+	}, function(response) {
+		if (followNode)
+		{
+			BX.findChild(followNode, { tagName: 'a' }).innerHTML = BX.message('sonetLFollow' + strFollowOld);
+			followNode.setAttribute("data-follow", strFollowOld);
 		}
 	});
 

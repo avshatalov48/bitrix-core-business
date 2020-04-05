@@ -340,7 +340,7 @@ class SqlTrackerQuery
 		foreach ($trace as $i => $tr)
 		{
 			$args = array();
-			if (is_array($tr["args"]))
+			if (!empty($tr["args"]) && is_array($tr["args"]))
 			{
 				foreach ($tr["args"] as $k1 => $v1)
 				{

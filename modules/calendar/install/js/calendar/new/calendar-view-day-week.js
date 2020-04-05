@@ -234,11 +234,11 @@
 			date.setHours(0, 0, 0, 0);
 
 			var diff = (date.getTime() - currentViewRangeDate.getTime()) / this.calendar.util.dayLength;
-			if (diff == this.dayCount)
+			if (diff === this.dayCount)
 			{
 				this.increaseViewRangeDate();
 			}
-			else if (diff == -this.dayCount)
+			else if (diff === -this.dayCount)
 			{
 				this.decreaseViewRangeDate();
 			}
@@ -374,11 +374,11 @@
 			dayCode = this.util.getDayCode(date),
 			weekDay = this.util.getWeekDayByInd(day);
 
-		if (params.month == 'previous')
+		if (params.month === 'previous')
 		{
 			className += ' calendar-grid-previous-month-day';
 		}
-		else if (params.month == 'next')
+		else if (params.month === 'next')
 		{
 			className += ' calendar-grid-next-month-day';
 		}
@@ -392,7 +392,7 @@
 			titleClassName += ' calendar-grid-today';
 		}
 
-		if (this.titleCont && this.name == 'week')
+		if (this.titleCont && this.name === 'week')
 		{
 			this.titleCont.appendChild(BX.create('DIV', {
 				props: {className: this.gridCellClass + titleClassName},
@@ -473,6 +473,16 @@
 		{
 			day.slots = [];
 			day.timelineMap = {};
+			if (day.collapsedWrap && day.collapsedWrap.top)
+			{
+				day.collapsedWrap.top.destroy();
+			}
+			if (day.collapsedWrap && day.collapsedWrap.bottom)
+			{
+				day.collapsedWrap.bottom.destroy();
+			}
+			day.collapsedWrap = {top: null, bottom: null};
+
 			day.entries = {
 				topList: [],
 				started: [],
@@ -495,8 +505,8 @@
 				{
 					day = this.days[dayPos];
 					if (!entry.isLongWithTime()
-						&& day.dayCode == entry.startDayCode
-						&& day.dayCode == entry.endDayCode && !entry.fullDay)
+						&& day.dayCode === entry.startDayCode
+						&& day.dayCode === entry.endDayCode && !entry.fullDay)
 					{
 						part = entry.startPart({
 							from: day,
@@ -512,7 +522,7 @@
 					}
 					else
 					{
-						if (day.dayCode == entry.startDayCode)
+						if (day.dayCode === entry.startDayCode)
 						{
 							entryStarted = true;
 							part = entry.startPart({from: day, daysCount: 0});
@@ -528,15 +538,15 @@
 							if (day.entries.topList.length > maxTopEntryCount)
 								maxTopEntryCount = day.entries.topList.length;
 
-							if (day.dayCode == entry.endDayCode ||
-								day.dayOffset == this.dayCount - 1 /* for week view */||
-								this.dayCount == 1 /*for day view */)
+							if (day.dayCode === entry.endDayCode ||
+								day.dayOffset === this.dayCount - 1 /* for week view */||
+								this.dayCount === 1 /*for day view */)
 							{
 								// here we know where part of event starts and ends
 								this.partsStorage.push({part: part, entry: entry});
 
 								// Event finished
-								if (day.dayCode == entry.endDayCode)
+								if (day.dayCode === entry.endDayCode)
 								{
 									break;
 								}
@@ -547,17 +557,64 @@
 			}
 		}
 
-		this.setFullDayHolderSize(Math.max(maxTopEntryCount, 1));
-
 		if (this.entries && this.entries.length)
 		{
 			this.displayTopEntries();
 			this.displayTimelineEntries();
 
-			this.slotsCount = 100;
+			this.SLOTS_COUNT = 10;
 
 			this.arrangeTopEntries();
 			this.arrangeTimelineEntries();
+		}
+
+		this.setFullDayHolderSize(Math.min(Math.max(maxTopEntryCount, 1), this.SLOTS_COUNT));
+
+		// Final arrangement on the grid
+		var showHiddenLink;
+		for (dayPos = 0; dayPos < this.days.length; dayPos++)
+		{
+			day = this.days[dayPos];
+
+			// Here we check all entries in the day and if any of it
+			// was hidden, we going to show 'show all' link
+			if (day.entries.topList.length > 0)
+			{
+				showHiddenLink = false;
+				for(i = 0; i < day.entries.topList.length; i++)
+				{
+					if (day.entries.topList[i].part.params.wrapNode.style.display === 'none')
+					{
+						showHiddenLink = true;
+						break;
+					}
+				}
+
+				if (showHiddenLink)
+				{
+					day.hiddenStorage = this.topEntryHolder.appendChild(BX.create('DIV', {
+						props: {
+							className: 'calendar-event-line-wrap calendar-event-more-btn-container'
+						},
+						attrs: {'data-bx-calendar-show-all-events': day.dayCode},
+						style: {
+							top: (parseInt(this.fullDayEventsCont.style.height) - 20) + 'px',
+							left: this.dayCount === 1
+								? '0' /*for day view */
+								: 'calc((100% / ' + this.dayCount + ') * (' + (day.dayOffset + 1) + ' - 1) + 2px)',
+							width: 'calc(100% / ' + this.dayCount + ' - 3px)'
+						}
+					}));
+
+					day.hiddenStorageText = day.hiddenStorage.appendChild(BX.create('span', {props: {className: 'calendar-event-more-btn'}}));
+					day.hiddenStorage.style.display = 'block';
+					day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' ' + day.entries.topList.length;
+				}
+				else if (day.hiddenStorage)
+				{
+					day.hiddenStorage.style.display = 'none';
+				}
+			}
 		}
 
 		BX.addClass(this.grid, 'calendar-events-holder-show');
@@ -570,6 +627,7 @@
 	DayView.prototype.arrangeTopEntries = function()
 	{
 		var
+			element, prevElement,
 			i, j, dayPos, day, entry, entryPart, entryDisplayed;
 
 		for (dayPos = 0; dayPos < this.days.length; dayPos++)
@@ -582,17 +640,18 @@
 
 				for(i = 0; i < day.entries.started.length; i++)
 				{
-					if (day.entries.started[i])
+					element = day.entries.started[i];
+					if (element)
 					{
-						entry = day.entries.started[i].entry;
-						entryPart = day.entries.started[i].part;
+						entry = element.entry;
+						entryPart = element.part;
 
 						if (!entry.checkPartIsRegistered(entryPart))
 							continue;
 
 						entryDisplayed = false;
 
-						for(j = 0; j < this.slotsCount; j++)
+						for(j = 0; j < this.SLOTS_COUNT; j++)
 						{
 							if (day.slots[j] !== false)
 							{
@@ -603,11 +662,23 @@
 								break;
 							}
 						}
+
+						if (!entryDisplayed)
+						{
+							prevElement = day.entries.started[i - 1];
+							if (prevElement)
+							{
+								day.entries.hidden.push(prevElement);
+								prevElement.entry.getWrap(prevElement.part.partIndex).style.display = 'none';
+							}
+							day.entries.hidden.push(element);
+							entry.getWrap(entryPart.partIndex).style.display = 'none';
+						}
 					}
 
 					if (day.hiddenStorage && day.entries.hidden.length > 0)
 					{
-						day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' (' + day.entries.list.length + ')';
+						day.hiddenStorageText.innerHTML = BX.message('EC_SHOW_ALL') + ' (' + day.entries.topList.length + ')';
 					}
 				}
 			}
@@ -660,7 +731,7 @@
 		function isParallelEntries(timeFrom, layerIndex)
 		{
 			var layerTimeIndex = day.layers[timeFrom][layerIndex];
-			return layerTimeIndex && layerTimeIndex.entries && layerTimeIndex.entries.length == layerTimeIndex.start.length;
+			return layerTimeIndex && layerTimeIndex.entries && layerTimeIndex.entries.length === layerTimeIndex.start.length;
 		}
 
 		function layerIsFree(layerTimeIndex)
@@ -708,7 +779,7 @@
 
 			day.entries.timeline.sort(function(a, b)
 			{
-				if (a.part.fromTimeValue == b.part.fromTimeValue)
+				if (a.part.fromTimeValue === b.part.fromTimeValue)
 					return (b.part.toTimeValue - b.part.fromTimeValue) - (a.part.toTimeValue - a.part.fromTimeValue);
 				return a.part.fromTimeValue - b.part.fromTimeValue;
 			});
@@ -726,7 +797,7 @@
 
 				timeFrom = getTimeIndex(entry.from);
 				timeTo = getTimeIndex(entry.to, 1);
-				if (timeFrom == timeTo)
+				if (timeFrom === timeTo)
 					timeTo += 1;
 
 				if (!day.layers)
@@ -765,7 +836,7 @@
 
 					timeFrom = getTimeIndex(entry.from);
 					timeTo = getTimeIndex(entry.to, 1);
-					if (timeFrom == timeTo)
+					if (timeFrom === timeTo)
 						timeTo += 1;
 
 					if (!entry.checkPartIsRegistered(entryPart)
@@ -847,7 +918,7 @@
 										this.checkTimelineEntrySize(backEntry.part, backEntry.entry, true);
 									}
 								}
-								else
+								else if (backEntry.part.params.nameNode)
 								{
 									backEntry.part.params.nameNode.style.maxHeight = (backEntryOffset - ENTRY_NAME_OFFSET) + 'px';
 								}
@@ -953,7 +1024,7 @@
 			deltaPartWidth += 4;
 		}
 
-		if (deltaPartWidth == 0)
+		if (deltaPartWidth === 0)
 		{
 			deltaPartWidth = 5;
 		}
@@ -992,7 +1063,7 @@
 			innerNode.style.maxWidth = 'calc(200% / ' + daysCount + ' - ' + this.lastEntryWidthOffset + 'px)';
 
 			// first part
-			if (params.part.partIndex == 0)
+			if (params.part.partIndex === 0)
 			{
 				if (daysCount > 1)
 				{
@@ -1004,7 +1075,8 @@
 				innerNode.style.width = 'calc(100% / ' + daysCount + ' - ' + this.lastEntryWidthOffset + 'px)';
 			}
 
-			if (!timeNode && daysCount == 1 && this.util.getDayCode(entry.from) == params.part.from.dayCode)
+			if (!timeNode && daysCount === 1
+				&& this.util.getDayCode(entry.from) === params.part.from.dayCode)
 			{
 				timeNode = innerNode.appendChild(BX.create('SPAN', {
 					props: {className: 'calendar-event-line-time'},
@@ -1013,7 +1085,7 @@
 			}
 
 			// Last part
-			if (params.part.partIndex == entry.parts.length - 1)
+			if (params.part.partIndex === entry.parts.length - 1)
 			{
 				if (daysCount > 1 && entry.parts.length > 1)
 				{
@@ -1023,13 +1095,13 @@
 				if (daysCount > 1)
 				{
 					endTimeNode = innerNode.appendChild(BX.create('SPAN', {
-						props: {className: (entry.parts.length > 1 && daysCount == 1) ? 'calendar-event-line-time' : 'calendar-event-line-expired-time'},
+						props: {className: (entry.parts.length > 1 && daysCount === 1) ? 'calendar-event-line-time' : 'calendar-event-line-expired-time'},
 						text: this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes())
 					}));
 				}
 			}
 
-			if (!endTimeNode && daysCount == 1 && this.util.getDayCode(entry.to) == params.part.to.dayCode)
+			if (!endTimeNode && daysCount === 1 && this.util.getDayCode(entry.to) === params.part.to.dayCode)
 			{
 				endTimeNode = innerNode.appendChild(BX.create('SPAN', {
 					props: {className: 'calendar-event-line-time'},
@@ -1057,7 +1129,7 @@
 			dotNode.style.backgroundColor = entry.color;
 		}
 
-		this.topEntryHolder.appendChild(partWrap);
+		(params.holder || this.topEntryHolder).appendChild(partWrap);
 
 		res = {
 			wrapNode: partWrap,
@@ -1094,13 +1166,15 @@
 		this.zIndexTimeline = 100;
 		this.timelinePartsStorage.sort(function(a, b)
 		{
-			if (a.part.fromTimeValue == b.part.fromTimeValue)
-				return (b.part.toTimeValue - b.part.fromTimeValue) - (a.part.toTimeValue - a.part.fromTimeValue);
+			if (a.part.fromTimeValue === b.part.fromTimeValue)
+			{
+				return (b.part.toTimeValue - b.part.fromTimeValue)
+					- (a.part.toTimeValue - a.part.fromTimeValue);
+			}
 			return a.part.fromTimeValue - b.part.fromTimeValue;
 		});
 
-		var i;
-		for (i = 0; i < this.timelinePartsStorage.length; i++)
+		for (var i = 0; i < this.timelinePartsStorage.length; i++)
 		{
 			this.displayTimelineEntry(this.timelinePartsStorage[i]);
 		}
@@ -1183,7 +1257,6 @@
 			};
 
 			params.part.offsetFractionRate = 1; //!!!!
-
 			params.part.offsetFractionLeft = 0;
 			params.part.offsetFractionWidth = 1;
 			params.part.offsetFractionLeftTotal = 0;
@@ -1191,20 +1264,78 @@
 
 			this.calendar.dragDrop.registerEntry(wrapNode, params);
 		}
+		else // event displayed on hidden timeline
+		{
+			this.addHiddenEntry(
+				{
+					position: fromTimeValue < workTime.end ? 'top' : 'bottom',
+					entry: entry
+				}
+			);
+		}
 
 		return res;
 	};
 
+	DayView.prototype.addHiddenEntry = function(params)
+	{
+		this.getCollapsedWrap({
+			position: params.position,
+			dayCode: this.util.getDayCode(params.entry.from)
+		}).addEntry(params.entry);
+	};
+
+	DayView.prototype.getCollapsedWrap = function(params)
+	{
+		if (this.dayIndex[params.dayCode] !== undefined && this.days[this.dayIndex[params.dayCode]])
+		{
+			var day = this.days[this.dayIndex[params.dayCode]];
+			if (!day.collapsedWrap[params.position]
+				|| !day.collapsedWrap[params.position].inited())
+			{
+				day.collapsedWrap[params.position] = new CollapsedTimeWrap({
+					position: params.position,
+					wrap: this.timelineEntryHolder,
+					workTime: this.util.getWorkTime(),
+					dayOffset: day.dayOffset,
+					dayCount: this.dayCount,
+					lastEntryWidthOffset: this.lastEntryWidthOffset,
+					gridLineHeight: this.gridLineHeight,
+					labelMessage: this.calendar.collapsedLabelMessage,
+					clickHandler: function(){if (this.collapseOffHours){this.switchOffHours(true)}}.bind(this),
+					mouseoverHandler: function(){
+						BX.addClass(this.topOffHours, "calendar-grid-off-hours-hover");
+						BX.addClass(this.bottomOffHours, "calendar-grid-off-hours-hover");
+					}.bind(this),
+					mouseoutHandler: function(){
+						BX.removeClass(this.topOffHours, "calendar-grid-off-hours-hover");
+						BX.removeClass(this.bottomOffHours, "calendar-grid-off-hours-hover");
+					}.bind(this)
+				});
+			}
+
+			return day.collapsedWrap[params.position];
+		}
+		return null;
+	};
+
+	DayView.prototype.displayTimelineCollapsedEntry = function(params)
+	{
+	};
+
 	DayView.prototype.checkTimelineEntrySize = function(entryPart, entry, timeout)
 	{
-		if (entryPart.params.innerNode.offsetHeight)
+		if (entryPart.params.innerNode)
 		{
-			this.setEntryBlockCompact(entryPart, entry);
-		}
+			if (entryPart.params.innerNode.offsetHeight)
+			{
+				this.setEntryBlockCompact(entryPart, entry);
+			}
 
-		if (timeout === true)
-		{
-			setTimeout(BX.proxy(function(){this.checkTimelineEntrySize(entryPart, entry, false);}, this), 100);
+			if (timeout === true)
+			{
+				setTimeout(BX.proxy(function(){this.checkTimelineEntrySize(entryPart, entry, false);}, this), 100);
+			}
 		}
 	};
 
@@ -1416,13 +1547,9 @@
 
 		this.topOffHoursLabel = this.topOffHours.appendChild(BX.create('DIV', {
 			props: {className: this.gridTimelineHourLabelClass},
-			children: [
-				BX.create('DIV', {
-					props: { className: this.gridTimelineHourLabelClassInner},
-			html: this.calendar.util.formatTime(0, 0, true) + "<br>" + this.calendar.util.formatTime(workTime.start, 0, true)
-				})
-			]
+			html: '<span>' + this.calendar.util.formatTime(0, 0, true) + "</span><span>" + this.calendar.util.formatTime(workTime.start, 0, true) + '</span>'
 		}));
+
 		this.topOffHours.appendChild(BX.create('DIV', {
 			props: {className: 'calendar-grid-off-hours-active'},
 			events: {
@@ -1454,13 +1581,9 @@
 		}));
 		this.bottomOffHoursLabel = this.bottomOffHours.appendChild(BX.create('DIV', {
 			props: {className: this.gridTimelineHourLabelClass},
-			children: [
-				BX.create('DIV', {
-					props: { className: this.gridTimelineHourLabelClassInner},
-			html: this.calendar.util.formatTime(workTime.end, 0, true)  + "<br>" + this.calendar.util.formatTime(24, 0, true)
-				})
-			]
+			html: '<span>' + this.calendar.util.formatTime(workTime.end, 0, true) + "</span><span>" + this.calendar.util.formatTime(24, 0, true) + '</span>'
 		}));
+
 		this.bottomOffHours.appendChild(BX.create('DIV', {
 			props: {className: 'calendar-grid-off-hours-active'},
 			events: {
@@ -1596,6 +1719,8 @@
 		if (this.nowTimeCont)
 			this.nowTimeCont.display = 'none';
 
+		var COLLAPSE_HEIGHT = 20;
+
 		BX.cleanNode(this.timelineEntryHolder);
 		this.hideNowTime();
 
@@ -1728,7 +1853,7 @@
 		else
 		{
 			this.gridRow.style.height = (this.gridLineHeight * (workTime.end - workTime.start)) + 30 + 'px';
-			this.topOffHours.style.height = '10px';
+			this.topOffHours.style.height = COLLAPSE_HEIGHT + 'px';
 
 			this.bottomOffHours.style.height = (this.gridLineHeight * (24 - workTime.end)) + 1 + 'px';
 			this.bottomOffHours.style.top = (this.gridLineHeight * workTime.end) + 'px';
@@ -1760,7 +1885,7 @@
 				}
 			}
 
-			this.bottomOffHours.style.height = '10px';
+			this.bottomOffHours.style.height = COLLAPSE_HEIGHT + 'px';
 			this.bottomOffHours.style.top = ((workTime.end - workTime.start) * this.gridLineHeight) + 9 + 'px';
 			this.savedScrollTop = parseInt(this.gridWrap.scrollTop);
 		}
@@ -1842,6 +1967,14 @@
 			}
 			else if (params.specialTarget && (dayCode = params.specialTarget.getAttribute('data-bx-calendar-show-all-events')))
 			{
+				this.deselectEntry();
+				if (this.dayIndex[dayCode] !== undefined && this.days[this.dayIndex[dayCode]])
+				{
+					this.showAllEventsInPopup({
+						day: this.days[this.dayIndex[dayCode]],
+						entrieList: this.days[this.dayIndex[dayCode]].entries.topList
+					});
+				}
 			}
 			else if (!this.calendar.util.readOnlyMode()
 				&& this.entryController.canDo(true, 'add_event')
@@ -1961,7 +2094,7 @@
 	{
 		var KEY_CODES = this.util.getKeyCodes();
 
-		if (params.keyCode == KEY_CODES['escape'] && this.createEntryMode && this.newEntry)
+		if (params.keyCode === KEY_CODES['escape'] && this.createEntryMode && this.newEntry)
 		{
 			BX.remove(this.newEntry.entryNode);
 			this.createEntryMode = false;
@@ -2117,7 +2250,8 @@
 		borderNode = entryClone.querySelector('.calendar-event-block-border');
 		bgNode = entryClone.querySelector('.calendar-event-block-background');
 		bindNode = entryClone.appendChild(BX.create('DIV', {props: {className: 'calendar-event-bind-node'}}));
-		if (this.dayCount == 1)
+
+		if (this.dayCount === 1)
 			bindNode.style.right = '10%';
 		else
 			bindNode.style.left = '0';
@@ -2211,6 +2345,80 @@
 		});
 	};
 
+	DayView.prototype.showAllEventsInPopup = function(params)
+	{
+		var
+			entrieList = params.entrieList || params.day.entries.list,
+			innerCont,
+			popup;
+
+		innerCont = BX.create('DIV', {
+			props: {className: 'calendar-all-events-popup calendar-custom-scroll'},
+			events: {click : BX.proxy(this.calendar.handleViewsClick, this.calendar)}
+		});
+
+		entrieList.sort(this.calendar.entryController.sort);
+
+		var taskWrap, eventsWrap;
+		entrieList.forEach(function(entryItem)
+		{
+			if (entryItem.entry)
+			{
+				if (entryItem.entry.isTask())
+				{
+					if (!taskWrap)
+					{
+						innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-title'}, text: BX.message('EC_ENTRIES_TASKS')}));
+						taskWrap = innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block'}}));
+					}
+
+					this.displayTopEntry({
+						entry: entryItem.entry,
+						part: entryItem.part,
+						holder: taskWrap,
+						popupMode: true
+					});
+				}
+				else
+				{
+					if (!eventsWrap)
+					{
+						innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-title'}, text: BX.message('EC_ENTRIES_EVENTS')}));
+						eventsWrap = innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block'}}));
+					}
+
+					this.displayTopEntry({
+						entry: entryItem.entry,
+						part: entryItem.part,
+						holder: eventsWrap,
+						popupMode: true
+					});
+				}
+			}
+		}, this);
+
+
+		popup = BX.PopupWindowManager.create(this.calendar.id + "-all-events-popup", params.day.hiddenStorageText,
+			{
+				autoHide: true,
+				closeByEsc: true,
+				offsetTop: -2,
+				offsetLeft: -50,
+				lightShadow: true,
+				content: innerCont
+			});
+
+		popup.setAngle({offset: 118});
+		popup.show(true);
+		this.allEventsPopup = popup;
+
+		BX.addCustomEvent(popup, 'onPopupClose', function()
+		{
+			popup.destroy();
+		});
+	};
+
+
 
 	// Week view of the calendar
 	function WeekView()
@@ -2273,7 +2481,7 @@
 			time = viewRangeDate.getTime(),
 			dateTo = new Date(viewRangeDate.getTime() + this.dayCount * this.calendar.util.dayLength);
 
-		if (viewRangeDate.getMonth() != dateTo.getMonth())
+		if (viewRangeDate.getMonth() !== dateTo.getMonth())
 		{
 			View.prototype.setTitle.apply(this, [
 				BX.date.format('f', time / 1000) + ' - ' + BX.date.format('f', dateTo.getTime() / 1000) + (this.util.showWeekNumber() ? ', #GRAY_START#' + BX.message('EC_DATE_WEEK_NUMBER').replace('#WEEK_NUMBER#', this.util.getWeekNumber(time)) + '#GRAY_END#' : '')
@@ -2343,5 +2551,92 @@
 			window.BXEventCalendar.CalendarDayView = DayView;
 			window.BXEventCalendar.CalendarWeekView = WeekView;
 		});
+	}
+
+
+	function CollapsedTimeWrap(params)
+	{
+		this.position = params.position;
+		this.outerWrap = params.wrap;
+		this.workTime = params.workTime;
+		this.dayOffset = params.dayOffset;
+		this.dayCount = params.dayCount;
+		this.lastEntryWidthOffset = params.lastEntryWidthOffset;
+		this.gridLineHeight = params.gridLineHeight;
+		this.labelMessage = params.labelMessage;
+
+		this.clickHandler = params.clickHandler;
+		this.mouseoutHandler = params.mouseoutHandler;
+		this.mouseoverHandler = params.mouseoverHandler;
+
+		this.isInited = false;
+		this.entryCount = 0;
+		this.create();
+	}
+
+	CollapsedTimeWrap.prototype =
+	{
+		create: function ()
+		{
+			this.wrap = this.outerWrap.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-event-block-wrap calendar-event-block-wrap-more'
+				},
+				style:
+					{
+						top: (this.position === 'bottom') ? ((this.workTime.end - this.workTime.start) * this.gridLineHeight) + 'px' : '-9px',
+						left: this.dayCount > 1 ? 'calc((100% / ' + this.dayCount + ') * ' + this.dayOffset + ' + 2px)' : '2px',
+						width: 'calc(100% / ' + this.dayCount + ' - ' + this.lastEntryWidthOffset + 'px)'
+					}
+			})).appendChild(BX.create('DIV', {
+				props: {className: 'calendar-event-block-inner'},
+				html: '<div class="calendar-event-block-background" style="background-color: #808080;"></div>'
+			}));
+
+			if (BX.type.isFunction(this.clickHandler))
+			{
+				BX.bind(this.wrap, 'click', this.clickHandler);
+			}
+
+			if (BX.type.isFunction(this.mouseoverHandler))
+			{
+				BX.bind(this.wrap, 'mouseover', this.mouseoverHandler);
+			}
+
+			if (BX.type.isFunction(this.mouseoutHandler))
+			{
+				BX.bind(this.wrap, 'mouseout', this.mouseoutHandler);
+			}
+
+			this.countContainer = this.wrap.appendChild(BX.create('span', {
+				props: {
+					className: 'calendar-event-block-text'
+				},
+				html: '<span class="calendar-event-block-text-subtitle">' + this.labelMessage + '</span>'
+			})).appendChild(BX.create('span', {
+				props: {
+					className: 'calendar-event-block-text-total'
+				}
+			}));
+
+			this.isInited = true;
+		},
+
+		inited: function()
+		{
+			return this.isInited && BX.isNodeInDom(this.wrap);
+		},
+
+		destroy: function()
+		{
+			BX.remove(this.wrap);
+			this.isInited = false;
+		},
+
+		addEntry: function(entry)
+		{
+			this.entryCount++;
+			this.countContainer.innerHTML = this.entryCount;
+		}
 	}
 })(window);

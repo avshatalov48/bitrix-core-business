@@ -26,6 +26,10 @@ class Adapter implements iBase, iLimitation
 	/** @var  boolean $startResult Start result. */
 	protected $startResult = null;
 
+
+	/** @var  boolean $isStarted Is started. */
+	protected $isStarted = false;
+
 	/** @var  boolean $isEnded Is ended. */
 	protected $isEnded = false;
 
@@ -177,8 +181,16 @@ class Adapter implements iBase, iLimitation
 	 */
 	public function send(Message\Adapter $message)
 	{
+		if (!$this->isStarted && $this->getSendCount())
+		{
+			\Bitrix\Sender\Log::stat('sending_started', $this->transport->getCode(), $message->getId());
+		}
 		$this->start();
-		return $this->transport->send($message);
+		$this->isStarted = true;
+
+		$result = $this->transport->send($message);
+		\Bitrix\Sender\Log::stat('item_sent', $message->getId(), $result ? 'Y' : 'N');
+		return $result;
 	}
 
 	/**

@@ -291,11 +291,36 @@ class Agreement
 	}
 
 	/**
-	 * Get text.
+	 * Get title.
 	 *
 	 * @return string
 	 */
-	public function getText()
+	public function getTitle()
+	{
+		return trim($this->getTitleFromText($this->getText()));
+	}
+
+	protected static function getTitleFromText($text)
+	{
+		$text = trim($text);
+		$maxLength = 50;
+		$pos = min(
+			strpos($text, "\n") ?: 50,
+			strpos($text, "<br>") ?: 50,
+			strpos($text, ".") ?: 50,
+			$maxLength
+		);
+
+		return substr($text, 0, $pos);
+	}
+
+	/**
+	 * Get text.
+	 *
+	 * @param bool $cutTitle Cut title.
+	 * @return string
+	 */
+	public function getText($cutTitle = false)
 	{
 		if ($this->isCustomType())
 		{
@@ -309,7 +334,18 @@ class Agreement
 		$replaceData = $replaceData + $this->getDataProviderValues();
 		$replaceData = $replaceData + $this->getReplaceFieldValues();
 
-		return Text::replace($text, $replaceData, true);
+		$text = Text::replace($text, $replaceData, true);
+		$text = trim($text);
+		if ($cutTitle)
+		{
+			$title = self::getTitleFromText($text);
+			if (strlen($title) !== 50 && $title === substr($text, 0, strlen($title)))
+			{
+				$text = trim(substr($text, strlen($title)));
+			}
+		}
+
+		return $text;
 	}
 
 	/**

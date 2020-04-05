@@ -222,6 +222,7 @@
 
 			this.updateStatusControl();
 			this.onChangeValues();
+			BX.onCustomEvent(window, 'crmWebFormFireResize');
 		},
 
 		onChangeValues: function()
@@ -378,7 +379,13 @@
 				data: data
 			}).then(BX.delegate(function(response)
 				{
-					if (response.data.workTimeStart && response.data.workTimeEnd)
+					if (BX.type.isNumber(response.data.timezoneOffset))
+					{
+						this.timezoneOffset = response.data.timezoneOffset;
+						this.timezoneOffsetLabel = response.data.timezoneOffsetLabel;
+					}
+
+					if (response.data.workTimeStart !== undefined && response.data.workTimeEnd !== undefined)
 					{
 						this.timeFrom = parseInt(response.data.workTimeStart);
 						this.timeTo = parseInt(response.data.workTimeEnd);
@@ -760,7 +767,8 @@
 		displayResourcesControl: function()
 		{
 			var
-				valueIndex = {}, dataValue = [],
+				valueIndex = {},
+				dataValue = [],
 				fieldParams = this.getFieldParams(),
 				settingsData = this.getSettingsData();
 
@@ -779,6 +787,7 @@
 				var resourceList = [];
 				fieldParams.SELECTED_RESOURCES.forEach(function(res)
 				{
+					res.id = parseInt(res.id);
 					if (valueIndex[res.id])
 					{
 						resourceList.push(res);
@@ -869,31 +878,48 @@
 		{
 			var
 				startValue = null,
-				settingsData = this.getSettingsData();
+				settingsData = this.getSettingsData(),
+				fieldParams = this.getFieldParams();
 
 			this.dateControl = new BX.Calendar.UserField.DateSelector({
 				outerWrap: this.DOM.innerWrap,
 				data: settingsData.date,
 				previewMode: false,
-				allowOverbooking: this.getFieldParams().ALLOW_OVERBOOKING === "Y",
+				allowOverbooking: fieldParams.ALLOW_OVERBOOKING === "Y",
 				changeValueCallback: BX.proxy(this.handleDateChanging, this),
 				requestDataCallback: BX.proxy(this.requestAccessibilityData, this)
 			});
 
 			if (this.timeSelectorDisplayed())
 			{
+				var timezone = false;
+
+				if (fieldParams.USE_USER_TIMEZONE === 'N')
+				{
+					var userTimezoneOffset = -(new Date).getTimezoneOffset()*60;
+					if (userTimezoneOffset !== this.timezoneOffset)
+					{
+						timezone = fieldParams.TIMEZONE;
+					}
+				}
+
 				this.timeControl = new BX.Calendar.UserField.TimeSelector({
 					outerWrap: this.DOM.innerWrap,
 					data: settingsData.time,
 					previewMode: false,
 					changeValueCallback: BX.proxy(this.handleSelectedDateTimeChanging, this),
 					timeFrom: this.timeFrom,
-					timeTo: this.timeTo
+					timeTo: this.timeTo,
+					timezone: timezone,
+					timezoneOffset: this.timezoneOffset,
+					timezoneOffsetLabel: this.timezoneOffsetLabel
 				});
 			}
 
 			this.statusControl = new BX.Calendar.UserField.ResourceBookingStatusControl({
-				outerWrap: this.DOM.innerWrap
+				outerWrap: this.DOM.innerWrap,
+				timezone: timezone,
+				timezoneOffsetLabel: this.timezoneOffsetLabel
 			});
 
 			if (this.selectorCanBeShown('date'))
@@ -994,6 +1020,7 @@
 				}
 
 				this.updateStatusControl();
+				BX.onCustomEvent(window, 'crmWebFormFireResize');
 			}
 			this.onChangeValues();
 		},
@@ -1151,10 +1178,17 @@
 						i, j, time,
 						settingsData = this.getSettingsData(),
 						slotGap = 1,
+						todayNowTime = 0,
 						timeSlots = this.getTimeSlots(),
 						dateKey = BX.date.format(this.DATE_FORMAT, params.date),
 						loadedDate = this.loadedDates[this.loadedDatesIndex[dateKey]],
 						slotsAmount = Math.ceil(this.getCurrentDuration() / this.scale);
+
+					if (this.checkIsTodayDate(dateKey))
+					{
+						var today = new Date();
+						todayNowTime = today.getHours() * 60 + today.getMinutes();
+					}
 
 					// Prefill slotIndex
 					timeSlots.forEach(function(slot){slotIndex[slot.time] = true;}, this);
@@ -1166,8 +1200,14 @@
 						for (i = timeSlots.length; i--; i >= 0)
 						{
 							time = timeSlots[i].time;
-
 							freeSlot = false;
+
+							if (todayNowTime && time < todayNowTime)
+							{
+								slotIndex[time] = false;
+								continue;
+							}
+
 							for (j = 0; j < userList.length; j++)
 							{
 								if (!loadedDate.slots[time]
@@ -1191,6 +1231,13 @@
 						{
 							time = timeSlots[i].time;
 							freeSlot = false;
+
+							if (todayNowTime && time < todayNowTime)
+							{
+								slotIndex[time] = false;
+								continue;
+							}
+
 							for (j = 0; j < resList.length; j++)
 							{
 								if (!loadedDate.slots[time]
@@ -1223,6 +1270,7 @@
 		{
 			var
 				dateKey, loadedDate, i, j, time,
+				todayNowTime = 0,
 				slotGap,
 				userKey = params.user ? 'user' + params.user : null,
 				slotsAmount = Math.ceil(params.duration / this.scale),
@@ -1240,9 +1288,21 @@
 				loadedDate = this.loadedDates[this.loadedDatesIndex[dateKey]];
 				slotGap = 1;
 
+				if (this.checkIsTodayDate(dateKey))
+				{
+					var today = new Date();
+					todayNowTime = today.getHours() * 60 + today.getMinutes();
+				}
+
 				for (i = timeSlots.length; i--; i >= 0)
 				{
 					time = timeSlots[i].time;
+					if (todayNowTime && time < todayNowTime)
+					{
+						slotIndex[time] = false;
+						continue;
+					}
+
 					if (allowOverbooking)
 					{
 						slotIndex[time] = slotsAmount <= slotGap;
@@ -1264,6 +1324,7 @@
 							for (j = 0; j < params.resources.length; j++)
 							{
 								resourcesAreFree = resourcesAreFree && (!loadedDate.slots[time] || !loadedDate.slots[time]['resource' + params.resources[j]]);
+
 								if (!resourcesAreFree)
 								{
 									break;
@@ -1583,6 +1644,16 @@
 				}
 			}
 			return result;
+		},
+
+		checkIsTodayDate: function(dateKey)
+		{
+			if (!this.todayDateKey)
+			{
+				var today = new Date();
+				this.todayDateKey = BX.date.format(this.DATE_FORMAT, today);
+			}
+			return this.todayDateKey === dateKey;
 		}
 	};
 	// endregion

@@ -13,6 +13,9 @@ use Bitrix\Main\Type\DateTime;
  */
 class BlacklistTable extends Entity\DataManager
 {
+	const CategoryAuto = 0;
+	const CategoryManual = 1;
+
 	/**
 	 * Get table name.
 	 *
@@ -35,6 +38,11 @@ class BlacklistTable extends Entity\DataManager
 				'data_type'    => 'integer',
 				'primary'      => true,
 				'autocomplete' => true,
+			),
+			'CATEGORY_ID' => array(
+				'data_type' => 'integer',
+				'required'  => true,
+				'default_value'  => self::CategoryAuto,
 			),
 			'CODE' => array(
 				'data_type' => 'string',

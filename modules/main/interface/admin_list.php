@@ -193,6 +193,10 @@ class CAdminList
 			$this->context = new CAdminContextMenuList($aContext, $aAdditionalMenu);
 	}
 
+	/**
+	 * @param string|int $ID
+	 * @return bool
+	 */
 	public function IsUpdated($ID)
 	{
 		$f = $_REQUEST['FIELDS'][$ID];
@@ -234,6 +238,9 @@ class CAdminList
 		return false;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function EditAction()
 	{
 		if($_SERVER['REQUEST_METHOD']=='POST' && isset($_REQUEST['save'])  && check_bitrix_sessid())
@@ -264,43 +271,100 @@ class CAdminList
 		return false;
 	}
 
+	/**
+	 * Returns field values in for inline edit grid mode.
+	 *
+	 * @return array
+	 */
+	public function GetEditFields()
+	{
+		return (isset($_REQUEST['FIELDS']) && is_array($_REQUEST['FIELDS']) ? $_REQUEST['FIELDS'] : []);
+	}
+
+	/**
+	 * @return array|false
+	 */
 	public function GroupAction()
 	{
-		//AddMessage2Log("GroupAction");
-		if(!empty($_REQUEST['action_button']))
-			$_REQUEST['action'] = $_REQUEST['action_button'];
+		$this->PrepareAction();
 
-		if(!isset($_REQUEST['action']) || !check_bitrix_sessid())
-			return false;
-
-		//AddMessage2Log("GroupAction = ".$_REQUEST['action']." & ".($this->bCanBeEdited?'bCanBeEdited':'ne'));
-		if($_REQUEST['action']=="edit")
+		if (!check_bitrix_sessid())
 		{
-			if(isset($_REQUEST['ID']))
-			{
-				if(!is_array($_REQUEST['ID']))
-					$arID = Array($_REQUEST['ID']);
-				else
-					$arID = $_REQUEST['ID'];
+			return false;
+		}
 
+		$action = $this->GetAction();
+		if ($action === null)
+		{
+			return false;
+		}
+
+		if($action=="edit")
+		{
+			$arID = $this->GetGroupIds();
+			if ($arID !== null)
+			{
 				$this->arEditedRows = $arID;
 				$this->bEditMode = true;
 			}
 			return false;
 		}
 
-		//AddMessage2Log("GroupAction = X");
-		if($_REQUEST['action_target']!='selected')
+		if (!$this->IsGroupActionToAll())
 		{
-			if(!is_array($_REQUEST['ID']))
-				$arID = Array($_REQUEST['ID']);
-			else
-				$arID = $_REQUEST['ID'];
+			$arID = $this->GetGroupIds();
+			if ($arID === null)
+			{
+				$arID = false;
+			}
 		}
 		else
-			$arID = Array('');
-
+		{
+			$arID = array('');
+		}
 		return $arID;
+	}
+
+	/**
+	 * Returns true if the user has set the flag "To all" in the list.
+	 *
+	 * @return bool
+	 */
+	public function IsGroupActionToAll()
+	{
+		return (isset($_REQUEST['action_target']) && $_REQUEST['action_target'] === 'selected');
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function PrepareAction()
+	{
+		if (!empty($_REQUEST['action_button']))
+		{
+			$_REQUEST['action'] = $_REQUEST['action_button'];
+		}
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function GetAction()
+	{
+		return (isset($_REQUEST['action']) ? $_REQUEST['action'] : null);
+	}
+
+	/**
+	 * @return array|null
+	 */
+	protected function GetGroupIds()
+	{
+		$result = null;
+		if (isset($_REQUEST['ID']))
+		{
+			$result = (!is_array($_REQUEST['ID']) ? array($_REQUEST['ID']) : $_REQUEST['ID']);
+		}
+		return $result;
 	}
 
 	public function ActionRedirect($url)
@@ -727,7 +791,6 @@ class CAdminList
 		echo '</body></html>';
 	}
 
-
 	public function AddGroupActionTable($arActions, $arParams=array())
 	{
 		//array("action"=>"text", ...)
@@ -739,14 +802,13 @@ class CAdminList
 
 	public function ShowActionTable()
 	{
-		if(count($this->arActions)<=0 && !$this->bCanBeEdited)
+		if (empty($this->arActions) && !$this->bCanBeEdited)
 			return;
-
 ?>
-<div class="adm-list-table-footer" id="<?=$this->table_id?>_footer<?=$this->bEditMode || count($this->arUpdateErrorIDs)>0 ? '_edit' : ''?>">
-	<input type="hidden" name="action_button" value="" />
+<div class="adm-list-table-footer" id="<?=$this->table_id?>_footer<?=$this->bEditMode || !empty($this->arUpdateErrorIDs) ? '_edit' : ''?>">
+	<input type="hidden" name="action_button" id="<?=$this->table_id; ?>_action_button" value="" />
 <?
-		if($this->bEditMode || count($this->arUpdateErrorIDs)>0):
+		if($this->bEditMode || !empty($this->arUpdateErrorIDs)):
 ?>
 		<input type="hidden" name="save" id="<?=$this->table_id?>_hidden_save" value="Y">
 		<input type="submit" class="adm-btn-save" name="save" value="<?=GetMessage("admin_lib_list_edit_save")?>" title="<?=GetMessage("admin_lib_list_edit_save_title")?>" />
@@ -782,52 +844,75 @@ class CAdminList
 ';
 			}
 
+			$onchange = '';
+			if (isset($this->arActionsParams["select_onchange"]))
+			{
+				if (is_array($this->arActionsParams["select_onchange"]))
+				{
+					$onchange = implode(' ', $this->arActionsParams["select_onchange"]);
+				}
+				elseif (is_string($this->arActionsParams["select_onchange"]))
+				{
+					$onchange = $this->arActionsParams["select_onchange"];
+				}
+			}
+
 			$list = '';
 			$html = '';
 			$buttons = '';
-			foreach($this->arActions as $k=>$v)
+			$actionList = array_filter($this->arActions);
+			if (isset($actionList['delete']))
 			{
-				if($k === "delete")
+				unset($actionList['delete']);
+			}
+
+			$allowedTypes = [
+				'button' => true,
+				'html' => true
+			];
+
+			foreach($actionList as $k=>$v)
+			{
+				if(is_array($v))
 				{
-					continue;
-				}
-				else
-				{
-					if(is_array($v))
+					if (isset($v['type']) && isset($allowedTypes[$v['type']]))
 					{
-						if($v["type"] == "button")
+						switch ($v["type"])
 						{
-							$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.forms[\'form_'.$this->table_id.'\'].elements[\'action_button\'].value=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
-						}
-						elseif($v["type"] == "html")
-						{
-							$html .= '<span class="adm-list-footer-ext">'.$v["value"].'</span>';
-						}
-						else
-						{
-							$list .= '<option value="'.htmlspecialcharsbx($v['value']).'"'.($v['action']?' custom_action="'.htmlspecialcharsbx($v['action']).'"':'').'>'.htmlspecialcharsex($v['name']).'</option>';
+							case 'button':
+								$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.getElementById(\''.$this->table_id.'_action_button\').=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
+								break;
+							case 'html':
+								$html .= '<span class="adm-list-footer-ext">'.$v["value"].'</span>';
+								break;
 						}
 					}
 					else
 					{
-						$list .= '<option value="'.htmlspecialcharsbx($k).'">'.htmlspecialcharsex($v).'</option>';
+						$list .= '<option value="'.htmlspecialcharsbx($v['value']).'"'.($v['action']?' custom_action="'.htmlspecialcharsbx($v['action']).'"':'').'>'.htmlspecialcharsex($v['name']).'</option>';
 					}
 				}
+				else
+				{
+					$list .= '<option value="'.htmlspecialcharsbx($k).'">'.htmlspecialcharsex($v).'</option>';
+				}
 			}
+			unset($actionList, $k, $v);
+			unset($allowedTypes);
 
-			if (strlen($buttons) > 0)
+			if ($buttons != '')
 				echo '<span class="adm-list-footer-ext">'.$buttons.'</span>';
 
-			if (strlen($list) > 0):
+			if ($list != ''):
 ?>
 	<span class="adm-select-wrap">
-		<select name="action" class="adm-select"<?=($this->arActionsParams["select_onchange"] <> ""? ' onchange="'.htmlspecialcharsbx($this->arActionsParams["select_onchange"]).'"':'')?>>
+		<select name="action" id="<?=$this->table_id.'_action'; ?>" class="adm-select"<?=($onchange != '' ? ' onchange="'.htmlspecialcharsbx($onchange).'"':'')?>>
 			<option value=""><?=GetMessage("admin_lib_list_actions")?></option>
 <?=$list?>
 		</select>
 	</span>
 <?
-				if (strlen($html) > 0)
+				if ($html != '')
 					echo $html;
 ?>
 	<input type="submit" name="apply" value="<?=GetMessage("admin_lib_list_apply")?>" onclick="if(this.form.action[this.form.action.selectedIndex].getAttribute('custom_action')){eval(this.form.action[this.form.action.selectedIndex].getAttribute('custom_action'));return false;}" disabled="disabled" class="adm-table-action-button" />

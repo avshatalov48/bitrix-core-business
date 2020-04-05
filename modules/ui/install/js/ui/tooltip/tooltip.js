@@ -125,6 +125,17 @@ BX.UI.TooltipBalloon = function(params)
 		}
 
 		BX.bind(this.node, 'mouseout', BX.delegate(this.stopTrackMouse, this));
+
+		BX.addCustomEvent("SidePanel.Slider:onOpen", function(event) {
+			if (this.tracking)
+			{
+				this.stopTrackMouse();
+			}
+			else
+			{
+				this.hideTooltip();
+			}
+		}.bind(this));
 	};
 
 	this.trackMouseHandle = this.trackMouse.bind(this);

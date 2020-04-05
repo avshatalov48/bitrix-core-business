@@ -1,6 +1,5 @@
 <?
 $MESS["FILL_TO_MAIL_M"] = "E-mail address in caption";
-$MESS["HEADER_200"] = "Replace status 404 with 200 in header";
 $MESS["MAIN_ADMIN_DEFAULT_LANG"] = "Control Panel default language:";
 $MESS["MAIN_AUDIT_OPTIONS"] = "Events in Log";
 $MESS["MAIN_CATALOG_STAT_SETTINGS"] = "Recommendation Service";

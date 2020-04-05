@@ -1,5 +1,9 @@
 <?
-$messages = Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
+global $DB;
+
+use Bitrix\Main\Localization\Loc;
+
+$messages = Loc::loadLanguageFile(__FILE__);
 
 if(!empty($messages))
 {
@@ -117,7 +121,7 @@ if(!empty($messages))
 					'NAME' => $messages[$eventName.'_NAME'],
 					'DESCRIPTION' => $messages[$eventName.'_DESC'],
 				));
-				if(count($sites) > 0)
+				if(!empty($sites))
 				{
 					$eventMessage->add(array(
 						'ACTIVE' => 'Y',
@@ -135,4 +139,3 @@ if(!empty($messages))
 		}
 	}
 }
-?>

@@ -11,6 +11,7 @@ class Profile
 {
 	const WEBPACKER = 'webpacker';
 	const USE_LANG_CAMEL_CASE = 'useLangCamelCase';
+	const USE_ALL_LANGS = 'useAllLangs';
 	const DELETE_LANG_PREFIXES = 'deleteLangPrefixes';
 	const CALL_METHOD = 'callMethod';
 	const PROPERTIES = 'properties';
@@ -19,6 +20,8 @@ class Profile
 	protected $callParameter = [];
 	protected $properties = [];
 	protected $useLangCamelCase = false;
+	protected $useAllLangs = false;
+	protected $language = null;
 	protected $deleteLangPrefixes = [];
 
 	/**
@@ -133,7 +136,19 @@ class Profile
 	 */
 	public function useLangCamelCase($use)
 	{
-		$this->useLangCamelCase = $use;
+		$this->useLangCamelCase = (bool) $use;
+		return $this;
+	}
+
+	/**
+	 * Use all languages.
+	 *
+	 * @param bool $use Use.
+	 * @return $this
+	 */
+	public function useAllLangs($use)
+	{
+		$this->useAllLangs = (bool) $use;
 		return $this;
 	}
 
@@ -157,6 +172,38 @@ class Profile
 	public function isLangCamelCase()
 	{
 		return $this->useLangCamelCase;
+	}
+
+	/**
+	 * Return true if all langs uses.
+	 *
+	 * @return bool
+	 */
+	public function isAllLangs()
+	{
+		return $this->useAllLangs;
+	}
+
+	/**
+	 * Get language.
+	 *
+	 * @return string|null
+	 */
+	public function getLanguage()
+	{
+		return $this->language;
+	}
+
+	/**
+	 * Set language.
+	 *
+	 * @param string|null $language
+	 * @return $this
+	 */
+	public function setLanguage($language)
+	{
+		$this->language = $language;
+		return $this;
 	}
 
 	/**

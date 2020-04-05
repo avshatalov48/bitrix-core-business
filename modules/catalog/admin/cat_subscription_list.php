@@ -10,6 +10,9 @@ use Bitrix\Catalog;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+
 Loader::includeModule('catalog');
 Loc::loadMessages(__FILE__);
 
@@ -30,7 +33,7 @@ if(isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'list' || $_REQUEST['mode']
 	CFile::disableJSFunction(true);
 
 $tableId = 'tbl_product_subscription_list';
-$sortObject = new CAdminSorting($tableId, 'DATE_FROM', 'DESC');
+$sortObject = new CAdminUiSorting($tableId, 'DATE_FROM', 'DESC');
 $listObject = new CAdminUiList($tableId, $sortObject);
 
 global $by, $order;

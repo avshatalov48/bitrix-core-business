@@ -137,7 +137,25 @@
 		}
 		else if (!data.isSuccess)
 		{
-			mess = data.resultErrors.join("\n");
+			if (data.errorCode)
+			{
+				mess = '';
+				var self = this;
+				var errorHandler = new BX.Sender.ErrorHandler();
+				errorHandler.onError(
+					data.errorCode,
+					{'text': data.resultErrors.join("\n")},
+					function() {
+						self.send();
+					},
+					function() {
+					}
+				);
+			}
+			else
+			{
+				mess = data.resultErrors.join("\n");
+			}
 		}
 		else if (this.messageCode === 'mail')
 		{

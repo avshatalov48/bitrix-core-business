@@ -85,20 +85,4 @@ if ($arResult["VK_USE"])
 </script><?
 }
 
-if ($arResult["GP_USE"])
-{
-	?> <div class="catalog-sb-item gp"><div class="g-plusone" data-size="medium" data-href="<?= $arResult["URL_TO_LIKE"] ?>"></div><script type="text/javascript">
-	window.___gcfg = {lang: '<?=$arResult["GP_LANG"]?>'};
-	(function ()
-	{
-		var po = document.createElement('script');
-		po.type = 'text/javascript';
-		po.async = true;
-		po.src = 'https://apis.google.com/js/plusone.js';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(po, s);
-	})();
-	</script></div><?
-}
-
 ?></div>

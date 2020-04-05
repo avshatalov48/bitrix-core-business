@@ -1,4 +1,6 @@
 <?
+$MESS["socserv_mailru2_name"] = "Mail.Ru";
+$MESS["socserv_mailru_openid_name"] = "Mail.Ru OpenID";
 $MESS["socserv_mailru_name"] = "Мой Мир";
 $MESS["socserv_openid_yandex"] = "Яндекс";
 $MESS["socserv_openid_yandex_openid"] = "Яндекс OpenID";

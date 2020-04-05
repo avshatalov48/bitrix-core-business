@@ -123,7 +123,7 @@ class Event extends \Bitrix\Main\Event
 				{
 					foreach ($modified as $fieldName => $value)
 					{
-						$object->sysSetValue($fieldName, $value);
+						$object->set($fieldName, $value);
 					}
 				}
 			}

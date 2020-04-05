@@ -318,6 +318,7 @@ else
 			$arResult["Urls"]["Subscribe"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_SUBSCRIBE"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["MessageToGroup"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGE_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupLog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_LOG"], array("group_id" => $arResult["Group"]["ID"]));
+			$arResult["Urls"]["Copy"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_COPY"], array("group_id" => $arResult["Group"]["ID"]));
 
 			if ($arParams["SET_TITLE"]=="Y")
 				$APPLICATION->SetTitle($arResult["Group"]["NAME"]);

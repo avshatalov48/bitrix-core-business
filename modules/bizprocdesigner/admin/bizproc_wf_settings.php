@@ -54,7 +54,7 @@ if ($_POST["save"] == "Y")
 		}
 	}
 
-	if (!empty($_POST['arWorkflowGlobalConstants']) && $isAdmin)
+	if ($isAdmin && isset($_POST['arWorkflowGlobalConstants']) && is_array($_POST['arWorkflowGlobalConstants']))
 	{
 		if (!\Bitrix\Bizproc\Workflow\Type\GlobalConst::saveAll($_POST['arWorkflowGlobalConstants']))
 		{
@@ -136,7 +136,7 @@ function WFSStart()
 	document.getElementById('WFStemplate_name').value = workflowTemplateName;
 	document.getElementById('WFStemplate_description').value = workflowTemplateDescription;
 
-	if (!(workflowTemplateAutostart & 8))
+	if (workflowTemplateAutostart < 8)
 	{
 		document.getElementById('WFStemplate_autostart1').checked = workflowTemplateAutostart & 1;
 		document.getElementById('WFStemplate_autostart2').checked = workflowTemplateAutostart & 2;
@@ -204,7 +204,7 @@ function WFSSaveOK(response)
 		return;
 	}
 
-	var i, t, permissions = response['perm'];
+	var i, t, permissions = response['perms'];
 
 	arWorkflowParameters = {};
 	t = document.getElementById('WFSListP');
@@ -235,7 +235,7 @@ function WFSSaveOK(response)
 	workflowTemplateName = document.getElementById('WFStemplate_name').value;
 	workflowTemplateDescription = document.getElementById('WFStemplate_description').value;
 
-	if (!(workflowTemplateAutostart & 8))
+	if (workflowTemplateAutostart < 8)
 	{
 		workflowTemplateAutostart = ((document.getElementById('WFStemplate_autostart1').checked ? 1 : 0) | (document.getElementById('WFStemplate_autostart2').checked ? 2 : 0));
 	}
@@ -561,12 +561,7 @@ function WFSParamSaveForm(Type)
 		function(v){
 			if (typeof v == "object")
 			{
-				WFSData[lastEd]['Default_printable'] = v[1];
 				v = v[0];
-			}
-			else
-			{
-				WFSData[lastEd]['Default_printable'] = v;
 			}
 
 			WFSData[lastEd]['Default'] = v;
@@ -707,7 +702,7 @@ $tabControl->BeginNextTab();
 	<td valign="top"><?echo GetMessage("BIZPROC_WFS_PAR_DESC")?></td>
 	<td><textarea cols="35" rows="5"  id="WFStemplate_description"><?=htmlspecialcharsbx($_POST['workflowTemplateDescription'])?></textarea></td>
 </tr>
-<?if (!($_POST['workflowTemplateAutostart'] & 8)):?>
+<?if ($_POST['workflowTemplateAutostart'] < 8):?>
 <tr>
 	<td valign="top"><?echo GetMessage("BIZPROC_WFS_PAR_AUTO")?></td>
 	<td>
@@ -716,6 +711,8 @@ $tabControl->BeginNextTab();
 	</td>
 </tr>
 <?
+endif;
+if (!($_POST['workflowTemplateAutostart'] & 8)):
 $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizproc-wf-settings-tab-content-variables']);
 ?>
 <tr>

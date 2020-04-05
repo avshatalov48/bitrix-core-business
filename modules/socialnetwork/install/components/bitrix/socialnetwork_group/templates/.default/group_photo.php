@@ -1,9 +1,11 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
 $pageId = "group_photo";
 include("util_group_menu.php");
 include("util_group_profile.php");
-?><?
+
 if ($arParams["FATAL_ERROR"] == "Y"):
 	if (!empty($arParams["ERROR_MESSAGE"])):
 		ShowError($arParams["ERROR_MESSAGE"]);

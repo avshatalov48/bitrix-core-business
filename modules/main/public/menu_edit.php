@@ -19,7 +19,7 @@ $io = CBXVirtualIo::GetInstance();
 
 $path = $io->CombinePath("/", $path);
 
-$arParsedPath = CFileMan::ParsePath(Array($site, $path), true, false, "", $logical == "Y");
+$arParsedPath = CFileMan::ParsePath(Array($site, $path), true, false, "", ($_REQUEST["logical"] == "Y"));
 $menufilename = $path;
 
 $name = preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["name"]);
@@ -29,6 +29,7 @@ $abs_path = $io->CombinePath($DOC_ROOT, $menufilename);
 
 $strWarning = "";
 $module_id = "fileman";
+
 //delete menu file
 if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 {
@@ -44,7 +45,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 				'site' => $site,
 				'path' => $menufilename,
 				'content' => $f->GetContents(),
-				'perm' => CFileMan::FetchFileAccessPerm($arPath_m, true),
+				'perm' => CFileMan::FetchFileAccessPerm($arPath_m),
 			)
 		);
 
@@ -59,7 +60,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 
 		if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
 		{
-			$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
+			$mt = COption::GetOptionString("fileman", "menutypes", "", $site);
 			$mt = unserialize(str_replace("\\", "", $mt));
 			$res_log['menu_name'] = $mt[$name];
 			$res_log['path'] = substr($path, 1);
@@ -106,7 +107,7 @@ if(!$USER->CanDoOperation('fileman_edit_existent_files') || !$USER->CanDoFileOpe
 }
 else
 {
-	if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
+	if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST['save'] == 'Y')
 	{
 		if (!is_array($ids)) $ids = array();
 
@@ -130,35 +131,13 @@ else
 
 			$aMenuItem = Array($arValues["text_".$num], $arValues["link_".$num]);
 
-			if ($arValues['additional_params_'.$num])
+			$arAdditionalParams = array(array(), array());
+			if (check_bitrix_sessid() && $arValues['additional_params_'.$num] && CheckSerializedData($arValues['additional_params_'.$num]))
+			{
 				$arAdditionalParams = @unserialize($arValues['additional_params_'.$num]);
-			else
-				$arAdditionalParams = array(array(), array());
+			}
 
 			$aMenuItem = array_merge($aMenuItem, $arAdditionalParams);
-
-			/*
-			$arAddLinks = Array();
-			$additional_link = $arValues["additional_link_".$num];
-			$arAddLinksTmp = explode("\n", $additional_link);
-			for($j=0; $j<count($arAddLinksTmp); $j++)
-			{
-				if(strlen(trim($arAddLinksTmp[$j]))>0)
-					$arAddLinks[] = trim($arAddLinksTmp[$j]);
-			}
-			$aMenuItem[] = $arAddLinks;
-
-			$arParams = Array();
-			$param_cnt = IntVal(${"param_cnt_".$num});
-			for($j=1; $j<=IntVal($param_cnt); $j++)
-			{
-				$param_name = trim($arValues["param_name_".$num."_".$j]);
-				$param_value = trim($arValues["param_value_".$num."_".$j]);
-				if(strlen($param_name)>0 || strlen($param_value)>0)
-					$arParams[$param_name]=$param_value;
-			}
-			$aMenuItem[] = $arParams;
-			*/
 
 			$aMenuLinksTmp_[] = $aMenuItem;
 			$aMenuSort[] = IntVal(${"sort_".$num});
@@ -210,7 +189,7 @@ else
 					)
 				);
 
-			CFileMan::SaveMenu(Array($site, $menufilename), $aMenuLinksTmp, $sMenuTemplateTmp);
+			CFileMan::SaveMenu(Array($site, $menufilename), $aMenuLinksTmp, $res["sMenuTemplate"]);
 
 			if(COption::GetOptionString($module_id, "log_menu", "Y")=="Y")
 			{
@@ -322,7 +301,7 @@ if(!is_array($aMenuLinksTmp))
 
 	<div id="bx_menu_layout" class="bx-menu-layout"><?
 	$itemcnt = 0;
-	for($i=1; $i<=count($aMenuLinksTmp); $i++):
+	for($i = 1, $n = count($aMenuLinksTmp); $i <= $n; $i++):
 		$itemcnt++;
 		$aMenuLinksItem = $aMenuLinksTmp[$i-1];
 	?><div class="bx-menu-placement" id="bx_menu_placement_<?=$i?>"><div class="bx-edit-menu-item" id="bx_menu_row_<?=$i?>"><table border="0" cellpadding="0" cellspacing="0" class="bx-width100 internal" class="menu-table"><tbody>

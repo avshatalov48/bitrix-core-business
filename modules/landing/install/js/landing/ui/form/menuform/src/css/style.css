@@ -1,0 +1,54 @@
+.landing-ui-form-menu {
+	overflow: hidden;
+}
+
+.ui-draggable--drop-preview {
+	border: none!important;
+	background: none!important;
+	transition: width 200ms ease 0s, left 200ms ease 0s;
+}
+
+@keyframes rotateDraggableMenuItem {
+	from {
+		transform: rotate(0);
+	}
+
+	to {
+		transform: rotate(-4deg);
+	}
+}
+
+.ui-draggable--draggable {
+	animation: 200ms rotateDraggableMenuItem both!important;
+}
+
+.ui-draggable--drop-preview::before {
+	position: absolute;
+	content: '';
+	top: 3px;
+	bottom: 3px;
+	left: 0;
+	right: 0;
+	border: 2px #0CB4E9 dashed;
+	border-radius: 2px;
+	opacity: .7;
+}
+
+.ui-draggable--drop-preview::after {
+	content: '';
+	background: url("../images/dot.svg") -10px 0 repeat-x;
+	position: absolute;
+	left: -489px;
+	top: 25px;
+	height: 10px;
+	width: 489px;
+}
+
+.landing-ui-form-menu-add {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.landing-ui-form-menu-add-button:focus {
+	outline: none;
+}

@@ -1,0 +1,35 @@
+<?
+$MESS["SALE_ACCESS_DENIED"] = "Доступ заборонено.";
+$MESS["SALE_CASHBOX_TITLE"] = "Список кас";
+$MESS["SALE_F_ACTIVE"] = "Активність";
+$MESS["SALE_ALL"] = "Все";
+$MESS["SALE_YES"] = "Так";
+$MESS["SALE_NO"] = "Ні";
+$MESS["SALE_CASHBOX_ADD_NEW"] = "Додати касу";
+$MESS["SALE_CASHBOX_ID"] = "ID";
+$MESS["SALE_CASHBOX_NAME"] = "Назва";
+$MESS["SALE_CASHBOX_ACTIVE"] = "Активність";
+$MESS["SALE_CASHBOX_SORT"] = "Сортування";
+$MESS["SALE_CASHBOX_DATE_CREATE"] = "Дата створення";
+$MESS["SALE_CASHBOX_NUMBER_KKM"] = "Номер ККМ";
+$MESS["SALE_CASHBOX_EDIT"] = "Змінити";
+$MESS["SALE_CASHBOX_COPY"] = "Копіювати посилання";
+$MESS["SALE_CASHBOX_WINDOW_TITLE"] = "Підключення каси";
+$MESS["SALE_CASHBOX_WINDOW_STEP_1"] = "У налаштуваннях програми пропишіть даний урл";
+$MESS["SALE_CASHBOX_WINDOW_STEP_2"] = "Запустіть наш застосунок для роботи з касою на комп'ютері";
+$MESS["SALE_CASHBOX_POPUP_TITLE"] = "Посилання на підключення каси";
+$MESS["SALE_CASHBOX_EDIT_DESCR"] = "Змінити параметри каси";
+$MESS["SALE_CASHBOX_DELETE"] = "Видалити";
+$MESS["SALE_CASHBOX_DELETE_DESCR"] = "Видалити";
+$MESS["SPSAN_ERROR_DELETE_1C"] = "Каса 1С є системною. Її видалення неможливе";
+$MESS["SPSAN_ERROR_DELETE"] = "Помилка при видаленні каси";
+$MESS["SPSAN_ERROR_UPDATE"] = "Помилка при оновленні каси";
+$MESS["SALE_CASHBOX_DATE_LAST_CHECK"] = "Останнє звернення";
+$MESS["SALE_CASHBOX_GENERATE_LINK"] = "Згенерувати посилання";
+$MESS["SALE_CASHBOX_DELETE_CONFIRM"] = "Ви дійсно бажаєте видалити касу №#CASHBOX_ID#";
+$MESS["SALE_MARKETPLACE_ADD_NEW"] = "Встановити з Маркетплейс";
+$MESS["SALE_MARKETPLACE_ADD_NEW_ALT"] = "Натисніть для встановлення з Маркетплейс";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS"] = "Статус останнього звернення";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS_Y"] = "ОК";
+$MESS["SALE_CASHBOX_LAST_CHECK_STATUS_N"] = "Помилка";
+?>

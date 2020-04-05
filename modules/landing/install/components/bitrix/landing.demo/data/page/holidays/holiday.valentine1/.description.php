@@ -180,7 +180,7 @@ return array(
 				'CONTENT' => '<section class="landing-block g-pb-80 g-pt-20">
         <div class="container">
 
-            <div class="row no-gutters">
+            <div class="landing-block-node-row justify-content-center no-gutters landing-block-inner">
                 <div class="landing-block-node-element landing-block-card col-md-6 col-lg-3 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in js-animation fadeInLeft">
                     <div class="text-center g-px-10 g-px-30--lg g-py-40 g-pt-25--parent-hover g-transition-0_2 g-transition--ease-in">
 					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
@@ -294,7 +294,7 @@ return array(
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block g-pt-65 g-pb-65">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article

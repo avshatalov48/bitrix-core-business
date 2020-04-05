@@ -51,11 +51,15 @@ return array(
 		),
 		'.landing-block-card-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_STYLE_LANDINGBLOCKNODECONTAINER'),
-			'type' => array('background-color', 'background-gradient', 'box-shadow'),
+			'type' => array('bg', 'box-shadow'),
 		),
 		'.landing-block-node-element-icon-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_STYLE_LANDINGBLOCKNODEELEMENTICON'),
-			'type' => array('background-color', 'background-gradient', 'box-shadow'),
+			'type' => array('background-color', 'color', 'box-shadow'),
+		),
+		'.landing-block-inner' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_4_TWO_COL_FIX_TEXT_WITH_ICON_NODES_LANDINGBLOCK_INNER'),
+			'type' => array('row-align'),
 		),
 	),
 );

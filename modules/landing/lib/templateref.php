@@ -24,6 +24,7 @@ class TemplateRef
 	 */
 	protected static function set($id, $type, array $data = array())
 	{
+		$id = intval($id);
 		$res = TemplateRefTable::getList(array(
 			'select' => array(
 				'ID', 'AREA', 'LANDING_ID'
@@ -73,6 +74,7 @@ class TemplateRef
 	protected static function get($id, $type)
 	{
 		static $staticData = array();
+		$id = intval($id);
 
 		if (!isset($staticData[$type . $id]))
 		{
@@ -108,7 +110,10 @@ class TemplateRef
 	 */
 	public static function setForSite($id, array $data = array())
 	{
-		self::set($id, self::ENTITY_TYPE_SITE, $data);
+		if (Rights::hasAccessForSite($id, Rights::ACCESS_TYPES['sett']))
+		{
+			self::set($id, self::ENTITY_TYPE_SITE, $data);
+		}
 	}
 
 	/**
@@ -119,7 +124,10 @@ class TemplateRef
 	 */
 	public static function setForLanding($id, array $data = array())
 	{
-		self::set($id, self::ENTITY_TYPE_LANDING, $data);
+		if (Rights::hasAccessForLanding($id, Rights::ACCESS_TYPES['sett']))
+		{
+			self::set($id, self::ENTITY_TYPE_LANDING, $data);
+		}
 	}
 
 	/**
@@ -159,7 +167,7 @@ class TemplateRef
 			$return = array();
 			foreach ($lid as $id)
 			{
-				$return[$id] = false;
+				$return[(int)$id] = false;
 			}
 			while ($row = $res->fetch())
 			{
@@ -180,6 +188,8 @@ class TemplateRef
 	 */
 	public static function deleteArea($lid)
 	{
+		$lid = intval($lid);
+
 		$res = TemplateRefTable::getList(array(
 			'filter' => array(
 				'LANDING_ID' => $lid
@@ -189,5 +199,23 @@ class TemplateRef
 		{
 			TemplateRefTable::delete($row['ID']);
 		}
+	}
+
+	/**
+	 * Resolves class by type.
+	 * @param string $type Entity type.
+	 * @return string
+	 */
+	public static function resolveClassByType($type)
+	{
+		if ($type == self::ENTITY_TYPE_SITE)
+		{
+			return '\Bitrix\Landing\Site';
+		}
+		else if ($type == self::ENTITY_TYPE_LANDING)
+		{
+			return '\Bitrix\Landing\Landing';
+		}
+		return '';
 	}
 }

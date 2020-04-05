@@ -1,6 +1,9 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\UserToGroupTable;
+
 class CAllSocNetGroup
 {
 	protected static $staticCache = array();
@@ -197,7 +200,17 @@ class CAllSocNetGroup
 
 		if ($bSuccess)
 		{
-			$bSuccess = $DB->Query("DELETE FROM b_sonet_user2group WHERE GROUP_ID = ".$ID."", true);
+			$res = UserToGroupTable::getList([
+				'filter' => [
+					'=GROUP_ID' => $ID
+				],
+				'select' => [ 'USER_ID' ]
+			]);
+			while($relationFields = $res->fetch())
+			{
+				\CSocNetSearch::onUserRelationsChange($relationFields['USER_ID']);
+			}
+			$bSuccess = $DB->Query("DELETE FROM b_sonet_user2group WHERE GROUP_ID = ".$ID, true);
 		}
 
 		if ($bSuccess)
@@ -274,7 +287,15 @@ class CAllSocNetGroup
 		}
 		if ($bSuccess)
 		{
-			$bSuccess = $DB->Query("DELETE FROM b_sonet_log_right WHERE GROUP_CODE LIKE 'SG".$ID."\_%' OR GROUP_CODE = 'SG".$ID."'", true);
+			$bSuccess = $DB->Query("DELETE FROM b_sonet_log_right WHERE GROUP_CODE LIKE 'OSG".$ID."\_%'", true);
+		}
+		if ($bSuccess)
+		{
+			$bSuccess = $DB->Query("DELETE FROM b_sonet_log_right WHERE GROUP_CODE LIKE 'SG".$ID."\_%'", true);
+		}
+		if ($bSuccess)
+		{
+			$bSuccess = $DB->Query("DELETE FROM b_sonet_log_right WHERE GROUP_CODE = 'SG".$ID."'", true);
 		}
 		if ($bSuccess)
 		{
@@ -509,9 +530,13 @@ class CAllSocNetGroup
 				}
 
 				$arSelect = array("ID", "SITE_ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "VISIBLE", "OPENED", "CLOSED", "SUBJECT_ID", "OWNER_ID", "KEYWORDS", "IMAGE_ID", "NUMBER_OF_MEMBERS", "NUMBER_OF_MODERATORS", "INITIATE_PERMS", "SPAM_PERMS", "DATE_ACTIVITY", "SUBJECT_NAME", "UF_*");
-				if (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+				if (ModuleManager::isModuleInstalled('intranet'))
 				{
 					$arSelect = array_merge($arSelect, array("PROJECT", "PROJECT_DATE_START", "PROJECT_DATE_FINISH"));
+				}
+				if (ModuleManager::isModuleInstalled('landing'))
+				{
+					$arSelect = array_merge($arSelect, array("LANDING"));
 				}
 				$dbResult = CSocNetGroup::getList(
 					array(),

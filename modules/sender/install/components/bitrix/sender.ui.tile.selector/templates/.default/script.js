@@ -63,6 +63,7 @@
 		this.duplicates = params.duplicates;
 		this.multiple = params.multiple;
 		this.readonly = params.readonly;
+		this.manualInputEnd = params.manualInputEnd;
 
 		this.attributeId = 'data-bx-id';
 		this.attributeData = 'data-bx-data';
@@ -104,8 +105,12 @@
 			BX.bind(this.tileContainer, 'click', this.onButtonSelect.bind(this));
 		}
 		BX.bind(this.input, 'input', this.onInput.bind(this));
-		BX.bind(this.input, 'blur', this.onInputEnd.bind(this));
-		Helper.handleKeyEnter(this.input, this.onInputEnd.bind(this));
+
+		if (!this.manualInputEnd)
+		{
+			BX.bind(this.input, 'blur', this.onInputEnd.bind(this));
+			Helper.handleKeyEnter(this.input, this.onInputEnd.bind(this));
+		}
 	};
 	TileSelector.prototype.getSearchInput = function ()
 	{

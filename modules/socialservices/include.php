@@ -52,6 +52,9 @@ $arClasses = array(
 	"CBitrixServiceTransport" => "classes/general/bitrixservice.php",
 	"CBitrixSeoOAuthInterface" => "classes/general/bitrixseo.php",
 	"CBitrixSeoTransport" => "classes/general/bitrixseo.php",
+	"CSocServMailRu2" => "classes/general/mailru2.php",
+	"CMailRu2Interface" => "classes/general/mailru2.php",
+	"socialservices" => "install/index.php",
 );
 
 CModule::AddAutoloadClasses("socialservices", $arClasses);

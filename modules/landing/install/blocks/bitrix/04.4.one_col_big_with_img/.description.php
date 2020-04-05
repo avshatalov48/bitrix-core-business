@@ -24,7 +24,7 @@ return array(
 		'.landing-block-node-mainimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_NODES_LANDINGBLOCKNODEMAINIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1073),
+			'dimensions' => array('width' => 1920),
 		),
 	),
 	'style' => array(

@@ -11,7 +11,7 @@
     height: 100%;
 }
 
-.bx-ui-smiles-elements-wrap {
+.bx-ui-smiles-elements-wrap, .bx-ui-smiles-emoji-wrap {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -32,6 +32,19 @@
 
 .bx-ui-smiles-elements {
 	display: inline-block;
+}
+
+.bx-ui-smiles-category {
+	text-align: center;
+	-webkit-box-flex: 0;
+	    -ms-flex: 0 0 100%;
+	        flex: 0 0 100%;
+	font: 16px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	margin: 7px 0;
+}
+
+.bx-ui-smiles-emoji-wrap:first-child .bx-ui-smiles-category {
+	margin-top: 14px;
 }
 
 .bx-ui-smiles-smile {
@@ -58,6 +71,30 @@
 	   object-fit: contain;
 	max-height: 95px;
 	max-width: 95px;
+}
+
+.bx-ui-smiles-set-emoji {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-mac {
+	font-size: 33px;
+	line-height: 30px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-win {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-linux {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
 }
 
 .bx-ui-smiles-sets {

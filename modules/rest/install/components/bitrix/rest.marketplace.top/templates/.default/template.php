@@ -42,19 +42,22 @@ if (is_array($arResult["ITEMS"])):
 
 ?>
 				<li>
-					<span class="mp_sc_ls_img">
+
 <?php
-				if($app["ICON"]):
+				if(!empty($app["ICON"])):
 ?>
+					<span class="mp_sc_ls_img">
 						<span><img src="<?=htmlspecialcharsbx($app["ICON"])?>" alt="" /></span>
+					</span>
 <?php
 				else:
 ?>
+					<span class="mp_sc_ls_img">
 						<span class="mp_empty_icon"></span>
+					</span>
 <?php
 				endif;
 ?>
-					</span>
 					<a href="<?=$appUrl?>" class="mp_sc_ls_shadow">
 <?php
 				if ($app["PROMO"] == "Y"):

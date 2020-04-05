@@ -44,6 +44,7 @@ $containerId .= $arParams['ID'] ?: 'def';
 			'duplicates' => $arParams['DUPLICATES'],
 			'readonly' => $arParams['READONLY'],
 			'multiple' => $arParams['MULTIPLE'],
+			'manualInputEnd' => $arParams['MANUAL_INPUT_END']
 		))?>);
 	});
 </script>

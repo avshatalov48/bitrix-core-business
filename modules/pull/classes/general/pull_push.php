@@ -274,7 +274,7 @@ class CPushManager
 			$arFields['ADVANCED_PARAMS']['extra']['server_time_unix'] = microtime(true);
 		}
 
-		$arFields['EXPIRY'] = 0;
+		$arFields['EXPIRY'] = 43200;
 		if (isset($arParams['EXPIRY']) && intval($arParams['EXPIRY']) > 0)
 		{
 			$arFields['EXPIRY'] = intval($arParams['EXPIRY']);
@@ -296,7 +296,13 @@ class CPushManager
 
 		$devices = [];
 
-		$info = self::GetDeviceInfo($arFields['USER_ID'], $arFields['APP_ID']);
+		$options = [];
+		if (isset($arParams['IMPORTANT']) && $arParams['IMPORTANT'] == 'Y')
+		{
+			$options['IMPORTANT'] = 'Y';
+		}
+
+		$info = self::GetDeviceInfo($arFields['USER_ID'], $options, $arFields['APP_ID']);
 		foreach ($info as $userId => $params)
 		{
 			if (in_array($userId, $arFields['SKIP_USERS']))
@@ -449,7 +455,6 @@ class CPushManager
 		{
 			unset($result['MESSAGE']);
 			unset($result['ADVANCED_PARAMS']['senderName']);
-			unset($result['ADVANCED_PARAMS']['senderMessage']);
 		}
 
 		if (strlen($fields['EXPIRY']) > 0)
@@ -473,6 +478,7 @@ class CPushManager
 
 	/**
 	 * @param $userId
+	 * @param array $options
 	 * @param string $appId
 	 * @return array|bool
 	 * @throws \Bitrix\Main\ArgumentException
@@ -480,7 +486,7 @@ class CPushManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function GetDeviceInfo($userId, $appId = 'Bitrix24')
+	public static function GetDeviceInfo($userId, $options = Array(), $appId = 'Bitrix24')
 	{
 		$result = [];
 		if (!is_array($userId))
@@ -518,7 +524,10 @@ class CPushManager
 		if ($imInclude)
 		{
 			$query->registerRuntimeField('', new \Bitrix\Main\Entity\ReferenceField('im', 'Bitrix\Im\Model\StatusTable', ['=this.ID' => 'ref.USER_ID']));
-			$query->addSelect('im.IDLE', 'IDLE')->addSelect('im.MOBILE_LAST_DATE', 'MOBILE_LAST_DATE');
+			$query->addSelect('im.IDLE', 'IDLE')
+				->addSelect('im.DESKTOP_LAST_DATE', 'DESKTOP_LAST_DATE')
+				->addSelect('im.MOBILE_LAST_DATE', 'MOBILE_LAST_DATE')
+			;
 		}
 
 		$query->registerRuntimeField('', new \Bitrix\Main\Entity\ReferenceField('push', 'Bitrix\Pull\Model\PushTable', ['=this.ID' => 'ref.USER_ID']));
@@ -563,6 +572,12 @@ class CPushManager
 				continue;
 			}
 
+			if ($options['IMPORTANT'] == 'Y')
+			{
+				$result[$user['ID']]['mode'] = self::SEND_IMMEDIATELY;
+				continue;
+			}
+
 			if (!\Bitrix\Pull\Push::getStatus($user['ID']))
 			{
 				$result[$user['ID']]['mode'] = self::RECORD_NOT_FOUND;
@@ -582,7 +597,9 @@ class CPushManager
 
 			if ($imInclude)
 			{
-				$mobileLastDate = $user['MOBILE_LAST_DATE'] instanceof \Bitrix\Main\Type\DateTime? $user['MOBILE_LAST_DATE']->getTimestamp(): 0;
+				$user = CIMStatus::prepareLastDate($user);
+
+				$mobileLastDate = $user['MOBILE_LAST_DATE']? $user['MOBILE_LAST_DATE']->getTimestamp(): 0;
 				if ($mobileLastDate > 0 && $mobileLastDate + 300 > time())
 				{
 					$isMobile = true;
@@ -591,7 +608,7 @@ class CPushManager
 				$isDesktop = CIMMessenger::CheckDesktopStatusOnline($user['ID']);
 				if ($isDesktop && $isOnline && is_object($user['IDLE']))
 				{
-					if ($user['IDLE']->getTimestamp() > 0)
+					if ($user['IDLE']->getTimestamp() > 0 )
 					{
 						$isDesktopIdle = true;
 					}

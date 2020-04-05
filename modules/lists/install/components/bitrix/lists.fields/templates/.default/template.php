@@ -37,14 +37,11 @@ elseif(!IsModuleInstalled("intranet"))
 }
 ?>
 <div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_URL"]?>" class="lists-list-back">
+	<a href="<?=$arResult["LIST_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 		<?=GetMessage("CT_BLF_TOOLBAR_RETURN_LIST_ELEMENT")?>
 	</a>
-	<a class="webform-small-button webform-small-button-blue bx24-top-toolbar-add" href="<?=$arResult['LIST_FIELD_EDIT_URL']?>">
-		<span class="webform-small-button-left"></span>
-		<span class="webform-small-button-icon"></span>
-		<span class="webform-small-button-text"><?=Loc::getMessage('CT_BLF_TOOLBAR_ADD')?></span>
-		<span class="webform-small-button-right"></span>
+	<a class="ui-btn ui-btn-sm ui-btn-primary ui-btn-icon-add" href="<?=$arResult['LIST_FIELD_EDIT_URL']?>">
+		<?=Loc::getMessage('CT_BLF_TOOLBAR_ADD')?>
 	</a>
 </div>
 <?

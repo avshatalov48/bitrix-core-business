@@ -51,7 +51,7 @@ CJSCore::RegisterExt('sender_agreement', array(
 	'css' => '/bitrix/js/sender/agreement/style.css',
 	'lang' => '/bitrix/modules/sender/lang/' . LANGUAGE_ID . '/js_agreement.php',
 	'lang_additional' => array(
-		'SENDER_AGREEMENT_IS_REQUIRED' => !\Bitrix\Sender\Security\User::current()->isAgreementAccepted(),
+		'SENDER_AGREEMENT_IS_REQUIRED' => false,
 		'SENDER_AGREEMENT_TEXT' => \Bitrix\Sender\Security\Agreement::getText(true)
 	),
 	'rel' => array('core', 'popup', 'ajax_action', 'sender_helper')

@@ -15,12 +15,12 @@ class Icon extends \Bitrix\Landing\Node
 
 	/**
 	 * Save data for this node.
-	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param string $selector Selector.
 	 * @param array $data Data array.
 	 * @return void
 	 */
-	public static function saveNode(\Bitrix\Landing\Block &$block, $selector, array $data)
+	public static function saveNode(\Bitrix\Landing\Block $block, $selector, array $data)
 	{
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
@@ -31,7 +31,17 @@ class Icon extends \Bitrix\Landing\Node
 						? $value['classList']
 						: (array)$value;
 			$className = implode(' ', $classList);
-			$url = isset($value['url']) ? trim($value['url']) : '';
+
+			if (isset($value['url']))
+			{
+				$url = is_array($value['url'])
+						? json_encode($value['url'])
+						: $value['url'];
+			}
+			else
+			{
+				$url = '';
+			}
 
 			if ($classList)
 			{
@@ -49,11 +59,11 @@ class Icon extends \Bitrix\Landing\Node
 
 	/**
 	 * Get data for this node.
-	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param string $selector Selector.
 	 * @return array
 	 */
-	public static function getNode(\Bitrix\Landing\Block &$block, $selector)
+	public static function getNode(\Bitrix\Landing\Block $block, $selector)
 	{
 		$data = array();
 		$doc = $block->getDom();

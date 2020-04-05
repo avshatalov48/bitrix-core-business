@@ -357,7 +357,16 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 				$arFilter["ACTIVE"] = "Y";
 				$arFilter["CHECK_PERMISSIONS"] = "Y";
 				$arFilter["MIN_PERMISSION"] = "R";
-				$rsElements = CIBlockSection::GetList(array(), $arFilter, false, array("ID","IBLOCK_ID","NAME","SECTION_PAGE_URL"));
+				$rsElements = CIBlockSection::GetList(
+					array(),
+					$arFilter,
+					false,
+					array("ID","IBLOCK_ID","NAME","SECTION_PAGE_URL")
+				);
+				if (isset($strHTMLControlName['SECTION_URL']))
+				{
+					$rsElements->SetUrlTemplates('', $strHTMLControlName['SECTION_URL']);
+				}
 				$cache[$arValue['VALUE']] = $rsElements->GetNext(true,true);
 			}
 			if (is_array($cache[$arValue['VALUE']]))

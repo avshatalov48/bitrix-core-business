@@ -64,6 +64,7 @@ class subscribe extends CModule
 			RegisterModuleDependences("main", "OnUserLogout", "subscribe", "CSubscription", "OnUserLogout");
 			RegisterModuleDependences("main", "OnGroupDelete", "subscribe", "CPosting", "OnGroupDelete");
 			RegisterModuleDependences("sender", "OnConnectorList", "subscribe", "Bitrix\\Subscribe\\SenderEventHandler", "onConnectorListSubscriber");
+			RegisterModuleDependences("perfmon", "OnGetTableSchema", "subscribe", "subscribe", "OnGetTableSchema");
 
 			//agents
 			CAgent::RemoveAgent("CSubscription::CleanUp();", "subscribe");
@@ -102,6 +103,7 @@ class subscribe extends CModule
 		UnRegisterModuleDependences("main", "OnGroupDelete", "subscribe", "CPosting", "OnGroupDelete");
 		UnRegisterModuleDependences("main", "OnUserLogout", "subscribe", "CSubscription", "OnUserLogout");
 		UnRegisterModuleDependences("sender", "OnConnectorList", "subscribe", "Bitrix\\Subscribe\\SenderEventHandler", "onConnectorListSubscriber");
+		UnRegisterModuleDependences("perfmon", "OnGetTableSchema", "subscribe", "subscribe", "OnGetTableSchema");
 
 		UnRegisterModule("subscribe");
 
@@ -268,5 +270,59 @@ class subscribe extends CModule
 		}
 	}
 
+	public function migrateToBox()
+	{
+		COption::SetOptionString('subscribe', 'mail_additional_parameters', '');
+	}
+
+	function OnGetTableSchema()
+	{
+		return array(
+			"subscribe" => array(
+				"b_list_rubric" => array(
+					"ID" => array(
+						"b_subscription_rubric" => "LIST_RUBRIC_ID",
+						"b_posting_rubric" => "LIST_RUBRIC_ID",
+					)
+				),
+				"b_subscription" => array(
+					"ID" => array(
+						"b_subscription_rubric" => "SUBSCRIPTION_ID",
+						"b_posting_email" => "SUBSCRIPTION_ID",
+					)
+				),
+				"b_posting" => array(
+					"ID" => array(
+						"b_posting_email" => "POSTING_ID",
+						"b_posting_rubric" => "POSTING_ID",
+						"b_posting_group" => "POSTING_ID",
+						"b_posting_file" => "POSTING_ID",
+					)
+				),
+			),
+			"main" => array(
+				"b_file" => array(
+					"ID" => array(
+						"b_posting_file" => "FILE_ID",
+					)
+				),
+				"b_lang" => array(
+					"LID" => array(
+						"b_list_rubric" => "LID",
+					)
+				),
+				"b_user" => array(
+					"ID" => array(
+						"b_subscription" => "USER_ID",
+						"b_posting_email" => "USER_ID",
+					)
+				),
+				"b_group" => array(
+					"ID" => array(
+						"b_posting_group" => "GROUP_ID",
+					)
+				),
+			),
+		);
+	}
 }
-?>

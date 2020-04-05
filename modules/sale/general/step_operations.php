@@ -325,7 +325,7 @@ class CSaleDiscountConvertExt extends CCatalogStepOperations
 					'MODIFIED_BY' => $discount['MODIFIED_BY'],
 					'TIMESTAMP_X' => $discount['TIMESTAMP_X'],
 					'UNPACK' => $rawFields['UNPACK'],
-					'CONDITIONS' => $discount['CONDITIONS_LIST'],
+					'CONDITIONS_LIST' => $discount['CONDITIONS_LIST'],
 					'VERSION' => Sale\Internals\DiscountTable::VERSION_15
 				);
 				if (isset($rawFields['EXECUTE_MODULE']))

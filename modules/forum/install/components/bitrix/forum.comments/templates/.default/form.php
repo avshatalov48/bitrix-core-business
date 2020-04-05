@@ -26,10 +26,9 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 	<input type="hidden" name="ENTITY_XML_ID" value="<?=$arParams["ENTITY_XML_ID"]?>" />
 	<input type="hidden" name="ENTITY_TYPE" value="<?=$arParams["ENTITY_TYPE"]?>" />
 	<input type="hidden" name="ENTITY_ID" value="<?=$arParams["ENTITY_ID"]?>" />
-	<input type="hidden" name="REVIEW_USE_SMILES" value="Y"  />
-	<input type="hidden" name="comment_review" value="Y"  />
 	<?=bitrix_sessid_post()?>
-	<?
+	<input type="hidden" name="REVIEW_USE_SMILES" value="Y"  />
+	<input type="hidden" name="comment_review" value="Y"  /><?
 	if ($arParams['AUTOSAVE'])
 		$arParams['AUTOSAVE']->Init();
 		ob_start();
@@ -96,7 +95,6 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 					"iframeCss" => "html body {padding-left: 14px!important;}",
 					"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 					"fontSize" => "12px",
-					"ctrlEnterHandler" => 'commentsCtrlEnterHandler'.$arParams["FORM_ID"],
 					"bInitByJS" => ($arParams['SHOW_MINIMIZED'] == "Y"),
 					"height" => 80
 				),
@@ -143,22 +141,8 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 </form>
 <script type="text/javascript">
 BX.ready(function(){
-	window["UC"]["f<?=$arParams["FORM_ID"]?>"] = new FCForm({
-		entitiesId : {'<?=$arParams["ENTITY_XML_ID"]?>' : ['<?=$arParams["ENTITY_TYPE"]?>', <?=$arParams["ENTITY_ID"]?>]},
-		formId : '<?=$arParams["FORM_ID"]?>',
-		editorName : '<?=$arParams["jsObjName"]?>',
-		editorId : '<?=$arParams["LheId"]?>'});
-	if (!!window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode)
-	{
-		BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormClear', __fcOnUCFormClear);
-		BX.addCustomEvent(window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode, 'OnUCFormAfterShow', __fcOnUCFormAfterShow);
-	}
+	BX.addCustomEvent(BX('<?=$arParams["FORM_ID"]?>'), 'OnUCFormAfterShow', __fcOnUCFormAfterShow);
 });
-
-function commentsCtrlEnterHandler<?=$arParams["FORM_ID"]?>()
-{
-	window["UC"]["f<?=$arParams["FORM_ID"]?>"].submit();
-}
 BX.message({
 	FCCID : '<?=$arParams["mfi"]?>'
 });

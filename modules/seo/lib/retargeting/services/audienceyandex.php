@@ -3,8 +3,11 @@
 namespace Bitrix\Seo\Retargeting\Services;
 
 use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\Result;
 use \Bitrix\Seo\Retargeting\Audience;
+use Bitrix\Seo\Retargeting\Response;
 
 class AudienceYandex extends Audience
 {
@@ -13,6 +16,9 @@ class AudienceYandex extends Audience
 	const MAX_CONTACTS_PER_PACKET = 0;
 	const MIN_CONTACTS_FOR_ACTIVATING = 1000;
 	const URL_AUDIENCE_LIST = 'https://audience.yandex.ru/';
+
+	const NEW_AUDIENCE_FAKE_ID = -1;
+	const UPDATE_AUDIENCE_TIMEOUT = 60;
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',
@@ -58,15 +64,28 @@ class AudienceYandex extends Audience
 
 	public static function isSupportRemoveContacts()
 	{
-		return true;
+		return false;
 	}
 
+	/**
+	 * @param array $data Data.
+	 * @return \Bitrix\Seo\Retargeting\Response
+	 * @deprecated Not supported by Yandex
+	 * @throws NotImplementedException
+	 */
 	public function add(array $data)
 	{
 		throw new NotImplementedException('Method `AudienceYandex::Add` not implemented.');
 	}
 
-	protected function prepareContacts(array $contacts = array(), $hashed = false, $type, array $audienceData)
+	/**
+	 * Create contacts list in proper format.
+	 * @param array $contacts Contacts.
+	 * @param bool $hashed Should result be hashed.
+	 * @param string $type Type (email|phone).
+	 * @return string
+	 */
+	protected function prepareContacts(array $contacts = array(), $hashed = false, $type = '')
 	{
 		// filter by type
 		if ($type)
@@ -96,99 +115,116 @@ class AudienceYandex extends Audience
 		return $result;
 	}
 
-	protected function changeContacts($method = 'ADD', $audienceId, array $contacts = array(), $type)
+	/**
+	 * @param string $audienceId Audience id.
+	 * @param array $contacts Contacts.
+	 * @param array $options Options.
+	 * @return Result|\Bitrix\Seo\Retargeting\Response
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function importContacts($audienceId, array $contacts = array(), array $options)
 	{
+		$createNewAudience = ($audienceId == static::NEW_AUDIENCE_FAKE_ID);
 		$audienceData = $this->getById($audienceId);
 		if (!$audienceData)
 		{
-			return new ResponseYandex();
+			$result = new Result();
+			$result->addError(new Error('Audience '.$audienceId.' not found'));
+			return $result;
 		}
-		if ($audienceData['STATUS'] === 'is_processed')
+
+		$hashed = (bool)$audienceData['HASHED'];
+		$payload = $this->prepareContacts($contacts, $hashed, $options['type']);
+
+		if ($createNewAudience)
 		{
-			$response = new ResponseYandex();
-			$response->addError(new Error('Cant update processed segment.'));
-			return $response;
+			$name = $options['audienceName'] ?: Loc::getMessage('SEO_RETARGETING_SERVICE_AUDIENCE_NAME_TEMPLATE', ['#DATE#' => FormatDate('j F')]);
+			$response = $this->getRequest()->send(array(
+				'methodName' => 'retargeting.audience.add',
+				'parameters' => array(
+					'name' => $name,
+					'hashed' => $hashed ? 1 : 0,
+					'contacts' => $payload
+				),
+				'timeout' => static::UPDATE_AUDIENCE_TIMEOUT
+			));
+		}
+		else
+		{
+			$response = $this->getRequest()->send(array(
+				'methodName' => 'retargeting.audience.contacts.rewrite',
+				'parameters' => array(
+					'audienceId' => $audienceId,
+					'contacts' => $payload
+				),
+				'timeout' => static::UPDATE_AUDIENCE_TIMEOUT
+			));
 		}
 
-		$hashed = (bool) $audienceData['HASHED'];
-
-		// https://tech.yandex.ru/audience/doc/segments/modifyuploadingdata-docpage/
-		$modificationType = $method == 'DELETE' ? 'subtraction' : 'addition';
-
-		$response = $this->getRequest()->send(array(
-			'method' => 'POST',
-			'endpoint' => 'segment/' . $audienceId . '/modify_data?modification_type=' . $modificationType,
-			'fields' => array(
-				'file' => array(
-					'filename' => 'data.csv',
-					'contentType' => 'application/octet-stream',
-					'content' => $this->prepareContacts($contacts, $hashed, $type, $audienceData)
-				)
-			),
-		));
-
 		return $response;
 	}
 
-	public function importContacts($audienceId, array $contacts = array(), array $options)
-	{
-		$response = $this->changeContacts(
-			'ADD',
-			$audienceId,
-			$contacts,
-			$options['type']
-		);
-
-		return $response;
-	}
-
+	/**
+	 * Remove contacts from audience
+	 * @param string $audienceId Audience id.
+	 * @param array $contacts Contacts.
+	 * @param array $options Options.
+	 * @deprecated Not supported by Yandex anymore
+	 * @return \Bitrix\Seo\Retargeting\Response|null
+	 */
 	public function removeContacts($audienceId, array $contacts = array(), array $options)
 	{
-		$response = $this->changeContacts(
-			'DELETE',
-			$audienceId,
-			$contacts,
-			$options['type']
-		);
-
+		$response = Response::create(static::TYPE_CODE);
 		return $response;
 	}
 
+	/**
+	 * Audiences list
+	 * @return \Bitrix\Seo\Retargeting\Response
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function getList()
 	{
-		// https://tech.yandex.ru/audience/doc/segments/segments-docpage/
-
 		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'segments',
+			'methodName' => 'retargeting.audience.list',
+			'parameters' => array()
 		));
-
-		if ($response->isSuccess())
+		$data = $response->getData();
+		if (is_array($data['segments']))
 		{
-			$filteredData = array();
-			while($row = $response->fetch())
-			{
-				if ($row['TYPE'] != 'uploading') // we can upload only in auditory of this type
-				{
-					continue;
-				}
-				if (!isset($row['CONTENT_TYPE']) || $row['CONTENT_TYPE'] != 'crm')
-				{
-					continue;
-				}
-
-				$filteredData[] = $row;
-			}
-
-			$response->setData($filteredData);
+			$data = array_values(array_filter($data['segments'], function ($item) {
+				return (
+					$item['type'] == 'uploading' && // based on uploaded data
+					$item['content_type'] == 'crm' && // Data from crm
+					$item['status'] != 'is_processed' // Can't use segments which are processed right now
+				);
+			}));
+		}
+		else
+		{
+			$data = [];
 		}
 
+		$data = $this->addNewAudienceValue($data);
+		$response->setData($data);
 		return $response;
 	}
 
-	public function getAudienceIdFromRow(array $row = null)
+	/**
+	 * "New audience" value in audiences list
+	 * @param array $data Audiences list.
+	 * @return array
+	 */
+	protected function addNewAudienceValue($data)
 	{
-		$key = 'ID';
-		return (is_array($row) && $row[$key]) ? $row[$key] : null;
+		array_unshift($data, [
+			'name' => Loc::getMessage("SEO_RETARGETING_SERVICE_AUDIENCE_YANDEX_ADD"),
+			'id' => static::NEW_AUDIENCE_FAKE_ID,
+			'valid_unique_quantity' => '',
+			'matched_quantity' => '',
+			'status' => '',
+			'hashed' => false,
+		]);
+		return $data;
 	}
 }

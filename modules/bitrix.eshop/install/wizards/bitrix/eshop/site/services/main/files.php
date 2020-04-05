@@ -29,7 +29,9 @@ function ___writeToAreasFile($path, $text)
 if (COption::GetOptionString("main", "upload_dir") == "")
 	COption::SetOptionString("main", "upload_dir", "upload");
 
-if(COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) == "N" || WIZARD_INSTALL_DEMO_DATA)
+if (COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) == "N"
+	|| WIZARD_INSTALL_DEMO_DATA
+)
 {
 	if(file_exists(WIZARD_ABSOLUTE_PATH."/site/public/".LANGUAGE_ID."/"))
 	{

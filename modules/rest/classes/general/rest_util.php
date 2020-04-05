@@ -191,7 +191,7 @@ class CRestUtil
 							"#USER_NAME#" => $userName,
 							"#APP_NAME#" => $appInfo['APP_NAME'],
 							"#APP_CODE#" => $appInfo['CODE'],
-							"#APP_LINK#" => '/marketplace/detail/'.urlencode($appInfo['CODE']).'/',
+							"#APP_LINK#" => \Bitrix\Rest\Marketplace\Url::getApplicationDetailUrl(urlencode($appInfo['CODE'])),
 						)),
 				);
 				\CIMNotify::Add($messageFields);
@@ -322,17 +322,17 @@ class CRestUtil
 
 		if(strlen($fileId) > 0)
 		{
-			$dbRes = CFile::GetList(array(), array('@ID' => $fileId));
-			while($arRes = $dbRes->Fetch())
+			$files = \CFile::GetList(array(), array('@ID' => $fileId));
+			while($file = $files->Fetch())
 			{
 				if($resizeParam !== false)
 				{
-					$resizeResult = \CFile::ResizeImageGet($arRes, $resizeParam, BX_RESIZE_IMAGE_PROPORTIONAL_ALT, false, false, false);
-					$fileSrc[$arRes['ID']] = \CHTTP::URN2URI($resizeResult['src']);
+					$resizeResult = \CFile::ResizeImageGet($file["ID"], $resizeParam, BX_RESIZE_IMAGE_PROPORTIONAL_ALT, false, false, false);
+					$fileSrc[$file['ID']] = \CHTTP::URN2URI($resizeResult['src']);
 				}
 				else
 				{
-					$fileSrc[$arRes['ID']] = \CHTTP::URN2URI(CFile::GetFileSrc($arRes));
+					$fileSrc[$file['ID']] = \CHTTP::URN2URI(\CFile::GetFileSrc($file));
 				}
 			}
 		}
@@ -998,6 +998,7 @@ class CRestUtil
 		{
 			$type = 'ID';
 		}
+		$appType = \Bitrix\Rest\AppTable::getAppType($appInfo['CODE'], $appInfo['VERSION']);
 
 		$url = '';
 		if(
@@ -1005,31 +1006,20 @@ class CRestUtil
 			&& empty($appInfo['MENU_NAME_DEFAULT'])
 			&& empty($appInfo['MENU_NAME_LICENSE'])
 			|| $appInfo['ACTIVE'] === \Bitrix\Rest\AppTable::INACTIVE
+			|| $appType === \Bitrix\Rest\AppTable::TYPE_CONFIGURATION
 		)
 		{
-			$url = 'marketplace/detail/'.urlencode($appInfo['CODE']).'/';
+			$url = \Bitrix\Rest\Marketplace\Url::getApplicationDetailUrl(urlencode($appInfo['CODE']));
 		}
 		elseif($appInfo['CODE'] === static::BITRIX_1C_APP_CODE)
 		{
-			$url = 'onec/';
+			$url = SITE_DIR.'onec/';
 		}
 		else
 		{
-			$url = str_replace(
-				'#id#',
-				urlencode($appInfo[$type]),
-				ltrim(
-					\Bitrix\Main\Config\Option::get(
-						'rest',
-						'application_page_tpl',
-						'/marketplace/app/#id#/'
-					),
-					'/'
-				)
-			);
+			$url = \Bitrix\Rest\Marketplace\Url::getApplicationUrl(urlencode($appInfo[$type]));
 		}
-
-		return SITE_DIR.$url;
+		return $url;
 	}
 
 	public static function isSlider()

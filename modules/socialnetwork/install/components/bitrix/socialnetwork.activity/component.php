@@ -304,6 +304,8 @@ if ($arUser = $dbUser->Fetch())
 				$arEvents["TITLE_TEMPLATE"] = "";
 				$arEvents["URL"] = "";
 
+				$skip = false;
+
 				switch ($arEvents["TITLE"])
 				{
 					case "join":
@@ -384,8 +386,13 @@ if ($arUser = $dbUser->Fetch())
 
 						break;
 					default:
-						continue;
+						$skip = true;
 						break;
+				}
+
+				if ($skip)
+				{
+					continue;
 				}
 			}
 

@@ -4,7 +4,11 @@
 	flex-direction: row;
 	flex-wrap: nowrap;
 	align-items: flex-start;
-	margin: 10px 0;
+	margin: 10px 0 5px;
+	outline: none;
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: transparent;
+	position: relative;
 }
 .bx-im-message.bx-im-message-type-self {
 	flex-direction: row-reverse;
@@ -13,7 +17,7 @@
 }
 
 .bx-im-dialog-list-item+.bx-im-dialog-list-item .bx-im-message {
-	margin-top: -5px;
+	margin-top: 0;
 }
 
 .bx-im-message-without-avatar {
@@ -25,6 +29,7 @@
 .bx-im-message-without-menu.bx-im-message-type-opponent {
 	margin-right: 30px;
 }
+
 /* endregion */
 
 /* region 02. avatar */
@@ -59,9 +64,10 @@
 /* endregion */
 
 .bx-im-message-box {
-	overflow: hidden;
+	/*overflow: hidden; comment for reaction*/
 }
 
+.bx-im-message-command-wrap { display: inline-block; }
 .bx-im-message-command { border-bottom: 1px dashed #2067B0; cursor: pointer; color: #2067B0; display: inline-block; }
 .bx-im-message-command-data { display: none; }
 
@@ -76,13 +82,13 @@
 
 .bx-im-message-sending {
 	display: inline-block;
-	width: 21px;
-	height: 21px;
-	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAACP0lEQVQ4T63UPWhTURQH8P+5SZM2qVSoOjtkKEaF5AW3arBQ+4KTWHWRurTS3KRdHBRFih+LFFGb16IOghFRu0pfiFbqJpgPiFQcqpubSFMNrW1yj7zWlCZWY2PeeM85Pw7n3HcJNT5fj+yyCfaUWDgItATwx4wZe/W3Mtos2NEl291OXAYoQoommNgGwgdi3qMIK8QYYMat+eLK9U8v7+Wrjd/QgB4+zhD9YH6cThgPAXB1UTA4Yl9o+nJK2HlIEa5kpoznG3MqUI8edbYRx9NTsRO1xlKOa6FIklXpXCYxkSufVaDe3l7H7OTk8r+C67Auk0y4U+5405luFbXyNV1mlxa5c3Zm/HvDUN8ReVoIeNOmcb5hqLWP7VDzKdNoaRj6awTjAuppY9GQvE+K3pAvJA/aWdBbc+x1PQvaWKOF5BAUQH492i+gAinTONsAdK1Tf3fksBB8LJUwIv+N6uEJBX6yOlNNl8vbFne6ZmZGivXCu4Nnmne4Wr+mpmKuVTQQkjeUolwmEXtUL6r1yD6AOtKJ2IW1TrWBNtrV9CJlGgfqRQN6JLP8Od+Zy8UL61fKH5JHiTGUNo3urcKaLqcJNJoyY6ZVW3FP93YN7nc6xOhWYL8upxnFaNa8+37TV8o6tDoWjKslhZvfhHg2Z479qO7cWkp7s/skEQ0DuFju8I+oFfAGw63NLXSJgGEGHoDQBIV3ENgH5iKR6GOF2ysqfy2XjBdqvvzVCT598JCNbR4W7CZFhRLRXLbG3/cTppTaSIGxlgcAAAAASUVORK5CYII=');
+	width: 20px;
+	height: 20px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M1%2010c0%204.9706%204.0294%209%209%209s9-4.0294%209-9-4.0294-9-9-9c-2.4048%200-4.5893.9432-6.2038%202.4798%22%20stroke%3D%22%2380868E%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
 	background-repeat: no-repeat;
 	-webkit-animation: bx-im-message-sending .8s linear infinite;
 	animation: bx-im-message-sending .8s linear infinite;
-	margin-top: 15px;
+	margin-top: 16px;
 	margin-left: 7px;
 	opacity: 1;
 	position: absolute;
@@ -163,7 +169,7 @@
 	opacity: .8;
 	transition: opacity .1s ease-out;
 	cursor: pointer;
-	margin-top: 16px;
+	margin-top: 17px;
 }
 .bx-im-message-retry-icon:hover .bx-im-message-retry-icon:hover {
 	opacity: 1;
@@ -223,6 +229,7 @@
 	width: 33px;
 	height: 52px;
 	text-align: center;
+	position: relative;
 }
 
 .bx-im-message-menu-icon {
@@ -243,4 +250,104 @@
 .bx-im-message:hover .bx-im-message-menu-icon:hover {
 	opacity: 1;
 }
+
+/*
+.bx-messenger-content-item-menu-with-apps {  background-position: 0 -30px;  opacity: .8;  }
+.bx-messenger-content-item-menu-with-apps:hover {  background-position: 0 -15px;  }
+.bx-messenger-content-item:hover .bx-messenger-content-item-menu { opacity: 0.6 }
+.bx-messenger-content-item:hover .bx-messenger-content-item-menu-with-apps { opacity: .8 }
+.bx-messenger-content-item-menu-hover .bx-messenger-content-item-menu { opacity: 1!important; }
+.bx-im-message-type-opponent .bx-messenger-content-item-menu { float: right; margin-left: 0; margin-right: -42px; }
+.bx-messenger-chat-guest .bx-messenger-content-item-menu { display: none; }
+*/
+
 /* endregion */
+
+/* region 05. reply */
+.bx-im-message-reply {
+	flex-shrink: 0;
+	width: 0;
+	height: 52px;
+	text-align: center;
+	position: relative;
+}
+
+.bx-im-message-reply-left {
+	position: absolute;
+	left: -60px;
+}
+.bx-im-message-type-other .bx-im-message-reply-left {
+	position: relative;
+	left: -60px;
+}
+.bx-im-message-type-other.bx-im-message-without-avatar .bx-im-message-reply-left {
+	position: relative;
+	left: -65px;
+}
+
+.bx-im-message-reply-right {
+	position: absolute;
+	right: -25px;
+}
+.bx-im-message-type-other .bx-im-message-reply-right {
+	right: -40px;
+}
+.bx-im-message-without-avatar .bx-im-message-reply-right {
+	right: 0;
+}
+.bx-im-message-type-other.bx-im-message-without-avatar .bx-im-message-reply-right {
+	right: -30px;
+}
+
+.bx-im-message-reply-icon {
+	position: absolute;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2227%22%20height%3D%2223%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%20%20%3Cpath%20d%3D%22M26.532%2022.975c-.416-1.804-1.298-3.169-2.312-4.521a11.577%2011.577%200%200%200-3.603-3.178%2010.267%2010.267%200%200%200-4.138-1.29c-.351-.03-.7-.04-1.041-.03-.325.009-1.338-.037-1.524%200v4.996L6.28%2013.419.828%209.476l5.453-4.033L13.914%200v4.975c.178.043%201.721.279%202.264.468%201.144.398%202.192.978%203.175%201.61a16.635%2016.635%200%200%201%204.803%204.685%2015.385%2015.385%200%200%201%202.376%205.759c.37%201.979.419%203.677%200%205.478z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22/%3E%0A%3C/svg%3E%0A');
+	background-repeat: no-repeat;
+	background-color: rgba(7, 5, 27, 0.62);
+	background-position: center center;
+	background-size: 16px;
+	cursor: pointer;
+	border-radius: 50%;
+	margin-top: 10px;
+	margin-left: 15px;
+	animation: bx-im-message-reply-icon-show .5s linear 1;
+}
+
+@keyframes bx-im-message-reply-icon-show {
+	0% {
+		opacity: 0;
+		transform: scale(0);
+	}
+
+	20% {
+		opacity: 0;
+		transform: scale(0);
+	}
+
+	40% {
+		opacity: 0.5;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 1;
+		transform: scale(1.4);
+	}
+
+	60% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* endregion */
+
+

@@ -17,6 +17,7 @@ class Types
 	const RANGE = "RANGE";
 	const TEXTAREA = "TEXTAREA";
 	const CUSTOM = "CUSTOM";
+	const IMAGE = "IMAGE";
 
 
 	/**

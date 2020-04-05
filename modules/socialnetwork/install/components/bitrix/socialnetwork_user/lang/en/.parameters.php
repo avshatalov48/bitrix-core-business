@@ -344,4 +344,5 @@ $MESS["SONET_LOG_COMMENT_THUMBNAIL_SIZE"] = "Activity Stream avatar size (for us
 $MESS["SONET_LOG_NEW_TEMPLATE"] = "Use novelty Activity Stream template";
 $MESS["SONET_LOG_AUTH"] = "Don't require authentication to view Activity Stream";
 $MESS["BPC_USE_CUT"] = "Use [CUT] for messages";
+$MESS["SONET_USER_ALLOWALL_USER_PROFILE_FIELDS"] = "Do not limit the set of user profile fields";
 ?>

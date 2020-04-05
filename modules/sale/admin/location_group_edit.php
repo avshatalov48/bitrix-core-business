@@ -7,8 +7,9 @@ use Bitrix\Sale\Location\Admin\GroupHelper as Helper;
 use Bitrix\Sale\Location\Admin\SearchHelper;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 Loc::loadMessages(__FILE__);
 

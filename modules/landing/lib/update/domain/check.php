@@ -48,7 +48,8 @@ class Check extends Stepper
 					'ID'
 				],
 				'filter' => [
-					'DOMAIN_ID' => $domain['ID']
+					'DOMAIN_ID' => $domain['ID'],
+					'CHECK_PERMISSIONS' => 'N'
 				]
  			]);
 			if (!$resSite->fetch())

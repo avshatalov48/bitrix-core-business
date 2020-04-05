@@ -93,7 +93,11 @@ $server = $context->getServer();
 $request = $context->getRequest();
 
 // process
-if ($request->get('start') == 'Y' && $server->getRequestMethod() == 'POST')
+if (
+	$request->get('start') == 'Y' &&
+	$server->getRequestMethod() == 'POST' &&
+	check_bitrix_sessid()
+)
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_js.php');
 

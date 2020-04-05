@@ -1,0 +1,49 @@
+.bx-im-element-file {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	margin-left: -4px;
+	cursor: pointer;
+	min-width: 135px;
+}
+.bx-im-message-content-name + .bx-im-message-content-body .bx-im-element-file:first-child {
+	margin-top: 5px;
+}
+.bx-im-dialog-list-item + .bx-im-dialog-list-item .bx-im-element-file:first-child {
+	margin-top: 0;
+}
+.bx-im-element-file + .bx-im-message-content-body-with-text {
+	display: block;
+	margin-top:7px
+}
+.bx-im-element-file + .bx-im-message-content-body-without-text .bx-im-message-content-params {
+	margin-top: -21px;
+}
+
+.bx-im-element-file + .bx-im-element-file {
+	margin-top: 10px;
+}
+
+.bx-im-element-file-icon {
+	display: flex;
+	flex-shrink: 0;
+	padding-right: 7px;
+}
+
+.bx-im-element-file-block {
+	overflow: hidden;
+}
+
+.bx-im-element-file-name {
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+.bx-im-element-file-size {
+	color: #717171;
+	font-size: 12px;
+}
+
+@media screen and (max-width: 320px) {
+	.bx-im-element-file { max-width: 210px; }
+}

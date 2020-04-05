@@ -151,6 +151,20 @@
 
 		isShow ? Helper.titleEditor.disable() : Helper.titleEditor.enable();
 	};
+	Letter.prototype.applyChanges = function()
+	{
+		var form = this.context.getElementsByTagName('form');
+		if (form && form[0])
+		{
+			form[0].appendChild(BX.create('input', {
+				attrs: {
+					type: "hidden",
+					name: "apply",
+					value: "Y"
+				}
+			}));
+		}
+	};
 
 	BX.Sender.Letter = new Letter();
 

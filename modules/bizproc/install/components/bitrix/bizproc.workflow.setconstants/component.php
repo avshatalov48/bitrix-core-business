@@ -123,11 +123,6 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 				$arRequest,
 				$arErrorsTmp
 			);
-			$arResult["CONSTANTS"][$variableKey]['Default_printable'] = $arResult["DocumentService"]->GetFieldInputValuePrintable(
-				$arResult["DOCUMENT_TYPE"],
-				$arResult["CONSTANTS"][$variableKey],
-				$arResult["CONSTANTS"][$variableKey]["Default"]
-			);
 
 			if (count($arErrorsTmp) > 0)
 			{
@@ -164,8 +159,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			{
 				$APPLICATION->RestartBuffer();
 				echo CUtil::PhpToJSObject(array('SUCCESS' => true));
-				CMain::FinalActions();
-				die;
+				\Bitrix\Main\Application::getInstance()->end();
 			}
 
 			LocalRedirect($arResult['BackUrl']);
@@ -177,8 +171,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			{
 				$APPLICATION->RestartBuffer();
 				echo CUtil::PhpToJSObject(array('ERROR_MESSAGE' => $arResult["ErrorMessage"]));
-				CMain::FinalActions();
-				die;
+				\Bitrix\Main\Application::getInstance()->end();
 			}
 		}
 	}

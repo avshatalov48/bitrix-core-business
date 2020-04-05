@@ -1,0 +1,32 @@
+<?
+$MESS["SAE_NO_SITE_PLAN"] = "Не вказано сайт плану";
+$MESS["SAE_NO_USER"] = "Не вказано користувача";
+$MESS["SAE_NO_PLAN"] = "Не вказано план";
+$MESS["SAE_NO_DATE_CREATE"] = "Не вказана дату створення";
+$MESS["SAE_AFFILIATE_ALREADY_EXISTS"] = "Афіліат для користувача №#USER_ID# вже існує на сайті #SITE_ID#";
+$MESS["SAE_ERROR_SAVE_AFF"] = "Помилка збереження афіліата";
+$MESS["SAE_TITLE_UPDATE_AFF"] = "Змінення афіліат № #ID#";
+$MESS["SAE_TITLE_ADD_AFF"] = "Додавання нового афіліату";
+$MESS["SAE_AFF_LIST"] = "Список афіліатів";
+$MESS["SAE_AFF_ADD"] = "Додати афіліата";
+$MESS["SAE_AFF_DELETE"] = "Видалити афіліата";
+$MESS["SAE_AFF_DELETE_CONF"] = "Ви впевнені, що хочете видалити цього афіліата?";
+$MESS["SAE_AFF_TAB"] = "Афіліат";
+$MESS["SAE_AFF_TAB_TITLE"] = "Параметри афіліата";
+$MESS["SAE_DATE_UPDATE"] = "Дата останнього змінення:";
+$MESS["SAE_SITE"] = "Сайт:";
+$MESS["SAE_USER"] = "Користувач:";
+$MESS["SAE_PROFILE"] = "Перейти до профілю користувача";
+$MESS["SAE_AFFILIATE_REG"] = "Афіліат, через якого зареєструвався:";
+$MESS["SAE_NO_AFFILIATE"] = "Афіліата не знайдено";
+$MESS["SAE_WAIT"] = "чекайте";
+$MESS["SAE_PLAN"] = "План:";
+$MESS["SAE_ACTIVE"] = "Активність:";
+$MESS["SAE_DATE_REG"] = "Дата реєстрації (";
+$MESS["SAE_PAYED_SUM"] = "Виплачена сума:";
+$MESS["SAE_PENDING_SUM"] = "Нарахована сума:";
+$MESS["SAE_LAST_CALC"] = "Дата останньої калькуляції (";
+$MESS["SAE_FIX_PLAN"] = "Фіксувати план";
+$MESS["SAE_AFF_SITE"] = "Сайт афіліата";
+$MESS["SAE_AFF_DESCRIPTION"] = "Опис афіліата";
+?>

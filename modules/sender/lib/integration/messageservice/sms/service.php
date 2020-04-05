@@ -36,13 +36,13 @@ class Service
 		{
 			if (!$item['canUse'])
 			{
-				continue;
+			//	continue;
 			}
 
 			$item['from'] = static::getSenderFromList($item['id']);
 			if (count($item['from']) == 0)
 			{
-				continue;
+			//	continue;
 			}
 
 			$result[] = $item;
@@ -61,6 +61,10 @@ class Service
 		$list = array();
 		foreach (self::getProviders() as $item)
 		{
+			if (!$item['canUse'] || count($item['from']) == 0)
+			{
+				continue;
+			}
 			foreach ($item['from'] as $number)
 			{
 				$id = $item['id'] . ':' . $number['id'];
@@ -193,5 +197,27 @@ class Service
 		}
 
 		return $info;
+	}
+
+	public static function getFormattedOutputNumber($value)
+	{
+		static $numbers;
+		if (null === $numbers)
+		{
+			$numbers = [];
+			if (static::canUse())
+			{
+				$providers = static::getProviders();
+				foreach ($providers as $provider)
+				{
+					foreach ($provider['from'] as $number)
+					{
+						$numbers[$provider['id'] . ':'. $number['id']] = $number['name'];
+					}
+				}
+			}
+		}
+
+		return $numbers[$value] ?: $value;
 	}
 }

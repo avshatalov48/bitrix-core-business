@@ -58,7 +58,7 @@
 
 		getFormat: function()
 		{
-			return BX.date.convertBitrixFormat(BX.message(this.time ? "FORMAT_DATETIME" : "FORMAT_DATE"));
+			return BX.date.convertBitrixFormat(BX.Landing.Loc.getMessage(this.time ? "FORMAT_DATETIME" : "FORMAT_DATE"));
 		},
 
 		reset: function()
@@ -71,10 +71,18 @@
 		 */
 		setValue: function(value)
 		{
-			this.input.innerText = BX.date.format(this.getFormat(), new Date(value * 1000));
-			this.hiddenInput.value = this.formatValue(value);
-			this.onValueChangeHandler(this);
-			fireCustomEvent(this, "BX.Landing.UI.Field:change", [this.getValue()]);
+			if (value)
+			{
+				this.input.innerText = BX.date.format(this.getFormat(), new Date(value * 1000));
+				this.hiddenInput.value = this.formatValue(value);
+				this.onValueChangeHandler(this);
+
+				var event = new BX.Event.BaseEvent({
+					data: {value: this.getValue()},
+					compatData: [this.getValue()],
+				});
+				this.emit('change', event);
+			}
 		},
 
 		/**
@@ -116,6 +124,23 @@
 		getValue: function()
 		{
 			return this.formatValue(this.formatDateToValue(this.hiddenInput.value));
+		},
+
+		clone: function(fieldData)
+		{
+			var data = Object.assign(
+				{},
+				fieldData || this.data,
+				{content: (new Date()).getTime()}
+			);
+			var field = new this.constructor(data);
+
+			if (this.type)
+			{
+				field.type = this.type;
+			}
+
+			return field;
 		}
 	}
 })();

@@ -274,19 +274,16 @@ RatingLike.Vote = function(likeId, voteAction)
 
 RatingLike.List = function(likeId)
 {
-	if (app.enableInVersion(2))
-	{
-		app.openTable({
-			callback: function() {},
-			url: (BX.message('MobileSiteDir') ? BX.message('MobileSiteDir') : '/') + 'mobile/index.php?mobile_action=get_likes&RATING_VOTE_TYPE_ID=' + BXRL[likeId].entityTypeId + '&RATING_VOTE_ENTITY_ID=' + BXRL[likeId].entityId + '&URL=' + BX.message('RVPathToUserProfile'),
-			markmode: false,
-			showtitle: false,
-			modal: false,
-			cache: false,
-			outsection: false,
-			cancelname: BX.message('RVListBack')
-		});
-	}
+	app.openTable({
+		callback: function() {},
+		url: (BX.message('MobileSiteDir') ? BX.message('MobileSiteDir') : '/') + 'mobile/index.php?mobile_action=get_likes&RATING_VOTE_TYPE_ID=' + BXRL[likeId].entityTypeId + '&RATING_VOTE_ENTITY_ID=' + BXRL[likeId].entityId + '&URL=' + BX.message('RVPathToUserProfile'),
+		markmode: false,
+		showtitle: false,
+		modal: false,
+		cache: false,
+		outsection: false,
+		cancelname: BX.message('RVListBack')
+	});
 
 	return false;
 };

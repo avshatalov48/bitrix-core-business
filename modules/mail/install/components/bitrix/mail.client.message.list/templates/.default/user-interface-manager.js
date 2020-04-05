@@ -93,7 +93,7 @@
 			);
 
 			this.trackActionPanelStyleChange();
-			BX.addCustomEvent(window, "onAfterPopupShow", function (popupWindow)
+			BX.addCustomEvent(window, 'onPopupShow', function (popupWindow)
 			{
 				if (!(popupWindow.uniquePopupId.indexOf('menu-popup-main-grid-actions-menu-') == 0
 					&& popupWindow.getPopupContainer()
@@ -119,18 +119,18 @@
 			{
 				return;
 			}
-			crmBind.remove();
+			crmBind.parentNode.removeChild(crmBind);
 			var firstChild = bindingWrapper.firstChild;
 			var lastChild = bindingWrapper.lastChild;
 			if (firstChild && firstChild.dataset
 				&& firstChild.dataset.role === 'comma-separator')
 			{
-				firstChild.remove();
+				firstChild.parentNode.removeChild(firstChild);
 			}
 			if (lastChild && lastChild.dataset
 				&& lastChild.dataset.role === 'comma-separator')
 			{
-				lastChild.remove();
+				lastChild.parentNode.removeChild(lastChild);
 			}
 			if (bindingWrapper.childElementCount === 0)
 			{
@@ -473,19 +473,19 @@
 		updateLeftMenuCounter: function ()
 		{
 			var unseen = this.getTotalUnseen();
-			if (typeof B24 === "object" && typeof B24.updateCounters === "function" && unseen > 0)
+			if (typeof top.B24 === "object" && typeof top.B24.updateCounters === "function" && unseen > 0)
 			{
-				B24.updateCounters({mail_unseen: unseen});
+				top.B24.updateCounters({mail_unseen: unseen});
 			}
-			if (typeof BXIM === "object" && typeof BXIM.notify === "object")
+			if (typeof top.BXIM === "object" && typeof top.BXIM.notify === "object")
 			{
-				if (typeof BXIM.notify.counters === "object")
+				if (typeof top.BXIM.notify.counters === "object")
 				{
-					BXIM.notify.counters.mail_unseen = unseen;
+					top.BXIM.notify.counters.mail_unseen = unseen;
 				}
-				if (typeof BXIM.notify.updateNotifyMailCount === "function")
+				if (typeof top.BXIM.notify.updateNotifyMailCount === "function")
 				{
-					BXIM.notify.updateNotifyMailCount(unseen);
+					top.BXIM.notify.updateNotifyMailCount(unseen);
 				}
 			}
 		},

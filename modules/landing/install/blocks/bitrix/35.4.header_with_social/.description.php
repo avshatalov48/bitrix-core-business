@@ -11,6 +11,7 @@ return array(
 //		todo: add socials presets and go!
 		'name' => Loc::getMessage('LANDING_BLOCK_35.4.HEADER_NAME'),
 		'section' => array('menu'),
+		'dynamic' => false,
 	),
 	'cards' => array(
 		'.landing-block-node-card' => array(
@@ -105,11 +106,11 @@ return array(
 		),
 		'.landing-block-node-card-title-style' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.4.HEADER_NODES_LANDINGBLOCK_CARD_TITLE'),
-			'type' => 'typo',
+			'type' => 'typo-link',
 		),
 		'.landing-block-node-card-text-style' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.4.HEADER_NODES_LANDINGBLOCKNODETEXT'),
-			'type' => 'typo',
+			'type' => 'typo-link',
 		),
 		'.landing-block-node-card-icon-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.4.HEADER_NODES_LANDINGBLOCKNODE_ICON'),

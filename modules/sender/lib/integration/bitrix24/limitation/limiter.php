@@ -98,7 +98,7 @@ class Limiter
 			)
 			->setParameter(
 				'globalHelpUri',
-				Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_MONTH_HELP_URL') ?: Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_HELP_URL')
+				'javascript:BX.Helper.show("redirect=detail&code=6904325")'
 			)
 			->setParameter('percentage', self::getMonthlyLimitPercentage());
 
@@ -128,7 +128,7 @@ class Limiter
 					return $counter->getCurrent();
 				}
 			)
-			->setParameter('setupUri', Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_HELP_URL'))
+			->setParameter('setupUri', 'javascript:BX.Helper.show("redirect=detail&code=6846227")')
 			->setParameter('setupCaption', Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_DETAILS'));
 	}
 }

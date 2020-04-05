@@ -31,7 +31,6 @@ class SenderCallTextEditorComponent extends CBitrixComponent
 	{
 		$this->arResult['ACTION_URL'] = $this->getPath() . '/ajax.php';
 		$this->arResult['VALUE'] = htmlspecialcharsback($this->arParams['VALUE']);
-		$this->arResult['COUNT'] = count($this->arParams['VALUE']);
 		$this->arResult['SPEECH_RATES'] = SpeechRate::getList();
 		$this->arResult['SPEECH_RATE_INTERVAL'] = SpeechRate::getBaseInterval();
 

@@ -7,12 +7,14 @@
  */
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Page\Asset;
-use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
-
 use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
 use Bitrix\Sender\Connector\ResultView;
 use Bitrix\Sender\Integration\Sender\Holiday;
@@ -20,6 +22,7 @@ use Bitrix\Crm\ContactTable as CrmContactTable;
 use Bitrix\Crm\CompanyTable as CrmCompanyTable;
 use Bitrix\Crm\PhaseSemantics;
 use Bitrix\Crm\Category\DealCategory;
+use Bitrix\Sender\Recipient\Type;
 
 Loc::loadMessages(__FILE__);
 
@@ -29,6 +32,14 @@ Loc::loadMessages(__FILE__);
  */
 class Client extends ConnectorBaseFilter
 {
+	const PRODUCT_SOURCE_ORDERS_ALL = "ORDERS_ALL";
+	const PRODUCT_SOURCE_ORDERS_PAID = "ORDERS_PAID";
+	const PRODUCT_SOURCE_ORDERS_UNPAID = "ORDERS_UNPAID";
+	const PRODUCT_SOURCE_DEALS_ALL = "DEALS_ALL";
+	const PRODUCT_SOURCE_DEALS_PROCESS = "DEALS_PROCESS";
+	const PRODUCT_SOURCE_DEALS_SUCCESS = "DEALS_SUCCESS";
+	const PRODUCT_SOURCE_DEALS_FAILURE = "DEALS_FAILURE";
+
 	private $crmEntityFilter = null;
 
 	/**
@@ -63,46 +74,51 @@ class Client extends ConnectorBaseFilter
 
 		if (!$clientType || $clientType === \CCrmOwnerType::ContactName)
 		{
-			$query = CrmContactTable::query();
-			$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::ContactName));
-			$this->addCrmEntityReferences($query);
-			$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Contact));
-			$query->registerRuntimeField(new Entity\ExpressionField('CRM_COMPANY_ID', 0));
-			$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', '%s', ['ID']));
-			$query->setSelect([
-				'NAME', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
-				'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID',
-			]);
-			$queries[] = $query;
+			$queryCollection = $this->prepareQueryCollection($this->getContactQuery());
+			$queries = array_merge($queries, $queryCollection);
 		}
 		if (!$clientType || $clientType === \CCrmOwnerType::CompanyName)
 		{
-			$query = CrmCompanyTable::query();
-			$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::CompanyName));
-			$this->addCrmEntityReferences($query);
-			$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Company));
-			$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', 0));
-			$query->registerRuntimeField(new Entity\ExpressionField('COMPANY_ID', '%s', ['ID']));
-			$query->setSelect([
-				'NAME' => 'TITLE', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
-				'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID' => 'COMPANY_ID',
-			]);
-			$queries[] = $query;
+			$queryCollection = $this->prepareQueryCollection($this->getCompanyQuery());
+			$queries = array_merge($queries, $queryCollection);
 		}
-
-		/*
-		ob_start();
-		foreach ($queries as $query)
-		{
-			echo "<pre>";
-			echo $query->getQuery();
-			echo "\n\n\n";
-		}
-		$s = ob_get_clean();
-		die($s);
-		*/
-
 		return $queries;
+	}
+
+	protected function getContactQuery()
+	{
+		$query = CrmContactTable::query();
+		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::ContactName));
+		$this->addCrmEntityReferences($query);
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Contact));
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_COMPANY_ID', 0));
+		$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', '%s', ['ID']));
+		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::ContactName, 'EMAIL'));
+		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::ContactName, 'PHONE'));
+		$query->setSelect([
+			'NAME', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
+			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID',
+		]);
+
+		return $query;
+	}
+
+	protected function getCompanyQuery()
+	{
+		$query = CrmCompanyTable::query();
+		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::CompanyName));
+		$this->addCrmEntityReferences($query);
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Company));
+		$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', 0));
+		$query->registerRuntimeField(new Entity\ExpressionField('COMPANY_ID', '%s', ['ID']));
+		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::CompanyName, 'EMAIL'));
+		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::CompanyName, 'PHONE'));
+		$query->setSelect([
+			'NAME' => 'TITLE', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
+			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID' => 'COMPANY_ID',
+		]);
+
+		return $query;
 	}
 
 	protected function addCrmEntityReferences(Entity\Query $query)
@@ -203,6 +219,311 @@ class Client extends ConnectorBaseFilter
 			);
 			$query->registerRuntimeField($item);
 		}
+
+		$filterFields = $query->getFilter();
+		if (array_key_exists('NO_PURCHASES', $filterFields))
+		{
+			$noPurchasesFilter = $filterFields['NO_PURCHASES'];
+			$productSource = $filterFields['PRODUCT_SOURCE'];
+
+			unset($filterFields['NO_PURCHASES']);
+			$query->setFilter($filterFields);
+
+			$this->addNoPurchasesFilter($query, $noPurchasesFilter, $productSource);
+		}
+	}
+
+	/**
+	 * Add filter to exclude contacts/companies who has deals/orders in $filterValue period
+	 * @param Entity\Query $query Modifying query.
+	 * @param array $filterValue No purchases period.
+	 * @param array $productSource Purchases source (deal, order, etc).
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentTypeException
+	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	protected function addNoPurchasesFilter($query, $filterValue, $productSource)
+	{
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+
+		$dealQuery = \Bitrix\Crm\DealTable::query();
+
+		if (is_array($productSource))
+		{
+			$semantics = [];
+			if (in_array(self::PRODUCT_SOURCE_DEALS_PROCESS, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::PROCESS;
+			}
+			if (in_array(self::PRODUCT_SOURCE_DEALS_SUCCESS, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::SUCCESS;
+			}
+			if (in_array(self::PRODUCT_SOURCE_DEALS_FAILURE, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::FAILURE;
+			}
+
+			if ($semantics && count($semantics) < 3)
+			{
+				$dealQuery->whereIn('STAGE_SEMANTIC_ID', $semantics);
+			}
+		}
+
+		$dealsFilter = [];
+		foreach ($filterValue as $filterCode => $date)
+		{
+			$dealsFilter[str_replace('%PURCHASE_DATE%', 'DATE_CREATE', $filterCode)] =
+				new SqlExpression($sqlHelper->convertToDbDateTime(new DateTime($date)));
+		}
+		$dealQuery->setFilter($dealsFilter);
+
+		$orderQuery = null;
+		if (Helper::isCrmSaleEnabled())
+		{
+			$orderQuery = \Bitrix\Crm\Binding\OrderContactCompanyTable::query();
+			$orderQuery->addSelect('ENTITY_ID', 'EID');
+
+			if (is_array($productSource))
+			{
+				if (in_array(self::PRODUCT_SOURCE_ORDERS_PAID, $productSource) &&
+					!in_array(self::PRODUCT_SOURCE_ORDERS_UNPAID, $productSource))
+				{
+					$orderQuery->where('ORDER.PAYED', true);
+				}
+				if (!in_array(self::PRODUCT_SOURCE_ORDERS_PAID, $productSource) &&
+					in_array(self::PRODUCT_SOURCE_ORDERS_UNPAID, $productSource))
+				{
+					$orderQuery->where('ORDER.PAYED', false);
+				}
+			}
+			$orderQuery->whereNotNull('ENTITY_ID');
+
+			$ordersFilter = [];
+			foreach ($filterValue as $filterCode => $date)
+			{
+				$ordersFilter[str_replace('%PURCHASE_DATE%', 'ORDER.DATE_INSERT', $filterCode)] =
+					new SqlExpression($sqlHelper->convertToDbDateTime(new DateTime($date)));
+			}
+			$orderQuery->setFilter($ordersFilter);
+		}
+
+		if ($query->getEntity()->getName() === 'Contact')
+		{
+			$dealQuery->addSelect('CONTACT_ID', 'EID');
+			$dealQuery->whereNotNull('CONTACT_ID');
+			if ($orderQuery)
+			{
+				$orderQuery->where('ENTITY_TYPE_ID', \CCrmOwnerType::Contact);
+			}
+		}
+		elseif ($query->getEntity()->getName() === 'Company')
+		{
+			$dealQuery->addSelect('COMPANY_ID', 'EID');
+			$dealQuery->whereNotNull('COMPANY_ID');
+			if ($orderQuery)
+			{
+				$orderQuery->where('ENTITY_TYPE_ID', \CCrmOwnerType::Company);
+			}
+		}
+
+		$dealsAreRequired = empty($productSource) ||
+			array_intersect($productSource, [self::PRODUCT_SOURCE_DEALS_PROCESS, self::PRODUCT_SOURCE_DEALS_SUCCESS, self::PRODUCT_SOURCE_DEALS_FAILURE]);
+		$ordersAreRequired = empty($productSource) ||
+			array_intersect($productSource, [self::PRODUCT_SOURCE_ORDERS_PAID, self::PRODUCT_SOURCE_ORDERS_UNPAID]);
+
+		$idSubQuery = false;
+		if ($orderQuery && $dealsAreRequired && $ordersAreRequired)
+		{
+			$idSubQuery = new SqlExpression($dealQuery->getQuery() . ' UNION ALL ' . $orderQuery->getQuery());
+		}
+		elseif ($orderQuery && $ordersAreRequired)
+		{
+			$idSubQuery = $orderQuery;
+		}
+		elseif ($dealsAreRequired)
+		{
+			$idSubQuery = $dealQuery;
+		}
+		if ($idSubQuery)
+		{
+			$query->whereNotIn('ID', $idSubQuery);
+		}
+	}
+
+	protected function prepareQueryCollection(Entity\Query $query)
+	{
+		$result = [$query];
+
+		$filterFields = $query->getFilter();
+		$productSource = $filterFields['PRODUCT_SOURCE'];
+		unset($filterFields['PRODUCT_SOURCE']);
+		$query->setFilter($filterFields);
+
+		$productFilterKey = '=PRODUCT_ID';
+		if (array_key_exists($productFilterKey, $filterFields))
+		{
+			$productIds = $filterFields[$productFilterKey];
+
+			unset($filterFields[$productFilterKey]);
+			$query->setFilter($filterFields);
+
+			$productIds = array_merge($productIds, $this->getProductSkuIds($productIds));
+			if (empty($productIds))
+			{
+				return $result;
+			}
+
+			$result = $this->getQueryCollectionForProductsFilter($query, $productIds, $productSource);
+		}
+
+		return $result;
+	}
+
+	protected function getQueryCollectionForProductsFilter(Entity\Query $query, $productIds, $productSource)
+	{
+		$orderRef = [
+			'=this.ID' => 'ref.ENTITY_ID',
+		];
+		$dealRef = [];
+
+		$entityName = $query->getEntity()->getName();
+		if ($entityName === 'Contact')
+		{
+			$orderRef['ref.ENTITY_TYPE_ID'] = new SqlExpression('?i', \CCrmOwnerType::Contact);
+			$dealRef['=this.ID'] = 'ref.CONTACT_ID';
+			$extraQuery = $this->getContactQuery();
+		}
+		elseif ($entityName === 'Company')
+		{
+			$orderRef['ref.ENTITY_TYPE_ID'] = new SqlExpression('?i', \CCrmOwnerType::Company);
+			$dealRef['=this.ID'] = 'ref.COMPANY_ID';
+			$extraQuery = $this->getCompanyQuery();
+		}
+		else
+		{
+			return [$query];
+		}
+
+		$query->whereIn('PROD_DEAL.PRODUCT_ROW.PRODUCT_ID', $productIds);
+		$semantics = [];
+
+		if (is_array($productSource))
+		{
+			if (in_array(self::PRODUCT_SOURCE_DEALS_PROCESS, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::PROCESS;
+			}
+			if (in_array(self::PRODUCT_SOURCE_DEALS_SUCCESS, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::SUCCESS;
+			}
+			if (in_array(self::PRODUCT_SOURCE_DEALS_FAILURE, $productSource))
+			{
+				$semantics[] = \Bitrix\Crm\PhaseSemantics::FAILURE;
+			}
+		}
+
+		switch (count($semantics))
+		{
+			case 1:
+				$dealRef['ref.STAGE_SEMANTIC_ID'] = new SqlExpression('?', $semantics[0]);
+				break;
+			case 2:
+				$dealRef['@ref.STAGE_SEMANTIC_ID'] = new SqlExpression('?, ?', $semantics[0], $semantics[1]);
+				break;
+		}
+
+		$query->registerRuntimeField(new Entity\ReferenceField(
+			'PROD_DEAL',
+			'\Bitrix\Crm\DealTable',
+			$dealRef,
+			array('join_type' => 'LEFT')
+		));
+
+		$extraQuery->setFilter($query->getFilter()); // apply actual user filter
+
+		$extraQuery->registerRuntimeField(new Entity\ReferenceField(
+			'PROD_CRM_ORDER',
+			'\Bitrix\Crm\Binding\OrderContactCompanyTable',
+			$orderRef,
+			array('join_type' => 'LEFT')
+		));
+
+		$extraQuery->registerRuntimeField(new Entity\ReferenceField(
+			'PROD_CRM_ORDER_PRODUCT',
+			'\Bitrix\Sale\Internals\BasketTable',
+			[
+				'=this.PROD_CRM_ORDER.ORDER_ID' => 'ref.ORDER_ID'
+			],
+			array('join_type' => 'LEFT')
+		));
+
+		$extraQuery->whereIn('PROD_CRM_ORDER_PRODUCT.PRODUCT_ID', $productIds);
+
+		if (is_array($productSource))
+		{
+			if (in_array(self::PRODUCT_SOURCE_ORDERS_PAID, $productSource) &&
+				!in_array(self::PRODUCT_SOURCE_ORDERS_UNPAID, $productSource))
+			{
+				$extraQuery->where('PROD_CRM_ORDER.ORDER.PAYED', true);
+			}
+			if (!in_array(self::PRODUCT_SOURCE_ORDERS_PAID, $productSource) &&
+				in_array(self::PRODUCT_SOURCE_ORDERS_UNPAID, $productSource))
+			{
+				$extraQuery->where('PROD_CRM_ORDER.ORDER.PAYED', false);
+			}
+		}
+
+		$result = [];
+		$dealsAreRequired = empty($productSource) ||
+			array_intersect($productSource, [self::PRODUCT_SOURCE_DEALS_PROCESS, self::PRODUCT_SOURCE_DEALS_SUCCESS, self::PRODUCT_SOURCE_DEALS_FAILURE]);
+		$ordersAreRequired = empty($productSource) ||
+			array_intersect($productSource, [self::PRODUCT_SOURCE_ORDERS_PAID, self::PRODUCT_SOURCE_ORDERS_UNPAID]);
+
+		$dataTypeId = $this->getDataTypeId();
+		if ($dataTypeId == Type::CRM_ORDER_PRODUCT_CONTACT_ID && $ordersAreRequired)
+		{
+			if ($entityName === 'Contact')
+			{
+				$result[] = $extraQuery;
+			}
+		}
+		elseif ($dataTypeId == Type::CRM_ORDER_PRODUCT_COMPANY_ID && $ordersAreRequired)
+		{
+			if ($entityName === 'Company')
+			{
+				$result[] = $extraQuery;
+			}
+		}
+		elseif ($dataTypeId == Type::CRM_DEAL_PRODUCT_CONTACT_ID && $dealsAreRequired)
+		{
+			if ($entityName === 'Contact')
+			{
+				$result[] = $query;
+			}
+		}
+		elseif ($dataTypeId == Type::CRM_DEAL_PRODUCT_COMPANY_ID && $dealsAreRequired)
+		{
+			if ($entityName === 'Company')
+			{
+				$result[] = $query;
+			}
+		}
+		else
+		{
+			if ($dealsAreRequired)
+			{
+				$result[] = $query;
+			}
+			if ($ordersAreRequired)
+			{
+				$result[] = $extraQuery;
+			}
+		}
+		return $result;
 	}
 
 	protected function getCrmReferencedEntityFilter($entityTypeName)
@@ -236,6 +557,10 @@ class Client extends ConnectorBaseFilter
 		}
 
 		$commonNames = ['ASSIGNED_BY_ID', 'EMAIL', 'PHONE', 'NAME'];
+		if ($isReferenced)
+		{
+			$commonNames = ['ASSIGNED_BY_ID'];
+		}
 		foreach ($commonNames as $commonName)
 		{
 			$value = $this->getFieldValue($commonName);
@@ -435,8 +760,103 @@ class Client extends ConnectorBaseFilter
 				\CCrmFieldMulti::PHONE,
 				\CCrmFieldMulti::EMAIL,
 				\CCrmFieldMulti::IM
-			))
+			)),
+			'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'getCommunicationTypeFilter']
 		);
+
+		$list[] = array(
+			"id" => "CLIENT_NO_PURCHASES_DATE",
+			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_NO_PURCHASES_DATE'),
+			"type" => "date",
+			"exclude" => [
+				\Bitrix\Main\UI\Filter\DateType::TOMORROW,
+				\Bitrix\Main\UI\Filter\DateType::NEXT_DAYS,
+				\Bitrix\Main\UI\Filter\DateType::NEXT_WEEK,
+				\Bitrix\Main\UI\Filter\DateType::NEXT_MONTH,
+			],
+			"default" => true,
+			'messages' => [
+				'MAIN_UI_FILTER_FIELD_SUBTYPE_NONE' => ''
+			],
+			'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'getNoPurchasesFilter']
+		);
+
+		if (Helper::isCrmSaleEnabled())
+		{
+			$list[] = array(
+				'id' => 'CLIENT_PRODUCT_ID',
+				"name" => Loc::getMessage("SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_PRODUCT_ID"),
+				'default' => true,
+				'type' => 'dest_selector',
+				'partial' => true,
+				'params' => array(
+					'multiple' => 'Y',
+					'apiVersion' => 3,
+					'context' => 'SENDER_FILTER_PRODUCT_ID',
+					'contextCode' => 'CRM',
+					'useClientDatabase' => 'N',
+					'enableAll' => 'N',
+					'enableDepartments' => 'N',
+					'enableUsers' => 'N',
+					'enableSonetgroups' => 'N',
+					'allowEmailInvitation' => 'N',
+					'allowSearchEmailUsers' => 'N',
+					'departmentSelectDisable' => 'Y',
+					'addTabCrmProducts' => 'Y',
+					'enableCrm' => 'Y',
+					'enableCrmProducts' => 'Y',
+					'convertJson' => 'Y'
+				),
+			);
+
+			$list[] = array(
+				'id' => 'CLIENT_PRODUCT_SOURCE',
+				"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE'),
+				'default' => true,
+				'type' => 'list',
+				'params' => array(
+					'multiple' => 'Y',
+				),
+				'items' => [
+					"" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_ANY'),
+					self::PRODUCT_SOURCE_ORDERS_PAID => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_ORDERS_PAID'),
+					self::PRODUCT_SOURCE_ORDERS_UNPAID => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_ORDERS_UNPAID'),
+					self::PRODUCT_SOURCE_DEALS_PROCESS => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_DEALS_PROCESS'),
+					self::PRODUCT_SOURCE_DEALS_SUCCESS => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_DEALS_SUCCESS'),
+					self::PRODUCT_SOURCE_DEALS_FAILURE => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_DEALS_FAILURE'),
+				],
+				'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'productSourceFilter']
+			);
+		}
+		else
+		{
+			$list[] = array(
+				'id' => 'DEAL_PRODUCT_ROW.PRODUCT_ID',
+				"name" => Loc::getMessage("SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_PRODUCT_ID"),
+				'default' => true,
+				'type' => 'dest_selector',
+				'partial' => true,
+				'params' => array(
+					'multiple' => 'Y',
+					'apiVersion' => 3,
+					'context' => 'SENDER_FILTER_PRODUCT_ID',
+					'contextCode' => 'CRM',
+					'useClientDatabase' => 'N',
+					'enableAll' => 'N',
+					'enableDepartments' => 'N',
+					'enableUsers' => 'N',
+					'enableSonetgroups' => 'N',
+					'allowEmailInvitation' => 'N',
+					'allowSearchEmailUsers' => 'N',
+					'departmentSelectDisable' => 'Y',
+					'addTabCrmProducts' => 'Y',
+					'enableCrm' => 'Y',
+					'enableCrmProducts' => 'Y',
+					'convertJson' => 'Y'
+				)
+			);
+		}
+
 
 		$list[] = PhaseSemantics::getListFilterInfo(
 			\CCrmOwnerType::Deal,
@@ -450,18 +870,29 @@ class Client extends ConnectorBaseFilter
 		);
 
 		$list[] = array(
+			"id" => "CONTACT_POST",
+			'type' => 'string',
+			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_POST'),
+			'params' => array('multiple' => 'Y'),
+			"default" => false
+		);
+
+		$list[] = array(
 			"id" => "ASSIGNED_BY_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_ASSIGNED_BY_ID'),
-			'type' => 'custom_entity',
-			'params' => array('multiple' => 'Y'),
-			'selector' => array(
-				'TYPE' => 'user',
-				'DATA' => array('ID' => 'assigned_by', 'FIELD_ID' => 'ASSIGNED_BY_ID'),
+			'type' => 'dest_selector',
+			'params' => array(
+				'context' => 'SENDER_FILTER_ASSIGNED_BY_ID',
+				'multiple' => 'Y',
+				'contextCode' => 'U',
+				'enableAll' => 'N',
+				'enableSonetgroups' => 'N',
+				'allowEmailInvitation' => 'N',
+				'allowSearchEmailUsers' => 'N',
+				'departmentSelectDisable' => 'Y',
+				'isNumeric' => 'Y',
+				'prefix' => 'U'
 			),
-			'sender_segment_callback' => function ($field)
-			{
-				return Helper::getFilterFieldUserSelector($field['selector']['DATA'], 'crm_segment_client');
-			},
 			"sender_segment_filter" => false,
 			"default" => false
 		);
@@ -474,16 +905,19 @@ class Client extends ConnectorBaseFilter
 			$list[] = array(
 				"id" => $fieldId,
 				"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_ASSIGNED_BY_ID') . " ($entityTypeCaption)",
-				'type' => 'custom_entity',
-				'params' => array('multiple' => 'Y'),
-				'selector' => array(
-					'TYPE' => 'user',
-					'DATA' => array('ID' => strtolower($fieldId), 'FIELD_ID' => $fieldId),
+				'type' => 'dest_selector',
+				'params' => array(
+					'context' => 'SENDER_FILTER_ASSIGNED_BY_ID',
+					'multiple' => 'Y',
+					'contextCode' => 'U',
+					'enableAll' => 'N',
+					'enableSonetgroups' => 'N',
+					'allowEmailInvitation' => 'N',
+					'allowSearchEmailUsers' => 'N',
+					'departmentSelectDisable' => 'Y',
+					'isNumeric' => 'Y',
+					'prefix' => 'U'
 				),
-				'sender_segment_callback' => function ($field)
-				{
-					return Helper::getFilterFieldUserSelector($field['selector']['DATA'], 'crm_segment_client');
-				},
 				//"sender_segment_filter" => false,
 				"default" => false
 			);
@@ -560,6 +994,15 @@ class Client extends ConnectorBaseFilter
 			'default' => false,
 			'type' => 'list',
 			'items' => \CCrmStatus::GetStatusList('CONTACT_TYPE'),
+		);
+
+		$list[] = array(
+			'id' => 'CONTACT_HONORIFIC',
+			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_HONORIFIC'),
+			'params' => array('multiple' => 'Y'),
+			'default' => false,
+			'type' => 'list',
+			'items' => \CCrmStatus::GetStatusList('HONORIFIC'),
 		);
 
 		$list[] = array(
@@ -718,5 +1161,41 @@ class Client extends ConnectorBaseFilter
 				ResultView::Draw,
 				[__NAMESPACE__ . '\Helper', 'onResultViewDraw']
 			);
+	}
+
+	protected function getProductSkuIds($productIds)
+	{
+		if (!Loader::includeModule("catalog"))
+			return [];
+
+		return
+			array_reduce(
+				\CCatalogSKU::getOffersList($productIds),
+				function($ids, $items) {
+					$ids = array_merge(
+						$ids,
+						array_map(
+							function($item) {
+								return $item['ID'];
+							},
+						$items)
+					);
+					return $ids;
+				}, []);
+	}
+
+	public function getUiFilterId()
+	{
+		$code = str_replace('_', '', $this->getCode());
+		return $this->getId()   . '_--filter--'.$code.'--';
+	}
+
+	/**
+	 * Get fields for statistic
+	 * @return array
+	 */
+	public function getStatFields()
+	{
+		return ['CLIENT_PRODUCT_ID', 'CLIENT_NO_PURCHASES_DATE'];
 	}
 }

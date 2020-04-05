@@ -56,7 +56,7 @@
 
 	BX.rest.AppLayout.openApplication = function(applicationId, placementOptions, additionalComponentParam, closeCallback)
 	{
-		var url = BX.message('REST_APPLICATION_URL').replace('#id#', parseInt(applicationId));
+		var url = BX.message('REST_APPLICATION_URL').replace('#ID#', parseInt(applicationId));
 		url = BX.util.add_url_param(url, {'_r': Math.random()});
 
 		var params = {
@@ -76,44 +76,45 @@
 				params.PLACEMENT_ID = additionalComponentParam.PLACEMENT_ID;
 			}
 		}
+		var link = {
+			url : url,
+			anchor : null,
+			target : null
+		};
+		var rule = BX.SidePanel.Instance.getUrlRule(url, link);
+		var options = rule && rule.options ? BX.clone(rule.options) : {};
+		options["cacheable"] = false;
+		options["contentCallback"] = function(sliderPage)
+		{
+			var promise = new top.BX.Promise();
 
-		BX.SidePanel.Instance.open(
-			url,
-			{
-				cacheable: false,
-				contentCallback: function(sliderPage)
+			top.BX.ajax.post(
+				sliderPage.url,
 				{
-					var promise = new top.BX.Promise();
-
-					top.BX.ajax.post(
-						sliderPage.url,
-						{
-							sessid: BX.bitrix_sessid(),
-							site: BX.message('SITE_ID'),
-							PARAMS: {
-								template: '',
-								params: params
-							}
-						},
-						function(result)
-						{
-							promise.fulfill(result);
-						}
-					);
-
-					return promise;
-				},
-				events: {
-					onClose: function()
-					{
-						if(!!closeCallback)
-						{
-							closeCallback();
-						}
+					sessid: BX.bitrix_sessid(),
+					site: BX.message('SITE_ID'),
+					PARAMS: {
+						template: '',
+						params: params
 					}
+				},
+				function(result)
+				{
+					promise.fulfill(result);
 				}
+			);
+
+			return promise;
+		};
+		options["events"] = (options["events"] ? options["events"] : {});
+		options["events"]["onClose"] = function()
+		{
+			if(!!closeCallback)
+			{
+				closeCallback();
 			}
-		);
+		};
+		BX.SidePanel.Instance.open(url, options);
 
 		var slider = top.BX.SidePanel.Instance.getTopSlider();
 		top.BX.addCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', function(installed, eventResult)
@@ -194,7 +195,7 @@
 		{
 			e = e || window.event;
 
-			if(e.origin != this.params.appProto + '://' + this.params.appHost || !e.data)
+			if(e.origin != this.params.appProto + '://' + this.params.appHost || !BX.type.isString(e.data))
 			{
 				return;
 			}
@@ -592,7 +593,7 @@
 					{
 						autoHide: true,
 						content: result,
-						zIndex: 2000
+						zIndex: 5000
 					}
 				);
 				if(mult)
@@ -642,6 +643,7 @@
 
 				BX.Access.SetSelected(startValue);
 				BX.Access.ShowForm({
+					zIndex : 5000,
 					callback: function(arRights)
 					{
 						var res = [];
@@ -711,22 +713,22 @@
 
 		imCallTo: function(params)
 		{
-			BXIM.callTo(params.userId, !!params.video)
+			top.BXIM.callTo(params.userId, !!params.video)
 		},
 
 		imPhoneTo: function(params)
 		{
-			BXIM.phoneTo(params.phone)
+			top.BXIM.phoneTo(params.phone)
 		},
 
 		imOpenMessenger: function(params)
 		{
-			BXIM.openMessenger(params.dialogId)
+			top.BXIM.openMessenger(params.dialogId)
 		},
 
 		imOpenHistory: function(params)
 		{
-			BXIM.openHistory(params.dialogId)
+			top.BXIM.openHistory(params.dialogId)
 		},
 
 		openApplication: function(params, cb)
@@ -736,11 +738,12 @@
 
 		closeApplication: function(params, cb)
 		{
+			var url = BX.message('REST_APPLICATION_URL').replace('#ID#', parseInt(this.params.id));
 			if(
 				top.BX.SidePanel.Instance.isOpen()
 				&& top.BX.SidePanel.Instance.getTopSlider().url.match(
 					new RegExp(
-						'^' + BX.message('REST_APPLICATION_URL')
+						'^' + url
 					)
 				)
 			)

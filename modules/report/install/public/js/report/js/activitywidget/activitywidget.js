@@ -540,7 +540,7 @@
 						className: (columnHeight === 0 ) ? 'reports-activity-horizontal-widget-item-empty' : 'reports-activity-horizontal-widget-item'
 					},
 					style: {
-						maxHeight: columnHeight + '%',
+						maxHeight: columnHeight !== Infinity ? columnHeight + '%' : null,
 						animationDelay: Math.random().toFixed(2) + 's'
 					},
 					children: [
@@ -581,7 +581,7 @@
 			 */
 			getVerticalWidgetItem: function (rowObj, maxActivity)
 			{
-				var rowWidth = (100 / maxActivity) * this.getDayTotalActivity(rowObj);
+				var rowWidth = 100 / maxActivity * this.getDayTotalActivity(rowObj);
 				var targetBlock = BX.create('div', {
 					attrs: { className: 'reports-activity-vertical-widget-item-bind' }
 				});
@@ -610,7 +610,7 @@
 					children: [
 						targetBlock
 					],
-					events: rowWidth === 0 ? null : events
+					events: rowWidth === Infinity ? null : events
 				});
 			},
 

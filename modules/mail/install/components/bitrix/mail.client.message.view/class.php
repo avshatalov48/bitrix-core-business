@@ -38,7 +38,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function executeComponent()
+	public function executeComponent($level = 1)
 	{
 		global $USER, $APPLICATION;
 
@@ -121,14 +121,23 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 		$message['BIND'] = explode(',', $message['BIND']);
 
-		$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
-			'select' => array(
-				'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
-			),
-			'filter' => array(
-				'=MESSAGE_ID' => $message['ID'],
-			),
-		))->fetchAll();
+		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
+		{
+			return $this->executeComponent($level + 1);
+		}
+
+		$message['__files'] = array();
+		if ($message['ATTACHMENTS'] > 0)
+		{
+			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
+				'select' => array(
+					'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
+				),
+				'filter' => array(
+					'=MESSAGE_ID' => $message['ID'],
+				),
+			))->fetchAll();
+		}
 
 		$this->prepareMessage($message);
 		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);
@@ -433,7 +442,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function logitemAction($id)
+	public function logitemAction($id, $level = 1)
 	{
 		$this->isCrmEnable = Main\Loader::includeModule('crm');
 		$this->arResult['CRM_ENABLE'] = ($this->isCrmEnable ? 'Y' : 'N');
@@ -498,14 +507,23 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 
 		$message['BIND'] = explode(',', $message['BIND']);
 
-		$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
-			'select' => array(
-				'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
-			),
-			'filter' => array(
-				'=MESSAGE_ID' => $message['ID'],
-			),
-		))->fetchAll();
+		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
+		{
+			return $this->logitemAction($id, $level + 1);
+		}
+
+		$message['__files'] = array();
+		if ($message['ATTACHMENTS'] > 0)
+		{
+			$message['__files'] = Mail\Internals\MailMessageAttachmentTable::getList(array(
+				'select' => array(
+					'ID', 'FILE_ID', 'FILE_NAME', 'FILE_SIZE', 'CONTENT_TYPE',
+				),
+				'filter' => array(
+					'=MESSAGE_ID' => $message['ID'],
+				),
+			))->fetchAll();
+		}
 
 		$this->prepareMessage($message);
 		$message['SENDER_EMAIL'] = $this->getEmailFromFieldFrom($message['FIELD_FROM']);

@@ -14,17 +14,21 @@ class Help
 		'kz' => 'bitrix24.kz',
 
 		'ua' => 'bitrix24.ua',
+
 		'en' => 'bitrix24.com',
 		'de' => 'bitrix24.de',
 		'es' => 'bitrix24.es',
 		'br' => 'bitrix24.com.br',
-
 		'pl' => 'bitrix24.pl',
 		'fr' => 'bitrix24.fr',
 		'cn' => 'bitrix24.cn',
 		'in' => 'bitrix24.in',
 		'eu' => 'bitrix24.eu',
-		'tr' => 'bitrix24.com.tr'
+		'tr' => 'bitrix24.com.tr',
+		'it' => 'bitrix24.it',
+		'id' => 'bitrix24.id',
+		'vn' => 'bitrix24.vn',
+		'jp' => 'bitrix24.jp'
 	);
 
 	/**
@@ -37,15 +41,17 @@ class Help
 			'en' => '6588287',
 			'de' => '6630821',
 			'es' => '6529315',
-			'br' => '7014601'
+			'br' => '7014601',
+			'fr' => '8460105'
 		),
 		'LANDING_EDIT' => array(
-			'ru' => 's93291',
-			'ua' => 's94173',
+			'ru' => 's105667',
+			'ua' => 's105681',
 			'en' => 's95157',
 			'de' => 's95161',
 			'es' => 's95265',
-			'br' => 's99169'
+			'br' => 's119713',
+			'fr' => 's110613'
 		),
 		'DOMAIN_EDIT' => array(
 			'ru' => '6624333',
@@ -54,6 +60,7 @@ class Help
 			'de' => '6637101',
 			'es' => '8479199',
 			'br' => '8513557',
+			'fr' => '8460145'
 		),
 		'GMAP_EDIT' => array(
 			'ru' => '8203739',
@@ -62,8 +69,68 @@ class Help
 			'de' => '8208835',
 			'es' => '8210537',
 			'br' => '8234081',
+			'fr' => '9221199'
+		),
+		'PIXEL' => array(
+			'ru' => '9022893',
+			'en' => '9025097',
+			'de' => '9024719',
+			'es' => '9023659',
+			'br' => '9029347',
+			'fr' => '9392177'
+		),
+		'GTM' => array(
+			'ru' => '9488927',
+			'ua' => '9490499',
+			'en' => '9510537',
+			'de' => '9492673',
+			'es' => '9496717',
+			'br' => '9497065',
+			'fr' => '9493337'
+		),
+		'GACOUNTER' => array(
+			'ru' => '9485227',
+			'ua' => '9490499',
+			'en' => '9510537',
+			'de' => '9492673',
+			'es' => '9496717',
+			'br' => '9497065',
+			'fr' => '9493337'
+		),
+		'META_GOOGLE_VERIFICATION' => array(
+			'ru' => '7908779',
+			'ua' => '7917063',
+			'en' => '7949461',
+			'de' => '7920223',
+			'es' => '7993185',
+			'br' => '8828551',
+			'fr' => '9203285'
+		),
+		'DYNAMIC_BLOCKS' => array(
+			'ru' => '10104989',
+			'en' => '10134346',
+			'de' => '10119494',
+			'es' => '10133942',
+			'fr' => '10133930'
+		),
+		'YACOUNTER' => array(
+			'ru' => '9494147'
+		),
+		'META_YANDEX_VERIFICATION' => array(
+			'ru' => '7919271'
+		),
+		'SPEED' => array(
 		)
 	);
+
+	/**
+	 * Gets domain's array.
+	 * @return array
+	 */
+	public static function getDomains()
+	{
+		return self::$domains;
+	}
 
 	/**
 	 * Gets url to help article by code.
@@ -102,7 +169,7 @@ class Help
 			return 'https://helpdesk.' . self::$domains[$helpZone] .
 					(
 						(substr($helpId, 0, 1) == 's')
-						? ('/#section' . substr($helpId, 1))
+						? ('/section/' . substr($helpId, 1) . '/')
 						: ('/open/' . $helpId . '/')
 					);
 		}

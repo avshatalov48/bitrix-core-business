@@ -7,7 +7,6 @@ $MESS ['STE_ERROR_SAVE_ACCOUNT'] = "Ошибка сохранения счета
 $MESS ['STE_TITLE'] = "Новая транзакция";
 $MESS ['STE_TO_LIST'] = "Список транзакций";
 $MESS ['STE_USER'] = "Пользователь:";
-$MESS ['STE_DATE'] = "Дата транзакции (DD.MM.YYYY HH:MI:SS)";
 $MESS ['STE_SUM'] = "Сумма:";
 $MESS ['STE_CURRENCY'] = "Валюта:";
 $MESS ['STE_TYPE'] = "Тип записи:";

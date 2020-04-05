@@ -28,8 +28,37 @@ include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../.default/functions.php");
 
 $arResult["PUSH&PULL"] = false;
+$arResult["VISIBLE_RECORDS_COUNT"] = 3;
+
 if (!empty($arResult["MESSAGES"]))
 {
+	if ($arResult['MID'] > 0)
+	{
+		$messagesList = [];
+		foreach($arResult["MESSAGES"] as $messageid => $messageFields)
+		{
+			$arResult["VISIBLE_RECORDS_COUNT"]++;
+			$messagesList[$messageid] = $messageFields;
+			if ($messageid == $arResult['MID'])
+			{
+				break;
+			}
+		}
+
+		$arResult["VISIBLE_RECORDS_COUNT"] = count($messagesList);
+		if ($arResult["VISIBLE_RECORDS_COUNT"] < 3)
+		{
+			$arResult["VISIBLE_RECORDS_COUNT"] = 3;
+		}
+
+		if (count($arResult["MESSAGES"]) > $arResult["VISIBLE_RECORDS_COUNT"])
+		{
+			$arResult["MESSAGES"] = array_slice($arResult["MESSAGES"], 0, $arResult["VISIBLE_RECORDS_COUNT"]);
+		}
+
+		$arResult["NAV_RESULT"]->bShowAll = false;
+	}
+
 	$arResult["NAV_STRING"] = GetPagePath(false, false);
 	if ($arResult["NAV_RESULT"])
 	{
@@ -47,7 +76,7 @@ if (!empty($arResult["MESSAGES"]))
 	foreach ($arResult["MESSAGES"] as $key => $res)
 	{
 		$arResult["MESSAGES"][$key] = forumCommentsCommentMobile($res, $arParams, $arResult, $this->__component);
-		if (intval($arResult["RESULT"]) == intval($res["ID"]))
+		if (in_array($arResult["ACTION"], ["hide", "show", "edit", "add"]) && intval($arResult["RESULT"]) == intval($res["ID"]))
 		{
 			if ($this->__component->prepareMobileData)
 			{
@@ -58,14 +87,28 @@ if (!empty($arResult["MESSAGES"]))
 					$this->__component
 				);
 			}
+			if (in_array($arResult["ACTION"], array("hide", "show")))
+			{
+				$action = "MODERATE";
+			}
+			else
+			{
+				$action = ($arResult["ACTION"] == "edit" ? "EDIT" : "REPLY");
+			}
 			$arResult["PUSH&PULL"] = array(
 				"ID" => $arResult["RESULT"],
-				"ACTION" => $_REQUEST['REVIEW_ACTION'] == "EDIT" ? "EDIT" : "REPLY"
+				"ACTION" => $action
 			);
 		}
 	}
 }
-
+if ($arResult["ACTION"] == "del" && $arResult["RESULT"] > 0)
+{
+	$arResult["PUSH&PULL"] = array(
+		"ID" => $arResult["RESULT"],
+		"ACTION" => "DELETE"
+	);
+}
 $arResult["bTasksInstalled"] = \Bitrix\Main\Loader::includeModule("tasks");
 $arResult["bTasksAvailable"] = (
 	$arResult["bTasksInstalled"]

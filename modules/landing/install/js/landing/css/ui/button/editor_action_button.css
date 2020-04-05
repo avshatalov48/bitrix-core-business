@@ -7,6 +7,14 @@
 	border-radius: 0;
 }
 
+.landing-ui-button-editor-action .landing-ui-button-text {
+	color: #828B95;
+}
+
+.landing-ui-button-editor-action:hover .landing-ui-button-text {
+	color: #525C69;
+}
+
 .landing-ui-button-editor-action.landing-ui-active .landing-ui-button-text::before {
 	content: '';
 	display: block;
@@ -207,6 +215,17 @@
 	background-image: url(/bitrix/images/landing/editor/h5-active.svg);
 }
 
+.landing-ui-icon-editor-h6 {
+	background-image: url(/bitrix/images/landing/editor/h6.svg);
+	width: 21px!important;
+	transform: translateY(-6%);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-h6,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-h6 {
+	background-image: url(/bitrix/images/landing/editor/h6-active.svg);
+}
+
 .landing-ui-button-editor-action[data-id="justifyLeft"],
 .landing-ui-button-editor-action[data-id="justifyCenter"],
 .landing-ui-button-editor-action[data-id="justifyRight"] {
@@ -254,6 +273,11 @@
 	padding: 0 9px!important;
 }
 
+.landing-ui-button-editor-action[data-id="createPage"] {
+	padding-left: 7px!important;
+	padding-right: 9px!important;
+}
+
 .landing-ui-icon-editor-link {
 	background-image: url(/bitrix/images/landing/editor/link.svg);
 	width: 20px!important;
@@ -281,4 +305,23 @@
 .landing-ui-button:hover .landing-ui-icon-editor-eraser,
 .landing-ui-button.landing-ui-active .landing-ui-icon-editor-eraser {
 	background-image: url(/bitrix/images/landing/editor/eraser-active.svg);
+}
+
+.landing-ui-icon-editor-text-background {
+	background-image: url(/bitrix/images/landing/text-background.svg);
+	width: 20px!important;
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-text-background,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-text-background {
+	background-image: url(/bitrix/images/landing/text-background-active.svg);
+}
+
+.landing-ui-icon-editor-new-page {
+	background-image: url(/bitrix/images/landing/newpage.svg);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-new-page,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-new-page {
+	background-image: url(/bitrix/images/landing/newpage-active.svg);
 }

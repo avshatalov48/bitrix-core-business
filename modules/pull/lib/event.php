@@ -13,11 +13,19 @@ class Event
 	private static $push = array();
 	private static $error = false;
 
-	public static function add($recipient, $parameters, $channelType = \CPullChannel::TYPE_PRIVATE)
+	public static function add($recipient, array $parameters, $channelType = \CPullChannel::TYPE_PRIVATE)
 	{
 		if (!isset($parameters['module_id']))
 		{
 			self::$error = new Error(__METHOD__, 'EVENT_PARAMETERS_FORMAT', Loc::getMessage('PULL_EVENT_PARAMETERS_FORMAT_ERROR'), $parameters);
+			return false;
+		}
+
+		$badUnicodeSymbolsPath = Common::findInvalidUnicodeSymbols($parameters);
+		if($badUnicodeSymbolsPath)
+		{
+			$warning = 'Parameters array contains invalid UTF-8 characters by the path ' . $badUnicodeSymbolsPath;
+			self::$error = new Error(__METHOD__, 'EVENT_BAD_ENCODING', $warning, $parameters);
 			return false;
 		}
 
@@ -296,6 +304,7 @@ class Event
 		$data['sub_tag'] = isset($data['sub_tag'])? $data['sub_tag']: '';
 		$data['app_id'] = isset($data['app_id'])? $data['app_id']: '';
 		$data['send_immediately'] = $data['send_immediately'] == 'Y'? 'Y': 'N';
+		$data['important'] = $data['important'] == 'Y'? 'Y': 'N';
 
 		$users = Array();
 		foreach ($parameters['users'] as $userId)
@@ -321,6 +330,7 @@ class Event
 			'SUB_TAG' => $data['sub_tag'],
 			'APP_ID' => $data['app_id'],
 			'SEND_IMMEDIATELY' => $data['send_immediately'],
+			'IMPORTANT' => $data['important'],
 		));
 
 		return true;
@@ -352,7 +362,14 @@ class Event
 			return true;
 		}
 
-		if(\CPullOptions::GetQueueServerVersion() >= 4 && \CPullOptions::IsProtobufSupported() && \CPullOptions::IsProtobufEnabled())
+		if (!\CPullOptions::GetQueueServerStatus())
+		{
+			self::$messages = [];
+
+			return true;
+		}
+
+		if(Config::isProtobufUsed())
 		{
 			if(ProtobufTransport::sendMessages(self::$messages))
 			{

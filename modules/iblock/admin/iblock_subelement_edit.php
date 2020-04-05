@@ -14,7 +14,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 Loader::includeModule('iblock');
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
-$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+$publicMode = defined("SELF_FOLDER_URL");
 
 /*Change any language identifiers carefully*/
 /*because of user customized forms!*/
@@ -127,6 +127,8 @@ if ($historyId > 0 && $bBizproc)
 	$view = "Y";
 else
 	$historyId = 0;
+
+Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
 $error = false;
 
@@ -1553,40 +1555,10 @@ if($bVarsFromForm && !array_key_exists("SUB_PREVIEW_PICTURE", $_REQUEST) && $arE
 	<tr id="tr_SUB_PREVIEW_PICTURE" class="adm-detail-file-row">
 		<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td width="60%">
-			<?if($historyId > 0):?>
-				<?echo CFileInput::Show("SUB_PREVIEW_PICTURE", $str_PREVIEW_PICTURE, array(
-					"IMAGE" => "Y",
-					"PATH" => "Y",
-					"FILE_SIZE" => "Y",
-					"DIMENSIONS" => "Y",
-					"IMAGE_POPUP" => "Y",
-					"MAX_SIZE" => array(
-						"W" => COption::GetOptionString("iblock", "detail_image_size"),
-						"H" => COption::GetOptionString("iblock", "detail_image_size"),
-					),
-				));
-				?>
-			<?else:?>
-				<?
-				if (class_exists('\Bitrix\Main\UI\FileInput', true))
-				{
-					echo \Bitrix\Main\UI\FileInput::createInstance(array(
-						"name" => "SUB_PREVIEW_PICTURE",
-						"id" => "SUB_PREVIEW_PICTURE_".mt_rand(1, 1000000),
-						"description" => true,
-						"upload" => true,
-						"allowUpload" => "I",
-						"medialib" => true,
-						"fileDialog" => true,
-						"cloud" => true,
-						"delete" => true,
-						"maxCount" => 1
-					))->show($ID > 0 && !$bSubCopy ? $str_PREVIEW_PICTURE : 0);
-				}
-				else
-				{
-					?>
-					<?echo CFileInput::Show("SUB_PREVIEW_PICTURE", ($ID > 0 && !$bSubCopy ? $str_PREVIEW_PICTURE : 0),
+			<?if($historyId > 0):
+				echo CFileInput::Show(
+					"SUB_PREVIEW_PICTURE",
+					$str_PREVIEW_PICTURE,
 					array(
 						"IMAGE" => "Y",
 						"PATH" => "Y",
@@ -1596,18 +1568,23 @@ if($bVarsFromForm && !array_key_exists("SUB_PREVIEW_PICTURE", $_REQUEST) && $arE
 						"MAX_SIZE" => array(
 							"W" => COption::GetOptionString("iblock", "detail_image_size"),
 							"H" => COption::GetOptionString("iblock", "detail_image_size"),
-						),
-					), array(
-						'upload' => true,
-						'medialib' => true,
-						'file_dialog' => true,
-						'cloud' => true,
-						'del' => true,
-						'description' => true,
+						)
 					)
 				);
-				}
-			endif?>
+			else:
+				echo \Bitrix\Main\UI\FileInput::createInstance(array(
+					"name" => "SUB_PREVIEW_PICTURE",
+					"id" => "SUB_PREVIEW_PICTURE_".mt_rand(1, 1000000),
+					"description" => true,
+					"upload" => true,
+					"allowUpload" => "I",
+					"medialib" => true,
+					"fileDialog" => true,
+					"cloud" => true,
+					"delete" => true,
+					"maxCount" => 1
+				))->show($ID > 0 && !$bSubCopy ? $str_PREVIEW_PICTURE : 0);
+			endif;?>
 		</td>
 	</tr>
 <?
@@ -1682,40 +1659,10 @@ if($bVarsFromForm && !array_key_exists("SUB_DETAIL_PICTURE", $_REQUEST) && $arEl
 	<tr id="tr_SUB_DETAIL_PICTURE" class="adm-detail-file-row">
 		<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td width="60%">
-			<?if($historyId > 0):?>
-				<?echo CFileInput::Show("SUB_DETAIL_PICTURE", $str_DETAIL_PICTURE, array(
-					"IMAGE" => "Y",
-					"PATH" => "Y",
-					"FILE_SIZE" => "Y",
-					"DIMENSIONS" => "Y",
-					"IMAGE_POPUP" => "Y",
-					"MAX_SIZE" => array(
-						"W" => COption::GetOptionString("iblock", "detail_image_size"),
-						"H" => COption::GetOptionString("iblock", "detail_image_size"),
-					),
-				));
-				?>
-			<?else:?>
-				<?
-				if (class_exists('\Bitrix\Main\UI\FileInput', true))
-				{
-					echo \Bitrix\Main\UI\FileInput::createInstance(array(
-						"name" => "SUB_DETAIL_PICTURE",
-						"id" => "SUB_DETAIL_PICTURE_".mt_rand(1, 1000000),
-						"description" => true,
-						"upload" => true,
-						"allowUpload" => "I",
-						"medialib" => true,
-						"fileDialog" => true,
-						"cloud" => true,
-						"delete" => true,
-						"maxCount" => 1
-					))->show($ID > 0 && !$bSubCopy ? $str_DETAIL_PICTURE : 0);
-				}
-				else
-				{
-					?>
-					<?echo CFileInput::Show("SUB_DETAIL_PICTURE", ($ID > 0 && !$bSubCopy ? $str_DETAIL_PICTURE : 0),
+			<?if($historyId > 0):
+				echo CFileInput::Show(
+					"SUB_DETAIL_PICTURE",
+					$str_DETAIL_PICTURE,
 					array(
 						"IMAGE" => "Y",
 						"PATH" => "Y",
@@ -1725,19 +1672,23 @@ if($bVarsFromForm && !array_key_exists("SUB_DETAIL_PICTURE", $_REQUEST) && $arEl
 						"MAX_SIZE" => array(
 							"W" => COption::GetOptionString("iblock", "detail_image_size"),
 							"H" => COption::GetOptionString("iblock", "detail_image_size"),
-						),
-					), array(
-						'upload' => true,
-						'medialib' => true,
-						'file_dialog' => true,
-						'cloud' => true,
-						'del' => true,
-						'description' => true,
+						)
 					)
 				);
-				}
-				?>
-			<?endif?>
+			else:
+				echo \Bitrix\Main\UI\FileInput::createInstance(array(
+					"name" => "SUB_DETAIL_PICTURE",
+					"id" => "SUB_DETAIL_PICTURE_".mt_rand(1, 1000000),
+					"description" => true,
+					"upload" => true,
+					"allowUpload" => "I",
+					"medialib" => true,
+					"fileDialog" => true,
+					"cloud" => true,
+					"delete" => true,
+					"maxCount" => 1
+				))->show($ID > 0 && !$bSubCopy ? $str_DETAIL_PICTURE : 0);
+			endif;?>
 		</td>
 	</tr>
 <?

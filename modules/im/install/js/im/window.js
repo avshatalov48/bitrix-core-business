@@ -708,7 +708,7 @@
 
 		this.contentAvatar.innerHTML = '';
 		this.contentAvatar.appendChild(
-			BX.create('a', { attrs : { href : this.userInfo.profile, title : BX.util.htmlspecialcharsback(this.userInfo.name), target: "_blank" }, props : { className : "bx-desktop-avatar" }, events: events, children: [
+			BX.create('a', { attrs : { href : this.userInfo.profile, title : BX.util.htmlspecialcharsback(this.userInfo.name), target: "_blank", "data-slider-ignore-autobinding": "true" }, props : { className : "bx-desktop-avatar" }, events: events, children: [
 				BX.create('img', { attrs : { src : this.userInfo.avatar, style: (BX.MessengerCommon.isBlankAvatar(this.userInfo.avatar)? 'background-color: '+this.userInfo.color: '')}, props : { className : "bx-desktop-avatar-img bx-desktop-avatar-img-default" }})
 			]})
 		);
@@ -768,6 +768,11 @@
 		}
 	}
 
+	MessengerWindow.prototype.setZIndex = function(zindex)
+	{
+		BX.style(this.popup, 'z-index', zindex);
+	};
+
 	MessengerWindow.prototype.showPopup = function(dialogId)
 	{
 		if (this.isPopupShow())
@@ -794,7 +799,7 @@
 		if (BX.SidePanel && BX.SidePanel.Instance.getTopSlider())
 		{
 			var zIndex = BX.SidePanel.Instance.getTopSlider().getZindex();
-			BX.style(this.popup, 'z-index', zIndex+1);
+			this.setZIndex(zIndex+1);
 		}
 
 		BX.onCustomEvent(this, 'OnMessengerWindowShowPopup', [dialogId]);

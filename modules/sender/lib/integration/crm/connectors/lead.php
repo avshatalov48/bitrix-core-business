@@ -78,6 +78,14 @@ class Lead extends ConnectorBaseFilter
 			$nameExprField, 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
 			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID' => 'COMPANY_ID',
 		]);
+		$query->registerRuntimeField(Helper::createExpressionMultiField(
+			\CCrmOwnerType::LeadName,
+			'EMAIL'
+		));
+		$query->registerRuntimeField(Helper::createExpressionMultiField(
+			\CCrmOwnerType::LeadName,
+			'PHONE'
+		));
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Lead));
 		$query->registerRuntimeField(null, new Entity\ReferenceField(
 			'CONTACT',
@@ -224,7 +232,8 @@ class Lead extends ConnectorBaseFilter
 				\CCrmFieldMulti::PHONE,
 				\CCrmFieldMulti::EMAIL,
 				\CCrmFieldMulti::IM
-			))
+			)),
+			'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'getCommunicationTypeFilter']
 		);
 
 		$list[] = PhaseSemantics::getListFilterInfo(
@@ -236,6 +245,32 @@ class Lead extends ConnectorBaseFilter
 				'params' => array('multiple' => 'Y'),
 			),
 			true
+		);
+
+		$list[] = array(
+			'id' => 'PRODUCT_ROW.PRODUCT_ID',
+			"name" => Loc::getMessage("SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_PRODUCT_ID"),
+			'default' => true,
+			'type' => 'dest_selector',
+			'partial' => true,
+			'params' => array(
+				'multiple' => 'Y',
+				'apiVersion' => 3,
+				'context' => 'CRM_LEAD_FILTER_PRODUCT_ID',
+				'contextCode' => 'CRM',
+				'useClientDatabase' => 'N',
+				'enableAll' => 'N',
+				'enableDepartments' => 'N',
+				'enableUsers' => 'N',
+				'enableSonetgroups' => 'N',
+				'allowEmailInvitation' => 'N',
+				'allowSearchEmailUsers' => 'N',
+				'departmentSelectDisable' => 'Y',
+				'addTabCrmProducts' => 'Y',
+				'enableCrm' => 'Y',
+				'enableCrmProducts' => 'Y',
+				'convertJson' => 'Y'
+			)
 		);
 
 		$list[] = array(
@@ -252,17 +287,28 @@ class Lead extends ConnectorBaseFilter
 		$list[] = array(
 			"id" => "ASSIGNED_BY_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_ASSIGNED_BY_ID'),
-			'type' => 'custom_entity',
-			'params' => array('multiple' => 'Y'),
-			'selector' => array(
-				'TYPE' => 'user',
-				'DATA' => array('ID' => 'assigned_by', 'FIELD_ID' => 'ASSIGNED_BY_ID')
+			'type' => 'dest_selector',
+			'params' => array(
+				'context' => 'SENDER_LEAD_FILTER_ASSIGNED_BY_ID',
+				'multiple' => 'Y',
+				'contextCode' => 'U',
+				'enableAll' => 'N',
+				'enableSonetgroups' => 'N',
+				'allowEmailInvitation' => 'N',
+				'allowSearchEmailUsers' => 'N',
+				'departmentSelectDisable' => 'Y',
+				'isNumeric' => 'Y',
+				'prefix' => 'U'
 			),
-			'sender_segment_callback' => function ($field)
-			{
-				return Helper::getFilterFieldUserSelector($field['selector']['DATA'], 'crm_segment_lead');
-			},
 			"default" => false,
+		);
+
+		$list[] = array(
+			"id" => "POST",
+			'type' => 'string',
+			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_POST'),
+			'params' => array('multiple' => 'Y'),
+			"default" => false
 		);
 
 		$list[] = array(
@@ -278,6 +324,15 @@ class Lead extends ConnectorBaseFilter
 			],
 			"allow_years_switcher" => true,
 			"default" => false,
+		);
+
+		$list[] = array(
+			'id' => 'HONORIFIC',
+			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_LEAD_FIELD_HONORIFIC'),
+			'params' => array('multiple' => 'Y'),
+			'default' => false,
+			'type' => 'list',
+			'items' => \CCrmStatus::GetStatusList('HONORIFIC'),
 		);
 
 		$list = array_merge($list, Helper::getFilterUserFields(\CCrmOwnerType::Lead));
@@ -363,5 +418,20 @@ class Lead extends ConnectorBaseFilter
 				ResultView::Draw,
 				[__NAMESPACE__ . '\Helper', 'onResultViewDraw']
 			);
+	}
+
+	public function getUiFilterId()
+	{
+		$code = str_replace('_', '', $this->getCode());
+		return $this->getId()   . '_--filter--'.$code.'--';
+	}
+
+	/**
+	 * Get fields for statistic
+	 * @return array
+	 */
+	public function getStatFields()
+	{
+		return ['PRODUCT_ROW.PRODUCT_ID'];
 	}
 }

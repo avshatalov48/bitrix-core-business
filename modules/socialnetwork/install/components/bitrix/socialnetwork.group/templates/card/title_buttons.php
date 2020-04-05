@@ -45,7 +45,8 @@ if (Loader::includeModule('bitrix24'))
 		SGCSPathToMembers: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupUsers"])?>',
 		SGCSPathToEdit: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Edit"].(strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=edit")?>',
 		SGCSPathToDelete: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Delete"])?>',
-		SGCSPathToFeatures: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Features"])?>'
+		SGCSPathToFeatures: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Features"])?>',
+		SGCSPathToCopy: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Copy"])?>'
 	});
 </script>
 <div class="socialnetwork-group-title-buttons">

@@ -1878,74 +1878,65 @@ class CAdminSorting
 	protected $field;
 	protected $order;
 
+	/**
+	 * @param string $table_id
+	 * @param string|false $by_initial
+	 * @param string|false $order_initial
+	 * @param string $by_name
+	 * @param string $ord_name
+	 */
 	public function __construct($table_id, $by_initial=false, $order_initial=false, $by_name="by", $ord_name="order")
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-
 		$this->by_name = $by_name;
 		$this->ord_name = $ord_name;
 		$this->table_id = $table_id;
 		$this->by_initial = $by_initial;
 		$this->order_initial = $order_initial;
 
-		$uniq = md5($APPLICATION->GetCurPage());
-
-		$aOptSort = array();
+		$needUserByField = false;
+		$needUserOrder = false;
 		if(isset($GLOBALS[$this->by_name]))
 		{
-			$_SESSION["SESS_SORT_BY"][$uniq] = $GLOBALS[$this->by_name];
+			$_SESSION["SESS_SORT_BY"][$this->table_id] = $GLOBALS[$this->by_name];
 		}
-		elseif(isset($_SESSION["SESS_SORT_BY"][$uniq]))
+		elseif(isset($_SESSION["SESS_SORT_BY"][$this->table_id]))
 		{
-			$GLOBALS[$this->by_name] = $_SESSION["SESS_SORT_BY"][$uniq];
+			$GLOBALS[$this->by_name] = $_SESSION["SESS_SORT_BY"][$this->table_id];
 		}
 		else
 		{
-			if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
-			{
-				$gridOptions = new Bitrix\Main\Grid\Options($this->table_id);
-				$sorting = $gridOptions->getSorting();
-				$GLOBALS[$this->by_name] = key($sorting["sort"]);
-				if (empty($GLOBALS[$this->by_name]) && $by_initial !== false)
-					$GLOBALS[$this->by_name] = $by_initial;
-			}
-			else
-			{
-				$aOptSort = CUserOptions::GetOption("list", $this->table_id, array("by"=>$by_initial, "order"=>$order_initial));
-				if(!empty($aOptSort["by"]))
-					$GLOBALS[$this->by_name] = $aOptSort["by"];
-				elseif($by_initial !== false)
-					$GLOBALS[$this->by_name] = $by_initial;
-			}
+			$needUserByField = true;
 		}
 
 		if(isset($GLOBALS[$this->ord_name]))
 		{
-			$_SESSION["SESS_SORT_ORDER"][$uniq] = $GLOBALS[$this->ord_name];
+			$_SESSION["SESS_SORT_ORDER"][$this->table_id] = $GLOBALS[$this->ord_name];
 		}
-		elseif(isset($_SESSION["SESS_SORT_ORDER"][$uniq]))
+		elseif(isset($_SESSION["SESS_SORT_ORDER"][$this->table_id]))
 		{
-			$GLOBALS[$this->ord_name] = $_SESSION["SESS_SORT_ORDER"][$uniq];
+			$GLOBALS[$this->ord_name] = $_SESSION["SESS_SORT_ORDER"][$this->table_id];
 		}
 		else
 		{
-			if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
+			$needUserOrder = true;
+		}
+
+		if ($needUserByField || $needUserOrder)
+		{
+			$userSorting = $this->getUserSorting();
+			if ($needUserByField)
 			{
-				$gridOptions = new Bitrix\Main\Grid\Options($this->table_id);
-				$sorting = $gridOptions->getSorting();
-				$GLOBALS[$this->ord_name] = strtoupper(current($sorting["sort"])) === "ASC" ? "ASC" : "DESC";
-				if (empty($GLOBALS[$this->ord_name]) && $order_initial !== false)
-					$GLOBALS[$this->ord_name] = $order_initial;
+				if (!empty($userSorting["by"]))
+					$GLOBALS[$this->by_name] = $userSorting["by"];
+				elseif ($this->by_initial !== false)
+					$GLOBALS[$this->by_name] = $this->by_initial;
 			}
-			else
+			if ($needUserOrder)
 			{
-				if(empty($aOptSort["order"]))
-					$aOptSort = CUserOptions::GetOption("list", $this->table_id, array("order"=>$order_initial));
-				if(!empty($aOptSort["order"]))
-					$GLOBALS[$this->ord_name] = $aOptSort["order"];
-				elseif($order_initial !== false)
-					$GLOBALS[$this->ord_name] = $order_initial;
+				if(!empty($userSorting["order"]))
+					$GLOBALS[$this->ord_name] = $userSorting["order"];
+				elseif($this->order_initial !== false)
+					$GLOBALS[$this->ord_name] = $this->order_initial;
 			}
 		}
 
@@ -1953,7 +1944,14 @@ class CAdminSorting
 		$this->order = $GLOBALS[$this->ord_name];
 	}
 
-	function Show($text, $sort_by, $alt_title = false, $baseCssClass = "")
+	/**
+	 * @param string $text
+	 * @param string $sort_by
+	 * @param string|false $alt_title
+	 * @param string $baseCssClass
+	 * @return string
+	 */
+	public function Show($text, $sort_by, $alt_title = false, $baseCssClass = "")
 	{
 		$ord = "asc";
 		$class = "";
@@ -1993,14 +1991,36 @@ class CAdminSorting
 		return 'class="'.$baseCssClass.' adm-list-table-cell-sort'.$class.'" onclick="'.$this->table_id.'.Sort(\''.htmlspecialcharsbx(CUtil::addslashes($url)).'\', '.($class <> ""? "false" : "true").', arguments);" title="'.$title.'"';
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getField()
 	{
 		return $this->field;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getOrder()
 	{
 		return $this->order;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getUserSorting()
+	{
+		$userSorting = CUserOptions::GetOption(
+			"list",
+			$this->table_id,
+			array("by" => $this->by_initial, "order" => $this->order_initial)
+		);
+		return array(
+			"by" => (!empty($userSorting["by"]) ? $userSorting["by"] : null),
+			"order" => (!empty($userSorting["order"]) ? $userSorting["order"] : null)
+		);
 	}
 }
 
@@ -2143,14 +2163,18 @@ class CAdminMessage
 		$publicMode = false;
 		if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1 && $this->message["TYPE"] != "PROGRESS" && (!isset($this->message['SKIP_PUBLIC_MODE']) || $this->message['SKIP_PUBLIC_MODE'] !== true))
 		{
+			$alertMessage = ($this->message['DETAILS'] <> ''? $this->message['DETAILS'] : $this->message['MESSAGE']);
+			$alertMessage = htmlspecialcharsback($alertMessage); //we don't need html entities in an alert() box, see BX.CWindow.prototype.ShowError
+			$alertMessage = str_replace(array('<br>', '<br />', '<BR>', '<BR />'), "\r\n", $alertMessage);
+
 			ob_end_clean();
-			echo '<script>
+			echo "<script>
 			var currentWindow = top.window;
 			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 			{
 				currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
 			}
-			currentWindow.BX.WindowManager.Get().ShowError(\''.CUtil::JSEscape(str_replace(array('<br>', '<br />', '<BR>', '<BR />'), "\r\n", htmlspecialcharsback($this->message['DETAILS']? $this->message['DETAILS'] : $this->message['MESSAGE']))).'\');</script>';
+			currentWindow.BX.WindowManager.Get().ShowError('".CUtil::JSEscape($alertMessage)."');</script>";
 			die();
 		}
 

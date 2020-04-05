@@ -112,32 +112,40 @@ if (Loader::includeModule('replica'))
 				return;
 			}
 
-			$externalLink = $file->addExternalLink(array(
-				'CREATED_BY' => $userId,
-				'TYPE' => \Bitrix\Disk\Internals\ExternalLinkTable::TYPE_MANUAL,
-			));
-			if (!$externalLink)
+			$url = \CIMDisk::GetFileLink($file);
+			if (!$url)
 			{
 				AddMessage2Log('MessageParamHandler::beforeLogFormat: failed to get external link for file ('.$fileId.').');
 				AddMessage2Log($file->getErrors());
 				return;
 			}
 
-			$url = \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlExternalLink(array(
-				'hash' => $externalLink->getHash(),
-				'action' => 'default',
-			), true);
 			$fileName =  $file->getName();
 			$fileSize = $file->getSize();
 
 			$attach = new \CIMMessageParamAttach(null, \CIMMessageParamAttach::CHAT);
-			$attach->AddFiles(array(
-				array(
+			if (\Bitrix\Disk\TypeFile::isImage($file))
+			{
+				$source = $file->getFile();
+				if ($source)
+				{
+					$attach->AddImages([[
+						"NAME" => $fileName,
+						"LINK" => $url,
+						"WIDTH" => (int)$source["WIDTH"],
+						"HEIGHT" => (int)$source["HEIGHT"],
+					]]);
+				}
+			}
+
+			if ($attach->IsEmpty())
+			{
+				$attach->AddFiles([[
 					"NAME" => $fileName,
 					"LINK" => $url,
 					"SIZE" => $fileSize,
-				)
-			));
+				]]);
+			}
 
 			$record["PARAM_NAME"] = 'ATTACH';
 			$record["PARAM_VALUE"] = 1;
@@ -240,14 +248,15 @@ if (Loader::includeModule('replica'))
 					));
 				}
 			}
-			else if ($newRecord['PARAM_NAME'] == 'ATTACH')
+			else if (in_array($newRecord['PARAM_NAME'], Array('ATTACH', 'URL_ID', 'IS_DELETED', 'IS_EDITED')))
 			{
-				\CIMMessageParam::SendPull($id, Array('ATTACH'));
+				\CIMMessageParam::SendPull($id, Array($newRecord['PARAM_NAME']));
 			}
-			else if ($newRecord['PARAM_NAME'] == 'URL_ID')
-			{
-				\CIMMessageParam::SendPull($id, Array('URL_ID'));
-			}
+		}
+
+		public function afterDeleteTrigger(array $oldRecord)
+		{
+			\CIMMessageParam::SendPull($oldRecord['MESSAGE_ID'], Array($oldRecord['PARAM_NAME']));
 		}
 	}
 }

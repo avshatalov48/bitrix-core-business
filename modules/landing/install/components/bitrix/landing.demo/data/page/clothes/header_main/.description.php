@@ -68,7 +68,8 @@ return array(
 				'.landing-block-node-menu-logo' => array(
 					0 => array(
 						'alt' => 'Logo',
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/eshop/logo-en.png',
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/eshop/logo_wo_icon.png',
+						'src2x' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/eshop/logo_wo_icon@2x.png',
 					),
 				),
 				'.landing-block-node-menu-logo-link' => array(

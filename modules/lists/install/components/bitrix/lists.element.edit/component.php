@@ -180,9 +180,11 @@ $arResult["~LIST_SECTION_URL"] = str_replace(
 	array($arResult["IBLOCK_ID"], intval($arParams["~SECTION_ID"]), $arParams["SOCNET_GROUP_ID"]),
 	$arParams["~LIST_URL"]
 );
-if((isset($_GET["list_section_id"]) && strlen($_GET["list_section_id"]) == 0) || !isset($_GET["list_section_id"]))
-	$arResult["~LIST_SECTION_URL"] = CHTTP::urlAddParams($arResult["~LIST_SECTION_URL"], array("list_section_id" => ""));
-
+if ($SECTION_ID)
+{
+	$arResult["~LIST_SECTION_URL"] = CHTTP::urlAddParams(
+		$arResult["~LIST_SECTION_URL"], ["list_section_id" => $SECTION_ID]);
+}
 $arResult["LIST_SECTION_URL"] = htmlspecialcharsbx($arResult["~LIST_SECTION_URL"]);
 
 if ($ELEMENT_ID > 0)
@@ -334,6 +336,29 @@ $tab_name = $arResult["FORM_ID"]."_active_tab";
 $bVarsFromForm = false;
 $arResult["BACK_URL"] = $arResult["~LIST_SECTION_URL"];
 
+//todo after crm realized
+if (!function_exists("isUsePrefix"))
+{
+	function isUsePrefix(array $property)
+	{
+		if (is_array($property['USER_TYPE_SETTINGS']))
+		{
+			if (array_key_exists('VISIBLE', $property['USER_TYPE_SETTINGS']))
+				unset($property['USER_TYPE_SETTINGS']['VISIBLE']);
+			$tmpArray = array_filter($property['USER_TYPE_SETTINGS'], function($mark)
+			{
+				return $mark == "Y";
+			});
+			if (count($tmpArray) == 1)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+}
+
 $arResult["EXTERNAL_CONTEXT"] = isset($_REQUEST["external_context"]) ? $_REQUEST["external_context"] : "";
 if(!empty($arResult["EXTERNAL_CONTEXT"]))
 {
@@ -358,9 +383,26 @@ if(!empty($arResult["EXTERNAL_CONTEXT"]))
 	{
 		foreach($arResult["FIELDS"] as $fieldId => $field)
 		{
-			if($fieldId == $externalFieldId)
+			if ($fieldId == $externalFieldId)
+			{
+				//todo after crm realized
+				//Bitrix\Crm\Integration\IBlockElementProperty::isUsePrefix($field);
+				if (!isUsePrefix($field))
+				{
+					$explode = explode("_", $externalDefaultValue);
+					$externalDefaultValue = intval($explode[1]);
+				}
 				$arResult["FIELDS"][$fieldId]['DEFAULT_VALUE'] = $externalDefaultValue;
+			}
 		}
+	}
+}
+
+if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) && $arParams["CAN_EDIT"] && $ELEMENT_ID > 0)
+{
+	if (!CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+	{
+		CIBlockElement::WF_Lock($ELEMENT_ID);
 	}
 }
 
@@ -729,9 +771,17 @@ if(
 
 			if($arResult["ELEMENT_ID"])
 			{
-				$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
-				if(!$res)
-					$strError = $obElement->LAST_ERROR;
+				if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
+					CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+				{
+					$strError = GetMessage("CC_BLEE_ELEMENT_LOCKED");
+				}
+				else
+				{
+					$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
+					if(!$res)
+						$strError = $obElement->LAST_ERROR;
+				}
 			}
 			else
 			{
@@ -864,6 +914,8 @@ if(
 				$this->includeComponentTemplate('event');
 				return;
 			}
+
+			CIBlockElement::WF_UnLock($arResult["ELEMENT_ID"]);
 
 			//And go to proper page
 			if(isset($_POST["save"]))

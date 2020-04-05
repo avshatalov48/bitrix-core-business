@@ -38,19 +38,21 @@ if (is_array($arResult["ITEMS_DB"]) && !empty($arResult["ITEMS_DB"])):
 ?>
 		<div class="mp_sc_container">
 			<div class="mp_lt_left_container">
-				<span class="mp_sc_ls_img">
 <?php
-		if($arResult["ITEMS"][$app["CODE"]]["ICON"]):
+		if(!empty($arResult["ITEMS"][$app["CODE"]]["ICON"])):
 ?>
-					<span><img src="<?=$arResult["ITEMS"][$app["CODE"]]["ICON"]?>" alt=""/></span>
+				<span class="mp_sc_ls_img">
+					<span><img src="<?=htmlspecialcharsbx($arResult["ITEMS"][$app["CODE"]]["ICON"])?>" alt=""/></span>
+				</span>
 <?php
 		else:
 ?>
+				<span class="mp_sc_ls_img">
 					<span class="mp_empty_icon"></span>
+				</span>
 <?php
 		endif;
 ?>
-				</span>
 				<a href="<?=$appUrl;?>" class="mp_sc_ls_shadow"></a>
 				<div class="mp_sc_ls_container">
 <?php

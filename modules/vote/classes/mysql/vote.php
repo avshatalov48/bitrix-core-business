@@ -301,9 +301,12 @@ class CVote extends CAllVote
 				CASE WHEN (C.ACTIVE = 'Y' AND V.ACTIVE = 'Y' AND V.DATE_START <= NOW() AND NOW() <= V.DATE_END)
 					THEN IF (C.VOTE_SINGLE != 'Y', 'green', 'yellow')
 					ELSE 'red'
-				END AS LAMP
+				END AS LAMP,
+				U.NAME, U.LAST_NAME, U.SECOND_NAME, U.PERSONAL_PHOTO, U.LOGIN, 
+				".$DB->Concat("U.LAST_NAME", "' '", "U.NAME")." AUTH_USER_NAME
 			FROM b_vote V
 			INNER JOIN b_vote_channel C ON (V.CHANNEL_ID = C.ID)
+			LEFT JOIN b_user U ON (V.AUTHOR_ID = U.ID)
 			WHERE 1=1 ".$strSqlSearch." ".$strSqlOrder;
 		return new _CVoteDBResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
 	}

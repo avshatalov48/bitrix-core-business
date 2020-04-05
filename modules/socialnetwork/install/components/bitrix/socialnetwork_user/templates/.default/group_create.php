@@ -26,6 +26,7 @@ $componentParameters = array(
 	"USE_KEYWORDS" => $arParams["GROUP_USE_KEYWORDS"],
 	"USE_AUTOSUBSCRIBE" => "N",
 	"FIRST_ROW" => ($_GET["firstRow"] == "project" ? "project" : ""),
+	"LID" => (isset($_GET["lid"]) ? $_GET["lid"] : false)
 );
 
 if ($_REQUEST['IFRAME'] == 'Y')

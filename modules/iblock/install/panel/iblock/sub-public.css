@@ -648,15 +648,43 @@
 	background-position:0 -1224px; cursor:default;
 }
 
-.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select-wrap,
 .bx-core-adm-dialog .adm-sublist .adm-list-table-footer input[type="submit"]
 {
-	margin:0 0 0 11px!important; vertical-align:middle;
+	margin:0 0 0 11px!important;
 }
 
-.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select-wrap
+.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select-wrap,
+.bx-core-adm-dialog .adm-sublist .adm-navigation .adm-select-wrap
 {
-	display: inline-block;
+	margin:0 0 0 11px!important;
+	background:url("../main/images/bx-admin-sprite-small-2.png") repeat-x 0 -494px;
+	border-radius:4px;
+	-webkit-box-shadow:inset 0 0 1px rgba(255,255,255,0.3), 0 1px 1px -1px rgba(0,0,0,0.3);
+	box-shadow:inset 0 0 1px rgba(255,255,255,0.3), 0 1px 1px -1px rgba(0,0,0,0.3);
+	border:1px solid;
+	border-color:rgba(0,0,0,0.06) rgba(0,0,0,0.16) rgba(0,0,0,0.35);
+	display:inline-block;
+	vertical-align:top;
+	position:relative;
+}
+
+.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select-wrap:after,
+.bx-core-adm-dialog .adm-sublist .adm-navigation .adm-select-wrap:after
+{
+	background:url("../main/images/bx-admin-sprite-small-2.png") no-repeat 0 -533px;
+	content:"";
+	height:10px;
+	right:8px;
+	top:10px;
+	position:absolute;
+	width:5px;
+	z-index:0;
+}
+
+.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-input-text-wrap
+{
+	display: inline-block; vertical-align: middle;
+	margin:0 0 0 11px;
 }
 
 .bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-btn
@@ -664,9 +692,34 @@
 	margin:0 0 0 11px; vertical-align:middle;
 }
 
-.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select
+.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-list-footer-ext {display: inline-block; vertical-align: top;}
+
+.bx-core-adm-dialog .adm-sublist .adm-list-table-footer .adm-select,
+.bx-core-adm-dialog .adm-sublist .adm-navigation .adm-select
 {
 	max-width:130px;
+	background:none;
+	border:none;
+	border-radius:0;
+	box-shadow:none;
+	color:#3f4b54;
+	display:inline-block;
+	font-size:13px;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	line-height:15px;
+	height:29px;
+	text-shadow:0 1px #fff;
+	outline:none;
+	overflow:hidden;
+	padding:6px 19px 6px 5px;
+	min-width:44px;
+	vertical-align:top;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	position:relative;
+	z-index:1;
+	zoom:1;
 }
 
 .bx-core-adm-dialog .adm-sublist .adm-table-item-edit-single .adm-table-btn-delete,
@@ -740,7 +793,7 @@
 	display:inline-block;
 	font-size:11px;
 	vertical-align:middle;
-	line-heigth: 100%;
+	line-height: 100%;
 	padding: 0 12px 0 0;
 }
 

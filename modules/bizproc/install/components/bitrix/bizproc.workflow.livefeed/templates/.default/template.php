@@ -1,4 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+\Bitrix\Main\UI\Extension::load("ui.viewer");
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 $cmpId = RandString();
 $jsCallback = <<<SCRIPT
@@ -77,7 +79,7 @@ SCRIPT;
 			<?=$task['NAME']?>
 			<? if ($task['DESCRIPTION']):?>
 			<p>
-				<?=nl2br($task['DESCRIPTION'])?>
+				<?=\CBPViewHelper::prepareTaskDescription($task['DESCRIPTION'])?>
 			</p>
 			<?endif?>
 			<p><a href="javascript:void(0);" onclick="return BX.Bizproc.showTaskPopup(<?=$task['ID']?>, <?=$jsCallback?>, null, this, true)"><?=GetMessage("BPATL_TASK_LINK_TITLE")?></a></p>

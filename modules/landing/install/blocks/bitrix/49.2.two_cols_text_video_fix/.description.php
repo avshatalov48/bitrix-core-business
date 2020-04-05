@@ -10,7 +10,8 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_49_3_TWO_COLS_TEXT_VIDEO_FIX--NAME'),
 		'section' => array('video'),
-		'version' => '18.5.0',
+		'dynamic' => false,
+		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	),
 	'cards' => array(),
 	'nodes' => array(
@@ -42,7 +43,7 @@ return array(
 		),
 		'.landing-block-node-video-col' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_49_3_TWO_COLS_TEXT_VIDEO_FIX--LANDINGBLOCKNODEVIDEO'),
-			'type' => 'animation',
+			'type' => array('align-self' ,'animation'),
 		),
 	),
 	'assets' => array(

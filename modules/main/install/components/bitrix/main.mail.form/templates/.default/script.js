@@ -46,6 +46,18 @@
 
 		this.editor.OnSubmit();
 
+		var footerClone = footer.cloneNode(true);
+
+		Array.prototype.forEach.call(
+			footerClone.querySelectorAll('[id]'),
+			function (item)
+			{
+				item.removeAttribute('id');
+			}
+		);
+
+		BX(this.formId+'_dummy_footer').appendChild(footerClone);
+
 		event = event || window.event;
 		BX.onCustomEvent(this, 'MailForm:submit', [this, event]);
 
@@ -55,6 +67,20 @@
 			BX.addClass(button, 'ui-btn-wait');
 			button.disabled = true;
 			button.offsetHeight; // hack to show loader
+
+			for (var i = 0, copyChecked = -1; i < this.fields.length; i++)
+			{
+				if (this.fields[i].params.copy)
+				{
+					copyChecked = Math.max(copyChecked, BX(this.fields[i].fieldId+'_copy').checked);
+				}
+			}
+
+			if (copyChecked >= 0)
+			{
+				BX.userOptions.save('main.mail.form', 'copy_to_sender', null, copyChecked);
+				BX.userOptions.send();
+			}
 
 			if (this.options.submitAjax)
 			{
@@ -638,114 +664,21 @@
 		var selector = BX.findChildByClassName(field.params.__row, 'main-mail-form-field-value-menu', true);
 		BX.bind(selector, 'click', function()
 		{
-			var items = [];
+			var input = BX(field.fieldId + '_value');
 
-			var input = BX(field.fieldId+'_value');
-			var apply = function(value, text)
-			{
-				input.value = value;
-				BX.adjust(selector, {html: BX.util.strip_tags(text)});
-				BX.onCustomEvent(field.form, 'MailForm::from::change', [field]);
-			};
-			var handler = function(event, item)
-			{
-				var action = 'apply';
-
-				if (event && event.target)
+			BXMainMailConfirm.showList(
+				field.fieldId,
+				selector,
 				{
-					var deleteIconClass = 'main-mail-form-field-from-menu-delete-icon';
-					if (BX.hasClass(event.target, deleteIconClass) || BX.findParent(event.target, {class: deleteIconClass}, item.layout.item))
+					required: field.params.required,
+					placeholder: field.params.placeholder,
+					selected: input.value,
+					callback: function (value, text)
 					{
-						action = 'delete';
+						input.value = value;
+						BX.adjust(selector, {html: BX.util.strip_tags(text)});
+						BX.onCustomEvent(field.form, 'MailForm::from::change', [field]);
 					}
-				}
-
-				if ('delete' == action)
-				{
-					BXMainMailConfirm.deleteSender(
-						item.id,
-						function ()
-						{
-							item.menuWindow.removeMenuItem(item.id);
-
-							if (input.value == item.title)
-							{
-								apply(items[0].title, items[0].text);
-							}
-						}
-					);
-				}
-				else
-				{
-					apply(item.title, item.text);
-					item.menuWindow.close();
-				}
-			};
-
-			var itemText, itemClass;
-
-			if (!field.params.required)
-			{
-				items.push({
-					text: BX.util.htmlspecialchars(field.params.placeholder),
-					title: '',
-					onclick: handler
-				});
-				items.push({ delimiter: true });
-			}
-
-			if (field.params.mailboxes && field.params.mailboxes.length > 0)
-			{
-				for (var i in field.params.mailboxes)
-				{
-					itemClass = 'menu-popup-no-icon';
-					itemText = BX.util.htmlspecialchars(field.params.mailboxes[i].formated);
-					if (field.params.mailboxes[i]['can_delete'] && field.params.mailboxes[i].id > 0)
-					{
-						itemText += '<span class="main-mail-form-field-from-menu-delete-icon popup-window-close-icon popup-window-titlebar-close-icon"\
-							title="' + BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_DELETE')) + '"></span>';
-						itemClass = 'menu-popup-no-icon menu-popup-right-icon';
-					}
-					items.push({
-						text: itemText,
-						title: field.params.mailboxes[i].formated,
-						onclick: handler,
-						className: itemClass,
-						id: field.params.mailboxes[i].id
-					});
-				}
-
-				items.push({ delimiter: true });
-			}
-
-			items.push({
-				text: BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_MENU')),
-				onclick: function(event, item)
-				{
-					item.menuWindow.close();
-					BXMainMailConfirm.showForm(function(mailbox, formated)
-					{
-						field.params.mailboxes.push({
-							email: mailbox.email,
-							name: mailbox.name,
-							id: mailbox.id,
-							formated: formated
-						});
-
-						apply(formated, BX.util.htmlspecialchars(formated));
-						BX.PopupMenu.destroy(field.fieldId+'-menu');
-					});
-				}
-			});
-
-			BX.PopupMenu.show(
-				field.fieldId+'-menu',
-				selector, items,
-				{
-					className: 'main-mail-form-field-value-menu-content',
-					offsetLeft: 40,
-					angle: true,
-					closeByEsc: true
 				}
 			);
 		});
@@ -870,81 +803,91 @@
 			}
 		};
 
-		var selectorParams = {
-			name: field.selector,
-			searchInput: input,
-			bindMainPopup: {
-				node: wrapper,
-				offsetTop: '5px',
-				offsetLeft: '15px'
-			},
-			bindSearchPopup : {
-				node: wrapper,
-				offsetTop: '5px',
-				offsetLeft: '15px'
-			},
-			callback: {
-				select: select,
-				unSelect: unselect,
-				openDialog: BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-					inputBoxName: input.parentNode,
-					inputName: input,
-					tagInputName: link
-				}),
-				closeDialog: function()
-				{
-					BX.onCustomEvent(field.form, 'MailForm:field:rcptSelectorClose', [field.form, field]);
-					BX.SocNetLogDestination.BXfpCloseDialogCallback.apply({
+		if (field.form.options.version < 2)
+		{
+			var selectorParams = {
+				name: field.selector,
+				searchInput: input,
+				bindMainPopup: {
+					node: wrapper,
+					offsetTop: '5px',
+					offsetLeft: '15px'
+				},
+				bindSearchPopup : {
+					node: wrapper,
+					offsetTop: '5px',
+					offsetLeft: '15px'
+				},
+				callback: {
+					select: select,
+					unSelect: unselect,
+					openDialog: BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
 						inputBoxName: input.parentNode,
 						inputName: input,
 						tagInputName: link
-					});
+					}),
+					closeDialog: function()
+					{
+						BX.onCustomEvent(field.form, 'MailForm:field:rcptSelectorClose', [field.form, field]);
+						BX.SocNetLogDestination.BXfpCloseDialogCallback.apply({
+							inputBoxName: input.parentNode,
+							inputName: input,
+							tagInputName: link
+						});
+					},
+					openSearch: BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
+						inputBoxName: input.parentNode,
+						inputName: input,
+						tagInputName: link
+					})
 				},
-				openSearch: BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-					inputBoxName: input.parentNode,
-					inputName: input,
-					tagInputName: link
-				})
-			},
-			items: {},
-			itemsLast: {},
-			itemsSelected: {},
-			destSort: {}
-		};
+				items: {},
+				itemsLast: {},
+				itemsSelected: {},
+				destSort: {}
+			};
 
-		if (field.params.selector)
-		{
-			for (var i in field.params.selector)
-				selectorParams[i] = field.params.selector[i];
+			if (field.params.selector)
+			{
+				for (var i in field.params.selector)
+					selectorParams[i] = field.params.selector[i];
+			}
+
+			BX.SocNetLogDestination.init(selectorParams);
+
+			BX.bind(input, 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
+				formName: field.selector,
+				inputName: input
+			}));
+			BX.bind(input, 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
+				formName: field.selector,
+				inputName: input,
+				tagInputName: link
+			}));
+			BX.bind(input, 'paste', BX.defer(BX.SocNetLogDestination.BXfpSearch, {
+				formName: field.selector,
+				inputName: input,
+				tagInputName: link,
+				onPasteEvent: true
+			}));
+			BX.bind(input, 'blur', BX.delegate(BX.SocNetLogDestination.BXfpBlurInput, {
+				inputBoxName: input.parentNode,
+				tagInputName: link
+			}));
+
+			BX.bind(wrapper, 'click', function(e)
+			{
+				BX.SocNetLogDestination.openDialog(field.selector);
+				BX.PreventDefault(e);
+			});
 		}
 
-		BX.SocNetLogDestination.init(selectorParams);
 
-		BX.bind(input, 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-			formName: field.selector,
-			inputName: input
-		}));
-		BX.bind(input, 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-			formName: field.selector,
-			inputName: input,
-			tagInputName: link
-		}));
-		BX.bind(input, 'paste', BX.defer(BX.SocNetLogDestination.BXfpSearch, {
-			formName: field.selector,
-			inputName: input,
-			tagInputName: link,
-			onPasteEvent: true
-		}));
-		BX.bind(input, 'blur', BX.delegate(BX.SocNetLogDestination.BXfpBlurInput, {
-			inputBoxName: input.parentNode,
-			tagInputName: link
-		}));
 
-		BX.bind(wrapper, 'click', function(e)
-		{
-			BX.SocNetLogDestination.openDialog(field.selector);
-			BX.PreventDefault(e);
-		});
+
+
+
+
 
 		BX.bind(more, 'click', function(e)
 		{
@@ -1173,20 +1116,31 @@
 
 	BXMainMailFormField.__types['rcpt'].setValue = function(field, value)
 	{
-		var selected = BX.SocNetLogDestination.getSelected(field.selector);
-		for (var id in selected)
-			BX.SocNetLogDestination.deleteItem(id, selected[id], field.selector);
+		if (field.form.options.version < 2)
+		{
+			var selected = BX.SocNetLogDestination.getSelected(field.selector);
+			for (var id in selected)
+				BX.SocNetLogDestination.deleteItem(id, selected[id], field.selector);
+		}
 
 		if (value && BX.type.isPlainObject(value))
 		{
-			for (var id in value)
+			if (field.form.options.version < 2)
 			{
-				if (value.hasOwnProperty(id))
+				for (var id in value)
 				{
-					BX.SocNetLogDestination.obItemsSelected[field.selector][id] = value[id];
-					BX.SocNetLogDestination.runSelectCallback(id, value[id], field.selector, false, 'init');
+					if (value.hasOwnProperty(id))
+					{
+						BX.SocNetLogDestination.obItemsSelected[field.selector][id] = value[id];
+						BX.SocNetLogDestination.runSelectCallback(id, value[id], field.selector, false, 'init');
+					}
 				}
 			}
+
+			BX.onCustomEvent("BX.Main.SelectorV2:reInitDialog", [ {
+				selectorId: field.params.id,
+				selectedItems: BX.clone(value)
+			} ]);
 		}
 	};
 

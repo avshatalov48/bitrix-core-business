@@ -89,6 +89,7 @@ class Controller extends Engine\Controller
 
 	protected static function getApplication()
 	{
+		/** @global \CMain $APPLICATION */
 		global $APPLICATION;
 
 		return $APPLICATION;

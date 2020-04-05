@@ -1603,10 +1603,13 @@ class CAllSaleOrder
 
 
 	//*************** EVENTS *********************/
-	function OnBeforeCurrencyDelete($currency)
+	public static function OnBeforeCurrencyDelete($currency)
 	{
 		global $APPLICATION;
-		if (strlen($currency)<=0) return false;
+
+		$currency = (string)$currency;
+		if ($currency === '')
+			return true;
 
 		if (Internals\OrderTable::getList(array(
 			'filter' => array('=CURRENCY' => $currency),
@@ -1618,6 +1621,7 @@ class CAllSaleOrder
 		}
 
 		if (Internals\OrderArchiveTable::getList(array(
+			'select' => array('ID'),
 			'filter' => array('=CURRENCY' => $currency),
 			'limit' => 1
 		))->fetch())
@@ -2421,44 +2425,6 @@ class CAllSaleOrder
 
 		unset($GLOBALS["SALE_ORDER"]["SALE_ORDER_CACHE_".$ID]);
 
-		CTimeZone::Disable();
-		$arOrder = CSaleOrder::GetByID($ID);
-		CTimeZone::Enable();
-
-		CSaleMobileOrderPush::send("ORDER_STATUS_CHANGED", array("ORDER" => $arOrder));
-
-		$userEmail = "";
-		$dbOrderProp = CSaleOrderPropsValue::GetList(Array(), Array("ORDER_ID" => $ID, "PROP_IS_EMAIL" => "Y"));
-		if($arOrderProp = $dbOrderProp->Fetch())
-			$userEmail = $arOrderProp["VALUE"];
-		if(strlen($userEmail) <= 0)
-		{
-			$dbUser = CUser::GetByID($arOrder["USER_ID"]);
-			if($arUser = $dbUser->Fetch())
-				$userEmail = $arUser["EMAIL"];
-		}
-		$dbSite = CSite::GetByID($arOrder["LID"]);
-		$arSite = $dbSite->Fetch();
-		$arStatus = CSaleStatus::GetByID($arOrder["STATUS_ID"], $arSite["LANGUAGE_ID"]);
-
-		if ($arStatus['NOTIFY'] == 'Y')
-		{
-			$arFields = Array(
-				"ORDER_ID" => $arOrder["ACCOUNT_NUMBER"],
-				"ORDER_DATE" => $arOrder["DATE_INSERT_FORMAT"],
-				"ORDER_STATUS" => $arStatus["NAME"],
-				"EMAIL" => $userEmail,
-				"ORDER_DESCRIPTION" => $arStatus["DESCRIPTION"],
-				"TEXT" => "",
-				"SALE_EMAIL" => COption::GetOptionString("sale", "order_email", "order@".$_SERVER["SERVER_NAME"])
-			);
-
-			foreach(GetModuleEvents("sale", "OnSaleStatusEMail", true) as $arEvent)
-			{
-				$arFields["TEXT"] = ExecuteModuleEventEx($arEvent, Array($ID, $arStatus["ID"]));
-			}
-		}
-
 		return $res;
 	}
 
@@ -2622,7 +2588,13 @@ class CAllSaleOrder
 						}
 
 						$publicLink = '';
-						$order = Sale\Order::load($arOrder['ID']);
+
+						$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+						/** @var Sale\Order $orderClass */
+						$orderClass = $registry->getOrderClassName();
+
+						$order = $orderClass::load($arOrder['ID']);
 						if (Sale\Helpers\Order::isAllowGuestView($order))
 						{
 							$publicLink = Sale\Helpers\Order::getPublicLink($order);
@@ -3109,8 +3081,12 @@ class CAllSaleOrder
 
 			return $result;
 		}
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
-		$order = Sale\Order::load($id);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::load($id);
 		if (!$order)
 		{
 			$result->addError(
@@ -3141,97 +3117,7 @@ class CAllSaleOrder
 	*/
 	public static function ClearProductReservedQuantity()
 	{
-		global $USER;
-
-		if (!is_object($USER))
-			$USER = new CUser;
-
-		$days_ago = (int)COption::GetOptionString("sale", "product_reserve_clear_period");
-
-		if ($days_ago > 0)
-		{
-			$date = new \Bitrix\Main\Type\DateTime();
-
-			$parameters = [
-				'select' => array(
-					"ORDER_ID" => "DELIVERY.ORDER.ID",
-				),
-				'filter' => [
-					"<=DELIVERY.ORDER.DATE_INSERT" => $date->add('-'.$days_ago.' day'),
-					'>RESERVED_QUANTITY' => 0,
-					"=DELIVERY.DEDUCTED" => "N",
-					"=DELIVERY.MARKED" => "N",
-					"=DELIVERY.ALLOW_DELIVERY" => "N",
-					"=DELIVERY.ORDER.PAYED" => "N",
-					"=DELIVERY.ORDER.CANCELED" => "N",
-				],
-				'group' => ['ORDER_ID'],
-				'limit' => 100
-			];
-
-			$res = Sale\ShipmentItem::getList($parameters);
-
-			while($data = $res->fetch())
-			{
-				/** @var Sale\Order $order */
-				$order = Sale\Order::load($data['ORDER_ID']);
-				$orderSaved = false;
-				$errors = array();
-
-				try
-				{
-					/** @var Sale\ShipmentCollection $shipmentCollection */
-					if ($shipmentCollection = $order->getShipmentCollection())
-					{
-						/** @var Sale\Shipment $shipment */
-						foreach ($shipmentCollection as $shipment)
-						{
-							$r = $shipment->tryUnreserve();
-							if (!$r->isSuccess())
-							{
-								Sale\EntityMarker::addMarker($order, $shipment, $r);
-								if (!$shipment->isSystem())
-								{
-									$shipment->setField('MARKED', 'Y');
-								}
-							}
-						}
-					}
-
-					$r = $order->save();
-					if ($r->isSuccess())
-					{
-						$orderSaved = true;
-					}
-					else
-					{
-						$errors = $r->getErrorMessages();
-					}
-				}
-				catch(Exception $e)
-				{
-					$errors[] = $e->getMessage();
-				}
-
-				if (!$orderSaved)
-				{
-					if (!empty($errors))
-					{
-						$oldErrorText = $order->getField('REASON_MARKED');
-						foreach($errors as $error)
-						{
-							$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
-						}
-
-						Sale\Internals\OrderTable::update($order->getId(), array(
-							"MARKED" => "Y",
-							"REASON_MARKED" => $oldErrorText
-						));
-					}
-				}
-			}
-		}
-
+		\Bitrix\Sale\Helpers\ReservedProductCleaner::bind(60);
 		return "CSaleOrder::ClearProductReservedQuantity();";
 	}
 
@@ -3348,12 +3234,17 @@ class CAllSaleOrder
 			$selectOrder[] = 'USER_ID';
 		}
 
-		$res = Sale\Order::getList(array(
-									   'filter' => array(
-										   '=ID' => $list
-									   ),
-									   'select' => $selectOrder
-								   ));
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$res = $orderClass::getList(array(
+		   'filter' => array(
+			   '=ID' => $list
+		   ),
+		   'select' => $selectOrder
+	   ));
 		while($orderData = $res->fetch())
 		{
 			if (!in_array($orderData['LID'], array_keys($siteList)))

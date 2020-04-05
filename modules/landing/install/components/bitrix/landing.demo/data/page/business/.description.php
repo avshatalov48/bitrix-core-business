@@ -14,8 +14,8 @@ return array(
 	'description' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
-			'THEME_CODE' => 'business',
-			'THEME_CODE_TYPO' => 'business',
+			'THEME_CODE' => '2business',
+			'THEME_CODE_TYPO' => '2business',
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/business/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
@@ -187,7 +187,7 @@ return array(
             </div>
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row justify-content-center row no-gutters landing-block-inner">
                 <div class="landing-block-node-element landing-block-card col-md-6 col-lg-3 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in js-animation fadeInLeft">
                     <!-- Icon Blocks -->
                     <div class="text-center g-px-10 g-px-30--lg g-py-40 g-pt-25--parent-hover g-transition-0_2 g-transition--ease-in">
@@ -311,7 +311,7 @@ return array(
 		</div>
 		
         <div class="container">
-            <div class="row">
+            <div class="row landing-block-inner">
 
                 <div class="landing-block-card js-animation col-lg-6 g-px-30 g-mb-10 fadeIn">
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">
@@ -359,7 +359,7 @@ return array(
 				'SORT' => '2500',
 				'CONTENT' => '<section class="landing-block g-theme-business-bg-blue-dark-v1 g-py-20">
         <div class="container">
-            <div class="row">
+            <div class="row landing-block-inner">
 
                 <div class="landing-block-card js-animation col-lg-6 g-px-30 g-mb-10 fadeIn animated ">
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">
@@ -657,7 +657,7 @@ return array(
 				'CONTENT' => '<section class="landing-block landing-block-node-container g-pt-30 g-pb-20">
         <div class="container">
 
-            <div class="row no-gutters">
+            <div class="row no-gutters landing-block-inner">
 
                 <div class="landing-block-card js-animation col-md-4 g-mb-30 g-mb-0--md fadeInUp">
                     <article class="text-center g-brd-around g-color-gray g-brd-gray-light-v5 g-pa-10">
@@ -786,7 +786,7 @@ return array(
 				'SORT' => '6000',
 				'CONTENT' => '<section class="landing-block landing-block-node-container g-py-20">
 	<div class="container">
-		<div class="row">
+		<div class="row landing-block-inner">
 
 			<div class="landing-block-card landing-block-node-block col-md-3 g-mb-30 g-mb-0--md js-animation fadeInUp">
 				<img class="landing-block-node-img img-fluid g-mb-30" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img1.jpg" alt="" />

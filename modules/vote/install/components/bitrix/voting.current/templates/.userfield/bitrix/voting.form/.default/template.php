@@ -107,7 +107,7 @@ if (isset($arResult["CAPTCHA_CODE"]))
 	</span>
 	<span class="bx-vote-captcha-input">
 		<label for="captcha_word"><?=GetMessage("F_CAPTCHA_PROMT")?></label>
-		<input type="text" size="20" name="captcha_word" id="captcha_word" />
+		<input type="text" size="20" name="captcha_word" id="captcha_word" autocomplete="off" />
 	</span>
 </div>
 <? } // CAPTCHA_CODE ?>

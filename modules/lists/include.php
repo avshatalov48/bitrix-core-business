@@ -24,7 +24,7 @@ CModule::AddAutoloadClasses(
 		"CListsParameters" => "classes/general/parameters.php",
 		"CListFileControl" => "classes/general/comp_lib.php",
 		"CListsSocnet" => "classes/general/listsocnet.php",
-		"CListsLiveFeed" => "lib/livefeed.php",
+		"CListsLiveFeed" => "classes/general/livefeed.php",
 		"BizprocDocument" => "lib/bizprocdocument.php",
 
 		"bitrix\\lists\\importer" => "lib/importer.php",
@@ -38,4 +38,3 @@ CJSCore::RegisterExt('lists', array(
 	'lang' => BX_ROOT.'/modules/lists/lang/'.LANGUAGE_ID.'/install/js/lists.php',
 	'rel' => array('core', 'popup', 'json', 'ajax')
 ));
-?>

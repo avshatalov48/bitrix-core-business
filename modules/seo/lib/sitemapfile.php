@@ -66,26 +66,29 @@ class SitemapFile
 			$this->documentRoot,
 			$site['DIR']
 		);
-
-//		normalize slashes
+		
+		$fileName = $this->prepareFileName($fileName);
+		$this->partFile = $this->partFile ? $fileName : $this->partFile;
+		$this->pathPhysical = null; // hack for object reconstuct during file splitting
+		parent::__construct($this->siteRoot.'/'.$fileName, $this->settings['SITE_ID']);
+		$this->partChanged = $this->isExists() && !$this->isSplitNeeded();
+	}
+	
+	protected function prepareFileName($fileName)
+	{
+		// normalize slashes
 		$fileName = Path::normalize($fileName);
 		if (substr($fileName, -strlen(self::FILE_EXT)) != self::FILE_EXT)
 		{
 			$fileName .= self::FILE_EXT;
 		}
 		
-		if ($this->partFile == '')
-		{
-			$this->partFile = $fileName;
-		}
-
-		$this->pathPhysical = null; // hack for object reconstuct during file splitting
-
-		parent::__construct($this->siteRoot.'/'.$fileName, $this->settings['SITE_ID']);
-
-		$this->partChanged = $this->isExists() && !$this->isSplitNeeded();
+		// convert words delimiter, google dont't like '_''
+		$fileName = str_replace('_', '-', $fileName);
+		
+		return $fileName;
 	}
-
+	
 	/**
 	 * Reinitializes current object with new file name.
 	 *

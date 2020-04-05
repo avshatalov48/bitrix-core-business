@@ -88,4 +88,6 @@ $MESS["USER_MALE"] = "Мужской";
 $MESS["USER_FEMALE"] = "Женский";
 $MESS["MAIN_USER_ADMIN_FIELD_ID"] = "ID";
 $MESS["MAIN_USER_ADMIN_PAGES"] = "страница";
+$MESS["main_user_admin_logout"] = "Выполнить выход";
+$MESS["main_user_admin_logout_title"] = "Выполнить выход пользователя на всех устройствах";
 ?>

@@ -10,36 +10,25 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NAME'),
 		'section' => array('countdowns', 'cover'),
-		'version' => '18.5.0',
+		'dynamic' => false,
+		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
+		'type' => ['page', 'store', 'smn'],
 	),
 	'nodes' => array(
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1280),
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),
 			'type' => 'text',
 		),
 		
-		'.landing-block-node-number-text-days' => array(
+		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_TEXT'),
 			'type' => 'text',
 		),
-		'.landing-block-node-number-text-hours' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-minutes' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		'.landing-block-node-number-text-seconds' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_TEXT'),
-			'type' => 'text',
-		),
-		
 		'.landing-block-node-date-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),
 			'type' => 'text',

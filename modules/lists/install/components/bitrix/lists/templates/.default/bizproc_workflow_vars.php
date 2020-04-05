@@ -23,7 +23,7 @@ if($isBitrix24Template)
 }
 ?>
 	<div class="pagetitle-container pagetitle-align-right-container">
-		<a href="<?=$link?>" class="lists-list-back">
+		<a href="<?=$link?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 			<?=GetMessage("CT_BL_LIST_PROCESSES")?>
 		</a>
 	</div>

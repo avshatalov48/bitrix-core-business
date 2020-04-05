@@ -8,6 +8,7 @@
 	BX.Bizproc.Selector = {
 		delimiter: '=',
 		listenKeyCode: 187,
+		listenKey: '=',
 		currentData: {},
 		inputElement: null,
 		popup: null,
@@ -220,7 +221,7 @@
 				},scope), 10)
 			}
 		}
-		else if (e.shiftKey === false && e.keyCode == me.listenKeyCode)
+		else if (e.shiftKey === false && (e.keyCode == me.listenKeyCode || e.key === me.listenKey))
 		{
 			if (!scope.mentionListen)
 			{
@@ -357,6 +358,15 @@
 				items: this.filterItems(activitiesItems, query)
 			});
 
+		if (window.arWorkflowGlobalConstants && BX.util.object_keys(window.arWorkflowGlobalConstants).length > 0)
+		{
+			result.push({
+				tabName: '@' + BX.message('BIZPROC_JS_BP_SELECTOR_CONSTANTS'),
+				tabId: 'gconstants',
+				items: this.extractMenuItem(query, window.arWorkflowGlobalConstants, 'GlobalConst')
+			});
+		}
+
 		result.push({
 			tabName: BX.message('BIZPROC_JS_BP_SELECTOR_SYSTEM'),
 			tabId: 'system',
@@ -417,6 +427,14 @@
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKTIME_DESCRIPTION'),
 				value: '{{=isworktime()}}'
 			},{
+				text: 'touserdate',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_TOUSERDATE_DESCRIPTION'),
+				value: '{{=touserdate()}}'
+			},{
+				text: 'getuserdateoffset',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_GETUSERDATEOFFSET_DESCRIPTION'),
+				value: '{{=getuserdateoffset()}}'
+			},{
 				text: 'if',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_IF_DESCRIPTION'),
 				value: '{{=if(,,)}}'
@@ -468,6 +486,14 @@
 				text: 'strlen',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRLEN_DESCRIPTION'),
 				value: '{{=strlen()}}'
+			},{
+				text: 'implode',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_IMPLODE_DESCRIPTION'),
+				value: '{{=implode(,)}}'
+			},{
+				text: 'explode',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_EXPLODE_DESCRIPTION'),
+				value: '{{=explode(,)}}'
 			},{
 				text: 'randstring',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_RANDSTRING_DESCRIPTION'),

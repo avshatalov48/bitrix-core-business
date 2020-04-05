@@ -1,6 +1,8 @@
-<?
+<?php
+
 class CTempFile
 {
+	private static $is_exit_function_registered = false;
 	private static $arFiles = array();
 
 	public static function GetAbsoluteRoot()
@@ -43,8 +45,11 @@ class CTempFile
 			if(!file_exists($temp_path))
 			{
 				//Delayed unlink
-				if(empty(self::$arFiles))
+				if(!self::$is_exit_function_registered)
+				{
+					self::$is_exit_function_registered = true;
 					register_shutdown_function(array('CTempFile', 'Cleanup'));
+				}
 
 				self::$arFiles[$temp_path] = $dir_name."/".$dir_add;
 
@@ -98,8 +103,11 @@ class CTempFile
 		}
 
 		//Delayed unlink
-		if(empty(self::$arFiles))
+		if(!self::$is_exit_function_registered)
+		{
+			self::$is_exit_function_registered = true;
 			register_shutdown_function(array('CTempFile', 'Cleanup'));
+		}
 
 		//Function ends only here
 		return $temp_path;
@@ -127,6 +135,10 @@ class CTempFile
 				{
 					CTempFile::_absolute_path_recursive_delete($temp_path);
 				}
+			}
+			elseif(file_exists($temp_dir))
+			{
+				@rmdir($temp_dir);
 			}
 		}
 
@@ -199,7 +211,8 @@ class CTempFile
 				}
 				closedir($handle);
 			}
-			if(!@rmdir($path))
+			$r = @rmdir($path);
+			if(!$r)
 				return false;
 			return $f;
 		}
@@ -207,4 +220,3 @@ class CTempFile
 	}
 
 }
-?>

@@ -14,6 +14,7 @@ use Bitrix\Main\ORM\Query\Filter\ConditionTree as Filter;
 use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\Query\Filter\Expressions\ColumnExpression;
 use Bitrix\Main\Error;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
 
 /**
@@ -26,7 +27,11 @@ class Reference extends Relation
 	/** @var array|Filter */
 	protected $reference;
 
-	protected $joinType = 'LEFT';
+	protected $joinType = Join::TYPE_LEFT;
+
+	protected $cascadeSavePolicy = CascadePolicy::NO_ACTION;
+
+	protected $cascadeDeletePolicy = CascadePolicy::NO_ACTION; // follow | no_action
 
 	const ELEMENTAL_THIS = 1;
 	const ELEMENTAL_REF = 2;
@@ -67,7 +72,7 @@ class Reference extends Relation
 		{
 			$join_type = strtoupper($parameters['join_type']);
 
-			if (in_array($join_type, array('LEFT', 'INNER', 'RIGHT'), true))
+			if (in_array($join_type, Join::getTypes(), true))
 			{
 				$this->joinType = $join_type;
 			}

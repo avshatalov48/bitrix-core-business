@@ -91,5 +91,17 @@ class CBPIfElseActivity
 	{
 		return true;
 	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		foreach ($this->arActivities as $activity)
+		{
+			if ($activity->Condition instanceof CBPActivityCondition)
+			{
+				$usages = array_merge($usages, $activity->Condition->collectUsages($activity));
+			}
+		}
+		return $usages;
+	}
 }
-?>

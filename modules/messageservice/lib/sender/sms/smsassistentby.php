@@ -4,6 +4,7 @@ namespace Bitrix\MessageService\Sender\Sms;
 use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
@@ -170,6 +171,11 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 			'validity_period' => 24,
 			'webhook_url' => $this->getCallbackUrl()
 		];
+
+		if (ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$message['Vendor'] = 'Bitrix24';
+		}
 
 		if ($messageFields['MESSAGE_FROM'])
 		{

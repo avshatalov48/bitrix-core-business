@@ -206,7 +206,8 @@ class DomainTable extends Entity\DataManager
 					'ID'
 				),
 				'filter' => array(
-					'DOMAIN_ID' => $primary['ID']
+					'DOMAIN_ID' => $primary['ID'],
+					'CHECK_PERMISSIONS' => 'N'
 				)
 			));
 			if ($res->fetch())

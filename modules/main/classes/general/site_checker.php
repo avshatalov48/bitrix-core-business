@@ -249,7 +249,15 @@ class CSiteCheckerTest
 		ob_start();
 		try
 		{
-			$this->result = call_user_func(array($this,$this->function));
+			if ($this->fix_mode && $this->arTestVars['start_function'] != $this->function)
+			{
+				// dummy hit to display zero progress
+				$this->arTestVars['start_function'] = $this->function;
+				$this->test_percent = 0;
+				$this->result = true;
+			}
+			else
+				$this->result = call_user_func(array($this,$this->function));
 		}
 		catch (Exception $e)
 		{
@@ -1157,6 +1165,9 @@ class CSiteCheckerTest
 			$l = strlen("\xd0\xa2");
 			if (!($retVal = $bUtf && $l == 1 || !$bUtf && $l == 2))
 				$text = GetMessage('SC_STRLEN_FAIL_PHP56');
+
+			if (!$bUtf && LANG_CHARSET == 'windows-1251' && !($retVal = strtoupper("\xe0") == "\xc0"))
+				$text = GetMessage('SC_STRTOUPPER_FAIL');
 		}
 
 		return $this->Result($retVal, ($retVal ? GetMessage("MAIN_SC_CORRECT").'. ':'').$text);
@@ -1279,28 +1290,47 @@ class CSiteCheckerTest
 		if (CModule::IncludeModule('pull'))
 		{
 			$text = md5(mt_rand(100000,999999));
-			$id = CPullChannel::SignChannel(md5($text));
+			$channelId = md5($text);
+			$id = CPullChannel::SignChannel($channelId);
 			if (CPullOptions::GetQueueServerStatus())
 			{
-				if (!$ar = parse_url(str_replace('#DOMAIN#', $this->host, CPullOptions::GetPublishUrl($id))))
-					return $this->Result(false, GetMessage("MAIN_SC_PATH_PUB"));
+				$isServerShared = method_exists("CPullOptions", "IsServerShared") && CPullOptions::IsServerShared();
+				if($isServerShared && !\Bitrix\Pull\SharedServer\Config::isRegistered())
+				{
+					return $this->Result(false, GetMessage("MAIN_SC_PULL_NOT_REGISTERED"));
+				}
+				else
+				{
+					if (!$ar = parse_url(str_replace('#DOMAIN#', $this->host, \Bitrix\Pull\Config::getPublishUrl($id))))
+						return $this->Result(false, GetMessage("MAIN_SC_PATH_PUB"));
 
-				$pub_domain = $ar['host'];
-				$pub_host = ($ar['scheme'] == 'https' ? 'ssl://' : '').$pub_domain;
-				$pub = $ar['path'].'?'.$ar['query'];
-				$pub_port = $ar['port'];
-				if (!$pub_port)
-					$pub_port = $ar['scheme'] == 'https' ? 443 : 80;
+					$pub_domain = $ar['host'];
+					$pub_host = ($ar['scheme'] == 'https' ? 'ssl://' : '').$pub_domain;
+					$pub = $ar['path'].'?'.$ar['query'];
+					$pub_port = $ar['port'];
+					if (!$pub_port)
+						$pub_port = $ar['scheme'] == 'https' ? 443 : 80;
 
-				if (!$ar = parse_url(str_replace('#DOMAIN#', $this->host, $this->ssl ? CPullOptions::GetListenSecureUrl($id) : CPullOptions::GetListenUrl($id))))
-					return $this->Result(false, GetMessage("MAIN_SC_PATH_SUB"));
+					if($isServerShared)
+					{
+						$listenUrl = \Bitrix\Pull\SharedServer\Config::getLongPollingUrl();
+						$listenUrl .= "?CHANNEL_ID=".$id . "&clientId=".\Bitrix\Pull\SharedServer\Client::getPublicLicenseCode();
+					}
+					else
+					{
+						$listenUrl = $this->ssl ? CPullOptions::GetListenSecureUrl($id) : CPullOptions::GetListenUrl($id);
+					}
 
-				$sub_domain = $ar['host'];
-				$sub_host = ($ar['scheme'] == 'https' ? 'ssl://' : '').$sub_domain;
-				$sub = $ar['path'].'?'.$ar['query'];
-				$sub_port = $ar['port'];
-				if (!$sub_port)
-					$sub_port = $ar['scheme'] == 'https' ? 443 : 80;
+					if (!$ar = parse_url(str_replace('#DOMAIN#', $this->host, $listenUrl)))
+						return $this->Result(false, GetMessage("MAIN_SC_PATH_SUB"));
+
+					$sub_domain = $ar['host'];
+					$sub_host = ($ar['scheme'] == 'https' ? 'ssl://' : '').$sub_domain;
+					$sub = $ar['path'].'?'.$ar['query'];
+					$sub_port = $ar['port'];
+					if (!$sub_port)
+						$sub_port = $ar['scheme'] == 'https' ? 443 : 80;
+				}
 			}
 			else
 			{
@@ -1348,16 +1378,15 @@ class CSiteCheckerTest
 			return $this->Result(false, GetMessage("MAIN_SC_NO_SUB_CONNECTION"));
 		}
 		fwrite($res1, $strRequest1);
+		sleep(1); // we need some time to create channel
 
 		// POST - message
-		if (!$res0 = $this->ConnectToHost($pub_host, $pub_port))
+		$postResult = CPullChannel::Send($channelId, $text, ['dont_wait_answer' => false]);
+		if(!$postResult)
 		{
 			$this->arTestVars['push_stream_fail'] = true;
 			return $this->Result(false, GetMessage("MAIN_SC_NO_PUSH_STREAM_CONNECTION"));
 		}
-		fwrite($res0, $strRequest0);
-		$strRes0 = fgets($res0);
-		fclose($res0);
 
 		// GET - message
 		$strRes1 = fread($res1, 4096);
@@ -1365,10 +1394,10 @@ class CSiteCheckerTest
 		$retVal = true;
 		if (false === strpos($strRes1, $text))
 		{
-			PrintHTTP($strRequest0, $strHeaders0, $strRes0);
+//			PrintHTTP($strRequest0, $strHeaders0, $strRes0);
 			PrintHTTP($strRequest1, $strHeaders1, $strRes1);
 			$this->arTestVars['push_stream_fail'] = true;
-			$retVal = $this->Result(false, GetMessage("MAIN_SC_PUSH_INCORRECT"));
+			$retVal = $this->Result(false, GetMessage("MAIN_SC_PUSH_INCORRECT", ['#MODULE#' => $bNodeJS ? 'Bitrix Push server' : 'nginx-push-stream-module']));
 		}
 	
 		// DELETE
@@ -1947,12 +1976,16 @@ class CSiteCheckerTest
 	{
 		global $DB;
 
-		$res = $DB->Query('SHOW VARIABLES LIKE \'sql_mode\'');
-		$f = $res->Fetch();
+		$strError = '';
+		$f = $DB->Query('SHOW VARIABLES LIKE \'innodb_strict_mode\'')->Fetch();
+		if (strtoupper($f['Value']) != 'OFF')
+			$strError = GetMessage('SC_DB_ERR_INNODB_STRICT', ['#VALUE#' => $f['Value']])."<br>";
 
+		$f = $DB->Query('SHOW VARIABLES LIKE \'sql_mode\'')->Fetch();
 		if (strlen($f['Value']) > 0)
-			return $this->Result(false,GetMessage('SC_DB_ERR_MODE').' '.$f['Value']);
-		return true;
+			$strError .= GetMessage('SC_DB_ERR_MODE').' '.$f['Value'];
+
+		return $strError ? $this->Result(false, $strError) : true;
 	}
 
 	function check_mysql_time()
@@ -2160,7 +2193,9 @@ class CSiteCheckerTest
 			'b_search_content_stem' => 'STEM',
 			'b_search_content_freq' => 'STEM',
 			'b_search_stem' => 'STEM',
-			'b_search_tags' => 'NAME'
+			'b_search_tags' => 'NAME',
+			'b_translate_path' => 'NAME',
+			'b_translate_phrase' => 'CODE',
 		);
 		while($f = $res->Fetch())
 		{
@@ -2265,7 +2300,7 @@ class CSiteCheckerTest
 					}
 					elseif ($this->force_repair)
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' CHARACTER SET '.$charset.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] == 'CURRENT_TIMESTAMP' ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
+							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
 				}
 				elseif ($collation != $f_collation)
 				{
@@ -2281,7 +2316,7 @@ class CSiteCheckerTest
 					}
 					else
 						$arFix[] = ' MODIFY `'.$f0['Field'].'` '.$f0['Type'].' COLLATE '.$collation.($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] == 'CURRENT_TIMESTAMP' ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
+							($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
 				}
 			}
 
@@ -2328,6 +2363,8 @@ class CSiteCheckerTest
 
 		if ($this->arTestVars['table_charset_fail'])
 			return $this->Result(null, GetMessage('SC_TABLE_COLLATION_NA'));
+
+		$DB->Query("SET SQL_MODE=''");
 
 		$f = $DB->Query('SELECT VERSION() v')->Fetch();
 		$this->db_ver = $f['v'];
@@ -2628,18 +2665,6 @@ class CSiteCheckerTest
 							$this->arTestVars['cntNoIndexes']++;
 						}
 					}
-
-					if ($arFT[$name] && !$this->fullTextIndexEnabled($table, $ix))
-					{
-						if ($this->fix_mode)
-							$this->enableFullTextIndex($table, $ix);
-						else
-						{
-							$strError .= GetMessage('SC_ERR_NO_INDEX_ENABLED', array('#TABLE#' => $table, '#INDEX#' => $name.' ('.$ix.')'))."<br>";
-							$this->arTestVars['iError']++;
-							$this->arTestVars['iErrorAutoFix']++;
-						}
-					}
 				}
 
 				$DB->Query('DROP TABLE `'.$tmp_table.'`');
@@ -2775,22 +2800,6 @@ class CSiteCheckerTest
 			$DB->Query('UPDATE b_option SET VALUE="'.$DB->ForSQL(serialize($options)).'" WHERE MODULE_ID="main" AND NAME="'.$name.'"');
 		else
 			$DB->Query('INSERT INTO b_option (MODULE_ID, NAME, VALUE) VALUES("main", "'.$name.'", "'.$DB->ForSQL(serialize($options)).'")');
-	}
-
-	function fullTextIndexEnabled($table, $field)
-	{
-		$name = '~ft_'.strtolower($table);
-		global $DB;
-		$options = array();
-		$f = $DB->Query('SELECT * FROM b_option WHERE MODULE_ID="main" AND NAME="'.$name.'"')->Fetch();
-		$optionString = $f['VALUE'];
-		if($optionString <> '')
-		{
-			$options = unserialize($optionString);
-		}
-		if ($options[strtoupper($field)])
-			return true;
-		return false;
 	}
 }
 
@@ -3071,7 +3080,21 @@ function InitPureDB()
 function TableFieldConstruct($f0)
 {
 	global $DB;
-	$tmp = '`'.$f0['Field'].'` '.$f0['Type'].($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').($f0['Default'] === NULL ? ($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '') : ' DEFAULT '.($f0['Type'] == 'timestamp' && $f0['Default'] == 'CURRENT_TIMESTAMP' ? $f0['Default'] : '"'.$DB->ForSQL($f0['Default']).'"')).' '.$f0['Extra'];
+	$tmp = '`'.$f0['Field'].'` '.$f0['Type'].
+		($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
+		($f0['Default'] === NULL
+		?
+			($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '')
+		:
+			' DEFAULT '.
+			($f0['Type'] == 'timestamp' && !preg_match('#^\d{4}#', $f0['Default'])
+			?
+				$f0['Default']
+				:
+				'"'.$DB->ForSQL($f0['Default']).'"'
+			)
+		).
+		' '.$f0['Extra'];
 	return trim($tmp);
 }
 

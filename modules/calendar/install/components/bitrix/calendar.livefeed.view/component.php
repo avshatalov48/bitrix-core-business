@@ -111,13 +111,12 @@ if ($arResult['EVENT']['DT_SKIP_TIME'] !== "Y")
 
 $arResult['EVENT']['FROM_WEEK_DAY'] = FormatDate('D', $fromDateTs);
 $arResult['EVENT']['FROM_MONTH_DAY'] = FormatDate('j', $fromDateTs);
+$arResult['ATTENDEES_INDEX'] = [];
+$arResult['EVENT']['ACCEPTED_ATTENDEES'] = [];
+$arResult['EVENT']['DECLINED_ATTENDEES'] = [];
 
 if ($arResult['EVENT']['IS_MEETING'])
 {
-	$arResult['ATTENDEES_INDEX'] = array();
-	$arResult['EVENT']['ACCEPTED_ATTENDEES'] = array();
-	$arResult['EVENT']['DECLINED_ATTENDEES'] = array();
-
 	if (is_array($arResult['EVENT']['ATTENDEE_LIST']))
 	{
 		$userIndex = CCalendarEvent::getUserIndex();

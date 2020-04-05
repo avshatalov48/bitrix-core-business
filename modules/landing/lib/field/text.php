@@ -27,8 +27,18 @@ class Text extends \Bitrix\Landing\Field
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
 		$this->help = isset($params['help']) ? $params['help'] : '';
+		$this->searchable = isset($params['searchable']) && $params['searchable'] === true;
 		$this->placeholder = isset($params['placeholder']) ? $params['placeholder'] : '';
 		$this->maxlength = isset($params['maxlength']) ? (int)$params['maxlength'] : 0;
+	}
+
+	/**
+	 * Gets true, if current value is empty.
+	 * @return bool
+	 */
+	public function isEmptyValue()
+	{
+		return $this->value === '';
 	}
 
 	/**
@@ -46,7 +56,7 @@ class Text extends \Bitrix\Landing\Field
 		?><?= isset($params['additional']) ? $params['additional'] . ' ' : ''?><?
 		?><?= isset($params['id']) ? 'id="' . \htmlspecialcharsbx($params['id']) . '" ' : ''?><?
 		?><?= $this->maxlength > 0 ? 'maxlength="'. $this->maxlength . '" ' : ''?><?
-		?><?= $this->placeholder != '' ? 'placeholder="'. $this->placeholder . '" ' : ''?><?
+		?><?= $this->placeholder != '' ? 'placeholder="'. \htmlspecialcharsbx($this->placeholder) . '" ' : ''?><?
 		?>class="<?= isset($params['class']) ? \htmlspecialcharsbx($params['class']) : ''?>" <?
 		?>data-code="<?= \htmlspecialcharsbx($this->code)?>" <?
 		?>name="<?= \htmlspecialcharsbx(isset($params['name_format'])

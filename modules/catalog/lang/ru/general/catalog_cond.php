@@ -68,6 +68,7 @@ $MESS["BT_MOD_CATALOG_COND_CMP_CATALOG_VAT_INCLUDED_VALUE_NO"] = "нет";
 $MESS["BT_MOD_CATALOG_COND_CMP_IBLOCK_PROP_LABEL"] = "Свойства инфоблока #NAME# [#ID#]";
 $MESS["BT_MOD_CATALOG_COND_CMP_IBLOCK_ONE_PROP_LABEL"] = "Свойство #NAME#";
 $MESS["BT_MOD_CATALOG_COND_CMP_IBLOCK_ONE_PROP_PREFIX"] = "свойство #NAME# инфоблока #IBLOCK_NAME# [#IBLOCK_ID#]";
+$MESS["BT_MOD_CATALOG_COND_CMP_IBLOCK_PROPERTY_NOT_ACTIVE"] = "Свойство деактивировано";
 $MESS["BT_MOD_COND_ERR_EVENT_BAD"] = "Неверное событие";
 $MESS["BT_MOD_COND_ERR_JS_NAME_BAD"] = "Неверное имя переменной";
 $MESS["BT_MOD_COND_ERR_PARSE_DATA_EMPTY"] = "Нет данных об условиях применения скидки";

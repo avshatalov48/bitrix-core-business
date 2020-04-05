@@ -288,7 +288,7 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 				);
 				if($arUser = $rsUser->GetNext())
 				{
-					if (in_array($arUser["EXTERNAL_AUTH_ID"], array("bot", "email", "controller", "replica", "imconnector")))
+					if (in_array($arUser["EXTERNAL_AUTH_ID"], array("bot", "email", "__controller", "replica", "imconnector")))
 					{
 						continue;
 					}

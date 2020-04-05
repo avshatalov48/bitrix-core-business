@@ -10,6 +10,7 @@ namespace Bitrix\Main\Mail\Internal;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Mail as Mail;
 use Bitrix\Main\Config as Config;
+use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\Type as Type;
 
 class EventTable extends Entity\DataManager
@@ -44,12 +45,17 @@ class EventTable extends Entity\DataManager
 				'data_type' => 'string',
 				'required' => true,
 			),
-			'C_FIELDS' => array(
-				'data_type' => 'string',
-				//'column_name' => 'C_FIELDS',
-				'save_data_modification' => array(__CLASS__, "getSaveModificatorsForFieldsField"),
-				'fetch_data_modification' => array(__CLASS__, "getFetchModificatorsForFieldsField"),
-			),
+
+			(new ArrayField('C_FIELDS'))
+				->configureSerializeCallback(function ($value){
+					return EventTable::serialize($value);
+				})
+				->configureUnserializeCallback(function ($str) {
+					return unserialize(
+						EventTable::getFetchModificationForFieldsField($str)
+					);
+				}),
+
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime',
 				'default_value' => function(){return new Type\DateTime();},

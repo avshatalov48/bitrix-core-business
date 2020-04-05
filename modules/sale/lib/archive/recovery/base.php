@@ -4,6 +4,11 @@ namespace Bitrix\Sale\Archive\Recovery;
 use Bitrix\Main,
 	Bitrix\Sale;
 
+/**
+ * @package Bitrix\Sale\Archive\Recovery
+ *
+ * @deprecated No longer used by internal code and not recommended.
+ */
 abstract class Base
 {
 	/** @var Sale\Archive\Order $order */

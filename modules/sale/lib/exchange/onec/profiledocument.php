@@ -24,7 +24,7 @@ class ProfileDocument extends UserProfileDocument
 	 */
 	static protected function getMessageExport()
 	{
-		return Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/sale/general/export.php');
+		return Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/sale/general/export.php', self::CML_LANG_ID);
 	}
 
 	public function outputXml(array $fields, $level = 0)

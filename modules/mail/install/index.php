@@ -44,6 +44,11 @@ Class mail extends CModule
 		if(!$DB->Query("SELECT 'x' FROM b_mail_mailbox WHERE 1=0", true))
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".strtolower($DB->type)."/install.sql");
+
+			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
+			{
+				\Bitrix\Main\ORM\Data\DataManager::enableCrypto('TOKENS', 'b_mail_oauth', true);
+			}
 		}
 
 		if($this->errors !== false)
@@ -442,5 +447,9 @@ Class mail extends CModule
 			$APPLICATION->IncludeAdminFile(Loc::getMessage("MAIL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/unstep2.php");
 		}
 	}
+
+	public function migrateToBox()
+	{
+		COption::SetOptionString('mail', 'disable_log', 'N');
+	}
 }
-?>

@@ -127,8 +127,10 @@ abstract class UserImportBase extends ImportBase
 
 		if($personType === null)
 		{
-			$r = \CSalePersonType::GetList(array(), array("ACTIVE" => "Y", "LIDS" => $siteId));
-			while($ar = $r->Fetch())
+			$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+			$class = $registry->getPersonTypeClassName();
+			$r = $class::getlist(['filter' => ["=ACTIVE" => "Y", "=PERSON_TYPE_SITE.SITE_ID" => $siteId]]);
+			while($ar = $r->fetch())
 			{
 				$personType[] = $ar["ID"];
 			}

@@ -55,3 +55,4 @@ $MESS["DELIVERY_CHANGE_WARNING"] = "Выбрана первая доступна
 $MESS["PAY_SYSTEM_CHANGE_WARNING"] = "Выбрана первая доступная платежная система";
 $MESS["SESSID_ERROR"] = "Ваша сессия истекла. Пожалуйста, перезагрузите страницу.";
 $MESS["ORDER_CONSISTENCY_CHANGED"] = "Во время сохранения заказа состав заказа был изменен.";
+$MESS["SOA_WRONG_SMS_CODE"] = "Неверный код подтверждения из СМС.";

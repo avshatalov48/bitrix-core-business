@@ -405,6 +405,44 @@ class FieldType
 	}
 
 	/**
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public function internalizeValue($objectName, $value)
+	{
+		$typeClass = $this->typeClass;
+
+		if ($this->isMultiple())
+		{
+			return $typeClass::internalizeValueMultiple($this, $objectName, $value);
+		}
+		else
+		{
+			return $typeClass::internalizeValueSingle($this, $objectName, $value);
+		}
+	}
+
+	/**
+	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param mixed $value Field value.
+	 * @return mixed
+	 */
+	public function externalizeValue($objectName, $value)
+	{
+		$typeClass = $this->typeClass;
+
+		if ($this->isMultiple())
+		{
+			return $typeClass::externalizeValueMultiple($this, $objectName, $value);
+		}
+		else
+		{
+			return $typeClass::externalizeValueSingle($this, $objectName, $value);
+		}
+	}
+
+	/**
 	 * Get list of supported base types.
 	 * @return array
 	 */

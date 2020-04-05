@@ -7,7 +7,8 @@ if ($readOnly)
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/include.php');
+
+\Bitrix\Main\Loader::includeModule('sale');
 
 use	Bitrix\Sale\BusinessValue;
 use Bitrix\Sale\Internals\BusinessValueTable;

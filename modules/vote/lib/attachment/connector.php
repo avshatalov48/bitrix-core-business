@@ -17,12 +17,12 @@ abstract class Connector
 	}
 
 	/**
-	 * @param Attach $attachedObject Attach.
+	 * @param \Bitrix\Vote\Attach $attachedObject Attach.
 	 * @return Connector
 	 * @throws ObjectNotFoundException
 	 * @throws SystemException
 	 */
-	final public static function buildFromAttachedObject(Attach $attachedObject)
+	final public static function buildFromAttachedObject(\Bitrix\Vote\Attach $attachedObject)
 	{
 		if(!Loader::includeModule($attachedObject->getModuleId()))
 		{

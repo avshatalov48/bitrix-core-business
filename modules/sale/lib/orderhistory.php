@@ -580,7 +580,7 @@ class OrderHistory
 	 */
 	public static function deleteOldAgent($days, $hitLimit = null)
 	{
-		$calledClass = static::class;
+		$calledClass = '\\'.static::class;
 
 		$days = (int)$days;
 

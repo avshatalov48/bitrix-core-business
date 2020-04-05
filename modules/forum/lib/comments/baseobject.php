@@ -31,11 +31,20 @@ abstract class BaseObject
 	/** @var  ErrorCollection */
 	protected $errorCollection;
 
-	public function __construct($forumId, $entity, $userId = 0)
+	public function __construct($forumId, $entity, $userId = null)
 	{
 		global $USER;
 		$this->errorCollection = new ErrorCollection();
-		$this->setUser($userId ?: $USER->getId());
+		if (is_null($userId))
+		{
+			$userId = ($USER instanceof \CUser ? $USER->getId() : 0);
+		}
+		else
+		{
+			$userId = intval($userId);
+		}
+		$this->setUser($userId);
+
 		$this->setForum($forumId);
 		$this->setEntity($entity);
 		$this->setTopic();

@@ -75,6 +75,8 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 	$arResult["RETURN_DATA_ARRAY"]["DATA"] = $arResult["RETURN_DATA"];
 	$arData = array();
 
+	$attributes = Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileData($arResult["FILE"], $arResult["FILE"]["SRC"]);
+
 	$size = (intVal($arResult["FILE"]["FILE_SIZE"]) > 0 ? CFile::FormatSize(intval($arResult['FILE']['FILE_SIZE'])) : '');
 	$sTitle = (!empty($arResult["FILE"]["ORIGINAL_NAME"]) ? $arResult["FILE"]["ORIGINAL_NAME"] : GetMessage("FRM_DOWNLOAD"));
 	$file_ext = GetFileExtension($arResult["FILE"]["ORIGINAL_NAME"]);
@@ -92,7 +94,7 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 			" data-bx-title=\"".htmlspecialcharsbx($arResult["FILE"]["ORIGINAL_NAME"])."\" ".
 			" data-bx-owner=\"".htmlspecialcharsbx($arResult["FILE"]["OWNER"])."\" ".
 			" data-bx-dateModify=\"".htmlspecialcharsbx($arResult["FILE"]["TIMESTAMP_X"])."\" data-bx-tooBigSizeMsg=\"\" ".
-			" data-bx-size=\"".$size."\" ".
+			" data-bx-size=\"".$size."\" ".$attributes.
 			" data-bx-download=\"".$arResult["FILE"]["SRC"]."&action=download\" " )).
 		"title=\"".str_replace("#FILE_NAME#", $arResult["FILE"]["ORIGINAL_NAME"], GetMessage("FRM_DOWNLOAD_TITLE")).'" target="_blank">'.
 		'<span>'.$arResult["FILE"]["ORIGINAL_NAME"].'</span></a>';
@@ -103,7 +105,7 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 	$arResult["RETURN_DATA_ARRAY"] += $arData;
 	if ($arParams["SHOW_MODE"] == "RSS")
 		$arResult["RETURN_DATA"] = (!empty($arResult["RETURN_DATA"]) ?
-			$arResult["RETURN_DATA"] : '<a href="'.$arResult["FILE"]["FULL_SRC"].'">'.$arResult["FILE"]["ORIGINAL_NAME"].'</a>');
+			$arResult["RETURN_DATA"] : '<a "'.$attributes.'" href="'.$arResult["FILE"]["FULL_SRC"].'">'.$arResult["FILE"]["ORIGINAL_NAME"].'</a>');
 	elseif ($arParams["SHOW_MODE"] == "THUMB" && !empty($arResult["RETURN_DATA"]))
 		$arResult["RETURN_DATA"] = "<span class=\"forum-attach\" title=\"".htmlspecialcharsbx($arResult["FILE"]["ORIGINAL_NAME"])." (".$size.")\">".$arResult["RETURN_DATA"]."</span>";
 	elseif ($arParams["SHOW_MODE"] !=   "FULL" || empty($arResult["RETURN_DATA"]))

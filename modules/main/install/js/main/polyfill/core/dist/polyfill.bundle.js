@@ -1028,22 +1028,9 @@
 	var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
 	var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
-	var inModule = typeof module === "object";
-	var runtime = global.regeneratorRuntime;
-	if (runtime) {
-		if (inModule) {
-			// If regeneratorRuntime is defined globally and we're in a module,
-			// make the exports object identical to regeneratorRuntime.
-			module.exports = runtime;
-		}
-		// Don't bother evaluating the rest of this file if the runtime was
-		// already defined globally.
-		return;
-	}
-
 	// Define the runtime globally (as expected by generated code) as either
 	// module.exports (if we're in a module) or a new, empty object.
-	runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+	var runtime = global.regeneratorRuntime = {};
 
 	function wrap(innerFn, outerFn, self, tryLocsList) {
 		// If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
@@ -1965,8 +1952,6 @@
 	  }
 	};
 
-	_global.core = _core; // type bitmap
-
 	$export.F = 1; // forced
 
 	$export.G = 2; // global
@@ -2074,7 +2059,7 @@
 	})('versions', []).push({
 	  version: _core.version,
 	  mode: _library ? 'pure' : 'global',
-	  copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
+	  copyright: '(c) 2019 Denis Pushkarev (zloirock.ru)'
 	});
 	});
 
@@ -3644,7 +3629,7 @@
 	  fround: _mathFround
 	});
 
-	// 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
+	// 20.2.2.17 Math.hypot([value1[, value2[, ... ]]])
 
 
 	var abs$1 = Math.abs;
@@ -9066,4 +9051,125 @@
 	window._main_core_polyfill = true;
 
 }((this.window = this.window || {})));
+
+
+
+/**
+ * Element.prototype.matches polyfill
+ */
+;(function(element) {
+	'use strict';
+
+	if (!element.matches && element.matchesSelector)
+	{
+		element.matches = element.matchesSelector;
+	}
+
+	if (!element.matches)
+	{
+		element.matches = function(selector) {
+			var matches = document.querySelectorAll(selector);
+			var self = this;
+
+			return Array.prototype.some.call(matches, function(e) {
+				return e === self;
+			});
+		};
+	}
+
+})(Element.prototype);
+
+;(function() {
+	'use strict';
+
+	if (!Element.prototype.closest)
+	{
+		/**
+		 * Finds closest parent element by selector
+		 * @param {string} selector
+		 * @return {HTMLElement|Element|Node}
+		 */
+		Object.defineProperty(Element.prototype, 'closest', {
+			enumerable: false,
+			value: function(selector) {
+				var node = this;
+
+				while (node)
+				{
+					if (node.matches(selector))
+					{
+						return node;
+					}
+
+					node = node.parentElement;
+				}
+
+				return null;
+			},
+		});
+	}
+})();
+
+(function (exports) {
+	'use strict';
+
+	if (!window.DOMRect || typeof DOMRect.prototype.toJSON !== 'function' || typeof DOMRect.fromRect !== 'function') {
+	  window.DOMRect =
+	  /*#__PURE__*/
+	  function () {
+	    function DOMRect(x, y, width, height) {
+	      babelHelpers.classCallCheck(this, DOMRect);
+	      this.x = x || 0;
+	      this.y = y || 0;
+	      this.width = width || 0;
+	      this.height = height || 0;
+	    }
+
+	    babelHelpers.createClass(DOMRect, [{
+	      key: "toJSON",
+	      value: function toJSON() {
+	        return {
+	          top: this.top,
+	          left: this.left,
+	          right: this.right,
+	          bottom: this.bottom,
+	          width: this.width,
+	          height: this.height,
+	          x: this.x,
+	          y: this.y
+	        };
+	      }
+	    }, {
+	      key: "top",
+	      get: function get() {
+	        return this.y;
+	      }
+	    }, {
+	      key: "left",
+	      get: function get() {
+	        return this.x;
+	      }
+	    }, {
+	      key: "right",
+	      get: function get() {
+	        return this.x + this.width;
+	      }
+	    }, {
+	      key: "bottom",
+	      get: function get() {
+	        return this.y + this.height;
+	      }
+	    }], [{
+	      key: "fromRect",
+	      value: function fromRect(otherRect) {
+	        return new DOMRect(otherRect.x, otherRect.y, otherRect.width, otherRect.height);
+	      }
+	    }]);
+	    return DOMRect;
+	  }();
+	}
+
+}((this.window = this.window || {})));
+
+
 //# sourceMappingURL=polyfill.bundle.js.map

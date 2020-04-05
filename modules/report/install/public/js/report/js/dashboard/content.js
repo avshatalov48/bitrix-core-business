@@ -123,31 +123,16 @@
 		constructor: BX.Report.Dashboard.Content.Html,
 		loadAssets: function()
 		{
-			if (this.css.length)
+			var js = this.js.length ? this.js : [];
+			var css = this.css.length ? this.css : [];
+			var assets = js.concat(css);
+			if(assets.length)
 			{
-				BX.load(this.css, BX.delegate(function() {
-					if (this.js.length)
-					{
-						BX.load(this.js, BX.delegate(function() {
-							this.fillHtmlContentWrapper()
-						}, this));
-					}
-					else
-					{
-						this.fillHtmlContentWrapper()
-					}
-				}, this));
-
-			}
-			else if (this.js.length)
-			{
-				BX.load(this.js, BX.delegate(function() {
-					this.fillHtmlContentWrapper()
-				}, this));
+				BX.load(assets, this.fillHtmlContentWrapper.bind(this));
 			}
 			else
 			{
-				this.fillHtmlContentWrapper()
+				this.fillHtmlContentWrapper();
 			}
 		},
 		fillHtmlContentWrapper: function()
@@ -174,13 +159,13 @@
 			}
 			else
 			{
-				BX.addCustomEvent(this.widget, 'Dashboard.Board.Widget:onAfterRender', BX.delegate(function ()
+				BX.addCustomEvent(this.widget, 'Dashboard.Board.Widget:onAfterRender', function ()
 				{
 					if (this.htmlContentWrapper.parentNode)
 					{
 						this.loadAssets();
 					}
-				}, this));
+				}.bind(this));
 
 				this.setRenderStatus(true);
 				return this.htmlContentWrapper;

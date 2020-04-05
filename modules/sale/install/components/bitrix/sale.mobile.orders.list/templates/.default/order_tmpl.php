@@ -3,7 +3,10 @@
 $orderTemplate = '
 	<a href="##ORDER_DETAIL_LINK##">
 		<div class="order_itemlist_item_title">
-				<span>'.GetMessage('SMOL_N').'##ACCOUNT_NUMBER## '.GetMessage('SMOL_FROM').' ##DATE_INSERT##</span>
+			<div class="order_itemlist_item_title_container">
+				<div class="order_itemlist_item_title_number">'.GetMessage('SMOL_N').'##ACCOUNT_NUMBER## </div>
+				<div class="order_itemlist_item_title_date">'.GetMessage('SMOL_FROM').' ##DATE_INSERT_SHORT##</div>
+			</div>
 		</div>
 		<div class="order_itemlist_item_content">##CONTENT##';
 
@@ -22,7 +25,10 @@ $orderTemplate .= '
 $orderTemplateCompleted = '
 	<a href="##ORDER_DETAIL_LINK##">
 		<div class="order_itemlist_item_title">
-				<span>'.GetMessage('SMOL_N').'##ACCOUNT_NUMBER## '.GetMessage('SMOL_FROM').' ##DATE_INSERT##</span>
+			<div class="order_itemlist_item_title_container">
+				<div class="order_itemlist_item_title_number">'.GetMessage('SMOL_N').'##ACCOUNT_NUMBER## </div>
+				<div class="order_itemlist_item_title_date">'.GetMessage('SMOL_FROM').' ##DATE_INSERT_SHORT##</div>
+			</div>
 		</div>
 		<div class="order_itemlist_item_total">
 			<div class="order_itemlist_item_total_completed">'.GetMessage('SMOL_SUMM').': <span>##ADD_PRICE##</span></div>';

@@ -337,7 +337,7 @@ class Finder
 
 		$map = Location\LocationTable::getMap();
 		$nameRequired = false;
-		$locationRequred = false;
+		$locationRequired = false;
 
 		if(is_array($parameters['select']))
 		{
@@ -358,7 +358,7 @@ class Finder
 					unset($parameters['select'][$alias]);
 				}
 
-				$locationRequred = true;
+				$locationRequired = true;
 			}
 		}
 
@@ -379,12 +379,12 @@ class Finder
 				unset($filter[$field]);
 			}
 
-			$locationRequred = true;
+			$locationRequired = true;
 		}
 
 		// data join, only if extended select specified
 
-		if($locationRequred && $filterByPhrase)
+		if($locationRequired && $filterByPhrase)
 			$query['JOIN'][] = "inner join ".Location\LocationTable::getTableName()." L on A.LOCATION_ID = L.ID";
 
 		if($nameRequired)
@@ -506,11 +506,26 @@ class Finder
 			$filterName = ToUpper($dbHelper->forSql($filter['PHRASE']['VALUE']));
 		}
 
-		if(intval($filter['ID']['VALUE']))
+		if(is_array($filter['ID']['VALUE']))
+		{
+			$doFilterById = true;
+
+			if(count($filter['ID']['VALUE']) === 1)
+			{
+				reset($filter['ID']['VALUE']);
+				$filterId = (int)current($filter['ID']['VALUE']);
+			}
+			else
+			{
+				$filterId = $filter['ID']['VALUE'];
+			}
+		}
+		elseif(intval($filter['ID']['VALUE']))
 		{
 			$doFilterById = true;
 			$filterId = intval($filter['ID']['VALUE']);
 		}
+
 		if(intval($filter['CODE']['VALUE']))
 		{
 			$doFilterByCode = true;
@@ -659,7 +674,21 @@ class Finder
 			$where[] = "L.PARENT_ID = '".$filterParentId."'";
 
 		if($doFilterById)
-			$where[] = "L.ID = '".$filterId."'";
+		{
+			if(is_array($filterId))
+			{
+				foreach($filterId as $idx => $id)
+				{
+					$filterId[$idx] = (int)$id;
+				}
+
+				$where[] = "L.ID IN (".implode(',', $filterId).")";
+			}
+			else
+			{
+				$where[] = "L.ID = ".$filterId;
+			}
+		}
 
 		if($doFilterByCode)
 			$where[] = "L.CODE = '".$filterCode."'";

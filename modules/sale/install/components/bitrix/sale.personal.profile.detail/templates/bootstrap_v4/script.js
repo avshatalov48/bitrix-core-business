@@ -75,6 +75,31 @@ BX.namespace('BX.Sale.PersonalProfileComponent');
 				);
 			});
 
+			var dateFileList = document.querySelectorAll('.sale-personal-profile-detail-form-date');
+			for (var i=0; i < dateFileList.length; i++)
+			{
+				BX.bind(dateFileList[i], 'click', BX.delegate(function(e){
+					parentBlock = e.target.parentNode;
+					if (e.target.classList.contains('bx-calendar'))
+					{
+						parentBlock = parentBlock.parentNode;
+					}
+
+					var dateInputField = parentBlock.querySelector('input');
+					if (!BX.type.isDomNode(dateInputField))
+					{
+						return;
+					}
+					BX.calendar({
+						node: dateInputField,
+						field: dateInputField.name,
+						form: '',
+						bTime: false,
+						bHideTime: true
+					});
+				}, this));
+			}
+
 			var multiLocationList = document.getElementsByClassName('input-add-multiple');
 			for (var key in multiLocationList)
 			{

@@ -5,6 +5,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\ModuleManager;
+
 if (
 	$arResult["SHOW_FULL_FORM"]
 	&& $arParams["B_CALENDAR"]
@@ -87,8 +89,10 @@ if (isset($arResult["POST_PROPERTIES"]["DATA"])
 	$postImportantTillDate = $postImportantTillDate->add("1D");
 	$arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"] = $postImportantTillDate->format(\Bitrix\Main\Type\Date::convertFormatToPhp(\CSite::GetDateFormat('SHORT')));
 }
+
 if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 {
+	$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"] = reset($arResult["REMAIN_IMPORTANT_TILL"]);
 	foreach ($arResult["REMAIN_IMPORTANT_TILL"] as $key => $attributesForPopupList)
 	{
 		if ($attributesForPopupList["VALUE"] === "CUSTOM")
@@ -98,10 +102,127 @@ if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 		else
 		{
 			$arResult["REMAIN_IMPORTANT_TILL"][$key]["CLASS"] = "";
-			if ($attributesForPopupList["VALUE"] === "ALWAYS")
+			if ($attributesForPopupList["VALUE"] === "WEEK")
 			{
 				$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]['TEXT_KEY'] = $arResult["REMAIN_IMPORTANT_TILL"][$key]["TEXT_KEY"];
+				$arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]['VALUE'] = $arResult["REMAIN_IMPORTANT_TILL"][$key]["VALUE"];
 			}
 		}
 	}
+}
+
+$arResult['bVarsFromForm'] = (array_key_exists("POST_MESSAGE", $_REQUEST) || strlen($arResult["ERROR_MESSAGE"]) > 0 || $arResult["needShow"]);
+$arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
+
+$arResult['tabs'] = array();
+
+if (
+	ModuleManager::isModuleInstalled("intranet")
+	&& (
+		(
+			is_array($arResult["PostToShow"]["GRATS"])
+			&& !empty($arResult["PostToShow"]["GRATS"])
+			&& (!isset($arParams["PAGE_ID"]) || $arParams["PAGE_ID"] != "user_blog_post_edit_profile")
+		)
+		|| (
+			isset($arParams["PAGE_ID"])
+			&& $arParams["PAGE_ID"] == "user_blog_post_edit_grat"
+		)
+	)
+)
+{
+	$arResult['tabs'][] = 'grat';
+
+	if (
+		!empty($arResult["PostToShow"]["GRAT_CURRENT"]["ID"])
+		|| !empty($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"])
+		|| (
+			isset($arParams["PAGE_ID"])
+			&& in_array($arParams["PAGE_ID"], [ 'user_blog_post_edit_grat', 'user_grat' ])
+		)
+	)
+	{
+		$arResult['tabActive'] = "grat";
+	}
+
+	if (
+		array_key_exists("GRAT_CURRENT", $arResult["PostToShow"])
+		&& is_array($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"])
+	)
+	{
+		$arResult['arGratCurrentUsers'] = array();
+		foreach($arResult["PostToShow"]["GRAT_CURRENT"]["USERS"] as $grat_user_id)
+		{
+			$arResult['arGratCurrentUsers']["U".$grat_user_id] = 'users';
+		}
+	}
+	elseif (
+		isset($arParams["PAGE_ID"])
+		&& in_array($arParams["PAGE_ID"], [ 'user_blog_post_edit_grat', 'user_grat' ])
+	)
+	{
+		$arResult['arGratCurrentUsers']["U".(!empty($_REQUEST['gratUserId']) ? intval($_REQUEST['gratUserId']) : $arParams['USER_ID'])] = 'users';
+	}
+}
+
+if ($arResult["BLOG_POST_TASKS"])
+{
+	$arResult['tabs'][] = 'tasks';
+}
+
+if (
+	$arParams["B_CALENDAR"]
+	&& empty($arResult["Post"])
+	&& !isset($arParams["DISPLAY"])
+	&& !$arResult["bExtranetUser"]
+)
+{
+	$arResult['tabs'][] = 'calendar';
+}
+
+if (
+	$arResult["BLOG_POST_LISTS"]
+	&& empty($arResult["Post"])
+	&& !isset($arParams["DISPLAY"])
+	&& !$arResult["bExtranetUser"]
+)
+{
+	$arResult['tabs'][] = 'lists';
+}
+
+if (
+	empty($arResult["Post"])
+	&& array_key_exists("UF_BLOG_POST_FILE", $arResult["POST_PROPERTIES"]["DATA"])
+)
+{
+	$arResult['tabs'][] = 'file';
+}
+
+if (
+	array_key_exists("UF_BLOG_POST_VOTE", $arResult["POST_PROPERTIES"]["DATA"])
+	&& (
+		!isset($arParams["PAGE_ID"])
+		|| !in_array($arParams["PAGE_ID"], array("user_blog_post_edit_profile", "user_blog_post_edit_grat"))
+	)
+)
+{
+	$arResult['tabs'][] = 'vote';
+
+	if (
+		!$arResult['bVarsFromForm']
+		&& !!$arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_VOTE"]["VALUE"]
+	)
+	{
+		$arResult['tabActive'] = "vote";
+	}
+}
+
+if (
+	!$arResult['bVarsFromForm']
+	&& array_key_exists("UF_BLOG_POST_IMPRTNT", $arResult["POST_PROPERTIES"]["DATA"])
+	&& !!$arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_IMPRTNT"]["VALUE"]
+
+)
+{
+	$arResult['tabActive'] = "important";
 }

@@ -230,7 +230,7 @@
 		{
 			var widgets = this.getWidgets();
 			var cells = this.getCells();
-			BX.Report.Dashboard.Utils.forEach(widgets, BX.delegate(function (key)
+			BX.Report.Dashboard.Utils.forEach(widgets, function (key)
 			{
 				for (var i = 0; i < cells.length; i++)
 				{
@@ -240,7 +240,7 @@
 						cells[i].setWidget(widgets[key]);
 					}
 				}
-			}, this));
+			}.bind(this));
 		},
 		buildNestedCellNodeTree: function(params, isNested)
 		{

@@ -108,7 +108,8 @@
 				finish : { opacity : 100},
 				transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
 				step : function(state){
-					notifyPopup.popupContainer.style.opacity = state.opacity / 100;
+					if (BX(notifyPopup) && BX(notifyPopup.popupContainer))
+						notifyPopup.popupContainer.style.opacity = state.opacity / 100;
 				}
 			})).animate();
 

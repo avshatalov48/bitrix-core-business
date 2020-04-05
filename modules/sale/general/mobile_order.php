@@ -629,6 +629,18 @@ class CSaleMobileOrderUtils
 		);
 	}
 
+	/**
+	 * @param string $strDate
+	 * @return string
+	 */
+	static function getDate($strDate)
+	{
+		return FormatDateFromDB(
+			$strDate,
+			CSite::GetDateFormat('SHORT', LANGUAGE_ID)
+		);
+	}
+
 	function getPreparedTemplate($template, $arFields)
 	{
 		$retStr = $template;
@@ -1001,7 +1013,12 @@ class CSaleMobileOrderPush
 			return false;
 		}
 
-		if(!($order = \Bitrix\Sale\Order::load($orderId)))
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		if(!($order = $orderClass::load($orderId)))
 		{
 			return false;
 		}

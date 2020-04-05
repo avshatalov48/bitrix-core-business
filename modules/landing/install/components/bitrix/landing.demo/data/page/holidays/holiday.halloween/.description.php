@@ -172,9 +172,9 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-card' => array(
-					0 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 g-min-height-$1vh',
-					1 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 g-min-height-$1vh',
-					2 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 g-min-height-$1vh',
+					0 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 ',
+					1 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 ',
+					2 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 ',
 				),
 				'.landing-block-node-title' => array(
 					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-font-roboto-slab',
@@ -216,7 +216,7 @@ return array(
 					0 => 'landing-block-inner-container row no-gutters align-items-start',
 				),
 				'.landing-block-card' => array(
-					0 => 'landing-block-card js-animation fadeIn col-md-12 col-lg-12 g-flex-centered g-min-height-$1vh',
+					0 => 'landing-block-card js-animation fadeIn col-md-12 col-lg-12 g-flex-centered ',
 				),
 				'.landing-block-node-subtitle' => array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white',

@@ -6,20 +6,21 @@
 	var clone = BX.Landing.Utils.clone;
 
 	var availableActions = {
-		"Landing::addBlock": BX.message("LANDING_ACTION_ERROR__ADD_BLOCK"),
-		"Landing::deleteBlock": BX.message("LANDING_ACTION_ERROR__DELETE_BLOCK"),
-		"Landing::upBlock": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Landing::downBlock": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Landing::showBlock": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Landing::hideBlock": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Block::cloneCard": BX.message("LANDING_ACTION_ERROR__CLONE_CARD"),
-		"Block::removeCard": BX.message("LANDING_ACTION_ERROR__DELETE_CARD"),
-		"Block::updateStyles": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Block::updateNodes": BX.message("LANDING_ACTION_ERROR__SAVE_CHANGES"),
-		"Site::getList": BX.message("LANDING_ACTION_ERROR__SITE_GET_LIST"),
-		"Block::getList": BX.message("LANDING_ACTION_ERROR__BLOCK_GET_LIST"),
-		"Utils::uploadFile": BX.message("LANDING_ACTION_ERROR__UPLOAD_FILE"),
-		"UNKNOWN_ACTION": BX.message("LANDING_ACTION_ERROR__UNKNOWN_ACTION")
+		"Landing::addBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__ADD_BLOCK"),
+		"Landing::deleteBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__DELETE_BLOCK"),
+		"Landing::upBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Landing::downBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Landing::showBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Landing::hideBlock": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Block::cloneCard": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__CLONE_CARD"),
+		"Block::removeCard": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__DELETE_CARD"),
+		"Block::updateStyles": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Block::updateNodes": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SAVE_CHANGES"),
+		"Site::getList": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__SITE_GET_LIST"),
+		"Block::getList": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__BLOCK_GET_LIST"),
+		"Utils::uploadFile": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__UPLOAD_FILE"),
+		"UNKNOWN_ACTION": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__UNKNOWN_ACTION"),
+		"BAD_IMAGE": BX.Landing.Loc.getMessage("LANDING_ACTION_ERROR__BAD_IMAGE")
 	};
 
 
@@ -42,12 +43,14 @@
 	 */
 	BX.Landing.ErrorManager.getInstance = function()
 	{
-		if (!top.BX.Landing.ErrorManager.instance)
+		var rootWindow = BX.Landing.PageObject.getRootWindow();
+
+		if (!rootWindow.BX.Landing.ErrorManager.instance)
 		{
-			top.BX.Landing.ErrorManager.instance = new BX.Landing.ErrorManager();
+			rootWindow.BX.Landing.ErrorManager.instance = new BX.Landing.ErrorManager();
 		}
 
-		return top.BX.Landing.ErrorManager.instance;
+		return rootWindow.BX.Landing.ErrorManager.instance;
 	};
 
 

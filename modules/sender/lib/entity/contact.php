@@ -207,7 +207,7 @@ class Contact extends Base
 			return false;
 		}
 
-		$campaignId = $campaignId ?: Campaign::getDefaultId();
+		$campaignId = $campaignId ?: Campaign::getDefaultId(SITE_ID);
 		return MailingSubscriptionTable::addSubscription(array(
 			'MAILING_ID' => $campaignId,
 			'CONTACT_ID' => $this->getId(),
@@ -227,7 +227,7 @@ class Contact extends Base
 			return false;
 		}
 
-		$campaignId = $campaignId ?: Campaign::getDefaultId();
+		$campaignId = $campaignId ?: Campaign::getDefaultId(SITE_ID);
 		return MailingSubscriptionTable::addUnSubscription(array(
 			'MAILING_ID' => $campaignId,
 			'CONTACT_ID' => $this->getId(),

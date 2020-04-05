@@ -273,7 +273,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=GetMessage("F_SEARCH_COUNT")?>:</td>
 		<td>
-			<?$val = COption::GetOptionString("forum", "search_message_count", 0);?>
+			<?$val = COption::GetOptionString("forum", "search_message_count", 50);?>
 			<input type="text" size="35" maxlength="255" value="<?=intVal($val)?>" name="search_message_count"></td>
 	</tr>
 	<tr class="heading"><td colspan="2"><?=GetMessage("F_FORUM_STATUSES")?></td></tr>

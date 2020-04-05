@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Hook;
 
+use \Bitrix\Landing\Manager;
+
 abstract class Page
 {
 	/**
@@ -26,6 +28,12 @@ abstract class Page
 	 * @var bool
 	 */
 	protected $isPage = true;
+
+	/**
+	 * Custom exec method.
+	 * @var callable
+	 */
+	protected $customExec = null;
 
 	/**
 	 * Class constructor.
@@ -100,6 +108,42 @@ abstract class Page
 	}
 
 	/**
+	 * Locked or not current hook in free plan.
+	 * @return bool
+	 */
+	public function isLocked()
+	{
+		static $lockStates = [];
+		$class = get_class($this);
+
+		if (!array_key_exists($class, $lockStates))
+		{
+			$lockStates[$class] = Manager::checkFeature(
+				Manager::FEATURE_ENABLE_ALL_HOOKS,
+				[
+					'hook' => strtolower(array_pop(explode('\\', $class)))
+				]
+			);
+		}
+
+		if (!$this->isFree() && !$lockStates[$class])
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Gets message for locked state.
+	 * @return string
+	 */
+	public function getLockedMessage()
+	{
+		return '';
+	}
+
+	/**
 	 * Get code of hook.
 	 * @return string
 	 */
@@ -148,7 +192,7 @@ abstract class Page
 
 	/**
 	 * Get fields of current Page Hook.
-	 * @return array
+	 * @return \Bitrix\Landing\Field[]
 	 */
 	public function getFields()
 	{
@@ -157,9 +201,18 @@ abstract class Page
 
 	/**
 	 * Exec or not hook in edit mode.
-	 * @return true
+	 * @return boolean
 	 */
 	public function enabledInEditMode()
+	{
+		return true;
+	}
+
+	/**
+	 * Exec or not hook in intranet mode.
+	 * @return boolean
+	 */
+	public function enabledInIntranetMode()
 	{
 		return true;
 	}
@@ -188,12 +241,35 @@ abstract class Page
 	}
 
 	/**
-	 * Active or not the hook.
-	 * @return bool
+	 * Set custom exec method.
+	 * @param callable $callback Callback function.
+	 * @return void
 	 */
-	public function active()
+	public function setCustomExec(callable $callback)
 	{
-		return true;
+		$this->customExec = $callback;
+	}
+
+	/**
+	 * If isset custom exec method.
+	 * @return boolean
+	 */
+	public function issetCustomExec()
+	{
+		return is_callable($this->customExec);
+	}
+
+	/**
+	 * Execute custom exec method if exist.
+	 * @return boolean
+	 */
+	protected function execCustom()
+	{
+		if ($this->customExec)
+		{
+			return call_user_func_array($this->customExec, [$this]) === true;
+		}
+		return false;
 	}
 
 	/**

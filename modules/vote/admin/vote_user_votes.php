@@ -222,7 +222,7 @@ if ($VOTE_RIGHT=="W")
 		"devalidate"=>GetMessage("VOTE_DEVALIDATE"),
 		));
 
-$lAdmin->AddAdminContextMenu(array());
+$lAdmin->AddAdminContextMenu(array(), true);
 
 /************** Initial list - Check AJAX **************************/
 $lAdmin->CheckListMode();

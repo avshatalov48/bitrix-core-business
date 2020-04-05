@@ -24,6 +24,7 @@ $this->setFrameMode(true);
 	"DISPLAY_PANEL" => "N",
 	"ADD_SECTIONS_CHAIN" => $arParams['ADD_SECTIONS_CHAIN'],
 	"SECTION_USER_FIELDS"	=>	$arParams["SECTION_USER_FIELDS"],
+	"CURRENT_SECTION_ID" => $arResult["ID"]
 	),
 	$component
 );?>
@@ -37,7 +38,15 @@ $this->setFrameMode(true);
 		<?
 		$this->AddEditAction($arElement['ID'], $arElement['EDIT_LINK'], CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "ELEMENT_EDIT"));
 		$this->AddDeleteAction($arElement['ID'], $arElement['DELETE_LINK'], CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('CT_BCT_ELEMENT_DELETE_CONFIRM')));
-		$arElement["DETAIL_PAGE_URL"] = $arElement["DISPLAY_PROPERTIES"]["URL"]["VALUE"];
+		$trimmed = trim($arElement["DISPLAY_PROPERTIES"]["URL"]["VALUE"]);
+		if ($trimmed !== '')
+		{
+			if (strpos(strtolower($trimmed), "http") !== 0)
+			{
+				$trimmed = 'http://'.$trimmed;
+			}
+		}
+		$arElement["DETAIL_PAGE_URL"] = $trimmed;
 		?>
 
 		<?if($cell%$arParams["LINE_ELEMENT_COUNT"] == 0):?>

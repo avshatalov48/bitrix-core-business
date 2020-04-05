@@ -22,6 +22,7 @@
 		this.header.innerText = typeof data.title === "string" ? data.title : "";
 		this.layout.hidden = this.hidden;
 		this.onClickHandler = typeof data.onClick === "function" ? data.onClick : (function() {});
+		this.fields = new BX.Landing.Collection.BaseCollection();
 
 		if (typeof data.className === "string")
 		{
@@ -87,6 +88,11 @@
 		hide: function()
 		{
 			this.layout.hidden = true;
+		},
+
+		getNode: function()
+		{
+			return this.layout;
 		}
 	};
 })();

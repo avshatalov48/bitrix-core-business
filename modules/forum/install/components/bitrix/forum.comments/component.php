@@ -233,6 +233,7 @@ $arParams["URL_TEMPLATES_READ"] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_R
 $arResult["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
 	array("FID" => $arParams["FORUM_ID"], "TID" => $arResult["FORUM_TOPIC_ID"], "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
 		"MID" => "s", "PARAM1" => $arParams['ENTITY_TYPE'], "PARAM2" => $arParams["ENTITY_ID"]));
+$messageUrl =
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -355,6 +356,8 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 				$GLOBALS['forumComponent'] = &$this;
 				$FormatDate = (strpos($arParams["DATE_TIME_FORMAT"], 'a') !== false ? 'g:i a' :
 					(strpos($arParams["DATE_TIME_FORMAT"], 'A') !== false ? 'g:i A' : 'G:i'));
+				$url = (new \Bitrix\Main\Web\Uri($arParams["URL"]))
+					->deleteParams(["MID", "ID", "sessid", "AJAX_POST", "ENTITY_XML_ID", "ENTITY_TYPE", "ENTITY_ID", "REVIEW_ACTION", "MODE", "FILTER", "result", "ACTION"]);
 				while ($res = $db_res->GetNext())
 				{
 					/************** Message info ***************************************/
@@ -370,13 +373,13 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 					$res["~POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
 					// links
 					$res["PANELS"] = $arResult["PANELS"];
+					$url->addParams(array("MID" => $res["ID"]));
 					$res["URL"] = array(
-						"LINK" => $APPLICATION->GetCurPageParam("MID=".$res["ID"],
-							array("MID", "sessid", "AJAX_POST", "ENTITY_XML_ID", "ENTITY_TYPE", "ENTITY_ID", "REVIEW_ACTION", "MODE", "FILTER", "result"))
+						"LINK" => $url->getPathQuery(),
+						"MODERATE" => $url->addParams(array("ACTION" => ($res["APPROVED"]=="Y" ? "HIDE" : "SHOW")))->getPathQuery(),
+						"EDIT" => $url->addParams(array("ACTION" => "GET"))->getPathQuery(),
+						"DELETE" => $url->addParams(array("ACTION" => "DEL"))->getPathQuery(),
 					);
-					$res["URL"]["MODERATE"] = ForumAddPageParams($res["URL"]["LINK"], array("REVIEW_ACTION" => ($res["APPROVED"]=="Y" ? "HIDE" : "SHOW")));
-					$res["URL"]["EDIT"] = ForumAddPageParams($res["URL"]["LINK"], array("REVIEW_ACTION" => "GET"));
-					$res["URL"]["DELETE"] = ForumAddPageParams($res["URL"]["LINK"], array("REVIEW_ACTION" => "DEL"));
 					if ($res["PANELS"]["EDIT"] == "Y" || (
 							$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" &&
 							$res["ID"] == $arResult["TOPIC"]["ABS_LAST_MESSAGE_ID"] &&

@@ -1,7 +1,7 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Bizproc\WorkflowInstanceTable;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Main;
 
 /**
@@ -1129,7 +1129,11 @@ class CBPDocument
 
 		$dbWorkflowTemplate = CBPWorkflowTemplateLoader::GetList(
 			array(),
-			array("DOCUMENT_TYPE" => $documentType, "ACTIVE"=>"Y", '!AUTO_EXECUTE' => CBPDocumentEventType::Automation),
+			[
+				"DOCUMENT_TYPE" => $documentType,
+				"ACTIVE" => "Y",
+				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
+			],
 			false,
 			false,
 			array("ID", "NAME", "DESCRIPTION", "MODIFIED", "USER_ID", "AUTO_EXECUTE", "USER_NAME", "USER_LAST_NAME", "USER_LOGIN", "USER_SECOND_NAME", 'PARAMETERS')
@@ -1636,7 +1640,7 @@ class CBPDocument
 			array(
 				"DOCUMENT_TYPE" => $documentType,
 				"ACTIVE" => "Y",
-				'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
+				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
 			),
 			false,
 			false,

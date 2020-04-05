@@ -134,6 +134,12 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 	else
 		$arResult['DOCUMENT_TYPES']['*']['ACTIVE'] = true;
 
+	if (!empty($arParams['MODULE_ID']))
+	{
+		$arFilter['MODULE_ID'] = $arParams['MODULE_ID'];
+		unset($arFilter['ENTITY']);
+	}
+
 	if (empty($arParams["WORKFLOW_ID"]))
 	{
 		$ar = array("" => GetMessage("BPATL_WORKFLOW_ID_ANY"));
@@ -142,7 +148,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 			array(
 				"ACTIVE" => "Y",
 				"USER_ID" => $currentUserId,
-				'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
+				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
 			),
 			false, false,
 			array('ID', 'NAME')
@@ -308,13 +314,20 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 			$arRecord['DOCUMENT_NAME'] = GetMessage("BPATL_DOCUMENT_NAME");
 		}
 
-		$arRecord["URL"] = array(
-			"~TASK" => CComponentEngine::MakePathFromTemplate($arParams["~TASK_EDIT_URL"], $arRecord), 
-			"TASK" => CComponentEngine::MakePathFromTemplate($arParams["TASK_EDIT_URL"], $arRecord)
-		);
-
-		if (array_key_exists("DESCRIPTION", $arRecord))
-			$arRecord["DESCRIPTION"] = nl2br($arRecord["DESCRIPTION"]);
+		if (!empty($arRecord["PARAMETERS"]["TASK_EDIT_URL"]))
+		{
+			$arRecord["URL"] = array(
+				"~TASK" => CComponentEngine::MakePathFromTemplate($arRecord["PARAMETERS"]["TASK_EDIT_URL"], $arRecord),
+				"TASK" => CComponentEngine::MakePathFromTemplate($arRecord["PARAMETERS"]["TASK_EDIT_URL"], $arRecord)
+			);
+		}
+		else
+		{
+			$arRecord["URL"] = array(
+				"~TASK" => CComponentEngine::MakePathFromTemplate($arParams["~TASK_EDIT_URL"], $arRecord),
+				"TASK" => CComponentEngine::MakePathFromTemplate($arParams["TASK_EDIT_URL"], $arRecord)
+			);
+		}
 
 		if (isset($arRecord['WORKFLOW_TEMPLATE_NAME']))
 			$arRecord["WORKFLOW_NAME"] = $arRecord["WORKFLOW_TEMPLATE_NAME"]; // compatibility

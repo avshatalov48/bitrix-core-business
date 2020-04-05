@@ -34,7 +34,11 @@ CJSCore::Init("sidepanel");
 				<?endforeach;?>
 			</select>
 
-			<a class="main-user-consent-selector-block-link main-user-consent-selector-block-link-bold" href="#" data-bx-link-edit="" data-bx-slider-href="" data-bx-link-tmpl="<?=htmlspecialcharsbx($arParams['PATH_TO_EDIT'])?>">
+			<a class="main-user-consent-selector-block-link main-user-consent-selector-block-link-bold"
+				href="#" data-bx-link-edit="" data-bx-slider-href=""
+				data-bx-slider-reload="1"
+				data-bx-link-tmpl="<?=htmlspecialcharsbx($arParams['PATH_TO_EDIT'])?>"
+			>
 				<?=Loc::getMessage('MAIN_USER_CONSENT_SELECTOR_BTN_EDIT')?>
 			</a>
 		</div>

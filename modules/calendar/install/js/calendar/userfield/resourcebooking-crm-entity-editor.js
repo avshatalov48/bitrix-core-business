@@ -253,13 +253,77 @@
 			this.datetimeOptionsWrap.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-title"}})).appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-title-text"}, text: BX.message('USER_TYPE_RESOURCE_DATETIME_BLOCK_TITLE') + ':'}));
 
 			this.datetimeOptionsInnerWrap = this.datetimeOptionsWrap.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-options"}}));
+
+			this.timezoneSettingsWrap = optionWrapper.appendChild(
+				BX.create("div", {props: {
+					className: "calendar-resourcebook-content-block-control-field calendar-resourcebook-content-block-options" },
+					style: {display: fieldSettings.FULL_DAY === 'Y' ? 'none' : ''}
+				}));
+
+			this.timezoneSettingsWrap.appendChild(BX.create("hr", {props: {className: "crm-entity-widget-hr"}}));
+			this.timezoneSettingsWrap
+				.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-title"}}))
+				.appendChild(BX.create("span", {props: {className: "calendar-resourcebook-content-block-title-text"}, text: BX.message('USER_TYPE_RESOURCE_TIMEZONE_SETTINGS_TITLE') + ':'}));
+
+			this.timezoneSelectorWrap = this.timezoneSettingsWrap.appendChild(BX.create("div", {
+				style: {display: fieldSettings.USE_USER_TIMEZONE === 'Y' ? 'none' : ''}
+			}));
+
+			this.timezoneSelectWrap = this.timezoneSelectorWrap
+				.appendChild(BX.create(
+					"div",
+					{
+						props: { className: "calendar-resourcebook-content-block-field" }
+					}
+				));
+
+			console.dir(fieldSettings);
+
+			this.timezoneSelector = new BX.Calendar.UserField.ResourceBooking.TimezoneSelector({
+				outerWrap: this.timezoneSelectWrap,
+				selectedValue: fieldSettings.TIMEZONE
+			});
+
+			this.useUserTimezoneCheckBox = BX.create(
+				"input",
+				{
+					props: {
+						type: "checkbox",
+						checked: fieldSettings.USE_USER_TIMEZONE === 'Y'
+					}
+				}
+			);
+			this.timezoneSettingsWrap.appendChild(
+				BX.create(
+					"label",
+					{
+						props: {className: 'calendar-resourcebook-content-block-option'},
+						children:
+							[
+								this.useUserTimezoneCheckBox,
+								BX.create("span", { text: BX.message('USER_TYPE_RESOURCE_USE_USER_TIMEZONE') })
+							],
+						events: {
+							click: BX.proxy(this.handleUserTimezoneCheckbox, this)
+						}
+
+					}
+				)
+			);
+
 			// endregion
 
 			//region Checkbox "Full day"
 			this._fulldayCheckBox = BX.create(
 				"input",
 				{
-					props: { type: "checkbox", checked: fieldSettings.FULL_DAY === 'Y'}
+					props: {
+						type: "checkbox",
+						checked: fieldSettings.FULL_DAY === 'Y'
+					},
+					events: {
+						click: BX.proxy(this.handleFullDayMode, this)
+					}
 				}
 			);
 
@@ -548,6 +612,17 @@
 			this.fieldSettings.FULL_DAY = this._fulldayCheckBox.checked ? 'Y' : 'N';
 			this.fieldSettings.ALLOW_OVERBOOKING = this._overbookingCheckBox.checked ? 'Y' : 'N';
 
+			if (this.fieldSettings.FULL_DAY === 'N')
+			{
+				this.fieldSettings.TIMEZONE = this.timezoneSelector.getValue();
+				this.fieldSettings.USE_USER_TIMEZONE = this.useUserTimezoneCheckBox.checked ? 'Y' : 'N';
+			}
+			else
+			{
+				this.fieldSettings.TIMEZONE = '';
+				this.fieldSettings.USE_USER_TIMEZONE = 'N';
+			}
+
 			params["settings"] = this.fieldSettings;
 
 			BX.onCustomEvent(this, "onSave", [ this, params]);
@@ -594,6 +669,16 @@
 		BX.Calendar.UserField.EntityEditorUserFieldConfigurator.prototype.checkResourceCountLimit = function()
 		{
 			return this.RESOURCE_LIMIT <= 0 || this.getTotalResourceCount() <= this.RESOURCE_LIMIT;
+		};
+
+		BX.Calendar.UserField.EntityEditorUserFieldConfigurator.prototype.handleFullDayMode = function()
+		{
+			this.timezoneSettingsWrap.style.display = this._fulldayCheckBox.checked ? 'none' : '';
+		};
+
+		BX.Calendar.UserField.EntityEditorUserFieldConfigurator.prototype.handleUserTimezoneCheckbox = function()
+		{
+			this.timezoneSelectorWrap.style.display = this.useUserTimezoneCheckBox.checked ? 'none' : '';
 		};
 	}
 

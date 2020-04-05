@@ -147,6 +147,9 @@ class FinderDestTable extends Entity\DataManager
 				|| preg_match('/^CRMCOMPANY(\d+)$/i', $data['CODE'], $matches)
 				|| preg_match('/^CRMDEAL(\d+)$/i', $data['CODE'], $matches)
 				|| preg_match('/^CRMLEAD(\d+)$/i', $data['CODE'], $matches)
+				|| preg_match('/^CRMPRODUCT(\d+)$/i', $data['CODE'], $matches)
+				|| preg_match('/^CRMORDER(\d+)$/i', $data['CODE'], $matches)
+				|| preg_match('/^CRMQUOTE(\d+)$/i', $data['CODE'], $matches)
 			)
 			{
 				$insertFields['CODE_TYPE'] = 'CRM';

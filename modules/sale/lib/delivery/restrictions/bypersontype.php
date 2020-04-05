@@ -80,7 +80,7 @@ class ByPersonType extends Base
 	{
 		$personTypeList = array();
 
-		$dbRes = PersonTypeTable::getList();
+		$dbRes = \Bitrix\Sale\PersonType::getList();
 
 		while ($personType = $dbRes->fetch())
 			$personTypeList[$personType["ID"]] = $personType["NAME"]." (".$personType["ID"].")";

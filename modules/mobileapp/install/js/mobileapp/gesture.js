@@ -65,6 +65,9 @@
 			node.addEventListener('touchstart', touchStart);
 			node.addEventListener('touchend', touchEnd);
 			node.addEventListener('touchmove', touchMove);
+			BX.addCustomEvent("onNativeTouchEnd", function(){
+				clearTimeout(timerInterval);
+			})
 		}
 	};
 

@@ -142,6 +142,7 @@
 			'bg-content': {'params': ['background-color']},
 			'bg-block': {'params': ['background-color']},
 			'bg-as-text': {'params': ['background-color']},
+			'light-bg': {'params': ['background-color']},
 			'main-bg': {'params': ['background-color']},
 			'main-bg-light': {'params': ['background-color']},
 			'main-border-color': {'params': ['border-top-color', 'border-bottom-color', 'border-left-color', 'border-right-color']},
@@ -204,23 +205,34 @@
 			'body.crm-webform-iframe': ['bg'],
 			'.content, .page-theme-transparent .content': ['bg-content'],
 			'.crm-webform-block, .page-theme-transparent .crm-webform-block': ['bg-block', 'border-block'],
-			'.crm-webform-header-container': ['bg-block', 'border-block', 'main-font-family', 'main-font-color', 'main-font-weight', 'header-text-font-size'],
+			'.crm-webform-header-container': [
+				'bg-block', 'border-block', 'main-font-family', 'main-font-color', 'main-font-weight',
+				'header-text-font-size'
+			],
 			'.crm-webform-header-container h2': ['main-font-color', 'bg-block'],
 			'.crm-webform-resourcebooking-wrap-live': ['bg-block'],
 			'.crm-webform-field-resourcebooking .crm-webform-label-content': ['bg-block'],
 			'.crm-webform-inner-header': ['main-font-color', 'main-font-family'],
-			'.crm-webform-mini-cart-title, .crm-webform-mini-cart-services-container': ['main-font-color', 'main-font-family'],
+			'.crm-webform-mini-cart-title, .crm-webform-mini-cart-services-container': [
+				'main-font-color', 'main-font-family'
+			],
 			'.crm-webform-header': ['main-font-family', 'header-font-weight', 'header-font-size'],
 			'.crm-webform-label': ['main-font-family', 'label-font-weight', 'label-font-size', 'second-font-color'],
-			'button.crm-webform-submit-button, .crm-webform-file-upload .crm-webform-file-button': ['main-bg', 'main-font-family', 'button-font-color', 'input-border-radius'],
+			'button.crm-webform-submit-button, .crm-webform-file-upload .crm-webform-file-button': [
+				'main-bg', 'main-font-family', 'button-font-color', 'input-border-radius'
+			],
 			'.crm-webform-label-content, .crm-webform-file-text-field': ['input-bg'],
 			'.crm-webform-input-label': ['input-box-shadow'],
-			'.crm-webform-input, .crm-webform-file-text-field': ['main-font-family', 'main-font-weight', 'input-border', 'main-font-color'],
+			'.crm-webform-input, .crm-webform-file-text-field': [
+				'main-font-family', 'main-font-weight', 'input-border', 'main-font-color'
+			],
 			'.crm-webform-icon': ['input-border-color', 'second-font-color', 'icon-font-color'],
 			'.crm-webform-desktop-font-style a': ['second-font-color'],
 			'.crm-webform-desktop-font-style a:hover': ['main-font-color'],
 			'.crm-webform-input option': ['main-font-family', 'input-select-bg', 'main-font-color'],
-			'.crm-webform-active .crm-webform-input, .crm-webform-active mark, .crm-webform-input:hover': ['input-border-hover'],
+			'.crm-webform-active .crm-webform-input, .crm-webform-active mark, .crm-webform-input:hover': [
+				'input-border-hover'
+			],
 			'.crm-webform-checkbox-container:hover i': ['main-border-color'],
 			'.crm-webform-checkbox-name': ['main-font-family', 'second-font-color'],
 			'.crm-webform-input+i:after': ['main-font-color-hover'],
@@ -229,6 +241,10 @@
 			'.calendar-resbook-webform-block-input-dropdown': [
 				'input-bg', 'input-border', 'main-font-color'
 			],
+			'.calendar-resbook-webform-block-strip': ['input-bg'],
+			'.calendar-resbook-webform-block-strip-date': ['main-font-color'],
+			'.calendar-resbook-webform-block-strip-day': ['second-font-color'],
+			'.popup-window[id^="calendar_popup"], .popup-window[id^="calendar_popup"] .popup-window-content': ['light-bg'],
 			'.calendar-resbook-webform-block-input-dropdown:hover': ['input-border-hover'],
 			'.calendar-resbook-webform-block-input-dropdown::before': ['bg-as-text'],
 			'.popup-window, .popup-window .popup-window-content': ['input-bg-light'],
@@ -250,6 +266,7 @@
 			'.calendar-resbook-webform-block-result-inner, .page-theme-image .calendar-resbook-webform-block-result-inner': [
 				'input-bg', 'main-border-color', 'main-font-color'
 			],
+			'.calendar-resbook-webform-block-result-text': ['second-font-color']
 		};
 
 		this.formParams = {};
@@ -307,6 +324,13 @@
 				return;
 			}
 
+			// do nothing if domain not set
+			if(!this.domain)
+			{
+				this.createErrorDomainMessage();
+				return;
+			}
+
 			this.createFormParams();
 			// apply form options only after frame creating
 			BX.addCustomEvent('onFormFrameLoad', BX.proxy(this.onFormFrameLoad, this));
@@ -329,39 +353,63 @@
 
 		createNoFormMessage: function ()
 		{
+			var formContainer = document.querySelector(this.selector);
+
+			if (
+				typeof(BX.data(formContainer, this.dataAttributeIsConnector)) != 'undefined' &&
+				BX.data(formContainer, this.dataAttributeIsConnector) == 'Y'
+			)
+			{
+				this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS'));
+			}
+			else
+			{
+				this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP'));
+			}
+		},
+
+
+		createErrorDomainMessage: function ()
+		{
+			this.createErrorMessage();
+		},
+
+
+		createErrorMessage: function (title, message)
+		{
 			// show alert only in edit mode
 			if (BX.Landing.getMode() == "view")
 			{
 				return;
 			}
 
+			if(title === undefined || title === null || !title)
+			{
+				title = BX.message('LANDING_BLOCK_WEBFORM_ERROR');
+			}
+
+			if(message === undefined || message === null || !message)
+			{
+				message = BX.message('LANDING_BLOCK_WEBFORM_CONNECT_SUPPORT');
+			}
+
 			var formContainer = document.querySelector(this.selector);
 			if (formContainer)
 			{
-				var alertHtml = '<h2 class="u-form-alert-title">' + '<i class="fa fa-exclamation-triangle g-mr-15"></i>'
-					+ BX.message('LANDING_BLOCK_WEBFORM_NO_FORM') + '</h2><hr class="u-form-alert-divider">';
-
-				// todo: need correctly check bus or cp, without flag
-				if (
-					typeof(BX.data(formContainer, this.dataAttributeIsConnector)) != 'undefined'
-					&& BX.data(formContainer, this.dataAttributeIsConnector) == 'Y'
-				)
+				alertHtml = '';
+				if(title != '')
 				{
-					alertHtml += '<p class="u-form-alert-text">' + BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS') + '</p>'
+					var alertHtml = '<h2 class="u-form-alert-title"><i class="fa fa-exclamation-triangle g-mr-15"></i>' +
+						title + '</h2><hr class="u-form-alert-divider">';
 				}
-				else
-				{
-					alertHtml += '<p class="u-form-alert-text">' + BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_CP') + '</p>'
-				}
+				alertHtml += '<p class="u-form-alert-text">' + message + '</p>';
 
-				var messageNode = BX.create({
-					tag: 'div',
+				var messageNode = BX.create('div', {
 					props: {className: 'u-form-alert'},
 					html: alertHtml
 				});
 				BX.adjust(formContainer, {children: [messageNode]});
 			}
-
 		},
 
 		createFormParams: function ()

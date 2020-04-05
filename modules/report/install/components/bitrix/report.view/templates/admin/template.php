@@ -38,7 +38,11 @@ $aMenu = array(
 		"LINK" => $APPLICATION->GetCurPageParam("EXCEL=Y"),
 	)
 );
-if ($arResult['MARK_DEFAULT'] > 0)
+if ($arResult['SHOW_EDIT_BUTTON'] == false)
+{
+	// do nothing
+}
+else if ($arResult['MARK_DEFAULT'] > 0)
 {
 	$aMenu[] = array(
 		"TEXT" => GetMessage("REPORT_COPY"),
@@ -101,6 +105,13 @@ $context->Show();
 <input type="hidden" name="ID" value="<?=htmlspecialcharsbx($arParams['REPORT_ID'])?>" />
 <input type="hidden" name="sort_id" value="<?=htmlspecialcharsbx($arResult['sort_id'])?>" />
 <input type="hidden" name="sort_type" value="<?=htmlspecialcharsbx($arResult['sort_type'])?>" />
+<? if(isset($_REQUEST['publicSidePanel']) && $_REQUEST['publicSidePanel'] == 'Y'): ?>
+	<input type="hidden" name="publicSidePanel" value="Y" />
+<? endif ?>
+<? if(isset($_REQUEST['IFRAME']) && $_REQUEST['IFRAME'] == 'Y'): ?>
+	<input type="hidden" name="IFRAME" value="Y" />
+	<input type="hidden" name="IFRAME_TYPE" value="SIDE_SLIDER" />
+<? endif ?>
 <?
 // prepare info
 $info = array();

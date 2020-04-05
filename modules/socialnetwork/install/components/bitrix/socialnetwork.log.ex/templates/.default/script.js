@@ -524,9 +524,11 @@ function __logChangeFavorites(log_id, node, newState, bFromMenu)
 		return;
 	}
 
+	var menuItem = null;
+
 	if (!!bFromMenu)
 	{
-		var menuItem = BX.proxy_context;
+		menuItem = BX.proxy_context;
 		if (!BX.hasClass(BX(menuItem), 'menu-popup-item-text'))
 		{
 			menuItem = BX.findChild(BX(menuItem), {'className': 'menu-popup-item-text'}, true);
@@ -549,7 +551,7 @@ function __logChangeFavorites(log_id, node, newState, bFromMenu)
 	{
 		BX.addClass(BX(nodeToAdjust), "feed-post-important-switch-active");
 		BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleY');
-		if (typeof menuItem != 'undefined')
+		if (menuItem)
 		{
 			BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
 		}
@@ -558,56 +560,46 @@ function __logChangeFavorites(log_id, node, newState, bFromMenu)
 	{
 		BX.removeClass(BX(nodeToAdjust), "feed-post-important-switch-active");
 		BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleN');
-		if (typeof menuItem != 'undefined')
+		if (menuItem)
 		{
 			BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
 		}
 	}
 
-	var actionUrl = BX.message('sonetLESetPath');
-	actionUrl = BX.util.add_url_param(actionUrl, {
-		b24statAction: (newState == 'Y' ? 'addFavorites' : 'removeFavorites')
-	});
-
-	BX.ajax({
-		url: actionUrl,
-		method: 'POST',
-		dataType: 'json',
+	BX.ajax.runAction('socialnetwork.api.livefeed.changeFavorites', {
 		data: {
-			sessid : BX.bitrix_sessid(),
-			site : BX.message('SITE_ID'),
-			log_id : log_id,
-			action : 'change_favorites'
+			logId: log_id,
+			value: newState
 		},
-		onsuccess: function(data)
+		analyticsLabel: {
+			b24statAction: (newState == 'Y' ? 'addFavorites' : 'removeFavorites')
+		}
+	}).then(function(response) {
+		if (
+			BX.type.isNotEmptyString(response.data.newValue)
+			&& BX.util.in_array(response.data.newValue, ['Y', 'N'])
+		)
 		{
-			if (
-				typeof data.bResult != 'undefined'
-				&& (BX.util.in_array(data.bResult, ['Y', 'N']))
-			)
+			if (response.data.newValue == "Y")
 			{
-				if (data.bResult == "Y")
+				BX.addClass(BX(nodeToAdjust), "feed-post-important-switch-active");
+				BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleY');
+				if (menuItem)
 				{
-					BX.addClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-					BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleY');
-					if (typeof menuItem != 'undefined')
-					{
-						BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
-					}
-				}
-				else
-				{
-					BX.removeClass(BX(nodeToAdjust), "feed-post-important-switch-active");
-					BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleN');
-					if (typeof menuItem != 'undefined')
-					{
-						BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
-					}
+					BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleY');
 				}
 			}
-		},
-		onfailure: function(data) {
+			else
+			{
+				BX.removeClass(BX(nodeToAdjust), "feed-post-important-switch-active");
+				BX(nodeToAdjust).title = BX.message('sonetLMenuFavoritesTitleN');
+				if (menuItem)
+				{
+					BX(menuItem).innerHTML = BX.message('sonetLMenuFavoritesTitleN');
+				}
+			}
 		}
+	}, function(response) {
 	});
 }
 
@@ -623,36 +615,28 @@ function __logDelete(log_id, node, ind)
 		return;
 	}
 
-	BX.ajax({
-		url: BX.message('sonetLESetPath'),
-		method: 'POST',
-		dataType: 'json',
+	BX.ajax.runAction('socialnetwork.api.livefeed.deleteEntry', {
 		data: {
-			sessid : BX.bitrix_sessid(),
-			site : BX.message('sonetLSiteId'),
-			log_id : log_id,
-			action : 'delete'
+			logId: log_id
 		},
-		onsuccess: function(data) {
-			if (
-				data.bResult != undefined 
-				&& (data.bResult == "Y")
-			)
+		analyticsLabel: {
+			b24statAction: 'deleteLogEntry'
+		}
+	}).then(function(response) {
+		if (response.data.success)
+		{
+			if (typeof ind != 'undefined')
 			{
-				if (typeof ind != 'undefined')
-				{
-					BX.PopupMenu.destroy("post-menu-" + ind);
-				}
-				__logDeleteSuccess(BX(node));
+				BX.PopupMenu.destroy("post-menu-" + ind);
 			}
-			else
-			{
-				__logDeleteFailure(BX(node));
-			}
-		},
-		onfailure: function(data) {
+			__logDeleteSuccess(BX(node));
+		}
+		else
+		{
 			__logDeleteFailure(BX(node));
 		}
+	}, function(response) {
+		__logDeleteFailure(BX(node));
 	});
 }
 
@@ -1201,6 +1185,10 @@ BitrixLF.prototype.getNextPage = function()
 	{
 		oNode.style.display = 'block';
 	}
+	else if (this.nextPageFirst)
+	{
+		BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-visible');
+	}
 
 	var data = { method: "GET", url: this.nextURL };
 	BX.onCustomEvent("SonetLogBeforeGetNextPage", [ data ]);
@@ -1230,10 +1218,10 @@ BitrixLF.prototype.getNextPage = function()
 				&& typeof (data.PROPS) != 'undefined'
 				&& typeof (data.PROPS.CONTENT) != 'undefined'
 				&& data.PROPS.CONTENT.length > 0
+				&& typeof data.LAST_TS != 'undefined'
+				&& parseInt(data.LAST_TS) > 0
 				&& (
-					typeof data.LAST_TS == 'undefined'
-					|| parseInt(data.LAST_TS) <= 0
-					|| parseInt(oLF.firstPageLastTS) <= 0
+					parseInt(oLF.firstPageLastTS) <= 0
 					|| parseInt(data.LAST_TS) < parseInt(oLF.firstPageLastTS)
 					|| (
 						parseInt(data.LAST_TS) == parseInt(oLF.firstPageLastTS)
@@ -1252,7 +1240,10 @@ BitrixLF.prototype.getNextPage = function()
 
 				if (oLF.nextPageFirst)
 				{
-					BX('feed-new-message-inf-wrap-first').style.display = 'block';
+					BX('feed-new-message-inf-text-first').style.display = 'block';
+					BX('feed-new-message-inf-loader-first').style.display = 'none';
+					BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-active');
+
 					var f = function() {
 						oLF.bStopTrackNextPage = false;
 						if (BX(contentBlockId))
@@ -1284,6 +1275,10 @@ BitrixLF.prototype.getNextPage = function()
 				}
 
 				oLF.nextPageFirst = false;
+			}
+			else if (BX('feed-new-message-inf-wrap-first'))
+			{
+				BX('feed-new-message-inf-wrap-first').style.display = 'none';
 			}
 		},
 		onfailure: function(data)
@@ -1549,6 +1544,13 @@ BitrixLF.prototype.recalcMoreButton = function()
 
 		for (i = 0; i < this.arMoreButtonID.length; i++)
 		{
+			if (
+				!this.arMoreButtonID.hasOwnProperty(i)
+				|| !BX.type.isNotEmptyObject(this.arMoreButtonID[i])
+			)
+			{
+				continue;
+			}
 
 			arPos = BX.pos(BX(this.arMoreButtonID[i].bodyBlockID));
 
@@ -1874,131 +1876,125 @@ BitrixLF.prototype.createTask = function(params)
 			}
 		}),
 		events: {
-			onAfterPopupShow: BX.proxy(function()
+			onAfterPopupShow: function()
 			{
-				oLF.createTaskSetContent(BX.create('DIV', {
+				this.createTaskSetContent(BX.create('DIV', {
 					props: {
 						className: 'feed-create-task-popup-title'
 					},
 					html: BX.message('SONET_EXT_COMMENTAUX_CREATE_TASK_WAIT')
 				}));
 
-				BX.ajax({
-					url: '/bitrix/components/bitrix/socialnetwork.log.ex/ajax.php',
-					method: 'POST',
-					dataType: 'json',
+				BX.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
 					data: {
-						sessid : BX.bitrix_sessid(),
-						site : BX.message('SITE_ID'),
-						LOG_ID : (BX.type.isNumber(params.logId) ? params.logId : null),
-						ENTITY_TYPE : params.entityType,
-						ENTITY_ID : params.entityId,
-						action : 'get_raw_data',
 						params: {
-							getSonetGroupAvailableList: true,
-							getLivefeedUrl: true,
-							checkParams: {
-								feature: 'tasks',
-								operation: 'create_tasks'
-							}
-						}
-					},
-					onsuccess: BX.proxy(function(data) {
-						if (
-							data
-							&& typeof data.TITLE != 'undefined'
-							&& typeof data.DESCRIPTION != 'undefined'
-							&& typeof data.DISK_OBJECTS != 'undefined'
-							&& typeof data.LIVEFEED_URL != 'undefined'
-							&& (
-								BX.type.isNotEmptyString(data.TITLE)
-								|| BX.type.isNotEmptyString(data.DESCRIPTION)
-							)
-							&& BX.type.isNotEmptyString(data.LIVEFEED_URL)
-						)
-						{
-							var taskDescription = oLF.formatTaskDescription(data.DESCRIPTION, data.LIVEFEED_URL, params.entityType, (BX.type.isNotEmptyString(data.SUFFIX) ? data.SUFFIX : ''));
-							var taskData = {
-								TITLE: data.TITLE,
-								DESCRIPTION: taskDescription,
-								RESPONSIBLE_ID: BX.message('USER_ID'),
-								CREATED_BY: BX.message('USER_ID'),
-								UF_TASK_WEBDAV_FILES: data.DISK_OBJECTS
-							};
-
-							var sonetGroupId = [];
-							if (typeof data.GROUPS_AVAILABLE != 'undefined')
-							{
-								for (var i in data.GROUPS_AVAILABLE)
-								{
-									 if (data.GROUPS_AVAILABLE.hasOwnProperty(i))
-									 {
-										 sonetGroupId.push(data.GROUPS_AVAILABLE[i]);
-									 }
+							entityType: params.entityType,
+							entityId: params.entityId,
+							logId: (BX.type.isNumber(params.logId) ? params.logId : null),
+							additionalParams: {
+								getSonetGroupAvailable: 'Y',
+								getLivefeedUrl: 'Y',
+								checkPermissions: {
+									feature: 'tasks',
+									operation: 'create_tasks'
 								}
 							}
+						}
+					}
+				}).then(function(response) {
 
-							if (sonetGroupId.length == 1)
+					var
+						entryTitle = BX.type.isNotEmptyString(response.data.TITLE) ? response.data.TITLE : '',
+						entryDescription = BX.type.isNotEmptyString(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '',
+						entryDiskObjects = BX.type.isNotEmptyObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : [],
+						entryUrl = BX.type.isNotEmptyString(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '',
+						entrySuffix = BX.type.isNotEmptyString(response.data.SUFFIX) ? response.data.SUFFIX : '',
+						groupsAvailable = BX.type.isNotEmptyObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : [],
+						logId = typeof response.data.LOG_ID != 'undefined' ? parseInt(response.data.LOG_ID) : 0;
+
+					if (
+						(
+							BX.type.isNotEmptyString(entryTitle)
+							|| BX.type.isNotEmptyString(entryDescription)
+						)
+						&& BX.type.isNotEmptyString(entryUrl)
+					)
+					{
+						var taskDescription = this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
+						var taskData = {
+							TITLE: entryTitle,
+							DESCRIPTION: taskDescription,
+							RESPONSIBLE_ID: BX.message('USER_ID'),
+							CREATED_BY: BX.message('USER_ID'),
+							UF_TASK_WEBDAV_FILES: entryDiskObjects
+						};
+
+						var sonetGroupIdList = [];
+						for (var i in groupsAvailable)
+						{
+							if (groupsAvailable.hasOwnProperty(i))
 							{
-								taskData.GROUP_ID = parseInt(sonetGroupId[0]);
+								sonetGroupIdList.push(groupsAvailable[i]);
 							}
+						}
 
-							BX.Tasks.Util.Query.runOnce('task.add', {data: taskData}).then(BX.proxy(function(result){
-								var resultData = result.getData();
+						if (sonetGroupIdList.length == 1)
+						{
+							taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
+						}
 
-								if (
-									typeof resultData != 'undefined'
-									&& typeof resultData.DATA != 'undefined'
-									&& typeof resultData.DATA.ID != 'undefined'
-									&& parseInt(resultData.DATA.ID) > 0
-								)
-								{
-									oLF.createTaskSetContentSuccess(resultData.DATA.ID);
+						BX.Tasks.Util.Query.runOnce('task.add', { data: taskData }).then(function(result) {
 
-									BX.ajax({
-										url: '/bitrix/components/bitrix/socialnetwork.log.ex/ajax.php',
-										method: 'POST',
-										dataType: 'json',
-										data: {
-											sessid : BX.bitrix_sessid(),
-											POST_ENTITY_TYPE : (BX.type.isNotEmptyString(params.postEntityType) ? params.postEntityType : params.entityType),
-											ENTITY_TYPE : params.entityType,
-											ENTITY_ID : params.entityId,
-											TASK_ID : resultData.DATA.ID,
-											LOG_ID : (
+							var resultData = result.getData();
+
+							if (
+								BX.type.isNotEmptyObject(resultData)
+								&& BX.type.isNotEmptyObject(resultData.DATA)
+								&& typeof resultData.DATA.ID != 'undefined'
+								&& parseInt(resultData.DATA.ID) > 0
+							)
+							{
+								this.createTaskSetContentSuccess(resultData.DATA.ID);
+
+								BX.ajax.runAction('socialnetwork.api.livefeed.createTaskComment', {
+									data: {
+										params: {
+											postEntityType: (BX.type.isNotEmptyString(params.postEntityType) ? params.postEntityType : params.entityType),
+											entityType: params.entityType,
+											entityId: params.entityId,
+											taskId: resultData.DATA.ID,
+											logId: (
 												BX.type.isNumber(params.logId)
 													? params.logId
-													: typeof data.LOG_ID != 'undefined' && parseInt(data.LOG_ID) > 0 ? parseInt(data.LOG_ID) : null
-											),
-											action : 'create_task_comment',
-											site: BX.message('SITE_ID')
+													: logId > 0 ? logId : null
+											)
 										}
-									});
-								}
-								else
-								{
-									oLF.createTaskSetContentFailure(result.getErrors().getMessages());
-								}
-							}, this));
-						}
-						else
-						{
-							oLF.createTaskSetContentFailure([
-								BX.message('SONET_EXT_COMMENTAUX_CREATE_TASK_ERROR_GET_DATA')
-							]);
-						}
-					}, this),
-					onfailure: function(data) {
-						oLF.createTaskSetContentFailure([
+									}
+								}).then(function(response) {
+								}, function(response) {
+								});
+							}
+							else
+							{
+								this.createTaskSetContentFailure(result.getErrors().getMessages());
+							}
+						}.bind(this));
+					}
+					else
+					{
+						this.createTaskSetContentFailure([
 							BX.message('SONET_EXT_COMMENTAUX_CREATE_TASK_ERROR_GET_DATA')
 						]);
 					}
-				});
-
-			}, this),
-			onPopupClose: BX.proxy(function() {
+				}.bind(this), function(response) {
+					this.createTaskSetContentFailure([
+						BX.message('SONET_EXT_COMMENTAUX_CREATE_TASK_ERROR_GET_DATA')
+					]);
+				}.bind(this));
+			}.bind(this),
+			onPopupClose: function() {
 				this.createTaskPopup.destroy();
-			}, this)
+			}.bind(this)
 		}
 	});
 

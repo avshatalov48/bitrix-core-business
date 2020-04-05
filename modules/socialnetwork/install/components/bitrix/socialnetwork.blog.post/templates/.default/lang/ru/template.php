@@ -6,6 +6,7 @@ $MESS["BLOG_BLOG_BLOG_EDIT"] = "Редактировать";
 $MESS["BLOG_BLOG_BLOG_DELETE"] = "Удалить";
 $MESS["BLOG_POST_CREATE_TASK"] = "Создать задачу";
 $MESS["BLOG_POST_VOTE_EXPORT"] = "Экспортировать результаты опроса";
+$MESS["BLOG_POST_MOD_PUB"] = "Опубликовать";
 $MESS["BLOG_MES_HIDE"] = "Скрыть";
 $MESS["BLOG_MES_HIDE_POST_CONFIRM"] = "Вы уверены, что хотите скрыть это сообщение и все его комментарии?";
 $MESS["BLOG_MONTH_01"] = "января";

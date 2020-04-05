@@ -142,7 +142,8 @@ $this->addExternalJs($templateFolder."/utils.js");
 				MIB_NO_HIDDEN: '<?=CUtil::JSEscape(Loc::getMessage("MIB_NO_HIDDEN"))?>',
 				MIB_RESET_ALERT: '<?=CUtil::JSEscape(Loc::getMessage("MIB_RESET_ALERT"))?>',
 				MIB_RESET_BUTTON: '<?=CUtil::JSEscape(Loc::getMessage("MIB_RESET_BUTTON"))?>',
-				MIB_CANCEL_BUTTON: '<?=CUtil::JSEscape(Loc::getMessage("MIB_CANCEL_BUTTON"))?>'
+				MIB_CANCEL_BUTTON: '<?=CUtil::JSEscape(Loc::getMessage("MIB_CANCEL_BUTTON"))?>',
+				MIB_MAIN_BUTTONS_LOADING: '<?=CUtil::JSEscape(Loc::getMessage("MIB_MAIN_BUTTONS_LOADING"))?>'
 			}
 		});
 	});

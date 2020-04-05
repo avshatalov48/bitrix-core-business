@@ -373,7 +373,10 @@ class CSocNetTextParser
 		}
 		if ($allow["SMILES"]=="Y")
 		{
-			if (count($this->smiles) > 0)
+			if (
+				is_array($this->smiles)
+				&& !empty($this->smiles)
+			)
 			{
 				if ($this->path_to_smile !== false)
 				{
@@ -1509,158 +1512,165 @@ class CSocNetAllowed
 
 	public static function addStandardFeatureList()
 	{
-		// forum
-		$arFeatureTmp = array(
-			"allowed" => array(),
-			"operations" => array(
-				"full" => array(),
-				"newtopic" => array(),
-				"answer" => array(),
-				"view" => array(),
-			),
-			"minoperation" => array("view"),
-			"subscribe_events" => array(
-				"forum" =>  array(
-					"ENTITIES" => array(),
-					"OPERATION" => "view",
-					"CLASS_FORMAT" => "CSocNetLogTools",
-					"METHOD_FORMAT" => "FormatEvent_Forum",
-					"HAS_CB" => "Y",
-					"COMMENT_EVENT"	=> array(
-						"EVENT_ID" => "forum",
-						"OPERATION" => "view",
-						"OPERATION_ADD" => "answer",
-						"ADD_CALLBACK" => array("CSocNetLogTools", "AddComment_Forum"),
-						"UPDATE_CALLBACK" => array("CSocNetLogTools", "UpdateComment_Forum"),
-						"DELETE_CALLBACK" => array("CSocNetLogTools", "DeleteComment_Forum"),
-						"CLASS_FORMAT" => "CSocNetLogTools",
-						"METHOD_FORMAT" => "FormatComment_Forum",
-						"RATING_TYPE_ID" => "FORUM_POST"
-					)
-				)
-			)
-		);
-
-		if (COption::GetOptionString("socialnetwork", "allow_forum_user", "Y") == "Y")
+		if (ModuleManager::isModuleInstalled('forum'))
 		{
-			$arFeatureTmp["subscribe_events"]["forum"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_USER] = array(
-				"TITLE" => GetMessage("SOCNET_LOG_FORUM_USER"),
-				"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS"),
-				"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS_1"),
-				"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS_2"),
-			);
-
-			$arFeatureTmp["allowed"][] = SONET_ENTITY_USER;
-			$arFeatureTmp["operations"]["full"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_full_user", SONET_RELATIONS_TYPE_NONE);
-			$arFeatureTmp["operations"]["newtopic"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_newtopic_user", SONET_RELATIONS_TYPE_NONE);
-			$arFeatureTmp["operations"]["answer"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_answer_user", (CSocNetUser::IsFriendsAllowed() ? SONET_RELATIONS_TYPE_FRIENDS : SONET_RELATIONS_TYPE_AUTHORIZED));
-			$arFeatureTmp["operations"]["view"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_view_user", SONET_RELATIONS_TYPE_ALL);
-		}
-
-		if (COption::GetOptionString("socialnetwork", "allow_forum_group", "Y") == "Y")
-		{
-			$arFeatureTmp["subscribe_events"]["forum"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_GROUP] = array(
-				"TITLE" => GetMessage("SOCNET_LOG_FORUM_GROUP"),
-				"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS"),
-				"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS_1"),
-				"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS_2"),
-			);
-
-			$arFeatureTmp["allowed"][] = SONET_ENTITY_GROUP;
-			$arFeatureTmp["operations"]["full"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_full_group", SONET_ROLES_MODERATOR);
-			$arFeatureTmp["operations"]["newtopic"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_newtopic_group", SONET_ROLES_USER);
-			$arFeatureTmp["operations"]["answer"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_answer_group", SONET_ROLES_USER);
-			$arFeatureTmp["operations"]["view"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_view_group", SONET_ROLES_USER);
-		}
-
-		\CSocNetAllowed::addAllowedFeature("forum", $arFeatureTmp);
-
-		// photo
-		$arFeatureTmp = array(
-			"allowed" => array(),
-			"operations" => array(
-				"write" => array(),
-				"view" => array(),
-			),
-			"minoperation" => array("view"),
-			"subscribe_events" => array(
-				"photo" =>  array(
-					"ENTITIES" => array(),
-					"OPERATION" => "view",
-					"CLASS_FORMAT" => "CSocNetLogTools",
-					"METHOD_FORMAT"	=> "FormatEvent_Photo",
-					"HAS_CB" => "Y",
-					"FULL_SET" => array("photo", "photo_photo", "photo_comment"),
-					"COMMENT_EVENT"	=> array(
-						"EVENT_ID" => "photoalbum_comment",
-						"OPERATION" => "view",
-						"OPERATION_ADD"	=> "view",
-						"ADD_CALLBACK" => array("CSocNetPhotoCommentEvent", "AddComment_PhotoAlbum"),
-						"UPDATE_CALLBACK" => "NO_SOURCE",
-						"DELETE_CALLBACK" => "NO_SOURCE",
-						"CLASS_FORMAT" => "CSocNetLogTools",
-						"METHOD_FORMAT"	=> "FormatComment_PhotoAlbum",
-						"RATING_TYPE_ID" => "LOG_COMMENT"
-					)
+			$arFeatureTmp = array(
+				"allowed" => array(),
+				"operations" => array(
+					"full" => array(),
+					"newtopic" => array(),
+					"answer" => array(),
+					"view" => array(),
 				),
-				"photo_photo" =>  array(
-					"OPERATION" => "view",
-					"CLASS_FORMAT" => "CSocNetLogTools",
-					"METHOD_FORMAT"	=> "FormatEvent_PhotoPhoto",
-					"HIDDEN" => true,
-					"HAS_CB" => "Y",
-					"ENTITIES" => array(
-						SONET_SUBSCRIBE_ENTITY_USER => array(),
-						SONET_SUBSCRIBE_ENTITY_GROUP => array()
-					),
-					"COMMENT_EVENT"	=> array(
-						"EVENT_ID" => "photo_comment",
+				"minoperation" => array("view"),
+				"subscribe_events" => array(
+					"forum" =>  array(
+						"ENTITIES" => array(),
 						"OPERATION" => "view",
-						"OPERATION_ADD"	=> "view",
-						"ADD_CALLBACK" => array("CSocNetPhotoCommentEvent", "AddComment_Photo"),
-						"UPDATE_CALLBACK" => array("CSocNetPhotoCommentEvent", "UpdateComment_Photo"),
-						"DELETE_CALLBACK" => array("CSocNetPhotoCommentEvent", "DeleteComment_Photo"),
 						"CLASS_FORMAT" => "CSocNetLogTools",
-						"METHOD_FORMAT"	=> "FormatComment_Photo"
+						"METHOD_FORMAT" => "FormatEvent_Forum",
+						"HAS_CB" => "Y",
+						"COMMENT_EVENT"	=> array(
+							"EVENT_ID" => "forum",
+							"OPERATION" => "view",
+							"OPERATION_ADD" => "answer",
+							"ADD_CALLBACK" => array("CSocNetLogTools", "AddComment_Forum"),
+							"UPDATE_CALLBACK" => array("CSocNetLogTools", "UpdateComment_Forum"),
+							"DELETE_CALLBACK" => array("CSocNetLogTools", "DeleteComment_Forum"),
+							"CLASS_FORMAT" => "CSocNetLogTools",
+							"METHOD_FORMAT" => "FormatComment_Forum",
+							"RATING_TYPE_ID" => "FORUM_POST"
+						)
 					)
 				)
-			)
-		);
-
-		if (COption::GetOptionString("socialnetwork", "allow_photo_user", "Y") == "Y")
-		{
-			$arFeatureTmp["subscribe_events"]["photo"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_USER] = array(
-				"TITLE" => GetMessage("SOCNET_LOG_PHOTO_USER"),
-				"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS"),
-				"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS_1"),
-				"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS_2"),
 			);
 
-			$arFeatureTmp["allowed"][] = SONET_ENTITY_USER;
-			$arFeatureTmp["operations"]["write"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_photo_operation_write_user", SONET_RELATIONS_TYPE_NONE);
-			$arFeatureTmp["operations"]["view"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_photo_operation_view_user", SONET_RELATIONS_TYPE_ALL);
+			if (COption::GetOptionString("socialnetwork", "allow_forum_user", "Y") == "Y")
+			{
+				$arFeatureTmp["subscribe_events"]["forum"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_USER] = array(
+					"TITLE" => GetMessage("SOCNET_LOG_FORUM_USER"),
+					"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS"),
+					"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS_1"),
+					"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_FORUM_USER_SETTINGS_2"),
+				);
+
+				$arFeatureTmp["allowed"][] = SONET_ENTITY_USER;
+				$arFeatureTmp["operations"]["full"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_full_user", SONET_RELATIONS_TYPE_NONE);
+				$arFeatureTmp["operations"]["newtopic"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_newtopic_user", SONET_RELATIONS_TYPE_NONE);
+				$arFeatureTmp["operations"]["answer"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_answer_user", (CSocNetUser::IsFriendsAllowed() ? SONET_RELATIONS_TYPE_FRIENDS : SONET_RELATIONS_TYPE_AUTHORIZED));
+				$arFeatureTmp["operations"]["view"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_forum_operation_view_user", SONET_RELATIONS_TYPE_ALL);
+			}
+
+			if (COption::GetOptionString("socialnetwork", "allow_forum_group", "Y") == "Y")
+			{
+				$arFeatureTmp["subscribe_events"]["forum"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_GROUP] = array(
+					"TITLE" => GetMessage("SOCNET_LOG_FORUM_GROUP"),
+					"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS"),
+					"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS_1"),
+					"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_FORUM_GROUP_SETTINGS_2"),
+				);
+
+				$arFeatureTmp["allowed"][] = SONET_ENTITY_GROUP;
+				$arFeatureTmp["operations"]["full"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_full_group", SONET_ROLES_MODERATOR);
+				$arFeatureTmp["operations"]["newtopic"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_newtopic_group", SONET_ROLES_USER);
+				$arFeatureTmp["operations"]["answer"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_answer_group", SONET_ROLES_USER);
+				$arFeatureTmp["operations"]["view"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_forum_operation_view_group", SONET_ROLES_USER);
+			}
+
+			\CSocNetAllowed::addAllowedFeature("forum", $arFeatureTmp);
 		}
 
-		if (COption::GetOptionString("socialnetwork", "allow_photo_group", "Y") == "Y")
+		if (ModuleManager::isModuleInstalled('photogallery'))
 		{
-			$arFeatureTmp["subscribe_events"]["photo"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_GROUP] = array(
-				"TITLE" 			=> GetMessage("SOCNET_LOG_PHOTO_GROUP"),
-				"TITLE_SETTINGS"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS"),
-				"TITLE_SETTINGS_1"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS_1"),
-				"TITLE_SETTINGS_2"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS_2"),
+			$arFeatureTmp = array(
+				"allowed" => array(),
+				"operations" => array(
+					"write" => array(),
+					"view" => array(),
+				),
+				"minoperation" => array("view"),
+				"subscribe_events" => array(
+					"photo" =>  array(
+						"ENTITIES" => array(),
+						"OPERATION" => "view",
+						"CLASS_FORMAT" => "CSocNetLogTools",
+						"METHOD_FORMAT"	=> "FormatEvent_Photo",
+						"HAS_CB" => "Y",
+						"FULL_SET" => array("photo", "photo_photo", "photo_comment"),
+						"COMMENT_EVENT"	=> array(
+							"EVENT_ID" => "photoalbum_comment",
+							"OPERATION" => "view",
+							"OPERATION_ADD"	=> "view",
+							"ADD_CALLBACK" => array("CSocNetPhotoCommentEvent", "AddComment_PhotoAlbum"),
+							"UPDATE_CALLBACK" => "NO_SOURCE",
+							"DELETE_CALLBACK" => "NO_SOURCE",
+							"CLASS_FORMAT" => "CSocNetLogTools",
+							"METHOD_FORMAT"	=> "FormatComment_PhotoAlbum",
+							"RATING_TYPE_ID" => "LOG_COMMENT"
+						)
+					),
+					"photo_photo" =>  array(
+						"OPERATION" => "view",
+						"CLASS_FORMAT" => "CSocNetLogTools",
+						"METHOD_FORMAT"	=> "FormatEvent_PhotoPhoto",
+						"HIDDEN" => true,
+						"HAS_CB" => "Y",
+						"ENTITIES" => array(
+							SONET_SUBSCRIBE_ENTITY_USER => array(),
+							SONET_SUBSCRIBE_ENTITY_GROUP => array()
+						),
+						"COMMENT_EVENT"	=> array(
+							"EVENT_ID" => "photo_comment",
+							"OPERATION" => "view",
+							"OPERATION_ADD"	=> "view",
+							"ADD_CALLBACK" => array("CSocNetPhotoCommentEvent", "AddComment_Photo"),
+							"UPDATE_CALLBACK" => array("CSocNetPhotoCommentEvent", "UpdateComment_Photo"),
+							"DELETE_CALLBACK" => array("CSocNetPhotoCommentEvent", "DeleteComment_Photo"),
+							"CLASS_FORMAT" => "CSocNetLogTools",
+							"METHOD_FORMAT"	=> "FormatComment_Photo"
+						)
+					)
+				)
 			);
 
-			$arFeatureTmp["allowed"][] = SONET_ENTITY_GROUP;
-			$arFeatureTmp["operations"]["write"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_photo_operation_write_group", SONET_ROLES_MODERATOR);
-			$arFeatureTmp["operations"]["view"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_photo_operation_view_group", SONET_ROLES_USER);
-		}
+			if (COption::GetOptionString("socialnetwork", "allow_photo_user", "Y") == "Y")
+			{
+				$arFeatureTmp["subscribe_events"]["photo"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_USER] = array(
+					"TITLE" => GetMessage("SOCNET_LOG_PHOTO_USER"),
+					"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS"),
+					"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS_1"),
+					"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_PHOTO_USER_SETTINGS_2"),
+				);
 
-		\CSocNetAllowed::addAllowedFeature("photo", $arFeatureTmp);
+				$arFeatureTmp["allowed"][] = SONET_ENTITY_USER;
+				$arFeatureTmp["operations"]["write"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_photo_operation_write_user", SONET_RELATIONS_TYPE_NONE);
+				$arFeatureTmp["operations"]["view"][SONET_ENTITY_USER] = COption::GetOptionString("socialnetwork", "default_photo_operation_view_user", SONET_RELATIONS_TYPE_ALL);
+			}
+
+			if (COption::GetOptionString("socialnetwork", "allow_photo_group", "Y") == "Y")
+			{
+				$arFeatureTmp["subscribe_events"]["photo"]["ENTITIES"][SONET_SUBSCRIBE_ENTITY_GROUP] = array(
+					"TITLE" 			=> GetMessage("SOCNET_LOG_PHOTO_GROUP"),
+					"TITLE_SETTINGS"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS"),
+					"TITLE_SETTINGS_1"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS_1"),
+					"TITLE_SETTINGS_2"	=> GetMessage("SOCNET_LOG_PHOTO_GROUP_SETTINGS_2"),
+				);
+
+				$arFeatureTmp["allowed"][] = SONET_ENTITY_GROUP;
+				$arFeatureTmp["operations"]["write"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_photo_operation_write_group", SONET_ROLES_MODERATOR);
+				$arFeatureTmp["operations"]["view"][SONET_ENTITY_GROUP] = COption::GetOptionString("socialnetwork", "default_photo_operation_view_group", SONET_ROLES_USER);
+			}
+
+			\CSocNetAllowed::addAllowedFeature("photo", $arFeatureTmp);
+		}
 
 		$bIntranet = ModuleManager::isModuleInstalled('intranet');
-		$bCalendar = ($bIntranet && CBXFeatures::IsFeatureEditable("calendar"));
+		$bCalendar = (
+			$bIntranet
+			&& ModuleManager::isModuleInstalled('calendar')
+			&& CBXFeatures::IsFeatureEditable("calendar")
+		);
 
-		// calendar
 		if ($bCalendar)
 		{
 			$arFeatureTmp = array(
@@ -1689,8 +1699,10 @@ class CSocNetAllowed
 			\CSocNetAllowed::addAllowedFeature("calendar", $arFeatureTmp);
 		}
 
-		// tasks
-		if ($bIntranet)
+		if (
+			$bIntranet
+			&& ModuleManager::isModuleInstalled('tasks')
+		)
 		{
 			$arFeatureTmp = array(
 				"allowed" => array(),
@@ -1704,12 +1716,8 @@ class CSocNetAllowed
 					"modify_folders" => array(),
 					"modify_common_views" => array(),
 				),
-				"minoperation" => array("view_all", "view")
-			);
-
-			if (ModuleManager::isModuleInstalled('tasks'))
-			{
-				$arFeatureTmp["subscribe_events"] = array(
+				"minoperation" => array("view_all", "view"),
+				"subscribe_events" => array(
 					"tasks" =>  array(
 						"ENTITIES" => array(),
 						"OPERATION" => "view",
@@ -1732,8 +1740,8 @@ class CSocNetAllowed
 							"RATING_TYPE_ID" => "FORUM_POST"
 						)
 					)
-				);
-			}
+				)
+			);
 
 			if (COption::GetOptionString("socialnetwork", "allow_tasks_user", "Y") == "Y")
 			{
@@ -1780,6 +1788,10 @@ class CSocNetAllowed
 		// files
 		if (
 			$bIntranet
+			&& (
+				ModuleManager::isModuleInstalled('webdav')
+				|| ModuleManager::isModuleInstalled('disk')
+			)
 			&& (
 				COption::GetOptionString("socialnetwork", "allow_files_user", "Y") == "Y"
 				|| COption::GetOptionString("socialnetwork", "allow_files_group", "Y") == "Y"
@@ -1854,8 +1866,11 @@ class CSocNetAllowed
 		}
 
 		if (
-			COption::GetOptionString("socialnetwork", "allow_blog_user", "Y") == "Y"
-			|| COption::GetOptionString("socialnetwork", "allow_blog_group", "Y") == "Y"
+			ModuleManager::isModuleInstalled('blog')
+			&& (
+				COption::GetOptionString("socialnetwork", "allow_blog_user", "Y") == "Y"
+				|| COption::GetOptionString("socialnetwork", "allow_blog_group", "Y") == "Y"
+			)
 		)
 		{
 			$livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;
@@ -2030,6 +2045,8 @@ class CSocNetAllowed
 
 	public static function addRestFeatures()
 	{
+		global $USER;
+
 		if (Loader::includeModule('rest'))
 		{
 			CSocNetAllowed::addAllowedFeature("marketplace", array(
@@ -2037,6 +2054,15 @@ class CSocNetAllowed
 				"operations" => array(),
 				"minoperation" => array(),
 			));
+
+			if (
+				!isset($USER)
+				|| !is_object($USER)
+				|| !($USER instanceof \CUser)
+			)
+			{
+				return;
+			}
 
 			$placementHandlerList = \Bitrix\Rest\PlacementTable::getHandlersList('SONET_GROUP_DETAIL_TAB');
 			if(is_array($placementHandlerList))

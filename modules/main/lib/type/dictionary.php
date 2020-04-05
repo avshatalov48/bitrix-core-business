@@ -40,7 +40,30 @@ class Dictionary
 		return null;
 	}
 
-	public function set(array $values)
+	public function set($name, $value = null)
+	{
+		if (is_array($name))
+		{
+			$this->values = $name;
+		}
+		else
+		{
+			$this->values[$name] = $value;
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getValues()
+	{
+		return $this->values;
+	}
+
+	/**
+	 * @param $values
+	 */
+	public function setValues($values)
 	{
 		$this->values = $values;
 	}

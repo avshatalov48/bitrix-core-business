@@ -352,9 +352,7 @@ if($request->isPost() && ($request["save"]<>'' || $request["apply"]<>'') && chec
 	}
 
 	$campaignSettings['EmailNotification']['SendWarn'] = $campaignSettings['EmailNotification']['SendWarn'] == 'Y';
-
 	$campaignSettings['MinusKeywords'] = preg_split("/[\\n,;]+\\s*/", $campaignSettings['MinusKeywords']);
-
 	$campaignSettings['MinusKeywords'] = array_map('trim', $campaignSettings['MinusKeywords']);
 
 	$campaignFields = array(
@@ -1053,90 +1051,76 @@ if(!$bReadOnly)
 }
 $tabControl->End();
 
-if(!$bReadOnly):
-?>
-<?=bitrix_sessid_post();?>
-<?
-	if($back_url!=''):
-?>
-	<input type="hidden" name="back_url" value="<?echo Converter::getHtmlConverter()->encode($back_url)?>">
-<?
-	endif;
-?>
-
-	<input type="hidden" name="ID" value="<?=$ID?>">
-
-<script type="text/javascript">
-<?
-if($bAllowUpdate):
-?>
-function updateCampaign(btn, campaignId)
-{
-	if(!!btn._innerHTML)
-	{
-		return;
-	}
-
-	//BX.addClass(btn, 'adm-btn-active');
-	btn._innerHTML = btn.innerHTML;
-	btn.innerHTML = '<?=Loc::getMessage('SEO_YANDEX_DIRECT_LOADING')?>';
-
-	var url = '/bitrix/tools/seo_yandex_direct.php?action=campaign_update&campaign=' + BX.util.urlencode(campaignId);
-
-	BX.ajax.loadJSON(url + '&sessid=' + BX.bitrix_sessid(), function(res){
-		if(BX.hasClass(btn, 'adm-btn-active'))
+if(!$bReadOnly): ?>
+	<?=bitrix_sessid_post();?>
+	<? if($back_url!=''): ?>
+		<input type="hidden" name="back_url" value="<?echo Converter::getHtmlConverter()->encode($back_url)?>">
+	<? endif; ?>
+		<input type="hidden" name="ID" value="<?=$ID?>">
+	
+	<script type="text/javascript">
+		function showStrategyParams(key)
 		{
-			//BX.removeClass(btn, 'adm-btn-active');
-			btn.innerHTML = btn._innerHTML;
-			delete btn._innerHTML;
+			<? foreach (Adv\YandexCampaignTable::$supportedStrategy as $key => $strategy): ?>
+				BX('strategy_params_<?=$key?>').style.display = key =='<?=$key?>' ? 'table-row-group' : 'none';
+			<? endforeach; ?>
 		}
+		
+		BX.ready(function(){
+			var i1 = BX('param_WEEKLY_PACKET_OF_CLICKS_MaxPrice'),
+				i2 = BX('param_WEEKLY_PACKET_OF_CLICKS_AveragePrice');
+		
+			var f = function(){
+				i2.disabled = i1.value > 0;
+				if(!i2.disabled)
+				{
+					i1.disabled = i2.value > 0;
+				}
+			};
+		
+			BX.bind(i1, 'change', f);
+			BX.bind(i2, 'change', f);
+			f();
+		
+		});
+	</script>
+<?endif; ?>
 
-		if(!!res.error && (!!res.error.message || !!res.error.code))
+<?if($bAllowUpdate):?>
+	<script type="text/javascript">
+		function updateCampaign(btn, campaignId)
 		{
-			alert(res.error.message||res.error.code);
+			if(!!btn._innerHTML)
+			{
+				return;
+			}
+
+			//BX.addClass(btn, 'adm-btn-active');
+			btn._innerHTML = btn.innerHTML;
+			btn.innerHTML = '<?=Loc::getMessage('SEO_YANDEX_DIRECT_LOADING')?>';
+
+			var url = '/bitrix/tools/seo_yandex_direct.php?action=campaign_update&campaign=' + BX.util.urlencode(campaignId);
+
+			BX.ajax.loadJSON(url + '&sessid=' + BX.bitrix_sessid(), function(res){
+				if(BX.hasClass(btn, 'adm-btn-active'))
+				{
+					//BX.removeClass(btn, 'adm-btn-active');
+					btn.innerHTML = btn._innerHTML;
+					delete btn._innerHTML;
+				}
+
+				if(!!res.error && (!!res.error.message || !!res.error.code))
+				{
+					alert(res.error.message||res.error.code);
+				}
+				else
+				{
+					BX.reload();
+				}
+			});
 		}
-		else
-		{
-			BX.reload();
-		}
-	});
-}
-<?
-endif;
-?>
+	</script>
+<?endif;?>
 
-function showStrategyParams(key)
-{
-<?
-	foreach (Adv\YandexCampaignTable::$supportedStrategy as $key => $strategy):
-?>
-	BX('strategy_params_<?=$key?>').style.display = key =='<?=$key?>' ? 'table-row-group' : 'none';
-<?
-	endforeach;
-?>
-}
-
-BX.ready(function(){
-	var i1 = BX('param_WEEKLY_PACKET_OF_CLICKS_MaxPrice'),
-		i2 = BX('param_WEEKLY_PACKET_OF_CLICKS_AveragePrice');
-
-	var f = function(){
-		i2.disabled = i1.value > 0;
-		if(!i2.disabled)
-		{
-			i1.disabled = i2.value > 0;
-		}
-	};
-
-	BX.bind(i1, 'change', f);
-	BX.bind(i2, 'change', f);
-	f();
-
-})
-</script>
-<?
-endif;
-?>
 </form>
-<?
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
+<? require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");

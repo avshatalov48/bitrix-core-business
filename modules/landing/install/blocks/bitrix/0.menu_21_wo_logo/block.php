@@ -1,11 +1,4 @@
-<?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
-?>
-
-<header class="landing-block landing-block-menu landing-block-menu-store w-100 g-bg-primary g-pt-25 g-pb-25">
+<header class="landing-block landing-block-menu u-header landing-block-menu-store w-100 g-bg-primary g-pt-25 g-pb-25">
 	<nav class="g-pa-0 g-mb-0 navbar navbar-expand-lg g-brd-0 u-navbar-color-main--hover">
 		<div class="container">
 			<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">

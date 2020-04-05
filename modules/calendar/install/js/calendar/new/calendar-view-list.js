@@ -452,7 +452,10 @@
 		if (this.userListPopup)
 			this.userListPopup.close();
 
-		this.popup.setAutoHide(false);
+		if (this.popup)
+		{
+			this.popup.setAutoHide(false);
+		}
 
 		if (!userList || !userList.length)
 			return;

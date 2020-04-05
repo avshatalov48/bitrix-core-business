@@ -2,10 +2,13 @@
 
 namespace Bitrix\Main\Mail\Smtp;
 
+use \Bitrix\Main;
+use \Bitrix\Mail;
+
 class Config
 {
 
-	protected $from, $host, $port, $login, $password;
+	protected $from, $host, $port, $protocol, $login, $password;
 
 	public function __construct(array $params = null)
 	{
@@ -38,6 +41,12 @@ class Config
 		return $this;
 	}
 
+	public function setProtocol($protocol)
+	{
+		$this->protocol = $protocol;
+		return $this;
+	}
+
 	public function setLogin($login)
 	{
 		$this->login = $login;
@@ -65,6 +74,11 @@ class Config
 		return $this->port;
 	}
 
+	public function getProtocol()
+	{
+		return $this->protocol;
+	}
+
 	public function getLogin()
 	{
 		return $this->login;
@@ -73,6 +87,39 @@ class Config
 	public function getPassword()
 	{
 		return $this->password;
+	}
+
+	public static function canCheck()
+	{
+		return Main\Loader::includeModule('mail') && class_exists('Bitrix\Mail\Smtp');
+	}
+
+	public function check(&$error = null, Main\ErrorCollection &$errors = null)
+	{
+		$error = null;
+		$errors = null;
+
+		if (!$this->canCheck())
+		{
+			return null;
+		}
+
+		$client = new Mail\Smtp(
+			$this->host,
+			$this->port,
+			('smtps' === $this->protocol || ('smtp' !== $this->protocol && 465 === $this->port)),
+			true,
+			$this->login,
+			$this->password
+		);
+
+		if (!$client->authenticate($error))
+		{
+			$errors = $client->getErrors();
+			return false;
+		}
+
+		return true;
 	}
 
 }

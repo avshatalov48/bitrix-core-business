@@ -1,0 +1,31 @@
+<?
+$MESS["SALE_F_ALL"] = "<Все>";
+$MESS["SALE_DELETE"] = "Скасувати";
+$MESS["SALE_ACTION"] = "Дії";
+$MESS["SALE_F_DATE"] = "Дата замовлення";
+$MESS["SALE_DETAIL_DESCR"] = "Подивитись детальну інформацію про замовлення";
+$MESS["SALE_F_STATUS"] = "Статус замовлення";
+$MESS["SALE_DELETE_DESCR"] = "Скасувати замовлення";
+$MESS["SALE_COPY_ORDER"] = "Повторити";
+$MESS["SALE_COPY_ORDER_DESCR"] = "Повторити замовлення";
+$MESS["SALE_PRLIST"] = "Замовлення";
+$MESS["SALE_F_ID"] = "Код замовлення";
+$MESS["P_ID"] = "Код замовлення";
+$MESS["P_PAYED"] = "Оплачено";
+$MESS["SALE_F_PAYED"] = "Оплачено";
+$MESS["SALE_TO"] = "до";
+$MESS["SALE_DETAIL"] = "Детально";
+$MESS["SALE_F_SUBMIT"] = "Встановити";
+$MESS["SALE_F_FILTER"] = "Фільтр";
+$MESS["SALE_F_HISTORY"] = "У тому числі доставлення";
+$MESS["SALE_YES"] = "Так";
+$MESS["SALE_F_DEL"] = "Зняти";
+$MESS["SALE_NO"] = "Ні";
+$MESS["P_PRICE"] = "Вартість";
+$MESS["P_BASKET"] = "Товари";
+$MESS["P_STATUS"] = "Статус";
+$MESS["P_CANCELED"] = "Скасовано";
+$MESS["SALE_F_CANCELED"] = "Скасовано";
+$MESS["SALE_FROM"] = "від";
+$MESS["P_PAY_SYS"] = "Спосіб оплати / доставки";
+?>

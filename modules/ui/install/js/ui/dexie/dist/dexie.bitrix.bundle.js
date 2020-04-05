@@ -4948,15 +4948,55 @@
     * IndexedDB manager (integration with Dexie.js)
     *
     * @package bitrix
-    * @subpackage im
+    * @subpackage ui
     * @copyright 2001-2019 Bitrix
     *
     * @see	https://dexie.org/docs/Tutorial/Getting-started
     */
+
    var Dexie$1 = function Dexie$$1(database) {
      babelHelpers.classCallCheck(this, Dexie$$1);
      return new Dexie(database);
    };
+
+   Dexie$1.delete = Dexie.delete;
+   Dexie$1.exists = Dexie.exists;
+   Dexie$1.getDatabaseNames = Dexie.getDatabaseNames;
+   Dexie$1.defineClass = Dexie.defineClass;
+   Dexie$1.applyStructure = Dexie.applyStructure;
+   Dexie$1.ignoreTransaction = Dexie.ignoreTransaction;
+   Dexie$1.vip = Dexie.vip;
+   Dexie$1.async = Dexie.async;
+   Dexie$1.spawn = Dexie.spawn;
+   Dexie$1.currentTransaction = Dexie.currentTransaction;
+   Dexie$1.waitFor = Dexie.waitFor;
+   Dexie$1.Promise = Dexie.Promise;
+   Dexie$1.debug = Dexie.debug;
+   Dexie$1.derive = Dexie.derive;
+   Dexie$1.extend = Dexie.extend;
+   Dexie$1.props = Dexie.props;
+   Dexie$1.override = Dexie.override;
+   Dexie$1.Events = Dexie.Events;
+   Dexie$1.getByKeyPath = Dexie.getByKeyPath;
+   Dexie$1.setByKeyPath = Dexie.setByKeyPath;
+   Dexie$1.delByKeyPath = Dexie.delByKeyPath;
+   Dexie$1.shallowClone = Dexie.shallowClone;
+   Dexie$1.deepClone = Dexie.deepClone;
+   Dexie$1.getObjectDiff = Dexie.getObjectDiff;
+   Dexie$1.asap = Dexie.asap;
+   Dexie$1.maxKey = Dexie.maxKey;
+   Dexie$1.minKey = Dexie.minKey;
+   Dexie$1.addons = Dexie.addons;
+   Dexie$1.connections = Dexie.connections;
+   Dexie$1.MultiModifyError = Dexie.MultiModifyError;
+   Dexie$1.errnames = Dexie.errnames;
+   Dexie$1.IndexSpec = Dexie.IndexSpec;
+   Dexie$1.TableSchema = Dexie.TableSchema;
+   Dexie$1.dependencies = Dexie.dependencies;
+   Dexie$1.semVer = Dexie.semVer;
+   Dexie$1.version = Dexie.version;
+   Dexie$1.default = Dexie.default;
+   Dexie$1.Dexie = Dexie.Dexie;
 
    exports.Dexie = Dexie$1;
 

@@ -6,4 +6,6 @@ $MESS["USER_TYPE_IBEL_LIST"] = "Список";
 $MESS["USER_TYPE_IBEL_LIST_HEIGHT"] = "Высота списка";
 $MESS["USER_TYPE_IBEL_DEFAULT_VALUE"] = "Значение по умолчанию";
 $MESS["USER_TYPE_IBEL_ACTIVE_FILTER"] = "Показывать только активные элементы";
+$MESS["USER_TYPE_IBEL_DISPLAY_NOTE"] = "Укажите инфоблок - это обязательный параметр.";
+$MESS["USER_TYPE_IBEL_VALUE_ANY"] = "(любой)";
 ?>

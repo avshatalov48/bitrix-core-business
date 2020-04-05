@@ -10,7 +10,7 @@
 							Template</h1>
 
 						<div class="row">
-							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
+							<div class="landing-block-node-card col-md-6 col-lg-6 g-mb-10 g-mb-30--md">
 								<div class="media">
                       <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-communication-114 u-line-icon-pro"></i>
@@ -25,7 +25,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
+							<div class="landing-block-node-card col-md-6 col-lg-6 g-mb-10 g-mb-30--md">
 								<div class="media">
                       <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-communication-116 u-line-icon-pro"></i>
@@ -40,7 +40,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
+							<div class="landing-block-node-card col-md-6 col-lg-6 g-mb-10 g-mb-30--md">
 								<div class="media">
                       <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-finance-091 u-line-icon-pro"></i>
@@ -55,7 +55,7 @@
 								</div>
 							</div>
 
-							<div class="landing-block-node-card col-md-6 g-mb-10 g-mb-30--md">
+							<div class="landing-block-node-card col-md-6 col-lg-6 g-mb-10 g-mb-30--md">
 								<div class="media">
                       <span class="landing-block-node-card-icon-container d-flex u-icon-v1 g-width-50 g-height-50 g-color-white g-bg-white-opacity-0_1 g-font-size-26 g-line-height-1 rounded-circle g-pos-rel g-pa-12 mr-3">
                         <i class="landing-block-node-card-icon icon-education-085 u-line-icon-pro"></i>

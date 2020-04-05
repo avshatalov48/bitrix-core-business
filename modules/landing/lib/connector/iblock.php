@@ -16,7 +16,8 @@ class Iblock
 		if (isset($syspages['catalog']))
 		{
 			$landing = \Bitrix\Landing\Landing::createInstance(
-				$syspages['catalog']['LANDING_ID']
+				$syspages['catalog']['LANDING_ID'],
+				['skip_blocks' => true]
 			);
 			if ($landing->exist())
 			{

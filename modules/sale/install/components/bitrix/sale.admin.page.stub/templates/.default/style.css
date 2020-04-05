@@ -1,0 +1,30 @@
+.sale-admin-page-wrap {
+	min-height: 700px;
+	height: 500px; /* ie*/
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 19px;
+	border: 1px solid #cdd7d8;
+	border-radius: 1px;
+	padding: 0 20px;
+	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22555%22%20height%3D%22417%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.093%22%3E%3Ccircle%20cx%3D%22169%22%20cy%3D%22225%22%20r%3D%22169%22%20fill%3D%22%23D4FF2B%22/%3E%3Ccircle%20cx%3D%22346.5%22%20cy%3D%22208.5%22%20r%3D%22208.5%22%20fill%3D%22%233BC8F5%22%20style%3D%22mix-blend-mode%3Amultiply%22/%3E%3C/g%3E%3C/svg%3E) no-repeat center;
+}
+
+.sale-admin-page {
+	text-align: center;
+}
+
+.sale-admin-page-title {
+	color: #000;
+	font-size: 36px;
+	line-height: 42px;
+	margin-bottom: 62px;
+}
+
+.sale-admin-page-text {
+	color: #555c68;
+	font-size: 20px;
+	line-height: 26px;
+	margin-bottom: 32px;
+}

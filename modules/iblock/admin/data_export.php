@@ -52,9 +52,9 @@ array(
 function ArrayMultiply(&$arResult, $arTuple, $arTemp = array())
 {
 	global $csvFile, $DATA_FILE_NAME, $num_rows_writed;
-	if(count($arTuple) == 0)
+	if(empty($arTuple))
 	{
-		//$arResult[] = $arTemp;
+		/** @var CCSVData $csvFile */
 		$csvFile->SaveFile($_SERVER["DOCUMENT_ROOT"].$DATA_FILE_NAME, $arTemp);
 		$num_rows_writed++;
 	}

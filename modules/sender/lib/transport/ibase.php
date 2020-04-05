@@ -21,6 +21,7 @@ interface iBase
 	const CODE_SMS = 'sms';
 	const CODE_IM = 'im';
 	const CODE_CALL = 'call';
+	const CODE_AUDIO_CALL = 'audio_call';
 	const CODE_UNDEFINED = '';
 
 	const EVENT_NAME = 'onSenderTransportList';
@@ -57,11 +58,13 @@ interface iBase
 	 * Save configuration.
 	 *
 	 * @param Message\Configuration $configuration Configuration.
+	 * @return void
 	 */
 	public function saveConfiguration(Message\Configuration $configuration);
 
 	/**
 	 * Start.
+	 * @return void
 	 */
 	public function start();
 
@@ -76,6 +79,7 @@ interface iBase
 
 	/**
 	 * End.
+	 * @return void
 	 */
 	public function end();
 }

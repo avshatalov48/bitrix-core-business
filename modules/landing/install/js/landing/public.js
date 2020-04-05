@@ -26,8 +26,8 @@
 				BX.Landing.EventTracker.getInstance().run();
 			}
 
+			// pseudo links
 			var pseudoLinks = [].slice.call(document.querySelectorAll("[data-pseudo-url*=\"{\"]"));
-
 			if (pseudoLinks.length)
 			{
 				pseudoLinks.forEach(function(link) {
@@ -39,9 +39,58 @@
 					{
 						link.addEventListener("click", function(event) {
 							event.preventDefault();
-							top.open(linkOptions.href, linkOptions.target);
+							// mobile device
+							if (typeof BXMobileApp !== "undefined")
+							{
+								BXMobileApp.PageManager.loadPageBlank({
+									url: linkOptions.href,
+									cache: false,
+									bx24ModernStyle: true
+								});
+							}
+							// desktop
+							else
+							{
+								if (window.top === window)
+								{
+									top.open(linkOptions.href, linkOptions.target);
+								}
+							}
 						});
 					}
+				});
+			}
+
+			// all links for mobile
+			if (typeof BXMobileApp !== "undefined")
+			{
+				var allLinks = [].slice.call(document.querySelectorAll("a"));
+				if (allLinks.length)
+				{
+					allLinks.forEach(function(link) {
+						if (link.href)
+						{
+							link.addEventListener("click", function(event) {
+								event.preventDefault();
+								BXMobileApp.PageManager.loadPageBlank({
+									url: link.href,
+									cache: false,
+									bx24ModernStyle: true
+								});
+							});
+						}
+					});
+				}
+			}
+
+			// stop propagation for sub-elements in pseudo-link nodes
+			var stopPropagationNodes = [].slice.call(document.querySelectorAll("[data-stop-propagation]"));
+			if(stopPropagationNodes.length)
+			{
+				stopPropagationNodes.forEach(function(node) {
+					node.addEventListener("click", function(event) {
+						event.stopPropagation();
+					});
 				});
 			}
 		}

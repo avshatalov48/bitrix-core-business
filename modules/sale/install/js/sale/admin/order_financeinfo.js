@@ -39,14 +39,12 @@ BX.Sale.Admin.FinanceInfo =
 	/* Price */
 	setPrice: function(price)
 	{
-		var inp = BX("sale-order-financeinfo-price"),
-			sumPaid = BX.Sale.Admin.FinanceInfo.getSumPaid();
+		var inp = BX("sale-order-financeinfo-price");
 
 		if(inp)
 			inp.price = price;
 
 		BX.Sale.Admin.FinanceInfo.setPriceView(price);
-		BX.Sale.Admin.FinanceInfo.setPayable(parseFloat(price)-parseFloat(sumPaid));
 	},
 
 	getPrice: function()
@@ -71,14 +69,12 @@ BX.Sale.Admin.FinanceInfo =
 	/* Sum paid */
 	setSumPaid: function(value)
 	{
-		var inp = BX("sale-order-financeinfo-sum-paid"),
-			price = BX.Sale.Admin.FinanceInfo.getPrice();
+		var inp = BX("sale-order-financeinfo-sum-paid");
 
 		if(inp)
 			inp.value = value;
 
 		BX.Sale.Admin.FinanceInfo.setSumPaidView(value);
-		BX.Sale.Admin.FinanceInfo.setPayable(parseFloat(price)-parseFloat(value));
 	},
 
 	setSumPaidView: function(value)

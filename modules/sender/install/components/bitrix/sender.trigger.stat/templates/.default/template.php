@@ -53,8 +53,18 @@ use Bitrix\Main\Web\Json;
 						</span>
 					</div>
 
-
-					<div style="height: 40px;">
+					<div class="bx-sender-tittle-statistic">
+						<span class="bx-sender-title-statistic-text">
+							<?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_SEND_ALL')?>:
+							<a class=""
+								href="<?=htmlspecialcharsbx($arResult['URLS']['SENT_SUCCESS'])?>"
+								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['SENT_SUCCESS'])?>'); return false;"
+							>
+								<span class="bx-sender-title-statistic-number-bold">
+									<?=htmlspecialcharsbx($arResult['DATA']['CNT']['SENT_SUCCESS'])?>
+								</span>
+							</a>
+						</span>
 					</div>
 
 					<div class="bx-sender-mailfilter-result">
@@ -86,15 +96,10 @@ use Bitrix\Main\Web\Json;
 				<div class="bx-sender-block-col-2">
 					<div class="bx-sender-tittle-statistic">
 						<span class="bx-sender-title-statistic-text">
-							<?=Loc::getMessage('SENDER_LETTER_STAT_STATS_COUNTER_SEND_ALL')?>:
-							<a class=""
-								href="<?=htmlspecialcharsbx($arResult['URLS']['START'])?>"
-								onclick="BX.Sender.Page.open('<?= htmlspecialcharsbx($arResult['URLS']['SENT_SUCCESS'])?>'); return false;"
-							>
-								<span class="bx-sender-title-statistic-number-bold">
-									<?=htmlspecialcharsbx($arResult['DATA']['CNT']['START'])?>
-								</span>
-							</a>
+							<?=Loc::getMessage('SENDER_LETTER_STAT_STATS_GOAL_START')?>:
+							<span class="bx-sender-title-statistic-number-bold">
+								<?=htmlspecialcharsbx($arResult['DATA']['CNT']['START'])?>
+							</span>
 						</span>
 					</div>
 					<div class="bx-sender-tittle-statistic">

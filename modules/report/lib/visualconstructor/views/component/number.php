@@ -31,7 +31,6 @@ class Number extends Base
 		$this->setCompatibleDataType(Common::SINGLE_REPORT_TYPE);
 	}
 
-
 	/**
 	 * Method to modify report form elements.
 	 *
@@ -61,9 +60,7 @@ class Number extends Base
 				'js' => array('/bitrix/js/report/js/visualconstructor/fields/reporttitle.js')
 			));
 		}
-
 	}
-
 
 	/**
 	 * Method to modify Content which pass to widget view, in absolute end.
@@ -78,13 +75,11 @@ class Number extends Base
 	{
 		$resultWidget = parent::prepareWidgetContent($widget, $withCalculatedData);
 
-
 		if ($withCalculatedData)
 		{
 			$resultWidget['config']['color'] = $widget->getWidgetHandler()->getReportHandlers()[0]->getFormElement('color')->getValue();
 			$resultWidget['config']['title'] = $widget->getWidgetHandler()->getReportHandlers()[0]->getFormElement('label')->getValue();
 		}
-
 
 		return $resultWidget;
 	}

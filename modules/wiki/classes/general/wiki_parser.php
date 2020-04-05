@@ -306,7 +306,7 @@ class CWikiParser
 		if (!empty($this->arLink))
 		{
 			$arFilter = array();
-			$arFilter['NAME'] = $this->arLink;
+			$arFilter['=NAME'] = $this->arLink;
 			$arFilter['IBLOCK_ID'] = $arParams['IBLOCK_ID'];
 			$arFilter['ACTIVE'] = 'Y';
 			$arFilter['CHECK_PERMISSIONS'] = 'N';

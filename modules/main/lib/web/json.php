@@ -23,6 +23,7 @@ class Json
 	{
 		if (!Application::getInstance()->isUtfMode())
 		{
+			self::serializeJson($data);
 			$data = self::convertData($data);
 		}
 
@@ -65,6 +66,27 @@ class Json
 		}
 
 		return $res;
+	}
+
+	/**
+	 * Executes serializeJson on JsonSerializable objects for non-UTF8 instances.
+	 * We have to do it manually to prevent "malformed UTF-8 characters" error.
+	 *
+	 * @param mixed $data
+	 */
+	protected static function serializeJson(&$data)
+	{
+		if($data instanceof \JsonSerializable)
+		{
+			$data = $data->jsonSerialize();
+		}
+		else if (is_iterable($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				self::serializeJson($data[$key]);
+			}
+		}
 	}
 
 	/**

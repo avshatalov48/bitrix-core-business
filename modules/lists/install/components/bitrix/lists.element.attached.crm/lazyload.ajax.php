@@ -102,7 +102,7 @@ if (isset($_REQUEST["download"]) && $_REQUEST["download"] === "y")
 	{
 		$file = CFile::getFileArray($fileId);
 		if (is_array($file))
-			CFile::viewByUser($fileId, array('content_type' => $file['CONTENT_TYPE'], 'force_download' => true));
+			CFile::viewByUser($file, array('content_type' => $file['CONTENT_TYPE'], 'force_download' => true));
 	}
 	completeLazyLoad();
 }

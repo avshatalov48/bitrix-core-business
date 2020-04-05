@@ -2,6 +2,7 @@
 namespace Bitrix\Im\Replica;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 if (Loader::includeModule('replica'))
 {
@@ -376,8 +377,17 @@ if (Loader::includeModule('replica'))
 				));
 			}
 
+			$updateFlags = Array(
+				'ID' => $newRecord['ID'],
+				'TEXT' => $newRecord["MESSAGE"],
+				'URL_PREVIEW' => true,
+				'EDIT_FLAG' => true,
+				'USER_ID' => $arFields['AUTHOR_ID'],
+				'BY_EVENT' => false,
+			);
+
 			foreach(\GetModuleEvents("im", "OnAfterMessagesUpdate", true) as $arEvent)
-				\ExecuteModuleEventEx($arEvent, array(intval($newRecord['ID']), $arFields));
+				\ExecuteModuleEventEx($arEvent, array(intval($newRecord['ID']), $arFields, $updateFlags));
 		}
 
 		/**
@@ -390,6 +400,11 @@ if (Loader::includeModule('replica'))
 		public function beforeLogFormat(array &$record)
 		{
 			global $USER;
+
+			if (!$record['MESSAGE'])
+			{
+				$record['MESSAGE'] = Loc::getMessage('IM_REPLICA_FILE');
+			}
 
 			if (\Bitrix\Im\User::getInstance($record['AUTHOR_ID'])->isBot())
 			{

@@ -311,7 +311,9 @@ BX.JCCalendar = function()
 			bindOptions: {forceBindPosition: true}
 		});
 
-		BX.bind(this.popup.popupContainer, 'click', this.popup.cancelBubble);
+		BX.bind(this.popup.popupContainer, 'click', function(event) {
+			event.stopPropagation();
+		});
 	};
 
 	this._auto_hide_disable = function()

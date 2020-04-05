@@ -11,6 +11,7 @@ use Bitrix\Main;
  * <li> STAT_DATE date mandatory
  * <li> APP_ID int mandatory
  * <li> METHOD_ID int mandatory
+ * <li> PASSWORD_ID int mandatory
  * <li> HOUR_0 int mandatory
  * <li> HOUR_1 int mandatory
  * <li> HOUR_2 int mandatory
@@ -40,15 +41,16 @@ use Bitrix\Main;
  * @package Bitrix\Rest
  **/
 
+/**
+ * Class StatTable
+ * @deprecated
+ */
 class StatTable extends Main\Entity\DataManager
 {
 	const STORE_PERIOD = 5184000; // 60*24*3600
 
-	protected static $data = array(
-		StatMethodTable::METHOD_TYPE_METHOD => array(),
-		StatMethodTable::METHOD_TYPE_EVENT => array(),
-		StatMethodTable::METHOD_TYPE_PLACEMENT => array(),
-	);
+	protected static $data = array();
+	protected static $dataPassword = array();
 
 	/**
 	 * Returns DB table name for entity.
@@ -77,6 +79,10 @@ class StatTable extends Main\Entity\DataManager
 				'primary' => true,
 			),
 			'METHOD_ID' => array(
+				'data_type' => 'integer',
+				'primary' => true,
+			),
+			'PASSWORD_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
 			),
@@ -176,6 +182,24 @@ class StatTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'required' => true,
 			),
+			'APP' => array(
+				'data_type' => 'Bitrix\Rest\StatAppTable',
+				'reference' => array(
+					'=this.APP_ID' => 'ref.APP_ID',
+				),
+			),
+			'METHOD' => array(
+				'data_type' => 'Bitrix\Rest\StatMethodTable',
+				'reference' => array(
+					'=this.METHOD_ID' => 'ref.ID',
+				),
+			),
+			'PASSWORD' => array(
+				'data_type' => '\Bitrix\Rest\APAuth\PasswordTable',
+				'reference' => array(
+					'=this.PASSWORD_ID' => 'ref.ID',
+				),
+			),
 		);
 	}
 
@@ -190,6 +214,15 @@ class StatTable extends Main\Entity\DataManager
 		{
 			static::logMethod($server->getClientId(), $server->getMethod());
 		}
+		elseif($server->getPasswordId())
+		{
+			static::logApMethod($server->getPasswordId(), $server->getMethod());
+		}
+	}
+
+	public static function logApMethod($passwordID, $methodName)
+	{
+		static::addApToLog($passwordID, $methodName, StatMethodTable::METHOD_TYPE_METHOD);
 	}
 
 	public static function logMethod($clientId, $methodName)
@@ -207,20 +240,44 @@ class StatTable extends Main\Entity\DataManager
 		static::addToLog($clientId, $placementName, StatMethodTable::METHOD_TYPE_PLACEMENT);
 	}
 
+	public static function logRobot($clientId)
+	{
+		static::addToLog($clientId, 'ROBOT', StatMethodTable::METHOD_TYPE_ROBOT);
+	}
+
+	public static function logActivity($clientId)
+	{
+		static::addToLog($clientId, 'ACTIVITY', StatMethodTable::METHOD_TYPE_ACTIVITY);
+	}
+
+	protected static function addApToLog($passwordID, $methodName, $methodType)
+	{
+		if (!isset(static::$dataPassword[$passwordID]))
+		{
+			static::$dataPassword[$passwordID] = array();
+		}
+
+		if (!isset(static::$dataPassword[$passwordID][$methodName]))
+		{
+			static::$dataPassword[$passwordID][$methodName] = 0;
+		}
+
+		static::$dataPassword[$passwordID][$methodName]++;
+	}
+
 	protected static function addToLog($clientId, $methodName, $methodType)
 	{
-		if(!isset(static::$data[$methodType][$clientId]))
+		if (!isset(static::$data[$clientId]))
 		{
-			static::$data[$methodType][$clientId] = array($methodName => 1);
+			static::$data[$clientId] = array();
 		}
-		elseif(!isset(static::$data[$methodType][$clientId][$methodName]))
+
+		if (!isset(static::$data[$clientId][$methodName]))
 		{
-			static::$data[$methodType][$clientId][$methodName] = 1;
+			static::$data[$clientId][$methodName] = 0;
 		}
-		else
-		{
-			static::$data[$methodType][$clientId][$methodName]++;
-		}
+
+		static::$data[$clientId][$methodName]++;
 	}
 
 	public static function finalize()
@@ -234,34 +291,29 @@ class StatTable extends Main\Entity\DataManager
 		$helper = $connection->getSqlHelper();
 
 		$hour = intval(date('G'));
-		$curDateSql = new Main\DB\SqlExpression($helper->getCurrentDateFunction());
-
-		$combinedStat = array();
-		foreach(static::$data as $methodType => $methodData)
+		$curDateSql = new Main\Type\Date();
+		if(count(static::$data) > 0)
 		{
-			foreach($methodData as $clientId => $stat)
+			foreach(static::$data as $clientId => $stat)
+				$appInfo = AppTable::getByClientId($clientId);
 			{
-				StatMethodTable::checkList(array_keys($stat), $methodType);
-			}
-
-			$combinedStat = array_merge_recursive($combinedStat, $methodData);
-		}
-
-		foreach($combinedStat as $clientId => $stat)
-		{
-			$appInfo = AppTable::getByClientId($clientId);
-			if($appInfo)
-			{
-				foreach($stat as $method => $count)
+				if($appInfo)
 				{
-					$methodId = StatMethodTable::getId($method);
-					if($methodId > 0)
+					StatAppTable::register($appInfo);
+					foreach($stat as $methodName => $count)
 					{
+						$methodId = StatMethodTable::getId($methodName);
+						if (!$methodId)
+						{
+							continue;
+						}
+
 						$insertFields = array(
 							'STAT_DATE' => $curDateSql,
 							'APP_ID' => $appInfo['ID'],
 							'METHOD_ID' => $methodId,
 							'HOUR_'.$hour => $count,
+							'PASSWORD_ID' => 0
 						);
 
 						$updateFields = array(
@@ -284,16 +336,52 @@ class StatTable extends Main\Entity\DataManager
 			}
 		}
 
+		if(count(static::$dataPassword) > 0)
+		{
+			foreach(static::$dataPassword as $passwordID => $stat)
+			{
+
+				foreach ($stat as $methodName => $count)
+				{
+					$methodId = StatMethodTable::getId($methodName);
+					if (!$methodId)
+					{
+						continue;
+					}
+
+					$insertFields = array(
+						'STAT_DATE' => $curDateSql,
+						'PASSWORD_ID' => $passwordID,
+						'METHOD_ID' => $methodId,
+						'HOUR_' . $hour => $count,
+						'APP_ID' => 0
+					);
+
+					$updateFields = array(
+						'HOUR_'.$hour => new Main\DB\SqlExpression('?#+?i', 'HOUR_'.$hour, $count)
+					);
+
+					$queries = $helper->prepareMerge(
+						static::getTableName(),
+						array('DATE', 'APP_ID', 'METHOD_ID'),
+						$insertFields,
+						$updateFields
+					);
+
+					foreach($queries as $query)
+					{
+						$connection->queryExecute($query);
+					}
+				}
+			}
+		}
+
 		static::reset();
 	}
 
 	public static function reset()
 	{
-		static::$data = array(
-			StatMethodTable::METHOD_TYPE_METHOD => array(),
-			StatMethodTable::METHOD_TYPE_EVENT => array(),
-			StatMethodTable::METHOD_TYPE_PLACEMENT => array(),
-		);
+		static::$data = array();
 	}
 
 	/**
@@ -302,15 +390,31 @@ class StatTable extends Main\Entity\DataManager
 	public static function deleteByFilter(array $filter)
 	{
 		$entity = static::getEntity();
+		$sqlTableName = static::getTableName();
 
 		$where = Main\Entity\Query::buildFilterSql($entity, $filter);
-
 		if($where <> '')
 		{
-			$sqlTableName = static::getTableName();
-
 			$sql = "DELETE FROM {$sqlTableName} WHERE ".$where;
+			$entity->getConnection()->queryExecute($sql);
+		}
+	}
 
+	/**
+	 * @param array $filter
+	 * @param array $fields
+	 */
+	public static function updateByFilter(array $filter, array $fields)
+	{
+		$entity = static::getEntity();
+		$sqlHelper = $entity->getConnection()->getSqlHelper();
+		$sqlTableName = static::getTableName();
+
+		$update = $sqlHelper->prepareUpdate($sqlTableName, $fields);
+		$where = Main\Entity\Query::buildFilterSql($entity, $filter);
+		if($where <> '' && $update[0] <> '')
+		{
+			$sql = "UPDATE {$sqlTableName} SET $update[0] WHERE $where";
 			$entity->getConnection()->queryExecute($sql);
 		}
 	}
@@ -320,7 +424,9 @@ class StatTable extends Main\Entity\DataManager
 		$date = new Main\Type\DateTime();
 		$date->add("-60D");
 
-		static::deleteByFilter(array("<STAT_DATE" => $date));
+		static::deleteByFilter(array(
+			"<STAT_DATE" => $date,
+		));
 
 		return "\\Bitrix\\Rest\\StatTable::cleanUpAgent();";
 	}

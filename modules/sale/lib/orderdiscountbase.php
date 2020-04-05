@@ -582,6 +582,12 @@ abstract class OrderDiscountBase
 			if (!isset($orderDiscountIndex[$blockCounter]))
 				$orderDiscountIndex[$blockCounter] = 0;
 
+			if (!isset($discountList[$rule['ORDER_DISCOUNT_ID']]))
+			{
+				$discountList[$rule['ORDER_DISCOUNT_ID']] = $rule['ORDER_DISCOUNT_ID'];
+				$discountSort[] = $rule['ORDER_DISCOUNT_ID'];
+			}
+
 			if (static::isNativeModule($rule['MODULE_ID']))
 			{
 				$discountId = (int)$rule['ORDER_DISCOUNT_ID'];
@@ -638,12 +644,6 @@ abstract class OrderDiscountBase
 				$applyBlocks[$blockCounter]['BASKET'][$index][] = $ruleResult;
 
 				unset($ruleResult);
-			}
-
-			if (!isset($discountList[$rule['ORDER_DISCOUNT_ID']]))
-			{
-				$discountList[$rule['ORDER_DISCOUNT_ID']] = $rule['ORDER_DISCOUNT_ID'];
-				$discountSort[] = $rule['ORDER_DISCOUNT_ID'];
 			}
 		}
 		unset($rule, $ruleIterator);

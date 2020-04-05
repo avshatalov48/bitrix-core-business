@@ -1,0 +1,77 @@
+.landing-pub-top-panel,
+.landing-pub-top-panel-left,
+.landing-pub-top-panel-right {
+	position: relative;
+	z-index: 99;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-right: 17px;
+	padding-left: 16px;
+	height: 62px;
+	background: #fff;
+	box-shadow: 0 1px 0 0 rgba(0, 0, 0, .06);
+	user-select: none;
+}
+
+.landing-pub-top-panel {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000;
+	padding-left: 19px;
+}
+
+.landing-pub-top-panel-wrapper {
+	height: 62px;
+}
+
+.landing-pub-top-panel-left,
+.landing-pub-top-panel-right {
+	box-shadow: none;
+	padding: 0;
+}
+
+.landing-pub-top-panel-actions {
+	padding-right: 19px;
+}
+
+.landing-pub-top-panel-chain-link {
+	overflow: hidden;
+	padding: 0 11px !important;
+	max-width: 200px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.landing-pub-top-panel-chain-separator {
+	position: relative;
+	display: inline-block;
+	padding: 0 3px;
+}
+
+.landing-pub-top-panel-chain-separator span {
+	display: inline-block;
+	height: 2px;
+	width: 9px;
+	background-color: #535c69;
+	opacity: .2;
+	position: relative;
+	top: -4px;
+}
+
+.landing-pub-top-panel-link-help {
+	margin-left: 5px !important;
+	min-width: 0 !important;
+}
+
+.landing-pub-top-panel-link-help-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	color: #535c69;
+	font-size: 19px;
+	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	transform: translateX(-38%) translateY(-50%);
+}

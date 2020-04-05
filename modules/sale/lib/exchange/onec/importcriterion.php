@@ -106,9 +106,8 @@ class CriterionOrder extends ImportCriterionOneCCml2
      */
     public function equalsBasketItemTax(Sale\BasketItem $basketItem, array $fields)
     {
-        if($fields['TAX']['VAT_RATE'] != $basketItem->getVatRate() &&
-            ($fields['TAX']['VAT_INCLUDED']<>'Y' && $fields['PRICE']<>$basketItem->getPrice())
-        )
+        if($fields['TAX']['VAT_RATE'] != $basketItem->getVatRate()
+			|| $fields['TAX']['VAT_INCLUDED']<>$basketItem->getField('VAT_INCLUDED'))
         {
             return true;
         }

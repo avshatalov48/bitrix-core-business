@@ -66,6 +66,7 @@ final class GoogleApiPush
 
 			foreach ($pushRows as $row)
 			{
+				$channelInfo = false;
 				if ($row['ENTITY_TYPE'] == 'CONNECTION' && !empty($connections[$row['ENTITY_ID']]))
 				{
 					$connectionData = $connections[$row['ENTITY_ID']];
@@ -78,16 +79,11 @@ final class GoogleApiPush
 					$googleApiConnection = new GoogleApiSync($section['OWNER_ID']);
 					$channelInfo = $googleApiConnection->startWatchEventsChannel($section['GAPI_CALENDAR_ID']);
 				}
-				else
-				{
-					continue;
-				}
 
-				$googleApiConnection->stopChannel($row['CHANNEL_ID'], $row['RESOURCE_ID']);
-				PushTable::delete(array('ENTITY_TYPE' => $row['ENTITY_TYPE'], 'ENTITY_ID' => $row['ENTITY_ID']));
-
-				if ($channelInfo)
+				if ($channelInfo && isset($channelInfo['id'], $channelInfo['resourceId']))
 				{
+					$googleApiConnection->stopChannel($row['CHANNEL_ID'], $row['RESOURCE_ID']);
+					PushTable::delete(array('ENTITY_TYPE' => $row['ENTITY_TYPE'], 'ENTITY_ID' => $row['ENTITY_ID']));
 					PushTable::add(array(
 						'ENTITY_TYPE' => $row['ENTITY_TYPE'],
 						'ENTITY_ID' => $row['ENTITY_ID'],

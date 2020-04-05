@@ -33,7 +33,8 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 				"confirm_user_id",
 				"logout_butt",
 				"auth_service_id",
-				"clear_cache"
+				"clear_cache",
+				"backurl",
 			);
 
 			$currentUrl = urlencode($APPLICATION->GetCurPageParam("", $arParamsToDelete));
@@ -80,7 +81,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 		{
 			if ($arParams['SHOW_NUM_PRODUCTS'] == 'Y' && ($arResult['NUM_PRODUCTS'] > 0 || $arParams['SHOW_EMPTY_VALUES'] == 'Y'))
 			{
-				echo $arResult['NUM_PRODUCTS'].' '.$arResult['PRODUCT(S)'];
+				echo $arResult['BASKET_COUNT_DESCRIPTION'];
 
 				if ($arParams['SHOW_TOTAL_PRICE'] == 'Y')
 				{

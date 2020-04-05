@@ -29,8 +29,8 @@
 		(this.searchInputField = new BX.Landing.UI.Field.Unit({
 			onInput: this.onSearchInput.bind(this),
 			className: "landing-ui-panel-unsplash-search-field",
-			placeholder: BX.message("UNSPLASH_SEARCH_FIELD_PLACEHOLDER"),
-			title: BX.message("UNSPLASH_SEARCH_FIELD_LABEL")
+			placeholder: BX.Landing.Loc.getMessage("UNSPLASH_SEARCH_FIELD_PLACEHOLDER"),
+			title: BX.Landing.Loc.getMessage("UNSPLASH_SEARCH_FIELD_LABEL")
 		})).enableTextOnly();
 		this.searchContainer.appendChild(this.searchInputField.layout);
 		this.content.appendChild(this.searchContainer);

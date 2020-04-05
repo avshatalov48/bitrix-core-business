@@ -122,6 +122,10 @@ final class UrlManager
 	{
 		$reflector = new \ReflectionClass($controller);
 		$path = dirname($reflector->getFileName());
+		if (DIRECTORY_SEPARATOR === '\\')
+		{
+			$path = str_replace('\\', '/', $path);
+		}
 		$pathWithoutLocal = substr($path, strpos($path, '/components/') + strlen('/components/'));
 		list($vendor, $componentName) = explode('/', $pathWithoutLocal);
 

@@ -3,25 +3,10 @@ IncludeModuleLangFile(__FILE__);
 
 class CCloudStorageService_HotBox extends CCloudStorageService_AmazonS3
 {
-	protected $status = 0;
-	protected $verb = '';
-	protected $host = '';
-	protected $url = '';
-	protected $headers =/*.(array[string]string).*/array();
 	protected $set_headers =/*.(array[string]string).*/array();
-	protected $errno = 0;
-	protected $errstr = '';
-	protected $result = '';
 	protected $new_end_point = '';
 	protected $_public = true;
 	protected $location = '';
-	/**
-	 * @return int
-	*/
-	function GetLastRequestStatus()
-	{
-		return $this->status;
-	}
 	/**
 	 * @return CCloudStorageService
 	*/
@@ -95,7 +80,10 @@ class CCloudStorageService_HotBox extends CCloudStorageService_AmazonS3
 		}
 		else
 		{
-			return $bucket.".hb.bizmrg.com";
+			if ($bucket <> '')
+				return $bucket.".hb.bizmrg.com";
+			else
+				return "hb.bizmrg.com";
 		}
 	}
 	/**

@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+use Bitrix\Main\Loader;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -40,6 +46,20 @@ if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAd
 		<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=GetMessage("BLG_SOCNET_REINDEX", Array("#url#" => $arResult["PATH_TO_GROUP_REINDEX"]))?></span>
 	</div>
 	<?
+}
+
+if (Loader::includeModule("blog"))
+{
+	$APPLICATION->includeComponent(
+		"bitrix:socialnetwork.copy.checker",
+		"",
+		[
+			"QUEUE_ID" => $arParams["BLOG_GROUP_ID"],
+			"HELPER" => new Bitrix\Blog\Copy\Integration\Group()
+		],
+		$component,
+		["HIDE_ICONS" => "Y"]
+	);
 }
 
 $livefeedProvider = new \Bitrix\Socialnetwork\Livefeed\BlogPost;

@@ -106,6 +106,10 @@ class BaseTable
 		{
 			$fields['MODIFIED_BY_ID'] = $uid;
 		}
+		else if (!$fields['MODIFIED_BY_ID'])
+		{
+			unset($fields['MODIFIED_BY_ID']);
+		}
 		if (!isset($fields['DATE_MODIFY']))
 		{
 			$fields['DATE_MODIFY'] = $date;
@@ -144,11 +148,6 @@ class BaseTable
 		if (method_exists($class, 'setAccessFilter'))
 		{
 			$params = $class::setAccessFilter($params);
-		}
-		//@tmp
-		if (isset($params['filter']['CHECK_PERMISSIONS']))
-		{
-			unset($params['filter']['CHECK_PERMISSIONS']);
 		}
 
 		/** @var \Bitrix\Main\ORM\Data\DataManager $class */

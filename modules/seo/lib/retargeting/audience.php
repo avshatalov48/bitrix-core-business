@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Retargeting;
 
+use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Seo\Retargeting\Internals\QueueTable;
 
@@ -72,6 +73,11 @@ abstract class Audience extends BaseApiObject
 		return true;
 	}
 
+	public static function isSupportAddAudience()
+	{
+		return false;
+	}
+
 	public static function isAddingRequireContacts()
 	{
 		return false;
@@ -80,6 +86,11 @@ abstract class Audience extends BaseApiObject
 	public static function isSupportRemoveContacts()
 	{
 		return true;
+	}
+
+	public function getLookalikeAudiencesParams()
+	{
+		return false;
 	}
 
 	public static function getUrlAudienceList()
@@ -191,7 +202,7 @@ abstract class Audience extends BaseApiObject
 		return $data;
 	}
 
-	protected function addToQueue($audienceId, $contacts, $isRemove = false)
+	protected function addToQueue($audienceId, $contacts, $options = [], $isRemove = false)
 	{
 		$dateAutoRemove = null;
 		if ($this->isQueueAutoRemove && $this->queueDaysAutoRemove > 0)
@@ -228,7 +239,9 @@ abstract class Audience extends BaseApiObject
 				$resultDb = QueueTable::add(array(
 					'TYPE' => static::TYPE_CODE,
 					'ACCOUNT_ID' => $this->accountId,
+					'CLIENT_ID' => $this->service instanceof IMultiClientService ? $this->service->getClientId() : null,
 					'AUDIENCE_ID' => $audienceId,
+					'PARENT_ID' => $options['parentId'] ?: null,
 					'CONTACT_TYPE' => $contactType,
 					'VALUE' => $contact,
 					'ACTION' => $action,
@@ -286,7 +299,7 @@ abstract class Audience extends BaseApiObject
 		$contacts = $this->normalizeContacts($contacts);
 		if ($this->isQueueModeEnabled())
 		{
-			$this->addToQueue($audienceId, $contacts, false);
+			$this->addToQueue($audienceId, $contacts, $options, false);
 			if ($this->emptyResponse === null)
 			{
 				$this->emptyResponse = Response::create(static::TYPE_CODE);
@@ -311,7 +324,7 @@ abstract class Audience extends BaseApiObject
 	{
 		if ($this->isQueueModeEnabled())
 		{
-			$this->addToQueue($audienceId, $contacts, true);
+			$this->addToQueue($audienceId, $contacts, $options, true);
 			$response = Response::create(static::TYPE_CODE);
 			$response->setData(array());
 			return $response;
@@ -358,4 +371,14 @@ abstract class Audience extends BaseApiObject
 	 * @return Response
 	 */
 	abstract protected function removeContacts($audienceId, array $contacts = array(), array $options);
+
+	public function createLookalike($sourceAudienceId, array $options)
+	{
+		throw new NotImplementedException('Method '.static::class.'::`addLookalike()` not implemented.');
+	}
+
+	public function isQueueProcessed($parentId)
+	{
+		return !QueueTable::getCount(['=PARENT_ID' => $parentId]);
+	}
 }

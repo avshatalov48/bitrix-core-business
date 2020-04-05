@@ -17,7 +17,7 @@ class SmsManager
 	{
 		if (self::$senders === null)
 		{
-			self::$senders = array();
+			self::$senders = [];
 
 			if (Sms\SmsRu::isSupported())
 			{
@@ -31,33 +31,42 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\Twilio();
 			}
+			if (Sms\SmsLineBy::isSupported())
+			{
+				self::$senders[] = new Sms\SmsLineBy();
+			}
 			if (Sms\Rest::isSupported())
 			{
 				self::$senders[] = new Sms\Rest();
 			}
 
-			foreach (Main\EventManager::getInstance()->findEventHandlers(
-				'messageservice', 'onGetSmsSenders'
-				) as $event
-			)
+			self::fireSendersEvent();
+		}
+		return self::$senders;
+	}
+
+	private static function fireSendersEvent()
+	{
+		foreach (Main\EventManager::getInstance()->findEventHandlers(
+			'messageservice', 'onGetSmsSenders'
+		) as $event
+		)
+		{
+			$result = (array) ExecuteModuleEventEx($event);
+			foreach ($result as $sender)
 			{
-				$result = (array) ExecuteModuleEventEx($event);
-				foreach ($result as $sender)
+				if (
+					$sender instanceof Base
+					&&
+					$sender->getType() === MessageType::SMS
+					&&
+					$sender::isSupported()
+				)
 				{
-					if (
-						$sender instanceof Base
-						&&
-						$sender->getType() === MessageType::SMS
-						&&
-						$sender::isSupported()
-					)
-					{
-						self::$senders[] = $sender;
-					}
+					self::$senders[] = $sender;
 				}
 			}
 		}
-		return self::$senders;
 	}
 
 	/**

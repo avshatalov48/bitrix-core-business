@@ -33,6 +33,7 @@ use Bitrix\Main\Localization\Loc;
  * <li> IS_EXCHANGE string(1) optional
  * <li> GAPI_CALENDAR_ID string(255) optional
  * <li> SYNC_TOKEN string(100) optional
+ * <li> EXTERNAL_TYPE string(20) optional
  * </ul>
  *
  * @package Bitrix\Calendar
@@ -172,6 +173,11 @@ class SectionTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateSyncToken'),
 				'title' => Loc::getMessage('SECTION_ENTITY_SYNC_TOKEN_FIELD'),
+			),
+			'EXTERNAL_TYPE' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'validateExternalType'),
+				'title' => Loc::getMessage('SECTION_ENTITY_EXTERNAL_TYPE_FIELD'),
 			),
 		);
 	}
@@ -338,6 +344,17 @@ class SectionTable extends Main\Entity\DataManager
 	{
 		return array(
 			new Main\Entity\Validator\Length(null, 100),
+		);
+	}
+	/**
+	 * Returns validators for SYNC_TOKEN field.
+	 *
+	 * @return array
+	 */
+	public static function validateExternalType()
+	{
+		return array(
+			new Main\Entity\Validator\Length(null, 20),
 		);
 	}
 }

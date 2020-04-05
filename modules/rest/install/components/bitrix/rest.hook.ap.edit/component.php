@@ -137,16 +137,17 @@ if($request->isPost() && check_bitrix_sessid())
 			));
 		}
 
-		if($justCreated)
-		{
-			$url = new \Bitrix\Main\Web\Uri(str_replace(
-				'#id#', $arResult['INFO']['ID'], $arParams['EDIT_URL_TPL']
-			));
+		$url = (new \Bitrix\Main\Web\Uri(str_replace(
+			'#id#', $arResult['INFO']['ID'], $arParams['EDIT_URL_TPL']
+		)))->addParams(array('success' => 1));
 
-			LocalRedirect(
-				$url->addParams(array('success' => 1))
-					->getLocator()
-			);
+		if (\CRestUtil::isSlider())
+		{
+			$url->addParams(array('IFRAME' => 'Y'));
+		}
+		if ($justCreated || \CRestUtil::isSlider())
+		{
+			LocalRedirect($url->getLocator());
 		}
 		else
 		{

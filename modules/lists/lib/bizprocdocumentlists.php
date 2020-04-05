@@ -218,6 +218,8 @@ class BizprocDocumentLists extends \BizprocDocument
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'L')
 			{
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+				//$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 				$propertyArray = array();
 				$propertyKeyArray = array();
 				if(!is_array($property['VALUE']))
@@ -240,6 +242,8 @@ class BizprocDocumentLists extends \BizprocDocument
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'F')
 			{
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+				$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 				$propertyArray = $property['VALUE'];
 				if (!is_array($propertyArray))
 					$propertyArray = array($propertyArray);
@@ -250,7 +254,7 @@ class BizprocDocumentLists extends \BizprocDocument
 					if ($fileArray)
 					{
 						$result['PROPERTY_'.$propertyId][] = intval($v);
-						$result['PROPERTY_'.$propertyId.'_printable'][] =
+						$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] =
 							"[url=/bitrix/tools/bizproc_show_file.php?f=".
 							urlencode($fileArray["FILE_NAME"])."&i=".$v."&h=".md5($fileArray["SUBDIR"])."]".
 							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"])."[/url]";
@@ -371,6 +375,12 @@ class BizprocDocumentLists extends \BizprocDocument
 						"Type" => "string",
 					);
 				}
+				elseif ($property["USER_TYPE"] == "Sequence")
+				{
+					$result[$key]["Type"] = "N:Sequence";
+					$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
+					$result[$key]["Options"] = $property["USER_TYPE_SETTINGS"];
+				}
 				elseif ($property["USER_TYPE"] == "DiskFile")
 				{
 					$result[$key]["Type"] = "S:DiskFile";
@@ -411,7 +421,7 @@ class BizprocDocumentLists extends \BizprocDocument
 			elseif ($property["PROPERTY_TYPE"] == "F")
 			{
 				$result[$key]["Type"] = "file";
-				$result[$key."_printable"] = array(
+				$result[$key."_PRINTABLE"] = array(
 					"Name" => $property["NAME"].GetMessage("IBD_FIELD_USERNAME_PROPERTY"),
 					"Filterable" => false,
 					"Editable" => false,

@@ -113,7 +113,7 @@ class ProviderCreator
 	 * @return array
 	 * @throws Main\ObjectNotFoundException
 	 */
-	public function createItemForShip(Sale\ShipmentItem $shipmentItem, array $needShipList)
+	public function createItemForShip(Sale\ShipmentItem $shipmentItem, array $needShipList = [])
 	{
 		$basketItem = $shipmentItem->getBasketItem();
 

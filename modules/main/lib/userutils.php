@@ -7,6 +7,8 @@
  */
 namespace Bitrix\Main;
 
+use Bitrix\Socialnetwork\UserTagTable;
+
 class UserUtils
 {
 	/**
@@ -332,6 +334,174 @@ class UserUtils
 
 				$result[] = $companyStructure[$id];
 			}
+		}
+
+		return $result;
+	}
+
+	public static function getCountryValue(array $params = [])
+	{
+		static $countriesList = null;
+		$result = '';
+
+		$value = (isset($params['VALUE']) ? intval($params['VALUE']) : 0);
+		if ($value <= 0)
+		{
+			return $result;
+		}
+
+		if ($countriesList === null)
+		{
+			$countriesList = [];
+			$countries = getCountryArray();
+			foreach($countries['reference_id'] as $key => $countryId)
+			{
+				$countriesList[$countryId] = $countries['reference'][$key];
+			}
+		}
+
+		if (isset($countriesList[$value]))
+		{
+			$result = $countriesList[$value];
+		}
+
+		return $result;
+	}
+
+	public static function getUFContent($userId)
+	{
+		global $USER_FIELD_MANAGER;
+
+		static $supportedUserFieldTypeIDs = [
+			'address',
+			'string',
+			'integer',
+			'double',
+			'boolean',
+//			'date',
+//			'datetime',
+			'enumeration',
+			'employee',
+			'file',
+			'url',
+			'crm',
+			'crm_status',
+			'iblock_element',
+			'iblock_section'
+		];
+
+		$ufList = $USER_FIELD_MANAGER->getUserFields(UserTable::getUfId(), $userId, LANGUAGE_ID, false);
+
+		$userTypeMap = array_fill_keys($supportedUserFieldTypeIDs, true);
+		foreach($ufList as $key => $userField)
+		{
+			if(
+				!isset($userTypeMap[$userField['USER_TYPE_ID']])
+				|| $userField['EDIT_IN_LIST'] === "N"
+			)
+			{
+				unset($ufList[$key]);
+			}
+		}
+		$ufList = self::postFilterFields($ufList);
+
+		$ufValuesList = [];
+		foreach($ufList as $userField)
+		{
+			$ufValuesList[] = self::getUserFieldValue($userField);
+		}
+
+		return implode(' ', $ufValuesList);
+	}
+
+	private static function postFilterFields(array $fields)
+	{
+		static $ufReserved = [
+			'UF_DEPARTMENT',
+			'UF_USER_CRM_ENTITY',
+			'UF_PUBLIC',
+			'UF_TIMEMAN',
+			'UF_TM_REPORT_REQ',
+			'UF_TM_FREE',
+			'UF_REPORT_PERIOD',
+			'UF_1C',
+			'UF_TM_ALLOWED_DELTA',
+			'UF_SETTING_DATE',
+			'UF_LAST_REPORT_DATE',
+			'UF_DELAY_TIME',
+			'UF_TM_REPORT_DATE',
+			'UF_TM_DAY',
+			'UF_TM_TIME',
+			'UF_TM_REPORT_TPL',
+			'UF_TM_MIN_DURATION',
+			'UF_TM_MIN_FINISH',
+			'UF_TM_MAX_START',
+			'UF_CONNECTOR_MD5',
+			'UF_WORK_BINDING',
+			'UF_IM_SEARCH',
+			'UF_BXDAVEX_CALSYNC',
+			'UF_BXDAVEX_MLSYNC',
+			'UF_UNREAD_MAIL_COUNT',
+			'UF_BXDAVEX_CNTSYNC',
+			'UF_BXDAVEX_MAILBOX',
+			'UF_VI_PASSWORD',
+			'UF_VI_BACKPHONE',
+			'UF_VI_PHONE',
+			'UF_VI_PHONE_PASSWORD'
+		];
+
+		foreach ($ufReserved as $ufId)
+		{
+			if (isset($fields[$ufId]))
+			{
+				unset($fields[$ufId]);
+			}
+		}
+
+		return $fields;
+	}
+
+	private static function getUserFieldValue(array $userField)
+	{
+		global $USER_FIELD_MANAGER;
+
+		$userTypeID = isset($userField['USER_TYPE_ID']) ? $userField['USER_TYPE_ID'] : '';
+		if($userTypeID === 'boolean')
+		{
+			$values = [];
+			if(isset($userField['VALUE']) && (bool)$userField['VALUE'] && isset($userField['EDIT_FORM_LABEL']))
+			{
+				$values[] = $userField['EDIT_FORM_LABEL'];
+			}
+		}
+		else
+		{
+			$values = explode(',', $USER_FIELD_MANAGER->getPublicText($userField));
+		}
+
+		return implode(' ', $values);
+	}
+
+	public static function getTagsContent($userId)
+	{
+		$result = '';
+
+		if (Loader::includeModule('socialnetwork'))
+		{
+			$tagsList = [];
+
+			$res = UserTagTable::getList([
+				'filter' => [
+					'USER_ID' => $userId
+				],
+				'select' => [ 'NAME' ]
+			]);
+			while($tagFields = $res->fetch())
+			{
+				$tagsList[] = $tagFields['NAME'];
+			}
+
+			$result = implode(' ', $tagsList);
 		}
 
 		return $result;

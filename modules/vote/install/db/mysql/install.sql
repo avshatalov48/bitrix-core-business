@@ -29,6 +29,7 @@ create table if not exists b_vote (
 	CHANNEL_ID int(18) not null default '0',
 	C_SORT int(18) default '100',
 	ACTIVE char(1) not null default 'Y',
+	ANONYMITY int(11) not null default '0',
 	NOTIFY char(1) not null default 'N',
 	AUTHOR_ID int(18),
 	TIMESTAMP_X datetime not null,
@@ -45,6 +46,7 @@ create table if not exists b_vote (
 	EVENT3 varchar(255),
 	UNIQUE_TYPE int(18) not null default '2',
 	KEEP_IP_SEC int(18),
+	OPTIONS int(18) default '1',
 	TEMPLATE varchar(255),
 	RESULT_TEMPLATE varchar(255),
 	primary key (ID),
@@ -56,12 +58,13 @@ create table if not exists b_vote_question (
 	TIMESTAMP_X datetime not null,
 	VOTE_ID int(18) not null default '0',
 	C_SORT int(18) default '100',
-	COUNTER int(11) not null default '0',
+	IMAGE_ID int(18),
 	QUESTION text not null,
 	QUESTION_TYPE varchar(4) not null default 'html',
-	IMAGE_ID int(18),
-	DIAGRAM char(1) not null default 'Y',
+	FIELD_TYPE int(5) not null default '0',
 	REQUIRED char(1) not null default 'N',
+	COUNTER int(11) not null default '0',
+	DIAGRAM char(1) not null default 'Y',
 	DIAGRAM_TYPE varchar(10) not null default 'histogram',
 	TEMPLATE varchar(255),
 	TEMPLATE_NEW varchar(255),
@@ -74,6 +77,7 @@ create table if not exists b_vote_answer (
 	TIMESTAMP_X datetime not null,
 	QUESTION_ID int(18) not null default '0',
 	C_SORT int(18) default '100',
+	IMAGE_ID int(18),
 	MESSAGE text,
 	MESSAGE_TYPE varchar(4) not null default 'html',
 	COUNTER int(18) not null default '0',
@@ -93,6 +97,7 @@ create table if not exists b_vote_event (
 	STAT_SESSION_ID int(18),
 	IP varchar(15),
 	VALID char(1) not null default 'Y',
+	VISIBLE char(1) not null default 'Y',
 	primary key (ID),
 	index IX_USER_ID (VOTE_USER_ID),
 	index IX_B_VOTE_EVENT_2 (VOTE_ID,IP)
@@ -115,13 +120,15 @@ create table if not exists b_vote_event_answer (
 
 create table if not exists b_vote_user (
 	ID int(18) not null auto_increment,
-	STAT_GUEST_ID int(18),
+    COOKIE_ID int(18) not null,
 	AUTH_USER_ID int(18),
 	COUNTER int(18) not null default '0',
 	DATE_FIRST datetime not null,
 	DATE_LAST datetime not null,
 	LAST_IP varchar(15),
-	primary key (ID));
+	STAT_GUEST_ID int(18),
+	PRIMARY KEY (ID),
+	UNIQUE UX_VOTE_COOKIE_USER(COOKIE_ID, AUTH_USER_ID));
 
 create table if not exists b_vote_attached_object (
 	ID int(11) not null auto_increment,

@@ -271,14 +271,14 @@ $map = Adv\YandexBannerTable::getMap();
 unset($map['GROUP']);
 unset($map['CAMPAIGN']);
 
-$campaignList = Adv\YandexBannerTable::getList(array(
+$bannerList = Adv\YandexBannerTable::getList(array(
 	'order' => array($by => $order),
 	'filter' => array(
 		"=ENGINE_ID" => $engine->getId(),
 		"=CAMPAIGN_ID" => $campaign['ID'],
 		'=ACTIVE' => $archive ? Adv\YandexBannerTable::INACTIVE : Adv\YandexBannerTable::ACTIVE,
 	),
-	"select" => array_keys($map),
+	"select" => ['*'],
 /*
 	'runtime' => array(
 		new Entity\ExpressionField(
@@ -290,7 +290,7 @@ $campaignList = Adv\YandexBannerTable::getList(array(
 */
 ));
 
-$data = new \CAdminResult($campaignList, $tableID);
+$data = new \CAdminResult($bannerList, $tableID);
 $data->NavStart();
 
 $arHeaders = array(

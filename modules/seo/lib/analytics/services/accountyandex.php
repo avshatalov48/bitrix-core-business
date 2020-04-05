@@ -10,11 +10,14 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Type\Date;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\Retargeting\Services\ResponseYandex;
+use Bitrix\Seo\Retargeting\IRequestDirectly;
 
-class AccountYandex extends \Bitrix\Seo\Analytics\Account
+class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDirectly
 {
 	const TYPE_CODE = 'yandex';
 	const ERROR_CODE_REPORT_OFFLINE = 100201;
+
+	protected $currency;
 
 	/**
 	 * Get list.
@@ -84,6 +87,9 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account
 		// https://tech.yandex.ru/direct/doc/reports/example-docpage/
 		$result = new ResponseYandex();
 		$expenses = new Expenses();
+
+		// preload currency cause we can lost it if request after report
+		$this->getCurrency();
 		$result->setData(['expenses' => $expenses]);
 
 		$dateFrom = $dateFrom ?: new Date();
@@ -154,24 +160,36 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account
 
 	protected function getCurrency()
 	{
+		if($this->currency)
+		{
+			return $this->currency;
+		}
 		// currency is global for an account, so we get it from the first campaign.
+		$cacheString = 'analytics_yandex_currency';
+		$cachePath = '/seo/analytics/yandex/';
+		$cacheTime = 3600;
 		$cache = Cache::createInstance();
-		if($cache->initCache(3600, 'analytics_yandex_currency_'.CurrentUser::get()->getId(), '/seo/analytics/yandex/'))
+		$currency = null;
+		if($cache->initCache($cacheTime, $cacheString, $cachePath))
 		{
 			$currency = $cache->getVars()['currency'];
 		}
-		else
+		if(!$currency)
 		{
-			$cache->startDataCache(3600);
-			$currency = null;
+			$cache->clean($cacheString, $cachePath);
+			$cache->startDataCache($cacheTime);
 
 			$response = $this->getClient()->post(
 				$this->getYandexServerAdress() . 'campaigns',
 				Json::encode([
+					'method' => 'get',
 					'params' => [
-						'SelectionCriteria' => [],
-						'FieldNames' => ['Currency']
-					]
+						'SelectionCriteria' => new \stdClass(),
+						'FieldNames' => ['Currency'],
+						'Page' => [
+							'Limit' => 1,
+						],
+					],
 				])
 			);
 			if($response)
@@ -186,10 +204,16 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account
 					}
 				}
 			}
-			$cache->endDataCache(['currency' => $currency]);
+
+			if($currency)
+			{
+				$cache->endDataCache(['currency' => $currency]);
+			}
 		}
 
-		return $currency ?: 'RUB';
+		$this->currency = $currency;
+
+		return $currency;
 	}
 
 	/**

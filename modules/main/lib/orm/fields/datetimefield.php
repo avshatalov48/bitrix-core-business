@@ -8,6 +8,8 @@
 
 namespace Bitrix\Main\ORM\Fields;
 
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentTypeException;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -67,6 +69,31 @@ class DatetimeField extends DateField
 	 */
 	public function convertValueToDb($value)
 	{
-		return $this->getConnection()->getSqlHelper()->convertToDbDateTime($value);
+		try
+		{
+			return $this->getConnection()->getSqlHelper()->convertToDbDateTime($value);
+		}
+		catch (ArgumentTypeException $e)
+		{
+			throw new ArgumentException(
+				"Type error in `{$this->name}` of `{$this->entity->getFullName()}`: ".$e->getMessage()
+			);
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGetterTypeHint()
+	{
+		return '\\'.DateTime::class;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetterTypeHint()
+	{
+		return '\\'.DateTime::class;
 	}
 }

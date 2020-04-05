@@ -3,6 +3,7 @@
 namespace Bitrix\Main\UI\Viewer\Renderer;
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Uri;
 
 class Video extends Renderer
 {
@@ -82,8 +83,12 @@ class Video extends Renderer
 			if ($source['type'] === 'video/quicktime')
 			{
 				//some browser can work with quicktime :)
+				/** @var Uri $src */
+				$src = clone $source['src'];
+				$src->addParams(['fakeUnique' => 'qt',]);
+
 				$updatedSources[] = [
-					'src' => $source['src'],
+					'src' => $src,
 					'type' => 'video/mp4',
 				];
 			}

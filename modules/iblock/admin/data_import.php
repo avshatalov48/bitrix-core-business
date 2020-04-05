@@ -970,7 +970,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					));
 					while ($arr = $res->Fetch())
 					{
-						CIBlockElement::Delete($arr["ID"], "Y", "N");
+						CIBlockElement::Delete($arr["ID"]);
 						$killed_lines++;
 					}
 				}

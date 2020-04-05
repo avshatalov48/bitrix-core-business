@@ -1,6 +1,6 @@
 <section class="landing-block g-pt-30 g-pb-30">
 	<div class="container-fluid g-px-30">
-		<div class="js-carousel g-pos-rel g-mx-minus-15"
+		<div class="js-carousel g-pos-rel g-mx-minus-15 row"
 			 data-infinite="true"
 			 data-autoplay="true"
 			 data-slides-show="3"
@@ -22,11 +22,18 @@
                  "settings": {
                    "slidesToShow": 1
                  }
+               }]'
+			 data-init-classes-exclude='[{
+                 "selector": ".landing-block-node-card",
+                 "class": "col-12 col-sm-6 col-lg-4"
+               }, {
+                 "selector": ".js-carousel",
+                 "class": "row"
                }]'>
-			<div class="landing-block-node-card js-slide g-px-15">
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<!-- Article -->
 				<article class="g-pos-rel">
-					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after test">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img1.jpg" alt="">
 					</figure>
@@ -56,10 +63,10 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<!-- Article -->
 				<article class="g-pos-rel">
-					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after test">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img2.jpg" alt="">
 					</figure>
@@ -89,10 +96,10 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<!-- Article -->
 				<article class="g-pos-rel">
-					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after test">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img3.jpg" alt="">
 					</figure>
@@ -122,10 +129,10 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<!-- Article -->
 				<article class="g-pos-rel">
-					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after test">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img4.jpg" alt="">
 					</figure>
@@ -155,10 +162,10 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<!-- Article -->
 				<article class="g-pos-rel">
-					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after test">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img5.jpg" alt="">
 					</figure>

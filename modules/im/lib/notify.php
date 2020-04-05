@@ -3,37 +3,32 @@ namespace Bitrix\Im;
 
 class Notify
 {
-	public static function getCounter($userId)
+	public static function getRealCounter($chatId): int
 	{
-		$userId = intval($userId);
-		if (!$userId)
-		{
-			return false;
-		}
-
-		$query = "
-			SELECT COUNT(1) CNT
-			FROM b_im_message M
-			INNER JOIN b_im_relation R ON R.CHAT_ID = M.CHAT_ID AND R.MESSAGE_TYPE = '".IM_MESSAGE_SYSTEM."'
-			WHERE R.USER_ID = ".$userId." AND NOTIFY_READ <> 'Y'
-		";
-		$result = \Bitrix\Main\Application::getInstance()->getConnection()->query($query)->fetch();
-
-		return intval($result['CNT']);
-	}
-
-	public static function getCounterByChatId($chatId)
-	{
-		$result = self::getCountersByChatId($chatId);
-		if (!$result)
+		$chatId = intval($chatId);
+		if (!$chatId)
 		{
 			return 0;
 		}
 
-		return intval($result[$chatId]);
+		$query = "
+			SELECT COUNT(1) COUNTER
+			FROM b_im_message
+			WHERE CHAT_ID = {$chatId} AND NOTIFY_READ <> 'Y'
+		";
+
+		$result = \Bitrix\Main\Application::getInstance()->getConnection()->query($query)->fetch();
+		$counter = $result? $result['COUNTER']: 0;
+
+		return $counter;
 	}
 
-	public static function getCountersByChatId($chatId)
+	public static function getCounter($chatId): int
+	{
+		return self::getCounters($chatId)[$chatId];
+	}
+
+	public static function getCounters($chatId)
 	{
 		$result = Array();
 		$chatList = Array();
@@ -68,21 +63,14 @@ class Notify
 		}
 
 		$query = "
-			SELECT COUNT(1) COUNTER, M.CHAT_ID
-			FROM b_im_message M 
-			WHERE 
-				M.CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])." 
-				AND M.NOTIFY_READ <> 'Y'
-			".($isMulti? 'GROUP BY M.CHAT_ID': '')."
+			SELECT CHAT_ID, COUNTER 
+			FROM b_im_relation
+			WHERE CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])."
 		";
 		$orm = \Bitrix\Main\Application::getInstance()->getConnection()->query($query);
 		while($row = $orm->fetch())
 		{
-			if (!$row['CHAT_ID'])
-			{
-				continue;
-			}
-			$result[$row['CHAT_ID']] = $row['COUNTER'];
+			$result[$row['CHAT_ID']] = (int)$row['COUNTER'];
 		}
 
 		return $result;

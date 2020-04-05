@@ -384,7 +384,7 @@
 
 		showWarning: function(errorMessage)
 		{
-			if (this.DOM.wrap)
+			if (this.shown && this.DOM.wrap && this.DOM.innerWrap)
 			{
 				BX.addClass(this.DOM.wrap, "calendar-resbook-webform-block-error");
 				this.displayErrorText(errorMessage || BX.message('WEBF_RES_BOOKING_REQUIRED_WARNING'));
@@ -596,7 +596,7 @@
 		{
 			this.allResourceList.forEach(function(item)
 			{
-				if (BX.util.in_array(item.id, this.data.value))
+				if (BX.util.in_array(parseInt(item.id), this.data.value))
 				{
 					this.resourceList.push(item);
 				}
@@ -738,10 +738,13 @@
 
 		this.handleSettingsData(this.data);
 
-		this.dropdownSelect.setSettings({
-			values: this.serviceList,
-			selected: this.getSelectedService()
-		});
+		if (this.dropdownSelect)
+		{
+			this.dropdownSelect.setSettings({
+				values: this.serviceList,
+				selected: this.getSelectedService()
+			});
+		}
 
 		if (this.setDataConfig())
 		{
@@ -763,7 +766,12 @@
 		{
 			this.allServiceList.forEach(function(service)
 			{
-				this.serviceIndex[this.prepareServiceId(service.name)] = service;
+				if (BX.type.isPlainObject(service)
+					&& BX.type.isString(service.name)
+					&& BX.util.trim(service.name) !== '')
+				{
+					this.serviceIndex[this.prepareServiceId(service.name)] = service;
+				}
 			}, this);
 		}
 
@@ -773,12 +781,14 @@
 			var dataValueRaw = BX.type.isArray(this.data.value) ? this.data.value : this.data.value.split('|');
 			dataValueRaw.forEach(function(id)
 			{
-				if (this.serviceIndex[id])
+				var service = this.serviceIndex[this.prepareServiceId(id)];
+				if (BX.type.isPlainObject(service)
+					&& BX.type.isString(service.name)
+					&& BX.util.trim(service.name) !== '')
 				{
 					this.serviceList.push({
-						id: this.prepareServiceId(this.serviceIndex[id].name),
-						//id: this.serviceIndex[id].name,
-						title: this.serviceIndex[id].name + ' - ' + BX.Calendar.UserField.ResourceBooking.getDurationLabel(this.serviceIndex[id].duration)
+						id: this.prepareServiceId(service.name),
+						title: service.name + ' - ' + BX.Calendar.UserField.ResourceBooking.getDurationLabel(service.duration)
 					});
 				}
 			}, this);
@@ -796,10 +806,9 @@
 
 	ViewFormServicesControl.prototype.prepareServiceId = function(str)
 	{
-		return BX.translit(str).replace(/[^a-z0-9_]/ig, "_");
+		return BX.type.isString(str) ? BX.translit(str).replace(/[^a-z0-9_]/ig, "_") : str;
 	};
 	//endregion
-
 
 	// region 'DurationSelector'
 	function ViewFormDurationControl(params)
@@ -1540,13 +1549,24 @@
 		this.setDataConfig();
 
 		this.timeFrom = this.data.timeFrom || params.timeFrom || 7;
-		this.timeTo = this.data.timeTo || params.timeTo || 20;
+		if (params.timeFrom !== undefined)
+		{
+			this.timeFrom = params.timeFrom;
+		}
+		this.timeTo = this.data.timeTo || 20;
+		if (params.timeTo !== undefined)
+		{
+			this.timeTo = params.timeTo;
+		}
 		this.SLOTS_ROW_AMOUNT = 6;
 		this.id = 'time-selector-' + Math.round(Math.random() * 1000);
 		this.popupSelectId = this.id + '-select-popup';
 
 		this.previewMode = params.previewMode === undefined;
 		this.changeValueCallback = params.changeValueCallback;
+		this.timezone = params.timezone;
+		this.timezoneOffset = params.timezoneOffset;
+		this.timezoneOffsetLabel = params.timezoneOffsetLabel;
 		this.timeMidday = 12;
 		this.timeEvening = 17;
 		this.displayed = true;
@@ -1581,7 +1601,16 @@
 				props: {className: 'calendar-resbook-webform-block-title'},
 				text: this.data.label + '*'
 			}));
+
+			if (this.timezone)
+			{
+				this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(BX.create("div", {
+					props: {className: 'calendar-resbook-webform-block-title-timezone'}
+				}));
+				BX.adjust(this.DOM.timezoneLabelWrap, {html: BX.message('USER_TYPE_RESOURCE_TIMEZONE').replace('#TIMEZONE#', this.timezone + ' ' + this.timezoneOffsetLabel)});
+			}
 		}
+
 		this.displayControl();
 		this.setValue(this.getValue());
 		this.shown = true;
@@ -1604,6 +1633,17 @@
 			if (this.DOM.labelWrap && this.data.label)
 			{
 				BX.adjust(this.DOM.labelWrap, {text: this.data.label + '*'});
+			}
+
+			if (this.timezone)
+			{
+				if (!this.DOM.timezoneLabelWrap || !BX.isNodeInDom(this.DOM.timezoneLabelWrap))
+				{
+					this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(BX.create("div", {
+						props: {className: 'calendar-resbook-webform-block-title-timezone'}
+					}));
+				}
+				BX.adjust(this.DOM.timezoneLabelWrap, {html: BX.message('USER_TYPE_RESOURCE_TIMEZONE').replace('#TIMEZONE#', this.timezone + ' ' + this.timezoneOffsetLabel)});
 			}
 
 			if (this.setDataConfig() || params.slotIndex || params.selectedValue)
@@ -1798,8 +1838,8 @@
 			{
 				innerWrap.appendChild(BX.create("div", {
 					attrs: {
-						'data-bx-resbook-time-meta': 'slot',
-						'data-bx-resbook-slot': slot.time,
+						'data-bx-resbook-time-meta': 'slot' + (slot.booked ? '-off' : ''),
+						'data-bx-resbook-slot': slot.time.toString(),
 						className: 'calendar-resbook-webform-block-col-item'
 						+ (slot.selected ? ' calendar-resbook-webform-block-col-item-select' : '')
 						+ (slot.booked ? ' calendar-resbook-webform-block-col-item-off' : '')
@@ -2255,7 +2295,7 @@
 			this.values.forEach(function(item)
 			{
 				var className = 'menu-popup-no-icon';
-				if (BX.util.in_array(item.id, this.selected))
+				if (BX.util.in_array(parseInt(item.id), this.selected))
 				{
 					className += ' menu-item-selected';
 				}
@@ -2508,6 +2548,8 @@
 		this.DOM = {
 			outerWrap: params.outerWrap
 		};
+		this.timezone = params.timezone;
+		this.timezoneOffsetLabel = params.timezoneOffsetLabel;
 		this.shown = false;
 		this.built = false;
 	}
@@ -2526,6 +2568,8 @@
 
 			this.DOM.labelWrap = this.DOM.innerWrap.appendChild(BX.create("span", {props : { className : 'calendar-resbook-webform-block-result-text'}, text: BX.message('WEBF_RES_BOOKING_STATUS_LABEL')}));
 			this.DOM.statusWrap = this.DOM.innerWrap.appendChild(BX.create("span", {props : { className : 'calendar-resbook-webform-block-result-value'}}));
+			this.DOM.statusTimezone = this.DOM.innerWrap.appendChild(BX.create("span", {props: {className: 'calendar-resbook-webform-block-result-timezone'}, text: this.timezoneOffsetLabel || '', style: {display: 'none'}}));
+
 			this.built = true;
 		},
 
@@ -2545,17 +2589,23 @@
 			{
 				this.DOM.labelWrap.style.display = '';
 				BX.removeClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
+				if (this.timezone)
+				{
+					this.DOM.statusTimezone.style.display = '';
+				}
 				BX.adjust(this.DOM.statusWrap, {text: this.getStatusText(params)});
 			}
 			else if (!params.dateFrom && params.fullDay)
 			{
 				this.DOM.labelWrap.style.display = 'none';
+				this.DOM.statusTimezone.style.display = 'none';
 				BX.addClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
 				BX.adjust(this.DOM.statusWrap, {text: BX.message('WEBF_RES_BOOKING_STATUS_DATE_IS_NOT_AVAILABLE')});
 			}
 			else
 			{
 				this.DOM.labelWrap.style.display = 'none';
+				this.DOM.statusTimezone.style.display = 'none';
 				BX.removeClass(this.DOM.wrap, 'calendar-resbook-webform-block-result-error');
 				BX.adjust(this.DOM.statusWrap, {text: BX.message('WEBF_RES_BOOKING_STATUS_NO_TIME_SELECTED')});
 			}

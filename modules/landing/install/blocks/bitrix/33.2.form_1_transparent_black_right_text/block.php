@@ -1,5 +1,4 @@
-<section
-		class="landing-block g-pt-120 g-pb-120 g-pos-rel landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
+<section class="landing-block g-pt-120 g-pb-120 g-pos-rel landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img4.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
@@ -61,6 +60,10 @@
 
 				<div class="g-bg-primary-opacity-0_4"
 					 data-form-style-main-bg-light="1"
+				>
+				</div>
+				<div class="g-bg-white"
+					 data-form-style-light-bg="1"
 				>
 				</div>
 			</div>

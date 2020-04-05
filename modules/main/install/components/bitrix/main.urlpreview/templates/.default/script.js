@@ -14,6 +14,24 @@ BXUrlPreview.prototype.init = function()
 	this.inputElement = this.element.querySelector('.urlpreview__ufvalue');
 	this.initCarousel();
 	this.bindEventHandlers();
+
+	if (
+		BX.type.isDomNode(this.inputElement)
+		&& this.inputElement.form
+	)
+	{
+		BX.addCustomEvent(this.inputElement.form, 'onAutoSaveRestoreFinished', function(ob, data) {
+			if (
+				this.inputElement.form == ob.FORM
+				&& BX.type.isNotEmptyString(data[this.inputElement.name])
+			)
+			{
+				this.attachUrlPreview({
+					id: data[this.inputElement.name]
+				});
+			}
+		}.bind(this));
+	}
 };
 
 BXUrlPreview.prototype.detachUrlPreview = function()
@@ -120,8 +138,11 @@ BXUrlPreview.prototype.initCarousel = function()
 			this.carouselImages[i] = carouselImages[i];
 		}
 		imageId = this.element.dataset.imageId ? parseInt(this.element.dataset.imageId) : 0;
-		this.setCarouselImage(imageId);
-		this.carouselElement.style.removeProperty('display');
+		if(this.carouselImages.length > 0)
+		{
+			this.setCarouselImage(imageId);
+			this.carouselElement.style.removeProperty('display');
+		}
 	}
 };
 
@@ -130,7 +151,7 @@ BXUrlPreview.prototype.setCarouselImage = function(imageId)
 	var imageUrl;
 	var imgElement;
 	var ufValue;
-	if(!(imageId >= 0 || imageId <= this.carouselImages.length-1))
+	if(!(imageId >= 0 && imageId <= this.carouselImages.length-1))
 		return null;
 
 	this.carouselImages.map(function(imageElement)

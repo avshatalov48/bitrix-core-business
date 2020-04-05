@@ -65,4 +65,7 @@ $MESS["BT_SALE_GIFT_DISCOUNT_DESCR"] = "Gift";
 $MESS["BT_SALE_ACT_GROUP_BASKET_DESCR_EXT"] = "to products for which";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_GROUP_BASKET_DESCR"] = ", but not more than";
 $MESS["BT_SALE_ACT_MAX_DISCOUNT_ON_GROUP_BASKET_ERROR_CONDITION"] = "Cannot set maximum discount restriction for total order amount.";
+$MESS["BT_SALE_ACT_GROUP_DELETE_CONTROL"] = "Delete action";
+$MESS["BT_SALE_ACT_GROUP_SELECT_CONTROL"] = "Choose an action";
+$MESS["BT_SALE_ACT_GROUP_ADD_CONTROL"] = "Add action";
 ?>

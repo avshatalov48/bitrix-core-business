@@ -252,10 +252,15 @@
 
 		getHandlerOptions: function (link)
 		{
-			var handlerType = link.value;
+			var handlerType = link.value, psMode;
 
-			if (handlerType == '')
+			if (handlerType === '')
 				return;
+
+			if (BX('PS_MODE'))
+			{
+				psMode = BX('PS_MODE').value;
+			}
 
 			ShowWaitWindow();
 			var postData = {
@@ -265,6 +270,11 @@
 				sessid: BX.bitrix_sessid(),
 				lang: BX.message('LANGUAGE_ID')
 			};
+
+			if (psMode !== undefined)
+			{
+				postData.PS_MODE = psMode;
+			}
 
 			BX.ajax({
 				timeout: 30,
@@ -331,7 +341,7 @@
 							{
 								tdContent.innerHTML = result.PAYMENT_MODE;
 							}
-							
+
 							if (isOrderHandler)
 							{
 								var span = BX.create(
@@ -347,7 +357,7 @@
 								BX.bind(span, 'click', function () {
 									BX.SidePanel.Instance.open(result.ORDER_DOC_ADD_LINK, {width: 930, events: {onCloseComplete: function() {BX.Sale.PaySystem.getHandlerOptions(BX("ACTION_FILE"));}}});
 								});
-								
+
 								tdContent.appendChild(span);
 							}
 
@@ -406,7 +416,6 @@
 								img = BX.create('img', {
 									attrs: {
 										'src': result.LOGOTIP.PATH,
-										'width': 95,
 										'height': 55
 									}
 								});

@@ -18,7 +18,10 @@
 	Selector.prototype.init = function (params)
 	{
 		this.context = BX(params.containerId);
-		this.selectorNode = Helper.getNode('number-selector', this.context);
+		this.providerSelectorNode = Helper.getNode('provider-selector', this.context);
+		this.numberSelectorNode = Helper.getNode('number-selector', this.context);
+		this.numberSelectorBlockNode = Helper.getNode('number-selector-block', this.context);
+		this.selectedProvider = false;
 		this.inputNode = Helper.getNode('number-input', this.context);
 		this.list = params.list;
 
@@ -26,41 +29,123 @@
 			return {
 				id: item.id,
 				text: item.name,
-				onclick: this.onSelect.bind(this, item)
+				onclick: this.onProviderSelect.bind(this, item)
 			};
 		}, this);
+		if (params.hasRest)
+		{
+			menu.push({delimiter: true}, {
+				text: params.mess.marketplaceSendersList,
+				href: '/marketplace/category/voximplant_infocalls/',
+				target: '_blank'
+			});
+		}
 
 		if (this.list.length > 0)
 		{
-			BX.bind(this.selectorNode, 'click', this.showMenu.bind(this, this.selectorNode, menu, 'main'));
+			BX.bind(this.providerSelectorNode, 'click', this.showMenu.bind(this, this.providerSelectorNode, menu, 'main'));
+			BX.bind(this.numberSelectorNode, 'click', this.showNumbersMenu.bind(this));
 
 			var value = this.inputNode.value;
-			value = value ? value : this.list[0].id;
-			var filtered = this.list.filter(function (item) {
-				return value.toString() === item.id.toString();
-			});
-			var number = filtered.length > 0 ? filtered[0] : this.list[0];
-			this.setNumber(number);
+			var selectedProvider = false;
+			var selectedNumber = false;
+			if (value)
+			{
+				for (var providerIterator = 0; providerIterator< this.list.length; providerIterator++)
+				{
+					var item = this.list[providerIterator];
+					if (item.numbers && item.numbers.length)
+					{
+						for (var i=0; i<item.numbers.length; i++)
+						{
+							if (value.toString() === item.numbers[i].id.toString())
+							{
+								selectedProvider = item;
+								selectedNumber = item.numbers[i];
+								break;
+							}
+						}
+					}
+					else if (value.toString() === item.id.toString())
+					{
+						selectedProvider = item;
+					}
+					if (selectedProvider)
+						break;
+				}
+			}
+			if (selectedProvider)
+			{
+				this.setProvider(selectedProvider, selectedNumber);
+			}
+			else
+			{
+				this.setProvider(this.list[0], false);
+			}
 		}
 		else
 		{
 			var item = {
 				'id': '',
-				'name': this.selectorNode.getAttribute('data-setup-name')
+				'name': this.providerSelectorNode.getAttribute('data-setup-name')
 			};
-			this.setNumber(item);
-			var uri = this.selectorNode.getAttribute('data-setup-uri');
-			BX.bind(this.selectorNode, 'click', function () {
+			this.setProvider(item, false);
+			var uri = this.providerSelectorNode.getAttribute('data-setup-uri');
+			BX.bind(this.providerSelectorNode, 'click', function () {
 				top.location.href = uri;
 			});
 		}
 	};
+	Selector.prototype.setProvider = function (provider, selectedNumber)
+	{
+		if (this.selectedProvider.id == provider.id)
+		{
+			return;
+		}
+		this.selectedProvider = provider;
+		this.providerSelectorNode.textContent = provider.name;
+		this.inputNode.value = provider.hasOwnProperty('id') ? provider.id : "";
+		if (provider.numbers && provider.numbers.length) {
+			this.showNumbersSelector(provider, selectedNumber);
+		} else {
+			this.hideNumbersSelector();
+		}
+	};
 	Selector.prototype.setNumber = function (number)
 	{
-		this.selectorNode.textContent = number.name;
+		this.numberSelectorNode.textContent = number.name;
 		this.inputNode.value = number.id;
 	};
-	Selector.prototype.onSelect = function (number, e)
+	Selector.prototype.onProviderSelect = function (provider, e)
+	{
+		this.setProvider(provider, false);
+		this.closeMenu();
+	};
+	Selector.prototype.showNumbersSelector = function (provider, selectedNumber)
+	{
+		BX.show(this.numberSelectorBlockNode);
+		this.setNumber(selectedNumber ? selectedNumber : provider.numbers[0]);
+	};
+	Selector.prototype.hideNumbersSelector = function ()
+	{
+		BX.hide(this.numberSelectorBlockNode);
+	};
+	Selector.prototype.showNumbersMenu = function ()
+	{
+		if (!this.selectedProvider || !this.selectedProvider.numbers || !this.selectedProvider.numbers.length)
+			return;
+
+		var menu = this.selectedProvider.numbers.map(function (item) {
+			return {
+				id: item.id,
+				text: item.name,
+				onclick: this.onNumberSelect.bind(this, item)
+			};
+		}, this);
+		this.destroyMenu('numbers');
+		this.showMenu(this.numberSelectorNode, menu, 'numbers');
+	};
+	Selector.prototype.onNumberSelect = function (number, e)
 	{
 		this.setNumber(number);
 		this.closeMenu();
@@ -70,7 +155,8 @@
 		this.popup = this.createMenu(
 			'sender-call-number-' + popupId,
 			node,
-			menuItems
+			menuItems,
+			{offsetLeft: 10}
 		);
 		this.popup.popupWindow.show();
 	};
@@ -89,10 +175,6 @@
 				{
 					position: "top",
 					offset: 42
-				},
-				events:
-				{
-					onPopupClose : BX.delegate(this.onPopupClose, this)
 				}
 			}
 		);
@@ -104,7 +186,10 @@
 			this.popup.popupWindow.close();
 		}
 	};
-
+	Selector.prototype.destroyMenu = function (popupId)
+	{
+		BX.PopupMenu.destroy('sender-call-number-' + popupId);
+	};
 
 	BX.Sender.Call.Number = new Selector();
 

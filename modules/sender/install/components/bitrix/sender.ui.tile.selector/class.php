@@ -29,6 +29,7 @@ class SenderUiTileSelectorComponent extends CBitrixComponent
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? $this->arParams['ID'] : '';
 		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : null;
 		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
+		$this->arParams['MANUAL_INPUT_END'] = isset($this->arParams['MANUAL_INPUT_END']) ? (bool) $this->arParams['MANUAL_INPUT_END'] : false;
 
 		if (isset($this->arParams['SHOW_BUTTON_ADD']))
 		{

@@ -157,7 +157,7 @@ $APPLICATION->IncludeComponent(
 
 	<div  class="feed-event-location">
 		<label style="display: inline-block;" for="event-location<?=$id?>"><?= GetMessage('ECLF_EVENT_LOCATION')?></label>
-		<input type="text" id="event-location<?=$id?>" value="" class="calendar-inp calendar-inp-loc" name="EVENT_LOCATION"/>
+		<input type="text" id="event-location<?=$id?>" value="" class="calendar-inp calendar-inp-loc"/>
 		<input id="event-location-new<?=$id?>" type="hidden" value=""/>
 	</div>
 </div>
@@ -165,53 +165,31 @@ $APPLICATION->IncludeComponent(
 <!-- Destination - "Attendees" -->
 <div class="feed-event-destination-block">
 	<div class="feed-event-destination-title"><?=GetMessage("ECLF_DESTINATION")?>:</div>
-	<div class="feed-event-destination-wrap" id="feed-event-dest-cont">
-		<span id="feed-event-dest-item"></span>
-	<span class="feed-add-destination-input-box" id="feed-event-dest-input-box">
-		<input type="text" value="" class="feed-add-destination-inp" id="feed-event-dest-input">
-	</span>
-		<a href="#" class="feed-add-destination-link" id="feed-event-dest-add-link"></a>
-		<script type="text/javascript">
-			destinationFormName = 'cal<?=$this->randString(6)?>';
-			BXSocNetLogDestinationDisableBackspace = null;
-			BX.SocNetLogDestination.init({
-				name : destinationFormName,
-				searchInput : BX('feed-event-dest-input'),
-				extranetUser :  false,
-				bindMainPopup : { 'node' : BX('feed-event-dest-cont'), 'offsetTop' : '5px', 'offsetLeft': '15px'},
-				bindSearchPopup : { 'node' : BX('feed-event-dest-cont'), 'offsetTop' : '5px', 'offsetLeft': '15px'},
-				callback : {
-					select : BXEvDestSelectCallback,
-					unSelect : BXEvDestUnSelectCallback,
-					openDialog : BXEvDestOpenDialogCallback,
-					closeDialog : BXEvDestCloseDialogCallback,
-					openSearch : BXEvDestOpenDialogCallback,
-					closeSearch : BXEvDestCloseSearchCallback
-				},
-				items : {
-					users : <?=(empty($arParams["DESTINATION"]['USERS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['USERS']))?>,
-					groups : <?=($arParams["DESTINATION"]["EXTRANET_USER"] == 'Y'? '{}': "{'UA' : {'id':'UA','name': '".(!empty($arParams["DESTINATION"]['DEPARTMENT']) ? GetMessageJS("MPF_DESTINATION_3"): GetMessageJS("MPF_DESTINATION_4"))."'}}")?>,
-					sonetgroups : <?=(empty($arParams["DESTINATION"]['SONETGROUPS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['SONETGROUPS']))?>,
-					department : <?=(empty($arParams["DESTINATION"]['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['DEPARTMENT']))?>,
-					departmentRelation : (typeof departmentRelation != 'undefined' ? departmentRelation : {})
-				},
-				itemsLast : {
-					users : <?=(empty($arParams["DESTINATION"]['LAST']['USERS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['USERS']))?>,
-					sonetgroups : <?=(empty($arParams["DESTINATION"]['LAST']['SONETGROUPS'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['SONETGROUPS']))?>,
-					department : <?=(empty($arParams["DESTINATION"]['LAST']['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['LAST']['DEPARTMENT']))?>,
-					groups : <?=($arParams["DESTINATION"]["EXTRANET_USER"] == 'Y'? '{}': "{'UA':true}")?>
-				},
-				itemsSelected : <?=(empty($arParams["DESTINATION"]['SELECTED'])? '{}': CUtil::PhpToJSObject($arParams["DESTINATION"]['SELECTED']))?>,
-				destSort : <?=CUtil::PhpToJSObject(isset($arParams["DESTINATION"]['DEST_SORT']) ? $arParams["DESTINATION"]['DEST_SORT'] : array())?>
-			});
-			BX.bind(BX('feed-event-dest-input'), 'keyup', BXEvDestSearch);
-			BX.bind(BX('feed-event-dest-input'), 'keydown', BXEvDestSearchBefore);
-			BX.bind(BX('feed-event-dest-add-link'), 'click', function(e){BX.SocNetLogDestination.openDialog(destinationFormName); BX.PreventDefault(e); });
-			BX.bind(BX('feed-event-dest-cont'), 'click', function(e){BX.SocNetLogDestination.openDialog(destinationFormName); BX.PreventDefault(e);});
-			BXEvDestSetLinkName(destinationFormName);
-
-		</script>
-	</div>
+	<div class="feed-event-destination-wrap" id="feed-event-dest-cont"><?
+		$APPLICATION->IncludeComponent(
+			"bitrix:main.user.selector",
+			"",
+			[
+				"ID" => 'calendar_livefeed_event',
+				"LAZYLOAD" => 'Y',
+				"LIST" => [],
+				"INPUT_NAME" => 'EVENT_DEST_CODES[]',
+				"USE_SYMBOLIC_ID" => "Y",
+				"BUTTON_SELECT_CAPTION" => \Bitrix\Main\Localization\Loc::getMessage("ECLF_DESTINATION_ADD_USERS"),
+				"BUTTON_SELECT_CAPTION_MORE" => \Bitrix\Main\Localization\Loc::getMessage("ECLF_DESTINATION_ADD_MORE"),
+				"API_VERSION" => 3,
+				"SELECTOR_OPTIONS" => array(
+					'lazyLoad' => 'Y',
+					'context' => 'CALENDAR',
+					'contextCode' => '',
+					'enableSonetgroups' => 'Y',
+					'departmentSelectDisable' => 'N',
+					'showVacations' => 'Y',
+					'enableAll' => 'Y'
+				)
+			]
+		);
+	?></div>
 </div>
 
 <div class="feed-event-planner-block" id="event-planner-block<?=$id?>">

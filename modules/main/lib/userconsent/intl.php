@@ -26,10 +26,10 @@ class Intl
 	protected $languageId = null;
 
 	/** @var array  */
-	protected $data = array();
+	protected $data = [];
 
 	/** @var array  */
-	protected static $virtualLanguageMap = array('kz' => 'ru');
+	protected static $virtualLanguageMap = ['kz' => 'ru', 'by' => 'ru'];
 
 
 	/**
@@ -203,6 +203,35 @@ class Intl
 				),
 			),
 			'kz' => array(
+				'PHRASES' => array('COMPANY_NAME', 'IP_NAME'),
+				'FIELDS' => array(
+					array(
+						'CODE' => 'COMPANY_NAME',
+						'TYPE' => 'text',
+					),
+					array(
+						'CODE' => 'COMPANY_ADDRESS',
+						'TYPE' => 'text',
+					),
+					array(
+						'CODE' => 'PURPOSES',
+						'TYPE' => 'text',
+						'SHOW_BY_CHECKBOX' => true,
+					),
+					array(
+						'CODE' => 'THIRD_PARTIES',
+						'TYPE' => 'text',
+						'SHOW_BY_CHECKBOX' => true,
+					),
+					array(
+						'CODE' => 'EMAIL',
+						'TYPE' => 'string',
+						'PLACEHOLDER' => $email,
+						'DEFAULT_VALUE' => $email,
+					),
+				),
+			),
+			'by' => array(
 				'PHRASES' => array('COMPANY_NAME', 'IP_NAME'),
 				'FIELDS' => array(
 					array(

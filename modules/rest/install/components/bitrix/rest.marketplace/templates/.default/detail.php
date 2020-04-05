@@ -18,8 +18,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 ?>
 
 <div class="mp_wrap">
-<?php/*
-if(!$arResult['SLIDER'])
+<?php
+/*if(!$arResult['SLIDER'])
 {
 	$APPLICATION->IncludeComponent("bitrix:rest.marketplace.toolbar", '', array(
 		"COMPONENT_PAGE" => $arParams["COMPONENT_PAGE"],
@@ -47,6 +47,7 @@ if($arResult['SLIDER'])
 			'COMPONENT_PARAMS' => array(
 				"APP" => $arResult["VARIABLES"]["app"],
 				"APPLICATION_PAGE" => $arParams["APPLICATION_PAGE"],
+				"IMPORT_PAGE" => $arParams["IMPORT_APP_URL"],
 			),
 		),
 		$component
@@ -57,6 +58,7 @@ else
 	$APPLICATION->IncludeComponent("bitrix:rest.marketplace.detail", "", array(
 		"APP" => $arResult["VARIABLES"]["app"],
 		"APPLICATION_PAGE" => $arParams["APPLICATION_PAGE"],
+		"IMPORT_PAGE" => $arParams["IMPORT_APP_URL"],
 	));
 }
 ?>

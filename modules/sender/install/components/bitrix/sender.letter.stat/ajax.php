@@ -31,7 +31,14 @@ $actions[] = Controller\Action::create('getClickMap')
 			$letter = new Entity\Letter($request->get('letterId'));
 			if ($letter->isSupportHeatMap())
 			{
-				$message = $letter->getMessage()->getConfiguration()->get('BODY');
+				try
+				{
+					$message = $letter->getMessage()->getConfiguration()->get('BODY');
+				}
+				catch (\Bitrix\Main\SystemException $exception)
+				{
+					$message = $exception->getMessage();
+				}
 			}
 
 			Loader::includeModule('fileman');

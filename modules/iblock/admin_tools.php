@@ -96,8 +96,8 @@ function _ShowStringPropertyField($name, $property_fields, $values, $bInitDef = 
 
 	if ($property_fields["MULTIPLE"] == "Y")
 	{
-		echo '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="addNewRow(\'tb'.md5($name).'\')"></td></tr>';
-		echo "<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(strlen($name)+1).")=='".CUtil::JSEscape($name)."['){addNewRow('tb".md5($name)."')}}})</script>";
+		echo '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="BX.IBlock.Tools.addNewRow(\'tb'.md5($name).'\')"></td></tr>';
+		echo "<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(strlen($name)+1).")=='".CUtil::JSEscape($name)."['){BX.IBlock.Tools.addNewRow('tb".md5($name)."')}}})</script>";
 	}
 
 	echo "</table>";
@@ -263,14 +263,6 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 
 	if ($historyId > 0)
 	{
-		$inputParams = array(
-			'upload' => false,
-			'medialib' => false,
-			'file_dialog' => false,
-			'cloud' => false,
-			'del' => false,
-			'description' => false
-		);
 		$newUploaderParams = array(
 			'delete' => false,
 			'edit' => false
@@ -278,14 +270,6 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 	}
 	else
 	{
-		$inputParams = array(
-			'upload' => true,
-			'medialib' => true,
-			'file_dialog' => true,
-			'cloud' => true,
-			'del' => true,
-			'description' => $property_fields["WITH_DESCRIPTION"] == "Y",
-		);
 		$newUploaderParams = array(
 			"upload" => true,
 			"medialib" => true,
@@ -293,15 +277,6 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 			"cloud" => true
 		);
 	}
-	$oldUploaderParams = array(
-		"IMAGE" => "Y",
-		"PATH" => "Y",
-		"FILE_SIZE" => "Y",
-		"DIMENSIONS" => "Y",
-		"IMAGE_POPUP" => "Y",
-		"MAX_SIZE" => $maxSize
-	);
-	$newUploaderExists = class_exists('\Bitrix\Main\UI\FileInput', true);
 
 	if($property_fields["MULTIPLE"] == "N")
 	{
@@ -312,56 +287,6 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 			else
 				$file_id = $val;
 
-			if ($newUploaderExists)
-			{
-				if ($bVarsFromForm)
-				{
-					$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-					$number = 0;
-					if (preg_match("/PROP\\[(\d+)\\]/i", $name, $matches))
-					{
-						$number = $matches[1];
-					}
-					$prop = $request->isPost() ? $request->getPost("PROP") : $request->getQuery("PROP");
-					if ($number > 0 && is_array($prop) && array_key_exists($number, $prop))
-					{
-						$prop = $prop[$number];
-						if (!empty($prop) && is_array($prop))
-						{
-							if (!array_key_exists('tmp_name', $prop))
-								$prop = current($prop);
-							$file_id = $prop;
-						}
-					}
-				}
-				echo \Bitrix\Main\UI\FileInput::createInstance(
-					array(
-						"name" => $name."[".$key."]",
-						"id" => $name."[".$key."]_".mt_rand(1, 1000000),
-						"description" => $property_fields["WITH_DESCRIPTION"]=="Y",
-						"allowUpload" => "F",
-						"allowUploadExt" => $property_fields["FILE_TYPE"],
-						"maxCount" => 1
-					) + $newUploaderParams
-				)->show($file_id, $bVarsFromForm);
-			}
-			else
-			{
-				echo CFileInput::Show($name."[".$key."]", $file_id, $oldUploaderParams, $inputParams);
-			}
-			break;
-		}
-	}
-	else
-	{
-		$inputName = array();
-		foreach($values as $key=>$val)
-		{
-			$inputName[$name."[".$key."]"] = (is_array($val) && array_key_exists("VALUE", $val) ? $val["VALUE"] : $val);
-		}
-
-		if ($newUploaderExists)
-		{
 			if ($bVarsFromForm)
 			{
 				$request = \Bitrix\Main\Context::getCurrent()->getRequest();
@@ -375,29 +300,79 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 				{
 					$prop = $prop[$number];
 					if (!empty($prop) && is_array($prop))
-						$values = $prop;
-				}
-
-				$inputName = array();
-				foreach($values as $key=>$val)
-				{
-					$inputName[$name."[".$key."]"] = $val;
+					{
+						if (!array_key_exists('tmp_name', $prop))
+							$prop = current($prop);
+						$file_id = $prop;
+					}
 				}
 			}
 			echo \Bitrix\Main\UI\FileInput::createInstance(
 				array(
-					"name" => $name."[n#IND#]",
-					"id" => $name."[n#IND#]_".mt_rand(1, 1000000),
+					"name" => $name."[".$key."]",
+					"id" => $name."[".$key."]_".mt_rand(1, 1000000),
 					"description" => $property_fields["WITH_DESCRIPTION"]=="Y",
 					"allowUpload" => "F",
-					"allowUploadExt" => $property_fields["FILE_TYPE"]
+					"allowUploadExt" => $property_fields["FILE_TYPE"],
+					"maxCount" => 1
 				) + $newUploaderParams
-			)->show($inputName, $bVarsFromForm);
+			)->show($file_id, $bVarsFromForm);
+			break;
 		}
-		else
+	}
+	else
+	{
+		$inputName = array();
+		foreach($values as $key=>$val)
 		{
-			echo CFileInput::ShowMultiple($inputName, $name."[n#IND#]", $oldUploaderParams, false, $inputParams);
+			$inputName[$name."[".$key."]"] = (is_array($val) && array_key_exists("VALUE", $val) ? $val["VALUE"] : $val);
 		}
+
+		if ($bVarsFromForm)
+		{
+			$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+			$number = 0;
+			if (preg_match("/PROP\\[(\d+)\\]/i", $name, $matches))
+			{
+				$number = $matches[1];
+			}
+			$prop = $request->isPost() ? $request->getPost("PROP") : $request->getQuery("PROP");
+			if ($number > 0 && is_array($prop) && array_key_exists($number, $prop))
+			{
+				$prop = $prop[$number];
+				if (!empty($prop) && is_array($prop))
+				{
+					$clearProp = array();
+					foreach ($prop as $valueRowId => $valueRow)
+					{
+						$correct = true;
+						if (preg_match('/^n\d+$/', $valueRowId) && is_string($valueRow))
+						{
+							if (!preg_match('/^\d+$/', $valueRow))
+								$correct = false;
+						}
+						if ($correct)
+							$clearProp[$valueRowId] = $valueRow;
+					}
+					$values = $clearProp;
+				}
+			}
+
+			$inputName = array();
+			foreach($values as $key=>$val)
+			{
+				$inputName[$name."[".$key."]"] = $val;
+			}
+		}
+		echo \Bitrix\Main\UI\FileInput::createInstance(
+			array(
+				"name" => $name."[n#IND#]",
+				"id" => $name."[n#IND#]_".mt_rand(1, 1000000),
+				"description" => $property_fields["WITH_DESCRIPTION"]=="Y",
+				"allowUpload" => "F",
+				"allowUploadExt" => $property_fields["FILE_TYPE"]
+			) + $newUploaderParams
+		)->show($inputName, $bVarsFromForm);
 	}
 }
 
@@ -623,7 +598,7 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 		&& !$bMultiple
 	)
 	{
-		$html .= '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="addNewRow(\'tb'.md5($name).'\')"></td></tr>';
+		$html .= '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="BX.IBlock.Tools.addNewRow(\'tb'.md5($name).'\')"></td></tr>';
 	}
 	$html .= '</table>';
 	echo $html;

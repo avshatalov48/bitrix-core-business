@@ -79,9 +79,7 @@ class BusinessValueTable extends Main\Entity\DataManager
 				'size' => 50,
 			)),
 
-			new Main\Entity\StringField('PROVIDER_VALUE', array(
-				'size' => 255,
-			)),
+			new Main\Entity\StringField('PROVIDER_VALUE'),
 
 		);
 	}

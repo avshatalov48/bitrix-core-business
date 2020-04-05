@@ -9,8 +9,9 @@ use Bitrix\Main\Type\Date;
 use Bitrix\Seo\Analytics\Internals\Page;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\Retargeting\Services\ResponseVkontakte;
+use Bitrix\Seo\Retargeting\IRequestDirectly;
 
-class AccountVkontakte extends \Bitrix\Seo\Analytics\Account
+class AccountVkontakte extends \Bitrix\Seo\Analytics\Account implements IRequestDirectly
 {
 	const TYPE_CODE = 'vkontakte';
 

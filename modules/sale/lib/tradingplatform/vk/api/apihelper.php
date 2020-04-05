@@ -34,7 +34,9 @@ class ApiHelper
 	public function __construct($exportId)
 	{
 		if (empty($exportId))
+		{
 			throw new ArgumentNullException('exportId');
+		}
 		
 		$this->exportId = $exportId;
 		$this->vk = Vk::getInstance();
@@ -310,7 +312,7 @@ class ApiHelper
 	 */
 	private static function setUploadServerMainPhotoParams($photoId)
 	{
-				$result = array();
+		$result = array();
 		$result["main_photo"] = 1;
 		
 		$photoParams = \CFile::GetFileArray($photoId);
@@ -567,9 +569,13 @@ class ApiHelper
 		$vkCats = $this->api->run('market.getCategories', array("count" => $count, "offset" => $offset));
 		
 		if (!empty($vkCats))
+		{
 			return $vkCats["items"];
+		}
 		
 		else
+		{
 			return false;
+		}
 	}
 }

@@ -163,16 +163,11 @@
 }
 
 .mail-msg-title-icon {
-	position: absolute;
 	display: inline-block;
 	width: 50px;
 	height: 34px;
-	background: url(images/task-list-sprite.svg);
-}
-
-.mail-msg-title-icon-placeholder {
-	display: inline-block;
-	width: 50px;
+	margin-right: 7px;
+	background: url(images/task-list-sprite.svg?1);
 }
 
 .mail-msg-title-icon-income {
@@ -189,7 +184,7 @@
 	margin: 0 5px;
 	width: 9px;
 	height: 15px;
-	background: url(images/task-list-sprite.svg);
+	background: url(images/task-list-sprite.svg?1);
 	background-position: -115px -183px;
 }
 
@@ -286,6 +281,13 @@
 	}
 }
 
+.mail-msg-header-group {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+
+}
+
 .mail-msg-header-control-item {
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -329,4 +331,18 @@
 
 .mail-msg-header-control-select:hover .mail-msg-header-control-triangle {
 	border-color: #3e434e transparent transparent transparent;
+}
+
+.mail-msg-sidepanel-title-container .main-ui-filter-search {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	margin: auto 19px auto 0;
+	width: 100%;
+	max-width: 800px;
+	min-width: 300px;
+}
+
+.mail-pagetitle-flexible-space {
+	flex: 1 1 auto;
 }

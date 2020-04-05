@@ -23,7 +23,9 @@ class CSecurityUserRecoveryCodesComponent
 		global $USER;
 
 		$result = array(
-			'USER_ID' => $USER->getId()
+			'USER_ID' => $USER->getId(),
+			'MODE' => $arParams["MODE"] ? $arParams["MODE"] : "",
+			'PATH_TO_CODES' => $arParams["PATH_TO_CODES"] ? $arParams["PATH_TO_CODES"] : ""
 		);
 		return $result;
 	}
@@ -33,61 +35,48 @@ class CSecurityUserRecoveryCodesComponent
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		$action = $this->request['action'];
-		$isEdit = (
-			$this->request->isPost()
-			&& $action
-			&& check_bitrix_sessid()
-		);
+		$action = $this->request['codesAction'];
 
-		if ($isEdit)
+		if ($this->arParams["MODE"] == "print")
 		{
-			$this->arResult = $this->toEdit($action);
+			$action = "print";
 		}
-		else
+		elseif ($this->arParams["MODE"] == "download")
 		{
-			$APPLICATION->SetTitle(Loc::getMessage("SECURITY_USER_RECOVERY_CODES_TITLE"));
-			$this->arResult = $this->toView($action);
+			$action = "download";
 		}
 
-		$this->doPostAction($isEdit, $action);
+		$APPLICATION->SetTitle(Loc::getMessage("SECURITY_USER_RECOVERY_CODES_TITLE"));
+		$this->arResult = $this->toView($action);
+
+		$this->doPostAction($action);
 	}
 
-	protected function doPostAction($isEdit, $action)
+	protected function doPostAction($action)
 	{
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		if ($isEdit)
+		switch ($action)
 		{
-			$APPLICATION->RestartBuffer();
-			header('Content-Type: application/json', true);
-			echo Json::encode($this->arResult);
-			die();
-		}
-		else
-		{
-			switch ($action)
-			{
-				case 'download':
-					$APPLICATION->restartBuffer();
-					header('Content-Type: text/plain', true);
-					header('Content-Disposition: attachment; filename="recovery_codes.txt"');
-					header('Content-Transfer-Encoding: binary');
-					header(sprintf('Content-Length: %d', CUtil::BinStrlen($this->arResult['PLAIN_RESPONSE'])));
-					echo $this->arResult['PLAIN_RESPONSE'];
-					exit;
-					break;
-				case 'print':
-					$APPLICATION->restartBuffer();
-					$this->includeComponentTemplate(static::PRINT_PAGE);
-					exit;
-					break;
-				case 'view':
-				default:
-					$this->includeComponentTemplate(static::VIEW_PAGE);
-					break;
-			}
+			case 'download':
+				$APPLICATION->restartBuffer();
+				header('Content-Type: text/plain', true);
+				header('Content-Disposition: attachment; filename="recovery_codes.txt"');
+				header('Content-Transfer-Encoding: binary');
+				header(sprintf('Content-Length: %d', CUtil::BinStrlen($this->arResult['PLAIN_RESPONSE'])));
+				echo $this->arResult['PLAIN_RESPONSE'];
+				exit;
+				break;
+			case 'print':
+			//	$APPLICATION->restartBuffer();
+				$this->includeComponentTemplate(static::PRINT_PAGE);
+			//	exit;
+				break;
+			case 'view':
+			default:
+				$this->includeComponentTemplate(static::VIEW_PAGE);
+				break;
 		}
 	}
 

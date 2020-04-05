@@ -24,3 +24,5 @@ $MESS['SALE_PS_MANAGER_GROUP_PAYMENT'] = 'Оплаты';
 $MESS['SALE_PS_MANAGER_GROUP_PAYSYSTEM'] = 'Платежные системы';
 $MESS['SALE_PS_MANAGER_GROUP_PS_OTHER'] = 'Остальные свойства платежных систем';
 $MESS['SALE_PS_MANAGER_INNER_NAME'] = 'Внутренний счет';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SBERBANK'] = 'Настройки подключения Сбербанк';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'] = 'Настройки подключения UAPAY';

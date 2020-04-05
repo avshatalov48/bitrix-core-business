@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 class CBPListenActivity
@@ -147,6 +148,17 @@ final class CBPListenEventActivitySubscriber
 	{
 		$listenActivity = $this->eventDrivenActivity->parent;
 
+		$firedActivity = $this->eventDrivenActivity->GetEventActivity();
+
+		if (
+			method_exists($firedActivity, 'OnExternalDrivenEvent')
+			&&
+			$firedActivity->OnExternalDrivenEvent($arEventParameters) !== true
+		)
+		{
+			return;
+		}
+
 		if (!$listenActivity->isListenTrigerred
 			&& ($listenActivity->executionStatus != CBPActivityExecutionStatus::Canceling)
 			&& ($listenActivity->executionStatus != CBPActivityExecutionStatus::Closed))
@@ -169,4 +181,3 @@ final class CBPListenEventActivitySubscriber
 		}
 	}
 }
-?>

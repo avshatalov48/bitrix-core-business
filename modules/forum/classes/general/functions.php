@@ -43,7 +43,6 @@ class forumTextParser extends CTextParser
 
 		if ($mode == 'full')
 		{
-			AddEventHandler("main", "TextParserBeforeTags", Array(&$this, "ParserSpoiler"));
 			AddEventHandler("main", "TextParserAfterTags", Array(&$this, "ParserFile"));
 		}
 	}
@@ -226,34 +225,6 @@ class forumTextParser extends CTextParser
 		return $text;
 	}
 
-	function ParserSpoiler(&$text, &$obj)
-	{
-		$matches = array();
-		if (method_exists($obj, "convert_spoiler_tag") && preg_match("/\\[(cut|spoiler)/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
-		{
-			$text = preg_replace(
-				array(
-					"/\\[(cut|spoiler)(([^\\]])*)\\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\\[\\/(cut|spoiler)\\]/is".BX_UTF_PCRE_MODIFIER
-				),
-				array(
-					"\001\\2\002",
-					"\003"),
-				$text);
-			$arMatches = array();
-			while (preg_match("/(\001([^\002]*)\002([^\001\002\003]+)\003)/is".BX_UTF_PCRE_MODIFIER, $text, $arMatches))
-				$text = preg_replace_callback("/\001([^\002]*)\002([^\001\002\003]+)\003/is".BX_UTF_PCRE_MODIFIER, array($this, "convert_spoiler_tag"), $text);
-			$text = preg_replace(
-				array("/\001([^\002]+)\002/",
-					"/\001\002/",
-					"/\003/"),
-				array("[spoiler\\1]",
-					"[spoiler]",
-					"[/spoiler]"),
-				$text);
-		}
-	}
-
 	function ParserFile(&$text, &$obj, $type="html")
 	{
 		if (method_exists($obj, "convert_attachment"))
@@ -263,33 +234,6 @@ class forumTextParser extends CTextParser
 			$text = preg_replace_callback("/\[file([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER, array($this, "convert_attachment"), $text);
 			$obj->type = $tmpType;
 		}
-	}
-
-	function convert_spoiler_tag($text, $title="")
-	{
-		if (is_array($text))
-		{
-			$title = $text[1];
-			$text = $text[2];
-		}
-		if (empty($text))
-			return "";
-		$title = htmlspecialcharsbx(trim(htmlspecialcharsback($title), " =\"\\'"));
-		if ($this->type == "mail")
-			return "<dl><dt>".($title ?: GetMessage("FRM_SPOILER"))."</dt><dd>".htmlspecialcharsbx($text)."</dd></dl>";
-
-		global $APPLICATION;
-		$result = $APPLICATION->includeComponent(
-			"bitrix:forum.interface",
-			"spoiler",
-			Array(
-				"TITLE" => $title,
-				"TEXT" => $text,
-				"RETURN" => "Y"
-			),
-			null,
-			array("HIDE_ICONS" => "Y"));
-		return str_replace(array(chr(34), chr(39)), array("\013", "\014"), $result);
 	}
 
 	function convert_open_tag($marker = "quote")
@@ -494,19 +438,7 @@ class forumTextParser extends CTextParser
 
 		$anchorId = RandString(8);
 
-		$res = (
-			!$this->bPublic
-				? '<a class="blog-p-user-name'.$classAdditional.'" id="bp_'.$anchorId.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'
-				: ''
-			).
-			$userName.
-			(
-				!$this->bPublic
-					? '</a>'
-					: ''
-			);
-
-		return $res;
+		return '<a class="blog-p-user-name'.$classAdditional.'" id="bp_'.$anchorId.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'.$userName.'</a>';
 	}
 }
 
@@ -830,26 +762,6 @@ class textParser
 						$text = preg_replace("/\[color\s*=\s*([^\]]+)\](.+?)\[\/color\]/ies".BX_UTF_PCRE_MODIFIER, "\$this->convert_font_attr('color', '\\1', '\\2')", $text);
 					break;
 			}
-		}
-
-		if (preg_match("/\[cut/is".BX_UTF_PCRE_MODIFIER, $text, $matches))
-		{
-			$text = preg_replace(
-				array("/\[cut(([^\]])*)\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[\/cut\]/is".BX_UTF_PCRE_MODIFIER),
-				array("\001\\1\002",
-					"\003"),
-				$text);
-			while (preg_match("/(\001([^\002]*)\002([^\001\002\003]+)\003)/ies".BX_UTF_PCRE_MODIFIER, $text, $arMatches))
-				$text = preg_replace("/(\001([^\002]*)\002([^\001\002\003]+)\003)/ies".BX_UTF_PCRE_MODIFIER, "\$this->convert_cut_tag('\\3', '\\2')", $text);
-			$text = preg_replace(
-				array("/\001([^\002]+)\002/",
-					"/\001\002/",
-					"/\003/"),
-				array("[cut\\1]",
-					"[cut]",
-					"[/cut]"),
-				$text);
 		}
 
 		$text = str_replace(
@@ -1313,26 +1225,6 @@ class textParser
 		return $str;
 	}
 
-	function convert_cut_tag($text, $title="")
-	{
-		if (empty($text))
-			return "";
-		$title = trim($title);
-		$title = ltrim($title, "=");
-		$title = trim($title);
-		$result = $GLOBALS["APPLICATION"]->IncludeComponent(
-			"bitrix:forum.interface",
-			"spoiler",
-			Array(
-				"TITLE" => $title,
-				"TEXT" => $text,
-				"RETURN" => "Y"
-			),
-			null,
-			array("HIDE_ICONS" => "Y"));
-		return str_replace(array(chr(34), chr(39)), array("\013", "\014"), $result);
-	}
-
 	function convert_anchor_tag($url, $text, $pref="")
 	{
 		$bCutUrl = True;
@@ -1381,7 +1273,6 @@ class textParser
 			(COption::GetOptionString("forum", "parser_nofollow", "Y") == "Y" ? ' rel="nofollow"' : '').'>'.$text.'</a>'.$end;
 		return str_replace(array(chr(34), chr(39)), array("\013", "\014"), $result);
 	}
-
 
 	function convert_to_rss($text, $arImages = Array(), $arAllow = array("HTML" => "N", "ANCHOR" => "Y", "BIU" => "Y", "IMG" => "Y", "QUOTE" => "Y", "CODE" => "Y", "FONT" => "Y", "LIST" => "Y", "SMILES" => "Y", "NL2BR" => "N"), $arParams = array())
 	{
@@ -1695,7 +1586,7 @@ class CForumSimpleHTMLParser
 
 class CForumCacheManager
 {
-	public function CForumCacheManager()
+	public function __construct()
 	{
 		if(defined("BX_COMP_MANAGED_CACHE"))
 		{

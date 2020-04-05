@@ -68,7 +68,8 @@ $res = Landing::getList(array(
 		'SITE_TYPE' => 'SITE.TYPE'
 	),
 	'filter' => array(
-		'ID' => $landingId
+		'ID' => $landingId,
+		'CHECK_PERMISSIONS' => 'N'
 	)
 ));
 if ($landing = $res->fetch())

@@ -1,7 +1,7 @@
 <section class="landing-block g-pt-50 g-pb-50">
 	<div class="container">
 		<div class="row">
-			<div class="landing-block-node-text-container d-flex js-animation slideInLeft col-md-6 g-pb-20 g-pb-0--md">
+			<div class="landing-block-node-text-container d-flex js-animation slideInLeft col-md-6 col-lg-6 g-pb-20 g-pb-0--md">
 				<div>
 					<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15">
 						Quality results with us
@@ -30,10 +30,9 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-video-col js-animation slideInRight col-md-6">
+			<div class="landing-block-node-video-col js-animation slideInRight col-md-6 col-lg-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe
-							class="landing-block-node-video embed-responsive-item"
+					<iframe class="landing-block-node-video embed-responsive-item"
 							width="100%"
 							src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
 							data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"

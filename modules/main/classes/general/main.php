@@ -12,6 +12,7 @@ use Bitrix\Main\Localization\CultureTable;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
 use Bitrix\Main\Page\AssetMode;
+use Bitrix\Main\SiteTable;
 
 define('BX_RESIZE_IMAGE_PROPORTIONAL_ALT', 0);
 define('BX_RESIZE_IMAGE_PROPORTIONAL', 1);
@@ -1718,7 +1719,7 @@ abstract class CAllMain
 		include($io->GetPhysicalName($DOC_ROOT_FROM.$path_from_dir."/.access.php"));
 
 		$FILE_PERM = $PERM[$path_from_file];
-		if(count($FILE_PERM)>0)
+		if(!empty($FILE_PERM))
 			return $this->SetFileAccessPermission(array($site_to, $path_to), $FILE_PERM, $bOverWrite);
 
 		return true;
@@ -3434,21 +3435,24 @@ abstract class CAllMain
 					$sessTimeout = $phpSessTimeout;
 				}
 
-				$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-				$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$USER->GetID()."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY."|".CMain::GetServerUniqID();
-				$key = md5(bitrix_sessid().$salt);
+				if (!defined('PUBLIC_AJAX_MODE') || PUBLIC_AJAX_MODE !== true)
+				{
+					$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+					$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$USER->GetID()."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY."|".CMain::GetServerUniqID();
+					$key = md5(bitrix_sessid().$salt);
 
-				$bShowMess = ($USER->IsAuthorized() && COption::GetOptionString("main", "session_show_message", "Y") <> "N");
+					$bShowMess = ($USER->IsAuthorized() && COption::GetOptionString("main", "session_show_message", "Y") <> "N");
 
-				CUtil::InitJSCore(array('ajax', 'ls'));
+					CUtil::InitJSCore(array('ajax', 'ls'));
 
-				$jsMsg = '<script type="text/javascript">'."\n".
-					($bShowMess? 'bxSession.mess.messSessExpired = \''.CUtil::JSEscape(GetMessage("MAIN_SESS_MESS", array("#TIMEOUT#"=>round($sessTimeout/60)))).'\';'."\n" : '').
-					'bxSession.Expand('.$sessTimeout.', \''.bitrix_sessid().'\', '.($bShowMess? 'true':'false').', \''.$key.'\');'."\n".
-					'</script>';
+					$jsMsg = '<script type="text/javascript">'."\n".
+							 ($bShowMess ? 'bxSession.mess.messSessExpired = \''.CUtil::JSEscape(GetMessage("MAIN_SESS_MESS", array("#TIMEOUT#" => round($sessTimeout / 60)))).'\';'."\n" : '').
+							 'bxSession.Expand('.$sessTimeout.', \''.bitrix_sessid().'\', '.($bShowMess ? 'true' : 'false').', \''.$key.'\');'."\n".
+							 '</script>';
 
-				$APPLICATION->AddHeadScript('/bitrix/js/main/session.js');
-				$APPLICATION->AddAdditionalJS($jsMsg);
+					$APPLICATION->AddHeadScript('/bitrix/js/main/session.js');
+					$APPLICATION->AddAdditionalJS($jsMsg);
+				}
 
 				$_SESSION["BX_SESSION_COUNTER"] = intval($_SESSION["BX_SESSION_COUNTER"]) + 1;
 				if(!defined("BX_SKIP_SESSION_TERMINATE_TIME"))
@@ -3980,9 +3984,10 @@ class CAllSite
 			}
 		}
 
+		SiteTable::getEntity()->cleanCache();
+
 		return $arFields["LID"];
 	}
-
 
 	public function Update($ID, $arFields)
 	{
@@ -4041,6 +4046,8 @@ class CAllSite
 				}
 			}
 		}
+
+		SiteTable::getEntity()->cleanCache();
 
 		return true;
 	}
@@ -4102,6 +4109,8 @@ class CAllSite
 
 		if(CACHED_b_lang!==false)
 			$CACHE_MANAGER->CleanDir("b_lang");
+
+		SiteTable::getEntity()->cleanCache();
 
 		return $DB->Query("DELETE FROM b_lang WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
 	}

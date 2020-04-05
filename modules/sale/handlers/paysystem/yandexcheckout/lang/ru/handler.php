@@ -2,12 +2,14 @@
 $MESS["SALE_HPS_YANDEX_CHECKOUT_BANK_CARDS"] = "Банковские карты";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_YANDEX_MONEY"] = "Яндекс.Деньги";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK"] = "Сбербанк Онлайн";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS"] = "Сбербанк Онлайн (подтверждение по СМС)";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_QIWI"] = "QIWI Wallet";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_WEBMONEY"] = "Webmoney";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_ALFABANK"] = "Альфа-Клик";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_CASH"] = "Оплата наличными в терминале";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_SMART"] = "Умный платеж";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_MOBILE_BALANCE"] = "Баланс телефона";
+$MESS["SALE_HPS_YANDEX_CHECKOUT_EMBEDDED"] = "Виджет";
 
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_400"] = "Неправильный запрос. Некорректное взаимодействие с API Яндекс.Касса";
 $MESS["SALE_HPS_YANDEX_CHECKOUT_HTTP_STATUS_401"] = "Ошибка аутентификации. Проверьте настройки подключения платежной системы";

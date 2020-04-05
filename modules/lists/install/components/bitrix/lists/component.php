@@ -11,6 +11,7 @@
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
 $this->setFrameMode(false);
 
 $arDefaultUrlTemplates404 = array(
@@ -36,6 +37,37 @@ if($arParams["IBLOCK_TYPE_ID"] == COption::GetOptionString("lists", "livefeed_ib
 {
 	$processes = true;
 	$arDefaultUrlTemplates404["catalog_processes"] = "catalog_processes/";
+}
+
+$featureName = ($processes ? "lists_processes" : "lists");
+
+if (CModule::IncludeModule("lists") && !CLists::isFeatureEnabled($featureName))
+{
+	\Bitrix\Main\UI\Extension::load("ui.alerts");
+
+	//TODO Change when the analog system.show_message appears in UI module.
+	?>
+    <div class="ui-alert ui-alert-md">
+        <div class="ui-alert-message">
+			<?=GetMessage("CC_BLL_ACCESS_DENIDED_FULL")?>
+            <a id="listsShowHelpDesk" href="#"><?=GetMessage("CC_BLL_ACCESS_DENIDED_MORE")?></a>
+        </div>
+    </div>
+    <script>
+		BX.ready(function () {
+			BX.bind(BX("listsShowHelpDesk"), "click", function () {
+				if (top.BX.Helper)
+				{
+					top.BX.Helper.show("redirect=detail&code=5316091");
+					event.preventDefault();
+				}
+			});
+		});
+    </script>
+    <div style="text-align: center"><?\CBitrix24::showTariffRestrictionButtons("lists"); ?></div>
+	<?
+
+	return;
 }
 
 $arDefaultVariableAliases404 = array();
@@ -330,12 +362,6 @@ if(
 	$arWorkflowState = CBPStateService::GetWorkflowState($arVariables["document_state_id"]);
 	if(is_array($arWorkflowState) && is_array($arWorkflowState["DOCUMENT_ID"]))
 		list(, , $arResult["VARIABLES"]["element_id"]) = CBPHelper::ParseDocumentId($arWorkflowState["DOCUMENT_ID"]);
-}
-
-if($processes && CModule::IncludeModule("lists") && !CLists::isFeatureEnabled())
-{
-	ShowError(GetMessage("CC_BLL_ACCESS_DENIDED"));
-	return;
 }
 
 $this->IncludeComponentTemplate($componentPage);

@@ -131,6 +131,23 @@ class Configuration
 	}
 
 	/**
+	 * Get value.
+	 *
+	 * @param string $key Key.
+	 * @param mixed $defaultValue Default value.
+	 * @return mixed
+	 */
+	public function getReadonlyView($key, $defaultValue = null)
+	{
+		$value = $this->get($key, $defaultValue);
+		$option = $this->getOption($key);
+		if ($option)
+			return $option->getReadonlyView($value);
+
+		return $value;
+	}
+
+	/**
 	 * Get option.
 	 *
 	 * @param $key

@@ -218,8 +218,11 @@ window.close();
 
 	public function TwitterUserId($userId)
 	{
-		$dbSocservUser = CSocServAuthDB::GetList(array(), array('USER_ID' => $userId, 'EXTERNAL_AUTH_ID' => self::ID), false, false, array("ID"));
-		$arOauth = $dbSocservUser->Fetch();
+		$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+			'filter' => ['=USER_ID' => intval($userId), "=EXTERNAL_AUTH_ID" => self::ID],
+			'select' => ["ID"]
+		]);
+		$arOauth = $dbSocservUser->fetch();
 		if($arOauth["ID"])
 			return $arOauth["ID"];
 		return false;
@@ -456,8 +459,11 @@ class CTwitterInterface
 
 	public function SetOauthKeys($socServUserId)
 	{
-		$dbSocservUser = CSocServAuthDB::GetList(array(), array('ID' => $socServUserId), false, false, array("OATOKEN", "OASECRET"));
-		while($arOauth = $dbSocservUser->Fetch())
+		$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+			'filter' => ['=ID' => $socServUserId],
+			'select' => ["OATOKEN", "OASECRET"]
+		]);
+		while($arOauth = $dbSocservUser->fetch())
 		{
 			$this->token = $arOauth["OATOKEN"];
 			$this->tokenSecret = $arOauth["OASECRET"];
@@ -591,8 +597,14 @@ class CTwitterInterface
 	private function GetUserPerms($userXmlId)
 	{
 		$arUserPermis = array();
-		$dbSocUser = CSocServAuthDB::GetList(array(), array('EXTERNAL_AUTH_ID'=>'Twitter', 'XML_ID'=>$userXmlId), false, false, array("PERMISSIONS"));
-		while($arSocUser = $dbSocUser->Fetch())
+		$dbSocUser = \Bitrix\Socialservices\UserTable::getList([
+			'filter' => [
+				'=EXTERNAL_AUTH_ID'=>'Twitter',
+				'=XML_ID'=>$userXmlId
+			],
+			'select' => ["PERMISSIONS"]
+		]);
+		while($arSocUser = $dbSocUser->fetch())
 		{
 			$arUserPermis = unserialize($arSocUser["PERMISSIONS"]);
 			if(is_array($arUserPermis))

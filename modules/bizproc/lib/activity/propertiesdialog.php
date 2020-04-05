@@ -46,6 +46,17 @@ class PropertiesDialog
 		}
 	}
 
+	public function getActivityFile(): string
+	{
+		return $this->activityFile;
+	}
+
+	public function setActivityFile(string $file): self
+	{
+		$this->activityFile = $file;
+		return $this;
+	}
+
 	/**
 	 * @return mixed
 	 */
@@ -185,7 +196,11 @@ class PropertiesDialog
 					}
 
 					if (
-						\CBPHelper::isEmptyValue($this->currentValues[$property['FieldName']])
+						(
+							$this->currentValues[$property['FieldName']] === null
+							||
+							$this->currentValues[$property['FieldName']] === ''
+						)
 						&& isset($property['Default'])
 					)
 					{
@@ -231,6 +246,10 @@ class PropertiesDialog
 	{
 		if (is_array($valueKey))
 		{
+			if ($default === null && isset($valueKey['Default']))
+			{
+				$default = $valueKey['Default'];
+			}
 			$valueKey = isset($valueKey['FieldName']) ? $valueKey['FieldName'] : '';
 		}
 
@@ -361,7 +380,7 @@ class PropertiesDialog
 
 		if ($value === null)
 		{
-			$value = $this->getCurrentValue($field);
+			$value = $this->getCurrentValue($field, $field['Default']);
 		}
 
 		return $fieldType->renderControl(

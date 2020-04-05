@@ -10,7 +10,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.
 
 $moduleId = "sale";
 Bitrix\Main\Loader::includeModule('sale');
+
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
+
 Loc::loadMessages(__FILE__);
 
 $ID = intval($_GET["ID"]);
@@ -18,7 +21,14 @@ $ID = intval($_GET["ID"]);
 /** @var \Bitrix\Sale\Order $saleOrder */
 
 if (!isset($saleOrder) || !($saleOrder instanceof \Bitrix\Sale\Order))
-	$saleOrder = \Bitrix\Sale\Order::load($ID);
+{
+	$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+	/** @var Sale\Order $orderClass */
+	$orderClass = $registry->getOrderClassName();
+
+	$saleOrder = $orderClass::load($ID);
+}
 
 $shipmentCollection = $saleOrder->getShipmentCollection();
 $paymentCollection = $saleOrder->getPaymentCollection();
@@ -171,22 +181,32 @@ while ($arChangeRecord = $dbRecords->Fetch())
 {
 	$entityName = '';
 	$row =& $lAdminHistory->AddRow($arChangeRecord["ID"], $arChangeRecord, '', '');
+	if ($arChangeRecord["DATE_CREATE"] instanceof \Bitrix\Main\Type\Date)
+	{
+		$datetime = $arChangeRecord["DATE_CREATE"];
+	}
+	else
+	{
+		$datetime = new \Bitrix\Main\Type\DateTime($arChangeRecord["DATE_CREATE"]);
+	}
 
-	$datetime = new \Bitrix\Main\Type\DateTime($arChangeRecord["DATE_CREATE"]);
 	$datetime->format(\Bitrix\Main\Type\DateTime::getFormat());
-	$row->AddField("DATE_CREATE", $datetime);
+	$row->AddField("DATE_CREATE", $datetime->toString());
 
 	$row->AddField("USER_ID", GetFormatedUserName($arChangeRecord["USER_ID"], false));
 	$arRecord = CSaleOrderChange::GetRecordDescription($arChangeRecord["TYPE"], $arChangeRecord["DATA"]);
 	$row->AddField("TYPE", $arRecord["NAME"]);
+
+	$arRecord["INFO"] = str_replace('&nbsp;', ' ', $arRecord["INFO"]);
+
 	$row->AddField("DATA", htmlspecialcharsbx($arRecord["INFO"]));
 	if (!isset($entity) && intval($arChangeRecord["ENTITY_ID"]) > 0)
 	{
 		if ($arChangeRecord["ENTITY"] == 'SHIPMENT')
 		{
-			$shipment = $shipmentCollection->getItemById($arChangeRecord["ENTITY_ID"]);
-			if ($shipment)
-				$entityName = $shipment->getField('DELIVERY_NAME');
+			$shipmentEntity = $shipmentCollection->getItemById($arChangeRecord["ENTITY_ID"]);
+			if ($shipmentEntity)
+				$entityName = $shipmentEntity->getField('DELIVERY_NAME');
 		}
 		else if ($arChangeRecord["ENTITY"] == 'PAYMENT')
 		{

@@ -41,10 +41,7 @@ if (($ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $STEP == 1)
 		$V = $arOldSetupVars['V'];
 	if (isset($arOldSetupVars['XML_DATA']))
 	{
-		if (get_magic_quotes_gpc())
-			$XML_DATA = base64_encode(stripslashes($arOldSetupVars['XML_DATA']));
-		else
-			$XML_DATA = base64_encode($arOldSetupVars['XML_DATA']);
+		$XML_DATA = base64_encode($arOldSetupVars['XML_DATA']);
 	}
 	if (isset($arOldSetupVars['SETUP_SERVER_NAME']))
 		$SETUP_SERVER_NAME = $arOldSetupVars['SETUP_SERVER_NAME'];
@@ -54,6 +51,8 @@ if (($ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $STEP == 1)
 		$filterAvalable = $arOldSetupVars['FILTER_AVAILABLE'];
 	if (isset($arOldSetupVars['DISABLE_REFERERS']))
 		$disableReferers = $arOldSetupVars['DISABLE_REFERERS'];
+	if (isset($arOldSetupVars['EXPORT_CHARSET']))
+		$exportCharset = $arOldSetupVars['EXPORT_CHARSET'];
 	if (isset($arOldSetupVars['MAX_EXECUTION_TIME']))
 		$maxExecutionTime = $arOldSetupVars['MAX_EXECUTION_TIME'];
 	if (isset($arOldSetupVars['CHECK_PERMISSIONS']))
@@ -173,6 +172,10 @@ if ($STEP > 1)
 		$disableReferers = $_POST['DISABLE_REFERERS'];
 	if (!isset($disableReferers) || $disableReferers != 'Y')
 		$disableReferers = 'N';
+	if (isset($_POST['EXPORT_CHARSET']) && is_string($_POST['EXPORT_CHARSET']))
+		$exportCharset = $_POST['EXPORT_CHARSET'];
+	if (!isset($exportCharset) || $exportCharset !== 'UTF-8')
+		$exportCharset = 'windows-1251';
 	if (isset($_POST['MAX_EXECUTION_TIME']) && is_string($_POST['MAX_EXECUTION_TIME']))
 		$maxExecutionTime = $_POST['MAX_EXECUTION_TIME'];
 	$maxExecutionTime = (!isset($maxExecutionTime) ? 0 : (int)$maxExecutionTime);
@@ -238,6 +241,8 @@ if ($STEP == 1)
 		$USE_HTTPS = 'N';
 	if (!isset($disableReferers) || $disableReferers != 'Y')
 		$disableReferers = 'N';
+	if (!isset($exportCharset) || $exportCharset !== 'UTF-8')
+		$exportCharset = 'windows-1251';
 	if (!isset($SETUP_SERVER_NAME))
 		$SETUP_SERVER_NAME = '';
 	if (!isset($COMPANY_NAME))
@@ -630,7 +635,15 @@ if ($STEP == 1)
 		<input type="hidden" name="DISABLE_REFERERS" value="N">
 		<input type="checkbox" name="DISABLE_REFERERS" value="Y"<? echo ($disableReferers == 'Y' ? ' checked' : ''); ?>
 	</td>
-</tr><?
+</tr>
+<tr>
+	<td width="40%"><? echo GetMessage('BX_CATALOG_EXPORT_YANDEX_OPTION_CONVERT_TO_UTF'); ?></td>
+	<td width="60%">
+		<input type="hidden" name="EXPORT_CHARSET" value="windows-1251">
+		<input type="checkbox" name="EXPORT_CHARSET" value="UTF-8"<? echo ($exportCharset == 'UTF-8' ? ' checked' : ''); ?>
+	</td>
+</tr>
+	<?
 	$maxExecutionTime = (isset($maxExecutionTime) ? (int)$maxExecutionTime : 0);
 ?><tr>
 	<td width="40%"><?=GetMessage('CAT_MAX_EXECUTION_TIME');?></td>
@@ -705,7 +718,7 @@ if (2 > $STEP)
 	<input type="hidden" name="ACT_FILE" value="<?echo htmlspecialcharsbx($_REQUEST["ACT_FILE"]) ?>">
 	<input type="hidden" name="ACTION" value="<?echo htmlspecialcharsbx($ACTION) ?>">
 	<input type="hidden" name="STEP" value="<?echo intval($STEP) + 1 ?>">
-	<input type="hidden" name="SETUP_FIELDS_LIST" value="V,IBLOCK_ID,SITE_ID,SETUP_SERVER_NAME,COMPANY_NAME,SETUP_FILE_NAME,XML_DATA,USE_HTTPS,FILTER_AVAILABLE,DISABLE_REFERERS,MAX_EXECUTION_TIME,CHECK_PERMISSIONS">
+	<input type="hidden" name="SETUP_FIELDS_LIST" value="V,IBLOCK_ID,SITE_ID,SETUP_SERVER_NAME,COMPANY_NAME,SETUP_FILE_NAME,XML_DATA,USE_HTTPS,FILTER_AVAILABLE,DISABLE_REFERERS,EXPORT_CHARSET,MAX_EXECUTION_TIME,CHECK_PERMISSIONS">
 	<input type="submit" value="<?echo ($ACTION=="EXPORT")?GetMessage("CET_EXPORT"):GetMessage("CET_SAVE")?>"><?
 }
 

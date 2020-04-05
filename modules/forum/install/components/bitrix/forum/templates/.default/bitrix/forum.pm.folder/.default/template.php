@@ -89,7 +89,7 @@ for ($ii = 1; $ii <= $arResult["FORUM_SystemFolder"]; $ii++):
 	$iCount++;
 ?>
 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
-				$iCount == count($arResult["USERS"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
+				$iCount == count($arResult["USER_FOLDER"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
 					<td class="forum-first-column forum-column-foldername">
 						<a href="<?=$arResult["SYSTEM_FOLDER"][$ii]["URL"]["FOLDER"]?>"><?=GetMessage("PM_FOLDER_ID_".$ii)?></a>
 					</td>
@@ -119,7 +119,7 @@ foreach ($arResult["USER_FOLDER"] as $res):
 	$iCount++;
 ?>
 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
-				$iCount == count($arResult["USERS"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
+				$iCount == count($arResult["USER_FOLDER"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
 					<td class="forum-first-column forum-column-foldername">
 						<a href="<?=$res["pm_list"]?>"><?=$res["TITLE"]?></a> 
 						<span class="folder-edit"> ( <a href="<?=$res["URL"]["EDIT"]?>"><?=GetMessage("F_EDIT")?></a> ) </span>

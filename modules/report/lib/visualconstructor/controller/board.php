@@ -38,17 +38,18 @@ class Board extends Base
 		$analyticBoardProvider = new AnalyticBoardProvider;
 		$analyticBoardProvider->addFilter('boardKey', $boardKey);
 		$analyticBoard = $analyticBoardProvider->execute()->getFirstResult();
-
-		if (!empty($analyticBoard))
+		if(!$analyticBoard)
 		{
-			$filter = $analyticBoard->getFilter();
-			$filterId = $filter->getFilterParameters()['FILTER_ID'];
-
-			$options = new Options($filterId, $filter::getPresetsList());
-			$options->setFilterSettingsArray($filter::getPresetsList());
-
+			return true;
 		}
-
+		$filter = $analyticBoard->getFilter();
+		if(!$filter)
+		{
+			return true;
+		}
+		$filterId = $filter->getFilterParameters()['FILTER_ID'];
+		$options = new Options($filterId, $filter::getPresetsList());
+		$options->setFilterSettingsArray($filter::getPresetsList());
 		return true;
 	}
 
@@ -125,7 +126,6 @@ class Board extends Base
 			return false;
 		}
 
-
 		$widget = \Bitrix\Report\VisualConstructor\Entity\Widget::getWidgetByGId($formParams['patternWidgetId']);
 
 		$copy = $widget->getCopyForCurrentUser();
@@ -153,5 +153,4 @@ class Board extends Base
 		$dashboardForUser->save();
 		return $copy->getGId();
 	}
-
 }

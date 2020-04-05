@@ -1,4 +1,6 @@
 <?
+use Bitrix\Main\Loader;
+
 class CCalendarType
 {
 	private static
@@ -271,7 +273,13 @@ class CCalendarType
 		if ((!$USER || !is_object($USER)) || $USER->CanDoOperation('edit_php'))
 			return true;
 
+		if (!$userId)
+			$userId = CCalendar::GetCurUserId();
+
 		if (($xmlId == 'group' || $xmlId == 'user' || CCalendar::IsBitrix24()) && CCalendar::IsSocNet() && CCalendar::IsSocnetAdmin())
+			return true;
+
+		if (CCalendar::IsBitrix24() && Loader::includeModule('bitrix24') && \CBitrix24::isPortalAdmin($userId))
 			return true;
 
 		return in_array($operation, self::GetOperations($xmlId, $userId));

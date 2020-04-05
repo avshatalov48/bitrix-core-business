@@ -25,7 +25,7 @@
 	{
 		var msg = BX.Landing.UI.Tool.ActionDialog.getInstance();
 		var promise = msg.show({
-			title: params.title ? params.title : null,
+			title: params.title ? params.title : BX.message('LANDING_TPL_JS_PAY_TARIFF_TITLE'),
 			content: '<div class="landing-payrate-popup-content"><span class="landing-payrate-popup-text">' +
 			params.message +
 			'</span></div>',
@@ -42,4 +42,23 @@
 				}
 			);
 	};
+
+	BX.ready(function()
+	{
+		var querySelector = document.querySelectorAll('.bitrix24-metrika');
+		if (!querySelector)
+		{
+			return;
+		}
+		for (var i = 0, c = querySelector.length; i < c; i++)
+		{
+			BX.bind(querySelector[i], 'click', function(e)
+			{
+				BX.ajax({
+					url: '/bitrix/images/1.gif?action=' + this
+				});
+			}.bind(BX.data(querySelector[i], 'metrika24')));
+		}
+	});
+
 })();

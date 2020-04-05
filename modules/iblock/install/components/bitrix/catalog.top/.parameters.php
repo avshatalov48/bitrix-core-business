@@ -137,14 +137,13 @@ $arSort = CIBlockParameters::GetElementSortFields(
 $arPrice = array();
 if ($catalogIncluded)
 {
-	$arOfferSort = array_merge($arSort, CCatalogIBlockParameters::GetCatalogSortFields());
+	$arSort = array_merge($arSort, CCatalogIBlockParameters::GetCatalogSortFields());
 	if (isset($arSort['CATALOG_AVAILABLE']))
 		unset($arSort['CATALOG_AVAILABLE']);
 	$arPrice = CCatalogIBlockParameters::getPriceTypesList();
 }
 else
 {
-	$arOfferSort = $arSort;
 	$arPrice = $arProperty_N;
 }
 
@@ -296,7 +295,7 @@ $arComponentParameters = array(
 			'PARENT' => 'SORT_SETTINGS',
 			'NAME' => GetMessage('CP_BCT_OFFERS_SORT_FIELD'),
 			'TYPE' => 'LIST',
-			'VALUES' => $arOfferSort,
+			'VALUES' => $arSort,
 			'ADDITIONAL_VALUES' => 'Y',
 			'DEFAULT' => 'sort',
 		),
@@ -312,7 +311,7 @@ $arComponentParameters = array(
 			'PARENT' => 'SORT_SETTINGS',
 			'NAME' => GetMessage('CP_BCT_OFFERS_SORT_FIELD2'),
 			'TYPE' => 'LIST',
-			'VALUES' => $arOfferSort,
+			'VALUES' => $arSort,
 			'ADDITIONAL_VALUES' => 'Y',
 			'DEFAULT' => 'id',
 		),

@@ -7,7 +7,9 @@ class CIMCall
 	{
 		$arConfig['CHAT_ID'] = intval($arParams['CHAT_ID']);
 		if ($arConfig['CHAT_ID'] <= 0)
+		{
 			return false;
+		}
 
 		global $DB, $USER;
 

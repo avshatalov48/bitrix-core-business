@@ -15,7 +15,7 @@ use Bitrix\Main\SystemException;
  */
 class Action implements Errorable
 {
-	/** @var Binder */
+	/** @var AutoWire\Binder */
 	protected $binder;
 	/** @var  ErrorCollection */
 	protected $errorCollection;
@@ -73,7 +73,7 @@ class Action implements Errorable
 	 *
 	 * @param array $arguments List of action arguments.
 	 *
-	 * @return Binder
+	 * @return AutoWire\Binder
 	 * @throws SystemException
 	 */
 	final public function setArguments(array $arguments)
@@ -114,9 +114,9 @@ class Action implements Errorable
 		{
 			/** @see Action::run */
 			$result = $binder->invoke();
-				
+
 			$this->onAfterRun();
-			
+
 			return $result;
 		}
 
@@ -124,7 +124,7 @@ class Action implements Errorable
 	}
 
 	/**
-	 * @return Binder
+	 * @return AutoWire\Binder
 	 */
 	final public function getBinder()
 	{

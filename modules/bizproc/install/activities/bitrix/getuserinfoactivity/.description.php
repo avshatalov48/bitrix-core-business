@@ -51,6 +51,10 @@ $arActivityDescription = [
 			'NAME' => GetMessage('BPGUIA_USER_WORK_POSITION'),
 			'TYPE' => 'string',
 		],
+		'USER_PERSONAL_BIRTHDAY' => [
+			'NAME' => GetMessage('BPGUIA_USER_PERSONAL_BIRTHDAY'),
+			'TYPE' => 'date',
+		],
 		'USER_PERSONAL_WWW' => [
 			'NAME' => GetMessage('BPGUIA_USER_PERSONAL_WWW'),
 			'TYPE' => 'string',

@@ -7,10 +7,10 @@ namespace Bitrix\Sale\Controller;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
 use Bitrix\Sale\PaymentCollection;
+use Bitrix\Sale;
 use Bitrix\Sale\Result;
 
 class Payment extends Controller
@@ -18,21 +18,31 @@ class Payment extends Controller
 	public function getPrimaryAutoWiredParameter()
 	{
 		return new ExactParameter(
-			\Bitrix\Sale\Payment::class,
+			Sale\Payment::class,
 			'payment',
 			function($className, $id) {
 
-				$r = \Bitrix\Sale\Payment::getList([
+				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var Sale\Payment $paymentClass */
+				$paymentClass = $registry->getPaymentClassName();
+
+				$r = $paymentClass::getList([
 					'select'=>['ORDER_ID'],
 					'filter'=>['ID'=>$id]
 				]);
 
 				if($row = $r->fetch())
 				{
-					$order = \Bitrix\Sale\Order::load($row['ORDER_ID']);
+					/** @var Sale\Order $orderClass */
+					$orderClass = $registry->getOrderClassName();
+
+					$order = $orderClass::load($row['ORDER_ID']);
 					$payment = $order->getPaymentCollection()->getItemById($id);
-					if($payment instanceof \Bitrix\Sale\Payment)
+					if ($payment)
+					{
 						return $payment;
+					}
 				}
 				else
 				{

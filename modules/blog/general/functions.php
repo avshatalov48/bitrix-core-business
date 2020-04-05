@@ -8,6 +8,7 @@ class blogTextParser extends CTextParser
 	public $pathToUserEntityId = false;
 	public $pathToUserEntityType = false;
 	public $smilesGallery = 0;
+	public $maxStringLen = 100;
 	
 	private $arImages = array();
 	
@@ -174,15 +175,19 @@ class blogTextParser extends CTextParser
 		$text = preg_replace(
 			array(
 				"/\[(\/?)(code|quote)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/is".BX_UTF_PCRE_MODIFIER
+				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\\[(table)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\\[\\/table(.*?)\\]/is".BX_UTF_PCRE_MODIFIER
 			),
 			array(
 				"",
-				"\\1"
+				"\\1",
+				"\n",
+				"\n",
 			),
 			$text
 		);
-		
+
 		return $this->convert4mail($text, $arImages);
 	}
 	
@@ -476,38 +481,13 @@ class blogTextParser extends CTextParser
 		$userId = (!empty($fields['USER_ID']) ? $fields['USER_ID'] : '');
 		$userName = (!empty($fields['USER_NAME']) ? $fields['USER_NAME'] : '');
 
-		$ajaxPage = $this->ajaxPage;
-
-		if (
-			$this->pathToUserEntityType && strlen($this->pathToUserEntityType) > 0
-			&& intval($this->pathToUserEntityId) > 0
-		)
-		{
-			$ajaxPage = $ajaxPage.(strpos($pathToUser, '?') === false ? '?' : '&').'entityType='.$this->pathToUserEntityType.'&entityId='.intval($this->pathToUserEntityId);
-		}
-
 		$anchorId = RandString(8);
 		
-		if($this->allow["USER_LINK"] == "N")
-		{
-			$res = $userName;
-		}
-		else
-		{
-			$res = (
-				!$this->bPublic
-					? '<a class="blog-p-user-name' . $classAdditional . '"'.
-						' id="bp_'.$anchorId.'"'.
-						' href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'"'.
-						' bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.
-					'>'
-					: ''
-				) .
-				$userName .
-				(!$this->bPublic ? '</a>' : '');
-		}
-
-		return $res;
+		return (
+			$this->allow["USER_LINK"] == "N"
+				? $userName
+				: '<a class="blog-p-user-name' . $classAdditional . '" id="bp_'.$anchorId.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'">'.$userName.'</a>'
+		);
 	}
 	
 	private static function getEditorDefaultFeatures()

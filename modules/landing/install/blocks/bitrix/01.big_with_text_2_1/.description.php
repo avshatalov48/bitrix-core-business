@@ -10,6 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_NAME'),
 		'section' => array('cover'),
+		'dynamic' => false,
 	),
 	'nodes' => array(
 		'.landing-block-title' => array(
@@ -24,12 +25,16 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-wo-background-height-vh'),
+			'type' => array('block-default-wo-background-height-vh', 'background-attachment', 'background-overlay'),
 		),
 		'nodes' => array(
 			'.landing-block-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_STYLE_LANDINGBLOCKTITLE'),
 				'type' => array('typo', 'animation'),
+			),
+			'.landing-block-background' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_BACKGROUND'),
+				'type' => array('background-overlay'),
 			),
 		),
 	),

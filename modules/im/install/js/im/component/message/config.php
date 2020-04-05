@@ -16,6 +16,9 @@ return [
 		'im.component.message.body',
 		'im.model',
 		'ui.vue',
+		'im.const',
+		'im.utils',
+		'im.tools.animation',
 	],
 	'skip_core' => true,
 ];

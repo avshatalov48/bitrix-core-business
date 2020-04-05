@@ -1,49 +1,51 @@
-<div class="bx-s-info">
-	<div class="bx-block-title">Полезная информация</div>
+<div class="mb-5">
+	<h3>Полезная информация</h3>
+	<div class="p-3 mb-2 bg-light text-dark rounded">
 
-	<a href="#SITE_DIR#about/" class="bx-s-info-block">
-		<div class="bx-s-info-title">
-			<div class="bx-s-info-titleicon"><i class="fa fa-shopping-cart"></i></div>
-			<div class="bx-s-info-titletext">О магазине</div>
+		<div class="mb-3">
+			<div class="pb-2 d-flex align-items-center">
+				<div class="sidebar-icon sidebar-icon-label"></div>
+				<h4 class="m-0">О магазине</h4>
+			</div>
+			<div style="font-size: .8rem;">Узнайте больше о нашем магазине: кто мы, наши клиенты и почему они выбрали именно нас. Наши контакты и реквизиты. <br><a href="#SITE_DIR#about/">Подробнее</a>
+			</div>
 		</div>
-		<div class="bx-s-info-content">
-			Узнайте больше о нашем магазине: кто мы, наши клиенты и почему они выбрали именно нас. Наши контакты и реквизиты.
+
+		<div class="mb-3">
+			<div class="pb-2 d-flex align-items-center">
+				<div class="sidebar-icon sidebar-icon-delivery"></div>
+				<h4 class="m-0">Доставка</h4>
+			</div>
+			<div style="font-size: .8rem;">Доставим ваш заказ в любой регион России, в удобное время и день. Работаем для вас, без выходных. <br><a href="#SITE_DIR#about/delivery/">Подробнее</a>
+			</div>
 		</div>
-	</a>
-	<a href="#SITE_DIR#about/delivery/" class="bx-s-info-block">
-		<div class="bx-s-info-title">
-			<div class="bx-s-info-titleicon"><i class="fa fa-truck"></i></div>
-			<div class="bx-s-info-titletext">Доставка</div>
+
+		<div class="mb-3">
+			<div class="pb-2 d-flex align-items-center">
+				<div class="sidebar-icon sidebar-icon-self"></div>
+				<h4 class="m-0">Мы гарантируем</h4>
+			</div>
+			<div style="font-size: .8rem;">Мы гордимся безупречной репутацией нашего магазина. Если товар не устроит вас, вы всегда сможете вернуть деньги. <br><a href="#SITE_DIR#about/guaranty/">Подробнее</a>
+			</div>
 		</div>
-		<div class="bx-s-info-content">
-			Доставим ваш заказ в любой регион России, в удобное время и день. Работаем для вас, без выходных.
+
+		<div class="mb-3">
+			<div class="pb-2 d-flex align-items-center">
+				<div class="sidebar-icon sidebar-icon-sale"></div>
+				<h4 class="m-0">Как купить</h4>
+			</div>
+			<div style="font-size: .8rem;">Ваш первый заказ в интернет-магазине? Мы с радостью подскажем как сделать покупки в интернете простыми и удобными. <br><a href="#SITE_DIR#about/howto/">Подробнее</a>
+			</div>
 		</div>
-	</a>
-	<a href="#SITE_DIR#about/guaranty/" class="bx-s-info-block">
-		<div class="bx-s-info-title">
-			<div class="bx-s-info-titleicon"><i class="fa fa-thumbs-up"></i></div>
-			<div class="bx-s-info-titletext">Мы гарантируем</div>
+
+		<div>
+			<div class="pb-2 d-flex align-items-center">
+				<div class="sidebar-icon sidebar-icon-phone"></div>
+				<h4 class="m-0">Всегда на связи</h4>
+			</div>
+			<div style="font-size: .8rem;">Связаться с нами можно любым удобным для вас способом: e-mail, телефон, социальные сети и мессенджеры. <br><a href="#SITE_DIR#about/howto/">Подробнее</a>
+			</div>
 		</div>
-		<div class="bx-s-info-content">
-			Мы гордимся безупречной репутацией нашего магазина. Если товар не устроит вас, вы всегда сможете вернуть деньги.
-		</div>
-	</a>
-	<a href="#SITE_DIR#about/howto/" class="bx-s-info-block">
-		<div class="bx-s-info-title">
-			<div class="bx-s-info-titleicon"><i class="fa fa-question-circle"></i></div>
-			<div class="bx-s-info-titletext">Как купить</div>
-		</div>
-		<div class="bx-s-info-content">
-			Ваш первый заказ в интернет-магазине? Мы с радостью подскажем как сделать покупки в интернете простыми и удобными.
-		</div>
-	</a>
-	<a href="#SITE_DIR#about/contacts/" class="bx-s-info-block">
-		<div class="bx-s-info-title">
-			<div class="bx-s-info-titleicon"><i class="fa fa-info"></i></div>
-			<div class="bx-s-info-titletext">Всегда на связи</div>
-		</div>
-		<div class="bx-s-info-content">
-			Связаться с нами можно любым удобным для вас способом: e-mail, телефон, социальные сети и мессенджеры.
-		</div>
-	</a>
+	</div>
+
 </div>

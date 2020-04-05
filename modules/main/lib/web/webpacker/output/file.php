@@ -3,8 +3,10 @@
 namespace Bitrix\Main\Web\WebPacker\Output;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Error;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\WebPacker;
+use Bitrix\Main\Web\MimeType;
 
 /**
  * Class File
@@ -15,8 +17,10 @@ class File extends Base
 {
 	protected $id;
 	protected $moduleId;
+	protected $uploadDir;
 	protected $dir;
 	protected $name;
+	protected $type;
 	protected $content;
 
 	/**
@@ -46,15 +50,17 @@ class File extends Base
 		{
 			throw new SystemException('File name is empty.');
 		}
-		if (!$this->dir)
-		{
-			throw new SystemException('File directory is empty.');
-		}
 
 		$content = $builder->stringify();
 		$id = $this->saveFile($content);
 
-		return (new Result())->setId($id)->setContent($content);
+		$result = (new Result())->setId($id)->setContent($content);
+		if (!$id)
+		{
+			$result->addError(new Error('Empty file ID.'));
+		}
+
+		return $result;
 	}
 
 	/**
@@ -82,6 +88,16 @@ class File extends Base
 	}
 
 	/**
+	 * Get file ID.
+	 *
+	 * @return int|null
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	/**
 	 * Set module ID.
 	 *
 	 * @param string $moduleId Bitrix module ID.
@@ -90,6 +106,18 @@ class File extends Base
 	public function setModuleId($moduleId)
 	{
 		$this->moduleId = $moduleId;
+		return $this;
+	}
+
+	/**
+	 * Set upload directory.
+	 *
+	 * @param string $uploadDir Upload directory.
+	 * @return $this
+	 */
+	public function setUploadDir($uploadDir)
+	{
+		$this->uploadDir = $uploadDir;
 		return $this;
 	}
 
@@ -114,6 +142,18 @@ class File extends Base
 	public function setName($name)
 	{
 		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * Set type.
+	 *
+	 * @param string $type Content type.
+	 * @return $this
+	 */
+	public function setType($type)
+	{
+		$this->type = $type;
 		return $this;
 	}
 
@@ -157,7 +197,7 @@ class File extends Base
 			return $uri;
 		}
 
-		$uploadDir = Option::get("main", "upload_dir", "upload");
+		$uploadDir = $this->uploadDir ?: Option::get("main", "upload_dir", "upload");
 		return WebPacker\Builder::getDefaultSiteUri() .
 			'/' . $uploadDir .
 			'/' . $file['SUBDIR'] .
@@ -168,20 +208,43 @@ class File extends Base
 	{
 		$this->remove();
 
+		$type = $this->type;
+		if (!$type && $this->name)
+		{
+			$type = static::getMimeTypeByFileName($this->name);
+		}
+
 		$fileArray = [
 			'MODULE_ID' => $this->moduleId,
 			'name' => $this->name,
 			'content' => $content
 		];
 
+		if ($type)
+		{
+			$fileArray['type'] = $type;
+		}
+
 		$this->id = \CFile::SaveFile(
 			$fileArray,
 			$this->moduleId,
 			false,
 			false,
-			$this->dir
+			$this->dir ?: ''
 		);
 
 		return $this->id;
+	}
+
+	protected static function getMimeTypeByFileName($fileName)
+	{
+		$extension = strtolower(getFileExtension($fileName));
+		$list = MimeType::getMimeTypeList();
+		if (isset($list[$extension]))
+		{
+			return $list[$extension];
+		}
+
+		return 'text/plain';
 	}
 }

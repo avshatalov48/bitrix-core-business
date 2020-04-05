@@ -78,7 +78,7 @@
 		this.fields = new BaseCollection();
 
 		this.button = new BX.Landing.UI.Button.BaseButton("dropdown_button", {
-			text: BX.message("LINK_URL_SUGGESTS_SELECT"),
+			text: BX.Landing.Loc.getMessage("LINK_URL_SUGGESTS_SELECT"),
 			className: "landing-ui-button-select-link",
 			onClick: this.onButtonClick.bind(this)
 		});
@@ -106,8 +106,9 @@
 		this.onInputClick = this.onInputClick.bind(this);
 		this.onCheckboxChange = this.onCheckboxChange.bind(this);
 
+		var rootWindow = BX.Landing.PageObject.getRootWindow();
 		bind(this.input, "click", this.onInputClick);
-		bind(top.document, "click", this.onDocumentClick.bind(this));
+		bind(rootWindow.document, "click", this.onDocumentClick.bind(this));
 
 		requestAnimationFrame(function() {
 			addPlaceholders(this.items, this, 0);

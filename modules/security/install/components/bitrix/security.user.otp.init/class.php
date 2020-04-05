@@ -8,8 +8,7 @@ use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
-class CSecurityUserOtpInit
-	extends CBitrixComponent
+class CSecurityUserOtpInit extends CBitrixComponent
 {
 	public function onPrepareComponentParams($arParams)
 	{
@@ -26,6 +25,14 @@ class CSecurityUserOtpInit
 			$result['SUCCESSFUL_URL'] = '/';
 		}
 
+		if (isset($arParams["REDIRECT_AFTER_CONNECTION"]))
+		{
+			$result["REDIRECT_AFTER_CONNECTION"] = $arParams["REDIRECT_AFTER_CONNECTION"] === "Y" ? "Y" : "N";
+		}
+		else
+		{
+			$result["REDIRECT_AFTER_CONNECTION"] = "Y";
+		}
 
 		if (
 			$arParams['SHOW_DESCRIPTION']
@@ -49,7 +56,7 @@ class CSecurityUserOtpInit
 
 		if (
 			$this->request->isPost()
-			&& $this->request['action']
+			&& $this->request['otpAction']
 		)
 		{
 			// try to connect
@@ -100,6 +107,7 @@ class CSecurityUserOtpInit
 		$result['APP_SECRET_SPACED'] = chunk_split($result['APP_SECRET'], 4, ' ');
 		$result['PROVISION_URI'] = $otp->getProvisioningUri();
 		$result['SUCCESSFUL_URL'] = $this->arParams['SUCCESSFUL_URL'];
+		$result['REDIRECT_AFTER_CONNECTION'] = $this->arParams['REDIRECT_AFTER_CONNECTION'];
 		$result['TWO_CODE_REQUIRED'] = $otp->getAlgorithm()->isTwoCodeRequired();
 		$result['OTP'] = $otp;
 

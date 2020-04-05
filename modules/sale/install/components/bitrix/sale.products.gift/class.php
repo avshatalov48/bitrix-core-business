@@ -5,6 +5,7 @@ use \Bitrix\Main;
 use \Bitrix\Main\Error;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Iblock\Component\ElementList;
+use \Bitrix\Sale;
 
 Loc::loadMessages(__FILE__);
 
@@ -134,8 +135,13 @@ class SaleProductsGiftComponent extends ElementList
 				'QUANTITY' => true,
 			));
 
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+			/** @var Sale\Basket $basketClass */
+			$basketClass = $registry->getBasketClassName();
+
 			$collections = $this->giftManager->getCollectionsByProduct(
-				\Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId()), $potentialBuy
+				$basketClass::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), $this->getSiteId()), $potentialBuy
 			);
 		}
 

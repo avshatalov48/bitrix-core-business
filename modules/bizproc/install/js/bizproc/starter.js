@@ -126,7 +126,7 @@
 			{
 				template = this.templates[i];
 				menuItem = {
-					text: template['name'],
+					text: BX.util.htmlspecialchars(template['name']),
 					template: template,
 					title: template['description'],
 					onclick: onMenuClick

@@ -120,60 +120,62 @@ $actions[] = Controller\Action::create('importList')->setHandler(
 
 
 		// insert contacts
-		if (count($updateList) === 0)
+		if (count($updateList) > 0)
 		{
-			return;
-		}
 
-		$onDuplicateUpdateFields = array(
-			'NAME',
-			array(
-				'NAME' => 'BLACKLISTED',
-				'VALUE' => $isBlacklist ? "'Y'" : "'N'"
-			),
-			array(
-				'NAME' => 'DATE_UPDATE',
-				'VALUE' => $sqlHelper->convertToDbDateTime(new DateTime())
-			)
-		);
-		foreach (SqlBatch::divide($updateList) as $list)
-		{
-			SqlBatch::insert(
-				ContactTable::getTableName(),
-				$list,
-				$onDuplicateUpdateFields
+			$onDuplicateUpdateFields = array(
+				'NAME',
+				array(
+					'NAME' => 'BLACKLISTED',
+					'VALUE' => $isBlacklist ? "'Y'" : "'N'"
+				),
+				array(
+					'NAME' => 'DATE_UPDATE',
+					'VALUE' => $sqlHelper->convertToDbDateTime(new DateTime())
+				)
 			);
+			foreach (SqlBatch::divide($updateList) as $list)
+			{
+				SqlBatch::insert(
+					ContactTable::getTableName(),
+					$list,
+					$onDuplicateUpdateFields
+				);
+			}
 		}
 
 		// insert contacts & lists
 		if ($listId)
 		{
-			$codesByType = array();
-			foreach ($updateList as $updateItem)
+			if (count($updateList) > 0)
 			{
-				$typeId = $updateItem['TYPE_ID'];
-				if (!is_array($codesByType[$typeId]))
+				$codesByType = array();
+				foreach ($updateList as $updateItem)
 				{
-					$codesByType[$typeId] = array();
-				}
+					$typeId = $updateItem['TYPE_ID'];
+					if (!is_array($codesByType[$typeId]))
+					{
+						$codesByType[$typeId] = array();
+					}
 
-				$codesByType[$typeId][] = $updateItem['CODE'];
-			}
-			foreach ($codesByType as $typeId => $allCodes)
-			{
-				$typeId = (int) $typeId;
-				$listId = (int) $listId;
-				$contactTableName = ContactTable::getTableName();
-				$contactListTableName = ContactListTable::getTableName();
-				foreach (SqlBatch::divide($allCodes) as $codes)
+					$codesByType[$typeId][] = $updateItem['CODE'];
+				}
+				foreach ($codesByType as $typeId => $allCodes)
 				{
-					$codes = SqlBatch::getInString($codes);
-					$sql = "INSERT IGNORE $contactListTableName ";
-					$sql .="(CONTACT_ID, LIST_ID) ";
-					$sql .="SELECT ID AS CONTACT_ID, $listId as LIST_ID ";
-					$sql .="FROM $contactTableName ";
-					$sql .="WHERE TYPE_ID=$typeId AND CODE in ($codes)";
-					Application::getConnection()->query($sql);
+					$typeId = (int)$typeId;
+					$listId = (int)$listId;
+					$contactTableName = ContactTable::getTableName();
+					$contactListTableName = ContactListTable::getTableName();
+					foreach (SqlBatch::divide($allCodes) as $codes)
+					{
+						$codes = SqlBatch::getInString($codes);
+						$sql = "INSERT IGNORE $contactListTableName ";
+						$sql .= "(CONTACT_ID, LIST_ID) ";
+						$sql .= "SELECT ID AS CONTACT_ID, $listId as LIST_ID ";
+						$sql .= "FROM $contactTableName ";
+						$sql .= "WHERE TYPE_ID=$typeId AND CODE in ($codes)";
+						Application::getConnection()->query($sql);
+					}
 				}
 			}
 

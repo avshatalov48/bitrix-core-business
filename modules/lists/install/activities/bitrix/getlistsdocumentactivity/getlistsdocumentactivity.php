@@ -33,7 +33,15 @@ class CBPGetListsDocumentActivity
 	public function Execute()
 	{
 		$documentType = $this->DocumentType;
-		$documentId = [$documentType[0], $documentType[1], $this->ElementId];
+		$elementId = $this->ElementId;
+
+		//check for Multiple values
+		if (is_array($elementId))
+		{
+			$elementId = array_shift($elementId);
+		}
+
+		$documentId = [$documentType[0], $documentType[1], $elementId];
 
 		$documentService = $this->workflow->GetService("DocumentService");
 

@@ -2,6 +2,8 @@
 namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Context;
+use Bitrix\Main\Text;
 use Bitrix\Main\Error;
 use Bitrix\Main\IO;
 use Bitrix\Main\Localization\Loc;
@@ -28,15 +30,6 @@ abstract class BaseServiceHandler
 	
 	/** @var bool */
 	protected $isClone = false;
-
-	/**
-	 * @param Payment $payment
-	 * @param Request|null $request
-	 */
-	public function preInitiatePay(Payment $payment, Request $request = null)
-	{
-		return;
-	}
 
 	/**
 	 * @param Payment $payment
@@ -76,6 +69,12 @@ abstract class BaseServiceHandler
 			if ($this->initiateMode == self::STREAM)
 			{
 				require($templatePath);
+
+				if ($this->service->getField('ENCODING') != '')
+				{
+					define("BX_SALE_ENCODING", $this->service->getField('ENCODING'));
+					AddEventHandler('main', 'OnEndBufferContent', array($this, 'OnEndBufferContent'));
+				}
 			}
 			elseif ($this->initiateMode == self::STRING)
 			{
@@ -86,6 +85,12 @@ abstract class BaseServiceHandler
 				if (strlen($buffer) > 0)
 					$content = $buffer;
 
+				if ($this->service->getField('ENCODING') != '')
+				{
+					$encoding = Context::getCurrent()->getCulture()->getCharset();
+					$content = Text\Encoding::convertEncoding($content, $encoding, $this->service->getField('ENCODING'));
+				}
+
 				$result->setTemplate($content);
 				ob_end_clean();
 			}
@@ -93,12 +98,6 @@ abstract class BaseServiceHandler
 		else
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_PS_BASE_SERVICE_TEMPLATE_ERROR')));
-		}
-
-		if ($this->service->getField('ENCODING') != '')
-		{
-			define("BX_SALE_ENCODING", $this->service->getField('ENCODING'));
-			AddEventHandler('main', 'OnEndBufferContent', array($this, 'OnEndBufferContent'));
 		}
 
 		return $result;
@@ -247,14 +246,6 @@ abstract class BaseServiceHandler
 	public function debitNoDemand(Payment $payment)
 	{
 		return new ServiceResult();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAffordPdf()
-	{
-		return false;
 	}
 
 	/**

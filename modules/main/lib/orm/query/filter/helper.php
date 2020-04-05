@@ -8,7 +8,7 @@
 
 namespace Bitrix\Main\ORM\Query\Filter;
 
-use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Text;
 
 /**
  * Filter helper for specific values preparation.
@@ -23,24 +23,24 @@ class Helper
 	/**
 	 * Places + and * for each word in a phrase.
 	 *
-	 * @param $phrase
+	 * @param string $phrase
+	 * @param string $wildcard '*' or '' actually
 	 *
 	 * @return string
 	 */
-	public static function matchAgainstWildcard($phrase)
+	public static function matchAgainstWildcard($phrase, $wildcard = '*')
 	{
-		$config = \Bitrix\Main\Application::getConnection()->getConfiguration();
-		$ftMinTokenSize = isset($config['ft_min_token_size']) ? $config['ft_min_token_size'] : static::FT_MIN_TOKEN_SIZE;
+		$ftMinTokenSize = static::getMinTokenSize();
 
 		$orValues = array();
-		$wildcard = '*';
 
 		//split to words by any non-word symbols
 		$andValues = static::splitWords($phrase);
 
 		if(!empty($andValues))
 		{
-			$andValues = array_filter($andValues,
+			$andValues = array_filter(
+				$andValues,
 				function($val) use ($ftMinTokenSize)
 				{
 					return (strlen($val) >= $ftMinTokenSize);
@@ -61,6 +61,9 @@ class Helper
 		return '';
 	}
 
+	/**
+	 * @return int
+	 */
 	public static function getMinTokenSize()
 	{
 		static $ftMinTokenSize = null;
@@ -72,23 +75,34 @@ class Helper
 		return $ftMinTokenSize;
 	}
 
-	protected static function splitWords($string)
+	/**
+	 * Splits a string to words by any non-word symbols.
+	 * @param $string
+	 * @return array
+	 */
+	public static function splitWords($string)
 	{
 		static $encoding = null;
 		if($encoding === null)
 		{
-			$encoding = \Bitrix\Main\Context::getCurrent()->getCulture()->getCharset();
+			$encoding = strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
 		}
 
-		if($encoding <> "UTF-8")
+		if($encoding <> "utf-8")
 		{
-			$string = Encoding::convertEncoding($string, $encoding, "UTF-8");
+			$string = Text\Encoding::convertEncoding($string, $encoding, "UTF-8");
+		}
+		else
+		{
+			//mysql [1064] syntax error, unexpected $end
+			$string = Text\UtfSafeString::escapeInvalidUtf($string);
 		}
 
 		//split to words by any non-word symbols
 		$values = preg_split("/[^\\p{L}\\d_]/u", $string);
 
-		$values = array_filter($values,
+		$values = array_filter(
+			$values,
 			function($val)
 			{
 				return ($val <> '');
@@ -96,9 +110,9 @@ class Helper
 		);
 		$values = array_unique($values);
 
-		if($encoding <> "UTF-8")
+		if($encoding <> "utf-8")
 		{
-			$values = Encoding::convertEncoding($values, "UTF-8", $encoding);
+			$values = Text\Encoding::convertEncoding($values, "UTF-8", $encoding);
 		}
 		return $values;
 	}

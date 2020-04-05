@@ -98,3 +98,4 @@ if (substr($arImg["SUBDIR"], 0, strlen("bizproc_wf/")) != "bizproc_wf/"
 set_time_limit(0);
 
 CFile::ViewByUser($arImg, $options);
+\Bitrix\Main\Application::getInstance()->end();

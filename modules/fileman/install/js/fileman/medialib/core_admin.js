@@ -1112,8 +1112,10 @@ BXMedialibAdmin.prototype =
 
 		// Link
 		//D.pLink.href = oItem.path;
+
 		D.pLink.onclick = function () {
-			if(oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external)
+
+			if(oItem.path_external && (oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external))
 			{
 				var link = oItem.path_external
 			}
@@ -1125,7 +1127,7 @@ BXMedialibAdmin.prototype =
 		};
 
 		D.pCopyLink.onclick = function() {
-			if(oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external)
+			if(oItem.path_external && (oItem.path.substr(0,1) !== '/' || oItem.path !== oItem.path_external))
 			{
 				D.pCopyInput.value = oItem.path_external;
 			}

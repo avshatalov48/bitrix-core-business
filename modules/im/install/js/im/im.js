@@ -14,7 +14,7 @@ BX.IM = function(domNode, params)
 	this.mobileVersion = false;
 	this.mobileAction = 'none';
 
-	this.revision = 122; // api version - im/lib/revision.php
+	this.revision = 124; // api version - im/lib/revision.php
 	this.ieVersion = BX.browser.DetectIeVersion();
 	this.errorMessage = '';
 	this.animationSupport = true;
@@ -70,6 +70,7 @@ BX.IM = function(domNode, params)
 	this.settingsLevelMeter = null;
 	this.saveSettingsTimeout = {};
 	this.popupSettings = null;
+
 	if (params.users && params.users[this.userId])
 		params.users[this.userId].status = this.settings.status;
 
@@ -161,11 +162,21 @@ BX.IM = function(domNode, params)
 			this.windowTitle = this.bitrixIntranet? (!BX.browser.IsMac()? BX.message('IM_DESKTOP_B24_TITLE'): BX.message('IM_DESKTOP_B24_OSX_TITLE')): BX.message('IM_WM');
 			BX.desktop.setWindowTitle(this.windowTitle);
 
-			if (!BX.MessengerCommon.isSliderBindingsEnable())
+			if (BX.MessengerCommon.isSliderBindingsEnable())
+			{
+				if (this.desktop.sliderStatus())
+				{
+					BX.SidePanel.Instance.enableAnchorBinding();
+				}
+				else
+				{
+					BX.SidePanel.Instance.disableAnchorBinding();
+				}
+			}
+			else
 			{
 				BX.SidePanel.Instance.anchorRules = [];
 			}
-
 		}
 		else
 		{
@@ -963,6 +974,7 @@ BX.IM.prototype.openSettings = function(params)
 			{'title': BX.message('IM_M_RICH_LINK_ON'), 'type': 'checkbox', 'name':'enableRichLink', 'checked': this.settings.enableRichLink},
 			{'title': BX.message('IM_M_ENABLE_SOUND'), 'type': 'checkbox', 'name':'enableSound', 'checked': this.settings.enableSound},
 			BX.MessengerCommon.isDesktop()? {'title': BX.message('IM_M_ENABLE_BIRTHDAY'), 'type': 'checkbox', 'checked': this.desktop.birthdayStatus(), 'callback': BX.delegate(function(){ this.desktop.birthdayStatus(!this.desktop.birthdayStatus()); }, this)}: null,
+			BX.MessengerCommon.isDesktop() && BX.MessengerCommon.isSliderBindingsEnable()? {'title': BX.message('IM_M_ENABLE_SLIDER'), 'type': 'checkbox', 'checked': this.desktop.sliderStatus(), 'callback': BX.delegate(function(){ this.desktop.sliderStatus(!this.desktop.sliderStatus()); }, this)}: null,
 			{'title': BX.message('IM_M_KEY_SEND'), 'type': 'select', 'name':'sendByEnter', 'value': this.settings.sendByEnter?'Y':'N', items: [{title: (BX.browser.IsMac()? "&#8984;+Enter": "Ctrl+Enter"), value: 'N'}, {title: 'Enter', value: 'Y'}], 'saveCallback': BX.delegate(function(element) { return element[element.selectedIndex].value == 'Y'; }, this)},
 			//this.language=='ru' && BX.correctText? {'title': BX.message('IM_M_AUTO_CORRECT'), 'type': 'checkbox', 'name':'correctText', 'checked': this.settings.correctText }: null,
 			{'type': 'space'},
@@ -1074,7 +1086,7 @@ BX.IM.prototype.openSettings = function(params)
 		this.popupSettings = new BX.PopupWindow('bx-messenger-popup-settings', null, {
 			//parentPopup: this.messenger.popupMessenger,
 			autoHide: false,
-			zIndex: 200,
+			zIndex: BX.MessengerCommon.getDefaultZIndex() + 200,
 			overlay: {opacity: 50, backgroundColor: "#000000"},
 			buttons: [this.popupSettingsButtonSave, this.popupSettingsButtonClose],
 			draggable: {restrict: true},
@@ -1498,6 +1510,20 @@ BX.IM.prototype.showHardwareSettings = function()
 	};
 
 	var isHttps = window.location.protocol === "https:";
+
+	if(!navigator.mediaDevices)
+	{
+		elements.error.appendChild(BX.create("div", {
+			props: {className: "ui-alert ui-alert-icon-danger"},
+			children: [
+				BX.create("span", {
+					props: {className: "ui-alert-message"},
+					text: BX.message("IM_SETTINGS_HARDWARE_ERROR") + (isHttps ? "" : " " + BX.message("IM_SETTINGS_HARDWARE_USE_HTTPS"))
+				})
+			]
+		}));
+		return;
+	}
 
 	navigator.mediaDevices.enumerateDevices().then(function(devices)
 	{
@@ -2068,7 +2094,7 @@ BX.IM.prototype.openConfirm = function(text, buttons, modal)
 	}
 	this.popupConfirm = new BX.PopupWindow('bx-notifier-popup-confirm', null, {
 		//parentPopup: this.messenger.popupMessenger,
-		zIndex: 15000,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+1000,
 		autoHide: buttons === false,
 		buttons : buttons,
 		closeByEsc: buttons === false,
@@ -2854,9 +2880,20 @@ BX.MessengerNotify.prototype.newNotify = function(send)
 			arNotify.push(notify);
 
 			notify = this.notify[arNotifySort[i]];
+
+			var messageText = BX.util.htmlspecialcharsback(notify.text);
+			messageText = messageText.split('<br />').join("\n");
+			messageText = messageText.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, function(whole, userId, text) {return text;});
+			messageText = messageText.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function(whole, imol, chatId, text) {return text;});
+			messageText = messageText.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, function(whole, historyId, text) {return text;});
+			messageText = messageText.replace(/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/ig, function(whole, command, text) {return text? text: command;});
+			messageText = messageText.replace(/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/ig, function(whole, command, text) {return text? text: command;});
+			messageText = messageText.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, function(whole, command, text) {return text? text: command;});
+			messageText = messageText.replace(/\[ATTACH=([0-9]{1,})\]/ig, function(whole, historyId, text) {return '';});
+
 			arNotifyText.push({
 				'title':  notify.userName? BX.util.htmlspecialcharsback(notify.userName): BX.message('IM_NOTIFY_WINDOW_NEW_TITLE'),
-				'text':  BX.util.htmlspecialcharsback(notify.text).split('<br />').join("\n").replace(/<\/?[^>]+>/gi, ''),
+				'text':  messageText.split('<br />').join("\n").replace(/<\/?[^>]+>/gi, ''),
 				'icon':  notify.userAvatar? notify.userAvatar: '',
 				'tag':  'im-notify-'+notify.tag
 			});
@@ -2912,27 +2949,48 @@ BX.MessengerNotify.prototype.newNotify = function(send)
 
 	if (send && BX.MessengerCommon.isDesktop())
 	{
-		for (var i = 0; i < arNotify.length; i++)
+		if (!document.hasFocus() && BX.desktop.getLocalConfig('nativeNotify', false) && BX.browser.IsMac())
 		{
-			var dataNotifyId = arNotify[i].getAttribute("data-notifyId");
-			var messsageJs =
-				'var notify = BX.findChildByClassName(document.body, "bx-notifier-item");'+
-				'BX.bind(BX.findChildByClassName(notify, "bx-notifier-item-delete"), "click", function(event){ if (this.getAttribute("data-notifyType") != 1) { BX.desktop.onCustomEvent("main", "bxImClickCloseNotify", [this.getAttribute("data-notifyId")]); } BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });'+
-				(arNotify[i].id>0? '': 'BX.bind(notify, "click", function(event){ BX.desktop.onCustomEvent("main", "bxImClickNotify", []); BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });')+
-				'BX.bindDelegate(notify, "click", {className: "bx-notifier-item-button"}, BX.delegate(function(){ '+
-					'BX.desktop.windowCommand("freeze");'+
-					'notifyId = BX.proxy_context.getAttribute("data-id");'+
-					'BXIM.notify.confirmRequest({'+
-						'"notifyId": notifyId,'+
-						'"notifyValue": BX.proxy_context.getAttribute("data-value"),'+
-						'"notifyURL": BX.proxy_context.getAttribute("data-url"),'+
-						'"notifyTag": BXIM.notify.notify[notifyId] && BXIM.notify.notify[notifyId].tag? BXIM.notify.notify[notifyId].tag: null,'+
-						'"groupDelete": BX.proxy_context.getAttribute("data-group") == null? false: true,'+
-					'}, true);'+
-					'BX.desktop.onCustomEvent("main", "bxImClickConfirmNotify", [notifyId]); '+
-				'}, BXIM.notify));'+
-				'BX.bind(notify, "contextmenu", function(){ BX.desktop.windowCommand("close")});';
-			this.desktop.openNewNotify(dataNotifyId, arNotify[i], messsageJs);
+			for (var i = 0; i < arNotifyText.length; i++)
+			{
+				var title = arNotifyText[i].title;
+				var text = arNotifyText[i].text;
+				var icon = '';
+				if (arNotifyText[i].icon)
+				{
+					icon = arNotifyText[i].icon.toString().startsWith('http')? arNotifyText[i].icon: location.origin+'/'+arNotifyText[i].icon;
+				}
+				if (BX.MessengerCommon.isBlankAvatar(icon))
+				{
+					icon = '';
+				}
+				BXDesktopSystem.Notify(title, '', text, encodeURI(icon));
+			}
+		}
+		else
+		{
+			for (var i = 0; i < arNotify.length; i++)
+			{
+				var dataNotifyId = arNotify[i].getAttribute("data-notifyId");
+				var messsageJs =
+					'var notify = BX.findChildByClassName(document.body, "bx-notifier-item");'+
+					'BX.bind(BX.findChildByClassName(notify, "bx-notifier-item-delete"), "click", function(event){ if (this.getAttribute("data-notifyType") != 1) { BX.desktop.onCustomEvent("main", "bxImClickCloseNotify", [this.getAttribute("data-notifyId")]); } BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });'+
+					(arNotify[i].id>0? '': 'BX.bind(notify, "click", function(event){ BX.desktop.onCustomEvent("main", "bxImClickNotify", []); BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });')+
+					'BX.bindDelegate(notify, "click", {className: "bx-notifier-item-button"}, BX.delegate(function(){ '+
+						'BX.desktop.windowCommand("freeze");'+
+						'notifyId = BX.proxy_context.getAttribute("data-id");'+
+						'BXIM.notify.confirmRequest({'+
+							'"notifyId": notifyId,'+
+							'"notifyValue": BX.proxy_context.getAttribute("data-value"),'+
+							'"notifyURL": BX.proxy_context.getAttribute("data-url"),'+
+							'"notifyTag": BXIM.notify.notify[notifyId] && BXIM.notify.notify[notifyId].tag? BXIM.notify.notify[notifyId].tag: null,'+
+							'"groupDelete": BX.proxy_context.getAttribute("data-group") == null? false: true,'+
+						'}, true);'+
+						'BX.desktop.onCustomEvent("main", "bxImClickConfirmNotify", [notifyId]); '+
+					'}, BXIM.notify));'+
+					'BX.bind(notify, "contextmenu", function(){ BX.desktop.windowCommand("close")});';
+				this.desktop.openNewNotify(dataNotifyId, arNotify[i], messsageJs);
+			}
 		}
 	}
 	else if(send && !this.BXIM.windowFocus && this.BXIM.notifyManager.nativeNotifyGranted())
@@ -3340,7 +3398,7 @@ BX.MessengerNotify.prototype.openNotify = function(reOpen, force)
 
 			this.popupNotifyMore = new BX.PopupWindow('bx-notifier-other-window', BX.proxy_context, {
 				//parentPopup: this.messenger.popupMessenger,
-				zIndex: 200,
+				zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 				lightShadow : true,
 				offsetTop: -2,
 				offsetLeft: 3,
@@ -4087,6 +4145,13 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 			return '<a'+aInner.replace('target="_self"', 'target="_blank"')+' class="bx-notifier-item-text-link">'+text+'</a>';
 		}, this));
 	}
+	else if (popup && typeof BX.SidePanel !== 'undefined')
+	{
+		notify.text = notify.text.replace(/<a(.*?)>(.*?)<\/a>/ig, BX.delegate(function(whole, aInner, text)
+		{
+			return '<a '+aInner+' class="bx-notifier-item-text-link" data-slider-ignore-autobinding="true">'+text+'</a>';
+		}, this));
+	}
 
 	var itemNew = (this.unreadNotify[notify.id] && !popup? " bx-notifier-item-new": "");
 	notify.userAvatar = notify.userAvatar? notify.userAvatar: this.BXIM.pathToBlankImage;
@@ -4135,7 +4200,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 				]}),
 				!canConfirmDelete? BX.create("span", {props : { className: "bx-notifier-item-delete bx-notifier-item-delete-fake"}}): BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
-				notify.userName? BX.create('span', {props : { className : "bx-notifier-item-name" }, html: '<a href="'+notify.userLink+'" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false; } ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>'}): null,
+				notify.userName? BX.create('span', {props : { className : "bx-notifier-item-name" }, html: '<a href="'+notify.userLink+'"  data-slider-ignore-autobinding="true" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false; } ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>'}): null,
 				BX.create('span', {props : { className : "bx-notifier-item-text" }, html: notify.text}),
 				attachNode,
 				BX.create('span', {props : { className : "bx-notifier-item-button-wrap" }, children : arButtons})
@@ -4151,7 +4216,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 				]}),
 				BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
-				BX.create('span', {props : { className : "bx-notifier-item-name" }, html: '<a href="'+notify.userLink+'" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false; } ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>'}),
+				BX.create('span', {props : { className : "bx-notifier-item-name" }, html: '<a href="'+notify.userLink+'" data-slider-ignore-autobinding="true" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false; } ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>'}),
 				BX.create('span', {props : { className : "bx-notifier-item-text" }, html: notify.text}),
 				attachNode,
 				this.drawNotifyAnswer(notify)
@@ -4169,7 +4234,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 				]}),
 				BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-group' : 'Y', 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
-				BX.create('span', {props : { className : "bx-notifier-item-name" }, html: BX.message('IM_NOTIFY_GROUP_NOTIFY').replace('#USER_NAME#', '<a href="'+notify.userLink+'" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false;} ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>').replace('#U_START#', '<span class="bx-notifier-item-help" data-help="'+notify.id+'">').replace('#U_END#', '</span>').replace('#COUNT#', notify.otherCount)}),
+				BX.create('span', {props : { className : "bx-notifier-item-name" }, html: BX.message('IM_NOTIFY_GROUP_NOTIFY').replace('#USER_NAME#', '<a href="'+notify.userLink+'"  data-slider-ignore-autobinding="true" onclick="if (BXIM.init) { BXIM.openMessenger('+notify.userId+'); return false;} ">'+BX.MessengerCommon.prepareText(notify.userName)+'</a>').replace('#U_START#', '<span class="bx-notifier-item-help" data-help="'+notify.id+'">').replace('#U_END#', '</span>').replace('#COUNT#', notify.otherCount)}),
 				BX.create('span', {props : { className : "bx-notifier-item-text" }, html: notify.text}),
 				attachNode,
 				this.drawNotifyAnswer(notify)
@@ -5135,6 +5200,27 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		return false;
 	}
 
+	if (
+		BX.SidePanel
+		&& BX.SidePanel.Instance.isOpen()
+		&& BX.SidePanel.Instance.isOnTop()
+		&& this.popupMessenger !== null
+	)
+	{
+		if (BX.MessengerCommon.isDesktop())
+		{
+			BX.SidePanel.Instance.closeAll();
+		}
+		else if (BX.MessengerCommon.isPage())
+		{
+			BX.MessengerWindow.setZIndex(BX.SidePanel.Instance.getTopSlider().getZindex() + 1);
+		}
+		else
+		{
+			this.popupMessenger.close();
+		}
+	}
+
 	if (this.popupImageUploader)
 	{
 		this.popupImageUploader.close();
@@ -5307,6 +5393,30 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 	var userStatus = BX.MessengerCommon.getUserStatus(this.users[this.BXIM.userId]);
 
+	var userTitleStyle = "";
+	if (this.users[this.currentTab])
+	{
+		if (this.users[this.currentTab].extranet)
+		{
+			userTitleStyle = " bx-messenger-user-extranet";
+		}
+		else if (this.users[this.currentTab].bot)
+		{
+			if (!this.bot[this.currentTab])
+			{
+				userTitleStyle = " bx-messenger-user-bot";
+			}
+			else if (this.bot[this.currentTab].type == 'network')
+			{
+				userTitleStyle = " bx-messenger-user-network";
+			}
+			else if (this.bot[this.currentTab].type == 'support24')
+			{
+				userTitleStyle = " bx-messenger-user-support24";
+			}
+		}
+	}
+
 	this.popupMessengerContent = BX.create("div", { props : { className : "bx-messenger-box bx-messenger-mark bx-messenger-global-context-"+this.BXIM.context.toLowerCase()+" "+(this.BXIM.callController.hasActiveCall()? ' bx-messenger-call'+(this.callOverlayMinimize? '': ' bx-messenger-call-maxi'): '')+(BX.MessengerCommon.isPage()? ' bx-messenger-box-desktop': '')+(BX.browser.IsMac()? '': ' bx-messenger-custom-scroll')+(this.BXIM.options.showRecent? '': ' bx-messenger-hide-recent') }, style: styleOfContent, children : [
 		/* CL */
 		this.popupContactListWrap = BX.create("div", { props : { className : "bx-messenger-box-contact bx-messenger-box-contact-normal" }, style : {width: this.popupContactListSize+'px'},  children : [
@@ -5358,7 +5468,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 				this.enableGroupChat? BX.create("a", {attrs: {href: "#chat", title: BX.message("IM_M_CHAT_TITLE")}, props : { className : "bx-messenger-panel-button bx-messenger-panel-chat"}, html: BX.message("IM_M_CHAT_BTN_JOIN"), events : { click: BX.delegate(function(e){ this.openChatDialog({'type': 'CHAT_ADD', 'bind': BX.proxy_context}); BX.PreventDefault(e)}, this)}}): null,
 				this.popupMessengerPanelButtonCall1 = this.callButton(),
 				BX.create("span", { props : { className : "bx-messenger-panel-title"}, children: [
-					this.popupMessengerPanelTitle = BX.create('a', { props : { className : "bx-messenger-panel-title-link"+(this.users[this.currentTab] && this.users[this.currentTab].extranet? " bx-messenger-user-extranet": (this.users[this.currentTab] && this.users[this.currentTab].bot? (this.bot[this.currentTab] && this.bot[this.currentTab].type == 'network'? " bx-messenger-user-network": " bx-messenger-user-bot"): ""))}, attrs : { href : this.users[this.currentTab]? this.users[this.currentTab].profile: BX.MessengerCommon.getUserParam().profile}, html: this.users[this.currentTab]? this.users[this.currentTab].name: ''}),
+					this.popupMessengerPanelTitle = BX.create('a', { props : { className : "bx-messenger-panel-title-link"+userTitleStyle}, attrs : { href : this.users[this.currentTab]? this.users[this.currentTab].profile: BX.MessengerCommon.getUserParam().profile}, html: this.users[this.currentTab]? this.users[this.currentTab].name: ''}),
 					this.popupMessengerPanelLastDate = BX.create("span", { props : { className : "bx-messenger-panel-title-position"}, html: ''})
 				]}),
 				this.popupMessengerPanelStatus = BX.create("span", { props : { className : "bx-messenger-panel-desc"}, html: BX.MessengerCommon.getUserPosition(this.users[this.currentTab], false, true)})
@@ -5809,7 +5919,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 		this.popupChatUsers = new BX.PopupWindow('bx-messenger-popup-chat-users', BX.proxy_context, {
 			//parentPopup: this.popupMessenger,
-			zIndex: 200,
+			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			lightShadow : true,
 			offsetTop: -2,
 			offsetLeft: 3,
@@ -6071,7 +6181,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 		this.popupChatUsers = new BX.PopupWindow('bx-messenger-popup-like-users', BX.proxy_context, {
 			//parentPopup: this.popupMessenger,
-			zIndex: 200,
+			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			lightShadow : true,
 			offsetTop: 5,
 			offsetLeft: 12,
@@ -6125,13 +6235,14 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 	BX.bind(this.popupMessengerTextareaOpenJoin, 'click', BX.delegate(function() {
 		if (this.currentTab.substr(0, 4) != 'chat')
+		{
 			return false;
+		}
 
 		if (this.BXIM.messenger.popupMessengerDialog && BX.hasClass(this.BXIM.messenger.popupMessengerDialog, "bx-messenger-chat-load-last-message"))
 		{
 			return false;
 		}
-
 		var chatId = this.currentTab.substr(4);
 		BX.MessengerCommon.joinToChat(chatId);
 
@@ -6198,10 +6309,19 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		}
 
 		var chatId = this.currentTab.substr(4);
+
 		if (!BX.MessengerCommon.userInChat(chatId))
+		{
 			BX.MessengerCommon.dialogCloseCurrent(true);
+		}
+		else if (BX.MessengerCommon.isSessionBlocked(chatId))
+		{
+			BX.MessengerCommon.linesMarkAsSpam(chatId)
+		}
 		else
+		{
 			BX.MessengerCommon.linesSkip(chatId);
+		}
 
 		return true;
 	}, this));
@@ -6320,11 +6440,6 @@ BX.MessengerChat.prototype.closeMessenger = function()
 	if (this.BXIM.popupSettings != null)
 		this.BXIM.popupSettings.close();
 
-	if (this.webrtc.callInit)
-	{
-		this.webrtc.callCommand(this.webrtc.callChatId, 'decline', {'ACTIVE': this.callActive? 'Y': 'N', 'INITIATOR': this.initiator? 'Y': 'N'});
-		this.webrtc.callAbort();
-	}
 	this.closeMenuPopup();
 
 	this.popupMessenger = null;
@@ -6341,7 +6456,6 @@ BX.MessengerChat.prototype.closeMessenger = function()
 	this.setUpdateStateStep();
 	BX.unbind(document, "click", BX.proxy(this.BXIM.autoHide, this.BXIM));
 	BX.unbind(window, "keydown", BX.proxy(this.closePopupFileMenuKeydown, this));
-	this.webrtc.callOverlayClose();
 
 	return true;
 }
@@ -6487,7 +6601,7 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 			onPopupClose : function() {this.destroy(); },
 			onPopupDestroy : BX.delegate(function() { this.popupTooltip = null; }, this)
 		},
-		zIndex: 2000,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		content: content
 	});
 	if (params.angle)
@@ -6538,20 +6652,14 @@ BX.MessengerChat.prototype.dialogStatusRedraw = function(params)
 		if (this.popupMessengerFileFormChatId)
 		{
 			this.popupMessengerFileFormChatId.value = this.userChat[this.currentTab]? this.userChat[this.currentTab]: 0;
-			if (!this.disk.enableExternal && (this.users[this.currentTab].bot || this.users[this.currentTab].network))
+
+			if (parseInt(this.popupMessengerFileFormChatId.value) > 0)
 			{
-				this.popupMessengerFileFormInput.setAttribute('disabled', true);
+				this.popupMessengerFileFormInput.removeAttribute('disabled');
 			}
 			else
 			{
-				if (parseInt(this.popupMessengerFileFormChatId.value) > 0)
-				{
-					this.popupMessengerFileFormInput.removeAttribute('disabled');
-				}
-				else
-				{
-					this.popupMessengerFileFormInput.setAttribute('disabled', true);
-				}
+				this.popupMessengerFileFormInput.setAttribute('disabled', true);
 			}
 		}
 
@@ -6598,31 +6706,57 @@ BX.MessengerChat.prototype.dialogStatusRedraw = function(params)
 		var removeClass = [];
 		if (this.users[this.currentTab].extranet)
 		{
-			BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-extranet');
-			BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-extranet');
+			if (this.users[this.currentTab].network)
+			{
+				BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-network');
+				BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
+				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-extranet');
+				removeClass.push('bx-messenger-dialog-extranet');
+			}
+			else
+			{
+				BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-extranet');
+				BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-extranet');
+				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
+				removeClass.push('bx-messenger-dialog-network');
+			}
+
+			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-support24');
 			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-bot');
-			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
 			removeClass.push('bx-messenger-chat-livechat');
 			removeClass.push('bx-messenger-chat-lines');
 			removeClass.push('bx-messenger-dialog-bot');
-			removeClass.push('bx-messenger-dialog-network');
 			removeClass.push('bx-messenger-dialog-self');
+			removeClass.push('bx-messenger-dialog-support24');
 		}
 		else if (this.users[this.currentTab].bot)
 		{
-			if (this.bot[this.currentTab] && this.bot[this.currentTab].type == 'network')
+			if (this.bot[this.currentTab] && this.bot[this.currentTab].type == 'support24')
+			{
+				BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-support24');
+				BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-support24');
+				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-bot');
+				BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-bot');
+				removeClass.push('bx-messenger-dialog-bot');
+				removeClass.push('bx-messenger-dialog-network');
+			}
+			else if (this.bot[this.currentTab] && this.bot[this.currentTab].type == 'network')
 			{
 				BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
 				BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-network');
 				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-bot');
-				BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-bot');
+				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-support24');
+				removeClass.push('bx-messenger-dialog-bot');
+				removeClass.push('bx-messenger-dialog-support24');
 			}
 			else
 			{
 				BX.addClass(this.popupMessengerPanelTitle, 'bx-messenger-user-bot');
 				BX.addClass(this.popupMessengerDialog, 'bx-messenger-dialog-bot');
 				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
-				BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-network');
+				BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-support24');
+				removeClass.push('bx-messenger-dialog-network');
+				removeClass.push('bx-messenger-dialog-support24');
 			}
 
 			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-extranet');
@@ -6638,8 +6772,10 @@ BX.MessengerChat.prototype.dialogStatusRedraw = function(params)
 			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-extranet');
 			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-bot');
 			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-network');
+			BX.removeClass(this.popupMessengerPanelTitle, 'bx-messenger-user-support24');
 			removeClass.push('bx-messenger-dialog-bot')
 			removeClass.push('bx-messenger-dialog-network')
+			removeClass.push('bx-messenger-dialog-support24')
 			removeClass.push('bx-messenger-chat-livechat');
 			removeClass.push('bx-messenger-chat-lines');
 			removeClass.push('bx-messenger-dialog-extranet');
@@ -6664,6 +6800,8 @@ BX.MessengerChat.prototype.dialogStatusRedraw = function(params)
 		removeClass.push('bx-messenger-chat-general');
 		removeClass.push('bx-messenger-chat-general-first-open');
 		removeClass.push('bx-messenger-chat-general-access');
+		removeClass.push('bx-messenger-chat-announcement');
+		removeClass.push('bx-messenger-chat-announcement-access');
 
 		BX.removeClass(this.popupMessengerDialog, removeClass.join(" "));
 	}
@@ -6751,7 +6889,11 @@ BX.MessengerChat.prototype.callButtonStatus = function(dialogId)
 {
 	dialogId = dialogId.toString();
 	var elementClassName = 'bx-messenger-panel-button-box bx-messenger-panel-call-hide';
-	if (this.openChatFlag && this.chat[dialogId.substr(4)] && (this.chat[dialogId.substr(4)].type == 'lines' || this.chat[dialogId.substr(4)].type == 'livechat'))
+	if (this.openChatFlag && this.chat[dialogId.substr(4)] && (
+		this.chat[dialogId.substr(4)].type == 'lines'
+		|| this.chat[dialogId.substr(4)].type == 'livechat'
+		|| this.chat[dialogId.substr(4)].type == 'announcement'
+	))
 	{
 
 	}
@@ -7184,20 +7326,14 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 	if (this.popupMessengerFileFormChatId)
 	{
 		this.popupMessengerFileFormChatId.value = chatId;
-		if (this.chat[chatId] && !this.disk.enableExternal && this.chat[chatId].type == 'lines' && this.chat[chatId].entity_id.substr(0,8) != 'livechat')
+
+		if (parseInt(this.popupMessengerFileFormChatId.value) > 0)
 		{
-			this.popupMessengerFileFormInput.setAttribute('disabled', true);
+			this.popupMessengerFileFormInput.removeAttribute('disabled');
 		}
 		else
 		{
-			if (parseInt(this.popupMessengerFileFormChatId.value) > 0)
-			{
-				this.popupMessengerFileFormInput.removeAttribute('disabled');
-			}
-			else
-			{
-				this.popupMessengerFileFormInput.setAttribute('disabled', true);
-			}
+			this.popupMessengerFileFormInput.setAttribute('disabled', true);
 		}
 	}
 
@@ -7231,6 +7367,8 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 		removeClass.push('bx-messenger-chat-general');
 		removeClass.push('bx-messenger-chat-general-first-open');
 		removeClass.push('bx-messenger-chat-general-access');
+		removeClass.push('bx-messenger-chat-announcement');
+		removeClass.push('bx-messenger-chat-announcement-access');
 		BX.style(this.popupOpenLinesTransfer, 'display', 'none');
 
 		BX.addClass(this.popupMessengerDialog, 'bx-messenger-chat-call');
@@ -7258,9 +7396,16 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 		this.disk.avatarFormIsBlocked(chatId, 'popupMessengerPanelAvatarUpload2', this.popupMessengerPanelAvatarForm2);
 
 		this.popupMessengerPanelAvatarForm2.className = "bx-messenger-panel-avatar";
-		if (this.chat[chatId].type == 'lines' || this.chat[chatId].type == 'livechat' || this.chat[chatId].type == 'chat' || this.chat[chatId].entity_type == 'CRM')
+		if (
+			this.chat[chatId].type == 'lines'
+			|| this.chat[chatId].type == 'livechat'
+			|| this.chat[chatId].type == 'chat'
+			|| this.chat[chatId].type == 'announcement'
+			|| this.chat[chatId].entity_type == 'CRM'
+		)
 		{
 			var textareaDisabled = false;
+			var controlsDisabled = false;
 			if (this.chat[chatId].type == 'livechat')
 			{
 				var session = BX.MessengerCommon.livechatGetSession(chatId);
@@ -7269,6 +7414,8 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 				BX.addClass(this.popupMessengerPanelAvatarForm2, 'bx-messenger-panel-avatar-livechat');
 				addClass.push('bx-messenger-chat-livechat');
 				removeClass.push('bx-messenger-chat-chat');
+				removeClass.push('bx-messenger-chat-announcement');
+				removeClass.push('bx-messenger-chat-announcement-access');
 				removeClass.push('bx-messenger-chat-lines');
 				removeClass.push('bx-messenger-chat-crm');
 				BX.style(this.popupOpenLinesTransfer, 'display', 'none');
@@ -7282,26 +7429,50 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 				BX.addClass(this.popupMessengerPanelAvatarForm2, 'bx-messenger-panel-avatar-'+BX.MessengerCommon.linesGetSource(this.chat[chatId]));
 				addClass.push('bx-messenger-chat-lines');
 				removeClass.push('bx-messenger-chat-chat');
+				removeClass.push('bx-messenger-chat-announcement');
+				removeClass.push('bx-messenger-chat-announcement-access');
 				removeClass.push('bx-messenger-chat-livechat');
 				removeClass.push('bx-messenger-chat-crm');
+
+				if (BX.MessengerCommon.isSessionBlocked(chatId))
+				{
+					textareaDisabled = true;
+					controlsDisabled = true;
+					BX.style(this.popupMessengerTextareaOpenLinesTransfer, 'display', 'none');
+					BX.style(this.popupMessengerTextareaOpenLinesAnswer, 'display', 'none');
+					BX.style(this.popupMessengerTextareaOpenLinesSkip, 'display', 'inline-block');
+
+					BX.MessengerCommon.hideLinesKeyboard();
+
+					this.popupMessengerTextareaOpenLinesSkip.innerHTML = BX.message('IM_M_OL_CLOSE');
+					this.popupMessengerTextareaOpenLinesText.innerHTML = BX.message('IM_OL_CHAT_BLOCK_' + session.blockReason);
+				}
 
 				if (!BX.MessengerCommon.userInChat(chatId))
 				{
 					textareaDisabled = true;
+					controlsDisabled = true;
 					BX.style(this.popupOpenLinesTransfer, 'display', 'none');
 
 					BX.style(this.popupMessengerTextareaOpenLinesTransfer, 'display', session.id? 'inline-block': 'none');
 					this.popupMessengerTextareaOpenLinesAnswer.innerHTML = session.id? BX.message('IM_OL_INVITE_JOIN_2'): BX.message('IM_OL_INVITE_JOIN');
 					this.popupMessengerTextareaOpenLinesSkip.innerHTML = BX.message('IM_OL_INVITE_CLOSE');
 					this.popupMessengerTextareaOpenLinesText.innerHTML = session.id? BX.message('IM_OL_INVITE_TEXT_JOIN'): BX.message('IM_OL_INVITE_TEXT_OPEN');
+					if (BX.MessengerCommon.isSessionBlocked(chatId))
+					{
+						this.popupMessengerTextareaOpenLinesText.innerHTML = BX.message('IM_OL_CHAT_BLOCK_' + session.blockReason);
+					}
 				}
 				else if (this.chat[chatId].owner == 0)
 				{
 					textareaDisabled = true;
+					controlsDisabled = true;
 					BX.style(this.popupOpenLinesTransfer, 'display', 'none');
 					BX.style(this.popupOpenLinesClose, 'display', 'none');
 
 					BX.style(this.popupMessengerTextareaOpenLinesTransfer, 'display', session.id? 'inline-block': 'none');
+					BX.style(this.popupMessengerTextareaOpenLinesAnswer, 'display', session.id? 'inline-block': 'none');
+
 					this.popupMessengerTextareaOpenLinesAnswer.innerHTML = session.id? BX.message('IM_OL_INVITE_ANSWER'): BX.message('IM_OL_INVITE_JOIN');
 					this.popupMessengerTextareaOpenLinesSkip.innerHTML = session.id? BX.message('IM_OL_INVITE_SKIP'): BX.message('IM_OL_INVITE_CLOSE');
 					this.popupMessengerTextareaOpenLinesText.innerHTML = session.id? BX.message('IM_OL_INVITE_TEXT'): BX.message('IM_OL_INVITE_TEXT_OPEN');
@@ -7338,6 +7509,44 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 					BX.removeClass(this.popupMessengerHiddenModeButton, 'bx-messenger-textarea-hidden-active');
 				}
 			}
+			else if (this.chat[chatId].type == 'announcement')
+			{
+				this.openLinesFlag = false;
+				BX.style(this.popupOpenLinesTransfer, 'display', 'none');
+				BX.addClass(this.popupMessengerPanelAvatarForm2, 'bx-messenger-panel-avatar-announcement');
+
+				addClass.push('bx-messenger-chat-announcement');
+				removeClass.push('bx-messenger-chat-chat');
+				removeClass.push('bx-messenger-chat-crm');
+				removeClass.push('bx-messenger-chat-livechat');
+				removeClass.push('bx-messenger-chat-lines');
+
+
+				if (BX.MessengerCommon.userInChat(chatId))
+				{
+					controlsDisabled = false;
+					textareaDisabled = false;
+
+					if (
+						this.chat[chatId].manager_list
+						&& !this.chat[chatId].manager_list.map(function(userId) { return parseInt(userId) }).includes(parseInt(this.BXIM.userId))
+					)
+					{
+						addClass.push('bx-messenger-chat-announcement-access');
+						this.popupMessengerTextareaGeneralText.innerHTML = BX.message('IM_G_ACCESS');
+						textareaDisabled = true;
+					}
+					else
+					{
+						removeClass.push('bx-messenger-chat-announcement-access');
+					}
+				}
+				else
+				{
+					controlsDisabled = true;
+					textareaDisabled = true;
+				}
+			}
 			else
 			{
 				this.openLinesFlag = false;
@@ -7356,11 +7565,13 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 					removeClass.push('bx-messenger-chat-crm');
 				}
 
+				removeClass.push('bx-messenger-chat-announcement');
+				removeClass.push('bx-messenger-chat-announcement-access');
 				removeClass.push('bx-messenger-chat-livechat');
 				removeClass.push('bx-messenger-chat-lines');
 			}
 
-			if (textareaDisabled)
+			if (controlsDisabled)
 			{
 				addClass.push('bx-messenger-chat-guest');
 			}
@@ -7385,6 +7596,8 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 			removeClass.push('bx-messenger-chat-chat');
 			removeClass.push('bx-messenger-chat-livechat');
 			removeClass.push('bx-messenger-chat-lines');
+			removeClass.push('bx-messenger-chat-announcement');
+			removeClass.push('bx-messenger-chat-announcement-access');
 
 			var textareaDisabled = false;
 			if (chatId == this.generalChatId)
@@ -7547,6 +7760,7 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 		}
 		BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-bot');
 		BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-network');
+		BX.removeClass(this.popupMessengerDialog, 'bx-messenger-dialog-support24');
 
 		var userInChat = [];
 		for (var i = 0; i < this.userInChat[chatId].length; i++)
@@ -7627,7 +7841,19 @@ BX.MessengerChat.prototype.renameChatDialog = function()
 {
 	var chatId = this.getChatId();
 	if (this.renameChatDialogFlag || !BX.MessengerCommon.userInChat(chatId) || BX.MessengerCommon.checkRestriction(chatId, 'RENAME'))
+	{
 		return false;
+	}
+
+	if (
+		this.chat[chatId]
+		&& this.chat[chatId].type === 'announcement'
+		&& this.chat[chatId].manager_list
+		&& !this.chat[chatId].manager_list.map(function(userId) { return parseInt(userId) }).includes(parseInt(this.BXIM.userId))
+	)
+	{
+		return false;
+	}
 
 	this.renameChatDialogFlag = true;
 
@@ -7735,7 +7961,10 @@ BX.MessengerChat.prototype.openChatDialog = function(params)
 	}
 	if (params.type == 'CHAT_EXTEND' && this.popupMessengerTextarea.disabled)
 	{
-		return false
+		if (this.chat[params.chatId].type !== 'announcement')
+		{
+			return false
+		}
 	}
 
 	var type = null;
@@ -7850,7 +8079,7 @@ BX.MessengerChat.prototype.openChatDialog = function(params)
 			})
 		],
 		closeByEsc: true,
-		zIndex: 200,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		events : {
 			onPopupClose : function() {
 				this.destroy();
@@ -8438,7 +8667,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		offsetTop = 5;
 		offsetLeft = 14;
 		menuItems = [
-			isOwner? {icon: 'bx-messenger-menu-pause', text: BX.message(session.pin == "Y"? "IM_M_OL_PAUSE_OFF": "IM_M_OL_PAUSE_ON"), onclick: BX.delegate(function(){  this.linesTogglePinMode();  this.closeMenuPopup(); }, this)}: null,
+			isOwner? {icon: 'bx-messenger-menu-pause', text: BX.message(session.pin == "Y"? "IM_M_OL_ASSIGN_OFF": "IM_M_OL_ASSIGN_ON"), onclick: BX.delegate(function(){  this.linesTogglePinMode();  this.closeMenuPopup(); }, this)}: null,
 			isOwner && session.crm != 'Y'? {icon: 'bx-messenger-menu-crm', text: BX.message("IM_M_OL_ADD_LEAD"), onclick: BX.delegate(function(){  this.linesCreateLead(); this.closeMenuPopup(); }, this)}: null,
 			session.crmLink && session.crmLinkLead == 'undefined' && session.crmLinkCompany == 'undefined' && session.crmLinkContact == 'undefined' && session.crmLinkDeal == 'undefined'? {icon: 'bx-messenger-menu-crm', text: BX.message('IM_M_OL_GOTO_CRM'), href: session.crmLink, target: '_blank', onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)}: null,
 			session.crmLinkLead? {icon: 'bx-messenger-menu-crm', text: BX.message('IM_M_OL_GOTO_CRM_LEAD'), href: session.crmLinkLead, target: '_blank', onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)}: null,
@@ -8734,6 +8963,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		else
 		{
 			var canKick = !BX.MessengerCommon.checkRestriction(chatId, 'LEAVE') && this.chat[chatId].owner == this.BXIM.userId;
+			var isAnnouncement = this.chat[chatId].type === 'announcement';
+
 			var userInChat = true;
 			if (chatId != this.generalChatId)
 			{
@@ -8748,7 +8979,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 				canKick = this.users[userId].extranet? true: false;
 			}
 			menuItems = [
-				!userInChat? null: {icon: 'bx-messenger-menu-chat-put', text: BX.message('IM_M_CHAT_PUT'), onclick: BX.delegate(function(){ this.insertTextareaText(this.popupMessengerTextarea, ' '+BX.util.htmlspecialcharsback(this.users[userId].name)+' ', false); BX.MessengerCommon.addMentionList(this.currentTab, BX.util.htmlspecialcharsback(this.users[userId].name), userId); this.popupMessengerTextarea.focus(); this.closeMenuPopup(); }, this)},
+
+				!userInChat || isAnnouncement? null: {icon: 'bx-messenger-menu-chat-put', text: BX.message('IM_M_CHAT_PUT'), onclick: BX.delegate(function(){ this.insertTextareaText(this.popupMessengerTextarea, ' '+BX.util.htmlspecialcharsback(this.users[userId].name)+' ', false); BX.MessengerCommon.addMentionList(this.currentTab, BX.util.htmlspecialcharsback(this.users[userId].name), userId); this.popupMessengerTextarea.focus(); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-write', text: BX.message('IM_M_WRITE_MESSAGE'), onclick: BX.delegate(function(){ this.openMessenger(userId); this.closeMenuPopup(); }, this)},
 				(!this.BXIM.checkCallSupport(userId) || this.BXIM.callController.hasActiveCall())? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-history', text: BX.message('IM_M_OPEN_HISTORY'), onclick: BX.delegate(function(){ this.openHistory(userId); this.closeMenuPopup();}, this)},
@@ -8768,7 +9000,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 
 		if (this.recentList || userIsChat)
 		{
-			var isOpenlines = this.chat[userId.toString().substr(4)] && this.chat[userId.toString().substr(4)].type == 'lines';
+			var isOpenlines = userIsChat && this.chat[userId.toString().substr(4)] && this.chat[userId.toString().substr(4)].type == 'lines';
+			var isAnnouncement = userIsChat && this.chat[userId.toString().substr(4)].type === 'announcement';
 
 			var chatMuteText = BX.message('IM_M_CHAT_MUTE_OFF');
 			var muteEnable = false;
@@ -8779,6 +9012,10 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			else if (this.users[userId].extranet)
 			{
 				muteEnable = true;
+			}
+			else if (isAnnouncement)
+			{
+				muteEnable = false;
 			}
 
 			if (muteEnable && this.muteButtonStatus(userId))
@@ -8793,11 +9030,11 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			menuItems = [
 				isOpenlines? null: {icon: 'bx-messenger-menu-write', text: BX.message('IM_M_WRITE_MESSAGE'), onclick: BX.delegate(function(){ this.openMessenger(userId); this.closeMenuPopup(); }, this)},
 				isOpenlines? null: {icon: 'bx-messenger-menu-pin', text: dialogPinnedText, onclick: BX.delegate(function(){ BX.MessengerCommon.pinDialog(userId, !dialogIsPinned); this.closeMenuPopup(); }, this)},
-				!isOpenlines && !hideItem && muteEnable ? {icon: 'bx-messenger-menu-chat-mute', text: chatMuteText, onclick: BX.delegate(function(){ BX.MessengerCommon.muteMessageChat(userId); this.closeMenuPopup();}, this)}: {},
-				isOpenlines || (!this.BXIM.checkCallSupport(userId) || this.BXIM.callController.hasActiveCall()) || (userIsChat && (this.chat[userId.toString().substr(4)].type == 'call' || this.chat[userId.toString().substr(4)].type == 'lines'))? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
+				!isAnnouncement && !isOpenlines && !hideItem && muteEnable ? {icon: 'bx-messenger-menu-chat-mute', text: chatMuteText, onclick: BX.delegate(function(){ BX.MessengerCommon.muteMessageChat(userId); this.closeMenuPopup();}, this)}: {},
+				isAnnouncement || isOpenlines || (!this.BXIM.checkCallSupport(userId) || this.BXIM.callController.hasActiveCall()) || (userIsChat && (this.chat[userId.toString().substr(4)].type == 'call' || this.chat[userId.toString().substr(4)].type == 'lines'))? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
 				hideItem && !userIsChat? null: {icon: 'bx-messenger-menu-history', text: BX.message('IM_M_OPEN_HISTORY'), onclick: BX.delegate(function(){ this.openHistory(userId); this.closeMenuPopup();}, this)},
 				!userIsChat? {icon: 'bx-messenger-menu-profile', text: BX.message('IM_M_OPEN_PROFILE'), href: this.users[userId].profile, onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)}: {},
-				!hideItem && userIsChat && this.chat[userId.toString().substr(4)].type != 'call' && !BX.MessengerCommon.checkRestriction(userId.toString().substr(4), 'RENAME') ? {icon: 'bx-messenger-menu-chat-rename', text: BX.message('IM_M_CHAT_RENAME'), onclick: BX.delegate(function(){ if (this.currentTab != userId) { this.openMessenger(userId); } else { this.renameChatDialog(); }   this.closeMenuPopup();}, this)}: {},
+				!hideItem && !isAnnouncement && userIsChat && this.chat[userId.toString().substr(4)].type != 'call' && !BX.MessengerCommon.checkRestriction(userId.toString().substr(4), 'RENAME') ? {icon: 'bx-messenger-menu-chat-rename', text: BX.message('IM_M_CHAT_RENAME'), onclick: BX.delegate(function(){ if (this.currentTab != userId) { this.openMessenger(userId); } else { this.renameChatDialog(); }   this.closeMenuPopup();}, this)}: {},
 				isOpenlines || userIsChat && !this.recentList? null: {icon: 'bx-messenger-menu-hide-'+(userIsChat? 'chat': 'dialog'), text: BX.message('IM_M_HIDE_'+(userIsChat? (this.chat[userId.toString().substr(4)].type == 'call'? 'CALL': 'CHAT'): 'DIALOG')), onclick: BX.delegate(function(){ BX.MessengerCommon.recentListHide(userId); this.closeMenuPopup();}, this)},
 				!hideItem && userIsChat && this.chat[userId.toString().substr(4)].type != 'call' && this.chat[userId.toString().substr(4)].type != 'lines' && !BX.MessengerCommon.checkRestriction(userId.toString().substr(4), (isOwner? 'LEAVE_OWNER': 'LEAVE'))? {icon: 'bx-messenger-menu-chat-exit', text: BX.message('IM_M_CHAT_EXIT'), onclick: BX.delegate(function(){ BX.MessengerCommon.leaveFromChat(userId.toString().substr(4)); this.closeMenuPopup();}, this)}: {}
 			];
@@ -8883,7 +9120,11 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		var copyLink = false;
 		var userName = '';
 		var userId = this.message[messageId].senderId;
+		var isAnnouncement = this.chat[this.message[messageId].chatId] && this.chat[this.message[messageId].chatId].type === 'announcement';
 		var canShareToCalend = this.message[messageId].params && this.message[messageId].params.DATE_TS && this.message[messageId].params.DATE_TS.length > 0;
+
+
+
 		if (this.openChatFlag && this.message[messageId].senderId != this.BXIM.userId && this.users[this.message[messageId].senderId])
 		{
 			userName = this.users[this.message[messageId].senderId].name;
@@ -8913,7 +9154,11 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			saveIconTarget = bind.target.src;
 		}
 
-		var copyFile = this.message[messageId].params && this.message[messageId].params.FILE_ID && this.message[messageId].params.FILE_ID.length > 0 && BX.clipboard.isCopySupported();
+		var copyFile = this.message[messageId].params
+						&& this.message[messageId].params.IS_DELETED != 'Y'
+						&& this.message[messageId].params.FILE_ID
+						&& this.message[messageId].params.FILE_ID.length > 0
+						&& BX.clipboard.isCopySupported();
 
 		var getClipboard = false;
 		if (type == 'dialogContext' && BX.desktop)
@@ -8950,8 +9195,9 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			}
 		}
 
-		var hideBlockCreate = selectedText.text.length > 0 || this.users[this.BXIM.userId].extranet;
+		var hideBlockCreate = isAnnouncement || selectedText.text.length > 0 || this.users[this.BXIM.userId].extranet;
 		var hideElementCreateOl = hideBlockCreate || !this.chat[this.message[messageId].chatId] || this.chat[this.message[messageId].chatId].entity_type != 'LINES';
+		var hideSaveToQuickAnswers = hideElementCreateOl || (!this.message[messageId].text || this.message[messageId].text.length <= 0);
 
 		var linesQuickAnswersItem =
 		{
@@ -8969,8 +9215,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		}
 
 		menuItems = [
-			userName.length <= 0 || generalAccessBlock? null: {text: BX.message("IM_MENU_ANSWER"), onclick: BX.delegate(function(e){ this.insertTextareaText(this.popupMessengerTextarea, ' '+BX.util.htmlspecialcharsback(userName)+' ', false); BX.MessengerCommon.addMentionList(this.currentTab, BX.util.htmlspecialcharsback(userName), userId);  setTimeout(BX.delegate(function(){ this.popupMessengerTextarea.focus(); }, this), 200);  this.closeMenuPopup(); }, this)},
-			userName.length <= 0 || generalAccessBlock? null: {separator: true},
+			userName.length <= 0 || generalAccessBlock || isAnnouncement? null: {text: BX.message("IM_MENU_ANSWER"), onclick: BX.delegate(function(e){ this.insertTextareaText(this.popupMessengerTextarea, ' '+BX.util.htmlspecialcharsback(userName)+' ', false); BX.MessengerCommon.addMentionList(this.currentTab, BX.util.htmlspecialcharsback(userName), userId);  setTimeout(BX.delegate(function(){ this.popupMessengerTextarea.focus(); }, this), 200);  this.closeMenuPopup(); }, this)},
+			userName.length <= 0 || generalAccessBlock || isAnnouncement? null: {separator: true},
 			copyLink? {text: BX.message("IM_MENU_COPY3"), onclick: BX.delegate(function()
 				{
 					BX.clipboard.copy(copyLinkHref);
@@ -8997,8 +9243,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			saveIconTarget || copyFile || copyLink && this.message[messageId].text? {separator: true}: null,
 			userId == this.BXIM.userId || selectedText.text.length > 0 ? null: {text: BX.message("IM_MENU_UNREAD"), onclick: BX.delegate(function(){ BX.MessengerCommon.unreadMessage(messageId); this.closeMenuPopup(); }, this)}, // TODO this
 			userId == this.BXIM.userId ? null: {separator: true},
-			selectedText.text.length <= 0 || generalAccessBlock? null: {text: BX.message("IM_MENU_QUOTE"), onclick: BX.delegate(function(){ var text = BX.IM.getSelectionText(); this.insertQuoteText(messageName, messageDate, text); this.closeMenuPopup(); }, this)},
-			generalAccessBlock || selectedText.text.length > 0 || (!this.message[messageId].text && (!this.message[messageId].params || !this.message[messageId].params.FILE_ID || this.message[messageId].params.FILE_ID.length <= 0)) ? null: {text: BX.message("IM_MENU_QUOTE2"), onclick: BX.delegate(function()
+			selectedText.text.length <= 0 || generalAccessBlock || isAnnouncement? null: {text: BX.message("IM_MENU_QUOTE"), onclick: BX.delegate(function(){ var text = BX.IM.getSelectionText(); this.insertQuoteText(messageName, messageDate, text); this.closeMenuPopup(); }, this)},
+			generalAccessBlock || isAnnouncement || selectedText.text.length > 0 || (!this.message[messageId].text && (!this.message[messageId].params || !this.message[messageId].params.FILE_ID || this.message[messageId].params.FILE_ID.length <= 0)) ? null: {text: BX.message("IM_MENU_QUOTE2"), onclick: BX.delegate(function()
 				{
 					var arQuote = [];
 					for (var i = 0; i < messages.length; i++)
@@ -9069,14 +9315,14 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 					this.closeMenuPopup();
 				}, this)
 			},
-			hideBlockCreate? null: {separator: true},
-			hideBlockCreate? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate ? null: {separator: true},
+			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_TASK"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'TASK'); this.closeMenuPopup(); }, this)},
 			hideBlockCreate || !canShareToCalend? null: {text: BX.message("IM_MENU_TO_CALEND"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CALEND'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate? null: {text: BX.message("IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
-			hideBlockCreate? null: {text: BX.message("IM_MENU_TO_POST"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_CHAT"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'CHAT'); this.closeMenuPopup(); }, this)},
+			hideBlockCreate ? null: {text: BX.message("IM_MENU_TO_POST"), onclick: BX.delegate(function(){ this.shareMessage(messageId, 'POST'); this.closeMenuPopup(); }, this)},
 			hideElementCreateOl? null: {separator: true},
 			hideElementCreateOl? null: {text: BX.message("IM_MENU_TO_OL_START"), onclick: BX.delegate(function(){ BX.MessengerCommon.linesStartSessionByMessage(messageId); this.closeMenuPopup(); }, this)},
-			hideElementCreateOl? null: linesQuickAnswersItem,
+			hideSaveToQuickAnswers? null: linesQuickAnswersItem,
 			!(!canEdit || this.message[messageId].senderId != this.BXIM.userId) || canDelete? {separator: true}: null,
 			!canEdit || this.message[messageId].senderId != this.BXIM.userId? null: {text: BX.message("IM_MENU_EDIT"), onclick: BX.delegate(function() {this.editMessage(messageId);this.closeMenuPopup();}, this)},
 			!canDelete? null: {text: BX.message("IM_M_HISTORY_DELETE"), onclick: BX.delegate(function() {this.deleteMessage(messageId, false);this.closeMenuPopup();}, this)}
@@ -9567,7 +9813,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		offsetLeft: offsetLeft,
 		autoHide: true,
 		closeByEsc: true,
-		zIndex: params.zIndex ? params.zIndex : 3001,
+		zIndex: params.zIndex ? params.zIndex : BX.MessengerCommon.getDefaultZIndex()+200,
 		bindOptions: bindOptions,
 		events : {
 			onPopupClose : BX.delegate(function() {
@@ -9760,7 +10006,7 @@ BX.MessengerChat.prototype.openPopupExternalData = function(bind, type, setAngle
 		offsetLeft: offsetLeft,
 		autoHide: true,
 		closeByEsc: true,
-		zIndex: 200,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		bindOptions: bindOptions,
 		events : {
 			onPopupClose : function() { this.destroy() },
@@ -9886,6 +10132,24 @@ BX.MessengerChat.prototype.drawExternalData = function(type, params)
 		var hideButtons = false;
 
 		BX('bx-messenger-external-data').innerHTML = '';
+
+		var botStyle = '';
+		if (this.users[params['USER_ID']].bot)
+		{
+			if (this.bot[params['USER_ID']] && this.bot[params['USER_ID']].type == 'network')
+			{
+				botStyle = 'bx-messenger-user-network';
+			}
+			else if (this.bot[params['USER_ID']] && this.bot[params['USER_ID']].type == 'support24')
+			{
+				botStyle = 'bx-messenger-user-support24';
+			}
+			else
+			{
+				botStyle = 'bx-messenger-user-bot';
+			}
+		}
+
 		BX.adjust(BX('bx-messenger-external-data'), {children: [
 			BX.create('div', { props : { className : "bx-messenger-external-avatar" }, children: [
 				BX.create('div', { props : { className : "bx-messenger-panel-avatar bx-messenger-panel-avatar-status-"+BX.MessengerCommon.getUserStatus(this.users[params['USER_ID']]) }, children: [
@@ -9894,7 +10158,7 @@ BX.MessengerChat.prototype.drawExternalData = function(type, params)
 				]}),
 				BX.create("span", { props : { className : "bx-messenger-panel-title"}, html: (
 					this.users[params['USER_ID']].extranet? '<div class="bx-messenger-user-extranet">'+this.users[params['USER_ID']].name+'</div>':
-					(this.users[params['USER_ID']].bot? '<div class="'+(this.bot[params['USER_ID']].type == 'network'? 'bx-messenger-user-network': 'bx-messenger-user-bot')+'">'+this.users[params['USER_ID']].name+'</div>': this.users[params['USER_ID']].name)
+					(this.users[params['USER_ID']].bot? '<div class="'+botStyle+'">'+this.users[params['USER_ID']].name+'</div>': this.users[params['USER_ID']].name)
 				)}),
 				BX.create("span", { props : { className : "bx-messenger-panel-desc"}, html: BX.MessengerCommon.getUserPosition(this.users[params['USER_ID']])})
 			]}),
@@ -10123,7 +10387,7 @@ BX.MessengerChat.prototype.openHistory = function(userId)
 			//parentPopup: this.popupMessenger,
 			//offsetTop: 0,
 			autoHide: false,
-			zIndex: 100,
+			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			draggable: {restrict: true},
 			closeByEsc: true,
 			bindOptions: {position: "top"},
@@ -10638,9 +10902,12 @@ BX.MessengerChat.prototype.drawMessageHistory = function(message)
 		);
 	}
 
-	if (filesNode == null && message.text.length <= 0)
+	if (filesNode == null && message.text.length <= 0 && !message.params['ATTACH'])
 	{
-		resultNode = BX.create("div", {attrs : { 'data-messageId' : message.id}, props : { className : "bx-messenger-history-item-text bx-messenger-item-skipped"}});
+		resultNode = BX.create("div", {
+			attrs: { 'data-messageId': message.id },
+			props: { className: "bx-messenger-history-item-text bx-messenger-item-skipped" }
+		});
 	}
 	else
 	{
@@ -10652,17 +10919,34 @@ BX.MessengerChat.prototype.drawMessageHistory = function(message)
 			userColor = messageUser.color;
 		}
 
-		resultNode = BX.create("div", { attrs : { 'data-messageId' : message.id}, props : { className : "bx-messenger-history-item"+(message.senderId == 0? " bx-messenger-history-item-3": (message.senderId == this.BXIM.userId?"": " bx-messenger-history-item-2"))+" "+extraClass }, children : [
-			BX.create("div", { props : { className : "bx-messenger-history-hide" }, html : this.historyMessageSplit}),
-			BX.create("span", { props : { className : "bx-messenger-history-item-avatar"}, children : [
-				BX.create('img', { props : { className : "bx-messenger-content-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(userAvatar)? " bx-messenger-content-item-avatar-img-default": "") }, attrs : {src : message.senderId>0? userAvatar: this.BXIM.pathToBlankImage, style: (message.senderId>0 && BX.MessengerCommon.isBlankAvatar(userAvatar) && userColor? 'background-color: '+userColor: '')}})
-			]}),
-			BX.create("div", { props : { className : "bx-messenger-history-item-name" }, html : (this.users[message.senderId]? this.users[message.senderId].name: BX.message('IM_M_SYSTEM_USER'))+' <span class="bx-messenger-history-hide">[</span><span class="bx-messenger-history-item-date">'+BX.MessengerCommon.formatDate(message.date, BX.MessengerCommon.getDateFormatType('MESSAGE'))+'</span><span class="bx-messenger-history-hide">]</span>'/*<span class="bx-messenger-history-item-delete-icon" title="'+BX.message('IM_M_HISTORY_DELETE')+'" data-messageId="'+message.id+'"></span>*/}),
-			BX.create("div", { props : { className : "bx-messenger-history-item-menu" }}),
-			textNode,filesNode, attachNode,
-			BX.create("div", { props : { className : "bx-messenger-history-hide" }, html : '<br />'}),
-			BX.create("div", { props : { className : "bx-messenger-history-hide" }, html : this.historyMessageSplit})
-		]});
+		resultNode = BX.create("div", {
+			attrs: { 'data-messageId': message.id },
+			props: { className: "bx-messenger-history-item" + (message.senderId == 0 ? " bx-messenger-history-item-3" : (message.senderId == this.BXIM.userId ? "" : " bx-messenger-history-item-2")) + " " + extraClass },
+			children: [
+				BX.create("div", { props: { className: "bx-messenger-history-hide" }, html: this.historyMessageSplit }),
+				BX.create("span", {
+					props: { className: "bx-messenger-history-item-avatar" }, children: [
+						BX.create('img', {
+							props: { className: "bx-messenger-content-item-avatar-img" + (BX.MessengerCommon.isBlankAvatar(userAvatar) ? " bx-messenger-content-item-avatar-img-default" : "") },
+							attrs: {
+								src: message.senderId > 0 ? userAvatar : this.BXIM.pathToBlankImage,
+								style: (message.senderId > 0 && BX.MessengerCommon.isBlankAvatar(userAvatar) && userColor ? 'background-color: ' + userColor : '')
+							}
+						})
+					]
+				}),
+				BX.create("div", {
+					props: { className: "bx-messenger-history-item-name" },
+					html: (this.users[message.senderId] ? this.users[message.senderId].name : BX.message('IM_M_SYSTEM_USER')) + ' <span class="bx-messenger-history-hide">[</span><span class="bx-messenger-history-item-date">' + BX.MessengerCommon.formatDate(message.date, BX.MessengerCommon.getDateFormatType('MESSAGE')) + '</span><span class="bx-messenger-history-hide">]</span>'/*<span class="bx-messenger-history-item-delete-icon" title="'+BX.message('IM_M_HISTORY_DELETE')+'" data-messageId="'+message.id+'"></span>*/
+				}),
+				BX.create("div", { props: { className: "bx-messenger-history-item-menu" } }),
+				message.text.length > 0 ? textNode : '',
+				filesNode,
+				attachNode,
+				BX.create("div", { props: { className: "bx-messenger-history-hide" }, html: '<br />' }),
+				BX.create("div", { props: { className: "bx-messenger-history-hide" }, html: this.historyMessageSplit })
+			]
+		});
 	}
 
 	return resultNode;
@@ -10698,10 +10982,93 @@ BX.MessengerChat.prototype.drawHistory = function(userId, historyElements, loadF
 		{
 			arHistorySort.sort(BX.delegate(function(i, ii) {i = parseInt(i); ii = parseInt(ii); if (!this.message[i] || !this.message[ii]){return 0;} var i1 = this.message[i].date.getTime(); var i2 = this.message[ii].date.getTime(); if (i1 > i2) { return -1; } else if (i1 < i2) { return 1;} else{ if (i > ii) { return -1; } else if (i < ii) { return 1;}else{ return 0;}}}, this));
 		}
+
 		for (var i = 0; i < arHistorySort.length; i++)
 		{
-			if (activeSearch && this.message[historyElements[userId][i]].text.toLowerCase().indexOf((this.historySearch+'').toLowerCase()) < 0)
+			var messageText = '';
+
+			if (this.history.fullTextEnabled)
+			{
+				var findText = function(input, text)
+				{
+					if (Array.isArray(input))
+					{
+						input.forEach(function(elem){
+							findText(elem, text);
+						});
+					}
+					else if (BX.type.isObject(input))
+					{
+						for (var item in input)
+						{
+							findText(input[item], text);
+						}
+					}
+					else
+					{
+						messageText += " " + input.toLowerCase();
+					}
+				};
+				if (this.message[historyElements[userId][i]])
+				{
+					var attach = this.message[historyElements[userId][i]].params.ATTACH;
+					if (attach && attach[0]['BLOCKS'])
+					{
+						findText(attach[0]['BLOCKS'], this.historySearch);
+					}
+				}
+
+				if (this.message[historyElements[userId][i]].senderId > 0)
+				{
+					if
+					(
+						this.users[this.message[historyElements[userId][i]].senderId]
+					)
+					{
+						messageText += " " + this.users[this.message[historyElements[userId][i]].senderId].name;
+					}
+				}
+
+				if (this.message[historyElements[userId][i]].params && this.message[historyElements[userId][i]].params.FILE_ID)
+				{
+					var messageChatId = this.message[historyElements[userId][i]].chatId;
+					this.message[historyElements[userId][i]].params.FILE_ID.forEach(function(file)
+					{
+						if
+						(
+							this.disk.files[messageChatId]
+							&& this.disk.files[messageChatId][file]
+						)
+						{
+							messageText += " " + this.disk.files[messageChatId][file].name;
+						}
+					}, this);
+				}
+			}
+
+			var areWordsInMessage = function(searchArray, message)
+			{
+				for (var i = 0; i < searchArray.length; i++)
+				{
+					if (message.toLowerCase().indexOf(searchArray[i].toLowerCase()) < 0)
+					{
+						return false;
+					}
+				}
+				return true;
+			};
+
+			messageText += " " + this.message[historyElements[userId][i]].text;
+			var searchWords = this.historySearch.trim().split(' ');
+			var isTextInMessage = areWordsInMessage(searchWords, messageText);
+
+			if (
+				activeSearch
+				&& !isTextInMessage
+			)
+			{
 				continue;
+			}
 
 			var dateGroupTitle = BX.MessengerCommon.formatDate(this.message[historyElements[userId][i]].date, BX.MessengerCommon.getDateFormatType('MESSAGE_TITLE'));
 			if (!BX('bx-im-history-'+dateGroupTitle) && !arHistoryGroup[dateGroupTitle])
@@ -10948,6 +11315,22 @@ BX.MessengerChat.prototype.redrawHistoryPanel = function(userId, chatId, params)
 	}
 	else
 	{
+		var botStyle = '';
+		if (this.users[userId].bot)
+		{
+			if (this.bot[userId] && this.bot[userId].type == 'network')
+			{
+				botStyle = 'bx-messenger-user-network';
+			}
+			else if (this.bot[userId] && this.bot[userId].type == 'support24')
+			{
+				botStyle = 'bx-messenger-user-support24';
+			}
+			else
+			{
+				botStyle = 'bx-messenger-user-bot';
+			}
+		}
 		historyPanel = BX.create("div", { props : { className : "bx-messenger-panel bx-messenger-panel-bg2" }, children : [
 			BX.create('a', { attrs : { href : this.users[userId].profile}, props : { className : "bx-messenger-panel-avatar bx-messenger-panel-avatar-status-"+BX.MessengerCommon.getUserStatus(this.users[userId]) }, children: [
 				BX.create('img', { attrs : { src : this.users[userId].avatar, style: (BX.MessengerCommon.isBlankAvatar(this.users[userId].avatar)? 'background-color: '+this.users[userId].color: '')}, props : { className : "bx-messenger-panel-avatar-img"+(BX.MessengerCommon.isBlankAvatar(this.users[userId].avatar)? " bx-messenger-panel-avatar-img-default": "") }}),
@@ -10956,7 +11339,7 @@ BX.MessengerChat.prototype.redrawHistoryPanel = function(userId, chatId, params)
 			this.popupHistoryButtonDeleteAll = userId == this.BXIM.userId? null: BX.create("a", { props : { className : "bx-messenger-panel-basket"}}),
 			BX.create("span", { props : { className : "bx-messenger-panel-title"}, html: (
 				this.users[userId].extranet? '<div class="bx-messenger-user-extranet">'+this.users[userId].name+'</div>':
-				(this.users[userId].bot && this.bot[userId]? '<div class="'+(this.bot[userId].type == 'network'? 'bx-messenger-user-network': 'bx-messenger-user-bot')+'">'+this.users[userId].name+'</div>': this.users[userId].name)
+				(this.users[userId].bot && this.bot[userId]? '<div class="'+botStyle+'">'+this.users[userId].name+'</div>': this.users[userId].name)
 			)}),
 			BX.create("span", { props : { className : "bx-messenger-panel-desc"}, html: BX.MessengerCommon.getUserPosition(this.users[userId])})
 		]});
@@ -11123,7 +11506,14 @@ BX.MessengerChat.prototype.newHistorySearch = function(event)
 	}
 	this.historyLastSearch[this.historyUserId] = this.historySearch;
 
-	if (this.popupHistorySearchInput.value.length <= 3)
+	var ftMinSizeToken = 3;
+
+	if (this.history.fullTextEnabled)
+	{
+		ftMinSizeToken = this.history.ftMinSizeToken;
+	}
+
+	if (this.popupHistorySearchInput.value.length < ftMinSizeToken)
 	{
 		this.historySearch = "";
 		this.drawHistory(this.historyUserId, false, false);
@@ -12180,7 +12570,7 @@ BX.MessengerChat.prototype.textareaCommandListUpdate = function(command)
 					autoHide: true,
 					offsetLeft: 5,
 					bindOptions: {position: "top"},
-					zIndex: 200,
+					zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 					events : {
 						onPopupClose : function() { this.destroy() },
 						onPopupDestroy : BX.delegate(function() {
@@ -13025,7 +13415,7 @@ BX.MessengerChat.prototype.openSmileMenu = function(params)
 		autoHide: true,
 		closeByEsc: true,
 		bindOptions: {position: "top"},
-		zIndex: 200,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		events : {
 			onPopupClose : function() { this.destroy() },
 			onPopupDestroy : BX.delegate(function() { this.popupSmileMenu = null; }, this)
@@ -13218,11 +13608,24 @@ BX.MessengerChat.prototype.textareaIconPrepare = function()
 			continue;
 		}
 
-		textareaIcon = BX.create("div", {
-			props : { className : "bx-messenger-textarea-icon-marketplace "+textareaIconClass},
-			attrs : { title: title, style: "background-image: url('"+this.textareaIcon[i]['url']+"')", "data-context": this.textareaIcon[i]['context'], "data-code": this.textareaIcon[i]['code'], "data-id": this.textareaIcon[i]['id'] },
-			events : { click : BX.delegate(this.textareaIconClick, this)}
-		});
+		if (this.textareaIcon[i]['code'] === 'salescenter')
+		{
+			textareaIcon = BX.create("div", {
+				props : { className : "bx-messenger-textarea-icon-marketplace "+textareaIconClass+" bx-messenger-textarea-icon-salescenter"},
+				attrs : { title: title, "data-context": this.textareaIcon[i]['context'], "data-code": this.textareaIcon[i]['code'], "data-id": this.textareaIcon[i]['id'] },
+				events : { click : BX.delegate(this.textareaIconClick, this)},
+				html: BX.message('IM_APPS_SALESCENTER'),
+			});
+		}
+		else
+		{
+			textareaIcon = BX.create("div", {
+				props : { className : "bx-messenger-textarea-icon-marketplace "+textareaIconClass},
+				attrs : { title: title, style: "background-image: url('"+this.textareaIcon[i]['url']+"')", "data-context": this.textareaIcon[i]['context'], "data-code": this.textareaIcon[i]['code'], "data-id": this.textareaIcon[i]['id'] },
+				events : { click : BX.delegate(this.textareaIconClick, this)}
+			});
+		}
+
 		this.popupMessengerTextareaIconBox.appendChild(textareaIcon);
 	}
 	if (textareaApps.length)
@@ -13472,7 +13875,7 @@ BX.MessengerChat.prototype.openFrameDialog = function(params)
 		bindOptions: {position: "top"},
 		closeIcon : params.bind? null: {'right': '13px'},
 		draggable : params.bind? null: {'restrict': true},
-		zIndex: 200,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		events : {
 			onPopupClose : function() { this.destroy() },
 			onPopupDestroy : BX.delegate(function() {
@@ -13565,6 +13968,10 @@ BX.MessengerChat.prototype.openFrameDialogPostMessage = function(params)
 	else if (data.action == 'support')
 	{
 		this.BXIM.openMessenger("networkLines"+data.code, null, true);
+	}
+	else if (data.action == 'openDialog')
+	{
+		this.BXIM.openMessenger(data.dialogId, null, true);
 	}
 	else if (data.action == 'close')
 	{
@@ -13984,7 +14391,7 @@ BX.MessengerChat.prototype.imageUploader = function()
 				events : { click : function() { this.popupWindow.close(); } }
 			})
 		],
-		zIndex: 2000,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		titleBar: titleBar,
 		content: '<div class="im-messenger-image-uploader">'+
 			'<div class="im-messenger-image-uploader-preview bx-messenger-custom-scroll">'+
@@ -14613,16 +15020,37 @@ BX.MessengerChat.prototype.newMessage = function(send)
 
 	if (BX.MessengerCommon.isDesktop())
 	{
-		for (var i = 0; i < arNewMessage.length; i++)
+		if (!document.hasFocus() && BX.browser.IsMac() && BX.desktop.getLocalConfig('nativeNotify', false))
 		{
-			var dataMessageId = arNewMessage[i].getAttribute("data-messageId");
-			var messsageJs =
-				'var notify = BX.findChildByClassName(document.body, "bx-notifier-item");'+
-				'notify.style.cursor = "pointer";'+
-				'BX.bind(notify, "click", function(){BX.desktop.onCustomEvent("main", "bxImClickNewMessage", [notify.getAttribute("data-userId")]); BX.desktop.windowCommand("close")});'+
-				'BX.bind(BX.findChildByClassName(notify, "bx-notifier-item-delete"), "click", function(event){ BX.desktop.onCustomEvent("main", "bxImClickCloseMessage", [notify.getAttribute("data-userId")]); BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });'+
-				'BX.bind(notify, "contextmenu", function(){ BX.desktop.windowCommand("close")});';
-			this.desktop.openNewMessage(dataMessageId, arNewMessage[i], messsageJs);
+			for (var i = 0; i < arNewMessageText.length; i++)
+			{
+				var title = arNewMessageText[i].title;
+				var text = arNewMessageText[i].text;
+				var icon = '';
+				if (arNewMessageText[i].icon)
+				{
+					icon = arNewMessageText[i].icon.toString().startsWith('http')? arNewMessageText[i].icon: location.origin+'/'+arNewMessageText[i].icon;
+				}
+				if (BX.MessengerCommon.isBlankAvatar(icon))
+				{
+					icon = '';
+				}
+				BXDesktopSystem.Notify(title, '', text, encodeURI(icon));
+			}
+		}
+		else
+		{
+			for (var i = 0; i < arNewMessage.length; i++)
+			{
+				var dataMessageId = arNewMessage[i].getAttribute("data-messageId");
+				var messsageJs =
+					'var notify = BX.findChildByClassName(document.body, "bx-notifier-item");'+
+					'notify.style.cursor = "pointer";'+
+					'BX.bind(notify, "click", function(){BX.desktop.onCustomEvent("main", "bxImClickNewMessage", [notify.getAttribute("data-userId")]); BX.desktop.windowCommand("close")});'+
+					'BX.bind(BX.findChildByClassName(notify, "bx-notifier-item-delete"), "click", function(event){ BX.desktop.onCustomEvent("main", "bxImClickCloseMessage", [notify.getAttribute("data-userId")]); BX.desktop.windowCommand("close"); BX.MessengerCommon.preventDefault(event); });'+
+					'BX.bind(notify, "contextmenu", function(){ BX.desktop.windowCommand("close")});';
+				this.desktop.openNewMessage(dataMessageId, arNewMessage[i], messsageJs);
+			}
 		}
 	}
 	else if(send && !this.BXIM.windowFocus && this.BXIM.notifyManager.nativeNotifyGranted())
@@ -15306,7 +15734,7 @@ BX.MessengerChat.prototype.linesShowHistory = function(chatId, data)
 	this.popupHistory = new BX.PopupWindow('bx-messenger-popup-history', null, {
 		//parentPopup: this.popupMessenger,
 		autoHide: false,
-		zIndex: 100,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		draggable: {restrict: true},
 		closeByEsc: true,
 		events : {
@@ -15522,7 +15950,7 @@ BX.MessengerChat.prototype.linesOpenTransferDialog = function(params)
 			})
 		],
 		closeByEsc: true,
-		zIndex: 200,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		events : {
 			onPopupClose : function() { this.destroy() },
 			onPopupDestroy : BX.delegate(function() { this.popupTransferDialog = null; this.popupTransferDialogContactListElements = null; }, this)
@@ -15808,7 +16236,7 @@ BX.MessengerChat.prototype.linesCommentHeadAdd = function(rating, comment, bindE
 	},this);
 
 	this.popupRatingCommentHead = new BX.PopupWindow('bx-messenger-popup-head-rating', BX.proxy_context, {
-		zIndex: 3001,
+		zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 		lightShadow : true,
 		bindOptions: {position: "top"},
 
@@ -16839,6 +17267,7 @@ BX.IM.Desktop.prototype.getHtmlPage = function(content, jsContent, initImJs, bod
 					"'disk': {'enable': "+(this.disk? this.disk.enable: false)+", 'external': "+(this.disk? this.disk.external: false)+"},"+
 					"'path' : "+JSON.stringify(this.BXIM.path)+
 				"});"+
+				"if (BX.SidePanel) { BX.SidePanel.Instance.anchorBinding = false; }"+
 			"});"+
 		"</script>";
 	}
@@ -16943,6 +17372,33 @@ BX.IM.Desktop.prototype.birthdayStatus = function(value)
 	else
 	{
 		this.BXIM.setLocalConfig('birthdayStatus', value);
+		return value;
+	}
+};
+BX.IM.Desktop.prototype.sliderStatus = function(value)
+{
+	if (!(BX.MessengerCommon.isDesktop() && BX.MessengerCommon.isSliderBindingsEnable()))
+	{
+		return false;
+	}
+
+	if (typeof(value) !='boolean')
+	{
+		return this.BXIM.getLocalConfig('sliderStatus', true);
+	}
+	else
+	{
+		this.BXIM.setLocalConfig('sliderStatus', value);
+
+		if (value)
+		{
+			(opener? opener: top).BX.SidePanel.Instance.enableAnchorBinding();
+		}
+		else
+		{
+			(opener? opener: top).BX.SidePanel.Instance.disableAnchorBinding();
+		}
+
 		return value;
 	}
 };
@@ -17088,10 +17544,6 @@ BX.IM.WebRTC = function(BXIM, params)
 
 	this.readDefaults();
 	this.restoreFoldedCallView();
-	if(BX.type.isFunction(this.logDevices))
-	{
-		this.logDevices();
-	}
 
 	var commonElementsInit = false;
 	if (this.enabled)
@@ -18412,7 +18864,7 @@ BX.IM.WebRTC.prototype.callOverlayShow = function(params)
 		this.callNotify = new BX.PopupWindow('bx-messenger-call-notify', null, {
 			//parentPopup: this.popupMessenger,
 			lightShadow : true,
-			zIndex: 200,
+			zIndex: BX.MessengerCommon.getDefaultZIndex()+200,
 			events : {
 				onPopupClose : function() { this.destroy(); },
 				onPopupDestroy : BX.delegate(function() {
@@ -19996,7 +20448,7 @@ BX.IM.WebRTC.prototype.phoneCall = function(number, params)
 		BX.MessengerCommon.phoneCommand(
 			'deviceStartCall',
 			{
-				'NUMBER': numberOriginal.toString().replace(/[^0-9\*#,;]/g, ''),
+				'NUMBER': numberOriginal.toString().replace(/[^0-9+*#,;]/g, ''),
 				'PARAMS': params
 			},
 			true,
@@ -20182,7 +20634,7 @@ BX.IM.WebRTC.prototype.callListMakeCall = function(e)
 		BX.MessengerCommon.phoneCommand(
 			'deviceStartCall',
 			{
-				'NUMBER': numberOriginal.toString().replace(/[^0-9\*#,;]/g, ''),
+				'NUMBER': numberOriginal.toString().replace(/[^0-9+*#,;]/g, ''),
 				'PARAMS': this.phoneParams
 			},
 			true,
@@ -21551,58 +22003,7 @@ BX.IM.DiskManager.prototype.getFileMenuIcon = function()
 
 				if (this.messenger.popupMessengerFileFormInput.getAttribute('disabled'))
 				{
-					var showNotice = false;
-					if (this.messenger.currentTab.toString().substr(0, 4) == 'chat')
-					{
-						var chatId = this.messenger.currentTab.toString().substr(4);
-						if (this.messenger.chat[chatId] && !this.enableExternal && this.messenger.chat[chatId].type == 'lines' && this.messenger.chat[chatId].entity_id.substr(0,8) != 'livechat')
-						{
-							showNotice = true;
-						}
-					}
-					else if (this.messenger.users[this.messenger.currentTab].bot || this.messenger.users[this.messenger.currentTab].network)
-					{
-						showNotice = true;
-					}
-
-					if (showNotice)
-					{
-						if (this.BXIM.isAdmin)
-						{
-							var enableNode = BX.create('div', {children: [
-								BX.create('span', {html: BX.message('IM_D_SEND_PUBLIC_ADMIN')+'&nbsp;&nbsp;'}),
-								BX.create('span', {props: {className: 'bx-messenger-ajax'}, html: BX.message('IM_D_SEND_PUBLIC_ADMIN_ON'), events: {'click': BX.delegate(function(){
-									this.messenger.closeMenuPopup();
-
-									BX.ajax({
-										url: this.BXIM.pathToAjax+'?IM_DISK_ACTIVATE_PUBLIC_LINK&V='+this.BXIM.revision,
-										method: 'POST',
-										dataType: 'json',
-										timeout: 30,
-										data: {'IM_DISK_ACTIVATE_PUBLIC_LINK' : 'Y', 'STATUS' : 'Y', 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
-										onsuccess: BX.delegate(function(data){
-											this.tooltip(this.messenger.popupMessengerFileButton, BX.message('IM_D_SEND_PUBLIC_ADMIN_READY'), {offsetLeft: 10});
-
-											this.enableExternal = true;
-											this.messenger.popupMessengerFileFormInput.removeAttribute('disabled');
-										},this)
-									});
-
-								}, this)}}),
-							]});
-
-							this.messenger.tooltip(BX.proxy_context, enableNode, {offsetLeft: 10, width: 400});
-						}
-						else
-						{
-							this.messenger.tooltip(BX.proxy_context, BX.message('IM_D_SEND_PUBLIC_USER'), {offsetLeft: 10, width: 400});
-						}
-						return BX.PreventDefault(e);
-					}
-					else
-					{
-						return BX.PreventDefault(e);
-					}
+					return BX.PreventDefault(e);
 				}
 
 				this.messenger.closeMenuPopup();
@@ -21789,14 +22190,28 @@ BX.IM.DiskManager.prototype.chatDialogInit = function()
 	}, this));
 
 	BX.addCustomEvent(this.formAgents['imDialog'].dropZone, 'dragEnter', BX.delegate(function(e){
-		if (this.messenger.currentTab.toString().substr(0, 4) == 'chat' && this.messenger.chat[this.BXIM.messenger.currentTab.substr(4)].type == 'open')
+		if (this.messenger.currentTab.toString().substr(0, 4) == 'chat')
 		{
-			if (!BX.MessengerCommon.userInChat(this.messenger.currentTab.substr(4)))
+			var chatId = this.messenger.getChatId();
+			console.log(chatId);
+			if (this.messenger.chat[chatId].type == 'open')
+			{
+				if (!BX.MessengerCommon.userInChat(chatId))
+					return false;
+			}
+			if (chatId == this.messenger.generalChatId && !this.messenger.canSendMessageGeneralChat)
+			{
 				return false;
-		}
-		if (this.messenger.currentTab.toString().substr(0, 4) == 'chat' && this.messenger.currentTab.toString().substr(4) == this.messenger.generalChatId && !this.messenger.canSendMessageGeneralChat)
-		{
-			return false;
+			}
+			if (
+				this.messenger.chat[chatId]
+				&& this.messenger.chat[chatId].type === 'announcement'
+				&& this.messenger.chat[chatId].manager_list
+				&& !this.messenger.chat[chatId].manager_list.map(function(userId) { return parseInt(userId) }).includes(parseInt(this.BXIM.userId))
+			)
+			{
+				return false;
+			}
 		}
 
 		if (parseInt(this.messenger.popupMessengerFileFormChatId.value) <= 0 || this.messenger.popupMessengerFileFormInput.getAttribute('disabled'))
@@ -21869,6 +22284,7 @@ BX.IM.DiskManager.prototype.chatDialogInit = function()
 		if (!this.flagFileDialogInited)
 		{
 			BX.addCustomEvent(BX.DiskFileDialog, 'inited', BX.proxy(this.initEventFileDialog, this));
+			this.flagFileDialogInited = true;
 		}
 
 		BX.addCustomEvent(BX.DiskFileDialog, 'loadItems', BX.delegate(function(link, name)
@@ -22111,8 +22527,6 @@ BX.IM.DiskManager.prototype.initEventFileDialog = function(name)
 	if (name != 'im-file-dialog' || !BX.DiskFileDialog)
 		return false;
 
-	this.flagFileDialogInited = true;
-
 	BX.DiskFileDialog.obCallback[name] = {
 		'saveButton' : BX.delegate(function(tab, path, selected){
 			this.uploadFromDisk(tab, path, selected);
@@ -22143,7 +22557,7 @@ BX.IM.DiskManager.prototype.uploadFromDisk = function(tab, path, selected, text)
 
 		this.files[chatId]['disk'+fileId] = {
 			'id': 'disk'+fileId,
-			'tempId': 'disk'+fileId,
+			'templateId': 'disk'+fileId,
 			'chatId': chatId,
 			'date': new Date(selected[i].modifyDateInt*1000),
 			'type': 'file',
@@ -22403,6 +22817,16 @@ BX.IM.DiskManager.prototype.avatarFormIsBlocked = function(chatId, formId, form)
 
 	var result = this.formBlocked[formId+'_'+chatId] || BX.MessengerCommon.checkRestriction(chatId, 'AVATAR')? true: false;
 
+	if (
+		this.messenger.chat[chatId]
+		&& this.messenger.chat[chatId].type === 'announcement'
+		&& this.messenger.chat[chatId].manager_list
+		&& !this.messenger.chat[chatId].manager_list.map(function(userId) { return parseInt(userId) }).includes(parseInt(this.BXIM.userId))
+	)
+	{
+		result = true;
+	}
+
 	if (this.messenger.currentTab != 'chat'+chatId)
 		return result;
 
@@ -22549,16 +22973,18 @@ BX.IM.NotifyManager.prototype.show = function()
 		var notifyPopup = new BX.PopupWindow('bx-im-notify-flash-'+this.stackPopupId, {top: '-1000px', left: 0}, {
 			//parentPopup: this.popupMessenger,
 			lightShadow : true,
-			zIndex: 3400,
+			zIndex: BX.MessengerCommon.getDefaultZIndex()+10000,
 			events : {
 				onPopupClose : BX.delegate(function() {
-					BX.proxy_context.popupContainer.style.opacity = 0;
+					BX.removeClass(BX.proxy_context.popupContainer, 'bx-notifyManager-animation');
+					BX.addClass(BX.proxy_context.popupContainer, 'bx-notifyManager-animation-close');
+
 					this.notifyShow--;
 					this.notifyHeightCurrent -= BX.proxy_context.popupContainer.offsetHeight+10;
 					this.stackOverflow = false;
 					setTimeout(BX.delegate(function() {
 						this.destroy();
-					}, BX.proxy_context), 1500);
+					}, BX.proxy_context), 400);
 				}, this),
 				onPopupDestroy : BX.delegate(function() {
 					BX.unbindAll(BX.findChildByClassName(BX.proxy_context.popupContainer, "bx-notifier-item-delete"));
@@ -22817,6 +23243,11 @@ BX.IM.NotifyManager.prototype.nativeNotifyGranted = function()
 
 BX.IM.NotifyManager.prototype.nativeNotifyAccessForm = function()
 {
+	if (BX.MessengerCommon.isDesktop())
+	{
+		return this.nativeDesktopNotifyAccessForm();
+	}
+
 	clearTimeout(this.BXIM.messenger.popupMessengerTopLineTimeout);
 	if (!this.BXIM.messenger.popupMessengerTopLine)
 		return false;
@@ -22853,6 +23284,28 @@ BX.IM.NotifyManager.prototype.nativeNotifyAccessForm = function()
 
 	return true;
 }
+
+BX.IM.NotifyManager.prototype.nativeDesktopNotifyAccessForm = function()
+{
+	clearTimeout(this.popupMessengerDesktopTimeout);
+	var acceptButton = BX.delegate(function(){
+		BXDesktopSystem.Notify('Native notification', '', 'The desktop application requests the right to display notifications');
+		BX.desktop.setLocalConfig('nativeNotify', true);
+		this.BXIM.messenger.hideTopLine();
+	}, this);
+	var declineButton = BX.delegate(function(){
+		BX.desktop.setLocalConfig('nativeNotify', false);
+		this.BXIM.messenger.hideTopLine();
+	}, this);
+
+	this.BXIM.messenger.showTopLine(BX.message("IM_WN_MAC")+"<br />"+BX.message("IM_WN_TEXT"), [
+		{title: BX.message('IM_WN_ACCEPT'), callback: acceptButton},
+		{title: BX.message('IM_DESKTOP_INSTALL_N'), callback: declineButton}
+	], BX.delegate(function(){
+		this.BXIM.messenger.hideTopLine()
+	}, this));
+}
+
 
 BX.IM.LevelMeter = function(element)
 {

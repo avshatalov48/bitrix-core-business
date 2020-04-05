@@ -91,20 +91,19 @@ abstract class CollectableEntity
 	 */
 	public function isStartField($isMeaningfulField = false)
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
 			return false;
 
 		return $parent->isStartField($isMeaningfulField);
 	}
 
-
 	/**
 	 * @return bool
 	 */
 	public function clearStartField()
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
 			return false;
 
@@ -116,7 +115,7 @@ abstract class CollectableEntity
 	 */
 	public function hasMeaningfulField()
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
 			return false;
 
@@ -125,9 +124,11 @@ abstract class CollectableEntity
 
 	public function doFinalAction($hasMeaningfulField = false)
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
+		{
 			return false;
+		}
 
 		return $parent->doFinalAction($hasMeaningfulField);
 	}
@@ -138,9 +139,11 @@ abstract class CollectableEntity
 	 */
 	public function setMathActionOnly($value = false)
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
+		{
 			return false;
+		}
 
 		return $parent->setMathActionOnly($value);
 	}
@@ -150,7 +153,7 @@ abstract class CollectableEntity
 	 */
 	public function isMathActionOnly()
 	{
-		$parent = $this->getEntityParent();
+		$parent = $this->getCollection();
 		if ($parent == null)
 			return false;
 

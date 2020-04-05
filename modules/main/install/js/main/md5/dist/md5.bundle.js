@@ -14,7 +14,6 @@
   /**
    * Modify list for integration with Bitrix Framework:
    * - removed integration with third-party package builders;
-   * - replaced usages window.Vue to local value of Vue;
    * - add import & export for work in Bitrix CoreJS extensions;
    */
 

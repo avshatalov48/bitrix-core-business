@@ -113,6 +113,26 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 						</label>
 					</div>
 				</div>
+
+				<div class="calendar-settings-control">
+					<div class="calendar-settings-control-name"><label for="<?=$id?>_uset_calend_sel"><?=Loc::getMessage('EC_SYNC_PERIOD')?></label></div>
+					<div class="calendar-field-container calendar-field-container-select">
+						<div class="calendar-field-block">
+							<select id="<?=$id?>_sync_period_past" class="calendar-field calendar-field-select" style="width: 150px;">
+								<option value="3"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_3')?></option>
+								<option value="6"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_6')?></option>
+								<option value="12"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_12')?></option>
+							</select>
+							<span>&nbsp;&mdash;&nbsp;</span>
+							<select id="<?=$id?>_sync_period_future" class="calendar-field calendar-field-select" style="width: 150px;">
+								<option value="12"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_12')?></option>
+								<option value="24"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_24')?></option>
+								<option value="36"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_36')?></option>
+							</select>
+						</div>
+					</div>
+				</div>
+
 				<span id="<?=$id?>_manage_caldav" class="calendar-settings-link-option"><?= Loc::getMessage('EC_MANAGE_CALDAV')?></span>
 				<?endif; //if($isPersonal)?>
 

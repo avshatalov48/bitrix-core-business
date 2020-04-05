@@ -50,9 +50,9 @@
 					}
 
 				},
-				onFullSuccess: BX.delegate(function(result) {
+				onFullSuccess: function(result) {
 					this.currentFieldObject.setOptions(result.data);
-				}, this)
+				}.bind(this)
 			});
 		}
 	}

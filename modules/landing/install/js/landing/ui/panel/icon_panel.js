@@ -46,7 +46,7 @@
 		if (!BX.Landing.UI.Panel.Icon.instance)
 		{
 			BX.Landing.UI.Panel.Icon.instance = new BX.Landing.UI.Panel.Icon("icon_panel", {
-				title: BX.message("LANDING_ICONS_SLIDER_TITLE")
+				title: BX.Landing.Loc.getMessage("LANDING_ICONS_SLIDER_TITLE")
 			});
 		}
 
@@ -116,28 +116,34 @@
 							className: "landing-ui-card-icons"
 						});
 
-						this.appendCard(categoryCard);
-
 						category.items.forEach(function(item) {
-							var iconCard = new BX.Landing.UI.Card.IconPreview({
-								iconClassName: item,
-								onClick: function() {
-									this.onChange(item);
-								}.bind(this)
-							});
-							categoryCard.body.appendChild(iconCard.layout);
+							var iconLayout = document.createElement("div");
+							iconLayout.className = "landing-ui-card landing-ui-card-icon";
+							var icon = document.createElement("span");
+							icon.className = item;
+							iconLayout.appendChild(icon);
+							iconLayout.addEventListener("click", function() {
+								this.onChange(item);
+							}.bind(this));
 
-							var styles = getComputedStyle(iconCard.body.firstChild, ":before");
+							categoryCard.body.appendChild(iconLayout);
 
-							if (map.has(styles.content))
-							{
-								iconCard.layout.hidden = true;
-							}
-							else
-							{
-								map.set(styles.content, true);
-							}
+							var styles = getComputedStyle(icon, ":before");
+
+							requestAnimationFrame(function() {
+								var content = styles.getPropertyValue('content');
+								if (map.has(content))
+								{
+									iconLayout.hidden = true;
+								}
+								else
+								{
+									map.set(content, true);
+								}
+							}.bind(this));
 						}, this);
+
+						this.appendCard(categoryCard);
 					}
 				}, this);
 			}, this);

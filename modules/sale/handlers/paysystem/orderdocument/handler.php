@@ -17,7 +17,9 @@ Loc::loadMessages(__FILE__);
  * Class OrderDocumentHandler
  * @package Sale\Handlers\PaySystem
  */
-class OrderDocumentHandler extends PaySystem\BaseServiceHandler
+class OrderDocumentHandler
+	extends PaySystem\BaseServiceHandler
+	implements PaySystem\IDocumentGeneratePdf
 {
 	/**
 	 * @return string
@@ -25,19 +27,6 @@ class OrderDocumentHandler extends PaySystem\BaseServiceHandler
 	protected static function getDataProviderClass()
 	{
 		return Integration\DocumentGenerator\DataProvider\Order::class;
-	}
-
-	/**
-	 * @param Payment $payment
-	 * @param Request|null $request
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	public function preInitiatePay(Payment $payment, Request $request = null)
-	{
-		$this->getDocument($payment);
 	}
 
 	/**
@@ -64,7 +53,17 @@ class OrderDocumentHandler extends PaySystem\BaseServiceHandler
 		}
 
 		$documentInfo = $document->getFile()->getData();
-		$this->setExtraParams($documentInfo);
+		$params = array_merge($documentInfo, DocumentGenerator\Model\ExternalLinkTable::getPublicUrlsByDocumentId($document->ID));
+		if(!empty($params['hash']))
+		{
+			$params['isPublicMode'] = true;
+		}
+		if ($this->service->getField('NEW_WINDOW') === 'Y')
+		{
+			$params['IFRAME'] = 'Y';
+			$params['PRINT'] = 'Y';
+		}
+		$this->setExtraParams($params);
 
 		return $this->showTemplate($payment, 'template');
 	}
@@ -74,15 +73,7 @@ class OrderDocumentHandler extends PaySystem\BaseServiceHandler
 	 */
 	public function getCurrencyList()
 	{
-		return array('RUB');
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAffordPdf()
-	{
-		return true;
+		return [];
 	}
 
 	/**
@@ -117,9 +108,37 @@ class OrderDocumentHandler extends PaySystem\BaseServiceHandler
 
 	/**
 	 * @param Payment $payment
-	 * @return false|static
+	 * @param $params
+	 * @return PaySystem\ServiceResult|mixed
 	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentTypeException
+	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function registerCallbackOnGenerate(Payment $payment, $params)
+	{
+		$document = $this->getDocument($payment);
+		if ($document === null)
+		{
+			return new PaySystem\ServiceResult();
+		}
+
+		$callback = [
+			'DOCUMENT_ID' => $document->ID,
+			'MODULE_ID' => $params['MODULE_ID'],
+			'CALLBACK_CLASS' => $params['CALLBACK_CLASS'],
+			'CALLBACK_METHOD' => $params['CALLBACK_METHOD'],
+		];
+
+		Sale\DocumentGenerator\CallbackRegistry::add($callback);
+
+		return new PaySystem\ServiceResult();
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return DocumentGenerator\Document|false|null
+	 * @throws Main\ArgumentException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
@@ -165,10 +184,118 @@ class OrderDocumentHandler extends PaySystem\BaseServiceHandler
 			$template->setSourceType(static::getDataProviderClass());
 
 			$document = DocumentGenerator\Document::createByTemplate($template, $payment->getOrderId());
+			$document->setValues(['DocumentTitle' => $this->getFileName($payment)]);
 			$document->getFile();
 		}
+
+		$document->enablePublicUrl();
 
 		return $document;
 	}
 
+	/**
+	 * @param Payment $payment
+	 * @return string
+	 * @throws Main\ObjectException
+	 */
+	protected function getFileName(Payment $payment)
+	{
+		$today = new Main\Type\Date();
+		return 'invoice_'.$this->getInvoiceNumber($payment).'_'.str_replace(['.', '\\', '/'], '-' ,$today->toString());
+	}
+
+	/**
+	 * @param $payment
+	 * @return mixed
+	 */
+	protected function getInvoiceNumber(Payment $payment)
+	{
+		return $payment->getField('ACCOUNT_NUMBER');
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return bool|false|mixed|string|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function getContent(Payment $payment)
+	{
+		global $APPLICATION;
+
+		$file = $this->getFile($payment);
+		if ($file)
+		{
+			return $APPLICATION->GetFileContent($file['src']);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return array|bool|false|mixed|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function getFile(Payment $payment)
+	{
+		if (!Main\Loader::includeModule('documentgenerator'))
+		{
+			return null;
+		}
+
+		$document = $this->getDocument($payment);
+		if ($document === null)
+		{
+			return null;
+		}
+
+		$documentInfo = $document->getFile()->getData();
+		if (isset($documentInfo['pdfUrl']))
+		{
+			$fileId = DocumentGenerator\Model\FileTable::getBFileId($document->PDF_ID);
+			if ($fileId !== false)
+			{
+				$fileArray = \CFile::GetFileArray($fileId);
+				if ($fileArray)
+				{
+					return $fileArray;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return bool|mixed
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function isGenerated(Payment $payment)
+	{
+		if (!Main\Loader::includeModule('documentgenerator'))
+		{
+			return false;
+		}
+
+		$document = $this->getDocument($payment);
+		if ($document === null)
+		{
+			return false;
+		}
+
+		$documentInfo = $document->getFile()->getData();
+		return isset($documentInfo['pdfUrl']);
+	}
 }

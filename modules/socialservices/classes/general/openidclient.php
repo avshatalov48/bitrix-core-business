@@ -216,7 +216,7 @@ class COpenIDClient
 				if(!CSocServAuth::isSplitDenied())
 				{
 					$arFields['USER_ID'] = $GLOBALS["USER"]->GetID();
-					CSocServAuthDB::Add($arFields);
+					\Bitrix\Socialservices\UserTable::add($arFields);
 					self::CleanParam();
 				}
 				else
@@ -228,8 +228,14 @@ class COpenIDClient
 			{
 				$dbUsersOld = $GLOBALS["USER"]->GetList($by, $ord, array('XML_ID'=>$arFields['XML_ID'], 'EXTERNAL_AUTH_ID'=>$arFields['EXTERNAL_AUTH_ID'], 'ACTIVE'=>'Y'), array('NAV_PARAMS'=>array("nTopCount"=>"1")));
 				$dbUsersNew = $GLOBALS["USER"]->GetList($by, $ord, array('XML_ID'=>$arFields['XML_ID'], 'EXTERNAL_AUTH_ID'=>'socservices', 'ACTIVE'=>'Y'),  array('NAV_PARAMS'=>array("nTopCount"=>"1")));
-				$dbSocUser = CSocServAuthDB::GetList(array(),array('XML_ID'=>$arFields['XML_ID'], 'EXTERNAL_AUTH_ID'=>$arFields['EXTERNAL_AUTH_ID']),false,false,array("USER_ID", "ACTIVE", "XML_ID"));
-				if($arUser = $dbSocUser->Fetch())
+				$dbSocUser = \Bitrix\Socialservices\UserTable::getList([
+					'filter' => [
+						'=XML_ID'=>$arFields['XML_ID'],
+						'=EXTERNAL_AUTH_ID'=>$arFields['EXTERNAL_AUTH_ID']
+					],
+					'select' => ["USER_ID", "ACTIVE" => "USER.ACTIVE", "XML_ID"]
+				]);
+				if($arUser = $dbSocUser->fetch())
 				{
 					if($arUser["ACTIVE"] === 'Y')
 						$USER_ID = $arUser["USER_ID"];
@@ -263,7 +269,7 @@ class COpenIDClient
 							return false;
 						$arFields['CAN_DELETE'] = 'N';
 						$arFields['USER_ID'] = $USER_ID;
-						CSocServAuthDB::Add($arFields);
+						\Bitrix\Socialservices\UserTable::add($arFields);
 						unset($arFields['CAN_DELETE']);
 					}
 				}

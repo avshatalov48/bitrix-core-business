@@ -60,7 +60,7 @@
 							colorFieldValue: colorPickerValue
 						}
 					},
-					onFullSuccess: BX.delegate(function (result)
+					onFullSuccess: function (result)
 					{
 						var newReportConfigFields = BX.create('div', {
 							html: result.data
@@ -96,7 +96,7 @@
 							reportConfigurationsContainer.classList.remove('report-configuration-container-visible');
 						}
 						BX.html(null, result.data);
-					}, this)
+					}.bind(this)
 				});
 
 			}
@@ -122,10 +122,10 @@
 				urlParams: {
 					categoryKey: this.ownerFieldObject.getValue()
 				},
-				onFullSuccess: BX.delegate(function (result)
+				onFullSuccess: function (result)
 				{
 					this.currentFieldObject.setOptions(result.data);
-				}, this)
+				}.bind(this)
 			});
 		},
 		removeReportFromConfiguration: function ()

@@ -575,8 +575,11 @@ class CFacebookInterface extends CSocServOAuthTransport
 
 	private function SetOauthKeys($socServUserId)
 	{
-		$dbSocservUser = CSocServAuthDB::GetList(array(), array('ID' => $socServUserId), false, false, array("OATOKEN", "XML_ID"));
-		while($arOauth = $dbSocservUser->Fetch())
+		$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+			'filter' => ['=ID' => $socServUserId],
+			'select' => ["OATOKEN", "XML_ID"]
+		]);
+		while($arOauth = $dbSocservUser->fetch())
 		{
 			$this->access_token = $arOauth["OATOKEN"];
 			$this->userId = $arOauth["XML_ID"];

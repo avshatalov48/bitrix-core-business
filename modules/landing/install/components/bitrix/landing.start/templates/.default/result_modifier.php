@@ -10,10 +10,18 @@ $request = $context->getRequest();
 use \Bitrix\Main\Localization\Loc;
 Loc::loadMessages(dirname(__FILE__) . '/template.php');
 
+\Bitrix\Main\UI\Extension::load([
+	'ajax',
+	'landing_master'
+]);
+
+$disableFrame = $this->getPageName() == 'landing_view';
+
 ob_start();
 ?>
 <script type="text/javascript">
 	BX.message({
+		LANDING_TPL_JS_PAY_TARIFF_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF_TITLE'));?>',
 		LANDING_TPL_JS_PAY_TARIFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF'));?>'
 	});
 </script>
@@ -42,7 +50,7 @@ if ($arParams['SEF_MODE'] != 'Y')
 }
 
 // iframe header
-if ($request->get('IFRAME') == 'Y')
+if ($request->get('IFRAME') == 'Y' && !$disableFrame)
 {
 	\Bitrix\Landing\Manager::getApplication()->restartBuffer();
 	include 'slider_header.php';
@@ -76,24 +84,27 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 
 	if ($this->getPageName() == 'site_show')
 	{
-		$title = Loc::getMessage('LANDING_TPL_ADD_PAGE');
-		$link = $arParams['PAGE_URL_LANDING_EDIT'];
-		$link = str_replace(
-			array('#site_show#', '#landing_edit#'),
-			array($arResult['VARS']['site_show'], 0),
-			$link);
-
-		$folderId = $request->get($arParams['ACTION_FOLDER']);
-		if ($folderId)
+		if ($arResult['ACCESS_PAGE_NEW'] == 'Y')
 		{
-			$link = new \Bitrix\Main\Web\Uri($link);
-			$link->addParams(array(
-				$arParams['ACTION_FOLDER'] => $folderId
-			));
-			$link = $link->getUri();
+			$title = Loc::getMessage('LANDING_TPL_ADD_PAGE');
+			$link = $arParams['PAGE_URL_LANDING_EDIT'];
+			$link = str_replace(
+				array('#site_show#', '#landing_edit#'),
+				array($arResult['VARS']['site_show'], 0),
+				$link);
+
+			$folderId = $request->get($arParams['ACTION_FOLDER']);
+			if ($folderId)
+			{
+				$link = new \Bitrix\Main\Web\Uri($link);
+				$link->addParams(array(
+					$arParams['ACTION_FOLDER'] => $folderId
+				));
+				$link = $link->getUri();
+			}
 		}
 	}
-	else
+	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
 	{
 		$title = Loc::getMessage('LANDING_TPL_ADD_SITE_' . $arParams['TYPE']);
 		$link = $arParams['PAGE_URL_SITE_EDIT'];
@@ -106,6 +117,33 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 
 	$folderId = $request->get($arParams['ACTION_FOLDER']);
 
+	// settings menu
+	$settingsLink = [];
+	if (
+		$arResult['VARS']['site_show'] > 0 &&
+		$arResult['ACCESS_SITE_SETTINGS'] == 'Y'
+	)
+	{
+		$settingsLink[] = [
+			'TITLE' => Loc::getMessage('LANDING_TPL_SETTING_SITE'),
+			'LINK' => $linkSett = str_replace(
+				'#site_edit#',
+				$arResult['VARS']['site_show'],
+				$arParams['PAGE_URL_SITE_EDIT']
+			)
+		];
+		if ($arParams['TYPE'] == 'STORE')
+		{
+			$uriSettCatalog = new \Bitrix\Main\Web\Uri($linkSett);
+			$uriSettCatalog->addParams(['tpl' => 'catalog']);
+			$settingsLink[] = [
+				'TITLE' => Loc::getMessage('LANDING_TPL_SETTING_CATALOG'),
+				'LINK' => $uriSettCatalog->getUri()
+			];
+			unset($linkSett, $uriSettCatalog);
+		}
+	}
+
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.filter',
 		'.default',
@@ -113,24 +151,23 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 			'FILTER_TYPE' => $this->getPageName() == 'site_show'
 							? 'LANDING'
 							: 'SITE',
-			'SETTING_LINK' => ($arResult['VARS']['site_show'] > 0)
-								? str_replace(
-									'#site_edit#',
-									$arResult['VARS']['site_show'],
-									$arParams['PAGE_URL_SITE_EDIT']
+			'SETTING_LINK' => $settingsLink,
+			'BUTTONS' => ($link && $title)
+							? array(
+								array(
+									'LINK' => $link,
+									'TITLE' => $title
 								)
-								: '',
-			'BUTTONS' => array(
-				array(
-					'LINK' => $link,
-					'TITLE' => $title
-				)
-			),
+							)
+							: array(),
 			'TYPE' => $arParams['TYPE'],
+			'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 			'FOLDER_SITE_ID' => !$folderId ? $arResult['VARS']['site_show'] : 0
 		),
 		$this->__component
 	);
+
+	unset($settingsLink);
 }
 
 if (
@@ -140,4 +177,15 @@ if (
 )
 {
 	include __DIR__ . '/popups/agreement.php';
+	?>
+	<script type="text/javascript">
+		BX.ready(function()
+		{
+			if (typeof landingAgreementPopup !== 'undefined')
+			{
+				landingAgreementPopup();
+			}
+		});
+	</script>
+	<?
 }

@@ -179,4 +179,20 @@ class BooleanField extends ScalarField
 			$this->normalizeValue($value)
 		);
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getGetterTypeHint()
+	{
+		return '\\boolean';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetterTypeHint()
+	{
+		return '\\boolean';
+	}
 }

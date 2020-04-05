@@ -1,6 +1,5 @@
 <?
 $MESS["MODULE_INCLUDE_ERROR"] = "Error accessing the Bitrix Cloud module.";
-$MESS["MODULE_INTRANET_ERROR"] = "Website Accelerator cannot be used if the Intranet module is installed.";
 $MESS["BCL_TITLE"] = "CDN Web Accelerator";
 $MESS["BCL_MAIN_TAB1"] = "Accelerator";
 $MESS["BCL_MAIN_TAB_TITLE"] = "CDN parameters and status";

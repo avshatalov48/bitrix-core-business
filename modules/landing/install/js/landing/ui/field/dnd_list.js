@@ -221,7 +221,8 @@
 
 				bind(this.popup.popupContainer, "mouseover", this.onMouseOver);
 				bind(this.popup.popupContainer, "mouseleave", this.onMouseLeave);
-				bind(top.document, "click", this.onDocumentClick.bind(this));
+				var rootWindow = BX.Landing.PageObject.getRootWindow();
+				bind(rootWindow.document, "click", this.onDocumentClick.bind(this));
 				append(
 					this.popup.popupContainer,
 					findParent(this.addButton.layout, {className: "landing-ui-panel-content-body-content"})
@@ -446,7 +447,7 @@
 			return create("div", {
 				props: {className: "landing-ui-field-dnd-value-placeholder"},
 				children: [
-					create("span", {html: BX.message("LANDING_FIELD_CATALOG_CONSTRUCTOR_PLACEHOLDER_TEXT")})
+					create("span", {html: BX.Landing.Loc.getMessage("LANDING_FIELD_CATALOG_CONSTRUCTOR_PLACEHOLDER_TEXT")})
 				]
 			})
 		},

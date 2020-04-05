@@ -4,6 +4,7 @@ namespace Sale\Handlers\Delivery\Additional\DeliveryRequests\RusPost;
 use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\HttpClient;
 use Bitrix\Sale\Shipment;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Localization\Loc;
@@ -15,6 +16,9 @@ Loc::loadMessages(__FILE__);
 
 class Handler extends Requests\HandlerBase
 {
+	/** @var HttpClient */
+	protected $httpClient = null;
+
 	/**
 	 * Handler constructor.
 	 * @param Services\Base $deliveryService
@@ -23,6 +27,33 @@ class Handler extends Requests\HandlerBase
 	{
 		parent::__construct($deliveryService);
 		self::registerLocalClasses();
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function getHttpClient()
+	{
+		if($this->httpClient === null)
+		{
+			$this->httpClient = new HttpClient(array(
+				"version" => "1.1",
+				"socketTimeout" => 30,
+				"streamTimeout" => 30,
+				"redirect" => true,
+				"redirectMax" => 5,
+			));
+		}
+
+		return $this->httpClient;
+	}
+
+	/**
+	 * @param HttpClient $httpClient
+	 */
+	public function setHttpClient(HttpClient $httpClient): void
+	{
+		$this->httpClient = $httpClient;
 	}
 
 	/**
@@ -42,7 +73,7 @@ class Handler extends Requests\HandlerBase
 			'Base', 'BaseFile', 'OrderCreate', 'OrderDelete', 'CleanAddress', 'NormalizeFio', 'BatchCreate',
 			'OrderDocF7P', 'OrderDocForms', 'BatchOrderAdd', 'BatchesList', 'BatchOrders', 'BatchDocF103',
 			'BatchDocPrepare', 'BatchDateUpdate', 'BatchDocAll', 'Batch', 'BatchOrder', 'OPS', 'OrderDocF112EK',
-			'UserSettings'
+			'UserSettings', 'UnreliableRecipient'
 		);
 		$classes = array(
 			__NAMESPACE__.'\Reference' => 'handlers/delivery/additional/deliveryrequests/ruspost/reference.php'
@@ -292,13 +323,14 @@ class Handler extends Requests\HandlerBase
 			'BATCHORDER' => 'BatchOrder',
 			'OPS' => 'OPS',
 			'USER_SETTINGS' => 'UserSettings',
-			'ORDER_DOC_F112EK' => 'OrderDocF112EK'
+			'ORDER_DOC_F112EK' => 'OrderDocF112EK',
+			'UNRELIABLE_RECIPIENT' => 'UnreliableRecipient'
 		);
 
 		if(isset($requests[$type]))
 		{
 			$className = __NAMESPACE__.'\Requests\\'.$requests[$type];
-			$result = new $className($this->deliveryService);
+			$result = new $className($this->deliveryService, $this->getHttpClient());
 		}
 
 		return $result;

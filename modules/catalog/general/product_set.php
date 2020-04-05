@@ -5,7 +5,7 @@ use Bitrix\Main,
 
 Loc::loadMessages(__FILE__);
 
-class CCatalogProductSetAll
+abstract class CCatalogProductSetAll
 {
 	const TYPE_SET = 1;
 	const TYPE_GROUP = 2;
@@ -86,7 +86,7 @@ class CCatalogProductSetAll
 		$boolCheck = ('UPDATE' != $strAction ? self::checkFieldsToAdd($arFields, 'TEST' == $strAction) : self::checkFieldsToUpdate($intID, $arFields));
 		if (!$boolCheck || !empty(self::$arErrors))
 		{
-			if (self::$disableShowErrors >= 0)
+			if (static::isEnabledShowErrors())
 			{
 				global $APPLICATION;
 				$obError = new CAdminException(self::$arErrors);
@@ -113,11 +113,21 @@ class CCatalogProductSetAll
 		return false;
 	}
 
+	/**
+	 * @param int $intProductID
+	 * @param int $intSetType
+	 * @return bool
+	 */
 	public static function isProductInSet($intProductID, $intSetType = 0)
 	{
 		return false;
 	}
 
+	/**
+	 * @param int|array $arProductID
+	 * @param int $intSetType
+	 * @return bool
+	 */
 	public static function isProductHaveSet($arProductID, $intSetType = 0)
 	{
 		return false;
@@ -138,11 +148,20 @@ class CCatalogProductSetAll
 		return true;
 	}
 
+	/**
+	 * @param int $intProductID
+	 * @param int $intSetType
+	 * @return array|false
+	 */
 	public static function getAllSetsByProduct($intProductID, $intSetType)
 	{
 		return false;
 	}
 
+	/**
+	 * @param int $intID
+	 * @return array|false
+	 */
 	public static function getSetByID($intID)
 	{
 		return false;
@@ -184,10 +203,11 @@ class CCatalogProductSetAll
 		return true;
 	}
 
-	public static function recalculateSetsByProduct($product)
-	{
-
-	}
+	/**
+	 * @param int $product
+	 * @return void
+	 */
+	public static function recalculateSetsByProduct($product) {}
 
 	public static function recalculateSet($setID, $productID = 0)
 	{
@@ -754,14 +774,11 @@ class CCatalogProductSetAll
 
 	protected static function fillSetItemsParams(&$items)
 	{
-		$productIterator = CCatalogProduct::GetList(
-			array(),
-			array('=ID' => array_keys($items)),
-			false,
-			false,
-			array('ID', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO', 'WEIGHT')
-		);
-		while ($product = $productIterator->Fetch())
+		$productIterator = Catalog\ProductTable::getList([
+			'select' => ['ID', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO', 'WEIGHT'],
+			'filter' => ['@ID' => array_keys($items)]
+		]);
+		while ($product = $productIterator->fetch())
 		{
 			$product['ID'] = (int)$product['ID'];
 			if (isset($items[$product['ID']]))

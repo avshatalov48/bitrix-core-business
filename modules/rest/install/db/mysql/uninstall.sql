@@ -9,3 +9,5 @@ DROP TABLE IF EXISTS b_rest_event_offline;
 DROP TABLE IF EXISTS b_rest_stat_method;
 DROP TABLE IF EXISTS b_rest_stat;
 DROP TABLE IF EXISTS b_rest_app_log;
+DROP TABLE IF EXISTS b_rest_usage_entity;
+DROP TABLE IF EXISTS b_rest_usage_stat;

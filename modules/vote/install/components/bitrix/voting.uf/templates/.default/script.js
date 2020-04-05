@@ -32,15 +32,19 @@
 			n = BX.findChildren(this.node, {tagName : "TR"}, true);
 			while (n && (answer = n.pop()) && answer && answer.hasAttribute("data-bx-vote-answer"))
 			{
-				if (window["app"])
+				i = BX.findChild(answer, {"tagName" : "A", attribute : {"data-bx-vote-result" : "counter"}}, true);
+				if (i)
 				{
-					BX.bind(answer, "click", BX.proxy(this.checkMobileUsers, this));
-				}
-				else
-				{
-					i = BX.findChild(answer, {"tagName" : "A", attribute : {"data-bx-vote-result" : "counter"}}, true);
-					BX.bind(i, "click", BX.proxy(this.checkUsers, this));
-					BX.adjust(i, {attrs : {"data-bx-vote-answer" : answer.getAttribute("data-bx-vote-answer")}});
+					if (window["app"])
+					{
+						BX.bind(answer, "click", BX.proxy(this.checkMobileUsers, this));
+					}
+					else
+					{
+
+						BX.bind(i, "click", BX.proxy(this.checkUsers, this));
+						BX.adjust(i, {attrs : {"data-bx-vote-answer" : answer.getAttribute("data-bx-vote-answer")}});
+					}
 				}
 			}
 
@@ -79,7 +83,7 @@
 				{
 					var f = BX.proxy(function(data) {
 						if (data && data.data && data.data.event)
-							this.adjustBallot(data.data.attach, data.data.event.ballot);
+							this.adjustBallot(data.data.attach, data.data.event);
 						this.node.setAttribute("data-bx-vote-form", "shown");
 					}, this),
 						ff = BX.proxy(function(error) {
@@ -110,7 +114,8 @@
 
 						this.node.setAttribute("data-bx-vote-lamp", "green");
 					}
-
+					if (data["data"] && data["data"]["attach"])
+						this.adjustResults(data["data"]["attach"]);
 				}, this));
 				BX.eventCancelBubble(e);
 				return BX.PreventDefault(e);
@@ -165,47 +170,62 @@
 					}, this)
 				});
 			},
-			adjustBallot : function(attachment, ballot) {
-				var q, a, e, i, es, nulled = {}, an, v, attach = attachment["QUESTIONS"];
+			adjustBallot : function(attachment, event) {
+				var q, a, e, i, j, es, qu, an, v,
+					attach = attachment["QUESTIONS"],
+					ballot = event["ballot"],
+					extras = event["extras"];
 				for (q in attach)
 				{
 					if (attach.hasOwnProperty(q))
 					{
+						qu = attach[q];
+						e = [qu["FIELD_NAME"], qu["FIELD_NAME"] + "[]"];
+						v = (ballot[q] || {});
+						while(i = e.shift())
+						{
+							if (this.form.elements[i])
+							{
+								es = BX(this.form.elements[i]) ? [this.form.elements[i]] : this.form.elements[i];
+								for (i = 0; i < es.length;i++)
+								{
+									if (v[es[i].value])
+									{
+										es[i].checked = "checked";
+									}
+									else
+									{
+										delete es[i].checked;
+									}
+								}
+							}
+						}
+
 						for (a in attach[q]["ANSWERS"])
 						{
 							if (attach[q]["ANSWERS"].hasOwnProperty(a))
 							{
 								an = attach[q]["ANSWERS"][a];
-								an["FIELD_NAME"] += (an["FIELD_TYPE"] == 1 || an["FIELD_TYPE"] == 3 ? "[]" : "");
-								if (this.form.elements[an["FIELD_NAME"]])
+								if (an["FIELD_TYPE"] >= 4)
 								{
-									if (an["FIELD_TYPE"] >= 4)
-									{
-										this.form.elements[an["FIELD_NAME"]].value = (ballot[q] && ballot[q][a] && ballot[q][a]["MESSAGE"] ? ballot[q][a]["MESSAGE"] : "");
-									}
+									if (this.form.elements[an["MESSAGE_FIELD_NAME"]])
+										this.form.elements[an["MESSAGE_FIELD_NAME"]].value = (ballot[q] && ballot[q][a] && ballot[q][a]["MESSAGE"] ? ballot[q][a]["MESSAGE"] : "");
 									else
-									{
-										v = (ballot[q] || {});
-										es = BX(this.form.elements[an["FIELD_NAME"]]) ? [this.form.elements[an["FIELD_NAME"]]] : this.form.elements[an["FIELD_NAME"]];
-										if (nulled[an["FIELD_NAME"]] !== true)
-										{
-											nulled[an["FIELD_NAME"]] = true;
-											for (i = 0; i < es.length;i++)
-											{
-												delete es[i].checked;
-											}
-										}
-										for (i = 0; i < es.length;i++)
-										{
-											if (v[es[i].value])
-											{
-												es[i].checked = "checked";
-											}
-										}
-									}
+										this.form.elements[an["FIELD_NAME"]].value = (ballot[q] && ballot[q][a] && ballot[q][a]["MESSAGE"] ? ballot[q][a]["MESSAGE"] : "");
 								}
 							}
 						}
+					}
+				}
+				for (i in extras)
+				{
+					if (extras.hasOwnProperty(i) &&
+						(q = (BX(this.form.elements[String(attachment["FIELD_NAME"]).replace("#ENTITY_ID#", i)]))))
+					{
+						if (q.value == extras[i])
+							q.checked = true;
+						else
+							delete q.checked;
 					}
 				}
 			},
@@ -229,7 +249,7 @@
 									{
 										per = parseInt(questions[q]["ANSWERS"][i]["PERCENT"]);
 										per = (isNaN(per) ? 0 : per);
-										n = BX.findChild(answer, {"tagName" : "A", attribute : {"data-bx-vote-result" : "counter"}}, true);
+										n = BX.findChild(answer, {attribute : {"data-bx-vote-result" : "counter"}}, true);
 										BX.adjust(n, {"html" : questions[q]["ANSWERS"][i]["COUNTER"] + ""});
 										delete n["VOTED_USER_OBJ"];
 										BX.adjust(BX.findChild(answer, {"tagName" : "SPAN", attribute : {"data-bx-vote-result" : "percent"}}, true),
@@ -296,8 +316,14 @@
 					}
 					t = t.join("<br />");
 					textError = (t === "" ? "Unknown error" : t);
+					this.errorNode.innerHTML = textError;
+					this.node.setAttribute("data-bx-vote-error", "shown");
 				}
-				this.errorNode.innerHTML = textError;
+				else
+				{
+					this.errorNode.innerHTML = "";
+					this.node.setAttribute("data-bx-vote-error", "hidden");
+				}
 			}
 	};
 		return d;
@@ -417,7 +443,7 @@
 					{
 						if (!BX.findChild(node, {tag : "A", attr : {id : ("a" + this.answerId + "u" + data[i]['ID'])}}, true))
 						{
-							if (data[i]['PHOTO_SRC'].length > 0)
+							if (BX.type.isNotEmptyString(data[i]['PHOTO_SRC']))
 							{
 								avatarNode = BX.create("IMG", {
 									attrs: {src: data[i]['PHOTO_SRC']},
@@ -432,34 +458,65 @@
 								});
 							}
 
-							node.appendChild(
-								BX.create("A", {
-									attrs : {id : ("a" + this.answerId + "u" + data[i]['ID'])},
-									props: {
-										href: this.urlTemplate.replace("#ID#", data[i]['ID']),
-										target: "_blank",
-										className: "bx-ilike-popup-img" + (!!data[i]['TYPE'] ? " bx-ilike-popup-img-" + data[i]['TYPE'] : "")
-									},
-									text: "",
-									children: [
-										BX.create("SPAN", {
-												props: {className: "bx-ilike-popup-avatar-new"},
-												children: [
-													avatarNode,
-													BX.create("SPAN", {
-														props: {className: "bx-ilike-popup-avatar-status-icon"}
-													})
-												]
-											}
-										),
-										BX.create("SPAN", {
-												props: {className: "bx-ilike-popup-name-new"},
-												html : data[i]['FULL_NAME']
-											}
-										)
-									]
-								})
-							);
+							if (data[i]['ID'] !== "HIDDEN")
+							{
+								node.appendChild(
+									BX.create("A", {
+										attrs : {id : ("a" + this.answerId + "u" + data[i]['ID'])},
+										props: {
+											href: this.urlTemplate.replace("#ID#", data[i]['ID']),
+											target: "_blank",
+											className: "bx-ilike-popup-img" + (!!data[i]['TYPE'] ? " bx-ilike-popup-img-" + data[i]['TYPE'] : "")
+										},
+										text: "",
+										children: [
+											BX.create("SPAN", {
+													props: {className: "bx-ilike-popup-avatar-new"},
+													children: [
+														avatarNode,
+														BX.create("SPAN", {
+															props: {className: "bx-ilike-popup-avatar-status-icon"}
+														})
+													]
+												}
+											),
+											BX.create("SPAN", {
+													props: {className: "bx-ilike-popup-name-new"},
+													html : data[i]['FULL_NAME']
+												}
+											)
+										]
+									})
+								);
+							}
+							else
+							{
+								node.appendChild(
+									BX.create("SPAN", {
+										props: {
+											className: "bx-ilike-popup-img"
+										},
+										text: "",
+										children: [
+											BX.create("SPAN", {
+													props: {className: "bx-ilike-popup-avatar-new"},
+													children: [
+														avatarNode,
+														BX.create("SPAN", {
+															props: {className: "bx-ilike-popup-avatar-status-icon"}
+														})
+													]
+												}
+											),
+											BX.create("SPAN", {
+													props: {className: "bx-ilike-popup-name-new"},
+													html : data[i]['FULL_NAME']
+												}
+											)
+										]
+									})
+								);
+							}
 						}
 					}
 				}

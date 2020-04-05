@@ -40,7 +40,8 @@ $res = $arResult["SECTION"];
 	<noindex>
 	<div class="photo-top-controls">
 		<a rel="nofollow" class="photo-control-album-edit" href="<?=$arResult["SECTION"]["EDIT_LINK"]?>"><?=GetMessage("P_SECTION_EDIT")?></a>
-		<a rel="nofollow" href="<?=$arResult["SECTION"]["NEW_LINK"]?>" onclick="EditAlbum('<?=CUtil::JSEscape($arResult["SECTION"]["~NEW_LINK"])?>'); return false;"><?=GetMessage("P_ADD_ALBUM")?></a>
+		<a rel="nofollow" href="<?=$arResult["SECTION"]["NEW_LINK"]?>" onclick="EditAlbum('<?=htmlspecialcharsbx
+		(CUtil::JSEscape($arResult["SECTION"]["~NEW_LINK"]))?>'); return false;"><?=GetMessage("P_ADD_ALBUM")?></a>
 		<a rel="nofollow" href="<?=$arResult["SECTION"]["UPLOAD_LINK"]?>" target="_self"><?=GetMessage("P_UPLOAD")?></a>
 	</div>
 	</noindex>

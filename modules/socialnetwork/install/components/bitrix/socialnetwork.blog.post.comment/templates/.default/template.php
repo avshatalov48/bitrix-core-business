@@ -159,7 +159,7 @@ BX.ready(function() {
 
 if ($GLOBALS["USER"]->IsAuthorized() && CModule::IncludeModule("pull") && CPullOptions::GetNginxStatus()) { ?>
 <script type="text/javascript">
-BX.addCustomEvent("onPullEvent-unicomments", function(command, params) { if (params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>') { BX.show(BX('blg-comment-<?=$arParams["ID"]?>')); } } );
+BX.addCustomEvent("onPullEvent-unicomments", function(command, params) { if (params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>' && BX('blg-comment-<?=$arParams["ID"]?>')) { BX.show(BX('blg-comment-<?=$arParams["ID"]?>')); } } );
 </script>
 <? }
 if ($arResult["CanUserComment"])

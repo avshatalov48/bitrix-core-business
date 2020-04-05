@@ -4,6 +4,12 @@ namespace Bitrix\Landing;
 abstract class Field
 {
 	/**
+	 * Field id.
+	 * @var string
+	 */
+	protected $id;
+
+	/**
 	 * Field code.
 	 * @var string
 	 */
@@ -28,6 +34,18 @@ abstract class Field
 	protected $help;
 
 	/**
+	 * Searchable flag of field.
+	 * @var bool
+	 */
+	protected $searchable = false;
+
+	/**
+	 * Modificator, which called within getting value.
+	 * @var callable
+	 */
+	protected $fetchModificator = null;
+
+	/**
 	 * Class constructor.
 	 * @param string $code Field code.
 	 * @param array $params Field params.
@@ -39,6 +57,17 @@ abstract class Field
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
 		$this->help = isset($params['help']) ? $params['help'] : '';
+		$this->searchable = isset($params['searchable']) && $params['searchable'] === true;
+		$this->fetchModificator = isset($params['fetch_data_modification']) ? $params['fetch_data_modification'] : null;
+	}
+
+	/**
+	 * Gets true, if current value is empty.
+	 * @return bool
+	 */
+	public function isEmptyValue()
+	{
+		return $this->value === null;
 	}
 
 	/**
@@ -57,6 +86,13 @@ abstract class Field
 	 */
 	public function getValue()
 	{
+		if (is_callable($this->fetchModificator))
+		{
+			return call_user_func_array(
+				$this->fetchModificator,
+				[$this->value]
+			);
+		}
 		return $this->value;
 	}
 
@@ -67,6 +103,15 @@ abstract class Field
 	public function getHelpValue()
 	{
 		return $this->help;
+	}
+
+	/**
+	 * Returns searchable flag of field.
+	 * @return bool
+	 */
+	public function isSearchable()
+	{
+		return $this->searchable;
 	}
 
 	/**

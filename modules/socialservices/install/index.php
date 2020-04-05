@@ -29,6 +29,12 @@ class socialservices extends CModule
 		if(!$DB->Query("SELECT 'x' FROM b_socialservices_user", true))
 		{
 			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/db/".$DBType."/install.sql");
+			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
+			{
+				\Bitrix\Main\Config\Option::set("socialservices", "allow_encrypted_tokens", true);
+				\Bitrix\Main\ORM\Data\DataManager::enableCrypto('OATOKEN', 'b_socialservices_user');
+				\Bitrix\Main\ORM\Data\DataManager::enableCrypto('REFRESH_TOKEN', 'b_socialservices_user');
+			}
 		}
 
 		if ($errors !== false)
@@ -44,7 +50,7 @@ class socialservices extends CModule
 		RegisterModuleDependences('timeman', 'OnAfterTMDayStart', 'socialservices', 'CSocServAuthDB', 'OnAfterTMDayStart');
 		RegisterModuleDependences('timeman', 'OnTimeManShow', 'socialservices', 'CSocServEventHandlers', 'OnTimeManShow');
 		RegisterModuleDependences('main', 'OnFindExternalUser', 'socialservices', 'CSocServAuthDB', 'OnFindExternalUser');
-
+		RegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
 
@@ -88,7 +94,7 @@ class socialservices extends CModule
 		UnRegisterModuleDependences('timeman', 'OnAfterTMDayStart', 'socialservices', 'CSocServAuthDB', 'OnAfterTMDayStart');
 		UnRegisterModuleDependences('timeman', 'OnTimeManShow', 'socialservices', 'CSocServEventHandlers', 'OnTimeManShow');
 		UnRegisterModuleDependences('main', 'OnFindExternalUser', 'socialservices', 'CSocServAuthDB', 'OnFindExternalUser');
-
+		UnRegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
 
@@ -180,5 +186,36 @@ class socialservices extends CModule
 	public function migrateToBox()
 	{
 		COption::RemoveOption($this->MODULE_ID);
+	}
+
+	function OnGetTableSchema()
+	{
+		return array(
+			"socialservices" => array(
+				"b_socialservices_user" => array(
+					"ID" => array(
+						"b_socialservices_message" => "SOCSERV_USER_ID",
+						"b_socialservices_user_link" => "SOCSERV_USER_ID",
+					),
+				),
+			),
+			"main" => array(
+				"b_user" => array(
+					"ID" => array(
+						"b_socialservices_user" => "USER_ID",
+						"b_socialservices_message" => "USER_ID",
+						"b_socialservices_user_link" => "USER_ID",
+						"b_socialservices_user_link^" => "LINK_USER_ID",
+						"b_socialservices_contact" => "USER_ID",
+						"b_socialservices_contact^" => "CONTACT_USER_ID",
+					)
+				),
+				"b_file" => array(
+					"ID" => array(
+						"b_socialservices_user" => "PERSONAL_PHOTO",
+					)
+				),
+			),
+		);
 	}
 }

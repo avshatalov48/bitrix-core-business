@@ -62,7 +62,7 @@
 		}
 
 		var grid = BX.Main.gridManager.getById(id);
-		if (!grid)
+		if (!grid || !BX.height(grid.instance.getTable()))
 		{
 			return;
 		}

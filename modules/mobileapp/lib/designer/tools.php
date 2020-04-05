@@ -21,6 +21,7 @@ class Tools
 		$lastModificationHash = Option::get("mobileapp","mobile_core_modification","");
 		$coreMobileFileList = array(
 			"/bitrix/js/main/core/core.js",
+			"/bitrix/js/main/core/core_promise.js",
 			"/bitrix/js/main/core/core_ajax.js",
 			"/bitrix/js/main/core/core_db.js",
 			"/bitrix/js/mobileapp/bitrix_mobile.js",

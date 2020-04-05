@@ -29,12 +29,11 @@ class EventMessageAttachmentTable extends Entity\DataManager
 			'EVENT_MESSAGE_ID' => array(
 				'data_type' => 'integer',
 				'primary' => true,
-				'autocomplete' => true,
 			),
 
 			'FILE_ID' => array(
 				'data_type' => 'integer',
-				'required' => true,
+				'primary' => true,
 			),
 		);
 	}

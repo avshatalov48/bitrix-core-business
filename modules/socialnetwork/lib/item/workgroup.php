@@ -153,7 +153,7 @@ class Workgroup
 		return $result;
 	}
 
-	public function syncDeptConnection()
+	public function syncDeptConnection($exclude = false)
 	{
 		global $USER;
 
@@ -186,7 +186,8 @@ class Workgroup
 			}
 			$workgroupsToSync[] = array(
 				'groupId' => $groupFields["ID"],
-				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID'])
+				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID']),
+				'exclude' => $exclude
 			);
 			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
 			\Bitrix\Socialnetwork\Update\WorkgroupDeptSync::bind(1);
@@ -306,14 +307,15 @@ class Workgroup
 			return true;
 		}
 
-		$groupsToCheck = array();
+		$oldGroupsIdToCheckList = self::$groupsIdToCheckList;
+		$newGroupsIdToCheckList = [];
+
 		if (
 			isset($section['ACTIVE'])
 			&& $section['ACTIVE'] == 'N'
 		)
 		{
 			self::disconnectSection($section['ID']);
-			$groupsToCheck = self::$groupsIdToCheckList;
 		}
 		else
 		{
@@ -329,17 +331,23 @@ class Workgroup
 			if (!empty($rootSectionIdList))
 			{
 				$newGroupsIdToCheckList = UserToGroup::getConnectedGroups($rootSectionIdList);
-				if (!empty($newGroupsIdToCheckList))
-				{
-					$groupsToCheck = array_merge(self::$groupsIdToCheckList, $newGroupsIdToCheckList);
-				}
 			}
 		}
 
-		if (!empty($groupsToCheck))
+		if (!empty($oldGroupsIdToCheckList))
 		{
-			$groupsToCheck = array_unique($groupsToCheck);
-			foreach($groupsToCheck as $groupId)
+			$oldGroupsIdToCheckList = array_unique($oldGroupsIdToCheckList);
+			foreach($oldGroupsIdToCheckList as $groupId)
+			{
+				$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId, false);
+				$groupItem->syncDeptConnection(true);
+			}
+		}
+
+		if (!empty($newGroupsIdToCheckList))
+		{
+			$newGroupsIdToCheckList = array_unique($newGroupsIdToCheckList);
+			foreach($newGroupsIdToCheckList as $groupId)
 			{
 				$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId, false);
 				$groupItem->syncDeptConnection();
@@ -418,7 +426,6 @@ class Workgroup
 		}
 
 		return true;
-
 	}
 
 	private static function disconnectSection($sectionId)
@@ -445,7 +452,7 @@ class Workgroup
 			));
 
 			$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($group['ID'], false);
-			$groupItem->syncDeptConnection();
+			$groupItem->syncDeptConnection(true);
 		}
 	}
 
@@ -453,6 +460,7 @@ class Workgroup
 	{
 		static $intranetInstalled = null;
 		static $extranetInstalled = null;
+		static $landingInstalled = null;
 
 		if ($intranetInstalled === null)
 		{
@@ -465,6 +473,11 @@ class Workgroup
 				ModuleManager::isModuleInstalled('extranet')
 				&& strlen(Option::get("extranet", "extranet_site")) > 0
 			);
+		}
+
+		if ($landingInstalled === null)
+		{
+			$landingInstalled = ModuleManager::isModuleInstalled('landing');
 		}
 
 		$currentExtranetSite = (
@@ -487,7 +500,7 @@ class Workgroup
 			&& $params["fullMode"]
 		);
 
-		$result = array();
+		$result = [];
 
 		if (
 			$intranetInstalled
@@ -618,6 +631,27 @@ class Workgroup
 				'EXTERNAL' => 'Y',
 				'TILE_CLASS' => 'social-group-tile-item-cover-outer social-group-tile-item-icon-group-outer'
 			);
+		}
+
+		if (
+			$landingInstalled
+			&& (
+				empty($categoryList)
+				|| in_array('groups', $categoryList)
+			)
+		)
+		{
+			$result['group-landing'] = array(
+				'SORT' => '50',
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING'),
+				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
+				'VISIBLE' => 'N',
+				'OPENED' => 'N',
+				'PROJECT' => 'N',
+				'EXTERNAL' => 'N',
+				'LANDING' => 'Y',
+				'TILE_CLASS' => 'social-group-tile-item-cover-public social-group-tile-item-icon-group-public'			);
 		}
 
 		return $result;
@@ -853,7 +887,10 @@ class Workgroup
 				$connection = \Bitrix\Main\Application::getConnection();
 			}
 
-			$connection->query("UPDATE ".WorkgroupTable::getTableName()." SET SEARCH_INDEX = '{$DB->forSql($content)}' WHERE ID = {$groupId}");
+			$value = $DB->forSql($content);
+			$encryptedValue = sha1($content);
+
+			$connection->query("UPDATE ".WorkgroupTable::getTableName()." SET SEARCH_INDEX = IF(SHA1(SEARCH_INDEX) = '{$encryptedValue}', SEARCH_INDEX, '{$value}') WHERE ID = {$groupId}");
 		}
 	}
 

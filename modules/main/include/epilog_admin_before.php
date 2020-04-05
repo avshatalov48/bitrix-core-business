@@ -24,7 +24,10 @@ if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))
 	echo $hkInstance->PrintJSExecs($Execs);
 	echo $hkInstance->PrintPhpToJSVars();
 
-	echo CAdminInformer::PrintHtml();
+	if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
+	{
+		echo CAdminInformer::PrintHtml();
+	}
 
 	if(
 		$USER->IsAuthorized()

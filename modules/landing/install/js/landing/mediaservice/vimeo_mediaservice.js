@@ -60,64 +60,64 @@
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
 						selector: "autoplay",
 						content: parseInt(settings.autoplay),
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_CONTROLS"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_CONTROLS"),
 						selector: "background",
 						content: parseInt(settings.background),
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_QUALITY"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_QUALITY"),
 						selector: "quality",
 						content: settings.quality,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_QUALITY_AUTO"), value: ""},
-							{name: "4k (" + BX.message("LANDING_CONTENT_URL_MEDIA_QUALITY_HIGH") + ")", value: "4k"},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_QUALITY_AUTO"), value: ""},
+							{name: "4k (" + BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_QUALITY_HIGH") + ")", value: "4k"},
 							{name: "2k", value: "2k"},
 							{name: "1080p", value: "1080p"},
 							{name: "780p", value: "780p"},
-							{name: "360p ("+BX.message("LANDING_CONTENT_URL_MEDIA_QUALITY_LOW")+")", value: "360p"}
+							{name: "360p ("+BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_QUALITY_LOW")+")", value: "360p"}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_LOOP"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_LOOP"),
 						selector: "loop",
 						content: settings.loop,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
 						]
 					})
 				);
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
-						title: BX.message("LANDING_CONTENT_URL_MEDIA_SOUND"),
+						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
 						selector: "muted",
 						content: settings.muted,
 						items: [
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
-							{name: BX.message("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
 						]
 					})
 				);

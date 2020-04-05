@@ -968,8 +968,12 @@
 .product-item-detail-short-card-fixed .product-item-detail-short-card-content-container {
 	margin: 0 auto;
 	max-width: 1048px;
+	display: -webkit-box;
+	display: -ms-flexbox;
 	display: flex;
 	width:100%;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
 	align-items: center;
 }
 
@@ -982,12 +986,16 @@
 }
 
 .product-item-detail-short-card-image img {
-	max-width: none;
-	height: 65px;
+	max-width: 100%;
+	height: auto;
+	max-height: 65px;
+	width: 100%;
 }
 
 .product-item-detail-short-title-container {
 	max-width: 650px;
+	-webkit-box-flex:1;
+	-ms-flex:1;
 	flex:1;
 }
 

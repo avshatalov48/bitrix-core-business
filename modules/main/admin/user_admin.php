@@ -41,105 +41,24 @@ if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOp
 {
 	$USER->Logout();
 	$USER->Authorize(intval($_REQUEST["ID"]));
-	$USER->CheckAuthActions();
+	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
+}
+
+//logout user
+if($_REQUEST["action"] == "logout_user" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
+{
+	\Bitrix\Main\UserAuthActionTable::addLogoutAction($_REQUEST["ID"]);
 	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
 }
 
 $sTableID = "tbl_user";
 
-$oSort = new CAdminSorting($sTableID, "ID", "desc");
+$excelMode = ($_REQUEST["mode"] == "excel");
+
+$oSort = new CAdminUiSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $bIntranetEdition = IsModuleInstalled("intranet");//(defined("INTRANET_EDITION") && INTRANET_EDITION == "Y");
-
-$arFilterFields = Array(
-	"find",
-	"find_type",
-	"find_id",
-	"find_timestamp_1",
-	"find_timestamp_2",
-	"find_last_login_1",
-	"find_last_login_2",
-	"find_active",
-	"find_login",
-	"find_name",
-	"find_email",
-	"find_keywords",
-	"find_group_id"
-);
-if ($bIntranetEdition)
-	$arFilterFields[] = "find_intranet_users";
-$USER_FIELD_MANAGER->AdminListAddFilterFields($entity_id, $arFilterFields);
-
-$lAdmin->InitFilter($arFilterFields);
-
-function CheckFilter($FilterArr)
-{
-	global $strError;
-	foreach($FilterArr as $f)
-		global ${$f};
-
-	$str = "";
-	if(strlen(trim($find_timestamp_1))>0 || strlen(trim($find_timestamp_2))>0)
-	{
-		$date_1_ok = false;
-		$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
-		$date2_stm = MkDateTime(FmtDate($find_timestamp_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_timestamp_1))>0)
-			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_FROM")."<br>";
-		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_timestamp_2))>0)
-			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_TILL")."<br>";
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
-			$str.= GetMessage("MAIN_FROM_TILL_TIMESTAMP")."<br>";
-	}
-
-	if(strlen(trim($find_last_login_1))>0 || strlen(trim($find_last_login_2))>0)
-	{
-		$date_1_ok = false;
-		$date1_stm = MkDateTime(FmtDate($find_last_login_1,"D.M.Y"),"d.m.Y");
-		$date2_stm = MkDateTime(FmtDate($find_last_login_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if(!$date1_stm && strlen(trim($find_last_login_1))>0)
-			$str.= GetMessage("MAIN_WRONG_LAST_LOGIN_FROM")."<br>";
-		else
-			$date_1_ok = true;
-		if(!$date2_stm && strlen(trim($find_last_login_2))>0)
-			$str.= GetMessage("MAIN_WRONG_LAST_LOGIN_TILL")."<br>";
-		elseif($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
-			$str.= GetMessage("MAIN_FROM_TILL_LAST_LOGIN")."<br>";
-	}
-
-	$strError .= $str;
-	if(strlen($str)>0)
-	{
-		global $lAdmin;
-		$lAdmin->AddFilterError($str);
-		return false;
-	}
-
-	return true;
-}
-
-$arFilter = Array();
-if(CheckFilter($arFilterFields))
-{
-	$arFilter = Array(
-		"ID" => $find_id,
-		"TIMESTAMP_1" => $find_timestamp_1,
-		"TIMESTAMP_2" => $find_timestamp_2,
-		"LAST_LOGIN_1" => $find_last_login_1,
-		"LAST_LOGIN_2" => $find_last_login_2,
-		"ACTIVE" => $find_active,
-		"LOGIN" => ($find!='' && $find_type == "login"? $find: $find_login),
-		"NAME" => ($find!='' && $find_type == "name"? $find: $find_name),
-		"EMAIL" => ($find!='' && $find_type == "email"? $find: $find_email),
-		"KEYWORDS" => $find_keywords,
-		"GROUPS_ID" => $find_group_id
-		);
-	if ($bIntranetEdition)
-		$arFilter["INTRANET_USERS"] = $find_intranet_users;
-	$USER_FIELD_MANAGER->AdminListAddFilter($entity_id, $arFilter);
-}
 
 /* Prepare data for new filter */
 $queryObject = CGroup::GetDropDownList("AND ID!=2");
@@ -203,6 +122,11 @@ $filterFields = array(
 		"items" => $listGroup,
 		"params" => array("multiple" => "Y"),
 		"filterable" => ""
+	),
+	array(
+		"id" => "PERSONAL_BIRTHDAY",
+		"name" => GetMessage("PERSONAL_BIRTHDAY"),
+		"type" => "date",
 	),
 );
 if ($bIntranetEdition)
@@ -312,10 +236,13 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 {
 	if (!empty($_REQUEST["action_all_rows_".$sTableID]) && $_REQUEST["action_all_rows_".$sTableID] === "Y")
 	{
-		$arID = array();
-		$rsData = CUser::GetList($by, $order, $arFilter, array("FIELDS" => array("ID")));
-		while($arRes = $rsData->Fetch())
-			$arID[] = $arRes['ID'];
+		$userQuery = getUserQuery($lAdmin, $arFilter, $filterFields, $excelMode, $sTableID);
+		$result = $userQuery->exec();
+		$arID = [];
+		while ($userData = $result->fetch())
+		{
+			$arID[] = $userData['ID'];
+		}
 	}
 
 	$gr_id = intval($_REQUEST['groups']);
@@ -418,219 +345,11 @@ setHeaderColumn($lAdmin);
 
 $nav = $lAdmin->getPageNavigation("pages-user-admin");
 
-$totalCountRequest = $lAdmin->isTotalCountRequest();
-
-$userQuery = new Query(UserTable::getEntity());
-$listSelectFields = ($totalCountRequest ? [] : $lAdmin->getVisibleHeaderColumns());
-if (!in_array("ID", $listSelectFields))
-	$listSelectFields[] = "ID";
-
-$listRatingColumn = preg_grep('/^RATING_(\d+)$/i', $listSelectFields);
-if (!empty($listRatingColumn))
-	$listSelectFields = array_diff($listSelectFields, $listRatingColumn);
-
-$userQuery->setSelect($listSelectFields);
-$sortBy = strtoupper($by);
-if(!UserTable::getEntity()->hasField($sortBy))
-{
-	$sortBy = "ID";
-}
-$sortOrder = strtoupper($order);
-if($sortOrder <> "DESC" && $sortOrder <> "ASC")
-{
-	$sortOrder = "DESC";
-}
-$userQuery->setOrder(array($sortBy => $sortOrder));
-if ($totalCountRequest)
-{
-	$userQuery->countTotal(true);
-}
-$userQuery->setOffset($nav->getOffset());
-if ($_REQUEST["mode"] !== "excel")
-	$userQuery->setLimit($nav->getLimit() + 1);
-
-$filterOption = new Bitrix\Main\UI\Filter\Options($sTableID);
-$filterData = $filterOption->getFilter($filterFields);
-if (!empty($filterData["FIND"]))
-{
-	$userQuery->setFilter(\Bitrix\Main\UserUtils::getAdminSearchFilter(array("FIND" => $filterData["FIND"])));
-}
-
-foreach ($listRatingColumn as $ratingColumn)
-{
-	if (preg_match('/^RATING_(\d+)$/i', $ratingColumn, $matches))
-	{
-		$ratingId = intval($matches[1]);
-		$userQuery->registerRuntimeField("RR".$ratingId, array(
-			"data_type" => "Bitrix\Main\Rating\ResultsTable",
-			"reference" => array(
-				"=this.ID" => "ref.ENTITY_ID",
-				"ref.ENTITY_TYPE_ID" => new SqlExpression("'USER'"),
-				"ref.RATING_ID" => new SqlExpression('?i', $ratingId)
-			),
-			"join_type" => "LEFT"
-		));
-		$userQuery->addSelect("RR".$ratingId.".CURRENT_VALUE", "RATING_".$ratingId);
-	}
-}
-
-if (isset($arFilter["NAME"]))
-{
-	$listFields = array("NAME", "LAST_NAME", "SECOND_NAME");
-	$nameWords = $arFilter["NAME"];
-	$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
-	$nameWords = $filterQueryObject->CutKav($nameWords);
-	$nameWords = $filterQueryObject->ParseQ($nameWords);
-	if (strlen($nameWords) > 0 && $nameWords !== "( )")
-		$parsedNameWords = preg_split('/[&&(||)]/',  $nameWords, -1, PREG_SPLIT_NO_EMPTY);
-
-	$filterOr = Query::filter()->logic("or");
-	foreach ($listFields as $fieldId)
-	{
-		foreach ($parsedNameWords as $nameWord)
-		{
-			$nameWord = trim($nameWord);
-			if ($nameWord)
-			{
-				$filterOr->where(Query::filter()
-					->whereLike($fieldId, "%".$nameWord."%")
-				);
-			}
-		}
-	}
-	$userQuery->where($filterOr);
-}
-if (isset($arFilter["CHECK_SUBORDINATE"]) && is_array($arFilter["CHECK_SUBORDINATE"]))
-{
-	$strSubord = "0";
-	foreach($arFilter["CHECK_SUBORDINATE"] as $grp)
-		$strSubord .= ",".intval($grp);
-
-	$userGroupQuery = UserGroupTable::query();
-	$userGroupQuery->whereNotIn("GROUP_ID", new SqlExpression($strSubord));
-	$userGroupQuery->where("USER_ID", new SqlExpression("%s"));
-
-	$userQuery->registerRuntimeField(
-		new ExpressionField("UGS", "EXISTS(".$userGroupQuery->getQuery().")", "ID"));
-
-	if ($arFilter["CHECK_SUBORDINATE_AND_OWN"] > 0)
-	{
-		$userQuery->where(Query::filter()->logic("or")
-			->where("ID", $arFilter["CHECK_SUBORDINATE_AND_OWN"])->whereNot("UGS"));
-	}
-	else
-	{
-		$userQuery->whereNot("UGS");
-	}
-}
-if ($arFilter["NOT_ADMIN"])
-{
-	$userGroupQuery = UserGroupTable::query();
-	$userGroupQuery->addSelect("USER_ID");
-	$userGroupQuery->setGroup(["USER_ID"]);
-	$userGroupQuery = \Bitrix\Main\ORM\Entity::getInstanceByQuery($userGroupQuery);
-	$userQuery->registerRuntimeField("",
-		(new Reference("UGNA", $userGroupQuery, Join::on("this.ID", "ref.USER_ID")))->configureJoinType("inner")
-	);
-}
-if ($arFilter["INTRANET_USERS"] === "Y")
-{
-	$userQuery->where("ACTIVE", "Y");
-	$userQuery->whereNotNull("LAST_LOGIN");
-	$userQuery->where("UF_DEPARTMENT_SINGLE", ">", "0");
-	$userQuery->disableDataDoubling();
-}
-if (isset($arFilter["TIMESTAMP_1"]))
-{
-	$userQuery->where("TIMESTAMP_X", ">=", new DateTime($arFilter["TIMESTAMP_1"]));
-}
-if (isset($arFilter["TIMESTAMP_2"]))
-{
-	$userQuery->where("TIMESTAMP_X", "<=", new DateTime($arFilter["TIMESTAMP_2"]));
-}
-if (isset($arFilter["LAST_LOGIN_1"]))
-{
-	$userQuery->where("LAST_LOGIN", ">=", new DateTime($arFilter["LAST_LOGIN_1"]));
-}
-if (isset($arFilter["LAST_LOGIN_2"]))
-{
-	$userQuery->where("LAST_LOGIN", "<=", new DateTime($arFilter["LAST_LOGIN_2"]));
-}
-if (isset($arFilter["GROUPS_ID"]))
-{
-	if (is_numeric($arFilter["GROUPS_ID"]) && intval($arFilter["GROUPS_ID"]) > 0)
-		$arFilter["GROUPS_ID"] = array($arFilter["GROUPS_ID"]);
-	$listGroupId = array();
-	foreach ($arFilter["GROUPS_ID"] as $groupId)
-		$listGroupId[intval($groupId)] = intval($groupId);
-
-	$userGroupQuery = UserGroupTable::query();
-	$userGroupQuery->addSelect("USER_ID");
-	$userGroupQuery->whereIn("GROUP_ID", $listGroupId);
-	$nowTimeExpression = new SqlExpression(
-		$userGroupQuery->getEntity()->getConnection()->getSqlHelper()->getCurrentDateTimeFunction());
-	$userGroupQuery->where(Query::filter()->logic("or")
-		->whereNull("DATE_ACTIVE_FROM")
-		->where("DATE_ACTIVE_FROM", "<=", $nowTimeExpression)
-	);
-	$userGroupQuery->where(Query::filter()->logic("or")
-		->whereNull("DATE_ACTIVE_TO")
-		->where("DATE_ACTIVE_TO", ">=", $nowTimeExpression)
-	);
-	$userGroupQuery->setGroup(["USER_ID"]);
-	$userGroupQuery = \Bitrix\Main\ORM\Entity::getInstanceByQuery($userGroupQuery);
-	$userQuery->registerRuntimeField("",
-		(new Reference("UG", $userGroupQuery, Join::on("this.ID", "ref.USER_ID")))->configureJoinType("inner")
-	);
-}
-if (!empty($arFilter["KEYWORDS"]))
-{
-	$listFields = array(
-		"PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER",
-		"PERSONAL_PHONE", "PERSONAL_FAX", "PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX",
-		"PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES", "WORK_COMPANY",
-		"WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET",
-		"WORK_MAILBOX", "WORK_CITY", "WORK_STATE", "WORK_ZIP", "WORK_COUNTRY", "WORK_PROFILE", "WORK_NOTES",
-		"ADMIN_NOTES", "XML_ID", "LAST_NAME", "SECOND_NAME", "EXTERNAL_AUTH_ID", "CONFIRM_CODE",
-		"PASSWORD", "LID", "LANGUAGE_ID", "TITLE"
-	);
-	$keyWords = $arFilter["KEYWORDS"];
-	$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
-	$keyWords = $filterQueryObject->CutKav($keyWords);
-	$keyWords = $filterQueryObject->ParseQ($keyWords);
-	if (strlen($keyWords) > 0 && $keyWords !== "( )")
-		$parsedKeyWords = preg_split('/[&&(||)]/',  $keyWords, -1, PREG_SPLIT_NO_EMPTY);
-	$filterOr = Query::filter()->logic("or");
-	foreach ($listFields as $fieldId)
-	{
-		foreach ($parsedKeyWords as $keyWord)
-		{
-			$keyWord = trim($keyWord);
-			if ($keyWord)
-			{
-				$filterOr->where(Query::filter()
-					->whereNotNull($fieldId)
-					->whereLike($fieldId, "%".$keyWord."%")
-				);
-			}
-		}
-	}
-	$userQuery->where($filterOr);
-}
-
-$ignoreKey = array("NAME", "CHECK_SUBORDINATE", "CHECK_SUBORDINATE_AND_OWN", "NOT_ADMIN", "INTRANET_USERS", "GROUPS_ID",
-	"KEYWORDS", "TIMESTAMP_1", "TIMESTAMP_2", "LAST_LOGIN_1", "LAST_LOGIN_2"
-);
-foreach ($arFilter as $filterKey => $filterValue)
-{
-	if (!in_array($filterKey, $ignoreKey))
-	{
-		$userQuery->addFilter($filterKey, $filterValue);
-	}
-}
+$userQuery = getUserQuery($lAdmin, $arFilter, $filterFields, $excelMode, $sTableID, $nav);
 
 $result = $userQuery->exec();
 
+$totalCountRequest = $lAdmin->isTotalCountRequest();
 if ($totalCountRequest)
 {
 	$lAdmin->sendTotalCountResponse($result->getCount());
@@ -641,7 +360,7 @@ $pageSize = $lAdmin->getNavSize();
 while ($userData = $result->fetch())
 {
 	$n++;
-	if ($n > $pageSize)
+	if ($n > $pageSize && !$excelMode)
 	{
 		break;
 	}
@@ -727,6 +446,12 @@ while ($userData = $result->fetch())
 			"TEXT" => GetMessage("MAIN_ADMIN_AUTH"),
 			"TITLE" => GetMessage("MAIN_ADMIN_AUTH_TITLE"),
 			"LINK" => "user_admin.php?lang=".LANGUAGE_ID."&ID=".$userId."&action=authorize&".bitrix_sessid_get()
+		);
+		$arActions[] = array(
+			"ICON" => "",
+			"TEXT" => GetMessage("main_user_admin_logout"),
+			"TITLE" => GetMessage("main_user_admin_logout_title"),
+			"LINK" => "user_admin.php?lang=".LANGUAGE_ID."&ID=".$userId."&action=logout_user&".bitrix_sessid_get()
 		);
 	}
 
@@ -880,5 +605,226 @@ function setUFHeadersColumn(&$arHeaders)
 {
 	global $USER_FIELD_MANAGER;
 	$USER_FIELD_MANAGER->adminListAddHeaders("USER", $arHeaders);
+}
+
+function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode, $tableId, $nav = null)
+{
+	global $by, $order;
+
+	$totalCountRequest = $lAdmin->isTotalCountRequest();
+
+	$userQuery = new Query(UserTable::getEntity());
+	$listSelectFields = ($totalCountRequest ? [] : $lAdmin->getVisibleHeaderColumns());
+	if (!in_array("ID", $listSelectFields))
+		$listSelectFields[] = "ID";
+
+	$listRatingColumn = preg_grep('/^RATING_(\d+)$/i', $listSelectFields);
+	if (!empty($listRatingColumn))
+		$listSelectFields = array_diff($listSelectFields, $listRatingColumn);
+
+	$userQuery->setSelect($listSelectFields);
+	$sortBy = strtoupper($by);
+	if(!UserTable::getEntity()->hasField($sortBy))
+	{
+		$sortBy = "ID";
+	}
+	$sortOrder = strtoupper($order);
+	if($sortOrder <> "DESC" && $sortOrder <> "ASC")
+	{
+		$sortOrder = "DESC";
+	}
+	$userQuery->setOrder(array($sortBy => $sortOrder));
+	if ($totalCountRequest)
+	{
+		$userQuery->countTotal(true);
+	}
+
+	if ($nav instanceof Bitrix\Main\UI\PageNavigation)
+	{
+		$userQuery->setOffset($nav->getOffset());
+		if (!$excelMode)
+			$userQuery->setLimit($nav->getLimit() + 1);
+	}
+
+	$filterOption = new Bitrix\Main\UI\Filter\Options($tableId);
+	$filterData = $filterOption->getFilter($filterFields);
+	if (!empty($filterData["FIND"]))
+	{
+		$userQuery->setFilter(\Bitrix\Main\UserUtils::getAdminSearchFilter(array("FIND" => $filterData["FIND"])));
+	}
+
+	foreach ($listRatingColumn as $ratingColumn)
+	{
+		if (preg_match('/^RATING_(\d+)$/i', $ratingColumn, $matches))
+		{
+			$ratingId = intval($matches[1]);
+			$userQuery->registerRuntimeField("RR".$ratingId, array(
+				"data_type" => "Bitrix\Main\Rating\ResultsTable",
+				"reference" => array(
+					"=this.ID" => "ref.ENTITY_ID",
+					"ref.ENTITY_TYPE_ID" => new SqlExpression("'USER'"),
+					"ref.RATING_ID" => new SqlExpression('?i', $ratingId)
+				),
+				"join_type" => "LEFT"
+			));
+			$userQuery->addSelect("RR".$ratingId.".CURRENT_VALUE", "RATING_".$ratingId);
+		}
+	}
+
+	if (isset($arFilter["NAME"]))
+	{
+		$listFields = array("NAME", "LAST_NAME", "SECOND_NAME");
+		$nameWords = $arFilter["NAME"];
+		$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
+		$nameWords = $filterQueryObject->CutKav($nameWords);
+		$nameWords = $filterQueryObject->ParseQ($nameWords);
+		if (strlen($nameWords) > 0 && $nameWords !== "( )")
+			$parsedNameWords = preg_split('/[&&(||)]/',  $nameWords, -1, PREG_SPLIT_NO_EMPTY);
+
+		$filterOr = Query::filter()->logic("or");
+		foreach ($listFields as $fieldId)
+		{
+			foreach ($parsedNameWords as $nameWord)
+			{
+				$nameWord = trim($nameWord);
+				if ($nameWord)
+				{
+					$filterOr->where(Query::filter()
+						->whereLike($fieldId, "%".$nameWord."%")
+					);
+				}
+			}
+		}
+		$userQuery->where($filterOr);
+	}
+	if (isset($arFilter["CHECK_SUBORDINATE"]) && is_array($arFilter["CHECK_SUBORDINATE"]))
+	{
+		$strSubord = "0";
+		foreach($arFilter["CHECK_SUBORDINATE"] as $grp)
+			$strSubord .= ",".intval($grp);
+
+		$userGroupQuery = UserGroupTable::query();
+		$userGroupQuery->whereNotIn("GROUP_ID", new SqlExpression($strSubord));
+		$userGroupQuery->where("USER_ID", new SqlExpression("%s"));
+
+		$userQuery->registerRuntimeField(
+			new ExpressionField("UGS", "EXISTS(".$userGroupQuery->getQuery().")", "ID"));
+
+		if ($arFilter["CHECK_SUBORDINATE_AND_OWN"] > 0)
+		{
+			$userQuery->where(Query::filter()->logic("or")
+				->where("ID", $arFilter["CHECK_SUBORDINATE_AND_OWN"])->whereNot("UGS"));
+		}
+		else
+		{
+			$userQuery->whereNot("UGS");
+		}
+	}
+	if ($arFilter["NOT_ADMIN"])
+	{
+		$userGroupQuery = UserGroupTable::query();
+		$userGroupQuery->addSelect("USER_ID");
+		$userGroupQuery->setGroup(["USER_ID"]);
+		$userGroupQuery = \Bitrix\Main\ORM\Entity::getInstanceByQuery($userGroupQuery);
+		$userQuery->registerRuntimeField("",
+			(new Reference("UGNA", $userGroupQuery, Join::on("this.ID", "ref.USER_ID")))->configureJoinType("inner")
+		);
+	}
+	if ($arFilter["INTRANET_USERS"] === "Y")
+	{
+		$userQuery->where("ACTIVE", "Y");
+		$userQuery->whereNotNull("LAST_LOGIN");
+		$userQuery->where("UF_DEPARTMENT_SINGLE", ">", "0");
+		$userQuery->disableDataDoubling();
+	}
+	if (isset($arFilter["TIMESTAMP_1"]))
+	{
+		$userQuery->where("TIMESTAMP_X", ">=", new DateTime($arFilter["TIMESTAMP_1"]));
+	}
+	if (isset($arFilter["TIMESTAMP_2"]))
+	{
+		$userQuery->where("TIMESTAMP_X", "<=", new DateTime($arFilter["TIMESTAMP_2"]));
+	}
+	if (isset($arFilter["LAST_LOGIN_1"]))
+	{
+		$userQuery->where("LAST_LOGIN", ">=", new DateTime($arFilter["LAST_LOGIN_1"]));
+	}
+	if (isset($arFilter["LAST_LOGIN_2"]))
+	{
+		$userQuery->where("LAST_LOGIN", "<=", new DateTime($arFilter["LAST_LOGIN_2"]));
+	}
+	if (isset($arFilter["GROUPS_ID"]))
+	{
+		if (is_numeric($arFilter["GROUPS_ID"]) && intval($arFilter["GROUPS_ID"]) > 0)
+			$arFilter["GROUPS_ID"] = array($arFilter["GROUPS_ID"]);
+		$listGroupId = array();
+		foreach ($arFilter["GROUPS_ID"] as $groupId)
+			$listGroupId[intval($groupId)] = intval($groupId);
+
+		$userGroupQuery = UserGroupTable::query();
+		$userGroupQuery->addSelect("USER_ID");
+		$userGroupQuery->whereIn("GROUP_ID", $listGroupId);
+		$nowTimeExpression = new SqlExpression(
+			$userGroupQuery->getEntity()->getConnection()->getSqlHelper()->getCurrentDateTimeFunction());
+		$userGroupQuery->where(Query::filter()->logic("or")
+			->whereNull("DATE_ACTIVE_FROM")
+			->where("DATE_ACTIVE_FROM", "<=", $nowTimeExpression)
+		);
+		$userGroupQuery->where(Query::filter()->logic("or")
+			->whereNull("DATE_ACTIVE_TO")
+			->where("DATE_ACTIVE_TO", ">=", $nowTimeExpression)
+		);
+		$userGroupQuery->setGroup(["USER_ID"]);
+		$userGroupQuery = \Bitrix\Main\ORM\Entity::getInstanceByQuery($userGroupQuery);
+		$userQuery->registerRuntimeField("",
+			(new Reference("UG", $userGroupQuery, Join::on("this.ID", "ref.USER_ID")))->configureJoinType("inner")
+		);
+	}
+	if (!empty($arFilter["KEYWORDS"]))
+	{
+		$listFields = array(
+			"PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER",
+			"PERSONAL_PHONE", "PERSONAL_FAX", "PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX",
+			"PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES", "WORK_COMPANY",
+			"WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET",
+			"WORK_MAILBOX", "WORK_CITY", "WORK_STATE", "WORK_ZIP", "WORK_COUNTRY", "WORK_PROFILE", "WORK_NOTES",
+			"ADMIN_NOTES", "XML_ID", "LAST_NAME", "SECOND_NAME", "EXTERNAL_AUTH_ID", "CONFIRM_CODE",
+			"PASSWORD", "LID", "LANGUAGE_ID", "TITLE"
+		);
+		$keyWords = $arFilter["KEYWORDS"];
+		$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
+		$keyWords = $filterQueryObject->CutKav($keyWords);
+		$keyWords = $filterQueryObject->ParseQ($keyWords);
+		if (strlen($keyWords) > 0 && $keyWords !== "( )")
+			$parsedKeyWords = preg_split('/[&&(||)]/',  $keyWords, -1, PREG_SPLIT_NO_EMPTY);
+		$filterOr = Query::filter()->logic("or");
+		foreach ($listFields as $fieldId)
+		{
+			foreach ($parsedKeyWords as $keyWord)
+			{
+				$keyWord = trim($keyWord);
+				if ($keyWord)
+				{
+					$filterOr->where(Query::filter()
+						->whereNotNull($fieldId)
+						->whereLike($fieldId, "%".$keyWord."%")
+					);
+				}
+			}
+		}
+		$userQuery->where($filterOr);
+	}
+
+	$ignoreKey = ["NAME", "CHECK_SUBORDINATE", "CHECK_SUBORDINATE_AND_OWN", "NOT_ADMIN", "INTRANET_USERS",
+		"GROUPS_ID", "KEYWORDS", "TIMESTAMP_1", "TIMESTAMP_2", "LAST_LOGIN_1", "LAST_LOGIN_2"];
+	foreach ($arFilter as $filterKey => $filterValue)
+	{
+		if (!in_array($filterKey, $ignoreKey))
+		{
+			$userQuery->addFilter($filterKey, $filterValue);
+		}
+	}
+
+	return $userQuery;
 }
 ?>

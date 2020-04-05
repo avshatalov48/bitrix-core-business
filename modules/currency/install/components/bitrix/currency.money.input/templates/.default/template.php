@@ -57,7 +57,7 @@ foreach($arResult['CURRENCY_LIST'] as $currency => $currencyTitle)
 			name: '<?=\CUtil::JSEscape($arParams['CONTROL_ID'])?>',
 			items: currencyItems,
 			value: currencyItems[<?=$jsValueIndex?>],
-			params: {fieldName: '<?=\CUtil::JSEscape($arParams['CONTROL_ID']);?>', isMulti: false},
+			params: {fieldName: '<?=\CUtil::JSEscape($arParams['CONTROL_ID']);?>', isMulti: false, classPopup: 'currency-money-popup-full-width'},
 			valueDelete: false
 		}));
 

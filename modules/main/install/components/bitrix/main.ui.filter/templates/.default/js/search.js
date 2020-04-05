@@ -606,7 +606,18 @@
 
 		adjustPlaceholder: function()
 		{
-			this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER' + (this.parent.getParam("DISABLE_SEARCH") || !this.parent.settings.get('SEARCH') ? '' : '_DEFAULT')));
+			if (this.parent.getParam("LIMITS_ENABLED"))
+			{
+				this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_LIMITS_EXCEEDED'));
+			}
+			else if (this.parent.getParam("DISABLE_SEARCH") || !this.parent.settings.get('SEARCH'))
+			{
+				this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER'));
+			}
+			else
+			{
+				this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_DEFAULT'));
+			}
 		},
 
 		isResolvedRequest: function()
@@ -936,19 +947,20 @@
 
 				if (squaresResult && BX.type.isArray(squaresResult.squaresData) && squaresResult.squaresData.length || (presetData.ID !== 'default_filter' && presetData.ID !== 'tmp_filter'))
 				{
-					this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_WITH_FILTER'));
+					if (this.parent.getParam("LIMITS_ENABLED"))
+					{
+						this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_LIMITS_EXCEEDED'));
+					}
+					else
+					{
+						this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_WITH_FILTER'));
+					}
+
 					this.showClearButton();
 				}
 				else
 				{
-					if (this.parent.getParam("DISABLE_SEARCH") || !this.parent.settings.get('SEARCH'))
-					{
-						this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER'));
-					}
-					else
-					{
-						this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_DEFAULT'));
-					}
+					this.adjustPlaceholder();
 				}
 
 				if (BX.type.isNotEmptyString(this.parent.getSearch().getInput().value))
@@ -962,6 +974,10 @@
 		{
 			var value, tmpValues, title, control;
 			var result = [];
+
+			fields = fields.filter(function(current) {
+				return !!current;
+			});
 
 			fields.map(function(current) {
 				value = null;
@@ -1245,14 +1261,7 @@
 			{
 				BX.remove(preset);
 
-				if (this.parent.getParam("DISABLE_SEARCH") || !this.parent.settings.get('SEARCH'))
-				{
-					this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER'));
-				}
-				else
-				{
-					this.setInputPlaceholder(this.parent.getParam('MAIN_UI_FILTER__PLACEHOLDER_DEFAULT'));
-				}
+				this.adjustPlaceholder();
 			}
 
 			this.hideClearButton();

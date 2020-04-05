@@ -49,6 +49,8 @@ Loc::loadMessages(__FILE__);
 
 class ProductTable extends Main\Entity\DataManager
 {
+	const USER_FIELD_ENTITY_ID = 'PRODUCT';
+	
 	const STATUS_YES = 'Y';
 	const STATUS_NO = 'N';
 	const STATUS_DEFAULT = 'D';
@@ -126,7 +128,10 @@ class ProductTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('PRODUCT_ENTITY_WEIGHT_FIELD')
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					},
 				'title' => Loc::getMessage('PRODUCT_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'PRICE_TYPE' => new Main\Entity\EnumField('PRICE_TYPE', array(
@@ -269,6 +274,16 @@ class ProductTable extends Main\Entity\DataManager
 				array('join_type' => 'LEFT')
 			)
 		);
+	}
+
+	/**
+	 * Returns user fields entity id.
+	 *
+	 * @return string
+	 */
+	public static function getUfId()
+	{
+		return self::USER_FIELD_ENTITY_ID;
 	}
 
 	/**
@@ -585,7 +600,6 @@ class ProductTable extends Main\Entity\DataManager
 	 *
 	 * @param array $fields					Product data.
 	 * @return string
-	 * @throws Main\ArgumentNullException
 	 */
 	public static function calculateAvailable($fields)
 	{
@@ -644,6 +658,7 @@ class ProductTable extends Main\Entity\DataManager
 				self::TYPE_PRODUCT => Loc::getMessage('PRODUCT_ENTITY_TYPE_PRODUCT'),
 				self::TYPE_SET => Loc::getMessage('PRODUCT_ENTITY_TYPE_SET'),
 				self::TYPE_SKU => Loc::getMessage('PRODUCT_ENTITY_TYPE_SKU'),
+				self::TYPE_EMPTY_SKU => Loc::getMessage('PRODUCT_ENTITY_TYPE_EMPTY_SKU'),
 				self::TYPE_OFFER => Loc::getMessage('PRODUCT_ENTITY_TYPE_OFFER'),
 				self::TYPE_FREE_OFFER => Loc::getMessage('PRODUCT_ENTITY_TYPE_FREE_OFFER')
 			);
@@ -653,7 +668,8 @@ class ProductTable extends Main\Entity\DataManager
 			self::TYPE_SET,
 			self::TYPE_SKU,
 			self::TYPE_OFFER,
-			self::TYPE_FREE_OFFER
+			self::TYPE_FREE_OFFER,
+			self::TYPE_EMPTY_SKU
 		);
 	}
 

@@ -5,10 +5,27 @@
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
+use Bitrix\Main\Loader;
+
 $component = $this->getComponent();
 
 $pageId = "group_general";
 include("util_group_menu.php");
+
+if (Loader::includeModule("blog"))
+{
+	$APPLICATION->includeComponent(
+		"bitrix:socialnetwork.copy.checker",
+		"",
+		[
+			"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
+			"HELPER" => new Bitrix\Blog\Copy\Integration\Group()
+		],
+		$component,
+		["HIDE_ICONS" => "Y"]
+	);
+}
 
 $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.group",

@@ -76,6 +76,11 @@
 		SERVER_RESTART:'SERVER_RESTART'
 	};
 
+	var ServerMode = {
+		Shared: 'shared',
+		Personal: 'personal'
+	};
+
 	// Protobuf message models
 	var Response = protobuf.roots['push-server']['Response'];
 	var ResponseBatch = protobuf.roots['push-server']['ResponseBatch'];
@@ -89,13 +94,41 @@
 	{
 		params = params || {};
 
+		if (params.restApplication)
+		{
+			if (typeof params.configGetMethod === 'undefined')
+			{
+				params.configGetMethod = 'pull.application.config.get';
+			}
+			if (typeof params.skipCheckRevision === 'undefined')
+			{
+				params.skipCheckRevision = true;
+			}
+			if (typeof params.restApplication === 'string')
+			{
+				params.siteId = params.restApplication;
+			}
+
+			params.serverEnabled = true;
+		}
+
 		var self = this;
 
 		this.context = 'master';
 
-		this.userId = params.userId? params.userId: (typeof BX.message !== 'undefined' && BX.message.USER_ID? BX.message.USER_ID: 0);
+		this.guestMode = params.guestMode? params.guestMode: (typeof BX.message !== 'undefined' && BX.message.pull_guest_mode? BX.message.pull_guest_mode === 'Y': false);
+		this.guestUserId = params.guestUserId? params.guestUserId: (typeof BX.message !== 'undefined' && BX.message.pull_guest_user_id? parseInt(BX.message.pull_guest_user_id, 10): 0);
+		if(this.guestMode && this.guestUserId)
+		{
+			this.userId = this.guestUserId;
+		}
+		else
+		{
+			this.userId = params.userId? params.userId: (typeof BX.message !== 'undefined' && BX.message.USER_ID? BX.message.USER_ID: 0);
+		}
+
 		this.siteId = params.siteId? params.siteId: (typeof BX.message !== 'undefined' && BX.message.SITE_ID? BX.message.SITE_ID: 'none');
-		this.restClient = typeof params.restClient !== "undefined"? params.restClient: BX.rest;
+		this.restClient = typeof params.restClient !== "undefined"? params.restClient: new BX.RestClient(this.getRestClientOptions());
 
 		this.enabled = typeof params.serverEnabled !== 'undefined'? (params.serverEnabled === 'Y' || params.serverEnabled === true): (typeof BX.message !== 'undefined' && BX.message.pull_server_enabled === 'Y');
 		this.unloading = false;
@@ -105,6 +138,10 @@
 		this.connectionType = '';
 		this.reconnectTimeout = null;
 		this.restoreWebSocketTimeout = null;
+
+		this.configGetMethod = typeof params.configGetMethod !== 'string'? 'pull.config.get': params.configGetMethod;
+
+		this.skipStorageInit = params.skipStorageInit === true;
 
 		this.skipCheckRevision = params.skipCheckRevision === true;
 
@@ -150,10 +187,15 @@
 		this.isSecure = document.location.href.indexOf('https') === 0;
 		this.config = null;
 
-		this.storage = new StorageManager({
-			userId: this.userId,
-			siteId: this.siteId
-		});
+		this.storage = null;
+
+		if(this.userId && !this.skipStorageInit)
+		{
+			this.storage = new StorageManager({
+				userId: this.userId,
+				siteId: this.siteId
+			});
+		}
 
 		this.sharedConfig = new SharedConfig({
 			onWebSocketBlockChanged: this.onWebSocketBlockChanged.bind(this),
@@ -438,6 +480,13 @@
 		if(!this.userId && typeof(BX.message) !== 'undefined' && BX.message.USER_ID)
 		{
 			this.userId = BX.message.USER_ID;
+			if(!this.storage)
+			{
+				this.storage = new StorageManager({
+					userId: this.userId,
+					siteId: this.siteId
+				});
+			}
 		}
 		if(this.siteId === 'none' && typeof(BX.message) !== 'undefined' && BX.message.SITE_ID)
 		{
@@ -446,8 +495,14 @@
 
 		var result = new BX.Promise();
 
+		var skipReconnectToLastSession = false;
 		if (Utils.isPlainObject(config))
 		{
+			if (typeof config.skipReconnectToLastSession !== 'undefined')
+			{
+				skipReconnectToLastSession = !!config.skipReconnectToLastSession;
+				delete config.skipReconnectToLastSession;
+			}
 			this.config = config;
 		}
 
@@ -461,7 +516,11 @@
 
 		var self = this;
 		var now = (new Date()).getTime();
-		var oldSession = this.storage.get(LS_SESSION);
+		var oldSession;
+		if(!skipReconnectToLastSession && this.storage)
+		{
+			oldSession = this.storage.get(LS_SESSION);
+		}
 		if(Utils.isPlainObject(oldSession) && oldSession.hasOwnProperty('ttl') && oldSession.ttl >= now)
 		{
 			this.session.mid = oldSession.mid;
@@ -485,6 +544,19 @@
 			result.resolve(true);
 		});
 
+		return result;
+	};
+
+	Pull.prototype.getRestClientOptions = function()
+	{
+		var result = {};
+
+		if(this.guestMode && this.guestUserId !== 0)
+		{
+			result.queryParams = {
+				pull_guest_id: this.guestUserId
+			}
+		}
 		return result;
 	};
 
@@ -611,7 +683,10 @@
 	{
 		var self = this;
 		this.disconnect(disconnectCode, disconnectReason);
-		this.storage.remove('bx-pull-config');
+		if(this.storage)
+		{
+			this.storage.remove('bx-pull-config');
+		}
 		this.config = null;
 
 		this.loadConfig().catch(function(error)
@@ -646,16 +721,21 @@
 			this.config = {
 				api: {},
 				channels: {},
-				server: { timeShift: 0 }
+				server: { timeShift: 0 },
+				clientId: null
 			};
 
-			var config = this.storage.get('bx-pull-config');
+			var config;
+			if(this.storage)
+			{
+				config = this.storage.get('bx-pull-config');
+			}
 			if(this.isConfigActual(config) && this.checkRevision(config.api.revision_web))
 			{
 				result.resolve(config);
 				return result;
 			}
-			else
+			else if (this.storage)
 			{
 				this.storage.remove('bx-pull-config')
 			}
@@ -670,13 +750,14 @@
 			this.config = {
 				api: {},
 				channels: {},
-				server: { timeShift: 0 }
+				server: { timeShift: 0 },
+				clientId: null
 			};
 		}
 
 		this.restClient.callBatch({
 			serverTime : ['server.time'],
-			configGet : ['pull.config.get', {'CACHE': 'N'}]
+			configGet : [this.configGetMethod, {'CACHE': 'N'}]
 		}, function(response) {
 			if (!response)
 			{
@@ -794,7 +875,10 @@
 				this.config[key] = config[key];
 			}
 		}
-		this.storage.set('bx-pull-config', config);
+		if(this.storage)
+		{
+			this.storage.set('bx-pull-config', config);
+		}
 	};
 
 	Pull.prototype.isWebSocketSupported = function()
@@ -819,7 +903,7 @@
 			return false;
 		}
 
-		return this.config.server.websocket_enabled === true;
+		return (this.config && this.config.server && this.config.server.websocket_enabled === true);
 	};
 
 	Pull.prototype.isPublishingSupported = function ()
@@ -834,12 +918,17 @@
 			return false;
 		}
 
-		return (this.config.server.publish_enabled === true);
+		return (this.config && this.config.server && this.config.server.publish_enabled === true);
 	};
 
 	Pull.prototype.isProtobufSupported = function()
 	{
 		return (this.getServerVersion() > 3 && !Utils.browser.IsIe());
+	};
+
+	Pull.prototype.isSharedMode = function()
+	{
+		return (this.getServerMode() == ServerMode.Shared)
 	};
 
 	Pull.prototype.disconnect = function(disconnectCode, disconnectReason)
@@ -1417,7 +1506,10 @@
 
 		var session = Utils.clone(this.session);
 		session.ttl = (new Date()).getTime() + LS_SESSION_CACHE_TIME * 1000;
-		this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+		if(this.storage)
+		{
+			this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+		}
 
 		this.reconnect(CloseReasons.NORMAL_CLOSURE, "onbeforeunload", 15);
 	};
@@ -1545,12 +1637,17 @@
 
 	Pull.prototype.getRevision = function()
 	{
-		return this.config.api.revision_web;
+		return (this.config && this.config.api) ? this.config.api.revision_web : null;
 	};
 
 	Pull.prototype.getServerVersion = function()
 	{
-		return this.config.server.version;
+		return (this.config && this.config.server) ? this.config.server.version : 0;
+	};
+
+	Pull.prototype.getServerMode = function()
+	{
+		return (this.config && this.config.server) ? this.config.server.mode : null;
 	};
 
 	Pull.prototype.getConfig = function()
@@ -1579,6 +1676,7 @@
 		var watchTagsDump = JSON.stringify(this.watchTagsQueue);
 		var text = "\n========= PULL DEBUG ===========\n"+
 			"UserId: " + this.userId + " " + (this.userId > 0 ?  '': '(guest)') + "\n" +
+			(this.guestMode && this.guestUserId !== 0? "Guest userId: " + this.guestUserId + "\n":"") +
 			"Browser online: " + (navigator.onLine ? 'Y' : 'N') + "\n" +
 			"Connect: " + (this.isConnected() ? 'Y': 'N') + "\n" +
 			"WebSocket support: " + (this.isWebSocketSupported() ? 'Y': 'N') + "\n" +
@@ -1651,6 +1749,14 @@
 		if(this.isProtobufSupported())
 		{
 			params.binaryMode = 'true';
+		}
+		if (this.isSharedMode())
+		{
+			if(!this.config.clientId)
+			{
+				throw new Error("Push-server is in shared mode, but clientId is not set");
+			}
+			params.clientId = this.config.clientId;
 		}
 		if (this.session.mid)
 		{
@@ -1768,8 +1874,15 @@
 			var watchTags = Object.keys(this.watchTagsQueue);
 			if (watchTags.length > 0)
 			{
-				this.restClient.callMethod('pull.watch.extend', {tags: watchTags}).then(function (result)
+				this.restClient.callMethod('pull.watch.extend', {tags: watchTags}, function(result)
 				{
+					if(result.error())
+					{
+						this.updateWatch();
+
+						return false;
+					}
+
 					var updatedTags = result.data();
 
 					for (var tagId in updatedTags)
@@ -1780,9 +1893,7 @@
 						}
 					}
 					this.updateWatch();
-				}.bind(this)).catch(function ()
-				{
-					this.updateWatch();
+
 				}.bind(this))
 			}
 			else
@@ -1839,7 +1950,10 @@
 			onWebSocketBlockChanged: (Utils.isFunction(params.onWebSocketBlockChanged) ? params.onWebSocketBlockChanged : function(){})
 		};
 
-		window.addEventListener('storage', this.onLocalStorageSet.bind(this));
+		if (this.storage)
+		{
+			window.addEventListener('storage', this.onLocalStorageSet.bind(this));
+		}
 	};
 
 	SharedConfig.prototype.onLocalStorageSet = function(params)
@@ -1857,11 +1971,21 @@
 
 	SharedConfig.prototype.isWebSocketBlocked = function()
 	{
+		if (!this.storage)
+		{
+			return false;
+		}
+
 		return this.storage.get(this.lsKeys.websocketBlocked, 0) > Utils.getTimestamp();
 	};
 
 	SharedConfig.prototype.setWebSocketBlocked = function(isWebSocketBlocked)
 	{
+		if (!this.storage)
+		{
+			return false;
+		}
+
 		this.storage.set(this.lsKeys.websocketBlocked, (isWebSocketBlocked ? Utils.getTimestamp()+this.ttl : 0));
 	};
 
@@ -2262,8 +2386,14 @@
 			return promise;
 		}
 
-		this.restClient.callMethod('pull.channel.public.list', {users: unknownUsers}).then(function(result)
+		this.restClient.callMethod('pull.channel.public.list', {users: unknownUsers}, function(result)
 		{
+			if(result.error())
+			{
+				promise.resolve({});
+				return promise;
+			}
+
 			var data = result.data();
 
 			this.setPublicIds(Utils.objectValues(data));
@@ -2272,6 +2402,7 @@
 			}, this);
 
 			promise.resolve(result);
+
 		}.bind(this));
 
 		return promise;

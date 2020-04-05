@@ -2,6 +2,7 @@
 namespace Bitrix\Catalog\Model;
 
 use Bitrix\Main,
+	Bitrix\Main\ORM,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Catalog,
 	Bitrix\Currency;
@@ -23,17 +24,6 @@ class Price extends Entity
 	public static function getTabletClassName()
 	{
 		return '\Bitrix\Catalog\PriceTable';
-	}
-
-	public static function getCachedFieldList()
-	{
-		return array(
-			'ID',
-			'PRODUCT_ID',
-			'CATALOG_GROUP_ID',
-			'PRICE',
-			'CURRENCY'
-		);
 	}
 
 	public static function recountPricesFromBase($id)
@@ -80,7 +70,7 @@ class Price extends Entity
 		if (empty($currency))
 			return false;
 
-		$filter = Main\Entity\Query::filter();
+		$filter = ORM\Query\Query::filter();
 		$filter->where('PRODUCT_ID', '=', $productId);
 		$filter->where('CATALOG_GROUP_ID', '!=', self::$basePriceType);
 		$filter->whereIn('EXTRA_ID', array_keys(self::$extraList));
@@ -122,7 +112,7 @@ class Price extends Entity
 		return true;
 	}
 
-	protected static function prepareForAdd(Main\Entity\AddResult $result, $id, array &$data)
+	protected static function prepareForAdd(ORM\Data\AddResult $result, $id, array &$data)
 	{
 		$fields = $data['fields'];
 		parent::prepareForAdd($result, $id, $fields);
@@ -160,7 +150,7 @@ class Price extends Entity
 		$fields['PRODUCT_ID'] = (int)$fields['PRODUCT_ID'];
 		if ($fields['PRODUCT_ID'] <= 0)
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRODUCT_ID')
 			));
 			return;
@@ -168,7 +158,7 @@ class Price extends Entity
 		$fields['CATALOG_GROUP_ID'] = (int)$fields['CATALOG_GROUP_ID'];
 		if (!isset(self::$priceTypes[$fields['CATALOG_GROUP_ID']]))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_CATALOG_GROUP_ID')
 			));
 			return;
@@ -210,7 +200,7 @@ class Price extends Entity
 
 		if ($fields['PRICE'] === null)
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRICE')
 			));
 		}
@@ -219,7 +209,7 @@ class Price extends Entity
 			$fields['PRICE'] = self::checkPriceValue($fields['PRICE']);
 			if ($fields['PRICE'] === null || $fields['PRICE'] < 0)
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRICE')
 				));
 			}
@@ -227,7 +217,7 @@ class Price extends Entity
 		$fields['CURRENCY'] = (string)$fields['CURRENCY'];
 		if (!Currency\CurrencyManager::isCurrencyExist($fields['CURRENCY']))
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_CURRENCY')
 			));
 		}
@@ -269,12 +259,12 @@ class Price extends Entity
 		unset($fields);
 	}
 
-	protected static function prepareForUpdate(Main\Entity\UpdateResult $result, $id, array &$data)
+	protected static function prepareForUpdate(ORM\Data\UpdateResult $result, $id, array &$data)
 	{
 		$id = (int)$id;
 		if ($id <= 0)
 		{
-			$result->addError(new Main\Entity\EntityError(
+			$result->addError(new ORM\EntityError(
 				Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRICE_ID')
 			));
 			return;
@@ -301,7 +291,7 @@ class Price extends Entity
 		{
 			$fields['PRODUCT_ID'] = (int)$fields['PRODUCT_ID'];
 			if ($fields['PRODUCT_ID'] <= 0)
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRODUCT_ID')
 				));
 		}
@@ -311,7 +301,7 @@ class Price extends Entity
 			$fields['CATALOG_GROUP_ID'] = (int)$fields['CATALOG_GROUP_ID'];
 			if (!isset(self::$priceTypes[$fields['CATALOG_GROUP_ID']]))
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_CATALOG_GROUP_ID')
 				));
 			}
@@ -337,11 +327,11 @@ class Price extends Entity
 		if ($existQuantityFrom != $existQuantityTo)
 		{
 			if ($existQuantityFrom)
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_QUANTITY_RANGE_LEFT_BORDER_ONLY')
 				));
 			else
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_QUANTITY_RANGE_RIGHT_BORDER_ONLY')
 				));
 		}
@@ -357,7 +347,7 @@ class Price extends Entity
 			$fields['EXTRA_ID'] = (int)$fields['EXTRA_ID'];
 			if (!isset(self::$extraList[$fields['EXTRA_ID']]))
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_EXTRA_ID')
 				));
 			}
@@ -376,7 +366,7 @@ class Price extends Entity
 			$fields['PRICE'] = self::checkPriceValue($fields['PRICE']);
 			if ($fields['PRICE'] === null || $fields['PRICE'] < 0)
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_PRICE')
 				));
 			}
@@ -387,7 +377,7 @@ class Price extends Entity
 			$fields['CURRENCY'] = (string)$fields['CURRENCY'];
 			if (!Currency\CurrencyManager::isCurrencyExist($fields['CURRENCY']))
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_CURRENCY')
 				));
 			}
@@ -512,21 +502,32 @@ class Price extends Entity
 		unset($product, $price);
 	}
 
+	protected static function getDefaultCachedFieldList()
+	{
+		return [
+			'ID',
+			'PRODUCT_ID',
+			'CATALOG_GROUP_ID',
+			'PRICE',
+			'CURRENCY'
+		];
+	}
+
 	/**
 	 * Check and correct quantity range.
 	 * @internal
 	 *
-	 * @param Main\Entity\Result $result        for errors.
+	 * @param ORM\Data\Result $result        for errors.
 	 * @param array &$fields                    price data.
 	 * @return void
 	 */
-	private static function checkQuantityRange(Main\Entity\Result $result, array &$fields)
+	private static function checkQuantityRange(ORM\Data\Result $result, array &$fields)
 	{
 		if ($fields['QUANTITY_FROM'] !== null)
 		{
 			$fields['QUANTITY_FROM'] = (int)$fields['QUANTITY_FROM'];
 			if ($fields['QUANTITY_FROM'] <= 0)
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_QUANTITY_FROM')
 				));
 		}
@@ -534,7 +535,7 @@ class Price extends Entity
 		{
 			$fields['QUANTITY_TO'] = (int)$fields['QUANTITY_TO'];
 			if ($fields['QUANTITY_TO'] <= 0)
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_QUANTITY_TO')
 				));
 		}
@@ -542,13 +543,13 @@ class Price extends Entity
 		{
 			if ($fields['QUANTITY_FROM'] == 0 && $fields['QUANTITY_TO'] == 0)
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage('BX_CATALOG_MODEL_PRICE_ERR_WRONG_QUANTITY_RANGE_ZERO')
 				));
 			}
 			elseif ($fields['QUANTITY_FROM'] > $fields['QUANTITY_TO'])
 			{
-				$result->addError(new Main\Entity\EntityError(
+				$result->addError(new ORM\EntityError(
 					Loc::getMessage(
 						'BX_CATALOG_MODEL_PRICE_ERR_WRONG_QUANTITY_RANGE_INVERT',
 						array('#LEFT#' => $fields['QUANTITY_FROM'], '#RIGHT#' => $fields['QUANTITY_TO'])

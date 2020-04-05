@@ -2,12 +2,12 @@
         <div class="container">
 
             <!-- Icon Blocks -->
-            <div class="row no-gutters">
+            <div class="landing-block-node-row justify-content-center row no-gutters landing-block-inner">
 
                 <div class="landing-block-node-element landing-block-card js-animation fadeInLeft col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in">
                     <!-- Icon Blocks -->
                     <div class="text-center g-px-10 g-px-30--lg g-py-40 g-pt-25--parent-hover g-transition-0_2 g-transition--ease-in">
-					<span class="d-block g-color-primary g-font-size-40 g-mb-15">
+					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-fire"></i>
 					</span>
                         <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">Analisys</h3>
@@ -32,7 +32,7 @@
                 <div class="landing-block-node-element landing-block-card js-animation fadeInLeft col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--md g-ml-minus-1 g-transition-0_2 g-transition--ease-in">
                     <!-- Icon Blocks -->
                     <div class="text-center g-px-10 g-px-30--lg g-py-40 g-pt-25--parent-hover g-transition-0_2 g-transition--ease-in">
-					<span class="d-block g-color-primary g-font-size-40 g-mb-15">
+					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-energy"></i>
                 	</span>
                         <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">Strategy</h3>
@@ -57,7 +57,7 @@
                 <div class="landing-block-node-element landing-block-card js-animation fadeInLeft col-md-4 col-lg-4 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--md g-ml-minus-1 g-transition-0_2 g-transition--ease-in">
                     <!-- Icon Blocks -->
                     <div class="text-center g-px-10 g-px-30--lg g-py-40 g-pt-25--parent-hover g-transition-0_2 g-transition--ease-in">
-					<span class="d-block g-color-primary g-font-size-40 g-mb-15">
+					<span class="landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15">
 					  <i class="landing-block-node-element-icon icon-layers"></i>
 					</span>
                         <h3 class="landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10">Social media</h3>

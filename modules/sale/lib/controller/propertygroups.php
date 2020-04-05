@@ -22,39 +22,33 @@ class PropertyGroups extends Controller
 
 	public function addAction(array $fields)
 	{
+		global $APPLICATION;
+
 		$r = new Result();
 
 		$propertyGroupId = 0;
 		$orderPropsGroup = new \CSaleOrderPropsGroup();
 
 		if((int)$fields['PERSON_TYPE_ID']<=0)
-			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_PERSON_TYPE_ID_FIELD_EMPTY'), 200950000001));
+			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_PERSON_TYPE_ID_FIELD_EMPTY'), 'PERSON_TYPE_ID_FIELD_EMPTY'));
 		if(trim($fields['NAME'])=='')
-			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_PERSON_TYPE_ID_FIELD_EMPTY'), 200950000002));
+			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_PERSON_TYPE_ID_FIELD_EMPTY'), 'NAME_FIELD_EMPTY'));
 
 		if($r->isSuccess())
 		{
 			$propertyGroupId = $orderPropsGroup->Add($fields);
 			if ((int)$propertyGroupId <= 0)
 			{
-				if ($ex = self::getApplication()->GetException())
-				{
-					self::getApplication()->ResetException();
-					self::getApplication()->ThrowException($ex->GetString(), 200950000007);
-
+				if ($ex = $APPLICATION->GetException())
 					$r->addError(new Error($ex->GetString(), $ex->GetID()));
-				}
 				else
-					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_ADD_PROPS_GROUP'), 200950000003));
+					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_ADD_PROPS_GROUP'), 'ERROR_ADD_PROPS_GROUP'));
 			}
 		}
 
 		if(!$r->isSuccess())
 		{
-			foreach ($r->getErrors() as $error)
-			{
-				$this->addError(new Error($error->getMessage(), 200950000006));
-			}
+			$this->addErrors($r->getErrors());
 			return null;
 		}
 		else
@@ -65,6 +59,8 @@ class PropertyGroups extends Controller
 
 	public function updateAction($id, array $fields)
 	{
+		global $APPLICATION;
+
 		$orderPropsGroup = new \CSaleOrderPropsGroup();
 
 		$r = $this->exists($id);
@@ -75,15 +71,10 @@ class PropertyGroups extends Controller
 
 			if(!$orderPropsGroup->Update($id, $fields))
 			{
-				if ($ex = self::getApplication()->GetException())
-				{
-					self::getApplication()->ResetException();
-					self::getApplication()->ThrowException($ex->GetString(), 200950000008);
-
-					$r->addError(new Error($ex->GetString(), $ex->GetID()));
-				}
+				if ($ex = $APPLICATION->GetException())
+					$r->addError(new Error($ex->GetString(), $ex->GetId()));
 				else
-					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_UPDATE_PROPS_GROUP', ['#ID#'=>$id]), 200950000004));
+					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_UPDATE_PROPS_GROUP', ['#ID#'=>$id]), 'ERROR_UPDATE_PROPS_GROUP'));
 			}
 		}
 
@@ -100,6 +91,8 @@ class PropertyGroups extends Controller
 
 	public function deleteAction($id)
 	{
+		global $APPLICATION;
+
 		$orderPropsGroup = new \CSaleOrderPropsGroup();
 
 		$r = $this->exists($id);
@@ -107,15 +100,10 @@ class PropertyGroups extends Controller
 		{
 			if (!$orderPropsGroup->Delete($id))
 			{
-				if ($ex = self::getApplication()->GetException())
-				{
-					self::getApplication()->ResetException();
-					self::getApplication()->ThrowException($ex->GetString(), 200950000009);
-
-					$r->addError(new Error($ex->GetString(), $ex->GetID()));
-				}
+				if ($ex = $APPLICATION->GetException())
+					$r->addError(new Error($ex->GetString(), $ex->GetId()));
 				else
-					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_DELETE_PROPS_GROUP', ['#ID#'=>$id]),200950000005));
+					$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_DELETE_PROPS_GROUP', ['#ID#'=>$id]),'ERROR_DELETE_PROPS_GROUP'));
 			}
 		}
 
@@ -144,7 +132,7 @@ class PropertyGroups extends Controller
 		}
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], $start=0)
+	public function listAction($select=[], $filter, $order=[], $start=0)
 	{
 		$result = [];
 
@@ -182,7 +170,7 @@ class PropertyGroups extends Controller
 	{
 		$r = new Result();
 		if($this->get($id)['ID']<=0)
-			$r->addError(new Error('property group is not exists', 200940400001));
+			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_PROPS_GROUP_NOT_EXISTS', ['#ID#'=>$id]), 'PROPS_GROUP_NOT_EXISTS'));
 
 		return $r;
 	}

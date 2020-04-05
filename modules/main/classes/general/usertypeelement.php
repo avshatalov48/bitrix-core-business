@@ -1,14 +1,18 @@
 <?
-IncludeModuleLangFile(__FILE__);
+use Bitrix\Main\Loader,
+	Bitrix\Main\Localization\Loc;
 
 class CUserTypeIBlockElement extends CUserTypeEnum
 {
+	private static $iblockIncluded = null;
+
 	function GetUserTypeDescription()
 	{
+
 		return array(
 			"USER_TYPE_ID" => "iblock_element",
 			"CLASS_NAME" => "CUserTypeIBlockElement",
-			"DESCRIPTION" => GetMessage("USER_TYPE_IBEL_DESCRIPTION"),
+			"DESCRIPTION" => Loc::getMessage("USER_TYPE_IBEL_DESCRIPTION"),
 			"BASE_TYPE" => "int",
 			"VIEW_CALLBACK" => array(__CLASS__, 'GetPublicView'),
 			"EDIT_CALLBACK" => array(__CLASS__, 'GetPublicEdit'),
@@ -41,6 +45,9 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
 	{
+		if (self::$iblockIncluded === null)
+			self::$iblockIncluded = Loader::includeModule('iblock');
+
 		$result = '';
 
 		if($bVarsFromForm)
@@ -49,24 +56,47 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 			$iblock_id = $arUserField["SETTINGS"]["IBLOCK_ID"];
 		else
 			$iblock_id = "";
-		if(CModule::IncludeModule('iblock'))
+		if (self::$iblockIncluded)
 		{
+			$iblock_id = (int)$iblock_id;
+			if ($iblock_id > 0)
+			{
+				$iblockName = (string)CIBlock::GetArrayByID($iblock_id, 'NAME');
+				if ($iblockName === '')
+				{
+					$iblock_id = 0;
+				}
+			}
 			$result .= '
 			<tr>
-				<td>'.GetMessage("USER_TYPE_IBEL_DISPLAY").':</td>
+				<td>'.Loc::getMessage("USER_TYPE_IBEL_DISPLAY").':</td>
 				<td>
-					'.GetIBlockDropDownList($iblock_id, $arHtmlControl["NAME"].'[IBLOCK_TYPE_ID]', $arHtmlControl["NAME"].'[IBLOCK_ID]', false, 'class="adm-detail-iblock-types"', 'class="adm-detail-iblock-list"').'
+					'.GetIBlockDropDownList(
+						$iblock_id,
+						$arHtmlControl["NAME"].'[IBLOCK_TYPE_ID]',
+						$arHtmlControl["NAME"].'[IBLOCK_ID]',
+						false,
+						'class="adm-detail-iblock-types"',
+						'class="adm-detail-iblock-list" onchange="showUsertypeElementNote(this);"'
+					).'
 				</td>
 			</tr>
+			<tr id="tr_usertype_element_note" style="display: '.($iblock_id > 0 ? 'none' : 'table-row').'"><td></td><td>'.htmlspecialcharsbx(Loc::getMessage('USER_TYPE_IBEL_DISPLAY_NOTE')).'</td></tr>
+			<script type="text/javascript">'.
+			"function showUsertypeElementNote(selector)
+			{
+				BX.style(BX('tr_usertype_element_note'), 'display', (selector.value !== '-1' && selector.value !== '0' ? 'none' : 'table-row'));
+			}".
+'</script>
 			';
 		}
 		else
 		{
 			$result .= '
 			<tr>
-				<td>'.GetMessage("USER_TYPE_IBEL_DISPLAY").':</td>
+				<td>'.Loc::getMessage("USER_TYPE_IBEL_DISPLAY").':</td>
 				<td>
-					<input type="text" size="6" name="'.$arHtmlControl["NAME"].'[IBLOCK_ID]" value="'.htmlspecialcharsbx($value).'">
+					<input type="text" size="6" name="'.$arHtmlControl["NAME"].'[IBLOCK_ID]" value="'.htmlspecialcharsbx($iblock_id).'">
 				</td>
 			</tr>
 			';
@@ -85,14 +115,14 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 			$value = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
 		else
 			$value = "";
-		if(($iblock_id > 0) && CModule::IncludeModule('iblock'))
+		if (self::$iblockIncluded && $iblock_id > 0)
 		{
 			$result .= '
 			<tr>
-				<td>'.GetMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
+				<td>'.Loc::getMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
 				<td>
 					<select name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="5">
-						<option value="">'.GetMessage("IBLOCK_VALUE_ANY").'</option>
+						<option value="">'.Loc::getMessage("USER_TYPE_IBEL_VALUE_ANY").'</option>
 			';
 
 			$arFilter = Array("IBLOCK_ID"=>$iblock_id);
@@ -115,7 +145,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		{
 			$result .= '
 			<tr>
-				<td>'.GetMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
+				<td>'.Loc::getMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
 				<td>
 					<input type="text" size="8" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" value="'.htmlspecialcharsbx($value).'">
 				</td>
@@ -131,10 +161,10 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 			$value = "LIST";
 		$result .= '
 		<tr>
-			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_ENUM_DISPLAY").':</td>
+			<td class="adm-detail-valign-top">'.Loc::getMessage("USER_TYPE_ENUM_DISPLAY").':</td>
 			<td>
-				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="LIST" '.("LIST"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_IBEL_LIST").'</label><br>
-				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="CHECKBOX" '.("CHECKBOX"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_IBEL_CHECKBOX").'</label><br>
+				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="LIST" '.("LIST"==$value? 'checked="checked"': '').'>'.Loc::getMessage("USER_TYPE_IBEL_LIST").'</label><br>
+				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="CHECKBOX" '.("CHECKBOX"==$value? 'checked="checked"': '').'>'.Loc::getMessage("USER_TYPE_IBEL_CHECKBOX").'</label><br>
 			</td>
 		</tr>
 		';
@@ -147,7 +177,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 			$value = 5;
 		$result .= '
 		<tr>
-			<td>'.GetMessage("USER_TYPE_IBEL_LIST_HEIGHT").':</td>
+			<td>'.Loc::getMessage("USER_TYPE_IBEL_LIST_HEIGHT").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[LIST_HEIGHT]" size="10" value="'.$value.'">
 			</td>
@@ -156,7 +186,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 		$result .= '
 		<tr>
-			<td>'.GetMessage("USER_TYPE_IBEL_ACTIVE_FILTER").':</td>
+			<td>'.Loc::getMessage("USER_TYPE_IBEL_ACTIVE_FILTER").':</td>
 			<td>
 				<input type="checkbox" name="'.$arHtmlControl["NAME"].'[ACTIVE_FILTER]" value="Y" '.($ACTIVE_FILTER=="Y"? 'checked="checked"': '').'>
 			</td>
@@ -174,8 +204,10 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 	function GetList($arUserField)
 	{
+		if (self::$iblockIncluded === null)
+			self::$iblockIncluded = Loader::includeModule('iblock');
 		$rsElement = false;
-		if(CModule::IncludeModule('iblock'))
+		if (self::$iblockIncluded && (int)$arUserField["SETTINGS"]["IBLOCK_ID"] > 0)
 		{
 			$obElement = new CIBlockElementEnum;
 			$rsElement = $obElement->GetTreeList($arUserField["SETTINGS"]["IBLOCK_ID"], $arUserField["SETTINGS"]["ACTIVE_FILTER"]);
@@ -185,7 +217,14 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 	protected static function getEnumList(&$arUserField, $arParams = array())
 	{
-		if(!CModule::IncludeModule('iblock'))
+		if (self::$iblockIncluded === null)
+			self::$iblockIncluded = Loader::includeModule('iblock');
+		if (!self::$iblockIncluded)
+		{
+			return;
+		}
+
+		if ((int)$arUserField["SETTINGS"]["IBLOCK_ID"] <= 0)
 		{
 			return;
 		}
@@ -246,7 +285,7 @@ class CIBlockElementEnum extends CDBResult
 	function GetTreeList($IBLOCK_ID, $ACTIVE_FILTER="N")
 	{
 		$rs = false;
-		if(CModule::IncludeModule('iblock'))
+		if (Loader::includeModule('iblock') && $IBLOCK_ID > 0)
 		{
 			$arFilter = Array("IBLOCK_ID"=>$IBLOCK_ID);
 			if($ACTIVE_FILTER === "Y")
@@ -280,7 +319,7 @@ class CIBlockElementEnum extends CDBResult
 
 function GetIBlockElementLinkById($ID)
 {
-	if(CModule::IncludeModule('iblock'))
+	if(Loader::includeModule('iblock'))
 	{
 		static $arIBlocElementUrl = array();
 		if(isset($arIBlocElementUrl[$ID]))
@@ -294,4 +333,3 @@ function GetIBlockElementLinkById($ID)
 	else
 		return false;
 }
-?>

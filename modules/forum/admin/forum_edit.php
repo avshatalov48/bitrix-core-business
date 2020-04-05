@@ -12,7 +12,7 @@ if ($forumPermissions == "D")
 				Simple text
 ********************************************************************/
 	
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/include.php");
+CModule::IncludeModule("forum");
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
@@ -342,7 +342,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td><?=GetMessage("NAME")?>:</td>
+		<td><?=GetMessage("FORUM_TITLE")?>:</td>
 		<td>
 			<input type="text" name="NAME" size="40" maxlength="255" value="<?=$arForum["NAME"]?>" />
 		</td>
@@ -610,7 +610,7 @@ $tabControl->BeginNextTab();
 <?
 
 	$arPerm = ($ID > 0 ? $arForum["GROUP_ID"] : array());
-	
+
 	$db_res = CGroup::GetList($by = "sort", $order = "asc", Array("ADMIN"=>"N"));
 	while ($res = $db_res->GetNext())
 	{

@@ -31,8 +31,15 @@ $new = $paymentId <= 0;
 $tableId = "order_payment_edit_info";
 $backUrl = $request->get('backurl');
 
-if($orderId <= 0 || !($saleOrder = Bitrix\Sale\Order::load($orderId)))
+$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+/** @var Order $orderClass */
+$orderClass = $registry->getOrderClassName();
+
+if($orderId <= 0 || !($saleOrder = $orderClass::load($orderId)))
+{
 	LocalRedirect("/bitrix/admin/sale_order.php?lang=".$lang.GetFilterParams("filter_", false));
+}
 
 $allowedOrderStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
 $allowedOrderStatusesUpdate = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -171,7 +178,7 @@ else
 		LocalRedirect("/bitrix/admin/sale_order_payment.php?lang=".$lang.GetFilterParams("filter_", false));
 }
 
-if ((!$allowView && !$allowUpdate) || Order::isLocked($orderId))
+if ((!$allowView && !$allowUpdate) || $orderClass::isLocked($orderId))
 	LocalRedirect('/bitrix/admin/sale_order_payment.php?lang=' . $lang . GetFilterParams('filter_', false));
 
 

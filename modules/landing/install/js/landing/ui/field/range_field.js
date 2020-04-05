@@ -32,7 +32,8 @@
 		this.onValueChangeHandler = data.onValueChange ? data.onValueChange : (function() {});
 		this.dragStartHandler = typeof data.onDragStart === "function" ? data.onDragStart : (function() {});
 		this.dragEndHandler = typeof data.onDragEnd === "function" ? data.onDragEnd : (function() {});
-		this.jsDD = this.frame ? window.top.jsDD : window.jsDD;
+		var rootWindow = BX.Landing.PageObject.getRootWindow();
+		this.jsDD = this.frame ? rootWindow.jsDD : window.jsDD;
 		this.value = null;
 		this.valueFrom = null;
 		this.valueTo = null;

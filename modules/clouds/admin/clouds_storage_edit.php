@@ -29,11 +29,34 @@ $aTabs = array(
 		"TITLE"=>GetMessage("CLO_STORAGE_EDIT_TAB2_TITLE"),
 	),
 );
+if (CCloudFailover::IsEnabled())
+{
+	$aTabs[] = array(
+		"DIV" => "edit3",
+		"TAB" => GetMessage("CLO_STORAGE_EDIT_TAB3"),
+		"ICON"=>"main_user_edit",
+		"TITLE"=>GetMessage("CLO_STORAGE_EDIT_TAB3_TITLE"),
+	);
+}
+
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $ID = intval($_REQUEST["ID"]); // Id of the edited record
 $bVarsFromForm = false;
 $message = /*.(CAdminMessage).*/null;
+
+$FAILOVER_DELETE_DELAY = intval($_REQUEST['FAILOVER_DELETE_DELAY']);
+if (isset($_POST['FAILOVER_DELETE_DELAY_TYPE']))
+{
+	if ($_POST['FAILOVER_DELETE_DELAY_TYPE'] == 'H')
+		$FAILOVER_DELETE_DELAY *= 60;
+	elseif ($_POST['FAILOVER_DELETE_DELAY_TYPE'] == 'D')
+		$FAILOVER_DELETE_DELAY *= 60 * 24;
+	elseif ($_POST['FAILOVER_DELETE_DELAY_TYPE'] == 'W')
+		$FAILOVER_DELETE_DELAY *= 60 * 24 * 7;
+	elseif ($_POST['FAILOVER_DELETE_DELAY_TYPE'] == 'N')
+		$FAILOVER_DELETE_DELAY *= 60 * 24 * 30;
+}
 
 if($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid())
 {
@@ -51,11 +74,32 @@ if($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid())
 			"CNAME" => $_POST["CNAME"],
 			"FILE_RULES" => CCloudStorageBucket::ConvertPOST($_POST),
 		);
+		if (CCloudFailover::IsEnabled())
+		{
+			$arFields["FAILOVER_ACTIVE"] = $_POST["FAILOVER_ACTIVE"] == "Y"? "Y": "N";
+			$arFields["FAILOVER_BUCKET_ID"] = (int)$_POST["FAILOVER_BUCKET_ID"];
+			$arFields["FAILOVER_COPY"] = $_POST["FAILOVER_COPY"] == "Y"? "Y": "N";
+			$arFields["FAILOVER_DELETE"] = $_POST["FAILOVER_DELETE"] == "Y"? "Y": "N";
+			$arFields["FAILOVER_DELETE_DELAY"] = $FAILOVER_DELETE_DELAY;
+		}
 
 		if($ID > 0)
 			$res = $ob->Update($arFields);
 		else
 			$res = $ob->Add($arFields);
+
+		if (
+			$res > 0
+			&& CCloudFailover::IsEnabled()
+			&& $arFields["FAILOVER_BUCKET_ID"] > 0
+			&& $_POST["FAILOVER_SYNC"] == "Y"
+		)
+		{
+			CAgent::AddAgent(
+				"CCloudFailover::syncAgent($res, ".$arFields["FAILOVER_BUCKET_ID"].", 100);",
+				"clouds", "N", 1, "", "Y", ""
+			);
+		}
 
 		if($res > 0)
 		{
@@ -93,6 +137,11 @@ if($bVarsFromForm)
 		"LOCATION" => (string)$_REQUEST["LOCATION"],
 		"CNAME" => (string)$_REQUEST["CNAME"],
 		"SETTINGS" => "",
+		"FAILOVER_ACTIVE" => (string)$_REQUEST["FAILOVER_ACTIVE"],
+		"FAILOVER_BUCKET_ID" => (int)$_REQUEST["FAILOVER_BUCKET_ID"],
+		"FAILOVER_COPY" => (string)$_REQUEST["FAILOVER_COPY"],
+		"FAILOVER_DELETE" => (string)$_REQUEST["FAILOVER_DELETE"],
+		"FAILOVER_DELETE_DELAY" => (int)$FAILOVER_DELETE_DELAY,
 	);
 
 	if(isset($_REQUEST["SETTINGS"]) && is_array($_REQUEST["SETTINGS"]))
@@ -119,6 +168,11 @@ else
 			"LOCATION" => "",
 			"CNAME" => "",
 			"SETTINGS" => "",
+			"FAILOVER_ACTIVE" => "N",
+			"FAILOVER_BUCKET_ID" => 0,
+			"FAILOVER_COPY" => "N",
+			"FAILOVER_DELETE" => "N",
+			"FAILOVER_DELETE_DELAY" => 0,
 		);
 	}
 }
@@ -391,6 +445,130 @@ BX.ready(function() {
 		?>
 	</td></tr>
 <?
+if (CCloudFailover::IsEnabled())
+{
+	$tabControl->BeginNextTab();
+	?>
+	<tr>
+		<td width="40%"><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_ACTIVE")?>:</td>
+		<td width="60%">
+			<input type="hidden" name="FAILOVER_ACTIVE" value="N">
+			<input type="checkbox" name="FAILOVER_ACTIVE" value="Y"<?if($arRes["FAILOVER_ACTIVE"] === "Y") echo " checked"?>>
+		</td>
+	</tr>
+	<tr valign="top">
+		<td><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_BUCKET_ID")?>:</td>
+		<td>
+		<select name="FAILOVER_BUCKET_ID">
+			<option value=""><?echo GetMessage("MAIN_NO")?></option>
+			<?
+			$rsBucketList = CCloudStorageBucket::GetList(array("SORT"=>"DESC", "ID"=>"ASC"));
+			while ($arBucket = $rsBucketList->Fetch())
+			{
+				if ($ID == $arBucket["ID"])
+					continue;
+				?><option value="<?echo htmlspecialcharsbx($arBucket["ID"])?>"<?if($arRes["FAILOVER_BUCKET_ID"] === $arBucket["ID"]) echo " selected"?>><?echo htmlspecialcharsex($arBucket["BUCKET"])?></option><?
+			}
+			?>
+		</select>
+		<?echo
+			BeginNote(),
+			'<p>',GetMessage("CLO_STORAGE_EDIT_FAILOVER_NOTE"),'</p>',
+			EndNote();
+		?>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_COPY")?>:</td>
+		<td width="60%">
+			<input type="hidden" name="FAILOVER_COPY" value="N">
+			<input type="checkbox" name="FAILOVER_COPY" value="Y"<?if($arRes["FAILOVER_COPY"] === "Y") echo " checked"?>>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE")?>:</td>
+		<td width="60%">
+			<input type="hidden" name="FAILOVER_DELETE" value="N">
+			<input type="checkbox" name="FAILOVER_DELETE" value="Y"<?if($arRes["FAILOVER_DELETE"] === "Y") echo " checked"?>>
+		</td>
+	</tr>
+	<tr>
+		<td><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY")?>:</td>
+		<td>
+		<?
+			$FAILOVER_DELETE_DELAY = intval($arRes['FAILOVER_DELETE_DELAY']);
+			if ($FAILOVER_DELETE_DELAY % (60 * 24 * 30) == 0)
+			{
+				$FAILOVER_DELETE_DELAY_TYPE = "N";
+				$FAILOVER_DELETE_DELAY /= (60 * 24 * 30);
+			}
+			elseif ($FAILOVER_DELETE_DELAY % (60 * 24 * 7) == 0)
+			{
+				$FAILOVER_DELETE_DELAY_TYPE = "W";
+				$FAILOVER_DELETE_DELAY /= (60 * 24 * 7);
+			}
+			elseif ($FAILOVER_DELETE_DELAY % (60 * 24) == 0)
+			{
+				$FAILOVER_DELETE_DELAY_TYPE = "D";
+				$FAILOVER_DELETE_DELAY /= (60 * 24);
+			}
+			elseif ($FAILOVER_DELETE_DELAY % 60 == 0)
+			{
+				$FAILOVER_DELETE_DELAY_TYPE = "H";
+				$FAILOVER_DELETE_DELAY /= (60);
+			}
+			else
+			{
+				$FAILOVER_DELETE_DELAY_TYPE = "M";
+			}
+			?>
+			<input type="text" name="FAILOVER_DELETE_DELAY" id="FAILOVER_DELETE_DELAY" size="5" value="<? echo $FAILOVER_DELETE_DELAY ?>">
+			<select name="FAILOVER_DELETE_DELAY_TYPE" title="">
+				<option value="M"<? if ($FAILOVER_DELETE_DELAY_TYPE == "M") echo ' selected' ?>><? echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY_MI") ?></option>
+				<option value="H"<? if ($FAILOVER_DELETE_DELAY_TYPE == "H") echo ' selected' ?>><? echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY_HO") ?></option>
+				<option value="D"<? if ($FAILOVER_DELETE_DELAY_TYPE == "D") echo ' selected' ?>><? echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY_DA") ?></option>
+				<option value="W"<? if ($FAILOVER_DELETE_DELAY_TYPE == "W") echo ' selected' ?>><? echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY_WE") ?></option>
+				<option value="N"<? if ($FAILOVER_DELETE_DELAY_TYPE == "N") echo ' selected' ?>><? echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_DELETE_DELAY_MO") ?></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><?echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_SYNC")?>:</td>
+		<td width="60%">
+			<?
+			$rsAgents = CAgent::GetList(array("ID"=>"DESC"), array(
+				"MODULE_ID" => "clouds",
+				"NAME" => "CCloudFailover::syncAgent($ID, %",
+			));
+			$arAgent = $rsAgents->Fetch();
+			if (!$arAgent)
+			{
+				$task = \Bitrix\Clouds\CopyQueueTable::getList(array(
+					'filter' => array(
+						"=STATUS" => "Y",
+						"=OP" => \Bitrix\Clouds\CopyQueueTable::OP_SYNC,
+					),
+					'limit' => 1,
+					'order' => Array('ID' => 'ASC')
+				))->fetch();
+			}
+			if($arAgent || $task)
+			{
+				echo GetMessage("CLO_STORAGE_EDIT_FAILOVER_SYNC_IN_PROGRESS");
+			}
+			else
+			{
+			?>
+				<input type="hidden" name="FAILOVER_SYNC" value="N">
+				<input type="checkbox" name="FAILOVER_SYNC" value="Y">
+			<?
+			}
+			?>
+		</td>
+	</tr>
+	<?
+}
+
 $tabControl->Buttons(
 	array(
 		"back_url"=>"clouds_storage_list.php?lang=".LANGUAGE_ID,

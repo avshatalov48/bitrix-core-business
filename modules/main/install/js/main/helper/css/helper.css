@@ -54,20 +54,26 @@
 	z-index: 995;
 }
 
-.help-cl-count-digit { padding: 1px 5px;display: inline-block;}
+.help-cl-count-digit {
+	display: inline-block;
+	padding: 0 3px;
+	min-width: 10px;
+	height: 13px;
+}
+
 .help-cl-count {
-	display:inline-block;
-	float:right;
-	font: 11px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	display: inline-block;
+	float: right;
+	font: 10px/13px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
 	vertical-align: top;
 	border-radius: 12px;
-	background-color: #e15655;
-	background-position: 7px -83px;
-	color: #f7f6f6;
+	background-color: #f84932;
+	color: #fff;
 	text-shadow: none;
 	margin-top: 7px;
 	margin-left: 3px;
 	margin-right: 3px;
 	-webkit-animation: imOpacityFrom05To1 .4s 1; animation: imOpacityFrom05To1 .4s 1;
 	z-index: 12;
+	opacity: .9;
 }

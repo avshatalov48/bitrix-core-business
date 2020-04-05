@@ -11,21 +11,24 @@ use Bitrix\Main\Web\Json;
 
 ?>
 
-<?php $this->SetViewTarget('left-panel') ?>
+<?php $this->SetViewTarget($arResult['VIEW_TARGET']) ?>
 
 <div <?if($arResult['ID']):?>id="<?=$arResult['ID']?>"<?endif;?> class="ui-sidepanel-sidebar">
-    <div class="ui-sidepanel-head">
-        <div class="ui-sidepanel-title">
-			<?=$arResult['TITLE']?>
+	<?if(!empty($arResult['TITLE'])):?>
+		<div class="ui-sidepanel-head">
+			<h2 class="ui-sidepanel-title">
+				<?=$arResult['TITLE']?>
+			</h2>
 		</div>
-    </div>
+	<?endif;?>
 	<?= getWrapperMenu($arResult['ITEMS']);?>
 </div>
 
 <script type="text/javascript">
     BX.message({
         UI_SIDEPANEL_MENU_BUTTON_OPEN: '<?=GetMessageJS("UI_SIDEPANEL_MENU_BUTTON_OPEN")?>',
-        UI_SIDEPANEL_MENU_BUTTON_CLOSE: '<?=GetMessageJS("UI_SIDEPANEL_MENU_BUTTON_CLOSE")?>'
+        UI_SIDEPANEL_MENU_BUTTON_CLOSE: '<?=GetMessageJS("UI_SIDEPANEL_MENU_BUTTON_CLOSE")?>',
+		UI_SIDEPANEL_MENU_ADD_ITEM: '<?=GetMessageJS("UI_SIDEPANEL_MENU_ADD_ITEM")?>'
     });
 
     BX.ready(function () {

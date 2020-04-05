@@ -11,6 +11,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'im.const',
+		'main.date',
 	],
 	'skip_core' => true,
 ];

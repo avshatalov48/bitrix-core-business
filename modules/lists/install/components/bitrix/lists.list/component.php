@@ -327,11 +327,11 @@ if(
 	}
 	else
 	{
-		$arFilter["=ID"] = $_POST["ID"];
+		$arFilter["=ID"] = (is_array($_POST["ID"]) ? $_POST["ID"] : []);
 	}
 
 	/*Take action*/
-	if($_POST["action_button_".$arResult["GRID_ID"]] == "delete" && isset($_POST["ID"]) && is_array($_POST["ID"]))
+	if ($_POST["action_button_".$arResult["GRID_ID"]] == "delete" && !empty($arFilter["=ID"]))
 	{
 		$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID"));
 		while($arElement = $rsElements->Fetch())
@@ -476,6 +476,16 @@ if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
 		"sort" => false,
 		'hideName' => true,
 		'iconCls' => 'bp-comments-icon',
+	);
+}
+
+if (CLists::isEnabledLockFeature($IBLOCK_ID))
+{
+	$arResult["ELEMENTS_HEADERS"][] = array(
+		"id" => "LOCK_STATUS",
+		"name" => GetMessage("CC_BLL_EXTERNAL_LOCK"),
+		"default" => true,
+		"sort" => false,
 	);
 }
 
@@ -737,11 +747,10 @@ else
 	$arDocumentStatesForBP = array();
 }
 
-$check = false;
 $listValues = array();
 while($obElement = $rsElements->GetNextElement())
 {
-	$check = true;
+	$arResult["CAN_EXPORT"] = true;
 	$columns = array();
 	$data = $obElement->GetFields();
 	if(!is_array($data))
@@ -815,7 +824,7 @@ while($obElement = $rsElements->GetNextElement())
 	}
 
 	$arBPStart = array();
-	if($arResult["BIZPROC"] == "Y")
+	if ($arResult["BIZPROC"] == "Y")
 	{
 		if ($arResult["PROCESSES"])
 		{
@@ -941,13 +950,27 @@ while($obElement = $rsElements->GetNextElement())
 		/* *** */
 	}
 
+	if (CLists::isEnabledLockFeature($IBLOCK_ID) && in_array("LOCK_STATUS", $grid_columns))
+	{
+		ob_start();
+		$APPLICATION->IncludeComponent(
+			"bitrix:lists.lock.status.widget",
+			"",
+			[
+				"ELEMENT_ID" => $data["ID"],
+				"ELEMENT_NAME" => $arResult["IBLOCK"]["ELEMENT_NAME"]
+			],
+			$component, ["HIDE_ICONS" => "Y"]
+		);
+		$columns["LOCK_STATUS"] = ob_get_clean();
+	}
+
 	$url = str_replace(
 		array("#list_id#", "#section_id#", "#element_id#", "#group_id#"),
 		array($arIBlock["ID"], intval($arResult["SECTION_ID"]), intval($data["~ID"]), $arParams["SOCNET_GROUP_ID"]),
 		$arParams["LIST_ELEMENT_URL"]
 	);
-	if($arResult["ANY_SECTION"])
-		$url = CHTTP::urlAddParams($url, array("list_section_id" => ""));
+	$url = CHTTP::urlAddParams($url, ["list_section_id" => ($arResult["ANY_SECTION"] ? "" : $section_id)]);
 
 	$aActions = array();
 	if(!$arResult["IS_SOCNET_GROUP_CLOSED"]
@@ -972,20 +995,21 @@ while($obElement = $rsElements->GetNextElement())
 		|| CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, intval($arResult["SECTION_ID"]), "section_element_bind")))
 	{
 		$urlCopy = CHTTP::urlAddParams(str_replace(
-				array("#list_id#", "#section_id#", "#element_id#", "#group_id#"),
-				array($arIBlock["ID"], intval($arResult["SECTION_ID"]), 0, $arParams["SOCNET_GROUP_ID"]),
+				["#list_id#", "#section_id#", "#element_id#", "#group_id#"],
+				[$arIBlock["ID"], intval($arResult["SECTION_ID"]), 0, $arParams["SOCNET_GROUP_ID"]],
 				$arParams["LIST_ELEMENT_URL"]
 			),
-			array("copy_id" => $data["~ID"]),
-			array("skip_empty" => true, "encode" => true)
+			["copy_id" => $data["~ID"]],
+			["skip_empty" => true, "encode" => true]
 		);
+		$urlCopy = CHTTP::urlAddParams($urlCopy, ["list_section_id" => ($arResult["ANY_SECTION"] ? "" : $section_id)]);
 		$aActions[] = array(
 			"TEXT"=>GetMessage("CC_BLL_ELEMENT_ACTION_MENU_COPY"),
 			"HREF" => $urlCopy,
 		);
 	}
 
-	if($arResult["BIZPROC"] == "Y")
+	if ($arResult["BIZPROC"] == "Y")
 	{
 		if(count($arBPStart) && !$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_BIZPROC
 				|| CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $data["~ID"], "element_bizproc_start")))
@@ -1098,6 +1122,19 @@ while($obElement = $rsElements->GetNextElement())
 		}
 	}
 
+	if (CLists::isEnabledLockFeature($IBLOCK_ID))
+	{
+		$lockStatus = CIBlockElement::WF_GetLockStatus($data["ID"], $lockedBy, $dateLock);
+		if (($arParams["CAN_EDIT"] && $lockStatus == "red") || $lockStatus == "yellow")
+		{
+			$aActions[] = [
+				"ID" => "unLockElement",
+				"TEXT" => GetMessage("CT_BLL_UN_LOCK_ELEMENT"),
+				"ONCLICK" => "javascript:BX.Lists['".$arResult['JS_OBJECT']."'].unLock(".$data["ID"].");"
+			];
+		}
+	}
+
 	if(!$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_WRITE
 			|| CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $data["~ID"], "element_delete")))
 	{
@@ -1117,9 +1154,6 @@ while($obElement = $rsElements->GetNextElement())
 		"columns" => $columns,
 	);
 }
-
-if(!$arResult["CAN_READ"] && $check)
-	$arResult["CAN_READ"] = true;
 
 if (!$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_WRITE
 	|| CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "element_delete")))
@@ -1160,8 +1194,8 @@ $arResult["LIST_NEW_ELEMENT_URL"] = str_replace(
 	array($arIBlock["ID"], intval($arResult["SECTION_ID"]), 0, $arParams["SOCNET_GROUP_ID"]),
 	$arParams["LIST_ELEMENT_URL"]
 );
-if($arResult["ANY_SECTION"])
-	$arResult["LIST_NEW_ELEMENT_URL"] = CHTTP::urlAddParams($arResult["LIST_NEW_ELEMENT_URL"], array("list_section_id" => ""));
+$arResult["LIST_NEW_ELEMENT_URL"] = CHTTP::urlAddParams(
+	$arResult["LIST_NEW_ELEMENT_URL"], ["list_section_id" => ($arResult["ANY_SECTION"] ? "" : $section_id)]);
 
 $APPLICATION->AddChainItem($arResult["IBLOCK"]["NAME"], CHTTP::urlAddParams(str_replace(
 	array("#list_id#", "#section_id#", "#group_id#"),

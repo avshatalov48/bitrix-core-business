@@ -14,7 +14,9 @@ $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 <?
 // *************************/Input params***************************************************************
 
-$link = $APPLICATION->GetCurPageParam("MID=#ID#", array("MID", "sessid", "AJAX_POST", "ENTITY_XML_ID", "ENTITY_TYPE", "ENTITY_ID", "REVIEW_ACTION", "MODE", "FILTER", "result"));
+$url = (new \Bitrix\Main\Web\Uri($arParams["URL"]))
+	->deleteParams(["MID", "ID", "sessid", "AJAX_POST", "ENTITY_XML_ID", "ENTITY_TYPE", "ENTITY_ID", "REVIEW_ACTION", "ACTION", "MODE", "FILTER", "result"]);
+$link = ForumAddPageParams($url->getPathQuery(), array("MID" => "#ID#"), false, false);
 
 if (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"])
 {
@@ -32,7 +34,6 @@ else
 			: "Y"
 	);
 }
-
 $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	"bitrix:main.post.list",
 	"",
@@ -57,9 +58,9 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"RESULT" => ($arResult["RESULT"] ?: $request->getQuery("MID")),
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
 		"VIEW_URL" => ($arParams["SHOW_LINK_TO_MESSAGE"] == "Y" && !(isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"]) ? $link : ""),
-		"EDIT_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "GET"), false, false),
-		"MODERATE_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "#ACTION#"), false, false),
-		"DELETE_URL" => ForumAddPageParams($link, array("REVIEW_ACTION" => "DEL"), false, false),
+		"EDIT_URL" => ForumAddPageParams($link, array("ACTION" => "GET"), false, false),
+		"MODERATE_URL" => ForumAddPageParams($link, array("ACTION" => "#ACTION#"), false, false),
+		"DELETE_URL" => ForumAddPageParams($link, array("ACTION" => "DEL"), false, false),
 		"AUTHOR_URL" => $arParams["URL_TEMPLATES_PROFILE_VIEW"],
 
 		"AVATAR_SIZE" => $arParams["AVATAR_SIZE_COMMENT"],
@@ -72,7 +73,9 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"NOTIFY_TAG" => ($arParams["bFromList"] ? "BLOG|COMMENT" : ""),
 		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => $arParams["SHOW_MINIMIZED"],
-		"SHOW_POST_FORM" => $arResult["SHOW_POST_FORM"],
+
+		"FORM_ID" => $arParams["FORM_ID"], // instead of SHOW_POST_FORM
+		"SHOW_POST_FORM" => $arResult["SHOW_POST_FORM"], // for old main.post.list
 
 		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
 		"BIND_VIEWER" => $arParams["BIND_VIEWER"],

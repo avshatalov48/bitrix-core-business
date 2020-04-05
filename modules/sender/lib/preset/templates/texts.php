@@ -163,6 +163,9 @@ class Texts
 			Message\iBase::CODE_IM => array(
 				'TEXT'
 			),
+			Message\iBase::CODE_AUDIO_CALL => array(
+				'AUDIO_FILE'
+			),
 		);
 
 		$isHot = strpos($code, 'hot_') === 0;

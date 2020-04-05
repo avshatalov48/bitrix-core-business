@@ -587,6 +587,11 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 
 		$parameters = $safe;
 
+		if(!isset($parameters['filter']))
+		{
+			$parameters['filter'] = [];
+		}
+
 		// check select
 		if(!is_array($parameters['select']))
 			throw new Main\ArgumentException(Loc::getMessage('SALE_SLS_BAD_QUERY'));
@@ -611,6 +616,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		// phrase should be string and longer than static::START_SEARCH_LEN
 		if(isset($parameters['filter']['=PHRASE']) && (!is_string($parameters['filter']['=PHRASE']) || strlen($parameters['filter']['=PHRASE']) < static::START_SEARCH_LEN))
 			throw new Main\ArgumentException(Loc::getMessage('SALE_SLS_BAD_QUERY'));
+
 
 		foreach($parameters['filter'] as $field => $value)
 		{
@@ -739,6 +745,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		);
 
 		$result = Location\Search\Finder::find(static::processSearchRequestV2ModifyParameters($parameters), static::processSearchRequestV2GetFinderBehaviour());
+
 		while($item = $result->fetch())
 		{
 			// hack to repair ORM

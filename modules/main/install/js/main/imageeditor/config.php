@@ -5,19 +5,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'js' => [
-		'/bitrix/js/main/imageeditor/js/locale.js',
-		'/bitrix/js/main/imageeditor/js/editor.js'
-	],
-
-	'css' => [
-		'/bitrix/js/main/imageeditor/css/style.css'
-	],
-
+	'css' => 'dist/imageeditor.bundle.css',
+	'js' => 'dist/imageeditor.bundle.js',
 	'rel' => [
-		'main.polyfill.promise'
+		'main.popup',
+		'main.loader',
+		'main.core',
 	],
-
-	'bundle_js' => 'main_imageeditor',
-	'bundle_css' => 'main_imageeditor'
+	'skip_core' => false,
 ];

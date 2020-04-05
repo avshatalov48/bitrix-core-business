@@ -4,6 +4,7 @@ use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Iblock,
 	Bitrix\Catalog;
+use Bitrix\Main\Loader;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -16,15 +17,23 @@ class ProductSearchComponent extends \CBitrixComponent
 	protected $arSkuProps;
 	protected $offersCatalog;
 	protected $arPrices;
-	protected $arHeaders;
+	/** @var array Grid headers */
+	protected $arHeaders = null;
+	/** @var array Rows field list */
+	protected $dataFields = null;
 	protected $activeSectionLabel;
 	protected $simpleSearch;
 	protected $offersIblockId;
 	protected $iblockList;
 	protected $gridOprtions;
-	protected $visibleColumns;
-	protected $visiblePrices;
-	protected $vilibleProperties;
+	/** @var array */
+	protected $visibleColumns = null;
+	/** @var array */
+	protected $visiblePrices = null;
+	/** @var array */
+	protected $visibleProperties = null;
+	/** @var array */
+	protected $visibleFields = null;
 
 	protected $checkPermissions = true;
 
@@ -258,64 +267,65 @@ class ProductSearchComponent extends \CBitrixComponent
 		if (!is_array($arOrder))
 			$arOrder = array("SORT"=>"ASC");
 
-		$validatedSelect = is_array($arSelectedFields);
-		$emptySelect = empty($arSelectedFields) || !$validatedSelect || ($validatedSelect && in_array('*', $arSelectedFields));
-
 		$elementInherentFilter = self::getElementInherentFilter($arFilter);
 
 		$notFound = false;
-		if (isset($arFilter["S_ID"]) && is_array($arFilter["S_ID"]) && count($arFilter["S_ID"]) == 1)
+		if (self::checkLoadSections($elementInherentFilter) && !isset($arFilter['USE_BARCODE']))
 		{
-			$notFound = $arFilter['S_ID'][0] == 0;
-		}
-		if (!$notFound && !$this->isFiltering())
-		{
-			$arSectionFilter = [
-				"IBLOCK_ID" => $arFilter["IBLOCK_ID"]
-			];
-			if (isset($arFilter["S_ID"]))
-				$arSectionFilter["=ID"] = $arFilter["S_ID"];
-			if (isset($arFilter["NAME"]))
+			if (isset($arFilter["S_ID"]) && is_array($arFilter["S_ID"]) && count($arFilter["S_ID"]) == 1)
 			{
-				if ($arFilter['USE_SUBSTRING_QUERY'] == 'Y')
-					$arSectionFilter["%NAME"] = $arFilter["NAME"];
-				else
-					$arSectionFilter["?NAME"] = $arFilter["NAME"];
+				$notFound = $arFilter['S_ID'][0] == 0;
 			}
-			if (isset($arFilter["DATE_MODIFY_FROM"]))
-				$arSectionFilter[">=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_FROM"];
-			if (isset($arFilter["DATE_MODIFY_TO"]))
-				$arSectionFilter["<=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_TO"];
-			if (isset($arFilter["CODE"]))
-				$arSectionFilter["CODE"] = $arFilter["CODE"];
-			if (isset($arFilter["ACTIVE"]))
-				$arSectionFilter["ACTIVE"] = $arFilter["ACTIVE"];
-
-			if (isset($arFilter["CHECK_PERMISSIONS"]))
+			if (!$notFound && !$this->isFiltering())
 			{
-				$arSectionFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
-				$arSectionFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
-			}
-			if (array_key_exists("SECTION_ID", $arFilter))
-			{
-				if (!array_key_exists("INCLUDE_SUBSECTIONS", $arFilter))
+				$arSectionFilter = [
+					"IBLOCK_ID" => $arFilter["IBLOCK_ID"]
+				];
+				if (isset($arFilter["S_ID"]))
+					$arSectionFilter["=ID"] = $arFilter["S_ID"];
+				if (isset($arFilter["NAME"]))
 				{
-					$arSectionFilter['SECTION_ID'] = $arFilter['SECTION_ID'];
+					if ($arFilter['USE_SUBSTRING_QUERY'] == 'Y')
+						$arSectionFilter["%NAME"] = $arFilter["NAME"];
+					else
+						$arSectionFilter["?NAME"] = $arFilter["NAME"];
 				}
-				elseif (!$this->isAdvancedSearchAvailable() && $margin = $this->getSectionMargin($arFilter['SECTION_ID']))
-				{
-					$arSectionFilter['>LEFT_MARGIN'] = $margin['LEFT_MARGIN'];
-					$arSectionFilter['<RIGHT_MARGIN'] = $margin['RIGHT_MARGIN'];
-					$arSectionFilter['>DEPTH_LEVEL'] = $margin['DEPTH_LEVEL'];
-				}
-			}
+				if (isset($arFilter["DATE_MODIFY_FROM"]))
+					$arSectionFilter[">=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_FROM"];
+				if (isset($arFilter["DATE_MODIFY_TO"]))
+					$arSectionFilter["<=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_TO"];
+				if (isset($arFilter["CODE"]))
+					$arSectionFilter["CODE"] = $arFilter["CODE"];
+				if (isset($arFilter["ACTIVE"]))
+					$arSectionFilter["ACTIVE"] = $arFilter["ACTIVE"];
 
-			$obSection = new \CIBlockSection;
-			$rsSection = $obSection->GetList($arOrder, $arSectionFilter, $bIncCnt);
-			while ($arSection = $rsSection->Fetch())
-			{
-				$arSection["TYPE"] = "S";
-				$arResult[] = $arSection;
+				if (isset($arFilter["CHECK_PERMISSIONS"]))
+				{
+					$arSectionFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
+					$arSectionFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
+				}
+				if (array_key_exists("SECTION_ID", $arFilter))
+				{
+					if (!array_key_exists("INCLUDE_SUBSECTIONS", $arFilter))
+					{
+						$arSectionFilter['SECTION_ID'] = $arFilter['SECTION_ID'];
+					}
+					elseif (!$this->isAdvancedSearchAvailable() && $margin = $this->getSectionMargin($arFilter['SECTION_ID']))
+					{
+						$arSectionFilter['>LEFT_MARGIN'] = $margin['LEFT_MARGIN'];
+						$arSectionFilter['<RIGHT_MARGIN'] = $margin['RIGHT_MARGIN'];
+						$arSectionFilter['>DEPTH_LEVEL'] = $margin['DEPTH_LEVEL'];
+					}
+				}
+
+				$obSection = new \CIBlockSection;
+				$rsSection = $obSection->GetList($arOrder, $arSectionFilter, $bIncCnt, $arSelectedFields);
+				while ($arSection = $rsSection->Fetch())
+				{
+					$arSection["TYPE"] = "S";
+					$arResult[] = $arSection;
+				}
+				unset($arSection, $rsSection, $obSection);
 			}
 		}
 		$notFound = false;
@@ -386,6 +396,7 @@ class ProductSearchComponent extends \CBitrixComponent
 				$arElement["TYPE"] = "E";
 				$arResult[] = $arElement;
 			}
+			unset($arElement, $rsElement, $obElement);
 		}
 
 		unset($elementInherentFilter);
@@ -695,37 +706,92 @@ class ProductSearchComponent extends \CBitrixComponent
 	 */
 	protected function makeItemsFromDbResult(\CDBResult $dbResultList)
 	{
-		$arItemsResult = $arProductIds = array();
+		$arItemsResult = array();
+		$arProductIds = array();
+		$sectionIds = array();
 		while ($arItem = $dbResultList->Fetch())
 		{
-			if ($arItem['TYPE'] != 'S')
+			if ($arItem['TYPE'] == 'S')
+			{
+				$sectionIds[] = $arItem['ID'];
+				$arItemsResult['S'.$arItem['ID']] = $arItem;
+			}
+			else
 			{
 				$arProductIds[] = $arItem['ID'];
 				$arItem['PROPERTIES'] = array();
 				$arItemsResult[$arItem['ID']] = $arItem;
 			}
-			else
-				$arItemsResult['S'.$arItem['ID']] = $arItem;
+		}
+
+		$iblockId = $this->getIblockId();
+		$fields = $this->getVisibleFields();
+
+		if (!empty($sectionIds))
+		{
+			sort($sectionIds);
+			foreach (array_chunk($sectionIds, 500) as $pageIds)
+			{
+				$sectionFilter = [
+					'IBLOCK_ID' => $iblockId,
+					'ID' => $pageIds,
+					'CHECK_PERMISSIONS' => 'N'
+				];
+				$iterator = \CIBlockSection::GetList(array(), $sectionFilter, false, $fields);
+				while ($row = $iterator->Fetch())
+				{
+					$arItemsResult['S'.$row['ID']] = $arItemsResult['S'.$row['ID']] + $row;
+				}
+			}
+			unset($row);
+			unset($iterator);
+			unset($sectionFilter);
+			unset($pageIds);
 		}
 
 		if (!empty($arProductIds))
 		{
-			$arPropFilter = array(
-				'ID' => $arProductIds,
-				'IBLOCK_ID' => $this->getIblockId()
-			);
-			CIBlockElement::GetPropertyValuesArray(
-				$arItemsResult,
-				$this->getIblockId(),
-				$arPropFilter,
-				array('ID' => $this->getVisibleProperties()),
-				array(
-					'PROPERTY_FIELDS' => array(
-						'ID', 'NAME', 'SORT', 'PROPERTY_TYPE',
-						'MULTIPLE', 'LINK_IBLOCK_ID', 'USER_TYPE', 'USER_TYPE_SETTINGS'
+			sort($arProductIds);
+			foreach (array_chunk($arProductIds, 500) as $pageIds)
+			{
+				$elementFilter = [
+					'IBLOCK_ID' => $iblockId,
+					'ID' => $pageIds,
+					'CHECK_PERMISSIONS' => 'N',
+					'SHOW_NEW' => 'Y'
+				];
+				$iterator = \CIBlockElement::GetList(array(), $elementFilter, false, false, $fields);
+				while ($row = $iterator->Fetch())
+				{
+					$arItemsResult[$row['ID']] = $arItemsResult[$row['ID']] + $row;
+				}
+			}
+			unset($row);
+			unset($iterator);
+			unset($elementFilter);
+			unset($pageIds);
+
+			$propertyIds = $this->getVisibleProperties();
+			if (!empty($propertyIds))
+			{
+				$arPropFilter = array(
+					'ID' => $arProductIds,
+					'IBLOCK_ID' => $iblockId
+				);
+				CIBlockElement::GetPropertyValuesArray(
+					$arItemsResult,
+					$iblockId,
+					$arPropFilter,
+					array('ID' => $propertyIds),
+					array(
+						'PROPERTY_FIELDS' => array(
+							'ID', 'NAME', 'SORT', 'PROPERTY_TYPE',
+							'MULTIPLE', 'LINK_IBLOCK_ID', 'USER_TYPE', 'USER_TYPE_SETTINGS'
+						)
 					)
-				)
-			);
+				);
+			}
+			unset($propertyIds);
 
 			$listImageSize = Main\Config\Option::get('iblock', 'list_image_size');
 			$minImageSize = array('W' => 1, 'H' => 1);
@@ -949,6 +1015,7 @@ class ProductSearchComponent extends \CBitrixComponent
 
 			}
 		}
+
 		return $arItemsResult;
 	}
 
@@ -1167,136 +1234,193 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->arPrices;
 	}
 
+	/**
+	 * @return void
+	 */
+	protected function loadHeaders()
+	{
+		if ($this->arHeaders !== null)
+			return;
+
+		$balanceTitle = Loc::getMessage($this->getStoreId() > 0 ? "SOPS_BALANCE" : "SOPS_BALANCE2");
+		$this->arHeaders = [
+			["id" => "ID", "content" => "ID", "sort" => "ID", "default" => true],
+			["id" => "ACTIVE", "content" => Loc::getMessage("SOPS_ACTIVE"), "sort" => "ACTIVE", "default" => true],
+			["id" => "DETAIL_PICTURE", "default" => true, "content" => Loc::getMessage("SPS_FIELD_DETAIL_PICTURE"), "align" => "center"],
+			["id" => "NAME", "content" => Loc::getMessage("SPS_NAME"), "sort" => "NAME", "default" => true],
+			["id" => "BALANCE", "content" => $balanceTitle, "default" => true, "align" => "right"],
+			["id" => "CODE", "content" => Loc::getMessage("SPS_FIELD_CODE"), "sort" => "CODE"],
+			["id" => "EXTERNAL_ID", "content" => Loc::getMessage("SPS_FIELD_XML_ID"), "sort" => "XML_ID"],
+			["id" => "SHOW_COUNTER", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER"), "sort" => "SHOW_COUNTER", "align" => "right"],
+			["id" => "SHOW_COUNTER_START", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER_START"), "sort" => "SHOW_COUNTER_START", "align" => "right"],
+			["id" => "PREVIEW_PICTURE", "content" => Loc::getMessage("SPS_FIELD_PREVIEW_PICTURE"), "align" => "right"],
+			["id" => "PREVIEW_TEXT", "content" => Loc::getMessage("SPS_FIELD_PREVIEW_TEXT")],
+			["id" => "DETAIL_TEXT", "content" => Loc::getMessage("SPS_FIELD_DETAIL_TEXT")],
+			["id" => "EXPAND", "content" => Loc::getMessage("SPS_EXPAND"), "sort" => "", "default" => true],
+			["id" => "QUANTITY", "content" =>  Loc::getMessage("SPS_QUANTITY")],
+			["id" => "ACTION", "content" =>  Loc::getMessage("SPS_FIELD_ACTION"),  "default" => true]
+		];
+		$this->dataFields = [
+			'ID' => true,
+			'ACTIVE' => true,
+			'DETAIL_PICTURE' => true,
+			'NAME' => true,
+			'CODE' => true,
+			'EXTERNAL_ID' => true,
+			'SHOW_COUNTER' => true,
+			'SHOW_COUNTER_START' => true,
+			'PREVIEW_PICTURE' => true,
+			'PREVIEW_TEXT' => true,
+			'DETAIL_TEXT' => true
+		];
+		$arProps = $this->getProps(true);
+		if (!empty($arProps))
+		{
+			foreach ($arProps as &$prop)
+			{
+				$this->arHeaders[] = [
+					"id" => "PROPERTY_".$prop['ID'], "content" => $prop['NAME'],
+					"align" => ($prop["PROPERTY_TYPE"] == 'N' ? "right" : "left"),
+					"sort" => ($prop["MULTIPLE"] != 'Y' ? "PROPERTY_".$prop['ID'] : "")
+				];
+				$this->dataFields['PROPERTY_'.$prop['ID']] = true;
+			}
+			unset($prop);
+		}
+		$arProps = $this->getSkuProps(true);
+		if (!empty($arProps))
+		{
+			foreach ($arProps as &$prop)
+			{
+				$this->arHeaders[] = [
+					"id" => "PROPERTY_".$prop['ID'], "content" => $prop['NAME'].' ('.Loc::getMessage("SPS_OFFER").')',
+					"align" => ($prop["PROPERTY_TYPE"] == 'N' ? "right" : "left"),
+				];
+				$this->dataFields['PROPERTY_'.$prop['ID']] = true;
+			}
+			unset($prop);
+		}
+		unset($arProps);
+		$arPrices = $this->getPrices();
+		if (!empty($arPrices))
+		{
+			foreach ($arPrices as &$price)
+			{
+				$this->arHeaders[] = [
+					"id" => "PRICE".$price["ID"],
+					"content" => (!empty($price["NAME_LANG"]) ? $price["NAME_LANG"] : $price["NAME"]),
+					"default" => $price["BASE"] == 'Y'
+				];
+				$this->dataFields['PRICE'.$price['ID']] = true;
+			}
+			unset($price);
+		}
+		unset($arPrices);
+	}
+
+	/**
+	 * @return array
+	 */
 	protected function getHeaders()
 	{
-		if ($this->arHeaders === null)
-		{
-			$balanceTitle = Loc::getMessage($this->getStoreId() > 0 ? "SOPS_BALANCE" : "SOPS_BALANCE2");
-			$this->arHeaders = array(
-				array("id" => "ID", "content" => "ID", "sort" => "ID", "default" => true),
-				array("id" => "ACTIVE", "content" => Loc::getMessage("SOPS_ACTIVE"), "sort" => "ACTIVE", "default" => true),
-				array("id" => "DETAIL_PICTURE", "default" => true, "content" => Loc::getMessage("SPS_FIELD_DETAIL_PICTURE"), "align" => "center"),
-				array("id" => "NAME", "content" => Loc::getMessage("SPS_NAME"), "sort" => "NAME", "default" => true),
-				array("id" => "BALANCE", "content" => $balanceTitle, "default" => true, "align" => "right"),
-				array("id" => "CODE", "content" => Loc::getMessage("SPS_FIELD_CODE"), "sort" => "CODE"),
-				array("id" => "EXTERNAL_ID", "content" => Loc::getMessage("SPS_FIELD_XML_ID"), "sort" => "EXTERNAL_ID"),
-				array("id" => "SHOW_COUNTER", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER"), "sort" => "SHOW_COUNTER", "align" => "right"),
-				array("id" => "SHOW_COUNTER_START", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER_START"), "sort" => "SHOW_COUNTER_START", "align" => "right"),
-				array("id" => "PREVIEW_PICTURE", "content" => Loc::getMessage("SPS_FIELD_PREVIEW_PICTURE"), "align" => "right"),
-				array("id" => "PREVIEW_TEXT", "content" => Loc::getMessage("SPS_FIELD_PREVIEW_TEXT")),
-				array("id" => "DETAIL_TEXT", "content" => Loc::getMessage("SPS_FIELD_DETAIL_TEXT")),
-				array("id" => "EXPAND", "content" => Loc::getMessage("SPS_EXPAND"), "sort" => "", "default" => true),
-				array("id" => "QUANTITY", "content" =>  Loc::getMessage("SPS_QUANTITY")),
-				array("id" => "ACTION", "content" =>  Loc::getMessage("SPS_FIELD_ACTION"),  "default" => true),
-			);
-			$arProps = $this->getProps(true);
-			if (!empty($arProps))
-			{
-				foreach ($arProps as &$prop)
-				{
-					$this->arHeaders[] = array(
-						"id" => "PROPERTY_".$prop['ID'], "content" => $prop['NAME'],
-						"align" => ($prop["PROPERTY_TYPE"] == 'N' ? "right" : "left"),
-						"sort" => ($prop["MULTIPLE"] != 'Y' ? "PROPERTY_".$prop['ID'] : "")
-					);
-				}
-				unset($prop);
-			}
-			$arProps = $this->getSkuProps(true);
-			if (!empty($arProps))
-			{
-				foreach ($arProps as $prop)
-				{
-					$this->arHeaders[] = array(
-						"id" => "PROPERTY_".$prop['ID'], "content" => $prop['NAME'].' ('.Loc::getMessage("SPS_OFFER").')',
-						"align" => ($prop["PROPERTY_TYPE"] == 'N' ? "right" : "left"),
-					);
-				}
-				unset($prop);
-			}
-			unset($arProps);
-			$arPrices = $this->getPrices();
-			if (!empty($arPrices))
-			{
-				foreach ($arPrices as $price)
-				{
-					$this->arHeaders[] = array(
-						"id" => "PRICE".$price["ID"],
-						"content" => (!empty($price["NAME_LANG"]) ? $price["NAME_LANG"] : $price["NAME"]),
-						"default" => $price["BASE"] == 'Y'
-					);
-				}
-				unset($price);
-			}
-			unset($arPrices);
-		}
+		$this->loadHeaders();
 		return $this->arHeaders;
 	}
 
-	protected function getVisibleColumns()
+	/**
+	 * @return void
+	 */
+	protected function loadVisibleColumns()
 	{
-		if ($this->visibleColumns === null)
+		if ($this->visibleColumns !== null)
+			return;
+		$this->visibleColumns = [];
+		$this->visibleFields = [];
+		$this->visibleProperties = [];
+		$this->visiblePrices = [];
+
+		if ($this->isAdminSection())
 		{
-			$this->visibleColumns = array();
+			$aOptions = CUserOptions::GetOption("list", $this->getTableId(), array());
+			$aColsTmp = explode(",", $aOptions["columns"]);
+		}
+		else
+		{
+			$aColsTmp = $this->getGridOptions()->GetVisibleColumns();
+		}
 
-			if ($this->isAdminSection())
+		$aCols = [];
+		foreach ($aColsTmp as $col)
+		{
+			$col = trim($col);
+			if ($col != '')
+				$aCols[] = $col;
+		}
+		$headers = $this->getHeaders();
+		$useDefault = empty($aCols);
+		foreach ($headers as $param)
+		{
+			if (($useDefault && $param["default"]) || in_array($param["id"], $aCols))
 			{
-				$aOptions = CUserOptions::GetOption("list", $this->getTableId(), array());
-				$aColsTmp = explode(",", $aOptions["columns"]);
-			}
-			else
-			{
-				$aColsTmp = $this->getGridOptions()->GetVisibleColumns();
-			}
+				$this->visibleColumns[] = $param["id"];
 
-			$aCols = array();
-			foreach ($aColsTmp as $col)
-			{
-				$col = trim($col);
-				if ($col <> "")
-					$aCols[] = $col;
-			}
-			$headers = $this->getHeaders();
-			$useDefault = empty($aCols);
-			foreach ($headers as $param)
-			{
-				if (($useDefault && $param["default"]) || in_array($param["id"], $aCols))
+				if (strpos($param["id"], 'PRICE') === 0)
 				{
-					$this->visibleColumns[] = $param["id"];
+					$this->visiblePrices[] = (int)str_replace('PRICE', '', $param["id"]);
+				}
+				elseif (strpos($param["id"], 'PROPERTY_') === 0)
+				{
+					$this->visibleProperties[] = (int)str_replace('PROPERTY_', '', $param["id"]);
+				}
+				elseif (isset($this->dataFields[$param["id"]]))
+				{
+					$this->visibleFields[] = $param["id"];
 				}
 			}
 		}
+		if (!in_array('ID', $this->visibleColumns))
+		{
+			$this->visibleColumns[] = 'ID';
+			$this->visibleFields[] = 'ID';
+			$this->visibleFields[] = 'IBLOCK_ID';
+		}
+		unset($param, $headers);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getVisibleColumns()
+	{
+		$this->loadVisibleColumns();
 		return $this->visibleColumns;
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getVisiblePrices()
 	{
-		if ($this->visiblePrices === null)
-		{
-			$this->visiblePrices = array();
-			$columns = $this->getVisibleColumns();
-			foreach ($columns as $column)
-			{
-				if (strpos($column,'PRICE') === 0)
-					$this->visiblePrices[] = (int)str_replace('PRICE','',$column);
-			}
-		}
+		$this->loadVisibleColumns();
 		return $this->visiblePrices;
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getVisibleProperties()
 	{
-		if ($this->vilibleProperties === null)
-		{
-			$this->vilibleProperties = array();
-			$columns = $this->getVisibleColumns();
-			foreach ($columns as $column)
-			{
-				if (strpos($column,'PROPERTY_') === 0)
-					$this->vilibleProperties[] = (int)str_replace('PROPERTY_','',$column);
-			}
-		}
-		return $this->vilibleProperties;
+		$this->loadVisibleColumns();
+		return $this->visibleProperties;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getVisibleFields()
+	{
+		$this->loadVisibleColumns();
+		return $this->visibleFields;
 	}
 
 	protected function getFilter()
@@ -1310,7 +1434,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		);
 		//TODO: remove this hack for store docs after refactoring
 		if ($this->getCaller() == 'storeDocs')
-			$arFilter['!CATALOG_TYPE'] = Catalog\ProductTable::TYPE_SET;
+			$arFilter['!TYPE'] = Catalog\ProductTable::TYPE_SET;
 
 		if ($arFilter['ACTIVE'] == '*')
 			unset($arFilter['ACTIVE']);
@@ -1416,6 +1540,7 @@ class ProductSearchComponent extends \CBitrixComponent
 					{
 						$res2 = \CCatalogSku::GetProductInfo($res["PRODUCT_ID"]);
 						$arSearchedIds[] = $res2 ? $res2['ID'] : $res['PRODUCT_ID'];
+						$arFilter['USE_BARCODE'] = true;
 					}
 				}
 			}
@@ -1678,7 +1803,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	protected function prepareComponentResult()
 	{
 		$filter = $this->getFilter();
-		$dbResultList = $this->getMixedList($this->getListSort(), $filter);
+		$dbResultList = $this->getMixedList($this->getListSort(), $filter, false, ['ID', 'IBLOCK_ID']);
 		$this->arResult = array(
 			'DB_RESULT_LIST' => $dbResultList,
 			'PRODUCTS' => $this->makeItemsFromDbResult($dbResultList),
@@ -1812,10 +1937,37 @@ class ProductSearchComponent extends \CBitrixComponent
 				$newIndex = strtoupper($op["FIELD"]);
 				if (
 					strncmp($newIndex, "PROPERTY_", 9) == 0
-					|| strncmp($newIndex, "CATALOG_", 8) == 0
+					|| \CProductQueryBuilder::isValidField($newIndex)
 				)
 				{
 					$result[$index] = $value;
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @param array $filter
+	 * @return bool
+	 */
+	private static function checkLoadSections(array $filter)
+	{
+		$result = true;
+		if (!empty($filter))
+		{
+			$catalogIncluded = Loader::includeModule('catalog');
+			foreach($filter as $index => $value)
+			{
+				$op = CIBlock::MkOperationFilter($index);
+				$newIndex = strtoupper($op["FIELD"]);
+				if (
+					strncmp($newIndex, "PROPERTY_", 9) == 0
+					|| ($catalogIncluded && \CProductQueryBuilder::isRealFilterField($newIndex))
+				)
+				{
+					$result = false;
+					break;
 				}
 			}
 		}

@@ -150,7 +150,7 @@ else
 	{
 		$force_download = isset($_REQUEST["download"]) && $_REQUEST["download"] === "y";
 
-		CFile::ViewByUser($arParams["FILE_ID"], array(
+		CFile::ViewByUser($arFile, array(
 			"content_type" => $arFile["CONTENT_TYPE"],
 			"force_download" => $force_download,
 		));

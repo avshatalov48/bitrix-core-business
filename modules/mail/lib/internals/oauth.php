@@ -29,10 +29,10 @@ class OAuthTable extends Entity\DataManager
 				'data_type' => 'string',
 			),
 			'TOKEN' => array(
-				'data_type' => 'text',
+				'data_type' => (static::cryptoEnabled('TOKENS') ? 'crypto' : 'text'),
 			),
 			'REFRESH_TOKEN' => array(
-				'data_type' => 'text',
+				'data_type' => (static::cryptoEnabled('TOKENS') ? 'crypto' : 'text'),
 			),
 			'TOKEN_EXPIRES' => array(
 				'data_type'    => 'integer',

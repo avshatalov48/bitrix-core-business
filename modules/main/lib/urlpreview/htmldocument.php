@@ -281,7 +281,7 @@ class HtmlDocument
 		{
 			if(isset($metaElement['http-equiv']) && strtolower($metaElement['http-equiv']) == 'content-type')
 			{
-				if(preg_match('/charset=([\w-]+)/', $metaElement['content'], $matches))
+				if(preg_match('/charset=([\w\-]+)/', $metaElement['content'], $matches))
 				{
 					$result = $matches[1];
 					break;

@@ -13,19 +13,24 @@ class CacheEngineFiles
 	private $read = false;
 	private $path = '';
 
-	protected $useLock = true;
+	protected $useLock = false;
 	protected static $lockHandles = array();
 
 	/**
 	 * Engine constructor.
-	 *
+	 * @param array $options Cache options.
 	 */
-	public function __construct()
+	public function __construct($options = [])
 	{
-		$cacheConfig = Main\Config\Configuration::getValue("cache");
-		if ($cacheConfig && is_array($cacheConfig) && isset($cacheConfig["use_lock"]))
+		$config = Main\Config\Configuration::getValue("cache");
+		if ($config && is_array($config) && isset($config["use_lock"]))
 		{
-			$this->useLock = (bool)$cacheConfig["use_lock"];
+			$this->useLock = (bool)$config["use_lock"];
+		}
+
+		if (!empty($options) && isset($options['actual_data']))
+		{
+			$this->useLock = !((bool) $options['actual_data']);
 		}
 	}
 

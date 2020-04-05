@@ -170,7 +170,7 @@ class Formatter
 		{
 			foreach ($leadingDigits as $leadingDigitsSample)
 			{
-				$re = '/^' . $leadingDigitsSample . '/';
+				$re = '/' . $leadingDigitsSample . '/A';
 				if(preg_match($re, $phoneNumber, $matches))
 				{
 					return $matches;
@@ -179,7 +179,7 @@ class Formatter
 		}
 		else
 		{
-			$re = '/^' . $leadingDigits . '/';
+			$re = '/' . $leadingDigits . '/A';
 			if(preg_match($re, $phoneNumber, $matches))
 			{
 				return $matches;

@@ -1,8 +1,8 @@
 <?php
 namespace Bitrix\Report\VisualConstructor;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Report\VisualConstructor\Helper\Filter;
-
 
 /**
  * Class AnalyticBoard
@@ -19,8 +19,10 @@ class AnalyticBoard
 	private $disabled = false;
 	private $stepperEnabled = false;
 	private $stepperIds = [];
-
-
+	private $limited = false;
+	private $limitComponentParams = [];
+private $isExternal = false;
+	private $externalUrl = "";
 	public function __construct($boardId = '')
 	{
 		if ($boardId)
@@ -141,6 +143,10 @@ class AnalyticBoard
 				'string' => [],
 			]
 		];
+		if ($this->isDisabled())
+		{
+			return $result;
+		}
 		$buttons = $this->getButtons();
 		foreach ($buttons as $button)
 		{
@@ -188,7 +194,6 @@ class AnalyticBoard
 		$this->disabled = $disabled;
 	}
 
-
 	public function addFeedbackButton()
 	{
 		$feedbackButton = new BoardComponentButton('bitrix:ui.feedback.form', '', [
@@ -219,7 +224,7 @@ class AnalyticBoard
 		return $this->stepperEnabled;
 	}
 
-	public function getSteperIds()
+	public function getStepperIds()
 	{
 		return $this->stepperIds;
 	}
@@ -234,5 +239,136 @@ class AnalyticBoard
 	public function setStepperEnabled($stepperEnabled)
 	{
 		$this->stepperEnabled = $stepperEnabled;
+	}
+
+	public function isLimited()
+	{
+		return $this->limited;
+	}
+
+	private function getLimitComponentOptions()
+	{
+		return $this->limitComponentParams;
+	}
+
+	public function getLimitComponentName()
+	{
+		$componentParams = $this->getLimitComponentOptions();
+		if (!isset($componentParams['NAME']))
+		{
+			throw new ArgumentException("Component name do not isset");
+		}
+		return $componentParams['NAME'];
+	}
+
+	public function getLimitComponentTemplateName()
+	{
+		$componentOptions = $this->getLimitComponentOptions();
+		if (!isset($componentOptions['TEMPLATE_NAME']))
+		{
+			return '';
+		}
+		return $componentOptions['TEMPLATE_NAME'];
+	}
+
+	public function getLimitComponentParams()
+	{
+		$componentOptions = $this->getLimitComponentOptions();
+		if (!isset($componentOptions['PARAMS']))
+		{
+			return [];
+		}
+		return $componentOptions['PARAMS'];
+	}
+
+	public function setLimit($limitComponentParams, $limit = false)
+	{
+		$this->limitComponentParams = $limitComponentParams;
+		$this->limited = $limit;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isExternal(): bool
+	{
+		return $this->isExternal;
+	}
+
+	/**
+	 * @param bool $isExternal
+	 */
+	public function setExternal(bool $isExternal): void
+	{
+		$this->isExternal = $isExternal;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getExternalUrl(): string
+	{
+		return $this->externalUrl;
+	}
+
+	/**
+	 * @param string $externalUrl
+	 */
+	public function setExternalUrl(string $externalUrl): void
+	{
+		$this->externalUrl = $externalUrl;
+	}
+
+	public function getDisplayComponentName()
+	{
+		if ($this->isDisabled())
+		{
+			return 'bitrix:report.analytics.empty';
+		}
+		elseif ($this->isLimited())
+		{
+			return $this->getLimitComponentName();
+		}
+		else
+		{
+			return 'bitrix:report.visualconstructor.board.base';
+		}
+	}
+
+	public function getDisplayComponentTemplate()
+	{
+		return ($this->isLimited() ? $this->getLimitComponentTemplateName() : "");
+	}
+
+	public function getDisplayComponentParams()
+	{
+		if ($this->isDisabled())
+		{
+			return [];
+		}
+		elseif ($this->isLimited())
+		{
+			return $this->getLimitComponentParams();
+		}
+		else
+		{
+			return [
+				'BOARD_ID' => $this->getBoardKey(),
+				'IS_DEFAULT_MODE_DEMO' => false,
+				'IS_BOARD_DEFAULT' => true,
+				'FILTER' => $this->getFilter(),
+				'BOARD_BUTTONS' => $this->getButtons(),
+				'IS_ENABLED_STEPPER' => $this->isStepperEnabled(),
+				'STEPPER_IDS' => $this->getStepperIds()
+			];
+		}
+	}
+
+	/**
+	 * Special actions to perform with board reset, required by some boards
+	 */
+	public function resetToDefault()
+	{
+		// nothing here
 	}
 }

@@ -19,14 +19,3 @@ body {
 body {
   font-size: 0.92857rem;
 }
-
-@media (min-width: 768px) {
-  [class*="u-nav-v2"].u-nav-primary .nav-link {
-    font-weight: 700;
-  }
-}
-
-.ms-tabs .ms-thumb {
-  font-weight: 700;
-  font-size: 11px;
-}

@@ -199,7 +199,7 @@ class HtmlParser extends Parser
 	{
 		$result = array('NAME' => '', 'ATTRIBUTES' => array());
 
-		if(preg_match('/[ \t\n]/S', $text, $matches, PREG_OFFSET_CAPTURE))
+		if(preg_match('/[ \t\r\n]/S', $text, $matches, PREG_OFFSET_CAPTURE))
 		{
 			$delimiterPosition = $matches[0][1];
 			$result['NAME'] = strtoupper(substr($text, 0, $delimiterPosition));
@@ -392,7 +392,10 @@ class HtmlParser extends Parser
 				}
 				else
 				{
-					$parentNode->getParentNode()->bxNodeFoundCloseTag = true;
+					if ($parentNode->getParentNode())
+					{
+						$parentNode->getParentNode()->bxNodeFoundCloseTag = true;
+					}
 					return $parentNode;
 				}
 			}

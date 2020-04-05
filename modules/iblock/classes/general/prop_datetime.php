@@ -338,5 +338,12 @@ class CIBlockPropertyDateTime
 		$fields["type"] = "date";
 		$fields["time"] = true;
 		$fields["filterable"] = "";
+		$fields["operators"] = array(
+			"default" => "=",
+			"exact" => "=",
+			"range" => "><",
+			"more" => ">",
+			"less" => "<"
+		);
 	}
 }

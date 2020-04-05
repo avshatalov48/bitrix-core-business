@@ -25,7 +25,8 @@ $pull_default_option = array(
 	'limit_max_payload' => 1048576,
 	'limit_max_messages_per_request' => 100,
 	'limit_max_channels_per_request' => 100,
-	'config_timestamp' => 0
+	'config_timestamp' => 0,
+	'server_mode' => 'personal'
 );
 
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/pull.php"))

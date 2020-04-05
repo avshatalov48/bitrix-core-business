@@ -70,6 +70,7 @@ class pull extends CModule
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->registerEventHandler('rest', 'OnRestServiceBuildDescription', 'pull', '\Bitrix\Pull\Rest', 'onRestServiceBuildDescription');
+		$eventManager->registerEventHandler('rest', 'onRestCheckAuth', 'pull', '\Bitrix\Pull\Rest\GuestAuth', 'onRestCheckAuth');
 
 		CAgent::AddAgent("CPullOptions::ClearAgent();", "pull", "N", 30, "", "Y", ConvertTimeStamp(time()+CTimeZone::GetOffset()+30, "FULL"));
 
@@ -136,6 +137,7 @@ class pull extends CModule
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->unRegisterEventHandler('rest', 'OnRestServiceBuildDescription', 'pull', '\Bitrix\Pull\Rest', 'onRestServiceBuildDescription');
+		$eventManager->unRegisterEventHandler('rest', 'onRestCheckAuth', 'pull', '\Bitrix\Pull\Rest\GuestAuth', 'onRestCheckAuth');
 
 		UnRegisterModule("pull");
 
@@ -148,4 +150,10 @@ class pull extends CModule
 	}
 
 	function UnInstallEvents(){ return true; }
+
+	public function migrateToBox()
+	{
+		COption::RemoveOption("pull");
+	}
+
 }

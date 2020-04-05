@@ -12,7 +12,7 @@ endif;
 
 foreach ($arParams["arUserField"]["USER_TYPE"]["FIELDS"] as $key => $val)
 {
-	$bSelected = in_array($key, $arResult["VALUE"]) && (
+	$bSelected = in_array((string) $key, $arResult["VALUE"], true) && (
 		(!$bWasSelect) ||
 		($arParams["arUserField"]["MULTIPLE"] == "Y")
 	);

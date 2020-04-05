@@ -33,7 +33,7 @@ foreach ($_POST as $key => $value)
 }
 ?>
 <p><?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_MESSAGE');?></>
-<form action="" method="post" class="form-inline">
+<form action="" method="post">
 	<?bitrix_sessid_post()?>
 	<?foreach ($post as $key => $value):?>
 		<input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
@@ -48,5 +48,5 @@ foreach ($_POST as $key => $value)
 		<input type="text" class="form-control " name="phone" value="<?=$params['BUYER_PERSON_COMPANY_PHONE']?>">
 	</div>
 
-	<input type="submit" class="btn btn-primary" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
+	<input type="submit" class="btn btn-primary pl-4 pr-4" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
 </form>

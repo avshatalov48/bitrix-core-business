@@ -13,13 +13,16 @@
 	var SUCCESS = 'bx-lazyload-success';
 	var ERROR = 'bx-lazyload-error';
 	var HIDDEN = 'bx-lazyload-hidden';
+	var BLANK_IMAGE = "data:image/svg+xml,%3Csvg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E";
 	var lazyloadObserver = null;
 
-	var lazyloadLoadImage = function lazyloadLoadImage(currentImage) {
-	  var SUCCESS_CLASS = currentImage.dataset.lazyloadSuccessClass ? currentImage.dataset.lazyloadSuccessClass.split(" ") : [SUCCESS];
+	var lazyloadLoadImage = function lazyloadLoadImage(currentImage, callback) {
+	  var SUCCESS_CLASS = currentImage.dataset.lazyloadSuccessClass ? currentImage.dataset.lazyloadSuccessClass.split(" ") : [];
 	  delete currentImage.dataset.lazyloadSuccessClass;
-	  var ERROR_CLASS = currentImage.dataset.lazyloadErrorClass ? currentImage.dataset.lazyloadErrorClass.split(" ") : [ERROR];
+	  SUCCESS_CLASS = [SUCCESS].concat(babelHelpers.toConsumableArray(SUCCESS_CLASS));
+	  var ERROR_CLASS = currentImage.dataset.lazyloadErrorClass ? currentImage.dataset.lazyloadErrorClass.split(" ") : [];
 	  delete currentImage.dataset.lazyloadErrorClass;
+	  ERROR_CLASS = [ERROR].concat(babelHelpers.toConsumableArray(ERROR_CLASS));
 	  currentImage.classList.add(LOADING);
 	  var newImage = new Image();
 	  newImage.src = currentImage.dataset.lazyloadSrc;
@@ -42,6 +45,14 @@
 	    currentImage.classList.remove(LOADING);
 
 	    (_currentImage$classLi = currentImage.classList).add.apply(_currentImage$classLi, babelHelpers.toConsumableArray(SUCCESS_CLASS));
+
+	    if (typeof currentImage.lazyloadCallback === 'function') {
+	      currentImage.lazyloadCallback({
+	        element: currentImage,
+	        state: 'success'
+	      });
+	      delete currentImage.lazyloadCallback;
+	    }
 	  };
 
 	  newImage.onerror = function () {
@@ -51,15 +62,20 @@
 	      return false;
 	    }
 
-	    if (currentImage.dataset.lazyloadErrorSrc) {
-	      currentImage.src = currentImage.dataset.lazyloadErrorSrc;
-	    } else {
-	      currentImage.dataset.lazyloadSrc = currentImage.src;
-	    }
-
 	    currentImage.classList.remove(LOADING);
 
 	    (_currentImage$classLi2 = currentImage.classList).add.apply(_currentImage$classLi2, babelHelpers.toConsumableArray(ERROR_CLASS));
+
+	    currentImage.title = '';
+	    currentImage.alt = '';
+
+	    if (typeof currentImage.lazyloadCallback === 'function') {
+	      currentImage.lazyloadCallback({
+	        element: currentImage,
+	        state: 'error'
+	      });
+	      delete currentImage.lazyloadCallback;
+	    }
 	  };
 
 	  if (typeof currentImage.dataset.lazyloadDontHide !== 'undefined') {
@@ -109,9 +125,13 @@
 	}
 
 	ui_vue.Vue.directive('bx-lazyload', {
-	  bind: function bind(element) {
+	  bind: function bind(element, bindings) {
+	    if (babelHelpers.typeof(bindings.value) === 'object' && typeof bindings.value.callback === 'function') {
+	      element.lazyloadCallback = bindings.value.callback;
+	    }
+
 	    if (!element.src || element.src === location.href.replace(location.hash, '')) {
-	      element.src = "data:image/svg+xml,%3Csvg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E";
+	      element.src = BLANK_IMAGE;
 	    }
 
 	    if (lazyloadObserver) {
@@ -121,12 +141,14 @@
 	    }
 	  },
 	  componentUpdated: function componentUpdated(element) {
-	    if (!element.classList.contains(HIDDEN) && !element.classList.contains(LOADING) && element.dataset.lazyloadSrc && element.dataset.lazyloadSrc != element.src) {
+	    if (!element.classList.contains(SUCCESS) && !element.classList.contains(ERROR) && !element.classList.contains(WATCH) && !element.classList.contains(LOADING)) {
+	      element.classList.add(LOADING);
+	    } else if ((element.classList.contains(SUCCESS) || element.classList.contains(ERROR)) && element.dataset.lazyloadSrc && element.dataset.lazyloadSrc !== element.src) {
 	      if (!element.dataset.lazyloadSrc.startsWith('http')) {
 	        var url = document.createElement('a');
 	        url.href = element.dataset.lazyloadSrc;
 
-	        if (url.href == element.src) {
+	        if (url.href === element.src) {
 	          return;
 	        }
 	      }

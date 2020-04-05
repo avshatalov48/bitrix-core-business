@@ -97,6 +97,11 @@ class CAllBlogComment
 			return false;
 		}
 
+		if (!empty($arFields["POST_TEXT"]))
+		{
+			$arFields["POST_TEXT"] = \Bitrix\Main\Text\Emoji::encode($arFields["POST_TEXT"]);
+		}
+
 		/*
 		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && strlen($arFields["TITLE"]) <= 0)
 		{

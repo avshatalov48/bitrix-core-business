@@ -321,7 +321,7 @@ class PropertyFeature
 	 *		</ul>
 	 * @return array|null
 	 */
-	public static function getDetailPageShowProperties($iblockId, array $parameters = [])
+	public static function getDetailPageShowPropertyCodes($iblockId, array $parameters = [])
 	{
 		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
@@ -335,6 +335,23 @@ class PropertyFeature
 			],
 			$parameters
 		);
+	}
+
+	/**
+	 * @deprecated deprecated since iblock 19.0.0
+	 * @see self::getDetailPageShowPropertyCodes
+	 *
+	 * @param int $iblockId			Iblock identifier.
+	 * @param array $parameters		Options.
+	 * 	keys are case sensitive:
+	 *		<ul>
+	 * 		<li>CODE	Return symbolic code as identifier (Y/N, default N).
+	 *		</ul>
+	 * @return array|null
+	 */
+	public static function getDetailPageShowProperties($iblockId, array $parameters = [])
+	{
+		return self::getDetailPageShowPropertyCodes($iblockId, $parameters);
 	}
 
 	/**

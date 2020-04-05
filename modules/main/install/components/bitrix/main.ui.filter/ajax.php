@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Engine\ActionFilter\Csrf;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,6 +9,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 class CMainUIFilterAjaxController extends \Bitrix\Main\Engine\Controller
 {
+	protected function getDefaultPreFilters()
+	{
+		return [
+			new Csrf(),
+		];
+	}
+
 	/**
 	 * @return \Bitrix\Main\UI\Filter\Options
 	 * @throws \Bitrix\Main\SystemException
@@ -136,12 +146,15 @@ class CMainUIFilterAjaxController extends \Bitrix\Main\Engine\Controller
 	/**
 	 * Checks date format
 	 * @param $value
+	 * @param $format
 	 * @return array
 	 */
-	public function checkDateFormatAction($value)
+	public function checkDateFormatAction($value, $format)
 	{
+		$phpDateFormat = Bitrix\Main\Type\DateTime::convertFormatToPhp($format);
+
 		return [
-			"result" => $value === "" || \Bitrix\Main\Type\DateTime::isCorrect($value),
+			"result" => $value === "" || Bitrix\Main\Type\DateTime::isCorrect($value, $phpDateFormat),
 		];
 	}
 }

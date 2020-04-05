@@ -48,15 +48,16 @@ if (!$fCriticalError)
 	CBaseSaleReportHelper::init();
 
 	//<editor-fold defaultstate='collapsed' desc="Forming parameters of component report.view">
-
+	$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 	$arParams = array(
-		'PATH_TO_REPORT_LIST' => '/bitrix/admin/sale_report.php?lang='.LANG,
-		'PATH_TO_REPORT_CONSTRUCT' => '/bitrix/admin/sale_report_construct.php?lang='.LANG,
-		'PATH_TO_REPORT_VIEW' => '/bitrix/admin/sale_report_view.php',
+		'PATH_TO_REPORT_LIST' => $selfFolderUrl . 'sale_report.php?lang='.LANG,
+		'PATH_TO_REPORT_CONSTRUCT' => $selfFolderUrl . 'sale_report_construct.php?lang='.LANG,
+		'PATH_TO_REPORT_VIEW' => $selfFolderUrl . 'sale_report_view.php',
 		'REPORT_ID' => $ID,
 		'ROWS_PER_PAGE' => 50,
 		'NAV_TEMPLATE' => 'arrows_adm',
-		'USE_CHART' => true
+		'USE_CHART' => true,
+		'SHOW_EDIT_BUTTON' => !isset($_REQUEST['publicSidePanel']) || $_REQUEST['publicSidePanel'] != 'Y',
 	);
 	//</editor-fold>
 

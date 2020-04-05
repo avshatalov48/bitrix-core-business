@@ -42,6 +42,7 @@ class ImportSettings  extends SettingsBase
 
 			self::$currentSettings['importableFor'][Exchange\EntityType::USER_PROFILE_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::PROFILE_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
+			self::$currentSettings['importableFor'][Exchange\EntityType::USER_PROFILE_CONTACT_COMPANY_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::ORDER_NAME] = Option::get("sale", "1C_IMPORT_NEW_ORDERS", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::SHIPMENT_NAME] = Option::get("sale", "1C_IMPORT_NEW_SHIPMENT", "Y");
 			self::$currentSettings['importableFor'][Exchange\EntityType::PAYMENT_CASH_NAME] = Option::get("sale", "1C_IMPORT_NEW_PAYMENT", "Y");

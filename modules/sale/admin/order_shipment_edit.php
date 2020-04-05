@@ -6,7 +6,9 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Requests;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+
+\Bitrix\Main\Loader::includeModule('sale');
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $moduleId = "sale";
@@ -38,7 +40,12 @@ $backUrl = $request->get('backurl');
 $save = $_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST["apply"]) || isset($_POST["save"]));
 $refresh = $_SERVER["REQUEST_METHOD"] == "POST" && !$save;
 
-if($orderId <= 0 || !($saleOrder = Bitrix\Sale\Order::load($orderId)))
+$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+/** @var Order $orderClass */
+$orderClass = $registry->getOrderClassName();
+
+if($orderId <= 0 || !($saleOrder = $orderClass::load($orderId)))
 	LocalRedirect("/bitrix/admin/sale_order.php?lang=".$lang.GetFilterParams("filter_", false));
 
 
@@ -194,7 +201,7 @@ else
 	}
 }
 
-if (!$shipment || (!$allowView && !$allowUpdate) || Order::isLocked($orderId))
+if (!$shipment || (!$allowView && !$allowUpdate) || $orderClass::isLocked($orderId))
 	LocalRedirect("/bitrix/admin/sale_order_shipment.php?lang=".$lang.GetFilterParams("filter_", false));
 
 if ($shipmentId)

@@ -233,9 +233,10 @@ $cntLog = 0;
 $rsLog = CEventLog::GetList(array(), array(
 	"TIMESTAMP_X_1" => ConvertTimeStamp(time()-$days*24*3600+CTimeZone::GetOffset(), "FULL"),
 	"AUDIT_TYPE_ID" => "SECURITY_FILTER_SQL|SECURITY_FILTER_XSS|SECURITY_FILTER_XSS2|SECURITY_FILTER_PHP|SECURITY_REDIRECT",
-));
-while($rsLog->Fetch())
-	$cntLog++;
+	),
+	array("nPageSize" => 1)
+);
+$cntLog = $rsLog->NavRecordCount;
 
 $data['std']['ITEMS'][] = array(
 	"IS_OK" => true,

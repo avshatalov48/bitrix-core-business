@@ -91,7 +91,6 @@ $actions[] = Controller\Action::create('getFilterData')->setHandler(
 
 		$fields = $connector->getUiFilterData($filterId);
 		$content->add('data', $fields);
-		FilterOptions::destroyById($filterId);
 
 		$connector->setDataTypeId(null);
 		$connector->setFieldValues($fields);

@@ -315,6 +315,11 @@
 				}
 			});
 
+			if ("ontouchstart" in window)
+			{
+				BX.bind(this.container, "touchstart", this.handleTargetMouseEnter.bind(this));
+			}
+
 			return this.container;
 		},
 

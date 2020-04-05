@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
-(function (exports) {
+(function (exports,im_const,ui_vue_vuex) {
 	'use strict';
 
 	/**
@@ -80,6 +80,16 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }
 
 	  babelHelpers.createClass(ImRestAnswerHandler, [{
+	    key: "handleImUserListGetSuccess",
+	    value: function handleImUserListGetSuccess(data) {
+	      this.store.dispatch('users/set', ui_vue_vuex.VuexBuilderModel.convertToArray(data));
+	    }
+	  }, {
+	    key: "handleImUserGetSuccess",
+	    value: function handleImUserGetSuccess(data) {
+	      this.store.dispatch('users/set', [data]);
+	    }
+	  }, {
 	    key: "handleImChatGetSuccess",
 	    value: function handleImChatGetSuccess(data) {
 	      this.store.dispatch('dialogues/set', data);
@@ -87,16 +97,23 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleImDialogMessagesGetSuccess",
 	    value: function handleImDialogMessagesGetSuccess(data) {
-	      this.store.dispatch('messages/setBefore', data.messages);
 	      this.store.dispatch('users/set', data.users);
 	      this.store.dispatch('files/setBefore', this.controller.prepareFilesBeforeSave(data.files));
+	      this.store.dispatch('messages/setBefore', data.messages);
 	    }
 	  }, {
-	    key: "handleImDialogMessagesUnreadSuccess",
-	    value: function handleImDialogMessagesUnreadSuccess(data) {
-	      this.store.dispatch('messages/set', data.messages);
+	    key: "handleImDialogMessagesGetInitSuccess",
+	    value: function handleImDialogMessagesGetInitSuccess(data) {
 	      this.store.dispatch('users/set', data.users);
 	      this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(data.files));
+	      this.store.dispatch('messages/set', data.messages.reverse());
+	    }
+	  }, {
+	    key: "handleImDialogMessagesGetUnreadSuccess",
+	    value: function handleImDialogMessagesGetUnreadSuccess(data) {
+	      this.store.dispatch('users/set', data.users);
+	      this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(data.files));
+	      this.store.dispatch('messages/setAfter', data.messages);
 	    }
 	  }, {
 	    key: "handleImDiskFolderGetSuccess",
@@ -110,33 +127,66 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleImMessageAddSuccess",
 	    value: function handleImMessageAddSuccess(messageId, message) {
-	      if (typeof messageId === "number") {
-	        this.store.dispatch('messages/update', {
-	          id: message.id,
-	          chatId: this.controller.getChatId(),
-	          fields: {
-	            id: messageId,
-	            sending: false,
-	            error: false
-	          }
-	        });
-	        this.store.dispatch('messages/actionFinish', {
+	      var _this = this;
+
+	      this.store.dispatch('messages/update', {
+	        id: message.id,
+	        chatId: message.chatId,
+	        fields: {
 	          id: messageId,
-	          chatId: this.controller.getChatId()
+	          sending: false,
+	          error: false
+	        }
+	      }).then(function () {
+	        _this.store.dispatch('messages/actionFinish', {
+	          id: messageId,
+	          chatId: message.chatId
 	        });
-	      } else {
-	        this.store.dispatch('messages/actionError', {
-	          id: message.id,
-	          chatId: this.controller.getChatId()
-	        });
-	      }
+	      });
 	    }
 	  }, {
 	    key: "handleImMessageAddError",
 	    value: function handleImMessageAddError(error, message) {
 	      this.store.dispatch('messages/actionError', {
 	        id: message.id,
-	        chatId: this.controller.getChatId()
+	        chatId: message.chatId
+	      });
+	    }
+	  }, {
+	    key: "handleImDiskFileCommitSuccess",
+	    value: function handleImDiskFileCommitSuccess(result, message) {
+	      var _this2 = this;
+
+	      this.store.dispatch('messages/update', {
+	        id: message.id,
+	        chatId: message.chatId,
+	        fields: {
+	          id: result['MESSAGE_ID'],
+	          sending: false,
+	          error: false
+	        }
+	      }).then(function () {
+	        _this2.store.dispatch('messages/actionFinish', {
+	          id: result['MESSAGE_ID'],
+	          chatId: message.chatId
+	        });
+	      });
+	    }
+	  }, {
+	    key: "handleImDiskFileCommitError",
+	    value: function handleImDiskFileCommitError(error, message) {
+	      this.store.dispatch('files/update', {
+	        chatId: message.chatId,
+	        id: message.file.id,
+	        fields: {
+	          status: im_const.FileStatus.error,
+	          progress: 0
+	        }
+	      });
+	      this.store.dispatch('messages/actionError', {
+	        id: message.id,
+	        chatId: message.chatId,
+	        retry: false
 	      });
 	    }
 	  }]);
@@ -155,5 +205,5 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	exports.ImRestAnswerHandler = ImRestAnswerHandler;
 	exports.BaseRestAnswerHandler = BaseRestAnswerHandler;
 
-}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {})));
+}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {}),BX.Messenger.Const,BX));
 //# sourceMappingURL=registry.bundle.js.map

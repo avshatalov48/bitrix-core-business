@@ -34,14 +34,14 @@ class StoreBookTable extends DataManager
 	{
 		return [
 			(new IntegerField('STORE_ID'))
-				->configurePrimary(true),
+				->configurePrimary(),
 
 			(new Reference('STORE', StoreTable::class,
 				Join::on('this.STORE_ID', 'ref.ID')))
 				->configureJoinType('inner'),
 
 			(new IntegerField('BOOK_ID'))
-				->configurePrimary(true),
+				->configurePrimary(),
 
 			(new Reference('BOOK', BookTable::class,
 				Join::on('this.BOOK_ID', 'ref.ID')))

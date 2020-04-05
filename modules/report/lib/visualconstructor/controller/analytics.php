@@ -3,6 +3,7 @@
 namespace Bitrix\Report\VisualConstructor\Controller;
 
 use Bitrix\ImOpenLines\Integrations\Report\Filter;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Report\VisualConstructor\AnalyticBoard;
@@ -41,25 +42,12 @@ class Analytics extends Base
 			'pageControlsParams' => $analyticBoard->getButtonsContent()
 
 		];
-		if ($analyticBoard->isDisabled())
-		{
-			$componentName = 'bitrix:report.analytics.empty';
-			$params = [];
-		}
-		else
-		{
-			$componentName = 'bitrix:report.visualconstructor.board.base';
-			$params = [
-				'BOARD_ID' => $boardKey,
-				'IS_DEFAULT_MODE_DEMO' => false,
-				'IS_BOARD_DEFAULT' => true,
-				'FILTER' => $analyticBoard->getFilter(),
-				'IS_ENABLED_STEPPER' => $analyticBoard->isStepperEnabled(),
-				'STEPPER_IDS' => $analyticBoard->getSteperIds()
-			];
-		}
-
-		return new Component($componentName, '', $params, $additionalParams);
+		return new Component(
+			$analyticBoard->getDisplayComponentName(),
+			$analyticBoard->getDisplayComponentTemplate(),
+			$analyticBoard->getDisplayComponentParams(),
+			$additionalParams
+		);
 	}
 
 	/**
@@ -79,37 +67,41 @@ class Analytics extends Base
 	 *
 	 * @return Component|bool
 	 */
-	public function toggleToDefaultByBoardKeyAction($boardKey)
+	public function toggleToDefaultByBoardKeyAction($boardKey, CurrentUser $currentUser)
 	{
 		$analyticBoardProvider = new AnalyticBoardProvider();
 		$analyticBoardProvider->addFilter('boardKey', $boardKey);
 		$analyticBoard = $analyticBoardProvider->execute()->getFirstResult();
 		if (!$analyticBoard)
 		{
-			$this->addError(new Error('Analytic board with this key not exist'));
+			$this->addError(new Error('Analytic board with this key does not exist'));
 			return false;
 		}
 
-
-		global $USER;
-		$userId = $USER->getId();
-		$dashboardForUser = Dashboard::loadByBoardKeyAndUserId($boardKey, $userId);
+		$dashboardForUser = Dashboard::loadByBoardKeyAndUserId($boardKey, $currentUser->getId());
 		if ($dashboardForUser)
 		{
 			$dashboardForUser->delete();
 		}
 
-
+		$defaultDashboard = Dashboard::loadByBoardKeyAndUserId($boardKey, 0);
+		if($defaultDashboard)
+		{
+			$defaultDashboard->delete();
+		}
 
 		if (!empty($analyticBoard))
 		{
 			$filter = $analyticBoard->getFilter();
-			$filterId = $filter->getFilterParameters()['FILTER_ID'];
+			if($filter)
+			{
+				$filterId = $filter->getFilterParameters()['FILTER_ID'];
 
-			$options = new Options($filterId, $filter::getPresetsList());
-			$options->restore($filter::getPresetsList());
-			$options->save();
-
+				$options = new Options($filterId, $filter::getPresetsList());
+				$options->restore($filter::getPresetsList());
+				$options->save();
+			}
+			$analyticBoard->resetToDefault();;
 		}
 
 		$additionalParams = [
@@ -117,22 +109,12 @@ class Analytics extends Base
 			'pageControlsParams' => $analyticBoard->getButtonsContent()
 
 		];
-		if ($analyticBoard->isDisabled())
-		{
-			$componentName = 'bitrix:report.analytics.empty';
-			$params = [];
-		}
-		else
-		{
-			$componentName = 'bitrix:report.visualconstructor.board.base';
-			$params = [
-				'BOARD_ID' => $boardKey,
-				'IS_DEFAULT_MODE_DEMO' => false,
-				'IS_BOARD_DEFAULT' => true,
-				'FILTER' => $analyticBoard->getFilter()
-			];
-		}
 
-		return new Component($componentName, '', $params, $additionalParams);
+		return new Component(
+			$analyticBoard->getDisplayComponentName(),
+			$analyticBoard->getDisplayComponentTemplate(),
+			$analyticBoard->getDisplayComponentParams(),
+			$additionalParams
+		);
 	}
 }

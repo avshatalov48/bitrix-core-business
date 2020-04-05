@@ -197,7 +197,7 @@ class CBPStartWorkflowActivity
 
 		$entityIterator = CBPWorkflowTemplateLoader::GetList(
 			['MODULE_ID' => 'ASC'],
-			['!AUTO_EXECUTE' => CBPDocumentEventType::Automation],
+			['<AUTO_EXECUTE' => CBPDocumentEventType::Automation],
 			['MODULE_ID', 'ENTITY'],
 			false,
 			['MODULE_ID', 'ENTITY']
@@ -409,7 +409,7 @@ class CBPStartWorkflowActivity
 			array('NAME' => 'ASC'),
 			array(
 				'DOCUMENT_TYPE' => explode('@', $document),
-				'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
+				'<AUTO_EXECUTE' => CBPDocumentEventType::Automation
 			),
 			false,
 			false,

@@ -59,7 +59,7 @@ class PrettyDate
 	public static function formatDateTime(DateTime $date = null)
 	{
 		$date = $date ?: new DateTime();
-		return \FormatDate(self::getDateTimeFormat(), $date);
+		return \FormatDate(self::getDateTimeFormat(), MakeTimeStamp($date));
 	}
 
 	/**
@@ -71,6 +71,6 @@ class PrettyDate
 	public static function formatDate(Date $date = null)
 	{
 		$date = $date ?: new Date();
-		return \FormatDate(self::getDateFormat(), DateTime::createFromTimestamp($date->getTimestamp()));
+		return \FormatDate(self::getDateFormat(), DateTime::createFromTimestamp(MakeTimeStamp($date)));
 	}
 }

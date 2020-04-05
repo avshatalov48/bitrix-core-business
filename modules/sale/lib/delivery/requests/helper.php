@@ -4,7 +4,7 @@ namespace Bitrix\Sale\Delivery\Requests;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Internals;
 use Bitrix\Sale\Shipment;
-use Bitrix\Sale\Order;
+use Bitrix\Sale;
 
 
 /**
@@ -100,6 +100,10 @@ class Helper
 		if(empty($shipmentIds))
 			return array();
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		$result = array();
 
 		$res = Internals\ShipmentTable::getList(array(
@@ -111,7 +115,7 @@ class Helper
 
 		while($shp = $res->fetch())
 		{
-			$order = Order::load($shp['ORDER_ID']);
+			$order = $orderClass::load($shp['ORDER_ID']);
 
 			foreach($order->getShipmentCollection() as $shipment)
 			{

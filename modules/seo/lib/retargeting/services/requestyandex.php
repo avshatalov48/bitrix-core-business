@@ -2,13 +2,14 @@
 
 namespace Bitrix\Seo\Retargeting\Services;
 
-use \Bitrix\Seo\Retargeting\Request;
+use Bitrix\Seo\Retargeting\ProxyRequest;
 
-class RequestYandex extends Request
+class RequestYandex extends ProxyRequest
 {
 	const TYPE_CODE = 'yandex';
+	const REST_METHOD_PREFIX = 'seo.client.ads.yandex';
 
-	public function query(array $params = array())
+	protected function directQuery(array $params = array())
 	{
 		$this->endpoint = $params['endpoint'];
 

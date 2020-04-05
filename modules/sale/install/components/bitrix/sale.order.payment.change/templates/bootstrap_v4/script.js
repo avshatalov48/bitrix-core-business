@@ -1,3 +1,5 @@
+BX.namespace('BX.Sale');
+
 BX.Sale.OrderPaymentChange = (function()
 {
 	var classDescription = function(params)

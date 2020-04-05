@@ -10,104 +10,119 @@ use Bitrix\MobileApp\Janative\Entity\Extension;
 
 class Manager
 {
-	private static $instance;
-	public $workspaces;
-	public $availableComponents;
+	/**
+	 * @var array
+	 */
+	private static $workspaces;
+	/**
+	 * @var array|null
+	 */
+	private static $availableComponents;
 	private $extensions;
-
-	public static function getInstance()
-	{
-		if (!self::$instance)
-		{
-			self::$instance = new Manager();
-		}
-
-		return self::$instance;
-	}
+	private $initiated;
 
 
 	private function __construct()
 	{
-		$this->workspaces = [];
-		$this->availableComponents = [];
+		$this->initiated = false;
 		$this->extensions = [];
-		$this->workspaces = [];
-		$events = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("mobileapp", "onJNComponentWorkspaceGet");
-		foreach ($events as $event)
-		{
-			$path = ExecuteModuleEventEx($event);
-			if (!in_array($path, $this->workspaces))
-			{
-				$this->workspaces[] = $path;
-			}
-		}
-
-		$this->fetchComponents();
-		self::$instance = $this;
 	}
 
-	private function fetchComponents()
+
+	/**
+	 * @return array
+	 */
+	private static function getWorkspaces()
 	{
-		$componentList = [];
-		$workspaces = $this->workspaces;
-		foreach ($workspaces as $path)
+		if(self::$workspaces == null)
 		{
-			$componentDir = new Directory(Application::getDocumentRoot() . $path . "/components/");
-			if(!$componentDir->isExists())
-				continue;
-
-			$namespaces = $componentDir->getChildren();
-			foreach ($namespaces as $NSDir)
+			self::$workspaces = [];
+			$events = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("mobileapp", "onJNComponentWorkspaceGet");
+			foreach ($events as $event)
 			{
-				if (!$NSDir->isDirectory())
-					continue;
-
-				$namespaceItems = $NSDir->getChildren();
-				$namespace = $NSDir->getName();
-				foreach ($namespaceItems as $item)
+				$path = ExecuteModuleEventEx($event);
+				if (!in_array($path, self::$workspaces))
 				{
-					try
-					{
-						$component = new Component($item->getPath());
-						$name = $item->getName();
-						if($namespace == "bitrix")
-						{
-							$componentList[$name] = $component->getInfo();
-						}
-						else
-						{
-							$componentList[$namespace . ':' . $name] = $component->getInfo();
-						}
-					}
-					catch (\Exception $e)
-					{
-
-					}
-
+					self::$workspaces[] = $path;
 				}
 			}
 		}
 
-		$this->availableComponents = $componentList;
+		return self::$workspaces;
+	}
+
+	/**
+	 * @return mixed
+	 * @throws \Bitrix\Main\IO\FileNotFoundException
+	 */
+	private static function fetchComponents()
+	{
+		if(self::$availableComponents == null)
+		{
+			self::$availableComponents = [];
+			$workspaces = self::getWorkspaces();
+			foreach ($workspaces as $path)
+			{
+				$componentDir = new Directory(Application::getDocumentRoot() . $path . "/components/");
+				if(!$componentDir->isExists())
+					continue;
+
+				$namespaces = $componentDir->getChildren();
+				foreach ($namespaces as $NSDir)
+				{
+					if (!$NSDir->isDirectory())
+						continue;
+
+					$namespaceItems = $NSDir->getChildren();
+					$namespace = $NSDir->getName();
+					foreach ($namespaceItems as $item)
+					{
+						try
+						{
+							$component = new Component($item->getPath());
+							$name = $item->getName();
+							if($namespace == "bitrix")
+							{
+								self::$availableComponents[$name] =$component->getInfo();
+							}
+							else
+							{
+								self::$availableComponents[$namespace . ':' . $name] = $component->getInfo();
+							}
+						}
+						catch (\Exception $e)
+						{
+
+						}
+
+					}
+				}
+			}
+
+		}
+
+		return self::$availableComponents;
 	}
 
 	/**
 	 * @param $ext
 	 * @return string|string[]|null
 	 */
-	public function getExtensionPath($ext)
+	public static function getExtensionPath($ext)
 	{
 		$desc = Utils::extractEntityDescription($ext);
-		foreach ($this->workspaces as $path)
+		$extensionPath = null;
+		$workspaces = self::getWorkspaces();
+		foreach ($workspaces as $path)
 		{
 			$extensionDir = new Directory(Application::getDocumentRoot() . $path . "/extensions/" . $desc["relativePath"]);
 			if($extensionDir->isExists())
 			{
-				return $extensionDir->getPath();
+				$extensionPath = $extensionDir->getPath();
 			}
 		}
 
-		return null;
+		return $extensionPath;
 	}
 
 	public static function getExtensionResourceList($ext)
@@ -119,7 +134,7 @@ class Manager
 
 		foreach ($extList as $ext)
 		{
-			if (!Manager::getInstance()->getExtensionPath($ext))
+			if (!Manager::getExtensionPath($ext))
 			{
 				continue;
 			}
@@ -136,8 +151,7 @@ class Manager
 		{
 			$extension = new Extension($extName);
 			$result['messages'] = array_merge($result['messages'], $extension->getLangMessages());
-
-			$result['js'][] = $extension->getRelativePath();
+			$result['js'][] = $extension->getRelativePathToFile();
 		}
 
 		return $result;
@@ -171,9 +185,56 @@ class Manager
 		return "";
 	}
 
-	public function extractNamespace($entityPath)
+	/**
+	 * @return mixed
+	 * @throws \Bitrix\Main\IO\FileNotFoundException
+	 */
+	public static function getAvailableComponents()
 	{
-
+		return self::fetchComponents();
 	}
+
+	/**
+	 * @param $name
+	 * @return Component|null
+	 * @throws \Bitrix\Main\IO\FileNotFoundException
+	 */
+	public static function getComponentByName($name)
+	{
+		$workspaces = self::getWorkspaces();
+		foreach ($workspaces as $path)
+		{
+			$componentDir = new Directory(Application::getDocumentRoot() . $path . "/components/");
+			if(!$componentDir->isExists())
+				continue;
+
+			$namespaces = $componentDir->getChildren();
+			foreach ($namespaces as $NSDir)
+			{
+				if (!$NSDir->isDirectory())
+					continue;
+
+				$namespaceItems = $NSDir->getChildren();
+				$namespace = $NSDir->getName();
+				foreach ($namespaceItems as $item)
+				{
+					try
+					{
+						if($name === $item->getName() || $namespace . ':' . $name === $item->getName())
+						{
+							return new Component($item->getPath());
+						}
+					}
+					catch (\Exception $e)
+					{
+						$a = $e;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
 
 }

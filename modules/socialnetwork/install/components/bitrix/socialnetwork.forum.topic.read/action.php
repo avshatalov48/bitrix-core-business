@@ -1,6 +1,14 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Socialnetwork\LogCommentTable;
+
+global $USER_FIELD_MANAGER;
+
 if (!CModule::IncludeModule("forum"))
 	return 0;
+
 $this->IncludeComponentLang("action.php");
 $action = strtoupper($arParams["ACTION"]);
 $action = ($action == "SUPPORT" ? "FORUM_MESSAGE2SUPPORT" : $action);
@@ -425,7 +433,7 @@ else
 						CSocNetLogRights::SetForSonet($log_id, ($arParams["MODE"] == "GROUP" ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ($arParams["MODE"] == "GROUP" ? $arParams["SOCNET_GROUP_ID"] : $arParams["USER_ID"]), "forum", "view");
 					}
 				}
-				
+
 				if (intval($log_id) > 0)
 				{
 					$arFieldsForSocnet = array(
@@ -443,15 +451,34 @@ else
 						"RATING_ENTITY_ID" => intval($arParams["MID"])
 					);
 
+					$userFieldsList = $USER_FIELD_MANAGER->GetUserFields("SONET_COMMENT", 0, LANGUAGE_ID);
+					$controlId = false;
+					if (
+						!empty($userFieldsList['UF_SONET_COM_FILE'])
+						&& !empty($userFieldsList['UF_SONET_COM_FILE']['ID'])
+					)
+					{
+						$controlId = LogCommentTable::getUfId().'-'.$userFieldsList['UF_SONET_COM_FILE']['ID'].'-UF_SONET_COM_FILE';
+						FileInputUtility::instance()->registerControl($controlId, $controlId);
+					}
+
 					$ufFileID = array();
 					$dbAddedMessageFiles = CForumFiles::GetList(array("ID" => "ASC"), array("MESSAGE_ID" => $arParams["MID"]));
 					while ($arAddedMessageFiles = $dbAddedMessageFiles->Fetch())
+					{
 						$ufFileID[] = $arAddedMessageFiles["FILE_ID"];
+						if ($controlId)
+						{
+							FileInputUtility::instance()->registerFile($controlId, $arAddedMessageFiles["FILE_ID"]);
+						}
+					}
 
 					if (count($ufFileID) > 0)
+					{
 						$arFieldsForSocnet["UF_SONET_COM_FILE"] = $ufFileID;
+					}
 
-					$ufDocID = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $arParams["MID"], LANGUAGE_ID);
+					$ufDocID = $USER_FIELD_MANAGER->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $arParams["MID"], LANGUAGE_ID);
 					if ($ufDocID)
 						$arFieldsForSocnet["UF_SONET_COM_DOC"] = $ufDocID;
 
@@ -528,7 +555,7 @@ else
 								else
 									unset($arFieldsForSocnet["UF_SONET_COM_FILE"]);
 
-								$ufDocID = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $arComment["ID"], LANGUAGE_ID);
+								$ufDocID = $USER_FIELD_MANAGER->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $arComment["ID"], LANGUAGE_ID);
 								if ($ufDocID)
 									$arFieldsForSocnet["UF_SONET_COM_DOC"] = $ufDocID;
 								else

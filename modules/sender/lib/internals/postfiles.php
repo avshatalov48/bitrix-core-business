@@ -171,11 +171,6 @@ class PostFiles
 
 		foreach($files as $index => $value)
 		{
-			if (is_numeric($index))
-			{
-				continue;
-			}
-
 			if (is_string($value) && preg_match("/^https?:\\/\\//", $value))
 			{
 				$result[$index] = \CFile::MakeFileArray($value);

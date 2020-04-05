@@ -48,7 +48,7 @@ return array(
 				),
 				'.landing-block-node-card-contact-text' => array(
 					0 => Loc::getMessage("NOTETRANSLATE--LANDING_DEMO_STORE_CLOTHES-FOOTER--TEXT_1"),
-					1 => 'Email: ',
+					1 => 'Phone: ',
 				),
 				'.landing-block-node-card-contact-link' => array(
 					0 => [

@@ -1,5 +1,6 @@
 <?
-use \Bitrix\Main\Loader;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -185,15 +186,15 @@ class CAllBlogPost
 	{
 		global $DB, $APPLICATION;
 
-		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && strlen($arFields["TITLE"]) <= 0)
-		{
-			$APPLICATION->ThrowException(GetMessage("BLG_GP_EMPTY_TITLE"), "EMPTY_TITLE");
-			return false;
-		}
-
 		if ((is_set($arFields, "DETAIL_TEXT") || $ACTION=="ADD") && strlen(trim(str_replace("\xc2\xa0", ' ', $arFields["DETAIL_TEXT"]), " \t\n\r\0\x0B\xA0")) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("BLG_GP_EMPTY_DETAIL_TEXT"), "EMPTY_DETAIL_TEXT");
+			return false;
+		}
+
+		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && strlen($arFields["TITLE"]) <= 0)
+		{
+			$APPLICATION->ThrowException(GetMessage("BLG_GP_EMPTY_TITLE"), "EMPTY_TITLE");
 			return false;
 		}
 
@@ -798,7 +799,7 @@ class CAllBlogPost
 			}
 
 			$post = \Bitrix\Blog\Item\Post::getById($arPost["ID"]);
-			$arSoFields["TAGS"] = $post->getTags();
+			$arSoFields["TAG"] = $post->getTags();
 
 			$logID = CSocNetLog::Add($arSoFields, false);
 
@@ -982,19 +983,34 @@ class CAllBlogPost
 		{
 			CSocNetLog::Update($arLog["ID"], $arSoFields);
 			$socnetPerms = CBlogPost::GetSocNetPermsCode($postID);
-			if(!in_array("U".$arPost["AUTHOR_ID"], $socnetPerms))
+
+			$profileBlogPost = false;
+			foreach($socnetPerms as $perm)
+			{
+				if (preg_match('/^UP(\d+)$/', $perm, $matches))
+				{
+					$profileBlogPost = true;
+					break;
+				}
+			}
+
+			if(
+				!$profileBlogPost
+				&& !in_array("U".$arPost["AUTHOR_ID"], $socnetPerms)
+			)
 			{
 				$socnetPerms[] = "U".$arPost["AUTHOR_ID"];
+				if (CModule::IncludeModule("extranet"))
+				{
+					CSocNetLog::Update($arLog["ID"], array(
+						"SITE_ID" => CExtranet::GetSitesByLogDestinations($socnetPerms, $arPost["AUTHOR_ID"])
+					));
+				}
+				$socnetPerms[] = "SA"; // socnet admin
 			}
-			if (CModule::IncludeModule("extranet"))
-			{
-				CSocNetLog::Update($arLog["ID"], array(
-					"SITE_ID" => CExtranet::GetSitesByLogDestinations($socnetPerms, $arPost["AUTHOR_ID"])
-				));
-			}
-			$socnetPerms[] = "SA"; // socnet admin
-			CSocNetLogRights::DeleteByLogID($arLog["ID"]);
-			CSocNetLogRights::Add($arLog["ID"], $socnetPerms);
+
+			\CSocNetLogRights::deleteByLogID($arLog["ID"]);
+			\CSocNetLogRights::add($arLog["ID"], $socnetPerms);
 
 			if (Loader::includeModule('crm'))
 			{
@@ -1120,7 +1136,10 @@ class CAllBlogPost
 		// CRMCONTACT - CRM contact
 		//$bAU = false;
 
-		if(empty($perms) || in_array("UA", $perms))//if default rights or for everyone
+		if(
+			empty($perms)
+			|| in_array("UA", $perms)
+		) //if default rights or for everyone
 		{
 			CBlogPost::__AddSocNetPerms($ID, "U", $arPost["AUTHOR_ID"], "US".$arPost["AUTHOR_ID"]); // for myself
 			$perms1 = CBlogPost::GetSocnetGroups("U", $arPost["AUTHOR_ID"]);
@@ -1156,6 +1175,7 @@ class CAllBlogPost
 						|| preg_match('/^(SG)(\d+)$/i', $val, $matches)
 						|| preg_match('/^(AU)(\d+)$/i', $val, $matches)
 						|| preg_match('/^(U)(\d+)$/i', $val, $matches)
+						|| preg_match('/^(UP)(\d+)$/i', $val, $matches)
 						|| preg_match('/^(D)(\d+)$/i', $val, $matches)
 						|| preg_match('/^(G)(\d+)$/i', $val, $matches)
 					)
@@ -1222,7 +1242,7 @@ class CAllBlogPost
 
 		if ($allowedTypes === false)
 		{
-			$allowedTypes = Array("D", "U", "SG", "DR", "G", "AU");
+			$allowedTypes = Array("D", "U", "UP", "SG", "DR", "G", "AU");
 			if (IsModuleInstalled('crm'))
 			{
 				$allowedTypes[] = "CRMCONTACT";
@@ -1790,6 +1810,23 @@ class CAllBlogPost
 							}
 						}
 					}
+
+					// check if landing
+					if ($perms < BLOG_PERMS_READ)
+					{
+						$res = \Bitrix\Socialnetwork\WorkgroupTable::getList([
+							'filter' => [
+								'@ID' => $arGroupsId,
+								'ACTIVE' => 'Y',
+								'LANDING' => 'Y'
+							],
+							'select' => ['ID']
+						]);
+						if ($res->fetch())
+						{
+							$perms = BLOG_PERMS_READ;
+						}
+					}
 				}
 			}
 		}
@@ -1903,7 +1940,7 @@ class CAllBlogPost
 					);
 					if ($imageResized)
 					{
-						$authorAvatarUrl = $imageResized["src"];
+						$authorAvatarUrl = \Bitrix\Im\Common::getPublicDomain().$imageResized["src"];
 					}
 				}
 
@@ -1945,6 +1982,7 @@ class CAllBlogPost
 		$bTitleEmpty = $arTitle['IS_TITLE_EMPTY'];
 
 		$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
+		$urlOriginal = $arParams["URL"];
 
 		if (IsModuleInstalled("extranet"))
 		{
@@ -2666,7 +2704,11 @@ class CAllBlogPost
 					"MESSAGE_OUT" => GetMessage("SONET_IM_NEW_POST", Array(
 						"#title#" => $title_out
 					))." #URL#",
-					"EXCLUDE_USERS" => array_merge(array($arParams["FROM_USER_ID"]), array($arUserIDSent))
+					"EXCLUDE_USERS" => array_merge(array($arParams["FROM_USER_ID"]), array($arUserIDSent)),
+					"PERMISSION" => array(
+						"FEATURE" => "blog",
+						"OPERATION" => "view_post"
+					)
 				);
 
 				$arUserIDSentBySubscription = CSocNetSubscription::NotifyGroup($arNotifyParams);
@@ -2675,6 +2717,75 @@ class CAllBlogPost
 					$arUserIDSentBySubscription = array();
 				}
 				$arUserIDSent = array_merge($arUserIDSent, $arUserIDSentBySubscription);
+			}
+		}
+
+		if (
+			!empty($arParams['GRAT_DATA'])
+			&& is_array($arParams['GRAT_DATA'])
+			&& !empty($arParams['GRAT_DATA']['USERS'])
+			&& is_array($arParams['GRAT_DATA']['USERS'])
+		)
+		{
+			$arMessageFieldsGrat = $arMessageFields;
+			$arMessageFieldsGrat["NOTIFY_EVENT"] = 'grat';
+			$arMessageFieldsGrat["NOTIFY_TAG"] = "BLOG|POST|".$arParams["ID"];
+			$arMessageFieldsGrat["PUSH_PARAMS"] = [
+				"ACTION" => "post",
+				"TAG" => $arMessageFieldsGrat["NOTIFY_TAG"]
+			];
+			if (!empty($authorAvatarUrl))
+			{
+				$arMessageFields["PUSH_PARAMS"]["ADVANCED_PARAMS"] = array(
+					'avatarUrl' => $authorAvatarUrl,
+					'senderName' => $authorName
+				);
+			}
+
+			$arMessageFieldsGrat["NOTIFY_MESSAGE"] = Loc::getMessage('SONET_IM_POST_GRAT'.$aditGM, [
+				"#link_post_start#" => "<a href=\"".$urlOriginal."\" class=\"bx-notifier-item-action\">",
+				"#link_post_end#" => "</a>",
+				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
+			]);
+
+			$arMessageFieldsGrat["NOTIFY_MESSAGE_OUT"] = Loc::getMessage('SONET_IM_POST_GRAT'.$aditGM, [
+				"#link_post_start#" => "",
+				"#link_post_end#" => "",
+				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
+			])." ".$serverName.$urlOriginal."";
+			$arMessageFieldsGrat["PUSH_MESSAGE"] = Loc::getMessage('SONET_PUSH_POST_GRAT'.$aditGM, [
+				"#name#" => htmlspecialcharsbx($authorName),
+				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
+			]);
+
+			foreach($arParams['GRAT_DATA']['USERS'] as $gratUserId)
+			{
+				if (
+					in_array($gratUserId, $arUserIDSent)
+					|| $arParams["FROM_USER_ID"] == $gratUserId
+				)
+				{
+					continue;
+				}
+
+				$postPerm = CBlogPost::GetSocNetPostPerms(array(
+					"POST_ID" => $arParams["ID"],
+					"NEED_FULL" => true,
+					"USER_ID" => $gratUserId,
+					"IGNORE_ADMIN" => true
+				));
+
+				if ($postPerm < BLOG_PERMS_READ)
+				{
+					continue;
+				}
+
+				$arMessageFieldsTmp = $arMessageFieldsGrat;
+				$arMessageFieldsTmp['TO_USER_ID'] = $gratUserId;
+				$arMessageFieldsTmp['NOTIFY_SUB_TAG'] = "BLOG|POST|".$arParams["ID"]."|".$gratUserId;
+
+				CIMNotify::Add($arMessageFieldsTmp);
+				$arUserIDSent[] = $gratUserId;
 			}
 		}
 
@@ -3141,7 +3252,7 @@ class CAllBlogPost
 						array(
 							"=Reply-To" => $authorName.' <'.$replyTo.'>',
 							"=Message-Id" => $mailMessageId,
-							"=In-Reply-To" => $mailMessageInReplyTo,
+							"=In-Reply-To" => $mailMessageInReplyTo == $mailMessageId ? '' : $mailMessageInReplyTo,
 							"EMAIL_FROM" => $authorName.' <'.$defaultEmailFrom.'>',
 							"EMAIL_TO" => (!empty($nameFormatted) ? ''.$nameFormatted.' <'.$email.'>' : $email),
 							"RECIPIENT_ID" => $userId,

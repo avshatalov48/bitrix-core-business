@@ -55,6 +55,11 @@ class ExternalAvatarTable extends Main\Entity\DataManager
 				'required' => true,
 				'title' => Loc::getMessage('EXTERNAL_AVATAR_ENTITY_AVATAR_ID_FIELD'),
 			),
+			'FILE' => array(
+				'data_type' => 'Bitrix\Main\FileTable',
+				'reference' => array('=this.AVATAR_ID' => 'ref.ID'),
+				'join_type' => 'LEFT',
+			),
 		);
 	}
 	/**

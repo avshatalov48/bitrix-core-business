@@ -118,7 +118,7 @@ class HttpRequest extends Request
 	 * Returns the GET parameter of the current request.
 	 *
 	 * @param string $name Parameter name
-	 * @return null|string
+	 * @return null|mixed
 	 */
 	public function getQuery($name)
 	{
@@ -139,7 +139,7 @@ class HttpRequest extends Request
 	 * Returns the POST parameter of the current request.
 	 *
 	 * @param $name
-	 * @return null|string
+	 * @return null|mixed
 	 */
 	public function getPost($name)
 	{
@@ -160,7 +160,7 @@ class HttpRequest extends Request
 	 * Returns the FILES parameter of the current request.
 	 *
 	 * @param $name
-	 * @return null|string
+	 * @return null|mixed
 	 */
 	public function getFile($name)
 	{

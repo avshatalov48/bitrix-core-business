@@ -71,8 +71,9 @@ class Message
 						}
 
 						$message[$extField][] = array(
-							'name'  => $address->getName(),
+							'name' => $address->getName(),
 							'email' => $address->getEmail(),
+							'formated' => ($address->getName() ? $address->get() : $address->getEmail()),
 						);
 					}
 					else
@@ -337,6 +338,102 @@ class Message
 				'UNSEEN' => $item['UNSEEN'],
 			];
 		}
+		return $result;
+	}
+
+	public static function ensureAttachments(&$message)
+	{
+		if ($message['ATTACHMENTS'] > 0 || !($message['OPTIONS']['attachments'] > 0))
+		{
+			return;
+		}
+
+		if (Main\Config\Option::get('mail', 'save_attachments', B_MAIL_SAVE_ATTACHMENTS) !== 'Y')
+		{
+			return;
+		}
+
+		$mailboxHelper = Mailbox::createInstance($message['MAILBOX_ID'], false);
+
+		$attachments = empty($mailboxHelper) ? false : $mailboxHelper->downloadAttachments($message);
+
+		if (false === $attachments)
+		{
+			$logEntry = sprintf(
+				'Helper\Message: Attachments downloading failed (%u:%s:%u)',
+				$message['MAILBOX_ID'],
+				$message['DIR_MD5'],
+				$message['MSG_UID']
+			);
+
+			if (!empty($mailboxHelper) && !$mailboxHelper->getErrors()->isEmpty())
+			{
+				$logEntry .= PHP_EOL . join(PHP_EOL, $mailboxHelper->getErrors()->toArray());
+			}
+
+			addMessage2Log($logEntry, 'mail', 2);
+
+			return false;
+		}
+
+		foreach ($attachments as $i => $item)
+		{
+			$attachFields = array(
+				'MESSAGE_ID'   => $message['ID'],
+				'FILE_NAME'    => $item['FILENAME'],
+				'CONTENT_TYPE' => $item['CONTENT-TYPE'],
+				'FILE_DATA'    => $item['BODY'],
+				'CONTENT_ID'   => $item['CONTENT-ID'],
+			);
+
+			$attachmentId = \CMailMessage::addAttachment($attachFields);
+
+			if ($attachmentId > 0)
+			{
+				$message['ATTACHMENTS']++;
+
+				$message['BODY_HTML'] = preg_replace(
+					sprintf(
+						'/<img([^>]+)src\s*=\s*(\'|\")?\s*(http:\/\/cid:%s)\s*\2([^>]*)>/is',
+						preg_quote($item['CONTENT-ID'], '/')
+					),
+					sprintf('<img\1src="aid:%u"\4>', $attachmentId),
+					$message['BODY_HTML']
+				);
+			}
+		}
+
+		if ($message['ATTACHMENTS'] > 0)
+		{
+			\CMailMessage::update($message['ID'], array('BODY_HTML' => $message['BODY_HTML']));
+
+			return $message['ID'];
+		}
+	}
+
+	public static function resync(&$message)
+	{
+		$mailboxHelper = Mailbox::createInstance($message['MAILBOX_ID'], false);
+
+		$result = empty($mailboxHelper) ? false : $mailboxHelper->resyncMessage($message);
+
+		if (false === $result)
+		{
+			$logEntry = sprintf(
+				'Helper\Message: Message resync failed (%u:%s:%u)',
+				$message['MAILBOX_ID'],
+				$message['DIR_MD5'],
+				$message['MSG_UID']
+			);
+
+			if (!empty($mailboxHelper) && !$mailboxHelper->getErrors()->isEmpty())
+			{
+				$logEntry .= PHP_EOL . join(PHP_EOL, $mailboxHelper->getErrors()->toArray());
+			}
+
+			addMessage2Log($logEntry, 'mail', 3);
+		}
+
 		return $result;
 	}
 

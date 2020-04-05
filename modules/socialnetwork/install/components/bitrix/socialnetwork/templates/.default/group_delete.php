@@ -35,7 +35,7 @@ if ($_REQUEST['IFRAME'] == 'Y')
 else
 {
 	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.features",
+		"bitrix:socialnetwork.group_delete",
 		"",
 		$componentParameters
 	);

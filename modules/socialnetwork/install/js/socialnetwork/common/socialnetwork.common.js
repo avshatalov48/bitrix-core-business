@@ -252,6 +252,15 @@ BX.SocialnetworkUICommon = {
 				});
 			}
 
+			if (params.perms.canModify)
+			{
+				menu.push({
+					text: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_COPY'),
+					title: BX.message(!!params.isProject ? 'SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT' : 'SONET_EXT_COMMON_GROUP_MENU_COPY'),
+					href: params.urls.copy
+				});
+			}
+
 			if (
 				(
 					!BX.type.isNotEmptyString(params.userRole)

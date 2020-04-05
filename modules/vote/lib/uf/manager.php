@@ -2,7 +2,7 @@
 
 namespace Bitrix\Vote\Uf;
 
-use Bitrix\Vote\Attachment\Attach;
+use Bitrix\Vote\Attach;
 use Bitrix\Vote\Attachment\DefaultConnector;
 use Bitrix\Vote\Attachment\BlogPostConnector;
 use Bitrix\Vote\Attachment\ForumMessageConnector;
@@ -100,7 +100,7 @@ final class Manager
 	{
 		if(!isset($this->loadedAttachedObjects[$id]))
 		{
-			$this->loadedAttachedObjects[$id] = Attach::loadFromAttachId($id);
+			$this->loadedAttachedObjects[$id] = \Bitrix\Vote\Attachment\Manager::loadFromAttachId($id);
 		}
 		return $this->loadedAttachedObjects[$id];
 	}
@@ -116,7 +116,7 @@ final class Manager
 		if(!isset($this->loadedAttachedObjects[$id1]))
 		{
 			list($entityType, $moduleId) = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
-			$attach = Attach::loadFromVoteId(array(
+			$attach = \Bitrix\Vote\Attachment\Manager::loadFromVoteId(array(
 				"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
 				"ENTITY_TYPE" => $entityType,
 				"MODULE_ID" => $moduleId), $id);
@@ -126,12 +126,12 @@ final class Manager
 	}
 
 	/**
-	 * @return Attach
+	 * @return \Bitrix\Vote\Attach
 	 */
 	public function loadEmptyObject()
 	{
 		list($entityType, $moduleId) = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
-		return Attach::loadEmptyAttach(array(
+		return \Bitrix\Vote\Attachment\Manager::loadEmptyAttach(array(
 			"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64,
 			"ENTITY_TYPE" => $entityType,
 			"MODULE_ID" => $moduleId), array(
@@ -149,7 +149,7 @@ final class Manager
 			"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
 			"=ENTITY_TYPE" => $entityType,
 			"=MODULE_ID" => $moduleId);
-		return Attach::loadFromEntity($res);
+		return \Bitrix\Vote\Attachment\Manager::loadFromEntity($res);
 	}
 	/**
 	 * Checks attitude attached object to entity.

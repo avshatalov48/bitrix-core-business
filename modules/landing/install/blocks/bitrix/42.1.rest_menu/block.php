@@ -1,7 +1,7 @@
 <section class="landing-block g-pt-20 g-pb-20">
 	<div class="container">
 		<!-- Products Block -->
-		<div class="row">
+		<div class="row landing-block-inner">
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-6 g-mb-50">
 				<!-- Article -->
 				<article class="media">
@@ -15,7 +15,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -42,7 +42,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -69,7 +69,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -96,7 +96,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -123,7 +123,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -150,7 +150,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -177,7 +177,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>
@@ -204,7 +204,7 @@
 							<h3 class="landing-block-node-card-title align-self-center g-color-black g-font-weight-700 g-font-size-13 text-uppercase g-mb-8 g-mb-0--md g-pr-0 g-pr-15--md">
 								Croissants</h3>
 							<div class="landing-block-node-card-line d-none d-md-block w-100 g-height-1 g-brd-bottom g-brd-gray-light-v4"></div>
-							<div class="landing-block-node-card-price d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
+							<div class="landing-block-node-card-price flex-shrink-0 g-max-width-200 d-inline-block g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12 g-ml-0 g-ml-15--md">
 								$1.20
 							</div>
 						</div>

@@ -16,7 +16,7 @@ class Price
 	/* cache time */
 	const CACHE_TIME = 360000;
 	/* maximal precision */
-	const VALUE_EPS = 1E-5;
+	const VALUE_EPS = 1E-6;
 
 	/* static cache */
 	protected static $roundRules = array();
@@ -270,6 +270,8 @@ class Price
 					$quotientFloor += 1;
 				break;
 			case Catalog\RoundingTable::ROUND_DOWN:
+				if ($quotientFloor < floor(($value + self::VALUE_EPS)/$precision))
+					$quotientFloor += 1;
 				break;
 			case Catalog\RoundingTable::ROUND_MATH:
 			default:

@@ -23,6 +23,7 @@ $MESS["IBLOCK_ENTITY_SECTION_CHOOSER_FIELD"] = "Интерфейс привяз�
 $MESS["IBLOCK_ENTITY_LIST_MODE_FIELD"] = "Режим просмотра разделов и элементов";
 $MESS["IBLOCK_ENTITY_RIGHTS_MODE_FIELD"] = "Режим прав доступа";
 $MESS["IBLOCK_ENTITY_SECTION_PROPERTY_FIELD"] = "Используется привязка свойств к разделам";
+$MESS["IBLOCK_ENTITY_PROPERTY_INDEX_FIELD"] = "Использование фасетного индекса";
 $MESS["IBLOCK_ENTITY_VERSION_FIELD"] = "Настройка хранения свойств";
 $MESS["IBLOCK_ENTITY_LAST_CONV_ELEMENT_FIELD"] = "Последний сконвертированный элемент";
 $MESS["IBLOCK_ENTITY_SOCNET_GROUP_ID_FIELD"] = "Группа социальной сети";

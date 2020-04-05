@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return array(
-	'name' => 'Thanksgiving day',
+	'name' => 'Thanksgiving Day',
 	'description' => "It's the day to be thankful. It's the time to add more colors to the palette of your page.
 Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your clients will enjoy it!",
 	'preview' => '',
@@ -20,7 +20,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 		'ONLY_IN' => array('en'),
 	)),
 	'fields' => array(
-		'TITLE' => 'Thanksgiving day',
+		'TITLE' => 'Thanksgiving Day',
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'real-estate',
@@ -41,7 +41,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			'SETTINGS_SHOW_OLD_PRICE' => 'Y',
 			'SETTINGS_SHOW_DISCOUNT_PERCENT' => 'Y',
 			'SETTINGS_USE_ENHANCED_ECOMMERCE' => 'Y',
-			'METAOG_TITLE' => 'Thanksgiving day',
+			'METAOG_TITLE' => 'Thanksgiving Day',
 			'METAOG_DESCRIPTION' => "It's the day to be thankful. It's the time to add more colors to the palette of your page.
 Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your clients will enjoy it!",
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.thanksgiving/preview.jpg',
@@ -54,7 +54,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			'BACKGROUND_POSITION' => 'center',
 			'YACOUNTER_USE' => 'N',
 			'METAMAIN_USE' => 'N',
-			'METAMAIN_TITLE' => 'Thanksgiving day',
+			'METAMAIN_TITLE' => 'Thanksgiving Day',
 			'METAMAIN_DESCRIPTION' => "It's the day to be thankful. It's the time to add more colors to the palette of your page.
 Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your clients will enjoy it!",
 			'HEADBLOCK_USE' => 'N',
@@ -73,7 +73,7 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					),
 				),
 				'.landing-block-node-title' => array(
-					0 => 'Happy<br /> Thanksgiving <br />day!',
+					0 => 'Happy<br /> Thanksgiving <br />Day!',
 				),
 				'.landing-block-node-text' => array(
 					0 => 'Morbi a suscipit ipsum. Suspendisse mollis libero ante.

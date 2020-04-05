@@ -6,6 +6,7 @@ use Bitrix\Socialnetwork\LogIndexTable;
 use Bitrix\Socialnetwork\LogRightTable;
 use Bitrix\Socialnetwork\LogTagTable;
 use Bitrix\Socialnetwork\LogSubscribeTable;
+use Bitrix\Socialnetwork\UserContentViewTable;
 
 class CSocNetLog extends CAllSocNetLog
 {
@@ -1159,7 +1160,7 @@ class CSocNetLog extends CAllSocNetLog
 			'filter' => array(
 				'ID' => $ID
 			),
-			'select' => array('EVENT_ID', 'SOURCE_ID')
+			'select' => array('EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID')
 		));
 		if ($fields = $res->fetch())
 		{
@@ -1168,8 +1169,13 @@ class CSocNetLog extends CAllSocNetLog
 
 		$bSuccess = $DB->Query("DELETE FROM b_sonet_log WHERE ID = ".$ID, true);
 
-		if ($bSuccess)
+		if (
+			$bSuccess
+			&& !empty($logFields)
+		)
 		{
+			$DB->Query("DELETE FROM ".UserContentViewTable::getTableName()." WHERE RATING_TYPE_ID = '".$DB->ForSQL($logFields['RATING_TYPE_ID'])."' AND RATING_ENTITY_ID = ".intval($logFields['RATING_ENTITY_ID']), true);
+
 			$USER_FIELD_MANAGER->Delete("SONET_LOG", $ID);
 
 			$db_events = GetModuleEvents("socialnetwork", "OnSocNetLogDelete");

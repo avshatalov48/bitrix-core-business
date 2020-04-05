@@ -27,6 +27,12 @@ class LandingBaseFormComponent extends LandingBaseComponent
 	protected $successSavePage = '';
 
 	/**
+	 * Redirect on $successSavePage after save.
+	 * @var bool
+	 */
+	protected $redirectAfterSave = false;
+
+	/**
 	 * POST key.
 	 * @var string
 	 */
@@ -131,7 +137,11 @@ class LandingBaseFormComponent extends LandingBaseComponent
 	 */
 	protected function getAdditionalFieldsRaw()
 	{
-		return array('HEADBLOCK_CODE', 'HEADBLOCK_CSS_CODE');
+		return [
+			'HEADBLOCK_CODE', 'HEADBLOCK_CSS_CODE',
+			'METAGOOGLEVERIFICATION_META',
+			'METAYANDEXVERIFICATION_META'
+		];
 	}
 
 	/**
@@ -144,17 +154,20 @@ class LandingBaseFormComponent extends LandingBaseComponent
 		$additionalFields = $this->request('ADDITIONAL_FIELDS');
 
 		// bugfix for security waf
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
-		$request = $context->getRequest();
-		$postList = $request->getPostList()->getRaw($this->postCode);
-		if (isset($postList['ADDITIONAL_FIELDS']))
+		if (is_array($additionalFields))
 		{
-			$postList = $postList['ADDITIONAL_FIELDS'];
-			foreach ($this->getAdditionalFieldsRaw() as $code)
+			$context = \Bitrix\Main\Application::getInstance()->getContext();
+			$request = $context->getRequest();
+			$postList = $request->getPostList()->getRaw($this->postCode);
+			if (isset($postList['ADDITIONAL_FIELDS']))
 			{
-				if (isset($postList[$code]))
+				$postList = $postList['ADDITIONAL_FIELDS'];
+				foreach ($this->getAdditionalFieldsRaw() as $code)
 				{
-					$additionalFields[$code] = $postList[$code];
+					if (isset($postList[$code]))
+					{
+						$additionalFields[$code] = $postList[$code];
+					}
 				}
 			}
 		}
@@ -195,6 +208,47 @@ class LandingBaseFormComponent extends LandingBaseComponent
 		}
 
 		return $additionalFields;
+	}
+
+	/**
+	 * Gets rights value for saving.
+	 * @param bool $integer Return task id in integer vals.
+	 * @return array
+	 */
+	protected function getRightsValue($integer = false)
+	{
+		$return = [];
+		$rights = $this->request('RIGHTS');
+
+		if (
+			isset($rights['ACCESS_CODE']) && is_array($rights['ACCESS_CODE']) &&
+			isset($rights['TASK_ID']) && is_array($rights['TASK_ID'])
+		)
+		{
+			$tasks = $this->getAccessTasks();
+			foreach ($rights['TASK_ID'] as $k => $taskIds)
+			{
+				foreach ((array) $taskIds as $taskId)
+				{
+					if (
+						isset($tasks[$taskId]) &&
+						isset($rights['ACCESS_CODE'][$k])
+					)
+					{
+						if (!isset($return[$rights['ACCESS_CODE'][$k]]))
+						{
+							$return[$rights['ACCESS_CODE'][$k]] = [];
+						}
+
+						$return[$rights['ACCESS_CODE'][$k]][] = $integer
+							? $tasks[$taskId]['ID']
+							: $tasks[$taskId]['NAME'];
+					}
+				}
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -290,10 +344,17 @@ class LandingBaseFormComponent extends LandingBaseComponent
 					'TITLE' => $field->getTitle(),
 					'READONLY' => !in_array($code, $localMap),
 					'~CURRENT' => $fillFromRequest
-								? $this->request($code)
+								? ($code == 'ID') ? $this->id : $this->request($code)
 								: (isset($row[$code]) ? $row[$code] : $defaultValue)
 				);
-				$item[$code]['CURRENT'] = \htmlspecialcharsbx($item[$code]['~CURRENT']);
+				if (is_array($item[$code]['~CURRENT']))
+				{
+					$item[$code]['CURRENT'] = $item[$code]['~CURRENT'];
+				}
+				else
+				{
+					$item[$code]['CURRENT'] = \htmlspecialcharsbx($item[$code]['~CURRENT']);
+				}
 			}
 		}
 
@@ -390,7 +451,10 @@ class LandingBaseFormComponent extends LandingBaseComponent
 	 */
 	public function executeComponent()
 	{
-		if ($this->init())
+		if (
+			$this->init() &&
+			!$this->arResult['FATAL']
+		)
 		{
 			$this->arParams['SUCCESS_SAVE'] = false;
 			// add / update
@@ -400,16 +464,14 @@ class LandingBaseFormComponent extends LandingBaseComponent
 			)
 			{
 				$this->arParams['SUCCESS_SAVE'] = true;
+				if (
+					$this->redirectAfterSave &&
+					$this->successSavePage
+				)
+				{
+					\localRedirect($this->successSavePage);
+				}
 			}
-			// delete
-			// tmp disabled, #107130
-			/*if (
-				$this->request('delete') == 'Y' &&
-				$this->deleteRow()
-			)
-			{
-				\localRedirect($this->successSavePage);
-			}*/
 		}
 
 		parent::executeComponent();

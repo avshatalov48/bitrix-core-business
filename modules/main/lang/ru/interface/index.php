@@ -1,6 +1,7 @@
 <?
 $MESS["admin_index_product_name_1c_bitrix"] = "1С-Битрикс: Управление сайтом";
 $MESS["admin_index_product_name_1c_bitrix_portal"] = "1С-Битрикс: Корпоративный портал";
+$MESS["admin_index_product_name_ua_bitrix_portal"] = "Битрикс: Корпоративный портал";
 $MESS["admin_index_product_name_1c_bitrix_eduportal"] = "1С-Битрикс: Внутренний портал учебного заведения";
 $MESS["admin_index_product_name_1c_bitrix_gosportal"] = "1С-Битрикс: Внутренний портал органа власти";
 $MESS["admin_index_product_name_1c_bitrix_gossite"] = "1С-Битрикс: Официальный сайт органа власти";

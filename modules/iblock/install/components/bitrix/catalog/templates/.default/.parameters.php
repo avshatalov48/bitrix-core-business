@@ -91,19 +91,21 @@ $arTemplateParameters["FILTER_VIEW_MODE"] = array(
 	"TYPE" => "LIST",
 	"VALUES" => $arFilterViewModeList,
 	"DEFAULT" => "VERTICAL",
-	"HIDDEN" => (!isset($arCurrentValues['USE_FILTER']) || 'N' == $arCurrentValues['USE_FILTER'])
+	"HIDDEN" => (!isset($arCurrentValues['USE_FILTER']) || 'N' == $arCurrentValues['USE_FILTER'] ? 'Y' : 'N')
 );
 $arTemplateParameters["FILTER_HIDE_ON_MOBILE"] = array(
 	"PARENT" => "FILTER_SETTINGS",
 	"NAME" => GetMessage("CPT_BC_FILTER_HIDE_ON_MOBILE"),
 	"TYPE" => "CHECKBOX",
 	"DEFAULT" => "N",
+	"HIDDEN" => (!isset($arCurrentValues['USE_FILTER']) || 'N' == $arCurrentValues['USE_FILTER'] ? 'Y' : 'N')
 );
 $arTemplateParameters["INSTANT_RELOAD"] = array(
 	"PARENT" => "FILTER_SETTINGS",
 	"NAME" => GetMessage("CPT_BC_INSTANT_RELOAD"),
 	"TYPE" => "CHECKBOX",
 	"DEFAULT" => "N",
+	"HIDDEN" => (!isset($arCurrentValues['USE_FILTER']) || 'N' == $arCurrentValues['USE_FILTER'] ? 'Y' : 'N')
 );
 $arTemplateParameters['TEMPLATE_THEME'] = array(
 	'PARENT' => 'VISUAL',

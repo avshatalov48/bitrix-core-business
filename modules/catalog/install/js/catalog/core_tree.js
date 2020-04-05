@@ -2085,7 +2085,7 @@ BX.TreeConditions.prototype.RenderLevel = function(parentContainer, obParent, ob
 		{
 			if (obTreeLevel.showDeleteButton === null || obTreeLevel.showDeleteButton === undefined || obTreeLevel.showDeleteButton === true)
 			{
-				this.RenderDeleteBtn(obTreeLevel, obParent);
+				this.RenderDeleteBtn(obTreeLevel, obParent, CurControl);
 			}
 		}
 
@@ -2667,7 +2667,7 @@ BX.TreeConditions.prototype.RenderCreateOneActionBtn = function(obTreeLevel, Cur
 	return this.boolResult;
 };
 
-BX.TreeConditions.prototype.RenderDeleteBtn = function(obTreeLevel, obParent)
+BX.TreeConditions.prototype.RenderDeleteBtn = function(obTreeLevel, obParent, currentControl)
 {
 	var delBtn;
 
@@ -2681,7 +2681,10 @@ BX.TreeConditions.prototype.RenderDeleteBtn = function(obTreeLevel, obParent)
 					props: {
 						id: obTreeLevel.id + '_del',
 						className: 'condition-delete',
-						title: this.messTree.DELETE_CONTROL
+						title: (BX.type.isPlainObject(currentControl.mess) && BX.type.isNotEmptyString(currentControl.mess.DELETE_CONTROL)
+							? currentControl.mess.DELETE_CONTROL
+							: this.messTree.DELETE_CONTROL
+						)
 					}
 				}
 			));

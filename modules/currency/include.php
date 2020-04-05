@@ -27,7 +27,7 @@ unset($strDBType);
 	'currency',
 	array(
 		'js' => '/bitrix/js/currency/core_currency.js',
-		'rel' => array('core')
+		'rel' => array('core', 'main.polyfill.promise')
 	)
 );
 

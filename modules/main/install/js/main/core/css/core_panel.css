@@ -103,7 +103,19 @@
 #bx-panel #bx-panel-top #bx-panel-menu.bx-pressed { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1213px !important;}
 #bx-panel #bx-panel-top #bx-panel-menu.bx-pressed #bx-panel-menu-text {  background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1213px !important; color:#eee !important;}
 
+#bx-panel div #bx-panel-btn-wrap {
+	display: inline !important;
+}
 
+#bx-panel div #bx-panel-btn-wrap:before {
+	content:"";
+	margin: 0 0 0 109px !important;
+}
+
+#bx-panel div #bx-panel-btn-wrap:after {
+	content:"";
+	margin-right:10px;
+}
 
 #bx-panel #bx-panel-view-tab
 {
@@ -113,7 +125,7 @@
 	text-decoration: none !important;
 	outline: none !important;
 	padding: 0 0 0 2px !important;
-	margin: 0 9px 0 109px !important;
+	margin: 0 9px 0 0 !important;
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
@@ -131,7 +143,7 @@
 	text-shadow: 1px 1px 0 rgba(221,223,233,0.29) !important;
 }
 
-#bx-panel #bx-panel-admin-tab
+#bx-panel #bx-panel-admin-tab, #bx-panel #bx-panel-view-site
 {
 	display: inline-block !important;
 	height: 40px !important;
@@ -139,7 +151,7 @@
 	text-decoration: none !important;
 	outline: none !important;
 	padding-left: 2px !important;
-	margin: 0 19px 0 0 !important;
+	margin: 0 9px 0 0 !important;
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
@@ -148,7 +160,7 @@
 
 #bx-panel.bx-panel-admin-mode #bx-panel-admin-tab {background:none !important; padding-left:0!important;}
 
-#bx-panel-admin-tab span
+#bx-panel-admin-tab span, #bx-panel-view-site span
 {
 	display: inline-block !important;
 	height: 40px !important;
@@ -158,8 +170,12 @@
 	color:#BDC1C8 !important;
 }
 
-#bx-panel #bx-panel-admin-tab:hover { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1078px !important; }
-#bx-panel #bx-panel-admin-tab:hover span { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1078px !important; color: #fff !important; }
+#bx-panel #bx-panel-admin-tab:hover, #bx-panel #bx-panel-view-site:hover {
+	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1078px !important;
+}
+#bx-panel #bx-panel-admin-tab:hover span, #bx-panel #bx-panel-view-site:hover span {
+	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1078px !important; color: #fff !important;
+}
 
 #bx-panel #bx-panel-clear-cache { display: none !important;}
 
@@ -818,7 +834,11 @@
 
 #bx-panel.bx-panel-folded #bx-panel-site-toolbar,
 #bx-panel.bx-panel-folded #bx-panel-view-tab,
-#bx-panel.bx-panel-folded #bx-panel-hotkeys{ display: none !important;}
+#bx-panel.bx-panel-folded #bx-panel-hotkeys,
+#bx-panel.bx-panel-folded #bx-panel-view-site { display: none !important;}
+
+#bx-panel.bx-panel-folded #bx-panel-btn-wrap:before { margin: 0 !important; }
+#bx-panel.bx-panel-folded #bx-panel-btn-wrap::after { margin: 0 !important; }
 
 #bx-panel .bx-panel-toggle-on #bx-panel-small-toggle-caption { color: #1CBA1C !important;}
 

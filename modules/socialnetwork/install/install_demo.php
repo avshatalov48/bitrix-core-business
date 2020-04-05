@@ -862,6 +862,7 @@ if (StrLen($installPath) > 0)
 			"SITE_ID" => $arSite["SITE_ID"]
 		);
 		CUrlRewriter::Add($arFields);
+		\Bitrix\Main\Config\Option::set("socialnetwork", "user_page", "/".$installPath."/", $arSite["SITE_ID"]);
 	}
 }
 

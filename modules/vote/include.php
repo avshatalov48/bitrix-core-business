@@ -60,9 +60,6 @@ CModule::AddAutoloadClasses("vote", array(
 	"bitrix\\vote\\uf\\manager" => "lib/uf/manager.php",
 	"bitrix\\vote\\uf\\voteusertype" => "lib/uf/voteusertype.php",
 	"bitrix\\vote\\usertable" => "lib/user.php",
-	"bitrix\\vote\\voteeventquestiontable" => "lib/user.php",
-	"bitrix\\vote\\voteeventanswertable" => "lib/user.php",
-	"bitrix\\vote\\voteeventanswer" => "lib/user.php",
 	"bitrix\\vote\\user" => "lib/user.php",
 	"bitrix\\vote\\votetable" => "lib/vote.php",
 	"bitrix\\vote\\vote" => "lib/vote.php"
@@ -187,7 +184,7 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 					"id" => "QUESTION_".$key,
 					"text" => (empty($arQuestion["QUESTION"]) ?
 						GetMessage("VOTE_QUESTION_EMPTY", array("#NUMBER#" => $key)) :
-						GetMessage("VOTE_ANSWERS_EMPTY", array("#QUESTION#" => $arQuestion["QUESTION"]))));
+						GetMessage("VOTE_ANSWERS_EMPTY", array("#QUESTION#" => htmlspecialcharsbx($arQuestion["QUESTION"])))));
 			}
 			continue;
 		}

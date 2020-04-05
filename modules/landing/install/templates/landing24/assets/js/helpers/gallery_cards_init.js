@@ -39,12 +39,13 @@
 		dataFancybox: 'data-fancybox',
 		dataFancyboxInitied: 'data-fancybox-initied',
 		dataFancyboxTitle: 'data-caption',
+		dataLinkClasses: 'data-link-classes',
+		carouselClonedClasses: 'slick-cloned',
 
 		// create A around the image, need to fancybox popup
 		addOuterLink: function (image)
 		{
 			var src = image.getAttribute('src');
-			// BX.Landing.getBackgroundUrl();
 			if (src != null)
 			{
 				var parent = BX.findParent(image);
@@ -54,12 +55,16 @@
 					return childs[key];
 				});
 
+				var linkClasses = BX.data(image, this.dataLinkClasses.replace('data-', '')) ?
+					' ' + BX.data(image, this.dataLinkClasses.replace('data-', '')) :
+					'';
 
 				var aParams = {
-					'attrs': {
-						'href': src
+					attrs: {
+						href: src,
+						class: linkClasses
 					},
-					'children': childs
+					children: childs
 				};
 				aParams.attrs[this.dataFancybox] = BX.data(image, this.dataFancybox.replace('data-', '')) + '_' + this.uniqId;
 
@@ -83,9 +88,15 @@
 
 		initImages: function ()
 		{
-			var images = BX.findChild(this.gallery, {'attribute': this.dataFancybox}, true, true);
+			var images = BX.findChild(this.gallery, {attribute: this.dataFancybox}, true, true);
 			images.forEach(BX.delegate(function (image)
 			{
+				// fix double images trouble in slick carousel cloned sliders
+				if(BX.findParent(image, {class: this.carouselClonedClasses}))
+				{
+					return;
+				}
+
 				if(!this.isImageInitied(image))
 				{
 					this.addOuterLink(image);
@@ -103,13 +114,13 @@
 				{
 					// find outer link
 					var outer = BX.findParent(image, {
-						'tag': 'a',
-						'attribute': [this.dataFancybox]
+						tag: 'a',
+						attribute: [this.dataFancybox]
 					});
 
 					if (outer !== null)
 					{
-						var outerParams = {'attrs': {'href': src}};
+						var outerParams = {attrs: {'href': src}};
 
 						// add title to link
 						var alt = image.getAttribute('alt');

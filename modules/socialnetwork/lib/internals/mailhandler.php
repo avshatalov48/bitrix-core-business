@@ -89,7 +89,8 @@ final class MailHandler
 					"TEXT_MESSAGE" => $message,
 					"MODULE_ID" => false,
 					"LOG_ID" => $logEntry["ID"],
-					"USER_ID" => $userId
+					"USER_ID" => $userId,
+					"CURRENT_USER_ID" => $userId
 				);
 
 				$ufCode = (

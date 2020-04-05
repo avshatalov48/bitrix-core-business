@@ -13,6 +13,7 @@ class MessageFolder
 	const SPAM = 'spam';
 	const INCOME = 'income';
 	const OUTCOME = 'outcome';
+	const DRAFTS = 'drafts';
 
 	/**
 	 * @param array $message

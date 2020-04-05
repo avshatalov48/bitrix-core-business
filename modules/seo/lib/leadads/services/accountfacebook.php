@@ -35,13 +35,34 @@ class AccountFacebook extends Account
 
 	public function getList()
 	{
-		return $this->getRequest()->send(array(
+		$result = $this->getRequest()->send(array(
 			'method' => 'GET',
 			'endpoint' => 'me/accounts',
 			'fields' => array(
-				'fields' => 'id,name,category,access_token'
-			)
+				'fields' => 'id,name,category,access_token,tasks'
+			),
+			'has_pagination' => true
 		));
+
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		$data = [];
+		foreach ($result->getData() as $item)
+		{
+			$tasks = isset($item['tasks']) ? $item['tasks'] : [];
+			if (!array_intersect($tasks, ['MODERATE', 'CREATE_CONTENT', 'MANAGE']))
+			{
+				continue;
+			}
+
+			$data[] = $item;
+		}
+		$result->setData($data);
+
+		return $result;
 	}
 
 	public function getProfile()

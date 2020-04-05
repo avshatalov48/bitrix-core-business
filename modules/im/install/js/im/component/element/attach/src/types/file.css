@@ -1,0 +1,35 @@
+.bx-im-element-attach-type-file {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	margin-left: -4px;
+	cursor: pointer;
+	min-width: 135px;
+}
+.bx-im-element-attach-type-file + .bx-im-message-content-body-with-text {
+	display: block;
+	margin-top:7px
+}
+.bx-im-element-attach-type-file + .bx-im-message-content-body-without-text .bx-im-message-content-params {
+	margin-top: -21px;
+}
+.bx-im-element-attach-type-file + .bx-im-element-attach-type-file {
+	margin-top: 10px;
+}
+.bx-im-element-attach-type-file-icon {
+	display: flex;
+	flex-shrink: 0;
+	padding-right: 7px;
+}
+.bx-im-element-attach-type-file-block {
+	overflow: hidden;
+}
+.bx-im-element-attach-type-file-name {
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+.bx-im-element-attach-type-file-size {
+	color: #717171;
+	font-size: 12px;
+}

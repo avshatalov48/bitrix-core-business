@@ -165,6 +165,19 @@ class Network
 		return $result;
 	}
 
+	public static function sendMobileApplicationLink($phone, $language_id)
+	{
+		$query = \CBitrix24NetPortalTransport::init();
+		if ($query)
+		{
+			$query->call('profile.send', array(
+				'TYPE' => 'mobile_application_link',
+				'PHONE' => $phone,
+				'LANGUAGE_ID' => $language_id,
+			));
+		}
+	}
+
 	/**
 	 * @param integer $networkId
 	 * @param string $lastSearch

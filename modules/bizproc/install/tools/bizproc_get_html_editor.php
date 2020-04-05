@@ -20,5 +20,4 @@ $fieldName = preg_replace('#[^a-z0-9_\-\[\]]#i', '', $fieldName);
 
 $GLOBALS['APPLICATION']->ShowAjaxHead();
 echo \CBPViewHelper::getHtmlEditor($editorId, $fieldName);
-CMain::FinalActions();
-die;
+\Bitrix\Main\Application::getInstance()->end();

@@ -207,7 +207,8 @@ $parser->userNameTemplate = $arParams["NAME_TEMPLATE"];
 				Action
 ********************************************************************/
 /************** Save message ***************************************/
-if ($_SERVER["REQUEST_METHOD"] == "POST")
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !== null)
 {
 	if (!check_bitrix_sessid())
 	{

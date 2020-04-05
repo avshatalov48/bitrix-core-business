@@ -22,6 +22,8 @@
 	SyncSlider.prototype = {
 		show: function ()
 		{
+			this.calendar.util.doBxContextFix();
+
 			this.init();
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
@@ -63,6 +65,8 @@
 				BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 				BX.SidePanel.Instance.destroy(this.sliderId);
 				this.calendar.enableKeyHandler();
+
+				this.calendar.util.restoreBxContextFix();
 			}
 		},
 
@@ -234,6 +238,7 @@
 
 		create: function ()
 		{
+			top.BX.onCustomEvent(top, 'onCalendarBeforeCustomSliderCreate');
 			this.DOM.wrap = BX.create('DIV', {props: {className: 'calendar-slider-calendar-wrap calendar-custom-scroll'}});
 			this.DOM.header = this.DOM.wrap.appendChild(BX.create('DIV', {
 				props: {className: 'calendar-slider-header'},
@@ -418,7 +423,7 @@
 						});
 					}
 
-					this.sectionMenu = BX.PopupMenu.create(
+					this.sectionMenu = top.BX.PopupMenu.create(
 						"outlookSectionMenu" + this.calendar.id,
 						sync.DOM.connectLink,
 						menuItems,
@@ -535,14 +540,13 @@
 				{
 					_this.syncInfo.outlook.connected = false;
 					_this.syncInfo.outlook.syncDate = false;
-					//_this.Display();
 				});
 			}
 		},
 
 		showInfoPopup: function(item, html, onCloseHandler)
 		{
-			var popup = BX.PopupWindowManager.create(this.id + "-disconnect-popup", item,
+			var popup = top.BX.PopupWindowManager.create(this.id + "-disconnect-popup", item,
 				{
 					autoHide: true,
 					closeByEsc: true,
@@ -731,7 +735,7 @@
 				};
 
 				var _this = this;
-				this.calDavSyncDialog.popup = new BX.PopupWindow("BXCExternalDialog" + this.id, null, {
+				this.calDavSyncDialog.popup = new top.BX.PopupWindow("BXCExternalDialog" + this.id, null, {
 					overlay: {opacity: 10},
 					autoHide: false,
 					closeByEsc : true,
@@ -746,7 +750,7 @@
 					contentColor : "white",
 					contentNoPaddings : true,
 					buttons: [
-						new BX.PopupWindowButton({
+						new top.BX.PopupWindowButton({
 							text: BX.message('EC_ADD_CALDAV'),
 							events: {click : function()
 							{
@@ -754,7 +758,7 @@
 								_this.displayConnection(_this.connections[_this.connections.length - 1], _this.connections.length - 1);
 							}}
 						}),
-						new BX.PopupWindowButton({
+						new top.BX.PopupWindowButton({
 							text: BX.message('EC_SEC_SLIDER_SAVE'),
 							className: "popup-window-button-accept",
 							events: {click : function(){
@@ -776,7 +780,7 @@
 								);
 							}}
 						}),
-						new BX.PopupWindowButtonLink({
+						new top.BX.PopupWindowButtonLink({
 							text: BX.message('EC_SEC_SLIDER_CLOSE'),
 							className: "popup-window-button-link-cancel",
 							events: {click : function(){_this.calDavSyncDialog.popup.close();}}
@@ -790,7 +794,7 @@
 
 			this.calDavSyncDialog.popup.show();
 
-			this.calDavSyncDialog.DOM.list = BX(id + '_caldav_list');
+			this.calDavSyncDialog.DOM.list = top.BX(id + '_caldav_list');
 
 			this.calendar.disableKeyHandler();
 			this.calDavSyncDialog.curEditedConInd = false;
@@ -868,7 +872,7 @@
 					if (section.belongsToView() && (section.isCalDav() || section.isGoogle()) && section.data.CAL_DAV_CON == con.id)
 					{
 						countNum++;
-						var sectionWrap = BX(id + '_dav_sections_cont' + ind).appendChild(BX.create("DIV", {props: {className: 'bxec-dav-sect'}}));
+						var sectionWrap = top.BX(id + '_dav_sections_cont' + ind).appendChild(BX.create("DIV", {props: {className: 'bxec-dav-sect'}}));
 						con.sections[section.id] = {
 							section: section,
 							checkbox: sectionWrap.appendChild(
@@ -888,25 +892,25 @@
 				count.innerHTML = " (" + countNum + ")";
 				if (countNum > 0)
 				{
-					BX(id + '_dav_sections_cont_outer' + ind).style.display = '';
+					top.BX(id + '_dav_sections_cont_outer' + ind).style.display = '';
 				}
 				else
 				{
-					BX(id + '_dav_sections_cont_outer' + ind).style.display = 'none';
+					top.BX(id + '_dav_sections_cont_outer' + ind).style.display = 'none';
 				}
 
 				del.style.display = 'inline-block';
 			}
 			else
 			{
-				BX(id + '_dav_sections_cont_outer' + ind).style.display = 'none';
+				top.BX(id + '_dav_sections_cont_outer' + ind).style.display = 'none';
 				del.style.display = 'none';
 			}
 
-			con.nameInput = BX(id + '_caldav_name' + ind) || false;
-			con.linkInput = BX(id + '_caldav_link' + ind) || false;
-			con.userInput = BX(id + '_caldav_username' + ind) || false;
-			con.passInput = BX(id + '_caldav_password' + ind) || false;
+			con.nameInput = top.BX(id + '_caldav_name' + ind) || false;
+			con.linkInput = top.BX(id + '_caldav_link' + ind) || false;
+			con.userInput = top.BX(id + '_caldav_username' + ind) || false;
+			con.passInput = top.BX(id + '_caldav_password' + ind) || false;
 
 			del.onclick = function(e)
 			{
@@ -1002,7 +1006,7 @@
 			{
 				content = BX.create('DIV', {html: '<span>' + BX.message('EC_EXP_TEXT') + '</span>'});
 
-				this.exportDialog = new BX.PopupWindow("export_dialog" + this.calendar.id, null, {
+				this.exportDialog = new top.BX.PopupWindow("export_dialog" + this.calendar.id, null, {
 					autoHide: false,
 					closeByEsc: true,
 					zIndex: 4000,
@@ -1013,7 +1017,7 @@
 					titleBar: BX.message('EC_JS_EXPORT_TILE'),
 					closeIcon: {right: "12px", top: "10px"},
 					className: "bxc-popup-window",
-					buttons: [new BX.PopupWindowButtonLink({
+					buttons: [new top.BX.PopupWindowButtonLink({
 						text: BX.message('EC_SEC_SLIDER_CLOSE'),
 						className: "popup-window-button-link-cancel",
 						events: {

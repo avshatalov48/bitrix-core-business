@@ -79,6 +79,22 @@ class Report extends ConfigurableModel
 	}
 
 	/**
+	 * Load widget with nested relations by widget gId.
+	 *
+	 * @param string $reportGId Widget gId.
+	 * @return Report
+	 */
+	public static function getReportByGId($reportGId)
+	{
+		return static::load(
+			array(
+				'GID' => $reportGId
+			),
+			array('widget', 'configurations')
+		);
+	}
+
+	/**
 	 * Get copy of report entity with nested relations,
 	 *
 	 * @return Report
@@ -103,9 +119,7 @@ class Report extends ConfigurableModel
 			}
 		}
 
-
 		return $copyReport;
-
 	}
 
 	/**
@@ -175,10 +189,7 @@ class Report extends ConfigurableModel
 				$this->errors[] = new Error('No such report handler with this class');
 				return null;
 			}
-
 		}
-
-
 		return $this->reportHandler;
 	}
 
@@ -258,5 +269,4 @@ class Report extends ConfigurableModel
 	{
 		$this->gId = $gId;
 	}
-
 }

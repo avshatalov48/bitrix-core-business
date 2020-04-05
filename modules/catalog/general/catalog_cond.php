@@ -3756,6 +3756,27 @@ class CCatalogCondCtrlIBlockProps extends CCatalogCondCtrlComplex
 		return (!$boolError ? $arResult : false);
 	}
 
+	public static function Check($arOneCondition, $arParams, $arControl, $boolShow)
+	{
+		$result = parent::Check($arOneCondition, $arParams, $arControl, $boolShow);
+		if (self::checkActiveProperty($arControl))
+			return $result;
+		$boolShow = ($boolShow === true);
+		if ($boolShow)
+		{
+			$result['err_cond'] = 'Y';
+			if (isset($result['err_cond_mess']))
+				$result['err_cond_mess'] .= '. '.Loc::getMessage('BT_MOD_CATALOG_COND_CMP_IBLOCK_PROPERTY_NOT_ACTIVE');
+			else
+				$result['err_cond_mess'] = Loc::getMessage('BT_MOD_CATALOG_COND_CMP_IBLOCK_PROPERTY_NOT_ACTIVE');
+		}
+		else
+		{
+			$result = false;
+		}
+		return $result;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -3763,6 +3784,26 @@ class CCatalogCondCtrlIBlockProps extends CCatalogCondCtrlComplex
 	{
 		//TODO: need use \CAdminPage::getSelfFolderUrl, but in general it is impossible now
 		return (defined('SELF_FOLDER_URL') ? SELF_FOLDER_URL : '/bitrix/admin/');
+	}
+
+	/**
+	 * @param array $control
+	 * @return bool
+	 */
+	private static function checkActiveProperty(array $control)
+	{
+		$iterator = Iblock\PropertyTable::getList([
+			'select' => ['ID', 'IBLOCK_ID'],
+			'filter' => [
+				'=IBLOCK_ID' => $control['IBLOCK_ID'],
+				'=ID' => $control['PROPERTY_ID'],
+				'=ACTIVE' => 'Y'
+			]
+		]);
+		$row = $iterator->fetch();
+		$result = !empty($row);
+		unset($row, $iterator);
+		return $result;
 	}
 }
 

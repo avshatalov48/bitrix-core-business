@@ -3,7 +3,6 @@ namespace Bitrix\Forum;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Forum\Internals\BaseTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -21,18 +20,8 @@ Loc::loadMessages(__FILE__);
  *
  * @package Bitrix\Forum
  */
-class ForumSiteTable extends BaseTable
+class ForumSiteTable extends \Bitrix\Main\Entity\DataManager
 {
-	/**
-	 * Returns path to the file which contains definition of the class.
-	 *
-	 * @return string
-	 */
-	public static function getFilePath()
-	{
-		return __FILE__;
-	}
-
 	/**
 	 * Returns DB table name for entity
 	 *
@@ -59,12 +48,11 @@ class ForumSiteTable extends BaseTable
 			'SITE_ID' => array(
 				'data_type' => 'string',
 				'primary' => true,
-				'validation' => array(__CLASS__, 'validateSiteId'),
+				'size' => 2,
 				'title' => Loc::getMessage('FORUM_SITE_TABLE_FIELD_SITE_ID'),
 			),
 			'PATH2FORUM_MESSAGE' =>  array(
 				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validatePath'),
 				'title' => Loc::getMessage('FORUM_SITE_TABLE_FIELD_SITE_ID'),
 			),
 			'FORUM' => array(

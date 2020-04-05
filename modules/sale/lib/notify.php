@@ -1014,7 +1014,10 @@ class Notify
 		foreach ($collection as $tradeBinding)
 		{
 			$platform = $tradeBinding->getTradePlatform();
-			return $platform->getInfo();
+			if ($platform !== null)
+			{
+				return $platform->getInfo();
+			}
 		}
 
 		return [];
@@ -1042,6 +1045,11 @@ class Notify
 		foreach ($collection as $tradeBinding)
 		{
 			$platform = $tradeBinding->getTradePlatform();
+			if ($platform === null)
+			{
+				continue;
+			}
+
 			$link = $platform->getExternalLink(Platform::LINK_TYPE_PUBLIC_DETAIL_ORDER, $order);
 			if ($link)
 			{

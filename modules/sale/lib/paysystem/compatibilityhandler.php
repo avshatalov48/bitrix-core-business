@@ -6,12 +6,16 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Type;
 use Bitrix\Sale\Payment;
 use Bitrix\Main\IO;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class CompatibilityHandler
+ * @package Bitrix\Sale\PaySystem
+ */
 class CompatibilityHandler extends ServiceHandler implements ICheckable
 {
 	/**
@@ -414,7 +418,7 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 		$data = array(
 			'ORDER' => array(
 				'ACCOUNT_NUMBER' => 'A1',
-				'DATE_INSERT' => new DateTime(),
+				'DATE_INSERT' => new Type\DateTime(),
 				'CURRENCY' => 'RUB',
 				'SHOULD_PAY' => 2000,
 				'PRICE' => 2000,

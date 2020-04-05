@@ -1,0 +1,58 @@
+.landing-html-lock {
+	padding: 50px 0;
+	display: flex;
+	justify-content: center;
+	background: #eef2f3;
+}
+
+.landing-html-lock-partner {
+	background: #b4b8be;
+}
+
+.landing-html-lock-partner .landing-html-lock-inner {
+	background: #fbfbfc;
+}
+
+.landing-html-lock-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	padding: 32px 30px 50px;
+	max-width: 700px;
+	box-sizing: border-box;
+}
+
+.landing-html-lock-title-block {
+	padding-bottom: 16px;
+	margin-bottom: 28px;
+	width: 100%;
+	text-align: center;
+	border-bottom: 1px solid rgba(151, 151, 151, .1);
+}
+
+.landing-html-lock-title {
+	color: #333;
+	font: 32px/36px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	position: relative;
+}
+
+.landing-html-lock-title:before {
+	margin-right: 17px;
+	content: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2222%22%20height%3D%2229%22%3E%3Cpath%20fill%3D%22%2316B9EB%22%20fill-rule%3D%22evenodd%22%20d%3D%22M12.268%2024.566H9.732v-3.11a1.95%201.95%200%200%201-.748-1.53c0-1.089.902-1.971%202.016-1.971%201.114%200%202.016.882%202.016%201.97a1.95%201.95%200%200%201-.748%201.532v3.11zM5.479%208.245c0-2.98%202.472-5.394%205.521-5.394s5.52%202.415%205.52%205.394v3.902H5.48V8.245zm13.96%203.902V8.245C19.438%203.691%2015.66%200%2011%200S2.562%203.691%202.562%208.245v3.902H0V29h22V12.147h-2.562z%22/%3E%3C/svg%3E);
+}
+
+.landing-html-lock-text-block {
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.landing-html-lock-text {
+	font-size: 15px;
+	line-height: 21px;
+	color: #525c69;
+}
+
+.landing-html-lock-text + .landing-html-lock-text {
+	margin-top: 15px;
+}

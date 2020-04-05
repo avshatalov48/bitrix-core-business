@@ -5,6 +5,7 @@ use
 	Bitrix\Sale\Compatible\OrderQuery,
 	Bitrix\Sale\Compatible\FetchAdapter,
 	Bitrix\Main\Entity,
+	Bitrix\Main\DB,
 	Bitrix\Main\Application,
 	Bitrix\Main\SystemException,
 	Bitrix\Main\Localization\Loc;
@@ -452,69 +453,115 @@ class CSaleOrderProps
 
 		$query = new \Bitrix\Sale\Compatible\OrderQueryLocation(OrderPropsTable::getEntity());
 		$query->addLocationRuntimeField('DEFAULT_VALUE');
-		$query->addAliases(array(
-			'REQUIED'              => 'REQUIRED',
-			'GROUP_ID'             => 'GROUP.ID',
+
+		$aliases = [
+			'REQUIED' => 'REQUIRED',
+			'GROUP_ID' => 'GROUP.ID',
 			'GROUP_PERSON_TYPE_ID' => 'GROUP.PERSON_TYPE_ID',
-			'GROUP_NAME'           => 'GROUP.NAME',
-			'GROUP_SORT'           => 'GROUP.SORT',
-			'PERSON_TYPE_LID'      => 'PERSON_TYPE.LID',
-			'PERSON_TYPE_NAME'     => 'PERSON_TYPE.NAME',
-			'PERSON_TYPE_SORT'     => 'PERSON_TYPE.SORT',
-			'PERSON_TYPE_ACTIVE'   => 'PERSON_TYPE.ACTIVE',
-			'PAYSYSTEM_ID'         => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID',
-			'DELIVERY_ID'          => 'Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID',
-		));
+			'GROUP_NAME' => 'GROUP.NAME',
+			'GROUP_SORT' => 'GROUP.SORT',
+			'PERSON_TYPE_LID' => 'PERSON_TYPE.LID',
+			'PERSON_TYPE_NAME' => 'PERSON_TYPE.NAME',
+			'PERSON_TYPE_SORT' => 'PERSON_TYPE.SORT',
+			'PERSON_TYPE_ACTIVE' => 'PERSON_TYPE.ACTIVE',
+		];
+
+		if (isset($arFilter['RELATED']) && is_array($arFilter['RELATED']))
+		{
+			$aliases['PAYSYSTEM_ID'] = 'RELATION_PS.ENTITY_ID';
+			$aliases['DELIVERY_ID'] = 'RELATION_DLV.ENTITY_ID';
+		}
+
+		$query->addAliases($aliases);
 
 		// relations
-
 		if (isset($arFilter['RELATED']))
 		{
-			// 1. filter related to something
 			if (is_array($arFilter['RELATED']))
 			{
+				$query->registerRuntimeField(
+					'RELATION_DLV',
+					[
+						'data_type' => '\Bitrix\Sale\Internals\OrderPropsRelationTable',
+						'reference' => [
+							'ref.PROPERTY_ID' => 'this.ID',
+							"=ref.ENTITY_TYPE" => new DB\SqlExpression('?', 'D')
+						],
+						'join_type' => 'left'
+					]
+				);
+
+				$query->registerRuntimeField(
+					'RELATION_PS',
+					[
+						'data_type' => '\Bitrix\Sale\Internals\OrderPropsRelationTable',
+						'reference' => [
+							'ref.PROPERTY_ID' => 'this.ID',
+							"=ref.ENTITY_TYPE" => new DB\SqlExpression('?', 'P')
+						],
+						'join_type' => 'left'
+					]
+				);
+
 				$relationFilter = array();
 
 				if ($arFilter['RELATED']['PAYSYSTEM_ID'])
-					$relationFilter []= array(
-						'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_TYPE' => 'P',
-						'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID' => $arFilter['RELATED']['PAYSYSTEM_ID'],
-					);
+				{
+					$relationFilter['=RELATION_PS.ENTITY_ID'] = $arFilter['RELATED']['PAYSYSTEM_ID'];
+				}
 
 				if ($arFilter['RELATED']['DELIVERY_ID'])
 				{
+					$relationFilter['=RELATION_DLV.ENTITY_ID'] = $arFilter['RELATED']['DELIVERY_ID'];
 					if ($relationFilter)
+					{
 						$relationFilter['LOGIC'] = $arFilter['RELATED']['LOGIC'] == 'AND' ? 'AND' : 'OR';
-
-					$relationFilter []= array(
-						'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_TYPE' => 'D',
-						'=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.ENTITY_ID' => \CSaleDelivery::getIdByCode($arFilter['RELATED']['DELIVERY_ID']),
-					);
+					}
 				}
 
-				// all other
-				if ($arFilter['RELATED']['TYPE'] == 'WITH_NOT_RELATED' && $relationFilter)
+
+				if ($arFilter['RELATED']['TYPE'] == 'WITH_NOT_RELATED')
 				{
-					$relationFilter = array(
+					$relationFilter = [
 						'LOGIC' => 'OR',
-						$relationFilter,
-						array('=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.PROPERTY_ID' => null),
-					);
+						[
+							'=RELATION_PS.ENTITY_ID' => null,
+							'=RELATION_DLV.ENTITY_ID' => null
+						],
+						$relationFilter
+					];
 				}
 
 				if ($relationFilter)
+				{
 					$query->addFilter(null, $relationFilter);
+				}
 			}
 			// 2. filter all not related to anything
 			else
 			{
-				$query->addFilter('=Bitrix\Sale\Internals\OrderPropsRelationTable:lPROPERTY.PROPERTY_ID', null);
+				$query->registerRuntimeField(
+					'RELATION',
+					[
+						'data_type' => '\Bitrix\Sale\Internals\OrderPropsRelationTable',
+						'reference' => [
+							'ref.PROPERTY_ID' => 'this.ID',
+						],
+						'join_type' => 'left'
+					]
+				);
+
+				$query->addFilter('RELATION.PROPERTY_ID', null);
 
 				if (($key = array_search('PAYSYSTEM_ID', $arSelectFields)) !== false)
+				{
 					unset($arSelectFields[$key]);
+				}
 
 				if (($key = array_search('DELIVERY_ID', $arSelectFields)) !== false)
+				{
 					unset($arSelectFields[$key]);
+				}
 			}
 
 			unset($arFilter['RELATED']);
@@ -684,6 +731,8 @@ class CSaleOrderProps
 				return false;
 
 		global $DB;
+
+		$ID = (int)$ID;
 
 		$DB->Query("DELETE FROM b_sale_order_props_variant WHERE ORDER_PROPS_ID = ".$ID, true);
 		$DB->Query("UPDATE b_sale_order_props_value SET ORDER_PROPS_ID = NULL WHERE ORDER_PROPS_ID = ".$ID, true);

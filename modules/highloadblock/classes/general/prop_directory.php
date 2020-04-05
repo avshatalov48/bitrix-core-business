@@ -32,7 +32,6 @@ class CIBlockPropertyDirectory
 			'DESCRIPTION' => Loc::getMessage('HIBLOCK_PROP_DIRECTORY_DESCRIPTION'),
 			'GetSettingsHTML' => array(__CLASS__, 'GetSettingsHTML'),
 			'GetPropertyFieldHtml' => array(__CLASS__, 'GetPropertyFieldHtml'),
-			'GetPropertyFieldHtmlMulty' => array(__CLASS__, 'GetPropertyFieldHtmlMulty'),
 			'PrepareSettings' => array(__CLASS__, 'PrepareSettings'),
 			'GetOptionsData' => array(__CLASS__, 'GetOptionsData'), //TODO: remove this row after iblock 19.0.0 will be stabled
 			'GetAdminListViewHTML' => array(__CLASS__, 'GetAdminListViewHTML'),
@@ -380,70 +379,6 @@ HIBSELECT;
 		$html = '<select name="'.$strHTMLControlName["VALUE"].'"'.$size.$width.'>';
 		$html .= $options;
 		$html .= '</select>';
-		return  $html;
-	}
-
-	/**
-	 * Return html for edit multiple value.
-	 *
-	 * @param array $arProperty				Property description.
-	 * @param array $value					Current value.
-	 * @param array $strHTMLControlName		Control description.
-	 * @return string
-	 */
-	public static function GetPropertyFieldHtmlMulty($arProperty, $value, $strHTMLControlName)
-	{
-		$max_n = 0;
-		$values = array();
-		if(is_array($value))
-		{
-			$match = array();
-			foreach($value as $property_value_id => $arValue)
-			{
-				$values[$property_value_id] = $arValue["VALUE"];
-				if(preg_match("/^n(\\d+)$/", $property_value_id, $match))
-				{
-					if($match[1] > $max_n)
-						$max_n = intval($match[1]);
-				}
-			}
-		}
-
-		$settings = CIBlockPropertyDirectory::PrepareSettings($arProperty);
-		$size = ($settings["size"] > 1 ? ' size="'.$settings["size"].'"' : '');
-		$width = ($settings["width"] > 0 ? ' style="width:'.$settings["width"].'px"' : ' style="margin-bottom:3px"');
-
-		if($settings["multiple"]=="Y")
-		{
-			$options = CIBlockPropertyDirectory::GetOptionsHtml($arProperty, $values);
-			$html = '<select multiple name="'.$strHTMLControlName["VALUE"].'[]"'.$size.$width.'>';
-			$html .= $options;
-			$html .= '</select>';
-		}
-		else
-		{
-			if(end($values) != "" || substr(key($values), 0, 1) != "n")
-				$values["n".($max_n+1)] = "";
-
-			$name = $strHTMLControlName["VALUE"]."VALUE";
-
-			$html = '<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tb'.md5($name).'">';
-			foreach($values as $property_value_id=>$value)
-			{
-				$html .= '<tr><td>';
-
-				$options = CIBlockPropertyDirectory::GetOptionsHtml($arProperty, array($value));
-
-				$html .= '<select name="'.$strHTMLControlName["VALUE"].'['.$property_value_id.'][VALUE]"'.$size.$width.'>';
-				$html .= $options;
-				$html .= '</select>';
-
-				$html .= '</td></tr>';
-			}
-			$html .= '</table>';
-
-			$html .= '<input type="button" value="'.Loc::getMessage("HIBLOCK_PROP_DIRECTORY_MORE").'" onclick="if(window.addNewRow){addNewRow(\'tb'.md5($name).'\', -1)}else{addNewTableRow(\'tb'.md5($name).'\', 1, /\[(n)([0-9]*)\]/g, 2)}">';
-		}
 		return  $html;
 	}
 

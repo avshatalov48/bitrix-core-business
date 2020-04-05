@@ -2,6 +2,9 @@
 namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
+use \Bitrix\Landing\File;
+use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\PublicAction;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -19,7 +22,23 @@ class Background extends \Bitrix\Landing\Hook\Page
 				'title' => Loc::getMessage('LANDING_HOOK_BG_USE')
 			)),
 			'PICTURE' => new Field\Hidden('PICTURE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_BG_PICTURE')
+				'title' => Loc::getMessage('LANDING_HOOK_BG_PICTURE'),
+				'fetch_data_modification' => function($value)
+				{
+					if (PublicAction::restApplication())
+					{
+						if ($value > 0)
+						{
+							$path = File::getFilePath($value);
+							if ($path)
+							{
+								$path = Manager::getUrlFromFile($path);
+								return $path.'!';
+							}
+						}
+					}
+					return $value;
+				}
 			)),
 			'POSITION' => new Field\Select('POSITION', array(
 				'title' => Loc::getMessage('LANDING_HOOK_BG_POSITION'),
@@ -59,6 +78,11 @@ class Background extends \Bitrix\Landing\Hook\Page
 	 */
 	public function enabled()
 	{
+		if ($this->issetCustomExec())
+		{
+			return true;
+		}
+
 		return $this->fields['USE']->getValue() == 'Y';
 	}
 
@@ -68,6 +92,11 @@ class Background extends \Bitrix\Landing\Hook\Page
 	 */
 	public function exec()
 	{
+		if ($this->execCustom())
+		{
+			return;
+		}
+
 		$picture = \htmlspecialcharsbx(trim($this->fields['PICTURE']->getValue()));
 		$color = \htmlspecialcharsbx(trim($this->fields['COLOR']->getValue()));
 		$position = trim($this->fields['POSITION']->getValue());
@@ -118,7 +147,7 @@ class Background extends \Bitrix\Landing\Hook\Page
 			\Bitrix\Main\Page\Asset::getInstance()->addString(
 				'<style type="text/css">
 					body {
-						background-color: ' . $color . ';
+						background-color: ' . $color . '!important;
 					}
 				</style>'
 			);

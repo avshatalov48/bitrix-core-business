@@ -3,7 +3,7 @@ namespace Bitrix\Main\Diag;
 
 class SqlTracker implements \Iterator
 {
-	/** @var array[]SqlTrackerQuery */
+	/** @var SqlTrackerQuery[] */
 	protected $queries = array();
 	/** @var float */
 	protected $time = 0.0;
@@ -74,7 +74,7 @@ class SqlTracker implements \Iterator
 	/**
 	 * Returns array of SqlTrackerQuery objects so far collected.
 	 *
-	 * @return array
+	 * @return SqlTrackerQuery[]
 	 */
 	public function getQueries()
 	{

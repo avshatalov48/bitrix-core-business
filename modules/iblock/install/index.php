@@ -78,6 +78,10 @@ class iblock extends CModule
 		$eventManager->registerEventHandlerCompatible("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertyElementAutoComplete", "GetUserTypeDescription", 80);
 		$eventManager->registerEventHandlerCompatible("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertySKU", "GetUserTypeDescription", 90);
 		$eventManager->registerEventHandlerCompatible("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertySectionAutoComplete", "GetUserTypeDescription", 100);
+
+		$eventManager->registerEventHandler("main", "onVirtualClassBuildList", "iblock", \Bitrix\Iblock\IblockTable::class, "compileAllEntities");
+		//$eventManager->registerEventHandler("landing", "OnBuildSourceList", "iblock", "\\Bitrix\\Iblock\\LandingSource\\Element", "onBuildSourceListHandler");
+
 		unset($eventManager);
 
 		$this->InstallTasks();
@@ -163,6 +167,9 @@ class iblock extends CModule
 		$eventManager->unRegisterEventHandler("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertyElementAutoComplete", "GetUserTypeDescription");
 		$eventManager->unRegisterEventHandler("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertySKU", "GetUserTypeDescription");
 		$eventManager->unRegisterEventHandler("iblock", "OnIBlockPropertyBuildList", "iblock", "CIBlockPropertySectionAutoComplete", "GetUserTypeDescription");
+
+		$eventManager->unregisterEventHandler("main", "onVirtualClassBuildList", "iblock", \Bitrix\Iblock\IblockTable::class, "compileAllEntities");
+		//$eventManager->unRegisterEventHandler("landing", "OnBuildSourceList", "iblock", "\\Bitrix\\Iblock\\LandingSource\\Element", "onBuildSourceListHandler");
 		unset($eventManager);
 
 		ModuleManager::unRegisterModule("iblock");

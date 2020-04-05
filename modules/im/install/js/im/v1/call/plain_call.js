@@ -1417,10 +1417,10 @@
 		var connectionConfig = {
 			"iceServers": [
 				{
-					url: "stun:" + this.call.turnServer
+					urls: "stun:" + this.call.turnServer
 				},
 				{
-					url: "turn:" + this.call.turnServer,
+					urls: "turn:" + this.call.turnServer,
 					username: this.call.turnServerLogin,
 					credential: this.call.turnServerPassword
 				}

@@ -96,7 +96,7 @@ class CForumNew extends CAllForumNew
 			".implode(" ", $join)."
 			WHERE (F.INDEXATION = 'Y' AND FM.APPROVED = 'Y') ".(empty($filter) ? "" : " AND ".implode(" AND ", $filter))."
 			ORDER BY FM.ID ASC ";
-		$cnt = intval(COption::GetOptionInt("forum", "search_message_count", 0));
+		$cnt = intval(COption::GetOptionInt("forum", "search_message_count", 50));
 		if ($cnt > 0)
 			$strSql .= " LIMIT 0, ".$cnt;
 

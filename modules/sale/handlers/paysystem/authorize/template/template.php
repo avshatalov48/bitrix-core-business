@@ -33,10 +33,10 @@ Loc::loadMessages(__FILE__);
 	</div>
 
 	<div class="form-group row">
-		<div class="col-sm-6 col-form-label text-sm-right"></div>
+		<div class="col-sm-6"></div>
 		<div class="col-auto">
 			<input type="hidden" name="payment_id" value="<?=htmlspecialcharsbx($params['PAYMENT_ID']);?>">
-			<input type="submit" value="<?=Loc::getMessage("AN_CC_BUTTON")?>" class="inputbutton btn btn-primary">
+			<input type="submit" value="<?=Loc::getMessage("AN_CC_BUTTON")?>" class="inputbutton btn btn-primary pl-4 pr-4">
 		</div>
 	</div>
 </form>

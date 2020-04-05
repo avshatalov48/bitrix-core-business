@@ -617,11 +617,10 @@
 }
 
 .feed-event-destination-wrap {
-	border: 1px solid #e4e4e4;
-	border-radius: 1px;
 	min-height: 36px;
 	overflow: hidden;
 	padding: 7px 7px 1px;
+	margin-right: 13px;
 }
 
 .feed-event-destination-wrap-but {

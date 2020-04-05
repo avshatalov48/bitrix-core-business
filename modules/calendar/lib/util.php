@@ -23,5 +23,21 @@ class Util
 
 		return in_array('IU'.$userId, self::$userAccessCodes[$managerId]);
 	}
+
+
+	public static function isSectionStructureConverted()
+	{
+		return \Bitrix\Main\Config\Option::get('calendar', 'sectionStructureConverted', 'N') === 'Y';
+	}
+
+	public static function isTimezoneValid($timeZone)
+	{
+		if (in_array($timeZone, timezone_identifiers_list()))
+		{
+			return true;
+		}
+
+		return false;
+	}
 }
 ?>

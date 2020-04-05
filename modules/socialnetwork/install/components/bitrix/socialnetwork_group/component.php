@@ -35,7 +35,7 @@ $arDefaultUrlTemplates404 = array(
 	"group_general" => "group/#group_id#/general/",
 	"group_edit" => "group/#group_id#/edit/",
 	"group_invite" => "group/#group_id#/invite/",
-	"group_tempate/edit" => "group/#group_id#/template/edit/",
+	"group_copy" => "group/#group_id#/copy/",
 	"group_requests" => "group/#group_id#/requests/",
 	"group_requests_out" => "group/#group_id#/requests_out/",
 	"group_mods" => "group/#group_id#/moderators/",
@@ -180,6 +180,7 @@ $arDefaultUrlTemplatesN404 = array(
 
 	"group_edit" => "page=group_edit&group_id=#group_id#",
 	"group_invite" => "page=group_invite&group_id=#group_id#",
+	"group_copy" => "page=group_copy&group_id=#group_id#",
 	"group_requests" => "page=group_requests&group_id=#group_id#",
 	"group_requests_out" => "page=group_requests_out&group_id=#group_id#",
 	"group_mods" => "page=group_mods&group_id=#group_id#",

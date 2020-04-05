@@ -11,12 +11,16 @@ class CSaleBusinessValueMail extends CBitrixComponent
 	protected function getBusinessValueByOrderId($orderId, $providerCode, $fieldCode, $fieldGroup = null)
 	{
 		\Bitrix\Main\Loader::includeModule('sale');
+		$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
 
-		$order = \Bitrix\Sale\Order::loadByAccountNumber($orderId);
+		/** @var \Bitrix\Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
+		$order = $orderClass::loadByAccountNumber($orderId);
 
 		if (empty($order))
 		{
-			$order = \Bitrix\Sale\Order::load($orderId);
+			$order = $orderClass::load($orderId);
 		}
 
 		/* @var $order \Bitrix\Sale\Order*/

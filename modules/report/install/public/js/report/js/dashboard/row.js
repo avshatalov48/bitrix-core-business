@@ -486,9 +486,9 @@
 			}
 
 			//main events
-			this.getRowMoveControlButton().onbxdragstart = BX.delegate(this.onDragStart, this);
-			this.getRowMoveControlButton().onbxdrag = BX.delegate(this.onDrag, this);
-			this.getRowMoveControlButton().onbxdragstop = BX.delegate(this.onDragStop, this);
+			this.getRowMoveControlButton().onbxdragstart = this.onDragStart.bind(this);
+			this.getRowMoveControlButton().onbxdrag = this.onDrag.bind(this);
+			this.getRowMoveControlButton().onbxdragstop = this.onDragStop.bind(this);
 
 			jsDD.registerObject(this.getRowMoveControlButton());
 		},
@@ -670,13 +670,13 @@
 				return;
 			}
 			this.isScrollingUp = true;
-			this.timer = setInterval(BX.delegate(function()
+			this.timer = setInterval(function()
 			{
 				var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 				window.scrollTo(0, scrollTop - 10);
 				mouseCurrentYPosition -= 10;
 				this.moveVisuallyRows(mouseCurrentYPosition)
-			}, this), 20);
+			}.bind(this), 20);
 		},
 		scrollDown: function(mouseCurrentYPosition)
 		{
@@ -685,13 +685,13 @@
 				return;
 			}
 			this.isScrollingDown = true;
-			this.timer = setInterval(BX.delegate(function()
+			this.timer = setInterval(function()
 			{
 				var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 				window.scrollTo(0, scrollTop + 10);
 				mouseCurrentYPosition += 10;
 				this.moveVisuallyRows(mouseCurrentYPosition)
-			}, this), 20);
+			}.bind(this), 20);
 		},
 		stopScroll: function()
 		{

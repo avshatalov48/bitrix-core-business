@@ -1,6 +1,7 @@
 <? if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 CJSCore::Init(array('window', 'lists'));
+Bitrix\Main\UI\Extension::load("ui.buttons");
 
 $jsClass = 'ListsElementEditClass_'.$arResult['RAND_STRING'];
 $urlTabBp = CHTTP::urlAddParams(
@@ -21,6 +22,17 @@ if (isset($arResult["LIST_COPY_ELEMENT_URL"]))
 			"url" => $arResult["LIST_COPY_ELEMENT_URL"]
 		);
 	}
+}
+
+if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
+	$arResult["ELEMENT_ID"] && ($arResult["CAN_FULL_EDIT"] ||
+	!CIBlockElement::WF_IsLocked($arResult["ELEMENT_ID"], $lockedBy, $dateLock)))
+{
+	$listAction[] = [
+		"id" => "unLockElement",
+		"text" => GetMessage("CT_BLEE_UN_LOCK_ELEMENT"),
+		"action" => "BX.Lists['".$jsClass."'].unLock();"
+	];
 }
 
 if($arResult["CAN_DELETE_ELEMENT"])
@@ -46,13 +58,12 @@ elseif(!IsModuleInstalled("intranet"))
 }
 ?>
 <div class="pagetitle-container pagetitle-align-right-container <?=$pagetitleAlignRightContainer?>">
-	<a href="<?=$arResult["LIST_SECTION_URL"]?>" class="lists-list-back">
+	<a href="<?=$arResult["LIST_SECTION_URL"]?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 		<?=GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT")?>
 	</a>
 	<?if($listAction):?>
-	<span id="lists-title-action" class="webform-small-button webform-small-button-transparent bx-filter-button">
-		<span class="webform-small-button-text"><?=GetMessage("CT_BLEE_TOOLBAR_ACTION")?></span>
-		<span id="lists-title-action-icon" class="webform-small-button-icon"></span>
+	<span id="lists-title-action" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-dropdown ui-btn-themes">
+		<?=GetMessage("CT_BLEE_TOOLBAR_ACTION")?>
 	</span>
 	<?endif;?>
 </div>
@@ -506,6 +517,19 @@ if(!$arParams["CAN_EDIT"])
 		'" name="cancel" onclick="window.location=\''.htmlspecialcharsbx(CUtil::addslashes(
 				$arResult["~LIST_SECTION_URL"])).'\'" title="'.GetMessage("CT_BLEE_FORM_CANCEL_TITLE").'" />';
 
+$lockStatus = CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) && $arResult["ELEMENT_ID"] && $arParams["CAN_EDIT"];
+if ($lockStatus)
+{
+	$APPLICATION->IncludeComponent(
+		"bitrix:lists.lock.status.widget",
+		"",
+		[
+			"ELEMENT_ID" => $arResult["ELEMENT_ID"],
+			"ELEMENT_NAME" => $arResult["IBLOCK"]["ELEMENT_NAME"]
+		],
+		$component, ["HIDE_ICONS" => "Y"]
+	);
+}
 
 $APPLICATION->IncludeComponent(
 	"bitrix:main.interface.form",
@@ -543,7 +567,9 @@ $APPLICATION->IncludeComponent(
 			sectionId: '<?= $sectionId ?>',
 			isConstantsTuned: <?= $arResult["isConstantsTuned"] ? 'true' : 'false' ?>,
 			elementUrl: '<?= $arResult["ELEMENT_URL"] ?>',
-			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>
+			sectionUrl: '<?= $arResult["LIST_SECTION_URL"] ?>',
+			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,
+			lockStatus: <?=($lockStatus ? 'true' : 'false')?>
 		});
 
 		BX.message({

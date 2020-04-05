@@ -8,6 +8,7 @@ BX.CrmEntitySelector = (function ()
 		this.fieldName = parameters.fieldName;
 		this.usePrefix = parameters.usePrefix;
 		this.listPrefix = parameters.listPrefix;
+		this.selectorEntityTypes = parameters.selectorEntityTypes;
 		this.multiple = parameters.multiple;
 		this.listElement = parameters.listElement;
 		this.listEntityType = parameters.listEntityType;
@@ -62,12 +63,17 @@ BX.CrmEntitySelector = (function ()
 			external_context: this.context
 		});
 
+		BX.SidePanel.Instance.open(url);
+
 		if(!this.externalRequestData)
 		{
 			this.externalRequestData = {};
 		}
 
-		this.externalRequestData[this.context] = {context: this.context, wnd: window.open(url)};
+		this.externalRequestData[this.context] = {
+			context: this.context,
+			url: url
+		};
 
 		if(!this.externalEventHandler)
 		{
@@ -83,33 +89,49 @@ BX.CrmEntitySelector = (function ()
 		var typeName = BX.type.isNotEmptyString(value['entityTypeName']) ? value['entityTypeName'] : '';
 		var context = BX.type.isNotEmptyString(value['context']) ? value['context'] : '';
 
-		if(key === 'onCrmEntityCreate' && typeName === this.currentEntityType.toUpperCase()
-			&& this.externalRequestData && BX.type.isPlainObject(this.externalRequestData[context]))
+		if(
+			key === 'onCrmEntityCreate'
+			&& typeName === this.currentEntityType.toUpperCase()
+			&& this.externalRequestData &&
+			BX.type.isPlainObject(this.externalRequestData[context])
+		)
 		{
 			var isCanceled = BX.type.isBoolean(value['isCanceled']) ? value['isCanceled'] : false;
 			if(!isCanceled && BX.type.isPlainObject(value['entityInfo']))
 			{
-				if(this.multiple != 'Y')
+				var selector = BX.UI.SelectorManager.instances[this.fieldUid];
+				var valueEntityType = value.entityInfo.type.toUpperCase();
+
+				if (BX.type.isNotEmptyObject(selector))
 				{
-					for(var k = 0; k < this.listElement.length; k++)
+					var selectedItems = {};
+					if(this.multiple == 'Y')
 					{
-						this.listElement[k]['selected'] = 'N';
+						for(var code in selector.itemsSelected)
+						{
+							if (!selector.itemsSelected.hasOwnProperty(code))
+							{
+								continue;
+							}
+							selectedItems[code] = selector.itemsSelected[code];
+						}
 					}
+					selectedItems[this.listPrefix[valueEntityType] + '_' + value.entityInfo.id] = this.selectorEntityTypes[valueEntityType];
+
+					BX.onCustomEvent("BX.Main.SelectorV2:reInitDialog", [ {
+						selectorId: this.fieldUid,
+						selectedItems: selectedItems
+					} ]);
 				}
-				value["entityInfo"]['selected'] = 'Y';
-				var entityInfo = value["entityInfo"];
-				if(this.usePrefix == 'Y')
-				{
-					var entityType = entityInfo['type'].toUpperCase();
-					entityInfo['id'] = this.listPrefix[entityType]+'_'+entityInfo['id'];
-				}
-				this.listElement.push(entityInfo);
-				BX[''+this.jsObject+''].initWidgetEntitySelection();
 			}
 
-			if(this.externalRequestData[context]['wnd'])
+			if(this.externalRequestData[context]['url'])
 			{
-				this.externalRequestData[context]['wnd'].close();
+				var slider = BX.SidePanel.Instance.getSlider(this.externalRequestData[context]['url']);
+				if (slider)
+				{
+					slider.destroy();
+				}
 			}
 
 			delete this.externalRequestData[context];

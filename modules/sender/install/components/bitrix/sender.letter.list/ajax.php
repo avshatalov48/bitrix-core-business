@@ -6,6 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\HttpRequest;
+use Bitrix\Sender\UI\PageNavigation;
 
 use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\Internals\CommonAjax;
@@ -25,6 +26,11 @@ $actions[] = Controller\Action::create('send')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Letter($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->send();
 
 		$content = $response->initContentJson();
@@ -35,6 +41,11 @@ $actions[] = Controller\Action::create('pause')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Letter($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->pause();
 
 		$content = $response->initContentJson();
@@ -45,6 +56,11 @@ $actions[] = Controller\Action::create('resume')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Letter($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->resume();
 
 		$content = $response->initContentJson();
@@ -55,6 +71,11 @@ $actions[] = Controller\Action::create('stop')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Letter($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->stop();
 
 		$content = $response->initContentJson();
@@ -66,6 +87,8 @@ $actions[] = Controller\Action::create('remove')->setHandler(
 	{
 		$letter = new Entity\Letter($request->get('id'));
 		$letter->remove();
+
+		(new PageNavigation("page-sender-letters"))->resetSessionVar();
 
 		$content = $response->initContentJson();
 		$content->getErrorCollection()->add($letter->getErrors());

@@ -15,6 +15,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CUser $USER
  */
 
+$bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
 $bodyClasses = 'pagetitle-toolbar-field-view no-hidden no-background no-all-paddings';
 $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, $bodyClasses)));
 
@@ -102,7 +103,13 @@ if (!$arResult['SLIDER'])
 				<div class="rest-mp-installed-item-img" style="background-size: cover; <?if ($app["ICON"]):?>background-image: url('<?=$app["ICON"]?>')<?endif;?>"></div>
 
 				<div class="rest-mp-installed-item-content">
-					<div class="rest-mp-installed-item-content-title"><a href="<?=$appUrl;?>"><?=htmlspecialcharsbx($itemName)?></a></div>
+					<div class="rest-mp-installed-item-content-title">
+						<?if ($app["OTHER_REGION"] == "Y"):?>
+							<?=htmlspecialcharsbx($itemName)?>
+						<?else:?>
+							<a href="<?=$appUrl;?>"><?=htmlspecialcharsbx($itemName)?></a>
+						<?endif?>
+					</div>
 					<div class="rest-mp-installed-item-content-developer">
 						<?if (strlen($app["PARTNER_URL"]) > 0):?>
 							<a href="<?=htmlspecialcharsbx($app["PARTNER_URL"])?>" target="_blank"><?=htmlspecialcharsbx($app["PARTNER_NAME"])?></a>
@@ -198,9 +205,11 @@ if (!$arResult['SLIDER'])
 							?>
 
 							<?if ($app["ACTIVE"] == "Y" && $arResult['ADMIN']):?>
-								<button class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($app["CODE"])?>')">
-									<?=GetMessage("MARKETPLACE_DELETE_BUTTON")?>
-								</button>
+								<? if($app['TYPE'] !== \Bitrix\Rest\AppTable::TYPE_CONFIGURATION):?>
+									<button class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($app["CODE"])?>')">
+										<?=GetMessage("MARKETPLACE_DELETE_BUTTON")?>
+									</button>
+								<? endif;?>
 
 								<button class="ui-btn ui-btn-sm ui-btn-link ui-btn-round"
 										onclick="BX.rest.Marketplace.setRights('<?=CUtil::JSEscape($app["ID"])?>');">

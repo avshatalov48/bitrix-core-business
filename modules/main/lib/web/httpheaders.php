@@ -158,6 +158,18 @@ class HttpHeaders implements IteratorAggregate
 		return null;
 	}
 
+	public function getBoundary()
+	{
+		$contentType = $this->get("Content-Type");
+		if ($contentType !== null)
+		{
+			$parts = explode(";", $contentType);
+			return $parts[1];
+		}
+
+		return null;
+	}
+
 	/**
 	 * Returns the charset part of the Content-Type header.
 	 * @return null|string

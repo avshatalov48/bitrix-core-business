@@ -71,7 +71,7 @@ class CSaleOrderChange extends CAllSaleOrderChange
 		return $ID;
 	}
 
-	function GetList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	static function GetList($arOrder = array("ID"=>"DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		if (array_key_exists("DATE_CREATE_FROM", $arFilter))
 		{

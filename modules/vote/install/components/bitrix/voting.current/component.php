@@ -3,7 +3,6 @@ if (!CModule::IncludeModule("vote")):
 	ShowError(GetMessage("VOTE_MODULE_IS_NOT_INSTALLED"));
 	return;
 endif;
-$this->setFrameMode(false);
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -126,6 +125,10 @@ if (!$bShowResult)
 	}
 }
 $componentPage = ($bShowResult ? "result" : "form");
-
+ob_start();
 $this->IncludeComponentTemplate($componentPage);
+$res = ob_get_clean();
+$frame = $this->__template->createFrame()->begin("");
+echo $res;
+$frame->end();
 ?>

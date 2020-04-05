@@ -59,14 +59,21 @@ class CBPDelayActivity
 		}
 		elseif ($timeoutTime != null)
 		{
-			if (intval($timeoutTime)."|" != $timeoutTime."|")
+			if ($timeoutTime instanceof \Bitrix\Bizproc\BaseType\Value\Date)
 			{
-				$timeoutTime = MakeTimeStamp($timeoutTime);
+				$timeoutTime = $timeoutTime->getTimestamp();
 			}
-
-			if ($isLocalTime)
+			else
 			{
-				$timeoutTime -= \CTimeZone::GetOffset();
+				if (intval($timeoutTime)."|" != $timeoutTime."|")
+				{
+					$timeoutTime = MakeTimeStamp($timeoutTime);
+				}
+
+				if ($isLocalTime)
+				{
+					$timeoutTime -= \CTimeZone::GetOffset();
+				}
 			}
 
 			$expiresAt = $timeoutTime;
@@ -90,12 +97,26 @@ class CBPDelayActivity
 		if ($timeoutDuration != null)
 		{
 			$timeoutDurationValue = max($timeoutDurationValue, CBPSchedulerService::getDelayMinLimit());
-			$this->WriteToTrackingService(str_replace("#PERIOD#", CBPHelper::FormatTimePeriod($timeoutDurationValue), GetMessage("BPDA_TRACK")));
+			$timestamp = time() + $timeoutDurationValue;
+
+			$this->WriteToTrackingService(
+				GetMessage('BPDA_TRACK4', [
+					'#PERIOD1#' => trim(CBPHelper::FormatTimePeriod($timeoutDurationValue)),
+					'#PERIOD2#' => sprintf(
+							'%s (%s)',
+							ConvertTimeStamp($timestamp, "FULL"),
+							date('P', $timestamp)
+						),
+					]
+				)
+			);
 		}
 		elseif ($timeoutTime != null)
 		{
 			$timestamp = max($timeoutTime, time() + CBPSchedulerService::getDelayMinLimit());
-			$this->WriteToTrackingService(str_replace("#PERIOD#", ConvertTimeStamp($timestamp, "FULL"), GetMessage("BPDA_TRACK1")));
+			$this->WriteToTrackingService(GetMessage("BPDA_TRACK1", [
+				'#PERIOD#' => sprintf('%s (%s)', ConvertTimeStamp($timestamp, "FULL"), date('P', $timestamp))
+			]));
 		}
 		else
 		{
@@ -178,7 +199,7 @@ class CBPDelayActivity
 				break;
 		}
 
-		return $timeoutDuration;
+		return min($timeoutDuration, 3600 * 24 * 365 * 5);
 	}
 
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")

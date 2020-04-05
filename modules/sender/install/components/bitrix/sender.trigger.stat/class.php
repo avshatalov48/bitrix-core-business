@@ -108,7 +108,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 			);
 			$statRawDb = \Bitrix\Sender\PostingTable::getList(array(
 				'select' => array(
-					'CNT', 'READ_CNT', 'CLICK_CNT', 'UNSUB_CNT', 'ERROR_CNT',
+					'CNT', 'SENT_SUCCESS', 'READ_CNT', 'CLICK_CNT', 'UNSUB_CNT', 'ERROR_CNT',
 				),
 				'filter' => array(
 					'=MAILING_CHAIN_ID' => $chain['ID'],
@@ -116,6 +116,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 				'runtime' => array(
 					new \Bitrix\Main\Entity\ExpressionField('CNT', 'SUM(%s)', 'COUNT_SEND_SUCCESS'),
 					new \Bitrix\Main\Entity\ExpressionField('ERROR_CNT', 'SUM(%s)', 'COUNT_SEND_ERROR'),
+					new \Bitrix\Main\Entity\ExpressionField('SENT_SUCCESS', 'SUM(%s)', 'COUNT_SEND_SUCCESS'),
 					new \Bitrix\Main\Entity\ExpressionField('READ_CNT', 'SUM(%s)', 'COUNT_READ'),
 					new \Bitrix\Main\Entity\ExpressionField('CLICK_CNT', 'SUM(%s)', 'COUNT_CLICK'),
 					new \Bitrix\Main\Entity\ExpressionField('UNSUB_CNT', 'SUM(%s)', 'COUNT_UNSUB')
@@ -123,7 +124,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 			));
 			while($statRaw = $statRawDb->fetch())
 			{
-				$stat['CNT']['SENT_SUCCESS'] += $statRaw['CNT'];
+				$stat['CNT']['SENT_SUCCESS'] += $statRaw['SENT_SUCCESS'];
 				$stat['CNT']['SEND_ERROR'] += $statRaw['ERROR_CNT'];
 				$stat['CNT']['READ'] += $statRaw['READ_CNT'];
 				$stat['CNT']['CLICK'] += $statRaw['CLICK_CNT'];

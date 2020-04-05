@@ -48,7 +48,7 @@ class CBPCreateWorkGroup
 		unset($dbSubjects, $row);
 
 		$options = array(
-			"SITE_ID" => $this->GroupSite ? $this->GroupSite : SITE_ID,
+			"SITE_ID" => ($this->GroupSite ? $this->GroupSite : SITE_ID),
 			"NAME" => $this->GroupName,
 			"VISIBLE" => "Y",
 			"OPENED" => "N",
@@ -57,6 +57,17 @@ class CBPCreateWorkGroup
 			"INITIATE_PERMS" => SONET_ROLES_OWNER,
 			"SPAM_PERMS" => SONET_ROLES_USER,
 		);
+
+		if (
+			\Bitrix\Main\Loader::includeModule('extranet')
+			&& ($options['SITE_ID'] == \CExtranet::getExtranetSiteID())
+		)
+		{
+			$options['SITE_ID'] = [
+				$options['SITE_ID'],
+				\CSite::getDefSite()
+			];
+		}
 
 		$userFieldsList = $USER_FIELD_MANAGER->getUserFields("SONET_GROUP", 0, LANGUAGE_ID);
 		foreach($userFieldsList as $field => $arUserField)

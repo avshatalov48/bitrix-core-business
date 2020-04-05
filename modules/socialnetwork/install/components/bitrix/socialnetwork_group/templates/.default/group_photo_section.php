@@ -1,7 +1,11 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
 $pageId = "group_photo";
 include("util_group_menu.php");
+
+Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
 
 define("SONET_GROUP_NEEDED", true);
 include("util_group_profile.php");
@@ -14,6 +18,27 @@ if ($arParams["FATAL_ERROR"] == "Y"):
 	endif;
 	return false;
 endif;
+
+$helper = new Bitrix\Socialnetwork\Copy\Integration\StepperHelper();
+$helper->setStepper('Bitrix\Photogallery\Copy\Stepper\Section');
+$helper->setModuleId("photogallery");
+$helper->setQueueOption("SectionGroupQueue");
+$helper->setCheckerOption("SectionGroupChecker_");
+$helper->setStepperOption("SectionGroupStepper_");
+$helper->setErrorOption("SectionGroupError_");
+$helper->setTitle(GetMessage("PHOTO_STEPPER_PROGRESS_TITLE"));
+$helper->setError(GetMessage("PHOTO_STEPPER_PROGRESS_ERROR"));
+
+$APPLICATION->includeComponent(
+	"bitrix:socialnetwork.copy.checker",
+	"",
+	[
+		"QUEUE_ID" => $arResult["VARIABLES"]["SECTION_ID"],
+		"HELPER" => $helper
+	],
+	$component,
+	["HIDE_ICONS" => "Y"]
+);
 
 ?>
 <?$APPLICATION->IncludeComponent(

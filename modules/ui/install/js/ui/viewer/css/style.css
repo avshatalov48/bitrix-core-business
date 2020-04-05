@@ -19,6 +19,9 @@
 	animation: ui-viewer-animate-background .09s linear forwards;
 }
 
+.ui-viewer:focus {
+	outline: none;
+}
 .ui-viewer-reading-mode .ui-viewer-close,
 .ui-viewer-reading-mode .ui-viewer-next,
 .ui-viewer-reading-mode .ui-viewer-prev,
@@ -40,21 +43,6 @@
 
 .ui-viewer-reading-mode .ui-viewer-prev {
 	transform: translateX(-100%);
-}
-
-.side-panel-disable-scrollbar .ui-viewer-close,
-.side-panel-disable-scrollbar .ui-viewer-next,
-.side-panel-disable-scrollbar .ui-viewer-prev,
-.side-panel-disable-scrollbar .ui-viewer-panel,
-.side-panel-disable-scrollbar .ui-viewer.ui-viewer-reading-mode + .ui-action-panel,
-.side-panel-disable-scrollbar .ui-viewer-inner-caption {
-	transform: none !important;
-	opacity: 1 !important;
-}
-
-.side-panel-disable-scrollbar .ui-viewer-next,
-.side-panel-disable-scrollbar .ui-viewer-prev {
-	opacity: .6 !important;
 }
 
 .side-panel-disable-scrollbar .ui-viewer-panel {
@@ -375,6 +363,8 @@
 	color: rgba(255,255,255,.8);
 	border-bottom: 1px solid rgba(255,255,255,.4);
 	transition: .1s;
+	font-size: 28px;
+	text-decoration: none;
 }
 
 .ui-viewer-error-title a:hover,
@@ -422,6 +412,8 @@
 	color: rgba(255,255,255,.8);
 	border-bottom: 1px solid rgba(255,255,255,.3);
 	transition: .1s;
+	font-size: 13px;
+	text-decoration: none;
 }
 
 .ui-viewer-error-text a:hover,
@@ -539,16 +531,32 @@
 }
 
 .ui-action-panel-wrapper .ui-btn,
-.ui-action-panel-wrapper .ui-btn:active {
+.ui-action-panel-wrapper .ui-btn:active,
+.ui-action-panel-wrapper .ui-btn-main {
 	color: #fff !important;
 }
 
-.ui-action-panel-wrapper .ui-btn {
+.ui-action-panel-wrapper .ui-btn,
+.ui-action-panel-wrapper .ui-btn-split {
 	opacity: .8;
 }
 
-.ui-action-panel-wrapper .ui-btn:hover {
-	opacity: 1;
+.ui-action-panel-wrapper .ui-btn-extra:after,
+.ui-action-panel-wrapper .ui-btn-menu:after {
+	content: '';
+	top: 10px;
+	height: 17px;
+	background: #fff;
+	opacity: .2;
+}
+
+.ui-action-panel-wrapper .ui-btn-link .ui-btn-main {
+	padding-left: 37px;
+}
+
+.ui-action-panel-wrapper .ui-btn-extra:before,
+.ui-action-panel-wrapper .ui-btn-menu:before {
+	border-top-color: #fff;
 }
 
 .ui-action-panel-wrapper .ui-btn:after,
@@ -556,10 +564,18 @@
 	filter: brightness(1000%);
 }
 
+.ui-action-panel-wrapper .ui-btn-split .ui-btn-main {
+	padding-right: 10px;
+}
+
 .ui-action-panel-wrapper .ui-btn[class*="ui-btn-icon-"],
-.ui-action-panel-wrapper .ui-btn-double[class*="ui-btn-icon-"] .ui-btn-main {
+.ui-action-panel-wrapper .ui-btn-split[class*="ui-btn-icon-"] .ui-btn-main {
 	transition: .1s;
 	padding-left: 37px;
+}
+
+.ui-action-panel-wrapper .ui-btn-disabled {
+    opacity: .4 !important;
 }
 
 .ui-viewer + .ui-action-panel {
@@ -743,7 +759,7 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: url('../images/ui-viwer-mask-blue.svg') 0 center no-repeat;
+	background: url('../images/ui-viewer-mask-blue.svg') 0 center no-repeat;
 }
 
 .ui-viewer .vjs-audio.vjs-viewer-audio-player-skin .vjs-progress-control .vjs-progress-holder {
@@ -753,7 +769,7 @@
 }
 
 .ui-viewer .vjs-audio.vjs-viewer-audio-player-skin .vjs-slider {
-	background: url('../images/ui-viwer-mask-white.svg') 0 center no-repeat;
+	background: url('../images/ui-viewer-mask-white.svg') 0 center no-repeat;
 }
 
 .ui-viewer .vjs-audio.vjs-viewer-audio-player-skin .vjs-progress-holder .vjs-load-progress,
@@ -763,4 +779,59 @@
 .ui-viewer .vjs-audio.vjs-viewer-audio-player-skin .vjs-duration,
 .ui-viewer .vjs-audio.vjs-progress-holder .vjs-load-progress {
 	display: none;
+}
+
+
+.ui-viewer-pdf-text-layer {
+	position: relative;
+	left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+	color: transparent;
+    line-height: 1.0;
+	z-index: 99;
+}
+
+.ui-viewer-pdf-text-layer > div {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+	user-select: text !important;
+    transform-origin: 0% 0%;
+}
+
+.ui-viewer-pdf-annotation-layer {
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.2;
+    line-height: 1.0;
+	pointer-events: none;
+	z-index: 999;
+}
+
+.ui-viewer-pdf-annotation-layer > section {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+
+.ui-viewer-pdf-annotation-layer > .linkAnnotation > a {
+    position: absolute;
+    font-size: 1em;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+	pointer-events: auto;
+	target-name: new;
+	target-new: tab;
 }

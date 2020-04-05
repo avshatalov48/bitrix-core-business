@@ -15,7 +15,3 @@ body {
   -moz-font-feature-settings: "liga", "kern";
   text-rendering: optimizelegibility;
 }
-
-p {
-  line-height: 1.5em;
-}

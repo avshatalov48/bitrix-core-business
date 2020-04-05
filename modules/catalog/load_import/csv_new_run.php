@@ -1,12 +1,17 @@
 <?
-//<title>CSV</title>
+//<title>CSV (new)</title>
 /** @global int $line_num */
 /** @global int $correct_lines */
 /** @global int $error_lines */
 /** @global string $tmpid */
 
+/** @global string $URL_DATA_FILE */
 /** @global int $IBLOCK_ID */
 /** @global array $arIBlock */
+/** @global string $fields_type */
+/** @global string $delimiter_r */
+/** @global string $delimiter_other_r */
+/** @global string $metki_f */
 /** @global string $first_names_r */
 /** @global string $first_names_f */
 /** @global int $CUR_FILE_POS */
@@ -15,6 +20,7 @@
 /** @global string $USE_UPDATE_TRANSLIT */
 /** @global string $PATH2IMAGE_FILES */
 /** @global string $outFileAction */
+/** @global string $inFileAction */
 
 use Bitrix\Main,
 	Bitrix\Catalog,
@@ -335,6 +341,9 @@ if ('' == $strImportErrorMessage)
 	$arSectionCache = array();
 	$arElementCache = array();
 
+	$productPriceCache = array();
+	$processedProductPriceCache = array();
+
 	$csvFile->SetPos($CUR_FILE_POS);
 	$arRes = $csvFile->Fetch();
 	if ($CUR_FILE_POS<=0 && $bFirstHeaderTmp)
@@ -386,7 +395,6 @@ if ('' == $strImportErrorMessage)
 					"replace_space" => $arTransSettings['TRANS_SPACE'],
 					"replace_other" => $arTransSettings['TRANS_OTHER'],
 					"delete_repeat_replace" => ($arTransSettings['TRANS_EAT'] == 'Y'),
-					"use_google" => ($arTransSettings['USE_GOOGLE'] == 'Y'),
 				);
 			}
 			if (isset($arIBlock['FIELDS']['SECTION_CODE']['DEFAULT_VALUE']))
@@ -399,7 +407,6 @@ if ('' == $strImportErrorMessage)
 					"replace_space" => $arTransSettings['TRANS_SPACE'],
 					"replace_other" => $arTransSettings['TRANS_OTHER'],
 					"delete_repeat_replace" => ($arTransSettings['TRANS_EAT'] == 'Y'),
-					"use_google" => ($arTransSettings['USE_GOOGLE'] == 'Y'),
 				);
 			}
 		}
@@ -1034,6 +1041,14 @@ if ('' == $strImportErrorMessage)
 							unset($arLoadOfferArray['fields']['PURCHASING_CURRENCY']);
 						}
 						unset($emptyStartPrice);
+						if (isset($arLoadOfferArray['fields']['PURCHASING_PRICE']))
+						{
+							$arLoadOfferArray['fields']['PURCHASING_PRICE'] = str_replace(
+								array(' ', ','),
+								array('', '.'),
+								$arLoadOfferArray['fields']['PURCHASING_PRICE']
+							);
+						}
 					}
 					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
 						unset($arLoadOfferArray['fields']['WEIGHT']);
@@ -1062,6 +1077,14 @@ if ('' == $strImportErrorMessage)
 							$arLoadOfferArray['fields']['PURCHASING_CURRENCY'] = null;
 						}
 						unset($emptyStartPrice);
+						if (isset($arLoadOfferArray['fields']['PURCHASING_PRICE']))
+						{
+							$arLoadOfferArray['fields']['PURCHASING_PRICE'] = str_replace(
+								array(' ', ','),
+								array('', '.'),
+								$arLoadOfferArray['fields']['PURCHASING_PRICE']
+							);
+						}
 					}
 					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
 						$arLoadOfferArray['fields']['WEIGHT'] = 0;
@@ -1116,111 +1139,128 @@ if ('' == $strImportErrorMessage)
 
 					if (!empty($arFields))
 					{
-						$productPrices = array();
-						$priceIterator = Catalog\Model\Price::getList(array(
-							'select' => array('ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'),
-							'filter' => array('=PRODUCT_ID' => $PRODUCT_ID, '@CATALOG_GROUP_ID' => $priceTypeList)
-						));
-						while ($row = $priceIterator->fetch())
+						if (!isset($productPriceCache[$PRODUCT_ID]))
 						{
-							$hash = ($row['QUANTITY_FROM'] === null ? 'ZERO' : $row['QUANTITY_FROM']).'-'.
-								($row['QUANTITY_TO'] === null ? 'INF' : $row['QUANTITY_FROM']);
-							$priceType = (int)$row['CATALOG_GROUP_ID'];
-							if (!isset($productPrices[$priceType]))
-								$productPrices[$priceType] = array();
-							$productPrices[$priceType][$hash] = (int)$row['ID'];
+							$productPriceCache[$PRODUCT_ID] = array();
+							$priceIterator = Catalog\Model\Price::getList(array(
+								'select' => array('ID', 'CATALOG_GROUP_ID', 'QUANTITY_FROM', 'QUANTITY_TO'),
+								'filter' => array('=PRODUCT_ID' => $PRODUCT_ID, '@CATALOG_GROUP_ID' => $priceTypeList)
+							));
+							while ($row = $priceIterator->fetch())
+							{
+								$hash = ($row['QUANTITY_FROM'] === null ? 'ZERO' : $row['QUANTITY_FROM']).'-'.
+									($row['QUANTITY_TO'] === null ? 'INF' : $row['QUANTITY_TO']);
+								$priceType = (int)$row['CATALOG_GROUP_ID'];
+								if (!isset($productPriceCache[$PRODUCT_ID][$priceType]))
+									$productPriceCache[$PRODUCT_ID][$priceType] = array();
+								$productPriceCache[$PRODUCT_ID][$priceType][$hash] = (int)$row['ID'];
+							}
+							unset($row, $priceIterator);
 						}
-						unset($row, $priceIterator);
 
 						foreach ($arFields as $key => $value)
 						{
 							$strPriceErr = '';
 
 							$hash = ($value['QUANTITY_FROM'] === null ? 'ZERO' : $value['QUANTITY_FROM']).'-'.
-								($value['QUANTITY_TO'] === null ? 'INF' : $value['QUANTITY_FROM']);
+								($value['QUANTITY_TO'] === null ? 'INF' : $value['QUANTITY_TO']);
 							$priceType = (int)$value['CATALOG_GROUP_ID'];
 
-							$priceId = (isset($productPrices[$priceType][$hash]) ? $productPrices[$priceType][$hash] : null);
-
-							if ($priceId !== null)
+							if (!isset($processedProductPriceCache[$PRODUCT_ID][$priceType][$hash]))
 							{
-								$boolEraseClear = false;
-								if ('Y' == $CLEAR_EMPTY_PRICE)
+								if (!isset($processedProductPriceCache[$PRODUCT_ID]))
+									$processedProductPriceCache[$PRODUCT_ID] = array();
+								if (!isset($processedProductPriceCache[$PRODUCT_ID][$priceType]))
+									$processedProductPriceCache[$PRODUCT_ID][$priceType] = array();
+
+								$priceId = (isset($productPriceCache[$PRODUCT_ID][$priceType][$hash])
+									? $productPriceCache[$PRODUCT_ID][$priceType][$hash]
+									: null
+								);
+
+								if ($priceId !== null)
 								{
-									$boolEraseClear = (
-										(isset($value['PRICE']) && '' === $value['PRICE']) &&
-										(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
-									);
-								}
-								if ($boolEraseClear)
-								{
-									$priceResult = Catalog\Model\Price::delete($priceId);
-									if (!$priceResult->isSuccess())
+									$boolEraseClear = false;
+									if ('Y' == $CLEAR_EMPTY_PRICE)
 									{
-										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
-										if ($strPriceErr !== '')
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE').$strPriceErr;
-										else
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+										$boolEraseClear = (
+											(isset($value['PRICE']) && '' === $value['PRICE']) &&
+											(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
+										);
 									}
-									unset($priceResult);
+									if ($boolEraseClear)
+									{
+										$priceResult = Catalog\Model\Price::delete($priceId);
+										if (!$priceResult->isSuccess())
+										{
+											$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+											if ($strPriceErr !== '')
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE').$strPriceErr;
+											else
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+										}
+										unset($priceResult);
+									}
+									else
+									{
+										if (isset($value['PRICE']))
+											$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+
+										$priceResult = Catalog\Model\Price::update($priceId, $value);
+										if ($priceResult->isSuccess())
+										{
+											$bUpdatePrice = 'Y';
+										}
+										else
+										{
+											$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+											if ($strPriceErr !== '')
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE').$strPriceErr;
+											else
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE_UNKNOWN');
+										}
+										unset($priceResult);
+									}
+									unset($productPriceCache[$PRODUCT_ID][$priceType][$hash]);
+									$processedProductPriceCache[$PRODUCT_ID][$priceType][$hash] = $priceId;
 								}
 								else
 								{
-									if (isset($value['PRICE']))
-										$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+									$boolEmptyNewPrice = (
+										(isset($value['PRICE']) && '' === $value['PRICE'])
+										&& (isset($value['CURRENCY']) && '' === $value['CURRENCY'])
+									);
+									if (!$boolEmptyNewPrice)
+									{
+										if (isset($value['PRICE']))
+											$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
 
-									$priceResult = Catalog\Model\Price::update($priceId, $value);
-									if ($priceResult->isSuccess())
-									{
-										$bUpdatePrice = 'Y';
-									}
-									else
-									{
-										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
-										if ($strPriceErr !== '')
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE').$strPriceErr;
+										$priceResult = Catalog\Model\Price::add($value);
+										if ($priceResult->isSuccess())
+										{
+											$bUpdatePrice = 'Y';
+											$processedProductPriceCache[$PRODUCT_ID][$priceType][$hash] = $priceResult->getId();
+										}
 										else
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_UPDATE_UNKNOWN');
+										{
+											$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+											if ($strPriceErr !== '')
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD').$strPriceErr;
+											else
+												$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD_UNKNOWN');
+										}
+										unset($priceResult);
 									}
-									unset($priceResult);
 								}
-							}
-							else
-							{
-								$boolEmptyNewPrice = (
-									(isset($value['PRICE']) && '' === $value['PRICE'])
-									&& (isset($value['CURRENCY']) && '' === $value['CURRENCY'])
-								);
-								if (!$boolEmptyNewPrice)
+								if ('' != $strPriceErr)
 								{
-									if (isset($value['PRICE']))
-										$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
-
-									$priceResult = Catalog\Model\Price::add($value);
-									if ($priceResult->isSuccess())
-									{
-										$bUpdatePrice = 'Y';
-									}
-									else
-									{
-										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
-										if ($strPriceErr !== '')
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD').$strPriceErr;
-										else
-											$strPriceErr = GetMessage('CATI_ERR_PRICE_ADD_UNKNOWN');
-									}
-									unset($priceResult);
+									$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
+									break;
 								}
-							}
-							if ('' != $strPriceErr)
-							{
-								$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
-								break;
-							}
-							else
-							{
-								$updateFacet = true;
+								else
+								{
+									$updateFacet = true;
+								}
 							}
 						}
 					}
@@ -1244,6 +1284,33 @@ if ('' == $strImportErrorMessage)
 							CCatalogSKU::ClearCache();
 					}
 					$updateFacet = false;
+					if (!empty($productPriceCache[$previousProductId]))
+					{
+						foreach ($productPriceCache[$previousProductId] as $priceTypeRows)
+						{
+							if (!empty($priceTypeRows) && is_array($priceTypeRows))
+							{
+								foreach ($priceTypeRows as $priceId)
+								{
+									$priceResult = Catalog\Model\Price::delete($priceId);
+									if (!$priceResult->isSuccess())
+									{
+										$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+										if ($strPriceErr !== '')
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE').$strPriceErr;
+										else
+											$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+										$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
+										break 2;
+									}
+								}
+							}
+						}
+						unset($productPriceCache[$previousProductId]);
+					}
+					if (!empty($processedProductPriceCache[$previousProductId]))
+						unset($processedProductPriceCache[$previousProductId]);
+
 					$previousProductId = $PRODUCT_ID;
 				}
 			}
@@ -1260,7 +1327,7 @@ if ('' == $strImportErrorMessage)
 	if ($PRODUCT_ID > 0)
 	{
 		CIBlockElement::UpdateSearch($PRODUCT_ID, true);
-		$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($IBLOCK_ID, $previousProductId);
+		$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues($IBLOCK_ID, $PRODUCT_ID);
 		$ipropValues->clearValues();
 		unset($ipropValues);
 		if ($updateFacet)
@@ -1269,6 +1336,33 @@ if ('' == $strImportErrorMessage)
 				CCatalogSKU::ClearCache();
 		}
 		$updateFacet = false;
+
+		if (!empty($productPriceCache[$PRODUCT_ID]))
+		{
+			foreach ($productPriceCache[$PRODUCT_ID] as $priceTypeRows)
+			{
+				if (!empty($priceTypeRows) && is_array($priceTypeRows))
+				{
+					foreach ($priceTypeRows as $priceId)
+					{
+						$priceResult = Catalog\Model\Price::delete($priceId);
+						if (!$priceResult->isSuccess())
+						{
+							$strPriceErr = implode('; ', $priceResult->getErrorMessages());
+							if ($strPriceErr !== '')
+								$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE').$strPriceErr;
+							else
+								$strPriceErr = GetMessage('CATI_ERR_PRICE_DELETE');
+							$strErrorR .= GetMessage("CATI_LINE_NO")." ".$line_num.". ".$strPriceErr.'<br>';
+							break 2;
+						}
+					}
+				}
+			}
+			unset($productPriceCache[$PRODUCT_ID]);
+		}
+		if (!empty($processedProductPriceCache[$PRODUCT_ID]))
+			unset($processedProductPriceCache[$PRODUCT_ID]);
 	}
 	Catalog\Product\Sku::disableDeferredCalculation();
 	Catalog\Product\Sku::calculate();

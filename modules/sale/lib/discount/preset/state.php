@@ -30,9 +30,9 @@ final class State extends Dictionary
 		}
 	}
 
-	public function set(array $values)
+	public function set($name, $value = null)
 	{
-		parent::set($values);
+		parent::set($name, $value);
 
 		$this->setDefaultValues();
 

@@ -92,7 +92,7 @@
     text-align: center;
     color: #000000;
     width: 49px;
-    height: 38px;
+    height: 39px;
     line-height: 37px;
     margin-right: 13px;
     box-sizing: border-box;
@@ -103,7 +103,7 @@
     display: flex;
     flex-direction: column;
     width: 27px;
-    height: 38px;
+    height: 39px;
     border-radius: 2px;
     border: 1px #C6CDD3 solid;
 }
@@ -111,7 +111,7 @@
 .landing-ui-field-range-output-arrows-up,
 .landing-ui-field-range-output-arrows-down {
     position: relative;
-    height: 50%;
+    height: 49%;
     box-sizing: border-box;
     cursor: pointer;
     transition: all 200ms ease;
@@ -152,6 +152,7 @@
 
 .landing-ui-field-range-output-arrows-down {
     border-top: 1px #C6CDD3 solid;
+    height: 50%;
 }
 
 .landing-ui-field-range-output-arrows-down::before {

@@ -16,8 +16,7 @@
      * @var Object _baseConfig
      */
     _baseConfig: {
-      autoplay: false,
-      infinite: true
+      autoplay: false
     },
 
     /**
@@ -148,7 +147,7 @@
           fade: setFade ? true : false,
 
           accessibility: typeof(config.accessibility) != 'undefined' ? config.accessibility : true,
-          infinite: setInfinite ? true : false,
+          infinite: (typeof(config.infinite) != 'undefined') ? config.infinite : (setInfinite ? true : false),
           initialSlide: setInitialSlide ? setInitialSlide - 1 : 0,
           slidesToShow: setSlidesToShow ? setSlidesToShow : 1,
           slidesToScroll: setSlidesToScroll ? setSlidesToScroll : 1,

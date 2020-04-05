@@ -45,8 +45,14 @@ class DateTime extends Date
 				}
 			}
 
+			$microseconds = 0;
+			if($parsedValue['fraction'] > 0)
+			{
+				$microseconds = intval($parsedValue['fraction'] * 1000000);
+			}
+
 			$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
-			$this->value->setTime($parsedValue['hour'], $parsedValue['minute'], $parsedValue['second']);
+			$this->value->setTime($parsedValue['hour'], $parsedValue['minute'], $parsedValue['second'], $microseconds);
 
 			if (
 				isset($parsedValue["relative"])
@@ -121,12 +127,13 @@ class DateTime extends Date
 	 * @param int $hour Hour value.
 	 * @param int $minute Minute value.
 	 * @param int $second Second value.
+	 * @param int $microseconds Microseconds value.
 	 *
 	 * @return DateTime
 	 */
-	public function setTime($hour, $minute, $second = 0)
+	public function setTime($hour, $minute, $second = 0, $microseconds = 0)
 	{
-		$this->value->setTime($hour, $minute, $second);
+		$this->value->setTime($hour, $minute, $second, $microseconds);
 		return $this;
 	}
 
@@ -197,9 +204,13 @@ class DateTime extends Date
 	 *
 	 * @return string
 	 */
-	protected static function getCultureFormat(Context\Culture $culture)
+	protected static function getCultureFormat(Context\Culture $culture = null)
 	{
-		return $culture->getDateTimeFormat();
+		if($culture)
+		{
+			return $culture->getDateTimeFormat();
+		}
+		return "DD.MM.YYYY HH:MI:SS";
 	}
 
 	/**

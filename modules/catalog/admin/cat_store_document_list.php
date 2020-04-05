@@ -5,6 +5,11 @@ global $APPLICATION;
 global $DB;
 global $USER;
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
@@ -30,7 +35,7 @@ ClearVars();
 
 $sTableID = "b_catalog_store_docs";
 
-$oSort = new CAdminSorting($sTableID, "ID", "DESC");
+$oSort = new CAdminUiSorting($sTableID, "ID", "DESC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $errorMessage = "";

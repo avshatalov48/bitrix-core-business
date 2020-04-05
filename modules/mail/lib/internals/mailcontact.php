@@ -111,7 +111,7 @@ class MailContactTable extends Entity\DataManager
 			];
 			$values[] = implode(", ", $item);
 		}
-		$keys = implode(', ', array_keys(current($contactsToAdd)));
+		$keys = implode(', ', array_keys(reset($contactsToAdd)));
 		$values = implode('), (', $values);
 
 		$tableName = static::getTableName();

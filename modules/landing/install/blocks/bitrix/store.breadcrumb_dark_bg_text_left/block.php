@@ -1,5 +1,4 @@
-<section
-		class="landing-block landing-block-node-bgimg g-pt-5 g-pb-5 g-pt-40--md g-pb-40--md g-pl-40 g-pr-40 g-bg-cover g-bg-black-opacity-0_7--after g-bg-img-hero"
+<section class="landing-block landing-block-node-bgimg g-pt-5 g-pb-5 g-pt-40--md g-pb-40--md g-pl-40 g-pr-40 g-bg-cover g-bg-black-opacity-0_7--after g-bg-img-hero"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x179/img1.jpg);">
 
 	<div class="landing-block-node-container u-bg-overlay__inner">

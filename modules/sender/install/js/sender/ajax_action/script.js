@@ -129,6 +129,7 @@
 		var urlParams = config.urlParams || {};
 		var callbackSuccess = config.onsuccess || null;
 		var callbackFailure = config.onfailure || null;
+		var callbackUserError = config.onusererror || null;
 		var showErrors = (config.showErrors !== undefined) ? !!config.showErrors : true;
 		var showSuccess = config.showSuccess || false;
 		var uri = config.url || this.controllerUri;
@@ -153,16 +154,23 @@
 			timeout: config.timeout || 30,
 			dataType: responseDataType,
 			processData: processResponseData,
-			onsuccess: this.onResponse.bind(this, showSuccess, showErrors, callbackSuccess, callbackFailure),
+			onsuccess: this.onResponse.bind(this, showSuccess, showErrors, callbackSuccess, callbackFailure, callbackUserError),
 			onfailure: this.onResponseFailure.bind(this, showErrors, callbackFailure)
 		});
 	};
-	manager.prototype.onResponse = function (showSuccess, showErrors, callbackSuccess, callbackFailure, data)
+	manager.prototype.onResponse = function (showSuccess, showErrors, callbackSuccess, callbackFailure, callbackUserError, data)
 	{
 		data = data || {};
 		if(data.error)
 		{
-			this.onResponseFailure(showErrors, callbackFailure, data);
+			if (data.code && callbackUserError && BX.type.isFunction(callbackUserError[data.code]))
+			{
+				callbackUserError[data.code].apply(this, [data]);
+			}
+			else
+			{
+				this.onResponseFailure(showErrors, callbackFailure, data);
+			}
 		}
 		else
 		{

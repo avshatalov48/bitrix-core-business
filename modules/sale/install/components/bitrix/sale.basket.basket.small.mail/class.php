@@ -12,13 +12,6 @@ class CBitrixBasketBasketSmallMailComponent extends CBitrixBasketComponent
 	public function onPrepareComponentParams($params)
 	{
 		$columnList = $params['COLUMNS_LIST'];
-		foreach ($columnList as $column)
-		{
-			if (strpos($column, "_FORMATED"))
-			{
-				$columnList[] = str_replace("_FORMATED", '', $column);
-			}
-		}
 		$params = parent::onPrepareComponentParams($params);
 		$this->columns = $columnList;
 

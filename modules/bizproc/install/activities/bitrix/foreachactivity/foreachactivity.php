@@ -173,4 +173,14 @@ class CBPForEachActivity
 
 		return true;
 	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		if (!empty($this->arProperties["Variable"]))
+		{
+			$usages[] = $this->getObjectSourceType('Variable', $this->arProperties["Variable"]);
+		}
+		return $usages;
+	}
 }

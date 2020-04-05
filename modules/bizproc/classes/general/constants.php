@@ -144,56 +144,54 @@ class CBPActivityExecutorOperationType
 
 class CBPDocumentEventType
 {
-	const None = 0;		//    0
-	const Create = 1;	//    1
-	const Edit = 2;		//   10
-	const Delete = 4;	//  100
-	const Automation = 8;	// 1000
-	const Manual = 16;	// 10000
+	const None = 0;
+	const Create = 1;
+	const Edit = 2;
+	const Delete = 4;
+	const Automation = 8;
+	const Manual = 16;
+	const Script = 32;
 
 	public static function Out($v)
 	{
-		$result = "";
+		$result = [];
 
 		if ($v == self::None)
-			$result .= "None";
+		{
+			$result[] = "None";
+		}
 
 		if (($v & self::Create) != 0)
 		{
-			if (strlen($result) > 0)
-				$result .= ", ";
-			$result .= "Create";
+			$result[] = "Create";
 		}
 
 		if (($v & self::Edit) != 0)
 		{
-			if (strlen($result) > 0)
-				$result .= ", ";
-			$result .= "Edit";
+			$result[] = "Edit";
 		}
 
 		if (($v & self::Delete) != 0)
 		{
-			if (strlen($result) > 0)
-				$result .= ", ";
-			$result .= "Delete";
+			$result[] = "Delete";
 		}
 
 		if (($v & self::Automation) != 0)
 		{
-			if (strlen($result) > 0)
-				$result .= ", ";
-			$result .= "Automation";
+			$result[] = "Automation";
 		}
 
 		if (($v & self::Manual) != 0)
 		{
-			if (strlen($result) > 0)
-				$result .= ", ";
-			$result .= "Manual";
+			$result[] = "Manual";
 		}
 
-		return $result;
+		if (($v & self::Script) != 0)
+		{
+			$result[] = "Script";
+		}
+
+		return implode(', ', $result);
 	}
 }
 

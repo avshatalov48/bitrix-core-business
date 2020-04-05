@@ -30,6 +30,11 @@ class SenderRcListComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
+		if (!\Bitrix\Main\Loader::includeModule('crm'))
+		{
+			$this->errors->setError(new Error('Module `crm` is not installed.'));
+			return false;
+		}
 		return true;
 	}
 
@@ -146,8 +151,19 @@ class SenderRcListComponent extends CBitrixComponent
 		$this->setUiGridColumns();
 
 		// create nav
+		$pageSizes = [];
+		foreach ([5, 10, 20, 30, 50, 100] as $index)
+		{
+			$pageSizes[] = ['NAME' => $index, 'VALUE' => $index];
+		}
+
+		$gridOptions = new GridOptions($this->arParams['GRID_ID']);
+		$navData = $gridOptions->getNavParams(['nPageSize' => 10]);
 		$nav = new PageNavigation("page-sender-rc");
-		$nav->allowAllRecords(true)->setPageSize(10)->initFromUri();
+		$nav->allowAllRecords(true)
+			->setPageSize($navData['nPageSize'])
+			->setPageSizes($pageSizes)
+			->initFromUri();
 
 		// get rows
 		$selectParameters = array(
@@ -157,6 +173,7 @@ class SenderRcListComponent extends CBitrixComponent
 			'count_total' => true,
 			'order' => $this->getGridOrder()
 		);
+		$this->addOptionsFilter($selectParameters);
 
 		$list = Entity\Rc::getList($selectParameters);
 		$letter = new Entity\Rc();
@@ -239,7 +256,7 @@ class SenderRcListComponent extends CBitrixComponent
 			return '';
 		}
 		$dateTime = clone $dateTime;
-		return PrettyDate::formatDateTime($dateTime->toUserTime());
+		return PrettyDate::formatDateTime($dateTime);
 	}
 
 	protected function getDataFilter()
@@ -282,8 +299,64 @@ class SenderRcListComponent extends CBitrixComponent
 		{
 			$filter['<=DATE_INSERT'] = $requestFilter['DATE_INSERT_to'];
 		}
+		if (isset($requestFilter['POSTING_DATE_SENT_from']) && $requestFilter['POSTING_DATE_SENT_from'])
+		{
+			$filter['>=POSTING.DATE_SENT'] = $requestFilter['POSTING_DATE_SENT_from'];
+		}
+		if (isset($requestFilter['POSTING_DATE_SENT_to']) && $requestFilter['POSTING_DATE_SENT_to'])
+		{
+			$filter['<=POSTING.DATE_SENT'] = $requestFilter['POSTING_DATE_SENT_to'];
+		}
+		if (isset($requestFilter['REITERATE']) && $requestFilter['REITERATE'] == 'Y')
+		{
+			$filter['=REITERATE'] = true;
+		}
+		if (isset($requestFilter['REITERATE']) && $requestFilter['REITERATE'] == 'N')
+		{
+			$filter['=REITERATE'] = false;
+		}
 
 		return $filter;
+	}
+
+	protected function addOptionsFilter(&$selectParameters)
+	{
+		$filterOptions = new FilterOptions($this->arParams['FILTER_ID']);
+		$requestFilter = $filterOptions->getFilter($this->arResult['FILTERS']);
+
+		$rc = new Entity\Rc();
+		$rc->set('MESSAGE_CODE', \Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageDeal::CODE);
+		$options = $rc->getMessage()->getConfiguration()->getOptions();
+		foreach ($options as $option)
+		{
+			if ($option->getShowInFilter())
+			{
+				if (!$selectParameters['runtime'])
+				{
+					$selectParameters['runtime'] = [];
+				}
+				$fieldName = 'OPTION_'.$option->getCode();
+				$filterValue = $requestFilter[$option->getCode()];
+				if (strlen($filterValue))
+				{
+					if ($filterValue == 'last')
+					{
+						$filterValue = '';
+					}
+					elseif ($filterValue == 'common')
+					{
+						$filterValue = '0';
+					}
+					$selectParameters['runtime'][] = new \Bitrix\Main\Entity\ReferenceField(
+						$fieldName,
+						\Bitrix\Sender\Internals\Model\MessageFieldTable::class,
+						['=this.MESSAGE_ID' => 'ref.MESSAGE_ID', 'ref.CODE' => new \Bitrix\Main\DB\SqlExpression('?', $option->getCode())],
+						['join_type' => 'INNER']
+					);
+					$selectParameters['filter']['=' . $fieldName . '.VALUE'] = $filterValue;
+				}
+			}
+		}
 	}
 
 	protected function getGridOrder()
@@ -406,7 +479,62 @@ class SenderRcListComponent extends CBitrixComponent
 				"type" => "list",
 				"items" => $messageCodes
 			),
+			array(
+				"id" => "DATE_INSERT",
+				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_INSERT2'),
+				"type" => "date",
+				"default" => true,
+			),
+			array(
+				"id" => "POSTING_DATE_SENT",
+				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_SENT'),
+				"type" => "date",
+				"default" => true,
+			),
+			array(
+				"id" => "REITERATE",
+				"name" => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_REITERATE'),
+				"type" => "list",
+				"items" => [
+					'Y' => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_REITERATE_YES'),
+					'N' => Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_REITERATE_NO')
+				],
+				"default" => false,
+			),
 		);
+		$rc = new Entity\Rc();
+		$rc->set('MESSAGE_CODE', \Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageDeal::CODE);
+		$options = $rc->getMessage()->getConfiguration()->getOptions();
+		foreach ($options as $option)
+		{
+			if ($option->getShowInFilter())
+			{
+				$items = [];
+				if ('CATEGORY_ID' == $option->getCode())
+				{
+					foreach ($option->getItems() as $item)
+					{
+						$key = $item['code'];
+						if (!strlen($key))
+						{
+							$key = 'last';
+						}
+						elseif ($key == 0)
+						{
+							$key = 'common';
+						}
+						$items[$key] = $item['value'];
+					}
+				}
+				$this->arResult['FILTERS'][] = [
+					"id" => $option->getCode(),
+					"name" => $option->getName(),
+					"type" => $option->getType(),
+					"items" => $items,
+					"default" => false,
+				];
+			}
+		}
 	}
 
 	protected function getFilterUserList(array $list)

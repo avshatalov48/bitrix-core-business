@@ -133,6 +133,8 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arNavigation, $arCa
 		$arParams['ELEMENT_NAME'] = CWiki::GetDefaultPage($arParams['IBLOCK_ID']);
 
 	$arResult['ELEMENT'] = array();
+	$arResult['CATEGORIES'] = array();
+	$arResult['PAGES'] = array();
 	if (!empty($arParams['ELEMENT_NAME']) && ($arResult['ELEMENT'] = CWiki::GetElementByName($arParams['ELEMENT_NAME'], $arFilter)) != false)
 	{
 		$arParams['ELEMENT_ID'] = $arResult['ELEMENT']['ID'];
@@ -202,7 +204,6 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arNavigation, $arCa
 				$arFilter['<RIGHT_BORDER'] = $arCurCat['RIGHT_MARGIN'];
 
 				$dbList = CIBlockSection::GetList(Array('NAME'=>'ASC'), $arFilter, true);
-				$arResult['CATEGORIES'] = array();
 
 				$arCatName = array();
 				$arCatNameExists = array();
@@ -268,7 +269,6 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arNavigation, $arCa
 
 		if(isset($rsPagesElement) && $rsPagesElement)
 		{
-			$arResult['PAGES'] = array();
 			$arPageNameExists = array();
 			$rsPagesElement->NavStart($arParams['PAGES_COUNT'], false);
 			$arResult['DB_LIST'] = &$rsPagesElement;

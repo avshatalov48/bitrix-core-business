@@ -1,10 +1,9 @@
 <?
 $MESS["VOTE_EDIT_RECORD"] = "Вопрос # #ID#";
 $MESS["VOTE_NEW_RECORD"] = "Новый вопрос";
-$MESS["VOTE_VOTE_LIST"] = "Список опросов";
 $MESS["VOTE_QUESTIONS_LIST"] = "Список вопросов";
 $MESS["VOTE_TIMESTAMP"] = "Дата изменения:";
-$MESS["VOTE_ACTIVE"] = "Активен:";
+$MESS["VOTE_ACTIVE"] = "Активность:";
 $MESS["VOTE_C_SORT"] = "Порядок сортировки:";
 $MESS["VOTE_IMAGE"] = "Изображение:";
 $MESS["VOTE_QUESTION"] = "Вопрос";
@@ -19,7 +18,6 @@ $MESS["VOTE_DEL"] = "Уд.";
 $MESS["VOTE_ANSWER_LIST"] = "Варианты ответов";
 $MESS["VOTE_MESSAGE_SPACE"] = "если вы не хотите вводить \"Сообщение\" - поставьте пробел";
 $MESS["VOTE_VOTE"] = "Опрос:";
-$MESS["VOTE_CHANNEL"] = "Группа:";
 $MESS["VOTE_DIAGRAM"] = "Включить в диаграмму результатов:";
 $MESS["VOTE_COLOR"] = "Цвет";
 $MESS["VOTE_TEMPLATE"] = "Шаблон по умолчанию для показа результатов:";
@@ -29,13 +27,13 @@ $MESS["VOTE_DELETE_RECORD"] = "Удалить вопрос";
 $MESS["VOTE_DELETE_RECORD_CONFIRM"] = "Вы уверены что хотите удалить вопрос?";
 $MESS["VOTE_ANSWERS"] = "Ответы";
 $MESS["VOTE_QUESTION_TEXT"] = "Текст вопроса";
-$MESS["VOTE_GRP_CONF"] = "Изменить свойства группы";
 $MESS["VOTE_CONF"] = "Изменить свойства опроса";
 $MESS["VOTE_GOT_ERROR"] = "Ошибка при сохранении вопроса";
 $MESS["VOTE_DIAGRAM_TYPE"] = "Вид диаграммы";
-$MESS["VOTE_NOT_FOUND"] = "Неверный ID опроса";
 $MESS["VOTE_QUESTIONS"] = "Вопросы";
 $MESS["VOTE_DELETE"] = "Удалить";
 $MESS["VOTE_CREATE"] = "Создать";
 $MESS["VOTE_REQUIRED"] = "Обязательный вопрос";
+$MESS["VOTE_BACK_TO_OLD_PAGE_TITLE"] = "Вернуться к старой форме редактирования?";
+$MESS["VOTE_GO_TO_NEW_PAGE_TITLE"] = "Перейти к новой форме редактирования?";
 ?>

@@ -41,7 +41,7 @@
 
 .landing-ui-button-select-link:hover,
 .landing-ui-button-select-link.landing-ui-active {
-	background: #F6F8F9;
+	background: #f6f8f9;
 }
 
 .landing-ui-field-url-placeholder {
@@ -58,6 +58,8 @@
 	left: 5px;
 	line-height: 28px;
 	padding-right: 24px;
+	box-sizing: border-box;
+	white-space: nowrap;
 }
 
 .landing-ui-field-url-placeholder-delete {
@@ -169,4 +171,19 @@
 		-moz-box-shadow: 0 0 0 0 rgba(102, 175, 233, 0);
 		box-shadow: 0 0 0 0 rgba(102, 175, 233, 0);
 	}
+}
+
+.landing-ui-field-link-new-label {
+	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif, serif;
+	font-size: 8px;
+	color: #ffffff;
+	background: #2FC6F6;
+	position: absolute;
+	top: -7px;
+	right: 10px;
+	height: 14px;
+	line-height: 14px;
+	padding-left: 4px;
+	padding-right: 4px;
+	border-radius: 12px;
 }

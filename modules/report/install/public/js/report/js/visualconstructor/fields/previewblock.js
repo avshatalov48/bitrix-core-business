@@ -62,12 +62,12 @@
 				data: {
 					params: params
 				},
-				onFullSuccess: BX.delegate(function (result)
+				onFullSuccess: function (result)
 				{
 					var formContentParentNode = BX.findParent(this.currentFieldObject.getForm(), {className:'report-widget-configuration'}).parentNode;
 					BX.cleanNode(formContentParentNode);
 					BX.html(formContentParentNode, result.data);
-				}, this)
+				}.bind(this)
 			});
 		},
 		rebuildPreviewWidgetData: function()
@@ -79,10 +79,10 @@
 				data: {
 					params: params
 				},
-				onFullSuccess: BX.delegate(function(response)
+				onFullSuccess: function(response)
 				{
 					this.currentFieldObject.handlerChangePseudoWidget(params.viewType, response);
-				}, this)
+				}.bind(this)
 			});
 		}
 

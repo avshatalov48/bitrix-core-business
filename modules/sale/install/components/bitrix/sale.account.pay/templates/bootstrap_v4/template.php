@@ -57,7 +57,7 @@ else
 						<div class="col form-horizontal">
 							<h3 class="mb-2"><?=Loc::getMessage("SAP_SUM")?></h3>
 							<div class="form-group row">
-								<div class='col-3 input-group'>
+								<div class='col-12 col-md-4 input-group'>
 									<?
 									$inputElement = "
 										<input type='text' placeholder='0.00' 

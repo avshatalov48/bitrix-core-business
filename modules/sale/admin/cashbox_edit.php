@@ -344,7 +344,7 @@ $tabControl->AddEditField('NAME', Loc::getMessage("SALE_CASHBOX_NAME").':', true
 $tabControl->BeginCustomField('KKM_ID', GetMessage("SALE_CASHBOX_KKM_ID"));
 ?>
 	<tbody id="sale-cashbox-models-container">
-		<?if ($cashbox['HANDLER']):?>
+		<?if ($cashbox['HANDLER'] && class_exists($cashbox['HANDLER'])):?>
 			<?
 			$kkmList = $cashbox['HANDLER']::getSupportedKkmModels();
 			if ($kkmList):

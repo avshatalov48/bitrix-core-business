@@ -99,6 +99,11 @@ BX.Kanban.Utils = {
 
 	showErrorDialog: function(error, fatal)
 	{
+		if (!BX.type.isNotEmptyString(error))
+		{
+			return;
+		}
+
 		var dialog = BX.PopupWindowManager.create(
 			"main-kanban-error-dialog",
 			null,

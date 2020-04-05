@@ -8,12 +8,13 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
-use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Orm;
 use Bitrix\Main\UI\Filter\Type as UiFilterType;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
 
@@ -34,6 +35,40 @@ Loc::loadMessages(__FILE__);
 class Helper
 {
 	public static $runtimeByEntity = [];
+
+	/**
+	 * Create Orm expression field for selecting multi field.
+	 *
+	 * @param string $entityName Entity name.
+	 * @param string $multiFieldTypeId Multi-field type ID.
+	 * @return Orm\Fields\ExpressionField
+	 */
+	public static function createExpressionMultiField($entityName, $multiFieldTypeId)
+	{
+		$sqlHelper = Application::getConnection()->getSqlHelper();
+		return new Orm\Fields\ExpressionField(
+			$multiFieldTypeId,
+			'(' . $sqlHelper->getTopSql(
+				"
+						SELECT FM.VALUE							
+						FROM b_crm_field_multi FM 
+						WHERE FM.ENTITY_ID = '$entityName' 
+							AND FM.ELEMENT_ID = %s 
+							AND FM.TYPE_ID = '$multiFieldTypeId' 
+						ORDER BY
+							CASE FM.VALUE_TYPE 
+								WHEN 'MAILING' THEN 0 
+								WHEN 'HOME' THEN 1
+								WHEN 'MOBILE' THEN 1
+								ELSE 2
+							END,
+							FM.ID
+					",
+				1
+			) . ')',
+			'ID'
+		);
+	}
 
 	/**
 	 * Get personalize field list.
@@ -68,7 +103,7 @@ class Helper
 		$logicFilter = array();
 		$crmUserType->prepareListFilterFields($list, $logicFilter);
 		$originalList = $crmUserType->getFields();
-		$restrictedTypes = ['address', 'file', 'crm'];
+		$restrictedTypes = ['address', 'file', 'crm', 'resourcebooking'];
 
 		$list = array_filter(
 			$list,
@@ -100,17 +135,9 @@ class Helper
 					$list[$index]['allow_years_switcher'] = true;
 				}
 			}
-
-			if ($field['type'] === 'custom_entity' && !empty($field['selector']) && $field['selector']['TYPE'] == 'user')
+			if ($originalList[$field['id']]['MULTIPLE'] == 'Y')
 			{
-				$list[$index]['sender_segment_callback'] = function ($field) use ($entityTypeId)
-				{
-					return Helper::getFilterFieldUserSelector(
-						$field['selector']['DATA'],
-						'crm_segment_' . ($entityTypeId === \CCrmOwnerType::Lead ? 'lead' : 'client')
-					);
-				};
-				$list[$index]['params'] = ['multiple' => 'Y'];
+				$list[$index]['multiple_uf'] = true;
 			}
 		}
 
@@ -326,6 +353,10 @@ class Helper
 					{
 						$filterKey = "=$filterKey";
 					}
+					if ($field['multiple_uf'])
+					{
+						$filterKey .= "_SINGLE";
+					}
 
 					$field['sender_segment_filter'] = $filterKey;
 					if (!isset($result[$entityTypeName]))
@@ -412,9 +443,13 @@ class Helper
 			$value = $isMultiple && !is_array($value) ? array($value) : $value;
 			$field['value'] = $value;
 
-			if (strpos($field['id'], 'COMMUNICATION_TYPE') !== false)
+			if ($field['filter_callback'])
 			{
-				self::getCommunicationTypeFilter($value, $filter);
+				$extraCallbackParams = [
+					'FIELD' => $field,
+					'ENTITY_TYPE_NAME' => $entityTypeName
+				];
+				call_user_func_array($field['filter_callback'], [$value, &$filter, $extraCallbackParams]);
 				continue;
 			}
 
@@ -467,7 +502,8 @@ class Helper
 	{
 		$types = array(
 			UiFilterType::DATE,
-			UiFilterType::NUMBER
+			UiFilterType::NUMBER,
+			UiFilterType::DEST_SELECTOR
 		);
 		return in_array(strtoupper($type), $types);
 	}
@@ -483,10 +519,13 @@ class Helper
 			case UiFilterType::NUMBER:
 				Connector\Filter\NumberField::create($fieldData)->applyFilter($filter);
 				break;
+			case UiFilterType::DEST_SELECTOR:
+				Connector\Filter\DestSelectorField::create($fieldData)->applyFilter($filter);
+				break;
 		}
 	}
 
-	protected static function getCommunicationTypeFilter(array $commTypes, &$filter)
+	protected static function getCommunicationTypeFilter(array $commTypes, &$filter, $extraCallbackParams = [])
 	{
 		if (in_array(\CCrmFieldMulti::PHONE, $commTypes))
 		{
@@ -502,127 +541,31 @@ class Helper
 		}
 	}
 
-	/**
-	 * Get "user selector" filter field
-	 *
-	 * @param array $userSelector User-selector.
-	 * @param string $filterID ID of filter.
-	 * @return string
-	 */
-	public static function getFilterFieldUserSelector(array $userSelector, $filterID)
+	protected static function getNoPurchasesFilter($value, &$filter, $extraCallbackParams = [])
 	{
-		if(empty($userSelector))
+		$entityTypeName = $extraCallbackParams['ENTITY_TYPE_NAME'];
+		$field = $extraCallbackParams['FIELD'];
+		if (!$entityTypeName)
+			return;
+
+		if ($value[$field['id'] . '_datesel'] != 'NONE')
 		{
-			return '';
+			$filter['NO_PURCHASES'] = [];
+			self::setFieldTypeFilter('%PURCHASE_DATE%', $field, $filter['NO_PURCHASES']);
+			self::processRuntimeFilter($filter['NO_PURCHASES'], $entityTypeName);
 		}
+	}
 
-		$userSelectors = array($userSelector);
-		Asset::getInstance()->addJs('/bitrix/js/crm/common.js');
-		ob_start();
-		$componentName = "{$filterID}_FILTER_USER";
-
-		/** @var \CAllMain $GLOBALS['APPLICATION'] */
-		if (true)
+	protected static function productSourceFilter($value, &$filter, $extraCallbackParams = [])
+	{
+		if ($filter['NO_PURCHASES'] || $filter['=COMPANY.PRODUCT_ID'] || $filter['=CONTACT.PRODUCT_ID'])
 		{
-			foreach($userSelectors as $userSelector)
+			if (!is_array($value) || in_array("", $value)) // if PRODUCT_SOURCE wasn't set or has "everywhere" value
 			{
-				$selectorID = $userSelector['ID'];
-				$fieldID = $userSelector['FIELD_ID'];
-
-				Loader::includeModule('socialnetwork');
-				$GLOBALS['APPLICATION']->includeComponent(
-					"bitrix:main.ui.selector",
-					".default",
-					array(
-						'ID' => $selectorID,
-						'ITEMS_SELECTED' =>  array(),
-						'CALLBACK' => array(
-							'select' => 'BX.CrmUIFilterUserSelector.processSelection',
-							'unSelect' => '',
-							'openDialog' => 'BX.CrmUIFilterUserSelector.processDialogOpen',
-							'closeDialog' => 'BX.CrmUIFilterUserSelector.processDialogClose',
-							'openSearch' => ''
-						),
-						'OPTIONS' => array(
-							'eventInit' => 'BX.Crm.FilterUserSelector:openInit',
-							'eventOpen' => 'BX.Crm.FilterUserSelector:open',
-							'context' => 'FEED_FILTER_CREATED_BY',
-							'contextCode' => 'U',
-							'useSearch' => 'N',
-							'useClientDatabase' => 'Y',
-							'allowEmailInvitation' => 'N',
-							'enableDepartments' => 'Y',
-							'enableSonetgroups' => 'N',
-							'departmentSelectDisable' => 'Y',
-							'allowAddUser' => 'N',
-							'allowAddCrmContact' => 'N',
-							'allowAddSocNetGroup' => 'N',
-							'allowSearchEmailUsers' => 'N',
-							'allowSearchCrmEmailUsers' => 'N',
-							'allowSearchNetworkUsers' => 'N',
-							'allowSonetGroupsAjaxSearchFeatures' => 'N'
-						)
-					),
-					false,
-					array("HIDE_ICONS" => "Y")
-				);
-				?><script type="text/javascript"><?
-				?>BX.ready(
-					function()
-					{
-						BX.CrmUIFilterUserSelector.create(
-							"<?=\CUtil::jsEscape($selectorID)?>",
-							{
-								filterId: "<?=\CUtil::jsEscape($filterID)?>",
-								fieldId: "<?=\CUtil::jsEscape($fieldID)?>"
-							}
-						);
-					}
-				);<?
-				?></script><?
+				$value = [];
 			}
+			$filter['PRODUCT_SOURCE'] = $value;
 		}
-		else
-		{
-			$GLOBALS['APPLICATION']->includeComponent(
-				'bitrix:intranet.user.selector.new',
-				'',
-				array(
-					'MULTIPLE' => 'N',
-					'NAME' => $componentName,
-					'INPUT_NAME' => strtolower($componentName),
-					'SHOW_EXTRANET_USERS' => 'NONE',
-					'POPUP' => 'Y',
-					'SITE_ID' => SITE_DIR,
-					//'NAME_TEMPLATE' => $nameTemplate
-				),
-				null,
-				array('HIDE_ICONS' => 'Y')
-			);
-			?><script type="text/javascript"><?
-			foreach($userSelectors as $userSelector)
-			{
-				$selectorID = $userSelector['ID'];
-				$fieldID = $userSelector['FIELD_ID'];
-				?>
-				BX.ready(
-					function()
-					{
-						BX.FilterUserSelector.create(
-							"<?=\CUtil::JSEscape($selectorID)?>",
-							{
-								fieldId: "<?=\CUtil::JSEscape($fieldID)?>",
-								componentName: "<?=\CUtil::JSEscape($componentName)?>"
-							}
-						);
-					}
-				);
-				<?
-			}
-			?></script><?
-		}
-
-		return ob_get_clean();
 	}
 
 	/**
@@ -738,5 +681,10 @@ class Helper
 		}
 
 		return $url;
+	}
+
+	public static function isCrmSaleEnabled()
+	{
+		return Loader::includeModule("sale") && (Option::get("crm", "crm_shop_enabled", "N") != 'N');
 	}
 }

@@ -18,12 +18,15 @@ define("IM_MESSAGE_CHAT", "C");
 define("IM_MESSAGE_OPEN", "O");
 define("IM_MESSAGE_THREAD", "T");
 define("IM_MESSAGE_OPEN_LINE", "L");
+
+define("IM_CHAT_TYPE_PERSONAL", "PERSONAL");
 /**
  * @use const IM_MESSAGE_CHAT
  * @deprecated
  */
 define("IM_MESSAGE_GROUP", "C");
 
+define("IM_NOTIFY_MESSAGE", 0);
 define("IM_NOTIFY_CONFIRM", 1);
 define("IM_NOTIFY_FROM", 2);
 define("IM_NOTIFY_SYSTEM", 4);
@@ -59,6 +62,9 @@ define("IM_SPEED_GROUP", 3);
 
 define("IM_CHECK_UPDATE", 'update');
 define("IM_CHECK_DELETE", 'delete');
+
+define("IM_DESKTOP_WINDOWS", 'windows');
+define("IM_DESKTOP_MAC", 'mac');
 
 define("IM_NOTIFY_FEATURE_SITE", "site");
 define("IM_NOTIFY_FEATURE_XMPP", "xmpp");
@@ -221,7 +227,7 @@ CJSCore::RegisterExt('im_window', array(
 CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
 	'lang' => '/bitrix/modules/im/js_desktop.php',
-	'rel' => array('im_page', 'im_call'),
+	'rel' => array('im_page', 'im_call', 'socnetlogdest'),
 ));
 
 CJSCore::RegisterExt('im_timecontrol', array(

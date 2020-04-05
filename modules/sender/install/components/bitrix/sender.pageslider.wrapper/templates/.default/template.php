@@ -18,6 +18,7 @@ global $APPLICATION;
 		}
 	</script>
 	<?$APPLICATION->ShowHead();?>
+	<title><?$APPLICATION->ShowTitle()?></title>
 	<script type="text/javascript">
 		BX.ready(function () {
 			if (!BX.message.SITE_ID)

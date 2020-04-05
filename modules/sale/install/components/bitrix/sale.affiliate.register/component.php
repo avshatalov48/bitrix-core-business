@@ -132,8 +132,11 @@ if (CModule::IncludeModule("sale"))
 		{
 			if ($_REQUEST["do_agree"] == "Y")
 			{
-				if ($_REQUEST["agree_agreement"] != "Y")
-					$errorMessage .= GetMessage("SPCR1_NO_AGREE").".<br />";
+				if ($_REQUEST["is_agree_agreement"] == "Y")
+				{
+					if ($_REQUEST["agree_agreement"] != "Y")
+						$errorMessage .= GetMessage("SPCR1_NO_AGREE").".<br />";
+				}
 
 				$arResult["agree_agreement"] = $_REQUEST["agree_agreement"] == "Y" ? "Y" : "N";
 
@@ -204,7 +207,7 @@ if (CModule::IncludeModule("sale"))
 				}
 			}
 		}
-		
+
 		$arResult["ERROR_MESSAGE"] = $errorMessage;
 		$arResult["CURRENT_PAGE"] = $APPLICATION->GetCurPage();
 		if (!$GLOBALS["USER"]->IsAuthorized())
@@ -219,23 +222,20 @@ if (CModule::IncludeModule("sale"))
 		else
 		{
 			$arResult["USER_AUTHORIZED"] = "Y";
-			
+
 			$arResult["AGREEMENT_TEXT_FILE"] = $arParams["AGREEMENT_TEXT_FILE"];
 			if (empty($arResult["AGREEMENT_TEXT_FILE"]) || !file_exists($_SERVER["DOCUMENT_ROOT"].$arResult["AGREEMENT_TEXT_FILE"]))
 			{
-				$arResult["AGREEMENT_TEXT_FILE"] = "/bitrix/components/bitrix/sale.affiliate.register/agreement-".SITE_ID.".htm";
-				if (!file_exists($_SERVER["DOCUMENT_ROOT"].$arResult["AGREEMENT_TEXT_FILE"]))
-				{
-					$arResult["AGREEMENT_TEXT_FILE"] = "/bitrix/php_interface/agreement.htm";
-					if (!file_exists($_SERVER["DOCUMENT_ROOT"].$arResult["AGREEMENT_TEXT_FILE"]))
-					{
-						$arResult["AGREEMENT_TEXT_FILE"] = false;
-					}
-				}
+				$arResult["AGREEMENT_TEXT_FILE"] = false;
 			}
+
+			$arResult['USER_CONSENT_PROPERTY_DATA'] = [
+				GetMessage("SPCR1_SITE_URL_CONSENT"),
+				GetMessage("SPCR1_SITE_DESCR_CONSENT")
+			];
 		}
 	}
-	
+
 	$arResult["REDIRECT_PAGE"] = htmlspecialcharsbx($arParams["REDIRECT_PAGE"]);
 	$arResult["DEFAULT_USER_LOGIN"] = (strlen($_REQUEST["USER_LOGIN"]) > 0) ? htmlspecialcharsbx($_REQUEST["USER_LOGIN"]) : htmlspecialcharsbx($arResult["DEFAULT_USER_LOGIN"]);
 

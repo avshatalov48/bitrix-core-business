@@ -82,6 +82,9 @@ class GlobalConst
 			}
 		}
 
+		//clear cache
+		self::$allCache = null;
+
 		return true;
 	}
 }

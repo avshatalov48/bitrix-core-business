@@ -404,7 +404,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["app
 	if (!is_array($TEMPLATE_FILES_del))
 		$TEMPLATE_FILES_del = array();
 	if (!is_array($TEMPLATE_FILES))
-		$TEMPLATE_FILES = $request->getFile('TEMPLATE_FILES');
+	{
+		if (!empty($request))
+		{
+			$TEMPLATE_FILES = $request->getFile('TEMPLATE_FILES');
+		}
+		else
+		{
+			$TEMPLATE_FILES = Bitrix\Main\Context::getCurrent()->getRequest()->getFile('TEMPLATE_FILES');
+		}
+	}
 
 	//array for save if show error
 	$templateFilesErr = array();

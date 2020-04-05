@@ -120,7 +120,7 @@ function socialnetworkBlogPostCommentMobile(
 		"FILES" => false,
 		"UF" => false,
 		"POST_MESSAGE_TEXT" => $text,
-		"~POST_MESSAGE_TEXT" => $comment["POST_TEXT"],
+		"~POST_MESSAGE_TEXT" => \Bitrix\Main\Text\Emoji::decode($comment["POST_TEXT"]),
 		"CLASSNAME" => "",
 		"BEFORE_HEADER" => "",
 		"BEFORE_ACTIONS" => "",

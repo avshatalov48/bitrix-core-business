@@ -113,11 +113,19 @@ else
 	));
 	while ($row = $iterator->fetch())
 	{
-		$elementIds[] = $row['ELEMENT_ID'];
-		$productIds[] = $row['PRODUCT_ID'];
+		$elementIds[$row['ELEMENT_ID']] = $row['ELEMENT_ID'];
+		$productIds[$row['PRODUCT_ID']] = $row['PRODUCT_ID'];
 		$productMap[$row['PRODUCT_ID']] = $row['ELEMENT_ID'];
 		$row['NAME'] = '';
-		$elements[$row['ELEMENT_ID']] = $row;
+
+		if (isset($elements[$row['ELEMENT_ID']]))
+		{
+			$elements[$row['ELEMENT_ID']]['VIEW_COUNT'] += $row['VIEW_COUNT'];
+		}
+		else
+		{
+			$elements[$row['ELEMENT_ID']] = $row;
+		}
 	}
 	unset($item, $iterator);
 

@@ -427,7 +427,7 @@ foreach ($catalogs as $catalog)
 
 $arComponentParameters["PARAMETERS"]['HIDE_NOT_AVAILABLE'] = array(
 	'PARENT' => 'DATA_SOURCE',
-	'NAME' => GetMessage('SBP_HIDE_NOT_AVAILABLE'),
+	'NAME' => GetMessage('SBP_HIDE_NOT_AVAILABLE_EXT'),
 	'TYPE' => 'CHECKBOX',
 	'DEFAULT' => 'N',
 );

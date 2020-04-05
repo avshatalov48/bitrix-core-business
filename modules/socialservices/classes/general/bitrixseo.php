@@ -65,11 +65,26 @@ class CBitrixSeoOAuthInterface extends CBitrixServiceOAuthInterface
 		return false;
 	}
 
-	public function clearClientAuth($engine)
+	public function getClientList()
+	{
+		if($this->getAppID() && $this->getAppSecret())
+		{
+			$res = $this->getTransport()->getClientList();
+
+			if(isset($res['result']) && !isset($res['error']))
+			{
+				return $res['result'];
+			}
+		}
+
+		return false;
+	}
+
+	public function clearClientAuth($engine, $clientId = null)
 	{
 		if($this->getAppID() && $this->getAppSecret() && $engine)
 		{
-			$res = $this->getTransport()->clearClientAuth($engine);
+			$res = $this->getTransport()->clearClientAuth($engine, $clientId);
 
 			if(!isset($res['error']))
 			{
@@ -737,6 +752,7 @@ class CBitrixSeoOAuthInterface extends CBitrixServiceOAuthInterface
 class CBitrixSeoTransport extends CBitrixServiceTransport
 {
 	const METHOD_CLIENT_INFO = 'seo.client.info';
+	const METHOD_CLIENT_LIST = 'seo.client.list';
 	const METHOD_CLIENT_AUTH_CLEAR = 'seo.client.auth.clear';
 
 	const METHOD_CAMPAIGN_ADD = 'seo.campaign.add';
@@ -785,8 +801,13 @@ class CBitrixSeoTransport extends CBitrixServiceTransport
 		return $this->call(self::METHOD_CLIENT_INFO);
 	}
 
-	public function clearClientAuth($engine)
+	public function getClientList()
 	{
-		return $this->call(self::METHOD_CLIENT_AUTH_CLEAR, array("engine" => $engine));
+		return $this->call(self::METHOD_CLIENT_LIST);
+	}
+
+	public function clearClientAuth($engine, $clientId = null)
+	{
+		return $this->call(self::METHOD_CLIENT_AUTH_CLEAR, array("engine" => $engine, "proxy_client_id" => $clientId));
 	}
 }

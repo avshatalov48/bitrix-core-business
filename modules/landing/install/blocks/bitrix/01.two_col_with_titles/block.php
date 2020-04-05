@@ -1,7 +1,7 @@
 <section class="landing-block">
 	<div class="container-fluid">
 		<div class="row">
-			<div class="landing-block-node-img d-flex align-items-center col-md-6 u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_7--after g-min-height-75vh"
+			<div class="landing-block-node-img d-flex align-items-center col-md-6 col-lg-6 u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_7--after g-min-height-75vh"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/700x800/img1.jpg);">
 				<div class="landing-block-node-inner-container w-100 g-flex-centered g-pr-50--md text-md-right">
 					<div class="landing-block-node-inner-container-left js-animation fadeInLeft w-100 u-bg-overlay__inner g-pt-100 g-pb-100">
@@ -22,7 +22,7 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-img d-flex align-items-center col-md-6 u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_7--after g-min-height-75vh"
+			<div class="landing-block-node-img d-flex align-items-center col-md-6 col-lg-6 u-bg-overlay g-bg-img-hero g-bg-black-opacity-0_7--after g-min-height-75vh"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/700x800/img2.jpg);">
 				<div class="landing-block-node-inner-container w-100 g-flex-centered g-pl-50--md">
 					<div class="landing-block-node-inner-container-right js-animation fadeInRight w-100 u-bg-overlay__inner g-pt-100 g-pb-100">

@@ -19,7 +19,7 @@ class Sku
 	const OFFERS_AVAILABLE = 0x0004;
 
 	protected static $allowUpdateAvailable = 0;
-	protected static $allowPropertyHandler = true;
+	protected static $allowPropertyHandler = 0;
 
 	protected static $productIds = array();
 	protected static $offers = array();

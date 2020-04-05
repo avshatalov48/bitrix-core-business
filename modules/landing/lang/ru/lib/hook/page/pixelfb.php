@@ -2,3 +2,4 @@
 $MESS['LANDING_HOOK_PIXEL_FB_USE'] = 'Facebook';
 $MESS['LANDING_HOOK_PIXEL_FB_COUNTER'] = 'Facebook';
 $MESS['LANDING_HOOK_PIXEL_FB_PLACEHOLDER2'] = 'Введите код пикселя';
+$MESS['LANDING_HOOK_PIXEL_FB_HELP'] = 'Подробнее';

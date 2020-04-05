@@ -73,6 +73,7 @@ if(!defined("CACHED_b_forum_user"))
 		"bitrix\\forum\\comments\\feed" => "lib/comments/feed.php",
 		"bitrix\\forum\\comments\\taskentity" => "lib/comments/taskentity.php",
 		"bitrix\\forum\\comments\\user" => "lib/comments/user.php",
+		"bitrix\\forum\\forum" => "lib/forum.php",
 
 		"textParser" => "classes/general/functions.php",
 		"forumTextParser" => "classes/general/functions.php",
@@ -320,504 +321,172 @@ function ForumGetRealIP()
 }
 
 function ForumAddMessage(
-	$MESSAGE_TYPE, $FID, $TID, $MID, $arFieldsG, &$strErrorMessage, &$strOKMessage, $iFileSize = false,
+	$MESSAGE_TYPE, $FID, $TID, $MID, $arFieldsG,
+	&$strErrorMessage, &$strOKMessage,
+	$iFileSize = false,
 	$captcha_word = "", $captcha_sid = 0, $captcha_code = "")
 {
-	global $USER, $DB, $APPLICATION;
-	$APPLICATION->ResetException();
-	$aMsg = array();
-	$bUpdateTopic = False;
-	$bAddEditNote = ($MESSAGE_TYPE == "EDIT");
-	$arParams = array(
-		"PERMISSION" => false);
-	$arUserGroups = $USER->GetUserGroupArray();
-// ************ External Permission *********************************
-	if (!empty($arFieldsG["PERMISSION_EXTERNAL"]))
+	try
 	{
-		$arParams["PERMISSION"] = CForumNew::GetUserPermission($FID, $arUserGroups);
-		$arParams["PERMISSION"] = ($arParams["PERMISSION"] < "Q" ?
-			$arFieldsG["PERMISSION_EXTERNAL"] : $arParams["PERMISSION"]);
-		unset($arFieldsG["PERMISSION_EXTERNAL"]);
-	}
-	elseif (!empty($arFieldsG["SONET_PERMS"]))
-	{
-		$arParams["PERMISSION"] = CForumNew::GetUserPermission($FID, $arUserGroups);
-		if ($arParams["PERMISSION"] < "Q")
+		global $USER;
+		$forum = \Bitrix\Forum\Forum::getById($FID);
+		$usr = \Bitrix\Forum\User::getById($USER->GetID());
+		//region 0. CAPTCHA
+		if (!$USER->IsAuthorized() && $forum["USE_CAPTCHA"]=="Y")
 		{
-			if ($arFieldsG["SONET_PERMS"]["bCanFull"] === true)
-				$arParams["PERMISSION"] = "Y";
-			elseif ($arFieldsG["SONET_PERMS"]["bCanNew"] === true)
-				$arParams["PERMISSION"] = "M";
-			elseif ($arFieldsG["SONET_PERMS"]["bCanWrite"] === true)
-				$arParams["PERMISSION"] = "I";
-			else
-				$arParams["PERMISSION"] = "A";
-		}
-		unset($arFieldsG["SONET_PERMS"]);
-	}
+			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 
-	$DB->StartTransaction();
-
-	if (!in_array($MESSAGE_TYPE, array("NEW", "EDIT", "REPLY")))
-		$aMsg[] = array("id" => "MESSAGE_TYPE", "text" => GetMessage("ADDMES_NO_TYPE").".");
-
-	$MID = intval($MID);
-	$TID = intval($TID);
-	$FID = intval($FID);
-
-	$arFieldsG["EDIT_ADD_REASON"] = ($arFieldsG["EDIT_ADD_REASON"] == "Y" ? "Y" : "N");
-	if ($MID>0)
-	{
-		$arMessage = CForumMessage::GetByID($MID, array("FILTER" => "N"));
-		if ($arMessage)
-		{
-			$TID = IntVal($arMessage["TOPIC_ID"]);
-			$FID = IntVal($arMessage["FORUM_ID"]);
-		}
-	}
-	$arTopic = array();
-	if ($TID>0)
-	{
-		$arTopic = CForumTopic::GetByID($TID);
-		if ($arTopic)
-		{
-			$FID = IntVal($arTopic["FORUM_ID"]);
-		}
-	}
-	$arForum = CForumNew::GetByID($FID);
-//************************* Input params **************************************************************************
-	if ($MESSAGE_TYPE=="NEW" && !CForumTopic::CanUserAddTopic($FID, $arUserGroups, $USER->GetID(), $arForum, $arParams["PERMISSION"]))
-		$aMsg[] = array("id" => "PERMISSION", "text" => GetMessage("ADDMESS_NO_PERMS2NEW").".");
-	elseif ($MESSAGE_TYPE=="EDIT" && !CForumMessage::CanUserUpdateMessage($MID, $arUserGroups, $USER->GetID(), $arParams["PERMISSION"]))
-		$aMsg[] = array("id" => "PERMISSION", "text" => GetMessage("ADDMESS_NO_PERMS2EDIT").".");
-	elseif ($MESSAGE_TYPE=="REPLY" && !CForumMessage::CanUserAddMessage($TID, $arUserGroups, $USER->GetID(), $arParams["PERMISSION"]))
-		$aMsg[] = array("id" => "PERMISSION", "text" => GetMessage("ADDMESS_NO_PERMS2REPLY").".");
-
-	if ($MESSAGE_TYPE == "NEW" ||
-		($MESSAGE_TYPE == "EDIT" && array_intersect_key($arFieldsG,
-			array("TITLE"=>"", "DESCRIPTION"=>"", "ICON"=>"", "TAGS"=>"",
-				"OWNER_ID"=>"", "SOCNET_GROUP_ID"=>"")) &&
-			CForumTopic::CanUserUpdateTopic($TID, $arUserGroups, $USER->GetID(), $arParams["PERMISSION"])))
-	{
-		$bUpdateTopic = True;
-	}
-?><?
-	if ($MESSAGE_TYPE =="EDIT" && (ForumCurrUserPermissions($FID, $arParams) > "Q" && $arFieldsG["EDIT_ADD_REASON"] == "N"))
-		$bAddEditNote = false;
-	//*************************!CAPTCHA********************************************************************************
-	if (!$USER->IsAuthorized() && $arForum["USE_CAPTCHA"]=="Y")
-	{
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-
-		$cpt = new CCaptcha();
-		if (strlen($captcha_code) > 0)
-		{
-			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-			if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code, $captchaPass))
-				$aMsg[] = array("id" => "CAPTCHA", "text" => GetMessage("FORUM_POSTM_CAPTCHA").".");
-		}
-		else
-		{
-			if (!$cpt->CheckCode($captcha_word, $captcha_sid))
-				$aMsg[] = array("id" => "CAPTCHA", "text" => GetMessage("FORUM_POSTM_CAPTCHA").".");
-		}
-	}
-	//*************************!CAPTCHA********************************************************************************
-	$arFieldsG["POST_MESSAGE"] = trim($arFieldsG["POST_MESSAGE"]);
-	if (empty($arFieldsG["POST_MESSAGE"]))
-		$aMsg[] = array("id" => "POST_MESSAGE", "text" => GetMessage("ADDMESS_INPUT_MESSAGE").".");
-
-	if ($bUpdateTopic && is_set($arFieldsG, "TITLE"))
-	{
-		$arFieldsG["TITLE"] = trim($arFieldsG["TITLE"]);
-		if (empty($arFieldsG["TITLE"]))
-			$aMsg[] = array("id" => "TITLE", "text" => GetMessage("ADDMESS_INPUT_TITLE").".");
-	}
-
-//*************************!QUOTA**********************************************************************************
-/*	if (empty($aMsg))
-	{
-		$quota = new CDiskQuota();
-		if ($MESSAGE_TYPE=="EDIT")
-		{
-			if (!$quota->checkDiskQuota(strLen($arFieldsG["POST_MESSAGE"]) - strLen($arMessage["POST_MESSAGE"])))
+			$cpt = new CCaptcha();
+			if (strlen($captcha_code) > 0)
 			{
-				if (!$quota->LAST_ERROR)
-					$aMsg[] = array("id" => "QUOTA", "text" => GetMessage("MAIN_QUOTA_BAD")."( ".COption::GetOptionInt("main", "disk_space")." ).");
-				else
-					$aMsg[] = array("id" => "QUOTA", "text" => $quota->LAST_ERROR);
+				if (!$cpt->CheckCodeCrypt($captcha_word, $captcha_code))
+				{
+					throw new \Bitrix\Main\AccessDeniedException(GetMessage("FORUM_POSTM_CAPTCHA"));
+				}
+			}
+			else if (!$cpt->CheckCode($captcha_word, $captcha_sid))
+			{
+				throw new \Bitrix\Main\AccessDeniedException(GetMessage("FORUM_POSTM_CAPTCHA"));
 			}
 		}
-		elseif (!$quota->checkDiskQuota($arFieldsG["POST_MESSAGE"]))
+		//endregion
+		//region 1. Set permission
+		if ($usr->getPermissionOnForum($FID) < \Bitrix\Forum\Permission::CAN_MODERATE)
 		{
-			if (!$quota->LAST_ERROR)
-				$aMsg[] = array("id" => "QUOTA", "text" => GetMessage("MAIN_QUOTA_BAD")."( ".COption::GetOptionInt("main", "disk_space")." ).");
-			else
-				$aMsg[] = array("id" => "QUOTA", "text" => $quota->LAST_ERROR);
+			if (!empty($arFieldsG["PERMISSION_EXTERNAL"]))
+			{
+				$usr->setPermissionOnForum($FID, $arFieldsG["PERMISSION_EXTERNAL"]);
+			}
+			elseif (!empty($arFieldsG["SONET_PERMS"]))
+			{
+				$externalPermission = "A";
+				if ($arFieldsG["SONET_PERMS"]["bCanFull"] === true)
+					$externalPermission = "Y";
+				elseif ($arFieldsG["SONET_PERMS"]["bCanNew"] === true)
+					$externalPermission = "M";
+				elseif ($arFieldsG["SONET_PERMS"]["bCanWrite"] === true)
+					$externalPermission = "I";
+				$usr->setPermissionOnForum($FID, $externalPermission);
+			}
 		}
-	}*/
-//*************************!QUOTA**********************************************************************************
-	if (empty($aMsg))
-	{
-//		*************************!ATTACH_IMG*****************************************************************************
-		if (is_set($arFieldsG, "ATTACH_IMG") && empty($arFieldsG["ATTACH_IMG"]["name"]) && empty($arFieldsG["ATTACH_IMG"]["del"]))
+		//endregion
+		//region 2. Collect data
+		$arFieldsG["POST_MESSAGE"] = trim($arFieldsG["POST_MESSAGE"]);
+		$arFieldsG["USE_SMILES"] = ($arFieldsG["USE_SMILES"] == "Y" ? "Y" : "N");
+		if (array_key_exists("ATTACH_IMG", $arFieldsG))
+		{
 			unset($arFieldsG["ATTACH_IMG"]);
-		if (is_set($arFieldsG, "ATTACH_IMG"))
-		{
-			$arFieldsG["ATTACH_IMG"]["FILE_ID"] = $arMessage["ATTACH_IMG"];
-			$arFieldsG["FILES"] = array($arFieldsG["ATTACH_IMG"]);
+			$arFieldsG["FILES"] = [$arFieldsG["ATTACH_IMG"]];
 		}
-		unset($arFieldsG["ATTACH_IMG"]);
-
-		if (!empty($arFieldsG["FILES"]) && is_array($arFieldsG["FILES"]))
+		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("FORUM_MESSAGE", $arFieldsG);
+		//endregion
+		//region 3. Check permission & action
+		if ($MESSAGE_TYPE == "EDIT")
 		{
-			foreach ($arFieldsG["FILES"] as $key => $val):
-				if (intVal($val["FILE_ID"]) > 0):
-					$arFieldsG["FILES"][$key]["del"] = ($val["del"] == "Y" ? "Y" : "");
-				endif;
-			endforeach;
-			$res = array("FORUM_ID" => $arForum["ID"], "TOPIC_ID" => 0, "MESSAGE_ID" => 0, "USER_ID" => $USER->GetID());
-			if (!in_array($arForum["ALLOW_UPLOAD"], array("Y", "F", "A")))
-				unset($arFieldsG["FILES"]);
-			elseif (!CForumFiles::CheckFields($arFieldsG["FILES"], $res, "NOT_CHECK_DB"))
+			if (!$usr->canModerate($forum) || $arFieldsG["EDIT_ADD_REASON"] === "Y")
 			{
-				if ($ex = $APPLICATION->GetException())
-					$aMsg[] = array("id" => "FILE", "text" => $ex->GetString());
-				else
-					$aMsg[] = array("id" => "FILE", "text" => "File upload error.");
-			}
-		}
-	}
-//*************************/ATTACH_IMG*****************************************************************************
-
-	if (empty($aMsg) && ($MESSAGE_TYPE=="NEW" || $MESSAGE_TYPE=="REPLY"))
-	{
-		$AUTHOR_ID = IntVal($USER->GetParam("USER_ID"));
-
-		if ($USER->IsAuthorized())
-		{
-			$res = CForumUser::GetByUSER_ID($USER->GetID());
-			$bSHOW_NAME = (!empty($res) ? $res["SHOW_NAME"] == "Y" : true);
-			$arFieldsG["AUTHOR_NAME"] = ($bSHOW_NAME ? trim($USER->GetFullName()) : "");
-			$arFieldsG["AUTHOR_NAME"] = (!empty($arFieldsG["AUTHOR_NAME"]) ? $arFieldsG["AUTHOR_NAME"] : $USER->GetLogin());
-		}
-
-		if (empty($arFieldsG["AUTHOR_NAME"]))
-			$aMsg[] = array("id" => "AUTHOR_NAME", "text" => GetMessage("ADDMESS_INPUT_AUTHOR").".");
-	}
-	elseif (empty($aMsg) && $MESSAGE_TYPE=="EDIT")
-	{
-		$AUTHOR_ID = IntVal($arMessage["AUTHOR_ID"]);
-		if (is_set($arFieldsG, "AUTHOR_NAME") && empty($arFieldsG["AUTHOR_NAME"]))
-		{
-			if ($AUTHOR_ID <= 0)
-				$aMsg[] = array("id" => "AUTHOR_NAME", "text" => GetMessage("ADDMESS_INPUT_AUTHOR").".");
-			else
-			{
-				$res = CForumUser::GetByUSER_ID($AUTHOR_ID);
-				$bSHOW_NAME = (!empty($res) ? $res["SHOW_NAME"] == "Y" : true);
-				if ($USER->GetID() == $AUTHOR_ID)
-				{
-					$arFieldsG["AUTHOR_NAME"] = ($bSHOW_NAME ? trim($USER->GetFullName()) : "");
-					$arFieldsG["AUTHOR_NAME"] = (!empty($arFieldsG["AUTHOR_NAME"]) ? $arFieldsG["AUTHOR_NAME"] : $USER->GetLogin());
-				}
-				else
-				{
-					$res = CForumUser::GetByUSER_IDEx($AUTHOR_ID);
-					if ($res)
-					{
-						$arFieldsG["AUTHOR_NAME"] = trim($bSHOW_NAME ? $res["NAME"]." ".$res["LAST_NAME"] : "");
-						$arFieldsG["AUTHOR_NAME"] = (!empty($arFieldsG["AUTHOR_NAME"]) ? $arFieldsG["AUTHOR_NAME"] : $res["LOGIN"]);
-					}
-					else
-					{
-						unset($arFieldsG["AUTHOR_NAME"]);
-					}
-				}
-			}
-		}
-		if ($USER->IsAuthorized())
-		{
-			$res = CForumUser::GetByUSER_ID($USER->GetID());
-			$bSHOW_NAME = (!empty($res) ? $res["SHOW_NAME"] == "Y" : true);
-			$arFieldsG["EDITOR_NAME"] = ($bSHOW_NAME ? trim($USER->GetFullName()) : "");
-			$arFieldsG["EDITOR_NAME"] = (!empty($arFieldsG["EDITOR_NAME"]) ? $arFieldsG["EDITOR_NAME"] : $USER->GetLogin());
-		}
-		if ($bAddEditNote && empty($arFieldsG["EDITOR_NAME"]))
-			$aMsg[] = array("id" => "EDITOR_NAME", "text" => GetMessage("ADDMESS_INPUT_EDITOR").".");
-	}
-//*************************/Input params ***************************************************************************
-//************************* Actions ********************************************************************************
-//************************* Add/edit topic *************************************************************************
-	if (empty($aMsg))
-	{
-		// The longest step by time. Actualization of topic, user and forum statistic info (~0.7-0.8 sec)
-		if ($MESSAGE_TYPE == "EDIT" && ($arMessage["APPROVED"] == "Y" || $arMessage["APPROVED"] == "N"))
-		{
-			$arFieldsG["APPROVED"] = $arMessage["APPROVED"];
-		}
-		elseif (!empty($arTopic) && $arTopic["APPROVED"] != "Y")
-		{
-			$arFieldsG["APPROVED"] = "N";
-		}
-		else
-		{
-			$arFieldsG["APPROVED"] = ($arForum["MODERATION"]=="Y") ? "N" : "Y";
-			if (ForumCurrUserPermissions($FID, $arParams)>="Q")
-				$arFieldsG["APPROVED"] = "Y";
-		}
-
-		if ($bUpdateTopic)
-		{
-			$arFields = array();
-			foreach (array("TITLE", "TITLE_SEO", "DESCRIPTION", "ICON", "TAGS") as $key)
-				if (is_set($arFieldsG, $key))
-					$arFields[$key] = $arFieldsG[$key];
-
-			if ($MESSAGE_TYPE=="NEW")
-			{
-				$arFields["FORUM_ID"] = $FID;
-				$arFields["USER_START_ID"] = $AUTHOR_ID;
-				$arFields["USER_START_NAME"] = $arFieldsG["AUTHOR_NAME"];
-				$arFields["LAST_POSTER_NAME"] = $arFieldsG["AUTHOR_NAME"];
-				$arFields["APPROVED"] = $arFieldsG["APPROVED"];
-				$arFields["OWNER_ID"] = $arFieldsG["OWNER_ID"];
-				$arFields["SOCNET_GROUP_ID"] = $arFieldsG["SOCNET_GROUP_ID"];
-
-				if (is_set($arFieldsG, "TOPIC_XML_ID"))
-					$arFields["XML_ID"] = $arFieldsG["TOPIC_XML_ID"];
-
-				$TID = CForumTopic::Add($arFields);
-				if (IntVal($TID)<=0)
-					$aMsg[] = array("id" => "TOPIC_ID", "text" => GetMessage("ADDMESS_ERROR_ADD_TOPIC").".");
+				$arFieldsG["EDITOR_ID"] = $usr->getId();
+				$arFieldsG["EDITOR_NAME"] = $usr->getName();
+				$arFieldsG["EDITOR_EMAIL"] = trim($arFieldsG["EDITOR_EMAIL"]);
+				$arFieldsG["EDIT_REASON"] = trim($arFieldsG["EDIT_REASON"]);
+				$arFieldsG["EDIT_DATE"] = new \Bitrix\Main\Type\DateTime();
 			}
 			else
 			{
-				$arFields["MESSAGE_ID"] = $MID;
-				if (is_set($arFieldsG, "AUTHOR_NAME")):
-					if ($arTopic["LAST_MESSAGE_ID"] == $MID && $arMessage["LAST_POSTER_NAME"] != $arFieldsG["AUTHOR_NAME"]):
-						$arFields["LAST_POSTER_NAME"] = $arFieldsG["AUTHOR_NAME"];
-					endif;
-					if ($arTopic["ABS_LAST_MESSAGE_ID"] == $MID && $arMessage["ABS_LAST_POSTER_NAME"] != $arFieldsG["AUTHOR_NAME"]):
-						$arFields["ABS_LAST_POSTER_NAME"] = $arFieldsG["AUTHOR_NAME"];
-					endif;
-					if ($arTopic["USER_START_NAME"] == $arMessage["USER_START_NAME"] && $arTopic["USER_START_NAME"] != $arFieldsG["AUTHOR_NAME"]):
-						$arFields["USER_START_NAME"] = $arFieldsG["AUTHOR_NAME"];
-					endif;
-				endif;
+				$arFieldsG["EDITOR_ID"] = 0;
+				$arFieldsG["EDITOR_NAME"] = "";
+				$arFieldsG["EDITOR_EMAIL"] = "";
+				$arFieldsG["EDIT_REASON"] = "";
+				$arFieldsG["EDIT_DATE"] = "";
+			}
 
-				if (!empty($arFields))
+			if (array_key_exists("TITLE", $arFieldsG))
+			{
+				$topic = \Bitrix\Forum\Topic::getById($TID);
+
+				if (!$usr->canEditTopic($topic))
 				{
-					$TID1 = CForumTopic::Update($TID, $arFields);
-					if (intval($TID1) <= 0):
-						$aMsg[] = array("id" => "TOPIC_ID", "text" => GetMessage("ADDMESS_ERROR_EDIT_TOPIC").".");
-					else:
-						foreach ($arFields as $key => $val):
-							if ($arFields[$key] != $arTopic[$key]):
-								$res_log[$key] =  $arFields[$key];
-								$res_log["before".$key] =  $arTopic[$key];
-							endif;
-						endforeach;
-
-						if (!empty($res_log)):
-							$arTopic = CForumTopic::GetByID($TID);
-							$res_log['FORUM_ID'] = $arTopic['FORUM_ID'];
-							CForumEventLog::Log("topic", "edit", $TID, serialize($res_log));
-						endif;
-					endif;
-
-					if (is_set($arFieldsG, "AUTHOR_NAME") && $arForum["LAST_MESSAGE_ID"] == $MID && $arForum["LAST_POSTER_NAME"] != $arFieldsG["AUTHOR_NAME"]):
-						$arFieldsForum = array("LAST_POSTER_NAME" => $arFieldsG["AUTHOR_NAME"]);
-						if ($arForum["ABS_LAST_MESSAGE_ID"] == $MID):
-							$arFieldsForum["LAST_POSTER_NAME"] = $arFieldsG["AUTHOR_NAME"];
-						endif;
-						CForumNew::Update($arForum["ID"], $arFieldsForum);
-					endif;
+					throw new \Bitrix\Main\AccessDeniedException(GetMessage("ADDMESS_NO_PERMS2EDIT"));
 				}
-			}
-		}
-	}
-//*************************/Add/edit topic *************************************************************************
-
-//************************* Add/edit message ***********************************************************************
-	if (empty($aMsg))
-	{
-		$arFields = Array(
-			"POST_MESSAGE"	=> $arFieldsG["POST_MESSAGE"],
-			"USE_SMILES"	=> ($arFieldsG["USE_SMILES"]=="Y") ? "Y" : "N",
-			"APPROVED"		=> $arFieldsG["APPROVED"]
-		);
-		if (is_set($arFieldsG, "ATTACH_IMG"))
-			$arFields["ATTACH_IMG"] = $arFieldsG["ATTACH_IMG"];
-		elseif (is_set($arFieldsG, "FILES"))
-			$arFields["FILES"] = $arFieldsG["FILES"];
-
-		if (is_set($arFieldsG, "PARAM1"))
-			$arFields["PARAM1"] = $arFieldsG["PARAM1"];
-		if (is_set($arFieldsG, "PARAM2"))
-			$arFields["PARAM2"] = $arFieldsG["PARAM2"];
-/*		elseif ($MESSAGE_TYPE != "NEW")
-		{
-			$db_res = CForumMessage::GetList(array(), array("TOPIC_ID" => $TID, "NEW_TOPIC" => "Y"));
-			if ($db_res && $res = $db_res->Fetch())
-				$res["PARAM2"] = $res["PARAM2"];
-		}*/
-		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("FORUM_MESSAGE", $arFields);
-		if ($MESSAGE_TYPE=="NEW" || $MESSAGE_TYPE=="REPLY")
-		{
-			$arFields["AUTHOR_NAME"] = $arFieldsG["AUTHOR_NAME"];
-			$arFields["AUTHOR_EMAIL"] = $arFieldsG["AUTHOR_EMAIL"];
-			$arFields["AUTHOR_ID"] = $AUTHOR_ID;
-			$arFields["FORUM_ID"] = $FID;
-			$arFields["TOPIC_ID"] = $TID;
-
-			$AUTHOR_IP = ForumGetRealIP();
-			$AUTHOR_IP_tmp = $AUTHOR_IP;
-			$AUTHOR_REAL_IP = $_SERVER['REMOTE_ADDR'];
-			if (COption::GetOptionString("forum", "FORUM_GETHOSTBYADDR", "N") == "Y")
-			{
-				$AUTHOR_IP = @gethostbyaddr($AUTHOR_IP);
-				$AUTHOR_REAL_IP = ($AUTHOR_IP_tmp==$AUTHOR_REAL_IP ?
-					$AUTHOR_IP : @gethostbyaddr($AUTHOR_REAL_IP));
-			}
-
-			$arFields["AUTHOR_IP"] = ($AUTHOR_IP!==False) ? $AUTHOR_IP : "<no address>";
-			$arFields["AUTHOR_REAL_IP"] = ($AUTHOR_REAL_IP!==False) ? $AUTHOR_REAL_IP : "<no address>";
-			$arFields["NEW_TOPIC"] = ($MESSAGE_TYPE=="NEW") ? "Y" : "N";
-			$arFields["GUEST_ID"] = $_SESSION["SESS_GUEST_ID"];
-
-			$MID = CForumMessage::Add($arFields, false);
-			if (intVal($MID)<=0)
-			{
-				$str = $APPLICATION->GetException();
-				if ($str && $str->GetString())
-					$aMsg[] = array("id" => "MESSAGE_ID", "text" => $str->GetString());
-				else
-					$aMsg[] = array("id" => "MESSAGE_ID", "text" => GetMessage("ADDMESS_ERROR_ADD_MESSAGE").".");
-				if ($MESSAGE_TYPE=="NEW")
-				{
-					CForumTopic::Delete($TID);
-					$TID = 0;
-				}
-			}
-
-		}
-		else
-		{
-			if (empty($AUTHOR_ID))
-			{
-				if (is_set($arFieldsG, "AUTHOR_NAME"))
-					$arFields["AUTHOR_NAME"] = $arFieldsG["AUTHOR_NAME"];
-				if (is_set($arFieldsG, "AUTHOR_EMAIL"))
-					$arFields["AUTHOR_EMAIL"] = $arFieldsG["AUTHOR_EMAIL"];
-			}
-
-			if ($bAddEditNote)
-			{
-				$arFields["EDITOR_NAME"] = $arFieldsG["EDITOR_NAME"];
-				$arFields["EDITOR_EMAIL"] = $arFieldsG["EDITOR_EMAIL"];
-				$arFields["EDIT_REASON"] = $arFieldsG["EDIT_REASON"];
-				$arFields["EDIT_DATE"] = "";
-
-				if ($GLOBALS["USER"]->IsAuthorized())
-					$arFields["EDITOR_ID"] = $GLOBALS["USER"]->GetID();
-			}
-			$MID1 = CForumMessage::Update($MID, $arFields);
-			if (IntVal($MID1)<=0)
-			{
-				$ex = $GLOBALS['APPLICATION']->GetException();
-				if ($ex)
-					$aMsg[] = array("id" => "MESSAGE_ID", "text" => $ex->GetString());
-				else
-					$aMsg[] = array("id" => "MESSAGE_ID", "text" => GetMessage("ADDMESS_ERROR_EDIT_MESSAGE").".");
-			}
-			elseif ($AUTHOR_ID == $GLOBALS["USER"]->GetId() && COption::GetOptionString("forum", "LOGS", "Q") < "U")
-			{}
-			else
-			{
-				$res_log = array();
-				foreach ($arFields as $key => $val):
-					if ($arFields[$key] != $arMessage[$key]):
-						if ($key == "FILES" || $key == "ATTACH_IMG"):
-							$res_log[$key] = GetMessage("F_ATTACH_IS_MODIFIED");
-							continue;
-						endif;
-						$res_log["BeforeMessage"] = $arMessage[$key];
-						$res_log["AfterMessage"] = $arFields[$key];
-					endif;
-				endforeach;
-
-				if (!empty($res_log)):
-					$arMessage = CForumMessage::GetByID($MID);
-					$TID = $arMessage['TOPIC_ID'];
-					$res_log['FORUM_ID'] = $arMessage['FORUM_ID'];
-					$arTopic = CForumTopic::GetByID($TID);
-					$res_log['TITLE'] = $arTopic['TITLE'];
-					$res_log['TOPIC_ID'] = $TID;
-					$res_log = serialize($res_log);
-					CForumEventLog::Log("message", "edit", $MID, $res_log);
-				endif;
-			}
-		}
-	}
-//*************************/Add/edit message ***********************************************************************
-	if (empty($aMsg))
-		$DB->Commit();
-	else
-		$DB->Rollback();
-
-	if (empty($aMsg) && CModule::IncludeModule("statistic"))
-	{
-		$F_EVENT1 = $arForum["EVENT1"];
-		$F_EVENT2 = $arForum["EVENT2"];
-		$F_EVENT3 = $arForum["EVENT3"];
-		if (empty($F_EVENT3))
-		{
-			$arForumSite_tmp = CForumNew::GetSites($FID);
-			if (defined("ADMIN_SECTION") && ADMIN_SECTION===true)
-			{
-				$arForumSiteCode_tmp = array_keys($arForumSite_tmp);
-				$F_EVENT3 = CForumNew::PreparePath2Message((empty($arForumSite_tmp[$arForumSiteCode_tmp[0]]) ? '' : $arForumSite_tmp[$arForumSiteCode_tmp[0]]), array("FORUM_ID"=>$FID, "TOPIC_ID"=>$TID, "MESSAGE_ID"=>$MID));
+				$result = $topic->edit($arFieldsG);
 			}
 			else
 			{
-				$F_EVENT3 = CForumNew::PreparePath2Message((empty($arForumSite_tmp[SITE_ID]) ? '' : $arForumSite_tmp[SITE_ID]), array("FORUM_ID"=>$FID, "TOPIC_ID"=>$TID, "MESSAGE_ID"=>$MID));
+				$message = \Bitrix\Forum\Message::getById($MID);
+				if (!$usr->canEditMessage($message))
+				{
+					throw new \Bitrix\Main\AccessDeniedException(GetMessage("ADDMESS_NO_PERMS2EDIT"));
+				}
+				$result = $message->edit($arFieldsG);
 			}
 		}
-		CStatistics::Set_Event($F_EVENT1, $F_EVENT2, $F_EVENT3);
-	}
+		else
+		{
+			$arFieldsG["AUTHOR_ID"] = $usr->getId();
+			$arFieldsG["AUTHOR_EMAIL"] = trim($arFieldsG["AUTHOR_EMAIL"]);
+			$arFieldsG["AUTHOR_NAME"] = trim($arFieldsG["AUTHOR_NAME"]);
+			if (strlen($arFieldsG["AUTHOR_NAME"]) <= 0 && $usr->getId() > 0)
+			{
+				$arFieldsG["AUTHOR_NAME"] = $usr->getName();
+			}
+			$arFieldsG["APPROVED"] = $forum["MODERATION"] != "Y" || $usr->canModerate($forum) ? "Y" : "N";
+			$arFieldsG["POST_DATA"] = new \Bitrix\Main\Type\DateTime();
 
-	if (empty($aMsg))
+			if ($MESSAGE_TYPE == "NEW") // New Topic
+			{
+				if (!$usr->canAddTopic($forum))
+				{
+					throw new \Bitrix\Main\AccessDeniedException(GetMessage("ADDMESS_NO_PERMS2NEW"));
+				}
+				$result = \Bitrix\Forum\Topic::create($forum, $arFieldsG);
+			}
+			else
+			{
+				$topic = \Bitrix\Forum\Topic::getById($TID);
+				if (!$usr->canAddMessage($topic))
+				{
+					throw new \Bitrix\Main\AccessDeniedException(GetMessage("ADDMESS_NO_PERMS2REPLY"));
+				}
+
+				$result = \Bitrix\Forum\Message::create($topic, $arFieldsG);
+			}
+		}
+		//endregion
+		//region 5.Send mail
+		if ($result->isSuccess())
+		{
+			$MID = $result->getId();
+			if ($MESSAGE_TYPE == "NEW" || $MESSAGE_TYPE == "REPLY")
+			{
+				CForumMessage::SendMailMessage($MID, array(), false, "NEW_FORUM_MESSAGE");
+				if ($arFieldsG["APPROVED"] != "Y")
+				{
+					$strOKMessage = GetMessage("ADDMESS_AFTER_MODERATE").". \n";
+				}
+				else
+				{
+					$strOKMessage = GetMessage("ADDMESS_SUCCESS_ADD").". \n";
+				}
+			}
+			else
+			{
+				CForumMessage::SendMailMessage($MID, array(), false, "EDIT_FORUM_MESSAGE");
+				$strOKMessage = GetMessage("ADDMESS_SUCCESS_EDIT").". \n";
+			}
+			return $MID;
+		}
+		else
+		{
+			$strErrorMessage = implode("\n", $result->getErrorMessages());
+			return false;
+		}
+
+	}
+	catch(Exception $e)
 	{
-		$arNote = array();
-		if ($MESSAGE_TYPE=="NEW" || $MESSAGE_TYPE=="REPLY")
-		{
-			CForumMessage::SendMailMessage($MID, array(), false, "NEW_FORUM_MESSAGE");
-			$arNote = array("id" => $MESSAGE_TYPE, "text" => GetMessage("ADDMESS_SUCCESS_ADD").". \n");
-		}
-		else
-		{
-			CForumMessage::SendMailMessage($MID, array(), false, "EDIT_FORUM_MESSAGE");
-			$arNote = array("id" => "EDIT", "text" => GetMessage("ADDMESS_SUCCESS_EDIT").". \n");
-		}
-
-		if ($arFieldsG["APPROVED"]!="Y")
-		{
-			$arNote["id"] .= "_NOT_APPROVED";
-			$arNote["text"] .= GetMessage("ADDMESS_AFTER_MODERATE").". \n";
-		}
-		if (is_array($strOKMessage))
-			$strOKMessage[] = $arNote;
-		else
-			$strOKMessage .= $arNote["text"];
-
-		return $MID;
+		$strErrorMessage = $e->getMessage();
+		return false;
 	}
-
-	$e = new CAdminException($aMsg);
-	$strErrorMessage = $e->GetString();
-
-	return false;
 }
 
 function ForumModerateMessage($message, $TYPE, &$strErrorMessage, &$strOKMessage, $arAddParams = array())
@@ -895,78 +564,53 @@ function ForumModerateMessage($message, $TYPE, &$strErrorMessage, &$strOKMessage
 		return false;
 }
 
-function ForumOpenCloseTopic($topic, $TYPE, &$strErrorMessage, &$strOKMessage, $arAddParams = array())
+function ForumOpenCloseTopic($topicIds, $TYPE, &$strErrorMessage, &$strOKMessage, $arAddParams = array())
 {
-	global $USER;
+	$topicIds = is_array($topicIds) ? $topicIds : [$topicIds];
 	$arError = array();
 	$arOk = array();
-	$arAddParams = (!is_array($arAddParams) ? array($arAddParams) : $arAddParams );
+	$arAddParams = (is_array($arAddParams) ? $arAddParams : []);
 	$arAddParams["PERMISSION"] = (!empty($arAddParams["PERMISSION"]) ? $arAddParams["PERMISSION"] : false);
 
-	$topic = ForumDataToArray($topic);
-	if (empty($topic))
+
+	global $USER;
+	$usr = \Bitrix\Forum\User::getById($USER->GetID());
+	foreach ($topicIds as $topicId)
 	{
-		$arError[] = GetMessage("OCTOP_NO_TOPIC");
-	}
-	else
-	{
-		if (!CForumUser::IsAdmin() && !$arAddParams["PERMISSION"])
-			$db_res = CForumTopic::GetListEx(array(), array("@ID" => implode(",", $topic), "PERMISSION_STRONG" => true));
-		else
-			$db_res = CForumTopic::GetListEx(array(), array("@ID" => implode(",", $topic)));
-		if ($db_res && $res = $db_res->Fetch())
+		$topic = \Bitrix\Forum\Topic::getById($topicId);
+		$forum = \Bitrix\Forum\Forum::getById($topic->getForumId());
+		if (is_string($arAddParams["PERMISSION"]))
 		{
-			$arFields = array();
-			$arFields["STATE"] = ($TYPE == "OPEN") ? "Y" : "N";
-			do
+			$usr->setPermissionOnForum($forum, $arAddParams["PERMISSION"]);
+		}
+		if (!$usr->canModerate($forum))
+		{
+			$arError[] = GetMessage("FMT_NO_PERMS_EDIT") . " (TID={$topic->getId()})";
+		}
+		else
+		{
+			$result = ($TYPE === "OPEN" ? $topic->open() : $topic->close());
+
+			if (!$result->isSuccess())
 			{
-				if ($res["STATE"] == "L")
-				{
-					if ($TYPE=="OPEN")
-						$arError[] = GetMessage("OCTOP_ERROR_OPEN")." (TID=".intVal($res["ID"]).")";
-					else
-						$arError[] = GetMessage("OCTOP_ERROR_CLOSE")." (TID=".intVal($res["ID"]).")";
-					continue;
-				}
-				elseif ($arAddParams["PERMISSION"] && !CForumTopic::CanUserUpdateTopic($res["ID"], $USER->GetUserGroupArray(), $USER->GetID(), $arAddParams["PERMISSION"]))
-				{
-					$arError[] = GetMessage("FMT_NO_PERMS_EDIT")." (TID=".intVal($res["ID"]).")";
-					continue;
-				}
-				$ID = CForumTopic::Update($res["ID"], $arFields, True);
-				if (IntVal($ID)<=0)
-				{
-					if ($TYPE=="OPEN")
-						$arError[] = GetMessage("OCTOP_ERROR_OPEN")." (TID=".intVal($res["ID"]).")";
-					else
-						$arError[] = GetMessage("OCTOP_ERROR_CLOSE")." (TID=".intVal($res["ID"]).")";
-				}
-				else
-				{
-					$arTopic["SORT"] = $arFields["SORT"];
-					if ($TYPE=="OPEN"):
-						$arOk[] = GetMessage("OCTOP_SUCCESS_OPEN")." (TID=".intVal($res["ID"]).")";
-						CForumEventLog::Log("topic", "open", $ID, serialize($res));
-					else:
-						$arOk[] = GetMessage("OCTOP_SUCCESS_CLOSE")." (TID=".intVal($res["ID"]).")";
-						CForumEventLog::Log("topic", "close", $ID, serialize($res));
-					endif;
-				}
-			}while ($res = $db_res->Fetch());
-		}
-		else
-		{
-			$arError[] = GetMessage("FMT_NO_PERMS_EDIT");
+				$arError[] = ($TYPE === "CLOSE" ? GetMessage("OCTOP_ERROR_CLOSE") : GetMessage("OCTOP_ERROR_OPEN")) . " (TID={$topic->getId()})";
+			}
+			else if (!empty($result->getData()))
+			{
+				$arOk[] = ($TYPE === "CLOSE" ? GetMessage("OCTOP_SUCCESS_CLOSE") : GetMessage("OCTOP_SUCCESS_OPEN")) . " (TID={$topic->getId()})";
+			}
 		}
 	}
+
+	$strOKMessage .= implode(".\n", $arOk);
+
 	if (count($arError) > 0)
+	{
 		$strErrorMessage .= implode(".\n", $arError).".\n";
-	if (count($arOk) > 0)
-		$strOKMessage .= implode(".\n", $arOk).".\n";
-	if (count($arError) > 0)
 		return false;
-	else
-		return true;
+	}
+
+	return true;
 }
 
 function ForumTopOrdinaryTopic($topic, $TYPE, &$strErrorMessage, &$strOKMessage, $arAddParams = array())
@@ -2290,6 +1934,7 @@ function ForumAddPageParams($page_url="", $params=array(), $addIfNull = false, $
 
 function ForumActions($action, $arFields, &$strErrorMessage, &$strOKMessage)
 {
+	global $USER;
 	$result = false;
 	$sError = "";
 	$sNote = "";
@@ -2348,22 +1993,35 @@ function ForumActions($action, $arFields, &$strErrorMessage, &$strOKMessage)
 			break;
 			case "SHOW_TOPIC":
 			case "HIDE_TOPIC":
-				$db_res = CForumMessage::GetList(array(), array("TOPIC_ID" => $arFields["TID"],
-					"APPROVED" => ($action == "HIDE_TOPIC" ? "Y" : "N")));
-				$message = array();
-				if ($db_res && $res = $db_res->Fetch()):
-					do
+				$topicIds = is_array($arFields["TID"]) ? $arFields["TID"] : [$arFields["TID"]];
+				$result = new \Bitrix\Main\Result();
+				$usr = \Bitrix\Forum\User::getById($USER->GetID());
+				foreach ($topicIds as $topicId)
+				{
+					$topic = \Bitrix\Forum\Topic::getById($topicId);
+					$forum = \Bitrix\Forum\Forum::getById($topic->getForumId());
+					if (is_string($arFields["PERMISSION"]))
 					{
-						$message[] = $res["ID"];
-					} while ($res = $db_res->Fetch());
-				endif;
-				if (!empty($message)):
-					$s = "";
-					$result = ForumModerateMessage($message, ($action == "HIDE_TOPIC" ? "HIDE" : "SHOW"), $sError, $s, $arFields);
-				else:
-					$result = true;
-				endif;
-				CForumEventLog::Log("topic", ($action == "HIDE_TOPIC" ? "unapprove" : "approve"), $arFields["TID"], serialize(CForumTopic::GetByID($arFields["TID"])));
+						$usr->setPermissionOnForum($forum, $arFields["PERMISSION"]);
+					}
+					if (!$usr->canModerate($forum))
+					{
+						$result->addError(new \Bitrix\Main\Error(GetMessage("MODMESS_NO_PERMS"). "(TID={$topic->getId()})"));
+					}
+					else
+					{
+						$res = ($action == "HIDE_TOPIC" ? $topic->disapprove() : $topic->approve());
+						if (!$res->isSuccess())
+						{
+							$result->addErrors($res->getErrors());
+						}
+					}
+				}
+				if (!$result->isSuccess())
+				{
+					$sError = implode("", $result->getErrorMessages());
+				}
+				$result = $result->isSuccess();
 			break;
 			case "SPAM_TOPIC":
 				$result =  ForumSpamTopic($arFields["TID"], $sError, $sNote, $arFields);

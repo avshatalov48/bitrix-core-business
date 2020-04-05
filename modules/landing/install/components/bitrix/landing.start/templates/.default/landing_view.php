@@ -28,7 +28,10 @@ $params = array(
 
 foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 {
-	$params['sef_url'][$code] = $arParams['SEF_FOLDER'] . $url;
+	if ($url)
+	{
+		$params['sef_url'][$code] = $arParams['SEF_FOLDER'] . $url;
+	}
 }
 ?>
 <?$APPLICATION->IncludeComponent(
@@ -38,11 +41,16 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		'TYPE' => $arParams['TYPE'],
 		'SITE_ID' => $arResult['VARS']['site_show'],
 		'LANDING_ID' => $arResult['VARS']['landing_edit'],
+		'FULL_PUBLICATION' => $arParams['EDIT_FULL_PUBLICATION'],
+		'DONT_LEAVE_AFTER_PUBLICATION' => $arParams['EDIT_DONT_LEAVE_FRAME'],
+		'PANEL_LIGHT_MODE' => $arParams['EDIT_PANEL_LIGHT_MODE'],
 		'PAGE_URL_URL_SITES' => $arParams['PAGE_URL_SITES'],
 		'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'PARAMS' => $params,
+		'SEF' => $params['sef_url'],
 		'AGREEMENT' => $arResult['AGREEMENT']
 	),
 	$component

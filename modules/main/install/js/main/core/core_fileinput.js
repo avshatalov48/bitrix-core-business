@@ -1796,7 +1796,7 @@ FrameMaster.prototype = {
 		}
 
 		this.activeItem = item;
-		this.description.value = item.props.description;
+		this.description.value = String(item.props.description).replace(/\&quot\;/gi, "\"");
 		var file = (item.file || item.item.file);
 		this.canvas.set(item.canvas, { props : { width : file.width, height : file.height } });
 		if (item.canvas.width != file.width || item.canvas.height != file.height)

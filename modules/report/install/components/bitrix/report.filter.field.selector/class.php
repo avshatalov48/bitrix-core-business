@@ -59,9 +59,12 @@ class CReportComponent extends \CBitrixComponent
 							array($ufInfo['USER_TYPE']['CLASS_NAME'], 'getlist'),
 							array($ufInfo)
 						);
-						while($arEnum = $rsEnum->GetNext())
+						if (is_object($rsEnum))
 						{
-							$enum[$arEnum['ID']] = $arEnum['VALUE'];
+							while($arEnum = $rsEnum->GetNext())
+							{
+								$enum[$arEnum['ID']] = $arEnum['VALUE'];
+							}
 						}
 						unset($rsEnum, $arEnum);
 					}

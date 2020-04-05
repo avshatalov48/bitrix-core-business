@@ -26,6 +26,7 @@
 		this.mess = params.mess;
 		this.fieldPrefix = params.fieldPrefix;
 		this.messageCode = params.messageCode;
+		this.messageId = params.messageId;
 
 		this.templateType = params.templateType;
 		this.templateId = params.templateId;
@@ -105,8 +106,20 @@
 	};
 	Editor.prototype.onTestSend = function (message)
 	{
-		message.data = this.getConfiguration();
+		if(this.getMessageId()) {
+			message.id = this.getMessageId();
+		}
+		if (!message.data)
+			message.data = {};
+
+		message.data = Object.assign(message.data, this.getConfiguration());
 	};
+
+	Editor.prototype.getMessageId = function ()
+	{
+		return this.messageId;
+	};
+
 	Editor.prototype.getConfiguration = function ()
 	{
 		return this.configuration.get();

@@ -7,8 +7,7 @@ use	Bitrix\Sale\Compatible,
 
 Loc::loadMessages(__FILE__);
 
-/** @deprecated */
-class CSaleOrderPropsValue
+class CAllSaleOrderPropsValue
 {
 	function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{

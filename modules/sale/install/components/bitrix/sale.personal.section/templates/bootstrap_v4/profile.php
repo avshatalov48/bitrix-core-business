@@ -8,6 +8,11 @@ if ($arParams['SHOW_PROFILE_PAGE'] !== 'Y')
 	LocalRedirect($arParams['SEF_FOLDER']);
 }
 
+global $USER;
+if ($arParams['USE_PRIVATE_PAGE_TO_AUTH'] === 'Y' && !$USER->IsAuthorized())
+{
+	LocalRedirect($arResult['PATH_TO_AUTH_PAGE']);
+}
 
 if (strlen($arParams["MAIN_CHAIN_NAME"]) > 0)
 {

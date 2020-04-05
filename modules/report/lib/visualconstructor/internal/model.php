@@ -6,7 +6,6 @@ use Bitrix\Main\Entity\Query\Filter\ConditionTree;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Report\VisualConstructor\Config\Common;
-
 use Bitrix\Report\VisualConstructor\Entity\DashboardRow;
 use Bitrix\Report\VisualConstructor\Helper\Util;
 use Bitrix\Report\VisualConstructor\Internal\Error\IErrorable;
@@ -38,7 +37,7 @@ abstract class Model implements IErrorable
 	/**
 	 * Gets the fully qualified name of table class which belongs to current model.
 	 * @throws \Bitrix\Main\NotImplementedException
-	 * @return void
+	 * @return string
 	 */
 	public static function getTableClassName()
 	{

@@ -121,7 +121,7 @@ class CRestServer
 
 					if($this->checkAuth())
 					{
-						\Bitrix\Rest\StatTable::log($this);
+						\Bitrix\Rest\UsageStatTable::log($this);
 
 
 						if($this->tokenCheck)
@@ -706,7 +706,7 @@ class CRestServer
 	public function output($data)
 	{
 		\Bitrix\Rest\LogTable::log($this, $data);
-		\Bitrix\Rest\StatTable::finalize();
+		\Bitrix\Rest\UsageStatTable::finalize();
 
 		switch($this->transport)
 		{

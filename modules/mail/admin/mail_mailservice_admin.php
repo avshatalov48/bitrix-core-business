@@ -196,9 +196,9 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 		<select name="find_site_id">
 			<option value=""><?=GetMessage("MAIL_MSERVICE_ADM_FILT_ANY"); ?></option>
 			<? $result = Bitrix\Main\SiteTable::getList(array('filter' => array('ACTIVE' => 'Y'), 'order' => array('SORT' => 'ASC'))); ?>
-			<? while (($site = $result->fetch()) !== false) { ?>
-				?><option value="<?=$site['LID']; ?>"<? if ($find_lid == $site['LID']) { ?> selected="selected"<? } ?>><?=$site['NAME']; ?></option>
-			<? } ?>
+			<? while (($site = $result->fetch()) !== false): ?>
+				<option value="<?=$site['LID'] ?>"<? if ($find_site_id == $site['LID']): ?> selected<? endif ?>><?=$site['NAME'] ?></option>
+			<? endwhile ?>
 		</select>
 	</td>
 </tr>

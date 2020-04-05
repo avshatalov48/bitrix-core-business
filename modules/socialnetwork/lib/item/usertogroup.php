@@ -191,22 +191,42 @@ class UserToGroup
 
 	public static function onAfterUserAdd(&$fields)
 	{
-		if (!self::checkUF())
+		if (
+			$fields['ID'] <= 0
+			|| (
+				isset($fields['ACTIVE'])
+				&& $fields['ACTIVE'] != 'Y'
+			)
+			|| !self::checkUF()
+		)
 		{
 			return;
 		}
 
+		$deparmentIdList = [];
 		if (
-			$fields['ID'] > 0
-			&& (!isset($fields['ACTIVE']) || $fields['ACTIVE'] == 'Y')
-			&& isset($fields['UF_DEPARTMENT'])
+			isset($fields['UF_DEPARTMENT'])
 			&& is_array($fields['UF_DEPARTMENT'])
 			&& intval($fields['UF_DEPARTMENT'][0]) > 0
+		)
+		{
+			$deparmentIdList = $fields['UF_DEPARTMENT'];
+		}
+
+		if (Loader::includeModule('intranet'))
+		{
+			$deparmentIdList = array_merge($deparmentIdList, \CIntranetUtils::getSubordinateDepartments($fields['ID'], false));
+		}
+
+		$deparmentIdList = array_unique($deparmentIdList);
+
+		if (
+			!empty($deparmentIdList)
 			&& ModuleManager::isModuleInstalled('intranet')
 			&& Loader::includeModule('iblock')
 		)
 		{
-			$groupList = self::getConnectedGroups($fields['UF_DEPARTMENT']);
+			$groupList = self::getConnectedGroups($deparmentIdList);
 			if (!empty($groupList))
 			{
 				foreach($groupList as $groupId)
@@ -236,12 +256,12 @@ class UserToGroup
 		)
 		{
 			$oldGroupList = $oldGroupAutoList = $newGroupList = array();
-			$res = UserToGroupTable::getList(array(
-				'filter' => array(
+			$res = UserToGroupTable::getList([
+				'filter' => [
 					'USER_ID' => intval($userFields['ID'])
-				),
-				'select' => array('GROUP_ID', 'AUTO_MEMBER')
-			));
+				],
+				'select' => [ 'GROUP_ID', 'AUTO_MEMBER' ]
+			]);
 			while($relation = $res->fetch())
 			{
 				$oldGroupList[] = $relation['GROUP_ID'];
@@ -263,12 +283,19 @@ class UserToGroup
 
 			$departmentList = (
 				!is_array($userFields['UF_DEPARTMENT']) || empty($userFields['UF_DEPARTMENT']) || intval($userFields['UF_DEPARTMENT'][0]) <= 0
-					? array()
+					? []
 					: $userFields['UF_DEPARTMENT']
 			);
+
+			if (Loader::includeModule('intranet'))
+			{
+				$departmentList = array_merge($departmentList, \CIntranetUtils::getSubordinateDepartments($userFields['ID'], false));
+			}
+			$departmentList = array_unique($departmentList);
+
 			if (!empty($departmentList))
 			{
-				$newGroupList = self::getConnectedGroups($userFields['UF_DEPARTMENT']);
+				$newGroupList = self::getConnectedGroups($departmentList);
 			}
 			$groupListPlus = array_diff($newGroupList, $oldGroupList);
 			$groupListMinus = array_diff($oldGroupAutoList, $newGroupList);

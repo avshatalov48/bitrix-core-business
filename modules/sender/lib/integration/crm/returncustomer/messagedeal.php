@@ -60,7 +60,7 @@ class MessageDeal extends MessageBase
 				],
 			],
 			[
-				'type' => 'string',
+				'type' => Message\ConfigurationOption::TYPE_USER_LIST,
 				'code' => 'ASSIGNED_BY',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_ASSIGNED_BY'),
 				'required' => true,
@@ -92,6 +92,7 @@ class MessageDeal extends MessageBase
 				'code' => 'CATEGORY_ID',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_RC_MESSAGE_CONFIG_DEAL_CATEGORY_ID'),
 				'required' => false,
+				'show_in_filter' => true,
 				'items' => array_merge(
 					array_map(
 						function ($category)

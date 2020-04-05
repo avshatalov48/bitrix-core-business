@@ -125,17 +125,20 @@ BX.UI.Selector.Navigation.prototype.selectCurrentItem = function(params)
 				tab: tab
 			});
 		}
+	}
 
-		if (closeDialog)
+	if (
+		closeDialog
+		&& this.selectorInstance.cursors[tab]
+	)
+	{
+		this.selectorInstance.cursors[tab].currentItem = null;
+
+		if (this.selectorInstance.isDialogOpen())
 		{
-			this.selectorInstance.cursors[tab].currentItem = null;
-
-			if (this.selectorInstance.isDialogOpen())
-			{
-				this.selectorInstance.closeDialog();
-			}
-			this.selectorInstance.closeSearch();
+			this.selectorInstance.closeDialog();
 		}
+		this.selectorInstance.closeSearch();
 	}
 };
 

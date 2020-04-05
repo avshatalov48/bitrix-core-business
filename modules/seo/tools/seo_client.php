@@ -27,10 +27,18 @@ if(CModule::IncludeModule("socialservices") && CSocServAuthManager::CheckUniqueK
 {
 	if(isset($_REQUEST["authresult"]))
 	{
-		\Bitrix\Seo\Service::clearLocalAuth();
+		$clientId = (int)$_REQUEST['proxy_client_id'];
+		$engine = (string)$_REQUEST['engine'];
+		\Bitrix\Seo\Service::clearClientsCache($engine, $clientId);
+
+		$jsEventData = [
+			'reload' => true,
+			'engine' => $engine,
+			'clientId' => $clientId > 0 ? $clientId : '',
+		];
 ?>
 <script type="text/javascript">
-	var eventData = {'reload': true};
+	var eventData = <?=CUtil::PhpToJSObject($jsEventData)?>;
 	window.opener.BX.onCustomEvent(
 		window,
 		'seo-client-auth-result',

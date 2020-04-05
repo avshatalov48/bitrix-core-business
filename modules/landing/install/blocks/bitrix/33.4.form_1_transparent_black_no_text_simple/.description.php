@@ -7,12 +7,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
-	'block' =>
-		array(
-			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.4'),
-			'section' => array('forms'),
-			'subtype' => 'form',
-		),
+	'block' => array(
+		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.4'),
+		'section' => array('sidebar'),
+		'dynamic' => false,
+		'subtype' => 'form',
+		'type' => ['page', 'store', 'smn'],
+	),
 	'nodes' => array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.4_NODE_BGIMG'),

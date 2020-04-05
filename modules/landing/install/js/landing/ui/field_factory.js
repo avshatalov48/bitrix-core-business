@@ -139,6 +139,30 @@
 				return new BX.Landing.UI.Field.LinkURL(options);
 			}
 
+			if (options.type === "dynamic_source")
+			{
+
+				options = assign({}, options, {
+					title: options.name,
+					content: options.value,
+					selector: this.selector,
+					onChange: this.onChangeHandler,
+					onValueChange: this.onValueChangeHandler,
+					options: this.linkOptions,
+					textOnly: true,
+					currentPageOnly: options.currentPageOnly,
+					allowedTypes: [
+						'block'
+					],
+					disableCustomURL: true,
+					disallowType: true,
+					customPlaceholder: BX.Landing.Loc.getMessage('LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER'),
+					panelTitle: BX.Landing.Loc.getMessage('LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER')
+				});
+
+				return new BX.Landing.UI.Field.LinkURL(options);
+			}
+
 			if (options.type === "slider" || options.type === "range-slider")
 			{
 				return new BX.Landing.UI.Field.Range({

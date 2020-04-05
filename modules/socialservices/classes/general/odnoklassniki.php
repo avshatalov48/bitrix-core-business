@@ -338,8 +338,11 @@ class COdnoklassnikiInterface
 
 	private function SetOauthKeys($socServUserId)
 	{
-		$dbSocservUser = CSocServAuthDB::GetList(array(), array('ID' => $socServUserId), false, false, array("OATOKEN", "XML_ID", "REFRESH_TOKEN"));
-		while($arOauth = $dbSocservUser->Fetch())
+		$dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
+			'filter' => ['=ID' => $socServUserId],
+			'select' => ["OATOKEN", "XML_ID", "REFRESH_TOKEN"]
+		]);
+		while($arOauth = $dbSocservUser->fetch())
 		{
 			$this->access_token = $arOauth["OATOKEN"];
 			$this->userId = preg_replace("|\D|", '', $arOauth["XML_ID"]);
@@ -360,7 +363,7 @@ class COdnoklassnikiInterface
 		if(isset($arResult["access_token"]) && $arResult["access_token"] <> '')
 		{
 			$this->access_token = $arResult["access_token"];
-			CSocServAuthDB::Update($socServUserId, array("OATOKEN" => $arResult["access_token"]));
+			\Bitrix\Socialservices\UserTable::update($socServUserId, array("OATOKEN" => $arResult["access_token"]));
 			return true;
 		}
 		return false;

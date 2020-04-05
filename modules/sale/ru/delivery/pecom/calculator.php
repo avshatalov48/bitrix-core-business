@@ -57,6 +57,8 @@ class Calculator
 			$strParams = $this->createCalcParams();
 			$jsonInfo = $this->send($strParams);
 			$result = $this->parseCalcResult($jsonInfo);
+
+
 		}
 		catch(\Exception $e)
 		{
@@ -163,7 +165,8 @@ class Calculator
 			"disableSslVerification" => true
 		));
 
-		$jsnData = $http->post("http://calc.pecom.ru/bitrix/components/pecom/calc/ajax.php", $strParams);
+		$jsnData = $http->get("https://calc.pecom.ru/bitrix/components/pecom/calc/ajax.php?".$strParams);
+
 		$errors = $http->getError();
 
 		if (!$jsnData && !empty($errors))

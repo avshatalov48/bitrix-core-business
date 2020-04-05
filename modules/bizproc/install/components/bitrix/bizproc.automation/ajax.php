@@ -62,8 +62,7 @@ $sendResponse = function($data, array $errors = array(), $plain = false)
 	}
 
 	echo \Bitrix\Main\Web\Json::encode($result);
-	CMain::FinalActions();
-	die();
+	\Bitrix\Main\Application::getInstance()->end();
 };
 $sendError = function($error) use ($sendResponse)
 {
@@ -78,8 +77,7 @@ $sendHtmlResponse = function($html)
 	}
 	header('Content-Type: text/html; charset='.LANG_CHARSET);
 	echo $html;
-	CMain::FinalActions();
-	die();
+	\Bitrix\Main\Application::getInstance()->end();
 };
 
 CBitrixComponent::includeComponentClass('bitrix:bizproc.automation');
@@ -228,7 +226,20 @@ switch ($action)
 		$updatedTemplates = array();
 		foreach ($templates as $templateData)
 		{
-			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $templateData['DOCUMENT_STATUS']);
+			$template = null;
+			if ($templateData['ID'])
+			{
+				$tpl = Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($templateData['ID'])->fetchObject();
+				if ($tpl)
+				{
+					$template = \Bitrix\Bizproc\Automation\Engine\Template::createByTpl($tpl);
+				}
+			}
+
+			if (!$template)
+			{
+				$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $templateData['DOCUMENT_STATUS']);
+			}
 
 			if (empty($templateData['IS_EXTERNAL_MODIFIED']))
 			{
@@ -252,15 +263,6 @@ switch ($action)
 
 		$sendResponse(array('templates' => $updatedTemplates, 'triggers' => $updatedTriggers), $errors);
 
-		break;
-
-	case 'GET_DESTINATION_DATA':
-		//Check permissions.
-		$checkConfigWritePerms();
-
-		CBitrixComponent::includeComponentClass('bitrix:bizproc.automation');
-		$result = \BizprocAutomationComponent::getDestinationData($documentType);
-		$sendResponse($result);
 		break;
 
 	case 'GET_LOG':

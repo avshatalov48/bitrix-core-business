@@ -14,7 +14,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 $sbParams = array(
 	"FB_USE",
 	"TW_USE",
-	"GP_USE",
 	"VK_USE"
 );
 
@@ -25,6 +24,7 @@ foreach ($sbParams as $param)
 	else
 		$arResult[$param] = false;
 }
+$arResult["GP_USE"] = false;
 
 if(isset($arParams["URL_TO_LIKE"]))
 	$arResult["URL_TO_LIKE"] = $arParams["URL_TO_LIKE"];
@@ -70,16 +70,4 @@ if(isset($arParams["TW_RELATED"]))
 else
 	$arResult["TW_RELATED"] = "";
 
-/*
- * Google+ spec params
- */
-
-if(LANGUAGE_ID == "ru")
-	$arResult["GP_LANG"] = "ru";
-elseif(LANGUAGE_ID == "de")
-	$arResult["GP_LANG"] = "de";
-else
-	$arResult["GP_LANG"] = "en-US";
-
 $this->IncludeComponentTemplate();
-?>

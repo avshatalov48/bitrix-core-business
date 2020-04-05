@@ -84,7 +84,7 @@ abstract class BasketBuilder
 	{
 		$result = true;
 
-		if((int)$productData['QUANTITY'] <= 0)
+		if((float)$productData['QUANTITY'] <= 0)
 		{
 			$this->getErrorsContainer()->addError(
 				new Error(
@@ -527,6 +527,15 @@ abstract class BasketBuilder
 				$needUpdateItemPrice = $this->isNeedUpdateNewProductPrice() && $this->isBasketItemNew($basketCode);
 				$isPriceCustom = isset($productFormData['CUSTOM_PRICE']) && $productFormData['CUSTOM_PRICE'] == 'Y';
 
+				if ($isPriceCustom)
+				{
+					$productFormData['DISCOUNT_PRICE'] = 0;
+					if ($productFormData['BASE_PRICE'] > $productFormData['PRICE'])
+					{
+						$productFormData['DISCOUNT_PRICE'] = $productFormData['BASE_PRICE'] - $productFormData['PRICE'];
+					}
+				}
+
 				if(($order->getId() <= 0 && !$isPriceCustom) || $needUpdateItemPrice)
 					unset($productFormData['PRICE'], $productFormData['PRICE_BASE'], $productFormData['BASE_PRICE']);
 
@@ -559,6 +568,25 @@ abstract class BasketBuilder
 				$order->getSiteId(),
 				array_merge($product, $productFormData)
 			);
+
+			if ($product["CURRENCY"] !== $order->getCurrency())
+			{
+				$product["PRICE"] = \CCurrencyRates::ConvertCurrency($product["PRICE"], $product["CURRENCY"], $order->getCurrency());
+				if ($product["BASE_PRICE"] > 0)
+				{
+					$product["BASE_PRICE"] = \CCurrencyRates::ConvertCurrency($product["BASE_PRICE"], $product["CURRENCY"], $order->getCurrency());
+				}
+				if ($product["DISCOUNT_PRICE"] > 0)
+				{
+					$product["DISCOUNT_PRICE"] = \CCurrencyRates::ConvertCurrency($product["DISCOUNT_PRICE"], $product["CURRENCY"], $order->getCurrency());
+				}
+				if ($product["VAT_RATE"] > 0)
+				{
+					$product["VAT_RATE"] = \CCurrencyRates::ConvertCurrency($product["VAT_RATE"], $product["CURRENCY"], $order->getCurrency());
+				}
+
+				$product["CURRENCY"] = $order->getCurrency();
+			}
 
 			self::setBasketItemFields($item, $product);
 		}

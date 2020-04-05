@@ -36,7 +36,7 @@
 		{
 			this.title = BX.create("span", {
 				props: {className: "landing-ui-new-inline"},
-				text: BX.message("LANDING_BLOCKS_LIST_PREVIEW_NEW")
+				text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_LIST_PREVIEW_NEW")
 			}).outerHTML + "&nbsp;" + this.title;
 			this.header.innerHTML = this.title;
 		}
@@ -66,7 +66,7 @@
 				children: [
 					create("div", {
 						props: {className: "landing-ui-requires-update-overlay-footer"},
-						html: BX.message("LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE")
+						html: BX.Landing.Loc.getMessage("LANDING_BLOCK_REQUIRES_UPDATE_MESSAGE")
 					})
 				]
 			});

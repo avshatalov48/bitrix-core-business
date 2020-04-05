@@ -40,6 +40,10 @@
 				 data-form-style-main-bg-light="1"
 			>
 			</div>
+			<div class="g-bg-white"
+				 data-form-style-light-bg="1"
+			>
+			</div>
 		</div>
 
 		<div class="container g-pos-rel g-z-index-1 g-py-100">

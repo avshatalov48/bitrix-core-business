@@ -53,7 +53,13 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 		$selectedUserList = array();
 		if (!empty($selectedItems[$entityType]))
 		{
-			$selectedUserList = array_map(function($code) { return preg_replace('/^U(\d+)$/', '$1', $code); }, $selectedItems[$entityType]);
+			$selectedUserList = array_map(
+				function($code)
+				{
+					return preg_replace('/^U(\d+)$/', '$1', $code);
+				},
+				$selectedItems[$entityType]
+			);
 		}
 
 		$selected = array();
@@ -94,70 +100,79 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 			$lastUserList = array();
 			if(!empty($lastItems[$entityType]))
 			{
-				$lastUserList = array_map(function($code) { return preg_replace('/^U(\d+)$/', '$1', $code); }, $lastItems[$entityType]);
+				$lastUserList = array_map(
+					function($code)
+					{
+						return preg_replace('/^U(\d+)$/', '$1', $code);
+					},
+					$lastItems[$entityType]
+				);
 			}
 
 			$result['ADDITIONAL_INFO']['EXTRANET_USER'] = 'N';
 
+			$items[$entityType] = [];
 			if (!empty($lastUserList))
 			{
 				$items[$entityType] = \CSocNetLogDestination::getUsers(array(
 					'id' => $lastUserList,
-					'CRM_ENTITY' => ModuleManager::isModuleInstalled('crm')
+					'CRM_ENTITY' => ModuleManager::isModuleInstalled('crm'),
+					'ONLY_WITH_EMAIL' => (isset($options['onlyWithEmail']) && $options['onlyWithEmail'] == 'Y' ? 'Y' : '')
 				));
+			}
 
-				$items[$entityType] = array_merge($items[$entityType], $selected);
+			$items[$entityType] = array_merge($items[$entityType], $selected);
 
-				if (
-					isset($options['extranetContext'])
-					&& in_array($options['extranetContext'], array(Entities::EXTRANET_CONTEXT_INTERNAL, Entities::EXTRANET_CONTEXT_EXTERNAL))
-				)
-				{
-					foreach($items[$entityType] as $key => $value)
-					{
-						if (isset($value["isExtranet"]))
-						{
-							if (
-								(
-									$value["isExtranet"] == 'Y'
-									&& $options['extranetContext'] == Entities::EXTRANET_CONTEXT_INTERNAL
-								)
-								|| (
-									$value["isExtranet"] == 'N'
-									&& $options['extranetContext'] == Entities::EXTRANET_CONTEXT_EXTERNAL
-								)
-							)
-							{
-								unset($items[$entityType][$key]);
-								unset($lastItems[$entityType][$key]);
-							}
-						}
-					}
-				}
-
+			if (
+				isset($options['extranetContext'])
+				&& in_array($options['extranetContext'], array(Entities::EXTRANET_CONTEXT_INTERNAL, Entities::EXTRANET_CONTEXT_EXTERNAL))
+			)
+			{
 				foreach($items[$entityType] as $key => $value)
 				{
-					if (
-						!empty($value['isEmail'])
-						&& $value['isEmail'] == 'Y'
-					)
+					if (isset($value["isExtranet"]))
 					{
-						unset($items[$entityType][$key]);
-						unset($lastItems[$entityType][$key]);
-					}
-				}
-
-				if (!empty($selectedItems[$entityType]))
-				{
-					foreach($selectedItems[$entityType] as $code)
-					{
-						if (!isset($items[$entityType][$code]))
+						if (
+							(
+								$value["isExtranet"] == 'Y'
+								&& $options['extranetContext'] == Entities::EXTRANET_CONTEXT_INTERNAL
+							)
+							|| (
+								$value["isExtranet"] == 'N'
+								&& $options['extranetContext'] == Entities::EXTRANET_CONTEXT_EXTERNAL
+							)
+						)
 						{
-							$result['ITEMS_HIDDEN'][] = $code;
+							unset($items[$entityType][$key]);
+							unset($lastItems[$entityType][$key]);
 						}
 					}
 				}
 			}
+
+			if (!empty($selectedItems[$entityType]))
+			{
+				foreach($selectedItems[$entityType] as $code)
+				{
+					if (!isset($items[$entityType][$code]))
+					{
+						$result['ITEMS_HIDDEN'][] = $code;
+					}
+				}
+			}
+
+			foreach($items[$entityType] as $key => $value)
+			{
+				if (
+					!empty($value['isEmail'])
+					&& $value['isEmail'] == 'Y'
+				)
+				{
+					unset($items[$entityType][$key]);
+					unset($lastItems[$entityType][$key]);
+				}
+			}
+
 
 			$result["ITEMS_LAST"] = array_values($lastItems[$entityType]);
 
@@ -296,6 +311,7 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 					"EMAIL_USERS" => (!empty($entityOptions['allowSearchByEmail']) && $entityOptions['allowSearchByEmail'] == 'Y'),
 					"CRMEMAIL_USERS" => (!empty($entityOptions['allowSearchCrmEmailUsers']) && $entityOptions['allowSearchCrmEmailUsers'] == 'Y'),
 					"NETWORK_SEARCH" => false,
+					"ONLY_WITH_EMAIL" => (isset($entityOptions['onlyWithEmail']) && $entityOptions['onlyWithEmail'] == 'Y' ? 'Y' : '')
 				),
 				$searchModified
 			);

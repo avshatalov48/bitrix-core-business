@@ -75,9 +75,13 @@ class UnionCondition
 	}
 
 	/**
+	 * @param bool $forceObjectPrimary
+	 *
 	 * @return string
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getSql()
+	public function getSql($forceObjectPrimary = false)
 	{
 		$sql = "UNION ";
 
@@ -86,17 +90,21 @@ class UnionCondition
 			$sql .= "ALL ";
 		}
 
-		return $sql."({$this->getSubQuerySql()})";
+		return $sql."({$this->getSubQuerySql($forceObjectPrimary)})";
 	}
 
 	/**
+	 * @param bool $forceObjectPrimary
+	 *
 	 * @return string
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getSubQuerySql()
+	public function getSubQuerySql($forceObjectPrimary = false)
 	{
 		if ($this->subQuery instanceof Query)
 		{
-			return $this->subQuery->getQuery();
+			return $this->subQuery->getQuery($forceObjectPrimary);
 		}
 		elseif ($this->subQuery instanceof SqlExpression)
 		{

@@ -19,7 +19,12 @@ class CSaleBigdataFollowupMail extends CatalogBigdataProductsComponent
 			$id = $this->arParams['ORDER_ID'];
 			if (\Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder())
 			{
-				$order = \Bitrix\Sale\Order::loadByAccountNumber($this->arParams['ORDER_ID']);
+				$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
+
+				/** @var \Bitrix\Sale\Order $orderClass */
+				$orderClass = $registry->getOrderClassName();
+
+				$order = $orderClass::loadByAccountNumber($this->arParams['ORDER_ID']);
 				if (!empty($order))
 				{
 					$id = $order->getId();

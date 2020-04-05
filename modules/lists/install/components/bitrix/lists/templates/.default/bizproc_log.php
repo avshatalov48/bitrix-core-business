@@ -30,7 +30,7 @@ if($isBitrix24Template)
 }
 ?>
 	<div class="pagetitle-container pagetitle-align-right-container">
-		<a href="<?=htmlspecialcharsbx($backUrl)?>" class="lists-list-back">
+		<a href="<?=htmlspecialcharsbx($backUrl)?>" class="ui-btn ui-btn-sm ui-btn-link ui-btn-themes lists-list-back">
 			<?=GetMessage("CT_BL_LIST_GO_BACK")?>
 		</a>
 	</div>

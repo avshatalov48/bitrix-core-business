@@ -1,0 +1,37 @@
+<?
+$MESS["PERSON_TYPE_TITLE"] = "Тип платника";
+$MESS["ERROR_ADD_REC"] = "Помилка додавання запису";
+$MESS["ERROR_NAME_REC"] = "Поле «Назва» не встановлено у запису";
+$MESS["ERROR_LID_REC"] = "Поле «Сайт» не встановлено у запису";
+$MESS["ERROR_UPDATE_REC"] = "Помилка змінення запису";
+$MESS["SALE_F_FILTER"] = "Фільтр";
+$MESS["LANG_FILTER_NAME"] = "Сайт";
+$MESS["LANG_FILTER_BTN"] = "Встановити";
+$MESS["SALE_F_DEL"] = "Скинути";
+$MESS["LANG_ALL"] = "(Всі)";
+$MESS["PERS_TYPE_NAV"] = "Типи платника";
+$MESS["PERS_TYPE_NAME"] = "Назва";
+$MESS["PERS_TYPE_LID"] = "Сайт";
+$MESS["PERS_TYPE_SORT"] = "Сорт.";
+$MESS["PERS_TYPE_DEL"] = "Видалити";
+$MESS["PERS_TYPE_UPD"] = "Зберегти";
+$MESS["PERS_TYPE_RESET"] = "Скинути";
+$MESS["PERS_TYPE_ID"] = "ID";
+$MESS["PERS_TYPE_DEL_CONF"] = "Видалення типу платника призведе до видалення всіх пов'язаних властивостей і налаштувань. Якщо в цього типу платника є замовлення, то він не буде видалений.";
+$MESS["SALE_PROPS"] = "Властивості";
+$MESS["SPT_ALL"] = "(всі)";
+$MESS["SPT_UNSET"] = "Скинути";
+$MESS["SPTAN_ERROR_UPDATE"] = "Помилка змінненя запису";
+$MESS["SPTAN_ERROR_DELETE"] = "Помилка видалення запису";
+$MESS["PERS_PROPS"] = "Властивості";
+$MESS["SPTAN_UPDATE_ALT"] = "Змінити";
+$MESS["SPTAN_DELETE_ALT1"] = "Видалити";
+$MESS["SPTAN_ADD_NEW"] = "Додати тип";
+$MESS["SPTAN_ADD_NEW_ALT"] = "Натисніть для додавання нового типу платника";
+$MESS["SPTAN_VIEW_PROPS"] = "Переглянути перелік властивостей";
+$MESS["PERS_ACTIVE"] = "Активність";
+$MESS["SALE_YES"] = "Так";
+$MESS["SALE_NO"] = "Ні";
+$MESS["SALE_FIELD_ACTIVE"] = "Активність";
+$MESS["SALE_ALL"] = "все";
+?>

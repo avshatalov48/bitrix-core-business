@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\UI\Filter;
 
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
@@ -29,6 +28,27 @@ class Field
 		$field = array(
 			"ID" => "field_".$name,
 			"TYPE" => Type::STRING,
+			"NAME" => $name,
+			"VALUE" => $defaultValue,
+			"LABEL" => $label,
+			"PLACEHOLDER" => $placeholder
+		);
+
+		return $field;
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $defaultValue
+	 * @param string $label
+	 * @param string $placeholder
+	 * @return array
+	 */
+	public static function textarea($name, $defaultValue = "", $label = "", $placeholder = "")
+	{
+		$field = array(
+			"ID" => "field_".$name,
+			"TYPE" => Type::TEXTAREA,
 			"NAME" => $name,
 			"VALUE" => $defaultValue,
 			"LABEL" => $label,
@@ -551,9 +571,11 @@ class Field
 	/**
 	 * Prepares data of user field
 	 * @param string $name
-	 * @param string $value
 	 * @param string $label
 	 * @param string $placeholder
+	 * @param bool $multiple
+	 * @param array $params
+	 * @param bool $lightweight
 	 * @return array
 	 */
 	public static function destSelector($name, $label = "", $placeholder = "", $multiple = false, $params = array(), $lightweight = false)
@@ -583,34 +605,44 @@ class Field
 				'eventInit' => 'BX.Filter.DestinationSelector:openInit',
 				'eventOpen' => 'BX.Filter.DestinationSelector:open',
 				'context' => (isset($params['context']) ? $params['context'] : 'FILTER_'.$name),
+				'popupAutoHide' => 'N',
 				'useSearch' => 'N',
 				'userNameTemplate' => \CUtil::jSEscape(\CSite::getNameFormat()),
-				'useClientDatabase' => 'Y',
-				'allowEmailInvitation' => (isset($params['allowEmailInvitation']) && $params['allowEmailInvitation'] == 'Y' ? 'Y' : 'N'),
+				'useClientDatabase' => (isset($params['useClientDatabase']) && $params['useClientDatabase'] == 'N' ? 'N' : 'Y'),
 				'enableLast' => 'Y',
 				'enableUsers' => (!isset($params['enableUsers']) || $params['enableUsers'] != 'N' ? 'Y' : 'N'),
 				'enableDepartments' => (!isset($params['enableDepartments']) || $params['enableDepartments'] != 'N' ? 'Y' : 'N'),
-				'enableSonetgroups' => (isset($params['enableSonetgroups']) && $params['enableSonetgroups'] == 'Y' ? 'Y' : 'N'),
-				'departmentSelectDisable' => (isset($params['departmentSelectDisable']) && $params['departmentSelectDisable'] == 'Y' ? 'Y' : 'N'),
 				'allowAddUser' => 'N',
 				'allowAddCrmContact' => 'N',
 				'allowAddSocNetGroup' => 'N',
-				'allowSearchEmailUsers' => (isset($params['allowSearchEmailUsers']) && $params['allowSearchEmailUsers'] == 'Y' ? 'Y' : 'N'),
 				'allowSearchCrmEmailUsers' => 'N',
 				'allowSearchNetworkUsers' => 'N',
-				'allowSonetGroupsAjaxSearchFeatures' => 'N',
 				'useNewCallback' => 'Y',
-				'enableAll' => (isset($params['enableAll']) && $params['enableAll'] == 'Y' ? 'Y' : 'N'),
-				'enableEmpty' => (isset($params['enableEmpty']) && $params['enableEmpty'] == 'Y' ? 'Y' : 'N'),
-				'enableProjects' => (isset($params['enableProjects']) && $params['enableProjects'] == 'Y' ? 'Y' : 'N'),
 				'focusInputOnSelectItem' => 'N',
-				'focusInputOnSwitchTab' => 'N'
+				'focusInputOnSwitchTab' => 'N',
+				'landing' => (isset($params['landing']) && $params['landing'] == 'Y' ? 'Y' : 'N'),
 			);
 
 			if (!empty($params['contextCode']))
 			{
 				$optionsList['contextCode'] = $params['contextCode'];
+				unset($params['contextCode']);
 			}
+
+			if (isset($params['context']))
+			{
+				unset($params['context']);
+			}
+			if (isset($params['enableUsers']))
+			{
+				unset($params['enableUsers']);
+			}
+			if (isset($params['enableDepartments']))
+			{
+				unset($params['enableDepartments']);
+			}
+
+			$optionsList = array_merge($optionsList, $params);
 
 			$APPLICATION->includeComponent(
 				"bitrix:main.ui.selector",
@@ -626,7 +658,8 @@ class Field
 						'closeDialog' => 'BX.Filter.DestinationSelectorManager.onDialogClose',
 						'openSearch' => ''
 					),
-					'OPTIONS' => $optionsList
+					'OPTIONS' => $optionsList,
+					'LOAD_JS' => true
 				),
 				false,
 				array("HIDE_ICONS" => "Y")

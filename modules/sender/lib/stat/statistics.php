@@ -418,21 +418,43 @@ class Statistics
 		));
 		while ($item = $listDb->fetch())
 		{
-			foreach ($item as $name => $value)
-			{
-				if (substr($name, 0, 4) == 'SEND')
-				{
-					$base = $item['SEND_ALL'];
-				}
-				else
-				{
-					$base = $item['SEND_SUCCESS'];
-				}
-				$list[] = self::getCounterCalculation($name, $value, $base);
-			}
+			$list = array_merge($list, $this->createListFromItem($item));
 		}
 
 		$this->counters = $list;
+		return $list;
+	}
+
+	public function initFromArray($postingData)
+	{
+		$item = [
+			'SEND_ALL' => (int)$postingData['COUNT_SEND_ALL'],
+			'SEND_ERROR' => (int)$postingData['COUNT_SEND_ERROR'],
+			'SEND_SUCCESS' => (int)$postingData['COUNT_SEND_SUCCESS'],
+			'READ' => (int)$postingData['COUNT_READ'],
+			'CLICK' => (int)$postingData['COUNT_CLICK'],
+			'UNSUB' => (int)$postingData['COUNT_UNSUB']
+		];
+		$this->counters = $this->createListFromItem($item);
+
+		return $this;
+	}
+
+	protected function createListFromItem($item)
+	{
+		$list = [];
+		foreach ($item as $name => $value)
+		{
+			if (substr($name, 0, 4) == 'SEND')
+			{
+				$base = $item['SEND_ALL'];
+			}
+			else
+			{
+				$base = $item['SEND_SUCCESS'];
+			}
+			$list[] = self::getCounterCalculation($name, $value, $base);
+		}
 		return $list;
 	}
 
@@ -526,8 +548,9 @@ class Statistics
 			foreach ($list as $index => $item)
 			{
 				$item['URL'] = (new Uri($item['URL']))
-					->deleteParams($linkParams)
-					->getLocator();
+					->deleteParams($linkParams, true)
+					->getUri();
+				$item['URL'] = urldecode($item['URL']);
 				if (!isset($groupedList[$item['URL']]))
 				{
 					$groupedList[$item['URL']] = 0;

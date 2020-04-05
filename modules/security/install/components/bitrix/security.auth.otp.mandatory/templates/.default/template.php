@@ -3,6 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
 CJSCore::Init(array('qrcode', 'ajax'));
+\Bitrix\Main\UI\Extension::load("ui.common");
 
 /**
  * @var array $arParams

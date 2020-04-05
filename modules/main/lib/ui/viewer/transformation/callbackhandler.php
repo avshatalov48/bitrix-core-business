@@ -146,5 +146,18 @@ if (Loader::includeModule('transformer'))
 
 			return false;
 		}
+
+		public static function existSavedFile($fileId)
+		{
+			$previewRow = FilePreviewTable::getList([
+				'select' => ['ID', 'PID' => 'PREVIEW.ID'],
+				'filter' => [
+					'=FILE_ID' => $fileId,
+				],
+				'limit' => 1,
+			])->fetch();
+
+			return !empty($previewRow['PID']);
+		}
 	}
 }

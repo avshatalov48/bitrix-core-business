@@ -34,24 +34,27 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
 	if ($calendar2)
 	{
 		$APPLICATION->IncludeComponent(
-			"bitrix:calendar.grid",
+			"bitrix:ui.sidepanel.wrapper",
 			"",
-			Array(
-				"CALENDAR_TYPE" => 'user',
-				"OWNER_ID" => $ownerId,
-				"ALLOW_SUPERPOSE" => $arParams['CALENDAR_ALLOW_SUPERPOSE'],
-				"ALLOW_RES_MEETING" => $arParams["CALENDAR_ALLOW_RES_MEETING"],
-				"SET_TITLE" => 'Y',
-				"SET_NAV_CHAIN" => 'Y',
-				'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
-				'PATH_TO_USER' => $arParams['PATH_TO_USER'],
-				'PATH_TO_COMPANY_DEPARTMENT' => $arParams['PATH_TO_CONPANY_DEPARTMENT'],
-				'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
-				'PATH_TO_USER_TASK' => $arResult["PATH_TO_USER_TASKS_TASK"],
-				'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"]
-			),
-			$component,
-			array("HIDE_ICONS" => "Y")
+			array(
+				'POPUP_COMPONENT_NAME' => "bitrix:calendar.grid",
+				"POPUP_COMPONENT_TEMPLATE_NAME" => "",
+				"POPUP_COMPONENT_PARAMS" => array(
+					"CALENDAR_TYPE" => 'user',
+					"OWNER_ID" => $ownerId,
+					"ALLOW_SUPERPOSE" => $arParams['CALENDAR_ALLOW_SUPERPOSE'],
+					"ALLOW_RES_MEETING" => $arParams["CALENDAR_ALLOW_RES_MEETING"],
+					"SET_TITLE" => 'Y',
+					"SET_NAV_CHAIN" => 'Y',
+					'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
+					'PATH_TO_USER' => $arParams['PATH_TO_USER'],
+					'PATH_TO_COMPANY_DEPARTMENT' => $arParams['PATH_TO_CONPANY_DEPARTMENT'],
+					'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
+					'PATH_TO_USER_TASK' => $arResult["PATH_TO_USER_TASKS_TASK"],
+					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"]
+				),
+				"POPUP_COMPONENT_PARENT" => $component
+			)
 		);
 	}
 	else

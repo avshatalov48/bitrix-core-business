@@ -124,3 +124,10 @@
 		padding: 20px 0 10px;
 	}
 }
+.input-group-addon .bx-calendar {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background: url(images/calendar.svg) no-repeat center;
+	background-size: 18px auto;
+}

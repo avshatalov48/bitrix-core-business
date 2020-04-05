@@ -30,23 +30,19 @@ function FilterConditionsParameterControl(data, params)
 	BX.addCustomEvent('onNextVisualChange', BX.proxy(this.onChangeForm, this));
 	BX.addCustomEvent('onTreeCondPopupClose', BX.proxy(this.onChangeForm, this));
 
-	BX.loadScript('/bitrix/js/catalog/core_tree.js', function(){
-		BX.ajax({
-			timeout: 60,
-			method: 'POST',
-			dataType: 'html',
-			url: that.path + '/ajax.php',
-			data: {
-				action: 'init',
-				condition: that.params.oInput.value,
-				ids: that.ids,
-				sessid: BX.bitrix_sessid()
-			},
-			onsuccess: BX.proxy(this.saveData, this)
-		})
+	BX.ajax({
+		timeout: 60,
+		method: 'POST',
+		dataType: 'html',
+		url: that.path + '/ajax.php',
+		data: {
+			action: 'init',
+			condition: that.params.oInput.value,
+			ids: that.ids,
+			sessid: BX.bitrix_sessid()
+		},
+		onsuccess: BX.proxy(this.saveDataAfterInit, this)
 	});
-	BX.loadCSS('/bitrix/panel/catalog/catalog_cond.css');
-	// BX.loadCSS(this.path + '/style.css?' + rand);
 }
 
 FilterConditionsParameterControl.prototype =
@@ -226,6 +222,11 @@ FilterConditionsParameterControl.prototype =
 				]
 			})
 		);
+	},
+
+	saveDataAfterInit: function()
+	{
+		setTimeout(BX.proxy(this.saveData, this), 50);
 	},
 
 	saveData: function()

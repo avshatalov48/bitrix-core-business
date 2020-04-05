@@ -187,7 +187,7 @@
 	width: auto;
 }
 
-.landing-card-title-text {
+.landing-card-title-text, .landing-card-title-link {
 	max-width: 210px;
 	overflow: hidden;
 	text-overflow: ellipsis;

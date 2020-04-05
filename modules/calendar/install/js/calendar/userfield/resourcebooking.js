@@ -41,7 +41,7 @@
 
 	BX.Calendar.UserField.ResourceBooking.prototype.showEditLayout = function()
 	{
-		this.allValuesValue = '';
+		this.allValuesValue = null;
 		this.DOM.dateTimeWrap = this.DOM.outerWrap.appendChild(BX.create("div", {props: { className: "calendar-resourcebook-content-block-detail-wrap calendar-resourcebook-content-block-detail-wrap-flex"}}));
 
 		var
@@ -105,6 +105,8 @@
 			},
 			props: {className: 'calendar-resbook-date-input calendar-resbook-field-datetime'}
 		}));
+
+		this.DOM.emptyInput = this.DOM.dateWrap.appendChild(BX.create('INPUT', {attrs: {value: '',type: 'text'}, props: {className: 'calendar-resbook-empty-input'}}));
 		// endregion
 
 		// region Time
@@ -360,11 +362,6 @@
 		}, this), 100);
 
 		setTimeout(BX.proxy(this.onChangeValues, this), 100);
-
-		// Mantis:107646
-		setTimeout(BX.proxy(function(){
-			BX.fireEvent(this.DOM.fromInput, 'change');
-		}, this), 100);
 	};
 
 	BX.Calendar.UserField.ResourceBooking.prototype.showSmallCalendar = function(e)
@@ -435,14 +432,12 @@
 					}})));
 		}
 
-		if (!this.allValuesValue)
-		{
-			this.allValuesValue = allValuesValue;
-		}
-		else if (this.allValuesValue !== allValuesValue)
+		if (this.allValuesValue !== null && this.allValuesValue !== allValuesValue)
 		{
 			BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [this.params.controlId]);
+			BX.fireEvent(this.DOM.emptyInput, 'change');
 		}
+		this.allValuesValue = allValuesValue;
 	};
 
 	BX.Calendar.UserField.ResourceBooking.prototype.showPlannerPopup = function()
@@ -504,7 +499,8 @@
 				entriesListWidth: 120,
 				timelineCellWidth: 49,
 				minWidth: 300,
-				accuracy: 300
+				accuracy: 300,
+				workTime: [parseInt(this.params.workTime[0]), parseInt(this.params.workTime[1])]
 			};
 		}
 
@@ -1157,7 +1153,7 @@
 				bindPos = BX.pos(this.bindNode),
 				winSize = BX.GetWindowSize();
 
-			this.plannerWidth = winSize.innerWidth - bindPos.right - 120;
+			this.plannerWidth = winSize.innerWidth - bindPos.right - 160;
 			this.config.width = this.plannerWidth;
 
 			setTimeout(BX.delegate(function(){
@@ -1170,7 +1166,7 @@
 			setTimeout(BX.delegate(function(){
 				if (this.popup && this.popup.popupContainer)
 				{
-					this.popup.popupContainer.style.width = this.plannerWidth + 'px';
+					this.popup.popupContainer.style.width = (this.plannerWidth + 40) + 'px';
 					BX.addClass(this.popup.popupContainer, 'show');
 				}
 				BX.bind(document, 'click', BX.proxy(this.handleClick, this));
@@ -3493,6 +3489,94 @@
 		}
 	};
 
+	function TimezoneSelector(params)
+	{
+		this.params = BX.type.isPlainObject(params) ? params : {};
+		this.DOM = {
+			outerWrap: this.params.outerWrap
+		};
+		BX.addClass(this.DOM.outerWrap, 'fields enumeration field-item');
+		this.create();
+	}
+
+	TimezoneSelector.prototype = {
+		create: function()
+		{
+			this.DOM.select = this.DOM.outerWrap.appendChild(BX.create('select'));
+			this.DOM.select.options.add(
+				new Option(
+					BX.message('USER_TYPE_LOADING_TIMEZONE_LIST'),
+					this.params.selectedValue || '',
+					true,
+					true)
+			);
+
+			this.getTimezoneList().then(
+				BX.delegate(function(timezoneList)
+				{
+					BX.remove(this.DOM.select.options[0]);
+					timezoneList.forEach(function(timezone)
+					{
+						var selected = this.params.selectedValue ? this.params.selectedValue === timezone.value : timezone.selected;
+
+						this.DOM.select.options.add(
+							new Option(
+								timezone.label,
+								timezone.value,
+								selected,
+								selected));
+					}, this);
+				}, this)
+			);
+		},
+
+		getTimezoneList: function(params)
+		{
+			params = params || {};
+			var promise = new BX.Promise();
+
+			if (!this.timezoneList || params.clearCache)
+			{
+				BX.ajax.runAction('calendar.api.calendarajax.getTimezoneList')
+					.then(BX.delegate(function (response)
+					{
+						this.timezoneList = [];
+						for (var key in response.data)
+						{
+							if (response.data.hasOwnProperty(key))
+							{
+								this.timezoneList.push({
+									value: response.data[key].timezone_id,
+									label: response.data[key].title,
+									selected: response.data[key].default
+								});
+							}
+						}
+						promise.fulfill(this.timezoneList);
+					}, this),
+					function (response) {
+						/**
+						 {
+						 "status": "error",
+						 "errors": [...]
+					 }
+						 **/
+					});
+			}
+			else
+			{
+				promise.fulfill(this.timezoneList);
+			}
+
+			return promise;
+		},
+
+		getValue: function()
+		{
+			return this.DOM.select.value;
+		}
+	};
+
 
 	function AdminSettingsViewer(params)
 	{
@@ -3521,6 +3605,7 @@
 				fieldSettings = BX.type.isPlainObject(this.params.settings) ? this.params.settings : {},
 				resourceList = [],
 				selectedResourceList = [];
+
 			// region Users&Resources Mode selector
 			this.DOM.innerWrap.appendChild(
 				BX.create(
@@ -3715,6 +3800,12 @@
 			});
 			//endregion
 
+			// this.timezoneSettingsWrap = this.DOM.optionWrap.appendChild(BX.create("div", {props: { className: "calendar-resourcebook-content-block-control-field calendar-resourcebook-content-block-control-field-add" }}));
+			//
+			// this.timezoneSettingsWrap
+			// 	.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-title"}}))
+			// 	.appendChild(BX.create("div", {props: {className: "calendar-resourcebook-content-block-title-text"}, text: BX.message('USER_TYPE_RESOURCE_TIMEZONE_SETTINGS_TITLE') + ':'}));
+
 			this.DOM.optionWrap.appendChild(
 				BX.create("hr", { props: { className: "calendar-resbook-hr"}})
 			);
@@ -3851,6 +3942,7 @@
 	BX.Calendar.UserField.ResourceBooking.ModeSelector = ModeSelector;
 	BX.Calendar.UserField.ResourceBooking.AdminSettingsViewer = AdminSettingsViewer;
 	BX.Calendar.UserField.ResourceBooking.plannerPopup = new PlannerPopup();
+	BX.Calendar.UserField.ResourceBooking.TimezoneSelector = TimezoneSelector;
 
 	if (!Array.prototype.find) {
 		Object.defineProperty(Array.prototype, 'find', {

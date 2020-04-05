@@ -19,8 +19,8 @@ class CBPSetFieldActivity
 
 	public function Execute()
 	{
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
+		$documentId = $this->GetDocumentId();
+		$documentType = $this->GetDocumentType();
 
 		$fieldValue = $this->FieldValue;
 
@@ -36,24 +36,31 @@ class CBPSetFieldActivity
 			return CBPActivityExecutionStatus::Executing;
 		}
 
-		$documentFields = $documentService->GetDocumentFields($documentService->GetDocumentType($documentId));
+		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-		if ($documentFieldsAliasesMap)
+
+		$resultFields = [];
+		foreach ($fieldValue as $key => $value)
 		{
-			$fixedFields = array();
-			foreach ($fieldValue as $key => $value)
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
 			{
-				if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
-				{
-					$fixedFields[$documentFieldsAliasesMap[$key]] = $value;
-					continue;
-				}
-				$fixedFields[$key] = $value;
+				$key = $documentFieldsAliasesMap[$key];
 			}
-			$fieldValue = $fixedFields;
+
+			if (($property = $documentFields[$key]) && $value)
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($documentId);
+					$value = $fieldTypeObject->externalizeValue('Document', $value);
+				}
+			}
+
+			$resultFields[$key] = $value;
 		}
 
-		$documentService->UpdateDocument($documentId, $fieldValue, $this->ModifiedBy);
+		$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -303,5 +310,18 @@ class CBPSetFieldActivity
 		$currentActivity["Properties"] = $properties;
 
 		return true;
+	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		if (is_array($this->arProperties["FieldValue"]))
+		{
+			foreach (array_keys($this->arProperties["FieldValue"]) as $v)
+			{
+				$usages[] = $this->getObjectSourceType('Document', $v);
+			}
+		}
+		return $usages;
 	}
 }

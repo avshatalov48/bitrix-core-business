@@ -1,7 +1,6 @@
 <?
 use \Bitrix\Main\Localization\Loc;
 
-Loc::loadLanguageFile(__FILE__);
 if ($APPLICATION->GetGroupRight("translate") <= 'D')
 {
 	return false;
@@ -12,7 +11,7 @@ $aMenu = array(
 	"section" => "translate",
 	"sort" => 500,
 	"text" => Loc::getMessage("TRANS_TRANSLATE"),
-	"title" => Loc::getMessage("TRANS_TRANSLATE"),
+	"title" => Loc::getMessage("TRANS_INTERFACE"),
 	"icon" => "translate_menu_icon",
 	"page_icon" => "translate_page_icon",
 	"items_id" => "menu_translate",
@@ -29,7 +28,7 @@ $aMenu['items'][] = array(
 		"translate_show_php.php",
 		"translate_check_files.php"
 	),
-	"title" => Loc::getMessage("TRANS_BROWS_FILES")
+	"title" => Loc::getMessage("TRANS_INTERFACE_ALT")
 );
 
 $aMenu['items'][] = array(

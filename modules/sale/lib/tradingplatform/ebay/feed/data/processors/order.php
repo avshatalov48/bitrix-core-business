@@ -6,14 +6,13 @@ use Bitrix\Catalog;
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\SystemException;
 use \Bitrix\Main\ArgumentNullException;
+use Bitrix\Sale;
 use Bitrix\Sale\Fuser;
 use Bitrix\Sale\Internals\SiteCurrencyTable;
-use Bitrix\Sale\Provider;
 use Bitrix\Sale\TradeBindingCollection;
 use Bitrix\Sale\TradeBindingEntity;
 use \Bitrix\Sale\TradingPlatform\Logger;
 use \Bitrix\Sale\TradingPlatform\Ebay\Ebay;
-use \Bitrix\Sale\TradingPlatform\OrderTable;
 use Bitrix\Sale\TradingPlatform\Xml2Array;
 
 Loc::loadMessages(__FILE__);
@@ -157,11 +156,6 @@ class Order extends DataProcessor
 
 		$propsMap = $settings[$this->siteId]["ORDER_PROPS"];
 
-		/*
-		if(strtolower(SITE_CHARSET) != 'utf-8')
-			$orderEbay = \Bitrix\Main\Text\Encoding::convertEncodingArray($orderEbay, 'UTF-8', SITE_CHARSET);
-		*/
-
 		$dbRes = TradeBindingCollection::getList(array(
 			"filter" => array(
 				"TRADING_PLATFORM_ID" => $ebay->getId(),
@@ -185,8 +179,12 @@ class Order extends DataProcessor
 			return array();
 		}
 
+		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\Order $orderClass */
+		$orderClass = $registry->getOrderClassName();
+
 		/** @var \Bitrix\Sale\Order $order */
-		$order = \Bitrix\Sale\Order::create($this->siteId);
+		$order = $orderClass::create($this->siteId);
 		$order->setPersonTypeId($settings[$this->siteId]["PERSON_TYPE"]);
 		$propsCollection = $order->getPropertyCollection();
 
@@ -266,7 +264,8 @@ class Order extends DataProcessor
 			/** @var \Bitrix\Sale\Basket $basket */
 			if(!$basket)
 			{
-				$basket = \Bitrix\Sale\Basket::create($this->siteId);
+				$basketClass = $registry->getBasketClassName();
+				$basket = $basketClass::create($this->siteId);
 				$basket->setFUserId($fUserId);
 			}
 

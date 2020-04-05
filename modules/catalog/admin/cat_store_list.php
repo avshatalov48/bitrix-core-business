@@ -1,4 +1,5 @@
 <?
+/** @global CUserTypeManager $USER_FIELD_MANAGER */
 use Bitrix\Main,
 	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
@@ -10,6 +11,11 @@ global $APPLICATION;
 global $DB;
 global $USER;
 global $USER_FIELD_MANAGER;
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -67,7 +73,7 @@ function getSiteTitle($siteId)
 $sTableID = "b_catalog_store";
 $entityId = Catalog\StoreTable::getUfId();
 
-$oSort = new CAdminSorting($sTableID, "SORT", "ASC");
+$oSort = new CAdminUiSorting($sTableID, "SORT", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $listSite = array();
@@ -175,6 +181,7 @@ if($lAdmin->EditAction() && !$bReadOnly)
 			$arFields['GPS_N'] = str_replace(',', '.', $arFields['GPS_N']);
 		if (isset($arFields['GPS_S']))
 			$arFields['GPS_S'] = str_replace(',', '.', $arFields['GPS_S']);
+		$USER_FIELD_MANAGER->AdminListPrepareFields($entityId, $arFields);
 
 		$DB->StartTransaction();
 		if(!CCatalogStore::Update($ID, $arFields))
@@ -475,9 +482,10 @@ while ($arRes = $dbResultList->Fetch())
 			$arUserID[$arRes['MODIFIED_BY']] = true;
 	}
 
-	$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID'], $arRes, "cat_store_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID);
 	$editUrl = $selfFolderUrl."cat_store_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID;
 	$editUrl = $adminSidePanelHelper->editUrlToPublicPage($editUrl);
+	$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID'], $arRes, $editUrl);
+	$USER_FIELD_MANAGER->AddUserFields($entityId, $arRes, $row);
 	$row->AddField("ID", "<a href=\"".$editUrl."\">".$arRes['ID']."</a>");
 	if($bReadOnly)
 	{

@@ -58,7 +58,6 @@
 				}
 			}));
 
-
 			return BX.create('div', {
 				attrs: {
 					className: 'analytic-board-configuration-popup-container'
@@ -98,7 +97,10 @@
 			{
 				BX.Report.Dashboard.BoardRepository.destroyBoards();
 			}
-
+			if (BX.VisualConstructor && BX.VisualConstructor.BoardRepository)
+			{
+				BX.VisualConstructor.BoardRepository.destroyBoards();
+			}
 		},
 		changePageControls: function(controlsContent)
 		{

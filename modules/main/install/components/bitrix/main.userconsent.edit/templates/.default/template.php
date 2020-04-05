@@ -19,7 +19,7 @@ if ($arResult['IS_SAVED'])
 	?>
 	<script type="text/javascript">
 		(function () {
-			if (window.top == window)
+			if (window.top === window)
 			{
 				return;
 			}

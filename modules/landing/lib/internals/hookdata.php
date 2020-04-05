@@ -47,6 +47,10 @@ class HookDataTable extends Entity\DataManager
 			)),
 			'VALUE' => new Entity\StringField('VALUE', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VALUE')
+			)),
+			'PUBLIC' => new Entity\StringField('PUBLIC', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PUBLIC'),
+				'default_value' => 'N'
 			))
 		);
 	}

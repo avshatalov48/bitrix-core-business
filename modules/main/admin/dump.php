@@ -136,7 +136,6 @@ elseif($_REQUEST['process'] == "Y")
 			COption::SetOptionInt("main", "dump_base_skip_stat", 0);
 			COption::SetOptionInt("main", "dump_base_skip_search", 0);
 			COption::SetOptionInt("main", "dump_base_skip_log", 0);
-			COption::SetOptionInt("main", "skip_symlinks", 0);
 
 			if ($arAllBucket)
 			{
@@ -151,7 +150,6 @@ elseif($_REQUEST['process'] == "Y")
 		}
 		else
 		{
-			COption::SetOptionInt("main", "skip_symlinks", $_REQUEST['skip_symlinks'] == 'Y');
 			COption::SetOptionInt("main", "dump_max_exec_time", intval($_REQUEST['dump_max_exec_time']) < 5 ? 5 : $_REQUEST['dump_max_exec_time']);
 			COption::SetOptionInt("main", "dump_max_exec_time_sleep", $_REQUEST['dump_max_exec_time_sleep']);
 			$dump_archive_size_limit = intval($_REQUEST['dump_archive_size_limit']);
@@ -982,7 +980,6 @@ function CheckActiveStart()
 		start = document.fd1.dump_file_public.checked || document.fd1.dump_file_kernel.checked;
 
 		document.fd1.max_file_size.disabled = !start;
-		document.fd1.skip_symlinks.disabled = !start;
 		document.fd1.skip_mask.disabled = !start;
 
 		var mask = start && document.fd1.skip_mask.checked;
@@ -1153,9 +1150,6 @@ function DoDump()
 
 		if(document.fd1.dump_file_kernel.checked)
 			queryString+='&dump_file_kernel=Y';
-
-		if(document.fd1.skip_symlinks.checked)
-			queryString+='&skip_symlinks=Y';
 
 		if(document.fd1.skip_mask.checked)
 		{
@@ -1439,10 +1433,6 @@ if ($arAllBucket)
 		<td><?echo GetMessage("MAIN_DUMP_FILE_MAX_SIZE")?></td>
 		<td><input type="text" name="max_file_size" size="10" value="<?=IntOption("dump_max_file_size", 0)?>" <?=CBackup::CheckDumpFiles() ? '' : "disabled"?>>
 		<?echo GetMessage("MAIN_DUMP_FILE_MAX_SIZE_kb")?></td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("MAIN_DUMP_SKIP_SYMLINKS")?></td>
-		<td><input type="checkbox" name="skip_symlinks" value="Y" <?=IntOption("skip_symlinks", 0) ? "checked" : ''?>></td>
 	</tr>
 
 

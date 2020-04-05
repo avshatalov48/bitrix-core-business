@@ -12,6 +12,7 @@ return [
 		'main.polyfill.core',
 		'pull.client',
 		'ui.vue.vuex',
+		'im.const',
 	],
 	'skip_core' => true,
 ];

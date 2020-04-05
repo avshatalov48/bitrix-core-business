@@ -67,10 +67,10 @@ final class Csrf extends Base
 				$errorCustomData['csrf'] = bitrix_sessid();
 			}
 
-			$this->errorCollection[] = new Error(
+			$this->addError(new Error(
 				'Invalid csrf token',
 				self::ERROR_INVALID_CSRF, $errorCustomData
-			);
+			));
 
 			return new EventResult(EventResult::ERROR, null, null, $this);
 		}

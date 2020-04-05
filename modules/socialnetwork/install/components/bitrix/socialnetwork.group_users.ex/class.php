@@ -52,7 +52,7 @@ final class SocialnetworkGroupUsersEx extends CBitrixComponent
 				$arFilter["<=ROLE"] = \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER;
 		}
 
-		if (!$arResult["CurrentUserPerms"]["UserCanModifyGroup"])
+		if (true || !$arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 		{
 			$arFilter["USER_ACTIVE"] = "Y";
 		}

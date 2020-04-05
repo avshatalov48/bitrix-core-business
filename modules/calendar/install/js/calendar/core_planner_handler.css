@@ -15,7 +15,7 @@
 .tm-popup-event:hover .tm-popup-event-delete:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -283px; }
 .tm-popup-event-text:hover { border-bottom:1px dashed #156cb6; color: #156cb6;}
 
-.tm-popup-event-form { margin: 4px 0 0 0;}
+.tm-popup-event-form { margin: 10px 0 0 0;}
 .tm-popup-event-start-time-textbox { width:31px; text-align: center;}
 .tm-popup-event-start-time-textbox_am_pm { width:48px; text-align: center;}
 .tm-popup-event-end-time-textbox { width:31px; margin: 0 10px 0 7px; text-align: center;}

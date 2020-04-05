@@ -12,6 +12,10 @@ use Bitrix\Main\UI\Extension;
  */
 class LoadExt extends Engine\Controller
 {
+	/**
+	 * Configures ajax actions
+	 * @return array
+	 */
 	public function configureActions()
 	{
 		return [
@@ -29,6 +33,8 @@ class LoadExt extends Engine\Controller
 	/**
 	 * @param array $extension
 	 * @return array
+	 * @throws \Bitrix\Main\IO\FileNotFoundException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public function getExtensionsAction($extension = [])
 	{
@@ -39,8 +45,9 @@ class LoadExt extends Engine\Controller
 			foreach ($extension as $key => $item)
 			{
 				$result[] = [
-					"extension" => $item,
-					"html" => Extension::getHtml($item)
+					'extension' => $item,
+					'config' => Extension::getBundleConfig($item),
+					'html' => Extension::getHtml($item),
 				];
 			}
 		}

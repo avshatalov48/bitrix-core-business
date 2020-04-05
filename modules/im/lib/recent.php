@@ -1,7 +1,10 @@
 <?php
 namespace Bitrix\Im;
 
-use Bitrix\Main\Application;
+use Bitrix\Main\Application,
+	Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 class Recent
 {
@@ -15,6 +18,16 @@ class Recent
 			return false;
 		}
 
+		$cacheEnabled = true;
+		if ($options['LAST_UPDATE'] instanceof \Bitrix\Main\Type\DateTime)
+		{
+			$cacheEnabled = false;
+		}
+		else
+		{
+			unset($options['LAST_UPDATE']);
+		}
+
 		$result = Array();
 		$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
 
@@ -22,9 +35,13 @@ class Recent
 		$cacheId = 'im_recent_d7_v4_'.$userId.'_'.$colorEnabled.'_'.($isOperator? 1: 0);
 		$cachePath = '/bx/imc/recent'.\Bitrix\Im\Common::getCacheUserPostfix($userId);
 
-		$cache = \Bitrix\Main\Application::getInstance()->getCache();
-		$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
-		if($cache->initCache(self::CACHE_TOKEN_TTL, $cacheId, $cachePath))
+		if ($cacheEnabled)
+		{
+			$cache = \Bitrix\Main\Application::getInstance()->getCache();
+			$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
+		}
+
+		if($cacheEnabled && $cache->initCache(self::CACHE_TOKEN_TTL, $cacheId, $cachePath))
 		{
 			$result = $cache->getVars();
 		}
@@ -39,6 +56,7 @@ class Recent
 				'MESSAGE_AUTHOR_ID' => 'MESSAGE.AUTHOR_ID',
 				'MESSAGE_TEXT' => 'MESSAGE.MESSAGE',
 				'MESSAGE_FILE' => 'FILE.ID',
+				'MESSAGE_DATE' => 'MESSAGE.DATE_CREATE',
 				'MESSAGE_ATTACH' => 'ATTACH.ID',
 				'RELATION_USER_ID' => 'RELATION.USER_ID',
 				'RELATION_NOTIFY_BLOCK' => 'RELATION.NOTIFY_BLOCK',
@@ -87,9 +105,20 @@ class Recent
 				);
 			}
 
+			$filter = Array('=USER_ID' => $userId);
+
+			if ($options['LAST_UPDATE'])
+			{
+				$filter['>=DATE_UPDATE'] = $options['LAST_UPDATE'];
+			}
+			else
+			{
+				$filter['>=DATE_UPDATE'] = (new \Bitrix\Main\Type\DateTime())->add('-30 days');
+			}
+
 			$orm = \Bitrix\Im\Model\RecentTable::getList(Array(
 				'select' => $select,
-				'filter' => Array('=USER_ID' => $userId),
+				'filter' => $filter,
 				'runtime' => $runtime,
 			));
 			while ($row = $orm->fetch())
@@ -118,7 +147,7 @@ class Recent
 						'FILE' => $row['MESSAGE_FILE'] > 0? true: false,
 						'AUTHOR_ID' =>  (int)$row['MESSAGE_AUTHOR_ID'],
 						'ATTACH' => $row['MESSAGE_ATTACH'] > 0? true: false,
-						'DATE' => $row['DATE_UPDATE'],
+						'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
 						'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
 					),
 					'COUNTER' => (int)$row['COUNTER'],
@@ -185,12 +214,15 @@ class Recent
 				$result[$id] = $item;
 			}
 
-			$taggedCache->startTagCache($cachePath);
-			$taggedCache->registerTag("USER_NAME");
-			$taggedCache->endTagCache();
+			if ($cacheEnabled)
+			{
+				$taggedCache->startTagCache($cachePath);
+				$taggedCache->registerTag("USER_NAME");
+				$taggedCache->endTagCache();
 
-			$cache->startDataCache();
-			$cache->endDataCache($result);
+				$cache->startDataCache();
+				$cache->endDataCache($result);
+			}
 		}
 
 		foreach ($result as $id => $item)
@@ -375,7 +407,10 @@ class Recent
 			'USER_ID' => $element['USER_ID'],
 			'ITEM_TYPE' => $element['ITEM_TYPE'],
 			'ITEM_ID' => $element['ITEM_ID'],
-		), array('PINNED' => $pin));
+		), array(
+			'PINNED' => $pin,
+			'DATE_UPDATE' => new \Bitrix\Main\Type\DateTime()
+		));
 
 		self::clearCache($element['USER_ID']);
 
@@ -400,6 +435,89 @@ class Recent
 	public static function hide($dialogId, $userId = null)
 	{
 		return \CIMContactList::DialogHide($dialogId, $userId);
+	}
+
+	/**
+	 * @param $dialogId
+	 * @param null $userId
+	 *
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function show($dialogId, $userId = null)
+	{
+		$result = false;
+		$userId = Common::getUserId($userId);
+
+		if ($userId)
+		{
+			$relation = Chat::makeRelationShow($dialogId, $userId);
+
+			if (!empty($relation['ID']))
+			{
+				$recent = Array(
+					'ENTITY_ID' => $dialogId,
+					'MESSAGE_ID' => $relation['UNREAD_ID'],
+					'CHAT_TYPE' => $relation['MESSAGE_TYPE'],
+					'USER_ID' => $userId,
+					'CHAT_ID' => $dialogId,
+					'RELATION_ID' => $relation['ID']
+				);
+
+				if ($relation['PARAMS']['SESSION_ID'])
+				{
+					$recent['SESSION_ID'] = $relation['PARAMS']['SESSION_ID'];
+				}
+
+				$result = \CIMContactList::SetRecent($recent);
+
+				$pullInclude = \Bitrix\Main\Loader::includeModule("pull");
+
+				if ($pullInclude)
+				{
+					$chat = \CIMChat::GetChatData(
+						array(
+							'ID' =>$dialogId,
+							'USE_CACHE' => 'N',
+						)
+					);
+
+					$imMessage = new \CIMMessage($userId);
+					$message = $imMessage->GetMessage($relation['LAST_ID']);
+
+					if (!empty($chat))
+					{
+						$pullParams = Array(
+							'module_id' => 'im',
+							'command' => 'chatShow',
+							'params' => \CIMMessage::GetFormatMessage(
+								Array(
+									 'ID' => $relation['LAST_ID'],
+									 'CHAT_ID' => $dialogId,
+									 'TO_CHAT_ID' => $dialogId,
+									 'FROM_USER_ID' => $message['AUTHOR_ID'],
+									 'SYSTEM' => 'Y',
+									 'MESSAGE' => $message['MESSAGE'],
+									 'DATE_CREATE' => time(),
+									 //'PARAMS' => self::PrepareParamsForPull($arFields['PARAMS']),
+									 //'FILES' => $arFields['FILES'],
+									 'NOTIFY' => true,
+									 'COUNTER' => 1
+								 )
+							),
+							'extra' => \Bitrix\Im\Common::getPullExtra()
+						);
+						$result = \Bitrix\Pull\Event::add($userId, $pullParams);
+					}
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	public static function clearCache($userId = null)

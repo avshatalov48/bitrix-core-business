@@ -37,8 +37,7 @@
 			BX.bind(this.box, 'click', BX.proxy(this.vote, this));
 
 			this.countText = BX('bx-ilike-count-' + this.likeId);
-			if (window.app.enableInVersion(2))
-				BX.bind(this.countText, 'click', BX.proxy(this.list, this));
+			BX.bind(this.countText, 'click', BX.proxy(this.list, this));
 
 			return true;
 		},

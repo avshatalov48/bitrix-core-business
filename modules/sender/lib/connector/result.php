@@ -131,7 +131,7 @@ class Result
 			$result = $this->resourceCDBResult->Fetch();
 		}
 
-		return ($result && count($result) > 0) ? $result : null;
+		return (is_array($result) && count($result) > 0) ? $result : null;
 	}
 
 	/**

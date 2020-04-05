@@ -10,7 +10,8 @@
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
-import {InsertType} from 'im.const';
+import {FileStatus, FileType, MutationType} from 'im.const';
+import {Utils} from "im.utils";
 
 class FilesModel extends VuexBuilderModel
 {
@@ -22,49 +23,66 @@ class FilesModel extends VuexBuilderModel
 	getState()
 	{
 		return {
-			host: this.getVariable('host', location.protocol+'//'+location.host),
 			created: 0,
+			host: this.getVariable('host', location.protocol+'//'+location.host),
 			collection: {},
 			index: {},
 		}
 	}
 
-	getElementState()
+	getElementState(params = {})
 	{
+		let {
+			id = 0,
+			chatId = 0,
+			name = this.getVariable('default.name', ''),
+		} = params;
+
 		return {
-			id: 0,
-			templateId: 0,
-			chatId: 0,
+			id,
+			chatId,
+			name,
+			templateId: id,
 			date: new Date(),
 			type: 'file',
-			name: "",
 			extension: "",
 			icon: "empty",
 			size: 0,
 			image: false,
-			status: 'done',
+			status: FileStatus.done,
 			progress: 100,
 			authorId: 0,
 			authorName: "",
 			urlPreview: "",
 			urlShow: "",
 			urlDownload: "",
+			init: false
 		};
 	}
 
 	getGetters()
 	{
 		return {
-			get: state => chatId =>
+			get: state => (chatId, fileId, getTemporary = false) =>
 			{
-				if (!state.collection[chatId])
+				if (!chatId || !fileId)
 				{
 					return null;
 				}
 
-				return state.collection[chatId];
+				if (!state.index[chatId] || !state.index[chatId][fileId])
+				{
+					return null;
+				}
+
+				if (!getTemporary && !state.index[chatId][fileId].init)
+				{
+					return null;
+				}
+
+				return state.index[chatId][fileId];
 			},
-			getObject: state => chatId =>
+			getList: state => chatId =>
 			{
 				if (!state.index[chatId])
 				{
@@ -75,7 +93,7 @@ class FilesModel extends VuexBuilderModel
 			},
 			getBlank: state => params =>
 			{
-				return this.getElementState();
+				return this.getElementState(params);
 			}
 		}
 	}
@@ -83,6 +101,17 @@ class FilesModel extends VuexBuilderModel
 	getActions()
 	{
 		return {
+			add: (store, payload) =>
+			{
+				let result = this.validate(Object.assign({}, payload), {host: store.state.host});
+				result.id = 'temporary' + (new Date).getTime() + store.state.created;
+				result.templateId = result.id;
+				result.init = true;
+
+				store.commit('add', Object.assign({}, this.getElementState(), result));
+
+				return result.id;
+			},
 			set: (store, payload) =>
 			{
 				if (payload instanceof Array)
@@ -90,7 +119,7 @@ class FilesModel extends VuexBuilderModel
 					payload = payload.map(file => {
 						let result = this.validate(Object.assign({}, file), {host: store.state.host});
 						result.templateId = result.id;
-						return Object.assign({}, this.getElementState(), result);
+						return Object.assign({}, this.getElementState(), result, {init: true});
 					});
 				}
 				else
@@ -99,12 +128,12 @@ class FilesModel extends VuexBuilderModel
 					result.templateId = result.id;
 					payload = [];
 					payload.push(
-						Object.assign({}, this.getElementState(), result)
+						Object.assign({}, this.getElementState(), result, {init: true})
 					);
 				}
 
 				store.commit('set', {
-					insertType : InsertType.after,
+					insertType : MutationType.setAfter,
 					data : payload
 				});
 			},
@@ -112,10 +141,10 @@ class FilesModel extends VuexBuilderModel
 			{
 				if (payload instanceof Array)
 				{
-					payload = payload.map(message => {
-						let result = this.validate(Object.assign({}, message), {host: store.state.host});
+					payload = payload.map(file => {
+						let result = this.validate(Object.assign({}, file), {host: store.state.host});
 						result.templateId = result.id;
-						return Object.assign({}, this.getElementState(), result);
+						return Object.assign({}, this.getElementState(), result, {init: true});
 					});
 				}
 				else
@@ -124,13 +153,13 @@ class FilesModel extends VuexBuilderModel
 					result.templateId = result.id;
 					payload = [];
 					payload.push(
-						Object.assign({}, this.getElementState(), result)
+						Object.assign({}, this.getElementState(), result, {init: true})
 					);
 				}
 
 				store.commit('set', {
 					actionName: 'setBefore',
-					insertType : InsertType.before,
+					insertType : MutationType.setBefore,
 					data : payload
 				});
 			},
@@ -138,13 +167,9 @@ class FilesModel extends VuexBuilderModel
 			{
 				let result = this.validate(Object.assign({}, payload.fields), {host: store.state.host});
 
-				if (typeof store.state.collection[payload.chatId] === 'undefined')
-				{
-					Vue.set(store.state.collection, payload.chatId, []);
-					Vue.set(store.state.index, payload.chatId, {});
-				}
+				store.commit('initCollection', {chatId: payload.chatId});
 
-				let index = store.state.collection[payload.chatId].findIndex(el => el.id == payload.id);
+				let index = store.state.collection[payload.chatId].findIndex(el => el.id === payload.id);
 				if (index < 0)
 				{
 					return false;
@@ -178,6 +203,11 @@ class FilesModel extends VuexBuilderModel
 				});
 				return true;
 			},
+			saveState: (store, payload) =>
+			{
+				store.commit('saveState', {});
+				return true;
+			},
 		}
 	}
 
@@ -186,68 +216,48 @@ class FilesModel extends VuexBuilderModel
 		return {
 			initCollection: (state, payload) =>
 			{
-				if (typeof state.collection[payload.chatId] === 'undefined')
-				{
-					Vue.set(state.collection, payload.chatId, []);
-					Vue.set(state.index, payload.chatId, {});
-				}
+				this.initCollection(state, payload);
+			},
+			add: (state, payload) =>
+			{
+				this.initCollection(state, payload);
+
+				state.collection[payload.chatId].push(payload);
+				state.index[payload.chatId][payload.id] = payload;
+
+				state.created += 1;
+
+				this.saveState(state);
 			},
 			set: (state, payload) =>
 			{
-				if (payload.insertType == InsertType.after)
+				for (let element of payload.data)
 				{
-					for (let element of payload.data)
+					this.initCollection(state, {chatId: element.chatId});
+
+					let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
+					if (index > -1)
 					{
-						if (typeof state.collection[element.chatId] === 'undefined')
-						{
-							Vue.set(state.collection, element.chatId, []);
-							Vue.set(state.index, element.chatId, {});
-						}
-
-						let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
-						if (index > -1)
-						{
-							state.collection[element.chatId][index] = element;
-						}
-						else
-						{
-							state.collection[element.chatId].push(element);
-						}
-
-						state.index[element.chatId][element.id] = element;
+						delete element.templateId;
+						state.collection[element.chatId][index] = Object.assign(state.collection[element.chatId][index], element);
 					}
-				}
-				else
-				{
-					for (let element of payload.data)
+					else if (payload.insertType === MutationType.setBefore)
 					{
-						if (typeof state.collection[element.chatId] === 'undefined')
-						{
-							Vue.set(state.collection, element.chatId, []);
-							Vue.set(state.index, element.chatId, {});
-						}
-
-						let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
-						if (index > -1)
-						{
-							state.collection[element.chatId][index] = element;
-						}
-						else
-						{
-							state.collection[element.chatId].unshift(element);
-						}
-
-						state.index[element.chatId][element.id] = element;
+						state.collection[element.chatId].unshift(element);
 					}
+					else
+					{
+						state.collection[element.chatId].push(element);
+					}
+
+					state.index[element.chatId][element.id] = element;
+
+					this.saveState(state);
 				}
 			},
 			update: (state, payload) =>
 			{
-				if (typeof state.collection[payload.chatId] === 'undefined')
-				{
-					Vue.set(state.collection, payload.chatId, []);
-					Vue.set(state.index, payload.chatId, {});
-				}
+				this.initCollection(state, payload);
 
 				let index = -1;
 				if (typeof payload.index !== 'undefined' && state.collection[payload.chatId][payload.index])
@@ -256,31 +266,161 @@ class FilesModel extends VuexBuilderModel
 				}
 				else
 				{
-					index = state.collection[payload.chatId].findIndex(el => el.id == payload.id);
+					index = state.collection[payload.chatId].findIndex(el => el.id === payload.id);
 				}
 
 				if (index >= 0)
 				{
+					delete payload.fields.templateId;
 					let element = Object.assign(
 						state.collection[payload.chatId][index],
 						payload.fields
 					);
 					state.collection[payload.chatId][index] = element;
 					state.index[payload.chatId][element.id] = element;
+
+					this.saveState(state);
 				}
 			},
 			delete: (state, payload) =>
 			{
-				if (typeof state.collection[payload.chatId] === 'undefined')
-				{
-					Vue.set(state.collection, payload.chatId, []);
-					Vue.set(state.index, payload.chatId, {});
-				}
+				this.initCollection(state, payload);
 
-				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => element.id != payload.id);
+				state.collection[payload.chatId] = state.collection[payload.chatId].filter(element => element.id !== payload.id);
 				delete state.index[payload.chatId][payload.id];
+
+				this.saveState(state);
+			},
+			saveState: (state, payload) =>
+			{
+				this.saveState(state);
 			},
 		}
+	}
+
+	initCollection(state, payload)
+	{
+		if (typeof state.collection[payload.chatId] !== 'undefined')
+		{
+			return true;
+		}
+
+		Vue.set(state.collection, payload.chatId, []);
+		Vue.set(state.index, payload.chatId, {});
+
+		return true;
+	}
+
+	getLoadedState(state)
+	{
+		if (!state || typeof state !== 'object')
+		{
+			return state;
+		}
+
+		if (typeof state.collection !== 'object')
+		{
+			return state;
+		}
+
+		state.index = {};
+
+		for (let chatId in state.collection)
+		{
+			if (!state.collection.hasOwnProperty(chatId))
+			{
+				continue;
+			}
+
+			state.index[chatId] = {};
+
+			state.collection[chatId]
+				.filter(file => file != null)
+				.forEach(file => {
+					state.index[chatId][file.id] = file;
+			});
+		}
+
+		return state;
+	}
+
+	getSaveFileList()
+	{
+		if (!this.db)
+		{
+			return [];
+		}
+
+		if (!this.store.getters['messages/getSaveFileList'])
+		{
+			return [];
+		}
+
+		let list = this.store.getters['messages/getSaveFileList']();
+		if (!list)
+		{
+			return [];
+		}
+
+		return list;
+	}
+
+	getSaveTimeout()
+	{
+		return 250;
+	}
+
+	saveState(state)
+	{
+		if (!this.isSaveAvailable())
+		{
+			return false;
+		}
+
+		super.saveState(() =>
+		{
+			let list = this.getSaveFileList();
+			if (!list)
+			{
+				return false;
+			}
+
+			let storedState = {
+				collection: {},
+			};
+
+			for (let chatId in list)
+			{
+				if (!list.hasOwnProperty(chatId))
+				{
+					continue;
+				}
+
+				list[chatId].forEach(fileId =>
+				{
+					if (!state.index[chatId])
+					{
+						return false;
+					}
+
+					if (!state.index[chatId][fileId])
+					{
+						return false;
+					}
+
+					if (!storedState.collection[chatId])
+					{
+						storedState.collection[chatId] = [];
+					}
+
+					storedState.collection[chatId].push(
+						state.index[chatId][fileId]
+					);
+				});
+			}
+
+			return storedState;
+		});
 	}
 
 	validate(fields, options = {})
@@ -289,9 +429,36 @@ class FilesModel extends VuexBuilderModel
 
 		options.host = options.host || this.getState().host;
 
-		if (typeof fields.id === "number" || typeof fields.id === "string")
+		if (typeof fields.id === "number")
 		{
-			result.id = parseInt(fields.id);
+			result.id = fields.id;
+		}
+		else if (typeof fields.id === "string")
+		{
+			if (fields.id.startsWith('temporary'))
+			{
+				result.id = fields.id;
+			}
+			else
+			{
+				result.id = parseInt(fields.id);
+			}
+		}
+
+		if (typeof fields.templateId === "number")
+		{
+			result.templateId = fields.templateId;
+		}
+		else if (typeof fields.templateId === "string")
+		{
+			if (fields.templateId.startsWith('temporary'))
+			{
+				result.templateId = fields.templateId;
+			}
+			else
+			{
+				result.templateId = parseInt(fields.templateId);
+			}
 		}
 
 		if (typeof fields.chatId === "number" || typeof fields.chatId === "string")
@@ -299,13 +466,9 @@ class FilesModel extends VuexBuilderModel
 			result.chatId = parseInt(fields.chatId);
 		}
 
-		if (fields.date instanceof Date)
+		if (typeof fields.date !== "undefined")
 		{
-			result.date = fields.date;
-		}
-		else if (typeof fields.date === "string")
-		{
-			result.date = new Date(fields.date);
+			result.date = Utils.date.cast(fields.date);
 		}
 
 		if (typeof fields.type === "string")
@@ -325,41 +488,9 @@ class FilesModel extends VuexBuilderModel
 			{
 				result.icon = 'mov';
 			}
-			else if (result.extension === 'docx' || result.extension === 'doc')
+			else
 			{
-				result.icon = 'doc';
-			}
-			else if (result.extension === 'xlsx' || result.extension === 'xls')
-			{
-				result.icon = 'xls';
-			}
-			else if (result.extension === 'pptx' || result.extension === 'ppt')
-			{
-				result.icon = 'ppt';
-			}
-			else if (result.extension === 'rar')
-			{
-				result.icon = 'rar';
-			}
-			else if (result.extension === 'zip')
-			{
-				result.icon = 'zip';
-			}
-			else if (result.extension === 'pdf')
-			{
-				result.icon = 'pdf';
-			}
-			else if (result.extension === 'txt')
-			{
-				result.icon = 'txt';
-			}
-			else if (result.extension === 'php')
-			{
-				result.icon = 'php';
-			}
-			else if (result.extension === 'conf' || result.extension === 'ini' || result.extension === 'plist')
-			{
-				result.icon = 'set';
+				result.icon = FilesModel.getIconType(result.extension);
 			}
 		}
 
@@ -385,17 +516,22 @@ class FilesModel extends VuexBuilderModel
 				height: 0,
 			};
 
-			if (typeof fields.image.width === "number")
+			if (typeof fields.image.width === "string" || typeof fields.image.width === "number")
 			{
-				result.image.width = fields.image.width;
+				result.image.width = parseInt(fields.image.width);
 			}
-			if (typeof fields.image.height === "number")
+			if (typeof fields.image.height === "string" || typeof fields.image.height === "number")
 			{
-				result.image.height = fields.image.height;
+				result.image.height = parseInt(fields.image.height);
+			}
+
+			if (result.image.width <= 0 || result.image.height <= 0)
+			{
+				result.image = false;
 			}
 		}
 
-		if (typeof fields.status === "string")
+		if (typeof fields.status === "string" && typeof FileStatus[fields.status] !== 'undefined')
 		{
 			result.status = fields.status;
 		}
@@ -417,7 +553,12 @@ class FilesModel extends VuexBuilderModel
 
 		if (typeof fields.urlPreview === 'string')
 		{
-			if (!fields.urlPreview || fields.urlPreview.startsWith('http'))
+			if (
+				!fields.urlPreview
+				|| fields.urlPreview.startsWith('http')
+				|| fields.urlPreview.startsWith('bx')
+				|| fields.urlPreview.startsWith('file')
+			)
 			{
 				result.urlPreview = fields.urlPreview;
 			}
@@ -429,7 +570,12 @@ class FilesModel extends VuexBuilderModel
 
 		if (typeof fields.urlDownload === 'string')
 		{
-			if (!fields.urlDownload || fields.urlDownload.startsWith('http'))
+			if (
+				!fields.urlDownload
+				|| fields.urlDownload.startsWith('http')
+				|| fields.urlDownload.startsWith('bx')
+				|| fields.urlPreview.startsWith('file')
+			)
 			{
 				result.urlDownload = fields.urlDownload;
 			}
@@ -441,7 +587,12 @@ class FilesModel extends VuexBuilderModel
 
 		if (typeof fields.urlShow === 'string')
 		{
-			if (!fields.urlShow || fields.urlShow.startsWith('http'))
+			if (
+				!fields.urlShow
+				|| fields.urlShow.startsWith('http')
+				|| fields.urlShow.startsWith('bx')
+				|| fields.urlShow.startsWith('file')
+			)
 			{
 				result.urlShow = fields.urlShow;
 			}
@@ -452,6 +603,126 @@ class FilesModel extends VuexBuilderModel
 		}
 
 		return result;
+	}
+
+	static getType(type)
+	{
+		type = type.toString().toLowerCase().split('.').splice(-1)[0];
+
+		switch(type)
+		{
+			case 'png':
+			case 'jpe':
+			case 'jpg':
+			case 'jpeg':
+			case 'gif':
+			case 'heic':
+			case 'bmp':
+				return FileType.image;
+
+			case 'mp4':
+			case 'mkv':
+			case 'webm':
+			case 'mpeg':
+			case 'hevc':
+			case 'avi':
+			case '3gp':
+			case 'flv':
+			case 'm4v':
+			case 'ogg':
+			case 'wmv':
+			case 'mov':
+				return FileType.video;
+
+			case 'mp3':
+				return FileType.audio;
+		}
+
+		return FileType.file
+	}
+
+	static getIconType(extension)
+	{
+		let icon = 'empty';
+
+		switch(extension.toString())
+		{
+			case 'png':
+			case 'jpe':
+			case 'jpg':
+			case 'jpeg':
+			case 'gif':
+			case 'heic':
+			case 'bmp':
+				icon = 'img';
+				break;
+
+			case 'mp4':
+			case 'mkv':
+			case 'webm':
+			case 'mpeg':
+			case 'hevc':
+			case 'avi':
+			case '3gp':
+			case 'flv':
+			case 'm4v':
+			case 'ogg':
+			case 'wmv':
+			case 'mov':
+				icon = 'mov';
+				break;
+
+			case 'txt':
+				icon = 'txt';
+				break;
+
+			case 'doc':
+			case 'docx':
+				icon = 'doc';
+				break;
+
+			case 'xls':
+			case 'xlsx':
+				icon = 'xls';
+				break;
+
+			case 'php':
+				icon = 'php';
+				break;
+
+			case 'pdf':
+				icon = 'pdf';
+				break;
+
+			case 'ppt':
+			case 'pptx':
+				icon = 'ppt';
+				break;
+
+			case 'rar':
+				icon = 'rar';
+				break;
+
+			case 'zip':
+			case '7z':
+			case 'tar':
+			case 'gz':
+			case 'gzip':
+				icon = 'zip';
+				break;
+
+			case 'set':
+				icon = 'set';
+				break;
+
+			case 'conf':
+			case 'ini':
+			case 'plist':
+				icon = 'set';
+				break;
+		}
+
+		return icon;
 	}
 }
 

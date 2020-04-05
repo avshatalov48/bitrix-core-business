@@ -77,6 +77,7 @@ $APPLICATION->IncludeComponent(
 		"ALLOW_POST_CODE" => $arParams["BLOG_ALLOW_POST_CODE"],
 		"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 		"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
+		"VERSION" => 2
 	),
 	$this->getComponent()
 );

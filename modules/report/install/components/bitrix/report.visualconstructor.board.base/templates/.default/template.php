@@ -20,7 +20,6 @@ $APPLICATION->IncludeComponent(
 	$component,
 	array()
 );
-$rows = $arResult['ROWS'];
 ?>
 
 <?if($arResult['IS_ENABLED_STEPPER']):?>
@@ -40,10 +39,10 @@ $rows = $arResult['ROWS'];
 		new BX.VisualConstructor.BoardBase({
 			renderTo: BX('report-visualconstructor-board'),
 			boardId: <?=CUtil::PhpToJSObject($arResult['BOARD_ID'])?>,
-			rows: <?=CUtil::PhpToJSObject($rows, false, false, true)?>,
+			rows: <?=CUtil::PhpToJSObject($arResult['ROWS'], false, false, true)?>,
 			demoMode: "<?=$arResult['IS_BOARD_DEMO'];?>",
 			defaultBoard: "<?=$arResult['IS_BOARD_DEFAULT'];?>",
-			filterId: "<?=CUtil::JSEscape($arResult['FILTER']->getFilterParameters()['FILTER_ID'])?>"
+			filterId: "<?=CUtil::JSEscape($arResult['FILTER_ID'])?>"
 
 		});
 	});

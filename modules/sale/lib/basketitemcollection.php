@@ -53,18 +53,6 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 	}
 
 	/**
-	 * @return null|string
-	 * @throws NotImplementedException
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	protected function getItemEventName()
-	{
-		/** @var BasketItem $basketItemClassName */
-		$basketItemClassName = static::getItemCollectionClassName();
-		return $basketItemClassName::getEntityEventName();
-	}
-
-	/**
 	 * @return OrderBase
 	 */
 	public function getOrder()
@@ -77,7 +65,7 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 	}
 
 	/**
-	 * @return BasketItemCollection
+	 * @return BasketBase
 	 */
 	abstract public function getBasket();
 
@@ -132,7 +120,7 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 
 	/**
 	 * @param $id
-	 * @return BasketItemBase|Internals\CollectableEntity|bool|null
+	 * @return BasketItemBase|null
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
 	public function getItemById($id)
@@ -265,13 +253,5 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 		}
 
 		return $context;
-	}
-
-	/**
-	 * @throws NotImplementedException
-	 */
-	public static function getRegistryType()
-	{
-		throw new NotImplementedException();
 	}
 }

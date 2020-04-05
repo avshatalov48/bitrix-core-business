@@ -155,28 +155,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			"SETTINGS" => $_POST["SETTINGS"],
 		);
 
-		if(isset($arField["SETTINGS"]["ADD_READ_ONLY_FIELD"]) && $arField["SETTINGS"]["ADD_READ_ONLY_FIELD"] == "Y")
+		if (isset($arField["SETTINGS"]["ADD_READ_ONLY_FIELD"]) && $arField["SETTINGS"]["ADD_READ_ONLY_FIELD"] == "Y")
 		{
-			switch($arField["TYPE"])
+			switch ($arField["TYPE"])
 			{
-				case "SORT":
-					if(strlen($arField["DEFAULT_VALUE"]) <= 0)
-						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
-					break;
+				// todo Make validation for all field types common to the whole module
 				case "L":
-					if(is_array($_POST["LIST_DEF"]))
+					if (is_array($_POST["LIST_DEF"]))
 					{
 						$listDefaultValue = current($_POST["LIST_DEF"]);
-						if(empty($listDefaultValue))
+						if (empty($listDefaultValue))
 							$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 					}
 					break;
 				case "S:HTML":
-					if(empty($arField["DEFAULT_VALUE"]["TEXT"]))
+					if (empty($arField["DEFAULT_VALUE"]["TEXT"]))
 						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 					break;
 				default:
-					if(empty($arField["DEFAULT_VALUE"]))
+					if (is_string($arField["DEFAULT_VALUE"]) && strlen($arField["DEFAULT_VALUE"]) <= 0)
+						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
+					if (is_array($arField["DEFAULT_VALUE"]) && empty($arField["DEFAULT_VALUE"]))
 						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 			}
 		}
@@ -363,8 +362,8 @@ if($bVarsFromForm)
 	$data["MULTIPLE"] = $_POST["MULTIPLE"];
 	$data["CODE"] = $_POST["CODE"];
 	$data["TYPE"] = $_POST["TYPE"];
-	if (isset($_POST["ROW_COUNT"]))
-		$data["ROW_COUNT"] = $_POST["ROW_COUNT"];
+	$data["ROW_COUNT"] = (isset($_POST["ROW_COUNT"]) ? $_POST["ROW_COUNT"] : 1);
+	$data["COL_COUNT"] = (isset($_POST["COL_COUNT"]) ? $_POST["COL_COUNT"] : 30);
 	if (isset($_POST["COL_COUNT"]))
 		$data["COL_COUNT"] = $_POST["COL_COUNT"];
 

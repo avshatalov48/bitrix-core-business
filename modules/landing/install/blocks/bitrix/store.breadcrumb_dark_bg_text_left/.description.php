@@ -20,10 +20,6 @@ return array(
 			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 500),
 		),
-		'.landing-block-node-title' => array(
-			'name' => Loc::getMessage('LD_BLOCK_STORE_BREADCRUMB3_LANDINGBLOCKNODE_TITLE'),
-			'type' => 'text',
-		),
 	),
 	'style' => array(
 		'block' => array(

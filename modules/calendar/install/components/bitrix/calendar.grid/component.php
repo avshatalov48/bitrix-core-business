@@ -5,7 +5,7 @@ if (!CModule::IncludeModule("calendar"))
 
 CModule::IncludeModule("socialnetwork");
 $APPLICATION->ResetException();
-$APPLICATION->SetPageProperty("BodyClass", trim($APPLICATION->GetPageProperty("BodyClass")." no-paddings"));
+$APPLICATION->SetPageProperty("BodyClass", trim($APPLICATION->GetPageProperty("BodyClass")." no-all-paddings"));
 
 $arParams["FILTER_ID"] = "CALENDAR_GRID_FILTER_".$arParams["CALENDAR_TYPE"]."_".$arParams["OWNER_ID"]."_".CCalendar::GetCurUserId();
 

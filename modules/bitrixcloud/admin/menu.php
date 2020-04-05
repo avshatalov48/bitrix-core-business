@@ -12,10 +12,7 @@ $menu = array(
 	"items" => array(),
 );
 
-if (
-	$USER->CanDoOperation("bitrixcloud_cdn")
-	&& !IsModuleInstalled('intranet')
-)
+if ($USER->CanDoOperation("bitrixcloud_cdn"))
 {
 	$menu["items"][] = array(
 		"text" => GetMessage("BCL_MENU_CONTROL_ITEM"),

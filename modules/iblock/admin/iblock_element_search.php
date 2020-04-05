@@ -159,10 +159,8 @@ $dbrFProps = CIBlockProperty::GetList(
 $arProps = array();
 while($arFProps = $dbrFProps->GetNext())
 {
-	if(strlen($arFProps["USER_TYPE"])>0)
-		$arFProps["PROPERTY_USER_TYPE"] = CIBlockProperty::GetUserType($arFProps["USER_TYPE"]);
-	else
-		$arFProps["PROPERTY_USER_TYPE"] = array();
+	$arFProps["USER_TYPE"] = (string)$arFProps["USER_TYPE"];
+	$arFProps["PROPERTY_USER_TYPE"] = ($arFProps["USER_TYPE"] !== '' ? CIBlockProperty::GetUserType($arFProps["USER_TYPE"]) : array());
 
 	$arProps[] = $arFProps;
 }
@@ -432,7 +430,7 @@ while($arRes = $rsData->GetNext())
 		$row->AddViewField("LOCKED_USER_NAME", '');
 
 	$arProperties = array();
-	if(count($arSelectedProps) > 0)
+	if(!empty($arSelectedProps))
 	{
 		$rsProperties = CIBlockElement::GetProperty($IBLOCK_ID, $arRes["ID"]);
 		while($ar = $rsProperties->GetNext())
@@ -445,10 +443,7 @@ while($arRes = $rsData->GetNext())
 
 	foreach($arSelectedProps as $aProp)
 	{
-		if(strlen($aProp["USER_TYPE"])>0)
-			$arUserType = CIBlockProperty::GetUserType($aProp["USER_TYPE"]);
-		else
-			$arUserType = array();
+		$arUserType = $aProp['PROPERTY_USER_TYPE'];
 		$v = '';
 		foreach($arProperties[$aProp['ID']] as $property_value_id => $property_value)
 		{
@@ -456,7 +451,7 @@ while($arRes = $rsData->GetNext())
 			$VALUE_NAME = 'FIELDS['.$arRes["ID"].'][PROPERTY_'.$property_value['ID'].']['.$property_value['PROPERTY_VALUE_ID'].'][VALUE]';
 			$DESCR_NAME = 'FIELDS['.$arRes["ID"].'][PROPERTY_'.$property_value['ID'].']['.$property_value['PROPERTY_VALUE_ID'].'][DESCRIPTION]';
 			$res = '';
-			if(array_key_exists("GetAdminListViewHTML", $arUserType))
+			if(isset($arUserType["GetAdminListViewHTML"]))
 			{
 				$res = call_user_func_array($arUserType["GetAdminListViewHTML"],
 					array(
@@ -520,7 +515,6 @@ while($arRes = $rsData->GetNext())
 
 		if ($v != "")
 			$row->AddViewField("PROPERTY_".$aProp['ID'], $v);
-		unset($arSelectedProps[$aProp['ID']]["CACHE"]);
 	}
 
 	$row->AddActions(array(

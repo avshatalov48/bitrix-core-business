@@ -76,7 +76,7 @@ class Asset
 	private $siteTemplateID = '';
 	private $templatePath = '';
 	private $documentRoot = '';
-	private $dbType = '';
+	private $dbType = 'MYSQL';
 	private $assetCSSCnt = 0;
 	private $assetJSCnt = 0;
 
@@ -119,7 +119,6 @@ class Asset
 
 		$this->target = &$this->targetList['TEMPLATE'];
 		$this->documentRoot = Main\Loader::getDocumentRoot();
-		$this->dbType = ToUpper(\Bitrix\Main\Application::getInstance()->getConnection()->getType());
 	}
 
 	/**
@@ -691,7 +690,7 @@ class Asset
 			'#(\s*@import\s*)([\'"])([^\'"]+)(\2)#si',
 			function ($matches) use ($path)
 			{
-				return $matches[1].Asset::replaceUrlCSS($matches[3], $matches[2], addslashes($path)).")";
+				return $matches[1].Asset::replaceUrlCSS($matches[3], $matches[2], addslashes($path));
 			},
 			$content
 		);
@@ -980,7 +979,11 @@ class Asset
 	 */
 	public static function replaceUrlCss($url, $quote, $path)
 	{
-		if (strpos($url, "://") !== false || strpos($url, "data:") !== false)
+		if (
+			strpos($url, "://") !== false
+			|| strpos($url, "data:") !== false
+			|| substr($url, 0, 1) == "#"
+		)
 		{
 			return $quote.$url.$quote;
 		}
@@ -1200,6 +1203,31 @@ class Asset
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Gets asset path.
+	 * if allowed use minified assets
+	 * @param $sourcePath
+	 * @return string|null
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function getFullAssetPath($sourcePath)
+	{
+		$result = $this->getAssetPaths($sourcePath);
+
+		if (is_array($result))
+		{
+			return $result["FULL_PATH"];
+		}
+
+		if (\CMain::IsExternalLink($sourcePath))
+		{
+			return $sourcePath;
+		}
+
+		return null;
 	}
 
 	/**

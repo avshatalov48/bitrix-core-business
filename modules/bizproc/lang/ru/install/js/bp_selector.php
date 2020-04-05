@@ -35,6 +35,10 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_ADDWORKDAYS_DESCRIPTION"] = "Добавл
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKDAY_DESCRIPTION"] = "Проверяет, является ли дата рабочим днем";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_ISWORKTIME_DESCRIPTION"] = "Проверяет, является ли дата/время рабочим временем";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_STRLEN_DESCRIPTION"] = "Возвращает длину строки";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_IMPLODE_DESCRIPTION"] = "Объединяет множественные значения в строку";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_EXPLODE_DESCRIPTION"] = "Разбивает строку с помощью разделителя";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_URLENCODE_DESCRIPTION"] = "URL-кодирование строки";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_NUMBER_FORMAT_DESCRIPTION"] = "Форматирует число с разделением групп";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_TOUSERDATE_DESCRIPTION"] = "Приводит серверное время к времени пользователя";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETUSERDATEOFFSET_DESCRIPTION"] = "Возвращает смещение времени пользователя относительно сервера, в секундах";
 ?>

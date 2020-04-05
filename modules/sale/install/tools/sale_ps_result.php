@@ -1,4 +1,4 @@
-<?
+<?php
 use \Bitrix\Main\Application;
 use \Bitrix\Sale\PaySystem;
 
@@ -27,7 +27,11 @@ if (CModule::IncludeModule("sale"))
 	else
 	{
 		$debugInfo = implode("\n", $request->toArray());
-		PaySystem\Logger::addDebugInfo('Pay system not found. Request: '.$debugInfo);
+		if (empty($debugInfo))
+		{
+			$debugInfo = file_get_contents('php://input');
+		}
+		PaySystem\Logger::addDebugInfo('Pay system not found. Request: '.($debugInfo ? $debugInfo : "empty"));
 	}
 }
 

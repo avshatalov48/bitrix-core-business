@@ -728,7 +728,7 @@ BX.Sale.Admin.OrderBasket.prototype.createProductCell = function(basketCode, pro
 		tdClass = "",
 		_this = this,
 		isSetItem = (BX.type.isNotEmptyString(product.IS_SET_ITEM) && product.IS_SET_ITEM === 'Y'),
-		isProductEnabled = (BX.type.isNotEmptyString(product.CAN_BUY) && product.CAN_BUY === 'Y');
+		isProductEnabled = (BX.type.isNotEmptyString(product.IS_ENABLED) && product.IS_ENABLED === 'Y');
 
 	switch(fieldId)
 	{

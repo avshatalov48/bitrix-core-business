@@ -8,6 +8,7 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\DB\SqlQueryException;
 
 class WorkgroupTagTable extends Entity\DataManager
 {
@@ -67,12 +68,32 @@ class WorkgroupTagTable extends Entity\DataManager
 
 		foreach($params['tags'] as $tag)
 		{
-			self::add(array(
+			self::processAdd(array(
 				'GROUP_ID' => intval($params['groupId']),
 				'NAME' => toLower($tag)
 			));
 		}
 
 		return true;
+	}
+
+	protected static function processAdd(array $data)
+	{
+		try
+		{
+			self::add($data);
+		}
+		catch (SqlQueryException $exception)
+		{
+			if (!self::isDuplicateKeyError($exception))
+			{
+				throw $exception;
+			}
+		}
+	}
+
+	protected static function isDuplicateKeyError(SqlQueryException $exception)
+	{
+		return strpos($exception->getDatabaseMessage(), '(1062)') !== false;
 	}
 }

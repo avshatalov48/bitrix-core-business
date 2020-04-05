@@ -153,6 +153,7 @@
 		},
 		toggleBoard: function ()
 		{
+			BX.Report.VC.Core.abortAllRunningRequests();
 			BX.Report.VC.Core.ajaxPost('board.toggleToDefault', {
 				data: {
 					boardKey: this.boardId

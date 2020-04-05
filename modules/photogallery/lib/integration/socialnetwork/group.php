@@ -4,10 +4,17 @@
  */
 
 namespace Bitrix\Photogallery\Integration\SocialNetwork;
+use Bitrix\Main\Loader;
+
 class Group
 {
 	public static function onSocNetGroupDelete($groupId)
 	{
+		if (!Loader::includeModule('iblock'))
+		{
+			return true;
+		}
+
 		$iblockIdList = array();
 		$res = \CIBlock::getList(array(), array("ACTIVE" => "Y", "CODE"=>"group_photogallery%"));
 		while($iblock = $res->fetch())

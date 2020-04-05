@@ -10,11 +10,8 @@
 	display: none!important;
 }
 
-.bx-vote-container[data-bx-vote-form="hidden"][data-bx-vote-lamp="green"] button[data-bx-vote-button="showVoteForm"] {
+.bx-vote-container[data-bx-vote-form="hidden"][data-bx-vote-lamp="green"][data-bx-vote-option-reparticipate="Y"] button[data-bx-vote-button="showVoteForm"] {
 	display: inline-block;
-}
-.bx-vote-container[data-bx-vote-result="shown"] button[data-bx-vote-button="showResults"] {
-	display : none;
 }
 
 span[data-bx-vote-button="stopOrResume"] {
@@ -31,7 +28,10 @@ span[data-bx-vote-button="stopOrResume"] button:first-child, span[data-bx-vote-b
 }
 
 .bx-vote-container[data-bx-vote-form="hidden"] input[type='text'],
-.bx-vote-container[data-bx-vote-form="hidden"] textarea {
+.bx-vote-container[data-bx-vote-form="hidden"] textarea,
+.bx-vote-container[data-bx-vote-form="shown"] span.bx-vote-block-text-field-wrap,
+.bx-vote-container[data-bx-vote-form="hidden"] li.bx-vote-params
+{
 	display: none;
 }
 
@@ -56,6 +56,10 @@ ol.bx-vote-question-list {
 
 .bx-vote-question-list li:first-child {
 	margin-top: 0;
+}
+.bx-vote-question-list li .bx-vote-params-wrap {
+	padding: 7px 0 12px 17px;
+	border-top: 1px solid #e6eaec;
 }
 
 .bx-vote-question-title {
@@ -215,11 +219,17 @@ a.bx-vote-voted-users:hover {
 	position: absolute;
 	right: -20px;
 }
+.bx-vote-container[data-bx-vote-error="shown"] .feed-add-error {
 
-.bx-vote-block .errortext {
-	color: red !important;
 }
-
+.bx-vote-container .feed-add-error {
+	display: none;
+}
+.bx-vote-container[data-bx-vote-error="shown"] .feed-add-error {
+	display: block;
+	height: auto;
+	opacity: 1;
+}
 .bx-vote-block-input-wrap {
 	display: block;
 	margin-left: 0;
@@ -512,7 +522,8 @@ label.bx-vote-block-input-wrap-inner {
 .bx-vote-container-mobile.bx-vote-container[data-bx-vote-lamp="red"] button[data-bx-vote-button="exportXls"] {
 	display: none;
 }
-/* Group of data */
+
+/* region Group of data */
 .bx-vote-body {
 	max-height: 288px;
 	overflow-y: hidden;
@@ -610,4 +621,4 @@ input.bx-vote-checkbox[type=checkbox]:checked ~ .bx-vote-body > label.bx-vote-sw
 	-o-transform: skew(0deg, -45deg);
 	transform: skew(0deg, -45deg);
 }
-/* /Group of data */
+/* endregion /Group of data */
